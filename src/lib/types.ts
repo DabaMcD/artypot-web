@@ -1,0 +1,123 @@
+export type UserRole = 'mob' | 'summoned' | 'council';
+export type PotStatus = 'open' | 'completed' | 'approved' | 'paid_out' | 'revoked';
+export type PotType = 'direct';
+export type SummonClaimStatus = 'pending' | 'approved' | 'rejected';
+export type PotCompletionStatus = 'pending_review' | 'approved' | 'rejected';
+export type WithdrawalStatus = 'pending' | 'processing' | 'paid' | 'failed';
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: UserRole;
+  profile_picture?: string;
+  total_given?: number;
+  open_bids_count?: number;
+  cover_processing_fees?: boolean;
+  summon?: Summon;
+}
+
+export interface Summon {
+  id: number;
+  user_id?: number;
+  user?: { id: number; name: string };
+  display_name: string;
+  description?: string;
+  profile_picture?: string;
+  fan_name?: string;
+  fan_name_plural?: string;
+  youtube_handle?: string;
+  twitter_handle?: string;
+  tiktok_handle?: string;
+  instagram_handle?: string;
+  soundcloud_handle?: string;
+  bandcamp_handle?: string;
+  domain?: string;
+  wikipedia_handle?: string;
+  rating?: number;
+  projects_finished?: number;
+  projects_open?: number;
+  amount_earned?: number;
+  claimed_at?: string;
+  merged_into_summon_id?: number;
+}
+
+export interface Pot {
+  id: number;
+  title: string;
+  description?: string;
+  type: PotType;
+  status: PotStatus;
+  initiator_user_id: number;
+  initiator?: User;
+  summon_id: number;
+  summon?: Summon;
+  total_pledged: number;
+  completed_at?: string;
+  approved_at?: string;
+  revoke_deadline_at?: string;
+  paid_out_at?: string;
+  bids?: PotBid[];
+  completion?: PotCompletion;
+}
+
+export interface PotBid {
+  id: number;
+  pot_id: number;
+  user_id: number;
+  user?: Pick<User, 'id' | 'name'>;
+  amount: number;
+  revoked_at?: string;
+}
+
+export interface PotCompletion {
+  id: number;
+  pot_id: number;
+  submission_url: string;
+  submission_notes?: string;
+  status: PotCompletionStatus;
+  council_notes?: string;
+  verified_at?: string;
+}
+
+export interface SummonClaim {
+  id: number;
+  user_id: number;
+  summon_id: number;
+  summon?: Pick<Summon, 'id' | 'display_name'>;
+  status: SummonClaimStatus;
+  council_notes?: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  from: number;
+  to: number;
+  total: number;
+  current_page: number;
+  last_page: number;
+  per_page: number;
+}
+
+export interface CashBalance {
+  balance: number;
+  pending_total: number;
+  available: PaginatedResponse<AvailableCash>;
+  pending: AvailableCash[];
+}
+
+export interface AvailableCash {
+  id: number;
+  amount: number;
+  running_balance: number;
+  description: string;
+  pot?: Pick<Pot, 'id' | 'title'>;
+}
+
+export interface PaymentMethod {
+  id: string;
+  brand: string;
+  last4: string;
+  exp_month: number;
+  exp_year: number;
+}
