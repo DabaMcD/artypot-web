@@ -2,9 +2,10 @@
 
 import { useState, useEffect, use, FormEvent } from 'react';
 import Link from 'next/link';
-import { pots as potsApi } from '@/lib/api';
+import { pots as potsApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { Pot, PotBid } from '@/lib/types';
+import type { Pot, PotBid, PaymentMethod } from '@/lib/types';
+import AddCardForm from '@/components/AddCardForm';
 
 const STATUS_LABELS: Record<string, string> = {
   open: 'Open',
@@ -30,6 +31,10 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Payment method gate — null means "still loading"
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[] | null>(null);
+  const [pmLoading, setPmLoading] = useState(false);
+
   // Bid form
   const [bidAmount, setBidAmount] = useState('');
   const [bidError, setBidError] = useState('');
@@ -43,6 +48,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const [completionError, setCompletionError] = useState('');
   const [completionLoading, setCompletionLoading] = useState(false);
 
+  // Load pot
   useEffect(() => {
     potsApi
       .get(Number(id))
@@ -51,8 +57,20 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       .finally(() => setLoading(false));
   }, [id]);
 
+  // Load payment methods when the pot is open and user is logged in
+  useEffect(() => {
+    if (!user || !pot || pot.status !== 'open') return;
+    setPmLoading(true);
+    billing
+      .paymentMethods()
+      .then((res) => setPaymentMethods(res.data))
+      .catch(() => setPaymentMethods([]))
+      .finally(() => setPmLoading(false));
+  }, [user, pot?.status]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const activeBids = pot?.bids?.filter((b) => !b.revoked_at) ?? [];
   const userBid = user ? activeBids.find((b) => b.user_id === user.id) : null;
+  const hasPaymentMethod = paymentMethods !== null && paymentMethods.length > 0;
 
   const handleBid = async (e: FormEvent) => {
     e.preventDefault();
@@ -68,10 +86,12 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       const res = await potsApi.bid(Number(id), amount);
       setBidSuccess(`Pledge of $${amount.toFixed(2)} placed!`);
       setBidAmount('');
-      // Update pot total and bids
       setPot((prev) => {
         if (!prev) return prev;
-        const updatedBid: PotBid = { ...res.data, user: user ? { id: user.id, name: user.name } : undefined };
+        const updatedBid: PotBid = {
+          ...res.data,
+          user: user ? { id: user.id, name: user.name } : undefined,
+        };
         const filteredBids = (prev.bids ?? []).filter(
           (b) => b.user_id !== user?.id || b.revoked_at,
         );
@@ -124,9 +144,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         submissionUrl,
         submissionNotes || undefined,
       );
-      setPot((prev) =>
-        prev ? { ...prev, status: 'completed', completion: res.data } : prev,
-      );
+      setPot((prev) => (prev ? { ...prev, status: 'completed', completion: res.data } : prev));
       setShowCompletion(false);
     } catch (err: unknown) {
       const e = err as { message?: string };
@@ -155,9 +173,141 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
 
   const isOwner = user && pot.initiator_user_id === user.id;
   const isCreator =
-    user && pot.summon?.user_id === user.id && (user.role === 'summoned' || user.role === 'council');
+    user &&
+    pot.summon?.user_id === user.id &&
+    (user.role === 'summoned' || user.role === 'council');
   const canBid = user && pot.status === 'open';
   const canSubmitCompletion = isCreator && pot.status === 'open';
+
+  // ── Bid panel content ────────────────────────────────────────────────────
+  const renderBidPanel = () => {
+    if (!canBid) return null;
+
+    // Still checking for payment methods
+    if (pmLoading || paymentMethods === null) {
+      return (
+        <div className="bg-surface border border-border rounded-xl p-5">
+          <div className="h-4 w-32 bg-surface-2 animate-pulse rounded mb-4" />
+          <div className="h-10 bg-surface-2 animate-pulse rounded-lg mb-3" />
+          <div className="h-10 bg-surface-2 animate-pulse rounded-lg" />
+        </div>
+      );
+    }
+
+    // No payment method saved — show gate
+    if (!hasPaymentMethod) {
+      return (
+        <div className="bg-surface border border-brand/40 rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-brand text-lg">💳</span>
+            <h2 className="font-semibold text-foreground text-sm">Add a card to back this pot</h2>
+          </div>
+          <p className="text-xs text-muted mb-4 leading-relaxed">
+            You&apos;re only charged when a pot pays out — not when you pledge. Save a card now so
+            you&apos;re ready.
+          </p>
+          <AddCardForm
+            onSuccess={() => {
+              // Refresh payment methods after successful card add
+              billing.paymentMethods().then((res) => setPaymentMethods(res.data));
+            }}
+          />
+        </div>
+      );
+    }
+
+    // Has payment method — show normal bid form
+    return (
+      <div className="bg-surface border border-border rounded-xl p-5">
+        <h2 className="font-semibold text-foreground mb-4">Back this pot</h2>
+
+        {userBid ? (
+          <div className="space-y-3">
+            <div className="bg-brand/10 border border-brand/30 rounded-lg px-4 py-3 text-sm">
+              Your pledge:{' '}
+              <span className="text-brand font-semibold">
+                ${Number(userBid.amount).toFixed(2)}
+              </span>
+            </div>
+            <p className="text-xs text-muted">
+              Increase your pledge by submitting a new amount — your previous pledge will be
+              replaced.
+            </p>
+            <form onSubmit={handleBid} className="space-y-2">
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">
+                  $
+                </span>
+                <input
+                  type="number"
+                  min="1"
+                  max="999999.99"
+                  step="0.01"
+                  value={bidAmount}
+                  onChange={(e) => setBidAmount(e.target.value)}
+                  placeholder="New amount"
+                  className="w-full bg-surface-2 border border-border rounded-lg pl-7 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={bidLoading}
+                className="w-full bg-brand text-black font-semibold py-2 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50"
+              >
+                Update Pledge
+              </button>
+            </form>
+            <button
+              onClick={handleRevokeBid}
+              disabled={bidLoading}
+              className="w-full text-sm text-muted hover:text-red-400 transition-colors py-1"
+            >
+              Revoke pledge
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleBid} className="space-y-3">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">
+                $
+              </span>
+              <input
+                type="number"
+                min="1"
+                max="999999.99"
+                step="0.01"
+                value={bidAmount}
+                onChange={(e) => setBidAmount(e.target.value)}
+                placeholder="Amount"
+                className="w-full bg-surface-2 border border-border rounded-lg pl-7 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={bidLoading}
+              className="w-full bg-brand text-black font-semibold py-2.5 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50"
+            >
+              {bidLoading ? 'Placing…' : 'Pledge'}
+            </button>
+          </form>
+        )}
+
+        {bidError && <p className="text-red-400 text-xs mt-2">{bidError}</p>}
+        {bidSuccess && <p className="text-green-400 text-xs mt-2">{bidSuccess}</p>}
+
+        {/* Card on file indicator */}
+        <div className="mt-3 pt-3 border-t border-border flex items-center gap-1.5 text-xs text-muted">
+          <span>💳</span>
+          <span>
+            Charged to your saved card on the next billing cycle.{' '}
+            <Link href="/billing" className="text-brand hover:underline">
+              Manage
+            </Link>
+          </span>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
@@ -180,7 +330,10 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           {pot.summon && (
             <div>
               <span className="text-muted">For </span>
-              <Link href={`/summons/${pot.summon.id}`} className="text-creator hover:underline font-medium">
+              <Link
+                href={`/summons/${pot.summon.id}`}
+                className="text-creator hover:underline font-medium"
+              >
                 {pot.summon.display_name}
               </Link>
             </div>
@@ -194,97 +347,23 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         </div>
 
         {/* Total pledged */}
-        <div className="mt-5 pt-5 border-t border-border flex items-end gap-4">
-          <div>
-            <div className="text-brand font-bold text-3xl">
-              ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </div>
-            <div className="text-muted text-sm mt-0.5">
-              pledged by {activeBids.length} {activeBids.length === 1 ? 'backer' : 'backers'}
-            </div>
+        <div className="mt-5 pt-5 border-t border-border">
+          <div className="text-brand font-bold text-3xl">
+            ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          </div>
+          <div className="text-muted text-sm mt-0.5">
+            pledged by {activeBids.length} {activeBids.length === 1 ? 'backer' : 'backers'}
           </div>
         </div>
       </div>
 
       <div className="grid sm:grid-cols-3 gap-6">
-        {/* Bid/action panel */}
+        {/* Action panel */}
         <div className="sm:col-span-1 space-y-4">
-          {/* Bid form */}
-          {canBid && (
-            <div className="bg-surface border border-border rounded-xl p-5">
-              <h2 className="font-semibold text-foreground mb-4">Back this pot</h2>
+          {/* Payment-gated bid panel */}
+          {renderBidPanel()}
 
-              {userBid ? (
-                <div className="space-y-3">
-                  <div className="bg-brand/10 border border-brand/30 rounded-lg px-4 py-3 text-sm">
-                    Your pledge:{' '}
-                    <span className="text-brand font-semibold">
-                      ${Number(userBid.amount).toFixed(2)}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted">
-                    Increase your pledge by submitting a new amount — your previous pledge will be replaced.
-                  </p>
-                  <form onSubmit={handleBid} className="space-y-2">
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">$</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="999999.99"
-                        step="0.01"
-                        value={bidAmount}
-                        onChange={(e) => setBidAmount(e.target.value)}
-                        placeholder="New amount"
-                        className="w-full bg-surface-2 border border-border rounded-lg pl-7 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={bidLoading}
-                      className="w-full bg-brand text-black font-semibold py-2 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50"
-                    >
-                      Update Pledge
-                    </button>
-                  </form>
-                  <button
-                    onClick={handleRevokeBid}
-                    disabled={bidLoading}
-                    className="w-full text-sm text-muted hover:text-red-400 transition-colors py-1"
-                  >
-                    Revoke pledge
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleBid} className="space-y-3">
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">$</span>
-                    <input
-                      type="number"
-                      min="1"
-                      max="999999.99"
-                      step="0.01"
-                      value={bidAmount}
-                      onChange={(e) => setBidAmount(e.target.value)}
-                      placeholder="Amount"
-                      className="w-full bg-surface-2 border border-border rounded-lg pl-7 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={bidLoading}
-                    className="w-full bg-brand text-black font-semibold py-2.5 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50"
-                  >
-                    {bidLoading ? 'Placing…' : 'Pledge'}
-                  </button>
-                </form>
-              )}
-
-              {bidError && <p className="text-red-400 text-xs mt-2">{bidError}</p>}
-              {bidSuccess && <p className="text-green-400 text-xs mt-2">{bidSuccess}</p>}
-            </div>
-          )}
-
+          {/* Not logged in */}
           {!user && pot.status === 'open' && (
             <div className="bg-surface border border-border rounded-xl p-5 text-center">
               <p className="text-muted text-sm mb-3">Log in to back this pot</p>
@@ -332,9 +411,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                     className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors resize-none"
                   />
                 </div>
-                {completionError && (
-                  <p className="text-red-400 text-xs">{completionError}</p>
-                )}
+                {completionError && <p className="text-red-400 text-xs">{completionError}</p>}
                 <div className="flex gap-2">
                   <button
                     type="submit"
@@ -399,7 +476,9 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                         : 'bg-blue-900/30 text-blue-400 border-blue-800/50'
                   }`}
                 >
-                  {pot.completion.status === 'pending_review' ? 'Pending Review' : pot.completion.status}
+                  {pot.completion.status === 'pending_review'
+                    ? 'Pending Review'
+                    : pot.completion.status}
                 </span>
               </div>
               <a
@@ -415,7 +494,9 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               )}
               {pot.completion.council_notes && (
                 <div className="mt-3 pt-3 border-t border-current/20">
-                  <p className="text-xs text-muted">Council notes: {pot.completion.council_notes}</p>
+                  <p className="text-xs text-muted">
+                    Council notes: {pot.completion.council_notes}
+                  </p>
                 </div>
               )}
             </div>

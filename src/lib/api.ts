@@ -134,7 +134,7 @@ export const billing = {
   paymentMethods: () => request<{ data: PaymentMethod[] }>('/billing/payment-methods'),
 
   setupIntent: () =>
-    request<{ client_secret: string; setup_intent_id: string }>('/billing/setup-intent', {
+    request<{ data: { client_secret: string; setup_intent_id: string } }>('/billing/setup-intent', {
       method: 'POST',
     }),
 

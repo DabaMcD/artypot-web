@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { pots as potsApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { Pot, CashBalance, PaginatedResponse } from '@/lib/types';
+import type { Pot, CashBalance, PaginatedResponse, PaymentMethod } from '@/lib/types';
 import PotCard from '@/components/PotCard';
+import PaymentMethodManager from '@/components/PaymentMethodManager';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -14,6 +15,7 @@ export default function DashboardPage() {
 
   const [myPots, setMyPots] = useState<PaginatedResponse<Pot> | null>(null);
   const [cash, setCash] = useState<CashBalance | null>(null);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [potsLoading, setPotsLoading] = useState(true);
   const [cashLoading, setCashLoading] = useState(true);
 
@@ -137,6 +139,33 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Payment methods */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-foreground">Payment Methods</h2>
+          <Link href="/billing" className="text-sm text-muted hover:text-brand transition-colors">
+            Manage →
+          </Link>
+        </div>
+        {paymentMethods.length === 0 ? (
+          <div className="bg-surface border border-brand/30 rounded-xl p-5">
+            <p className="text-sm text-muted mb-3">
+              No payment methods saved. Add one to start backing pots.
+            </p>
+            <PaymentMethodManager
+              onMethodsChange={setPaymentMethods}
+              compact
+            />
+          </div>
+        ) : (
+          <div className="bg-surface border border-border rounded-xl p-5">
+            <PaymentMethodManager
+              onMethodsChange={setPaymentMethods}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Recent cash transactions */}
       {cash && cash.available.data.length > 0 && (
