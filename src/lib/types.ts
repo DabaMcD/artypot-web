@@ -17,10 +17,22 @@ export interface User {
   summon?: Summon;
 }
 
+export interface SummonName {
+  id: number;
+  summon_id: number;
+  name: string;
+  added_by_user_id?: number;
+  created_at: string;
+}
+
 export interface Summon {
   id: number;
   user_id?: number;
   user?: { id: number; name: string };
+  /** Herald of an unclaimed summon (has editing rights) */
+  herald?: { id: number; name: string };
+  herald_user_id?: number;
+  herald_total_bid?: number;
   display_name: string;
   description?: string;
   profile_picture?: string;
@@ -35,11 +47,18 @@ export interface Summon {
   domain?: string;
   wikipedia_handle?: string;
   rating?: number;
-  projects_finished?: number;
+  /** Live-computed count of open pots */
   projects_open?: number;
+  /** Live-computed count of paid-out pots */
+  projects_finished?: number;
   amount_earned?: number;
+  /** Live-computed sum of total_pledged across all pots */
+  total_bid_sum?: number;
+  /** Whether the currently authenticated user can edit this summon */
+  can_edit?: boolean;
   claimed_at?: string;
   merged_into_summon_id?: number;
+  summon_names?: SummonName[];
 }
 
 export interface Pot {

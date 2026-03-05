@@ -1,6 +1,7 @@
 import type {
   User,
   Summon,
+  SummonName,
   Pot,
   PotBid,
   PotCompletion,
@@ -92,6 +93,21 @@ export const summons = {
       method: 'POST',
       body: JSON.stringify({ summon_id }),
     }),
+};
+
+// Summon Names (aliases)
+export const summonNames = {
+  list: (summonId: number) =>
+    request<{ data: SummonName[] }>(`/summons/${summonId}/names`),
+
+  create: (summonId: number, name: string) =>
+    request<{ data: SummonName }>(`/summons/${summonId}/names`, {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+    }),
+
+  delete: (summonId: number, nameId: number) =>
+    request<void>(`/summons/${summonId}/names/${nameId}`, { method: 'DELETE' }),
 };
 
 // Pots
