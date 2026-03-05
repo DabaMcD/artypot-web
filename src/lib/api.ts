@@ -71,6 +71,11 @@ export const auth = {
   logout: () => request('/auth/logout', { method: 'POST' }),
 
   me: () => request<{ data: User }>('/auth/me'),
+
+  broke: () =>
+    request<{ data: { revoked_count: number } }>('/auth/broke', { method: 'POST' }),
+
+  deleteAccount: () => request('/auth/account', { method: 'DELETE' }),
 };
 
 // Summons
@@ -89,10 +94,10 @@ export const summons = {
   update: (id: number, data: Partial<Summon>) =>
     request<{ data: Summon }>(`/summons/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
-  claim: (summon_id: number) =>
+  claim: (summon_id: number, contact_info: string) =>
     request<{ data: SummonClaim }>('/summon-claims', {
       method: 'POST',
-      body: JSON.stringify({ summon_id }),
+      body: JSON.stringify({ summon_id, contact_info }),
     }),
 };
 
