@@ -56,6 +56,8 @@ export interface Summon {
   total_bid_sum?: number;
   /** Whether the currently authenticated user can edit this summon */
   can_edit?: boolean;
+  /** The authenticated user's own 24h-aged bid total across all pots for this summon */
+  user_aged_bid_total?: number | null;
   claimed_at?: string;
   merged_into_summon_id?: number;
   summon_names?: SummonName[];

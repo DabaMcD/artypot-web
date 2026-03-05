@@ -2,23 +2,113 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { summons as summonsApi, pots as potsApi, summonNames as summonNamesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { Summon, PaginatedResponse, Pot, SummonName } from '@/lib/types';
 import PotCard from '@/components/PotCard';
 
 const SOCIAL_LINKS: { key: keyof Summon; label: string; prefix: string }[] = [
-  { key: 'youtube_handle', label: 'YouTube', prefix: 'https://youtube.com/@' },
-  { key: 'twitter_handle', label: 'X / Twitter', prefix: 'https://x.com/' },
-  { key: 'tiktok_handle', label: 'TikTok', prefix: 'https://tiktok.com/@' },
-  { key: 'instagram_handle', label: 'Instagram', prefix: 'https://instagram.com/' },
+  { key: 'youtube_handle',    label: 'YouTube',    prefix: 'https://youtube.com/@' },
+  { key: 'twitter_handle',    label: 'X / Twitter', prefix: 'https://x.com/' },
+  { key: 'tiktok_handle',     label: 'TikTok',     prefix: 'https://tiktok.com/@' },
+  { key: 'instagram_handle',  label: 'Instagram',  prefix: 'https://instagram.com/' },
   { key: 'soundcloud_handle', label: 'SoundCloud', prefix: 'https://soundcloud.com/' },
-  { key: 'bandcamp_handle', label: 'Bandcamp', prefix: 'https://' },
-  { key: 'domain', label: 'Website', prefix: 'https://' },
+  { key: 'bandcamp_handle',   label: 'Bandcamp',   prefix: 'https://' },
+  { key: 'domain',            label: 'Website',    prefix: 'https://' },
 ];
 
+function fmt(n: number | null | undefined) {
+  return `$${Number(n ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+// ── Herald gate modal ─────────────────────────────────────────────────────
+function HeraldGateModal({
+  summon,
+  userName,
+  onClose,
+}: {
+  summon: Summon;
+  userName: string;
+  onClose: () => void;
+}) {
+  const heraldName    = summon.herald?.name ?? 'The current Herald';
+  const heraldTotal   = Number(summon.herald_total_bid ?? 0);
+  const userTotal     = Number(summon.user_aged_bid_total ?? 0);
+  const deficit       = Math.max(0, heraldTotal - userTotal);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="bg-surface border border-border rounded-2xl w-full max-w-md p-6 shadow-2xl">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">Herald Protected</h2>
+            <p className="text-xs text-muted mt-0.5">{summon.display_name}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-muted hover:text-foreground transition-colors text-xl leading-none mt-0.5"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Explanation */}
+        <p className="text-sm text-muted leading-relaxed mb-5">
+          <span className="text-creator font-semibold">{heraldName}</span> is the current Herald for this
+          unclaimed profile. The Herald is the top pledger who earns the right to keep this profile
+          up to date. To take the edit seat, your total pledges (24+ hours old) must exceed theirs.
+        </p>
+
+        {/* Breakdown */}
+        <div className="bg-surface-2 border border-border rounded-xl overflow-hidden mb-5">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-creator uppercase tracking-wider">Herald</span>
+              <span className="text-sm font-medium text-foreground">{heraldName}</span>
+            </div>
+            <span className="text-sm font-bold text-brand">{fmt(heraldTotal)}</span>
+          </div>
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-muted uppercase tracking-wider">You</span>
+              <span className="text-sm font-medium text-foreground">{userName}</span>
+            </div>
+            <span className={`text-sm font-bold ${userTotal > 0 ? 'text-foreground' : 'text-muted'}`}>
+              {fmt(userTotal)}
+              <span className="text-xs text-muted font-normal ml-1">(24h+)</span>
+            </span>
+          </div>
+        </div>
+
+        {deficit > 0 && (
+          <p className="text-xs text-muted text-center mb-5">
+            You need{' '}
+            <span className="text-foreground font-semibold">{fmt(deficit)} more</span>
+            {' '}in pledges aged over 24 hours to take the Herald seat.
+          </p>
+        )}
+
+        <Link
+          href={`/pots?summon_id=${summon.id}`}
+          onClick={onClose}
+          className="block w-full text-center bg-brand text-black font-semibold text-sm py-2.5 rounded-lg hover:opacity-90 transition-opacity"
+        >
+          View pots to pledge on →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────
 export default function SummonProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
   const { user } = useAuth();
 
   const [summon, setSummon] = useState<Summon | null>(null);
@@ -26,6 +116,7 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
   const [names, setNames] = useState<SummonName[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showHeraldModal, setShowHeraldModal] = useState(false);
 
   // Claim state
   const [claiming, setClaiming] = useState(false);
@@ -54,6 +145,15 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
       .catch(() => setError('Failed to load creator profile.'))
       .finally(() => setLoading(false));
   }, [id]);
+
+  const handleEditClick = () => {
+    if (!summon) return;
+    if (summon.can_edit) {
+      router.push(`/summons/${id}/edit`);
+    } else {
+      setShowHeraldModal(true);
+    }
+  };
 
   const handleClaim = async () => {
     if (!summon) return;
@@ -120,276 +220,250 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
   }
 
   const isClaimed = !!summon.claimed_at;
-  const canClaim = user && !isClaimed && user.role !== 'council' && !user.summon;
-  const canEdit = summon.can_edit;
-
-  const isOwner = user && summon.user_id === user.id;
-  const isHerald = user && summon.herald_user_id === user.id;
-  const canDeleteAlias = (n: SummonName) =>
-    user && (isOwner || isHerald || user.role === 'council');
-
+  const canClaim  = user && !isClaimed && user.role !== 'council' && !user.summon;
+  const isOwner   = user && summon.user_id === user.id;
+  const isHerald  = user && summon.herald_user_id === user.id;
+  const canDeleteAlias = () => !!(user && (isOwner || isHerald || user.role === 'council'));
   const socialLinks = SOCIAL_LINKS.filter(({ key }) => summon[key]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
-      {/* Main 2-col layout */}
-      <div className="flex flex-col lg:flex-row gap-8">
+    <>
+      {showHeraldModal && user && (
+        <HeraldGateModal
+          summon={summon}
+          userName={user.name}
+          onClose={() => setShowHeraldModal(false)}
+        />
+      )}
 
-        {/* ── Left / Main column ─────────────────────────────────────────── */}
-        <div className="flex-1 min-w-0">
+      <div className="max-w-6xl mx-auto px-4 py-10">
+        <div className="flex flex-col lg:flex-row gap-8">
 
-          {/* Profile header */}
-          <div className="bg-surface border border-border rounded-xl p-6 mb-8">
-            <div className="flex items-start gap-5">
-              {/* Avatar / Profile picture */}
-              {summon.profile_picture ? (
-                <img
-                  src={summon.profile_picture}
-                  alt={summon.display_name}
-                  className="w-16 h-16 rounded-full object-cover shrink-0"
-                />
-              ) : (
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold shrink-0"
-                  style={{ background: '#47DFD3', color: '#0a0a0a' }}
-                >
-                  {summon.display_name.charAt(0).toUpperCase()}
-                </div>
-              )}
+          {/* ── Main column ──────────────────────────────────────────────── */}
+          <div className="flex-1 min-w-0">
+            <div className="bg-surface border border-border rounded-xl p-6 mb-8">
+              <div className="flex items-start gap-5">
+                {/* Avatar */}
+                {summon.profile_picture ? (
+                  <img
+                    src={summon.profile_picture}
+                    alt={summon.display_name}
+                    className="w-16 h-16 rounded-full object-cover shrink-0"
+                  />
+                ) : (
+                  <div
+                    className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold shrink-0"
+                    style={{ background: '#47DFD3', color: '#0a0a0a' }}
+                  >
+                    {summon.display_name.charAt(0).toUpperCase()}
+                  </div>
+                )}
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 flex-wrap mb-1">
-                  <h1 className="text-2xl font-bold text-foreground">{summon.display_name}</h1>
-                  {isClaimed ? (
-                    <span className="text-xs font-medium bg-creator/10 text-creator border border-creator/30 px-2 py-0.5 rounded-full">
-                      Verified Creator
-                    </span>
-                  ) : (
-                    <span className="text-xs font-medium bg-surface-2 text-muted border border-border px-2 py-0.5 rounded-full">
-                      Unclaimed
-                    </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 flex-wrap mb-1">
+                    <h1 className="text-2xl font-bold text-foreground">{summon.display_name}</h1>
+                    {isClaimed ? (
+                      <span className="text-xs font-medium bg-creator/10 text-creator border border-creator/30 px-2 py-0.5 rounded-full">
+                        Verified Creator
+                      </span>
+                    ) : (
+                      <span className="text-xs font-medium bg-surface-2 text-muted border border-border px-2 py-0.5 rounded-full">
+                        Unclaimed
+                      </span>
+                    )}
+                  </div>
+
+                  {summon.fan_name && (
+                    <p className="text-sm text-muted mb-2">
+                      Fans called:{' '}
+                      <span className="text-foreground">{summon.fan_name_plural ?? summon.fan_name}</span>
+                    </p>
+                  )}
+
+                  {summon.description && (
+                    <p className="text-muted text-sm leading-relaxed mt-2">{summon.description}</p>
                   )}
                 </div>
 
-                {summon.fan_name && (
-                  <p className="text-sm text-muted mb-2">
-                    Fans called:{' '}
-                    <span className="text-foreground">{summon.fan_name_plural ?? summon.fan_name}</span>
-                  </p>
-                )}
-
-                {summon.description && (
-                  <p className="text-muted text-sm leading-relaxed mt-2">{summon.description}</p>
-                )}
-
-                {/* Herald status line (unclaimed, no edit access) */}
-                {!isClaimed && !canEdit && summon.herald?.name && (
-                  <p className="text-xs text-muted mt-3 italic">
-                    <span className="text-creator font-medium">{summon.herald.name}</span> is the reigning Herald for this unanswered summon
-                  </p>
-                )}
-                {!isClaimed && !canEdit && !summon.herald?.name && user && (
-                  <p className="text-xs text-muted mt-3 italic">
-                    No Herald yet — back a pot and become the first to fill out this profile
-                  </p>
-                )}
-              </div>
-
-              {/* Action buttons */}
-              <div className="shrink-0 flex flex-col gap-2 items-end">
-                {canEdit && (
-                  <Link
-                    href={`/summons/${id}/edit`}
-                    className="bg-creator text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-                  >
-                    Edit Profile
-                  </Link>
-                )}
-                {canClaim && !claimSuccess && (
-                  <div>
+                {/* Action buttons */}
+                <div className="shrink-0 flex flex-col gap-2 items-end">
+                  {/* Edit — always shown to logged-in users on unclaimed summons */}
+                  {user && !isClaimed && (
                     <button
-                      onClick={handleClaim}
-                      disabled={claiming}
-                      className="bg-surface-2 border border-creator/40 text-creator text-sm font-semibold px-4 py-2 rounded-lg hover:border-creator transition-colors disabled:opacity-50"
+                      onClick={handleEditClick}
+                      className="bg-creator text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                     >
-                      {claiming ? 'Submitting…' : 'Claim this profile'}
+                      Edit Profile
                     </button>
-                    {claimError && <p className="text-red-400 text-xs mt-1">{claimError}</p>}
-                  </div>
-                )}
-                {claimSuccess && (
-                  <p className="text-creator text-sm">
-                    Claim submitted! The council will review it shortly.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Stats */}
-            <div className="flex flex-wrap gap-6 mt-5 pt-5 border-t border-border text-sm">
-              {summon.projects_finished != null && (
-                <div>
-                  <div className="text-foreground font-semibold text-lg">{summon.projects_finished}</div>
-                  <div className="text-muted text-xs">Completed</div>
-                </div>
-              )}
-              {summon.projects_open != null && (
-                <div>
-                  <div className="text-foreground font-semibold text-lg">{summon.projects_open}</div>
-                  <div className="text-muted text-xs">Open pots</div>
-                </div>
-              )}
-              {summon.amount_earned != null && (
-                <div>
-                  <div className="text-brand font-semibold text-lg">
-                    ${Number(summon.amount_earned).toLocaleString()}
-                  </div>
-                  <div className="text-muted text-xs">Total earned</div>
-                </div>
-              )}
-              {summon.total_bid_sum != null && (
-                <div>
-                  <div className="text-brand font-semibold text-lg">
-                    ${Number(summon.total_bid_sum).toLocaleString()}
-                  </div>
-                  <div className="text-muted text-xs">Total pledged (all pots)</div>
-                </div>
-              )}
-            </div>
-
-            {/* Social links */}
-            {socialLinks.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-4">
-                {socialLinks.map(({ key, label, prefix }) => {
-                  const handle = summon[key] as string;
-                  return (
-                    <a
-                      key={key}
-                      href={`${prefix}${handle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-muted border border-border rounded-full px-3 py-1 hover:border-creator/50 hover:text-creator transition-colors"
+                  )}
+                  {/* Edit — claimed summons, owner only */}
+                  {user && isClaimed && summon.can_edit && (
+                    <Link
+                      href={`/summons/${id}/edit`}
+                      className="bg-creator text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                     >
-                      {label}
-                    </a>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                      Edit Profile
+                    </Link>
+                  )}
 
-          {/* Pots */}
-          <div>
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-bold text-foreground">Pots for {summon.display_name}</h2>
-              {user && (
-                <Link
-                  href={`/pots/new?summon_id=${summon.id}`}
-                  className="text-sm bg-brand text-black font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-                >
-                  + New Pot
-                </Link>
+                  {canClaim && !claimSuccess && (
+                    <div>
+                      <button
+                        onClick={handleClaim}
+                        disabled={claiming}
+                        className="bg-surface-2 border border-creator/40 text-creator text-sm font-semibold px-4 py-2 rounded-lg hover:border-creator transition-colors disabled:opacity-50"
+                      >
+                        {claiming ? 'Submitting…' : 'Claim this profile'}
+                      </button>
+                      {claimError && <p className="text-red-400 text-xs mt-1">{claimError}</p>}
+                    </div>
+                  )}
+                  {claimSuccess && (
+                    <p className="text-creator text-sm">Claim submitted! The council will review it shortly.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="flex flex-wrap gap-6 mt-5 pt-5 border-t border-border text-sm">
+                {summon.projects_finished != null && (
+                  <div>
+                    <div className="text-foreground font-semibold text-lg">{summon.projects_finished}</div>
+                    <div className="text-muted text-xs">Completed</div>
+                  </div>
+                )}
+                {summon.projects_open != null && (
+                  <div>
+                    <div className="text-foreground font-semibold text-lg">{summon.projects_open}</div>
+                    <div className="text-muted text-xs">Open pots</div>
+                  </div>
+                )}
+                {summon.amount_earned != null && (
+                  <div>
+                    <div className="text-brand font-semibold text-lg">
+                      ${Number(summon.amount_earned).toLocaleString()}
+                    </div>
+                    <div className="text-muted text-xs">Total earned</div>
+                  </div>
+                )}
+                {summon.total_bid_sum != null && (
+                  <div>
+                    <div className="text-brand font-semibold text-lg">
+                      ${Number(summon.total_bid_sum).toLocaleString()}
+                    </div>
+                    <div className="text-muted text-xs">Total pledged (all pots)</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Social links */}
+              {socialLinks.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {socialLinks.map(({ key, label, prefix }) => {
+                    const handle = summon[key] as string;
+                    return (
+                      <a
+                        key={key}
+                        href={`${prefix}${handle}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-muted border border-border rounded-full px-3 py-1 hover:border-creator/50 hover:text-creator transition-colors"
+                      >
+                        {label}
+                      </a>
+                    );
+                  })}
+                </div>
               )}
             </div>
 
-            {!potsData || potsData.data.length === 0 ? (
-              <div className="text-center py-16 text-muted border border-border border-dashed rounded-xl">
-                No pots yet for this creator.{' '}
+            {/* Pots */}
+            <div>
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-xl font-bold text-foreground">Pots for {summon.display_name}</h2>
                 {user && (
-                  <Link href={`/pots/new?summon_id=${summon.id}`} className="text-brand hover:underline">
-                    Create the first one
+                  <Link
+                    href={`/pots/new?summon_id=${summon.id}`}
+                    className="text-sm bg-brand text-black font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                  >
+                    + New Pot
                   </Link>
                 )}
               </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                {potsData.data.map((pot) => (
-                  <PotCard key={pot.id} pot={pot} />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* ── Right / Sidebar ─────────────────────────────────────────────── */}
-        <div className="w-full lg:w-72 shrink-0 space-y-4">
-
-          {/* Aliases card */}
-          <div className="bg-surface border border-border rounded-xl p-4">
-            <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">
-              Also Known As
-            </h3>
-
-            {names.length === 0 ? (
-              <p className="text-xs text-muted italic">No aliases yet.</p>
-            ) : (
-              <ul className="space-y-1 mb-3">
-                {names.map((n) => (
-                  <li key={n.id} className="flex items-center justify-between gap-2 group">
-                    <span className="text-sm text-foreground truncate">{n.name}</span>
-                    {canDeleteAlias(n) && (
-                      <button
-                        onClick={() => handleDeleteAlias(n.id)}
-                        title="Remove alias"
-                        className="text-muted hover:text-red-400 transition-colors text-xs opacity-0 group-hover:opacity-100 shrink-0"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {user && (
-              <form onSubmit={handleAddAlias} className="flex gap-2 mt-2">
-                <input
-                  type="text"
-                  value={newAlias}
-                  onChange={(e) => setNewAlias(e.target.value)}
-                  placeholder="Add an alias…"
-                  maxLength={100}
-                  className="flex-1 bg-surface-2 border border-border text-foreground text-xs rounded px-2 py-1.5 focus:outline-none focus:border-creator/50 placeholder:text-muted"
-                />
-                <button
-                  type="submit"
-                  disabled={addingAlias || !newAlias.trim()}
-                  className="text-xs bg-creator text-black font-semibold px-3 py-1.5 rounded hover:opacity-90 disabled:opacity-40 transition-opacity"
-                >
-                  Add
-                </button>
-              </form>
-            )}
-            {aliasError && <p className="text-red-400 text-xs mt-1">{aliasError}</p>}
-          </div>
-
-          {/* Herald info card (unclaimed only) */}
-          {!isClaimed && (
-            <div className="bg-surface border border-border rounded-xl p-4">
-              <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">
-                Herald Status
-              </h3>
-              {summon.herald?.name ? (
-                <p className="text-sm text-foreground">
-                  <span className="text-creator font-semibold">{summon.herald.name}</span>
-                  <span className="text-muted"> is the reigning Herald</span>
-                </p>
+              {!potsData || potsData.data.length === 0 ? (
+                <div className="text-center py-16 text-muted border border-border border-dashed rounded-xl">
+                  No pots yet for this creator.{' '}
+                  {user && (
+                    <Link href={`/pots/new?summon_id=${summon.id}`} className="text-brand hover:underline">
+                      Create the first one
+                    </Link>
+                  )}
+                </div>
               ) : (
-                <p className="text-xs text-muted italic">
-                  No Herald yet. Back a pot and fill out this profile to claim Herald status.
-                </p>
+                <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {potsData.data.map((pot) => (
+                    <PotCard key={pot.id} pot={pot} />
+                  ))}
+                </div>
               )}
-              <p className="text-xs text-muted mt-2 leading-relaxed">
-                The Herald is the top pledger who keeps this profile up to date.{' '}
-                <Link href="/billing" className="text-creator hover:underline">
-                  Manage your bids
-                </Link>
-              </p>
             </div>
-          )}
+          </div>
+
+          {/* ── Sidebar ───────────────────────────────────────────────────── */}
+          <div className="w-full lg:w-72 shrink-0">
+            {/* Aliases card */}
+            <div className="bg-surface border border-border rounded-xl p-4">
+              <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">
+                Also Known As
+              </h3>
+
+              {names.length === 0 ? (
+                <p className="text-xs text-muted italic">No aliases yet.</p>
+              ) : (
+                <ul className="space-y-1 mb-3">
+                  {names.map((n) => (
+                    <li key={n.id} className="flex items-center justify-between gap-2 group">
+                      <span className="text-sm text-foreground truncate">{n.name}</span>
+                      {canDeleteAlias() && (
+                        <button
+                          onClick={() => handleDeleteAlias(n.id)}
+                          title="Remove alias"
+                          className="text-muted hover:text-red-400 transition-colors text-xs opacity-0 group-hover:opacity-100 shrink-0"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {user && (
+                <form onSubmit={handleAddAlias} className="flex gap-2 mt-2">
+                  <input
+                    type="text"
+                    value={newAlias}
+                    onChange={(e) => setNewAlias(e.target.value)}
+                    placeholder="Add an alias…"
+                    maxLength={100}
+                    className="flex-1 bg-surface-2 border border-border text-foreground text-xs rounded px-2 py-1.5 focus:outline-none focus:border-creator/50 placeholder:text-muted"
+                  />
+                  <button
+                    type="submit"
+                    disabled={addingAlias || !newAlias.trim()}
+                    className="text-xs bg-creator text-black font-semibold px-3 py-1.5 rounded hover:opacity-90 disabled:opacity-40 transition-opacity"
+                  >
+                    Add
+                  </button>
+                </form>
+              )}
+              {aliasError && <p className="text-red-400 text-xs mt-1">{aliasError}</p>}
+            </div>
+          </div>
 
         </div>
       </div>
-    </div>
+    </>
   );
 }
