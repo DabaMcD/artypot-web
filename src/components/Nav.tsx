@@ -94,6 +94,13 @@ export default function Nav() {
                     >
                       Payment Methods
                     </Link>
+                    <Link
+                      href="/settings"
+                      onClick={() => setMenuOpen(false)}
+                      className="block px-4 py-2.5 hover:bg-border transition-colors"
+                    >
+                      Settings
+                    </Link>
                     {user.role === 'council' && (
                       <Link
                         href="/admin"

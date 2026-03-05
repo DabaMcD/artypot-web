@@ -512,30 +512,50 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               <p className="text-muted text-sm">No backers yet. Be the first!</p>
             ) : (
               <div className="space-y-2">
-                {activeBids.map((bid) => (
-                  <div
-                    key={bid.id}
-                    className="flex items-center justify-between py-2 border-b border-border last:border-0"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
-                        style={{ background: '#F5A623', color: '#0a0a0a' }}
-                      >
-                        {bid.user?.name?.charAt(0).toUpperCase() ?? '?'}
+                {activeBids.map((bid) => {
+                  const isAnon = bid.user_id === 0;
+                  const displayName = isAnon ? '[anonymous]' : (bid.user?.name ?? 'Unknown');
+                  const initial = isAnon ? '?' : (bid.user?.name?.charAt(0).toUpperCase() ?? '?');
+                  const expiryDate = bid.expires_at
+                    ? new Date(bid.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                    : null;
+                  return (
+                    <div
+                      key={bid.id}
+                      className="flex items-center justify-between py-2 border-b border-border last:border-0"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                          style={{ background: '#F5A623', color: '#0a0a0a' }}
+                        >
+                          {initial}
+                        </div>
+                        <div>
+                          {isAnon ? (
+                            <span className="text-sm text-muted">{displayName}</span>
+                          ) : (
+                            <Link
+                              href={`/users/${bid.user_id}`}
+                              className="text-sm text-foreground hover:underline"
+                            >
+                              {displayName}
+                            </Link>
+                          )}
+                          {user && bid.user_id === user.id && (
+                            <span className="text-muted text-xs ml-1">(you)</span>
+                          )}
+                          {expiryDate && (
+                            <p className="text-xs text-muted">Expires {expiryDate}</p>
+                          )}
+                        </div>
                       </div>
-                      <span className="text-sm text-foreground">
-                        {bid.user?.name ?? 'Anonymous'}
-                        {user && bid.user_id === user.id && (
-                          <span className="text-muted text-xs ml-1">(you)</span>
-                        )}
+                      <span className="text-brand text-sm font-semibold">
+                        ${Number(bid.amount).toFixed(2)}
                       </span>
                     </div>
-                    <span className="text-brand text-sm font-semibold">
-                      ${Number(bid.amount).toFixed(2)}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

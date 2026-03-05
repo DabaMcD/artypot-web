@@ -1,5 +1,6 @@
 import type {
   User,
+  PublicUser,
   Summon,
   SummonName,
   Pot,
@@ -140,6 +141,18 @@ export const pots = {
     request<{ data: PotCompletion }>(`/pots/${potId}/completion`, {
       method: 'POST',
       body: JSON.stringify({ submission_url, submission_notes }),
+    }),
+};
+
+// Users
+export const users = {
+  get: (id: number) =>
+    request<{ data: PublicUser }>(`/users/${id}`),
+
+  update: (id: number, data: Partial<Pick<User, 'name' | 'profile_picture' | 'is_anonymous' | 'cover_processing_fees'>>) =>
+    request<{ data: User }>(`/users/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
     }),
 };
 

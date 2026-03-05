@@ -14,6 +14,7 @@ export interface User {
   total_given?: number;
   open_bids_count?: number;
   cover_processing_fees?: boolean;
+  is_anonymous?: boolean;
   summon?: Summon;
 }
 
@@ -89,6 +90,26 @@ export interface PotBid {
   user?: Pick<User, 'id' | 'name'>;
   amount: number;
   revoked_at?: string;
+  revoke_reason?: string;
+  expires_at?: string;
+}
+
+export interface PublicUserBid {
+  id: number;
+  pot_id: number;
+  pot?: Pick<Pot, 'id' | 'title'>;
+  amount: number;
+  expires_at?: string;
+  created_at: string;
+}
+
+export interface PublicUser {
+  id: number;
+  name: string;
+  profile_picture?: string;
+  is_anonymous: boolean;
+  created_at: string;
+  bids: PublicUserBid[];
 }
 
 export interface PotCompletion {
