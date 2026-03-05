@@ -1,17 +1,34 @@
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { stripePromise, stripeAppearance } from '@/lib/stripe';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { stripePromise } from '@/lib/stripe';
 import { billing } from '@/lib/api';
+
+// CardElement style tokens — mirrors the app's dark palette
+const CARD_STYLE = {
+  base: {
+    color: '#f5f5f5',
+    fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+    fontSize: '14px',
+    fontSmoothing: 'antialiased',
+    '::placeholder': { color: '#888888' },
+    iconColor: '#888888',
+  },
+  invalid: {
+    color: '#f87171',
+    iconColor: '#f87171',
+  },
+};
 
 // ── Inner form — must be a child of <Elements> ────────────────────────────
 interface InnerProps {
+  clientSecret: string;
   onSuccess: () => void;
   onCancel?: () => void;
 }
 
-function CardFormInner({ onSuccess, onCancel }: InnerProps) {
+function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -22,36 +39,30 @@ function CardFormInner({ onSuccess, onCancel }: InnerProps) {
     e.preventDefault();
     if (!stripe || !elements) return;
 
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) return;
+
     setError('');
     setSubmitting(true);
 
-    const result = await stripe.confirmSetup({
-      elements,
-      confirmParams: {
-        // Required by Stripe even with redirect: 'if_required'
-        return_url: typeof window !== 'undefined' ? window.location.href : '',
-      },
-      redirect: 'if_required',
+    const { error: stripeError } = await stripe.confirmCardSetup(clientSecret, {
+      payment_method: { card: cardElement },
     });
 
-    if (result.error) {
-      setError(result.error.message ?? 'Card setup failed. Please try again.');
+    if (stripeError) {
+      setError(stripeError.message ?? 'Card setup failed. Please try again.');
       setSubmitting(false);
     } else {
-      // SetupIntent confirmed without redirect — card is saved
       onSuccess();
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <PaymentElement
-        options={{
-          layout: 'accordion',
-          fields: { billingDetails: { name: 'auto' } },
-          paymentMethodOrder: ['card'],
-        }}
-      />
+      {/* Card input — styled box matching the dark surface */}
+      <div className="bg-surface-2 border border-border rounded-lg px-3 py-3">
+        <CardElement options={{ style: CARD_STYLE, hidePostalCode: true }} />
+      </div>
 
       {error && (
         <p className="text-red-400 text-sm">{error}</p>
@@ -61,7 +72,7 @@ function CardFormInner({ onSuccess, onCancel }: InnerProps) {
         <button
           type="submit"
           disabled={!stripe || submitting}
-          className="flex-1 bg-brand text-black font-semibold py-2.5 text-sm rounded-lg hover:bg-brand-dim transition-colors disabled:opacity-50"
+          className="flex-1 bg-brand text-black font-semibold py-2.5 text-sm rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           {submitting ? 'Saving…' : 'Save card'}
         </button>
@@ -97,9 +108,7 @@ export default function AddCardForm({ onSuccess, onCancel }: AddCardFormProps) {
   }, []);
 
   if (fetchError) {
-    return (
-      <div className="text-red-400 text-sm py-2">{fetchError}</div>
-    );
+    return <div className="text-red-400 text-sm py-2">{fetchError}</div>;
   }
 
   if (!clientSecret) {
@@ -111,11 +120,8 @@ export default function AddCardForm({ onSuccess, onCancel }: AddCardFormProps) {
   }
 
   return (
-    <Elements
-      stripe={stripePromise}
-      options={{ clientSecret, appearance: stripeAppearance }}
-    >
-      <CardFormInner onSuccess={onSuccess} onCancel={onCancel} />
+    <Elements stripe={stripePromise} options={{ clientSecret }}>
+      <CardFormInner clientSecret={clientSecret} onSuccess={onSuccess} onCancel={onCancel} />
     </Elements>
   );
 }
