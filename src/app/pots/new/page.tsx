@@ -7,20 +7,34 @@ import { pots as potsApi, summons as summonsApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { Summon } from '@/lib/types';
 
+type CreatorMode = 'search' | 'create';
+
 function NewPotForm() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const prefillSummonId = searchParams.get('summon_id');
 
+  // Pot fields
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [summonId, setSummonId] = useState(prefillSummonId ?? '');
-  const [summonSearch, setSummonSearch] = useState('');
-  const [summonResults, setSummonResults] = useState<Summon[]>([]);
-  const [selectedSummon, setSelectedSummon] = useState<Summon | null>(null);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Creator selection
+  const [summonId, setSummonId] = useState(prefillSummonId ?? '');
+  const [selectedSummon, setSelectedSummon] = useState<Summon | null>(null);
+  const [creatorMode, setCreatorMode] = useState<CreatorMode>('search');
+
+  // Search state
+  const [summonSearch, setSummonSearch] = useState('');
+  const [summonResults, setSummonResults] = useState<Summon[]>([]);
+
+  // Inline create state
+  const [newDisplayName, setNewDisplayName] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [creatingNew, setCreatingNew] = useState(false);
+  const [createError, setCreateError] = useState('');
 
   // If prefillSummonId, load that summon
   useEffect(() => {
@@ -32,7 +46,7 @@ function NewPotForm() {
     }
   }, [prefillSummonId]);
 
-  // Search summons
+  // Debounced summon search
   useEffect(() => {
     if (!summonSearch || selectedSummon) return;
     const t = setTimeout(async () => {
@@ -46,10 +60,53 @@ function NewPotForm() {
     return () => clearTimeout(t);
   }, [summonSearch, selectedSummon]);
 
+  const selectSummon = (s: Summon) => {
+    setSelectedSummon(s);
+    setSummonId(String(s.id));
+    setSummonResults([]);
+    setSummonSearch('');
+  };
+
+  const clearCreator = () => {
+    setSelectedSummon(null);
+    setSummonId('');
+    setSummonSearch('');
+    setSummonResults([]);
+    setCreatorMode('search');
+  };
+
+  const openCreateMode = (prefill?: string) => {
+    setNewDisplayName(prefill ?? summonSearch);
+    setNewDescription('');
+    setCreateError('');
+    setSummonResults([]);
+    setCreatorMode('create');
+  };
+
+  const handleCreateSummon = async (e: FormEvent) => {
+    e.preventDefault();
+    setCreateError('');
+    setCreatingNew(true);
+    try {
+      const res = await summonsApi.create({
+        display_name: newDisplayName,
+        description: newDescription || undefined,
+      });
+      selectSummon(res.data);
+      setCreatorMode('search');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      setCreateError(e.message ?? 'Failed to create creator profile.');
+    } finally {
+      setCreatingNew(false);
+    }
+  };
+
+  // Main pot submit
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!summonId) {
-      setError('Please select a creator for this pot.');
+      setError('Please select or create a creator for this pot.');
       return;
     }
     setError('');
@@ -99,6 +156,7 @@ function NewPotForm() {
           </div>
         )}
 
+        {/* Title */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-1.5">Title</label>
           <input
@@ -112,6 +170,7 @@ function NewPotForm() {
           />
         </div>
 
+        {/* Description */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-1.5">
             Description <span className="text-muted font-normal">(optional)</span>
@@ -125,24 +184,100 @@ function NewPotForm() {
           />
         </div>
 
+        {/* Creator */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-1.5">Creator</label>
+
+          {/* Selected */}
           {selectedSummon ? (
             <div className="flex items-center justify-between bg-surface-2 border border-creator/30 rounded-lg px-3 py-2.5">
-              <span className="text-sm text-creator font-medium">{selectedSummon.display_name}</span>
+              <div className="flex items-center gap-2">
+                <span
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                  style={{ background: '#47DFD3', color: '#0a0a0a' }}
+                >
+                  {selectedSummon.display_name.charAt(0).toUpperCase()}
+                </span>
+                <span className="text-sm text-creator font-medium">
+                  {selectedSummon.display_name}
+                </span>
+                {!selectedSummon.claimed_at && (
+                  <span className="text-xs text-muted">(unclaimed)</span>
+                )}
+              </div>
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedSummon(null);
-                  setSummonId('');
-                  setSummonSearch('');
-                }}
-                className="text-xs text-muted hover:text-foreground"
+                onClick={clearCreator}
+                className="text-xs text-muted hover:text-foreground transition-colors"
               >
                 Change
               </button>
             </div>
+          ) : creatorMode === 'create' ? (
+            /* ── Inline create form ── */
+            <div className="bg-surface-2 border border-creator/30 rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-semibold text-creator uppercase tracking-wider">
+                  New creator profile
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCreatorMode('search')}
+                  className="text-xs text-muted hover:text-foreground transition-colors"
+                >
+                  ← Back to search
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-xs text-muted mb-1">
+                  Name <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required={creatorMode === 'create'}
+                  maxLength={255}
+                  value={newDisplayName}
+                  onChange={(e) => setNewDisplayName(e.target.value)}
+                  placeholder="e.g. Kendrick Lamar"
+                  autoFocus
+                  className="w-full bg-surface border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs text-muted mb-1">
+                  Description <span className="text-muted font-normal">(optional)</span>
+                </label>
+                <textarea
+                  rows={2}
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  placeholder="Who are they? What kind of work do they make?"
+                  className="w-full bg-surface border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors resize-none"
+                />
+              </div>
+
+              {createError && (
+                <p className="text-red-400 text-xs">{createError}</p>
+              )}
+
+              <button
+                type="button"
+                onClick={handleCreateSummon}
+                disabled={creatingNew || !newDisplayName.trim()}
+                className="w-full bg-creator text-black font-semibold py-2 text-sm rounded-md hover:opacity-90 transition-opacity disabled:opacity-40"
+              >
+                {creatingNew ? 'Creating…' : 'Create & Select'}
+              </button>
+
+              <p className="text-xs text-muted">
+                The creator can claim this profile later. Anyone can fund a pot for an unclaimed
+                creator.
+              </p>
+            </div>
           ) : (
+            /* ── Search mode ── */
             <div className="relative">
               <input
                 type="text"
@@ -151,27 +286,57 @@ function NewPotForm() {
                 placeholder="Search for a creator…"
                 className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
               />
-              {summonResults.length > 0 && (
+
+              {/* Dropdown: results + create option */}
+              {(summonResults.length > 0 || summonSearch.trim().length > 0) && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-surface-2 border border-border rounded-lg shadow-xl z-10 overflow-hidden">
                   {summonResults.map((s) => (
                     <button
                       key={s.id}
                       type="button"
-                      onClick={() => {
-                        setSelectedSummon(s);
-                        setSummonId(String(s.id));
-                        setSummonResults([]);
-                        setSummonSearch('');
-                      }}
-                      className="w-full text-left px-4 py-2.5 text-sm hover:bg-border transition-colors"
+                      onClick={() => selectSummon(s)}
+                      className="w-full text-left px-4 py-2.5 text-sm hover:bg-border transition-colors flex items-center gap-2"
                     >
+                      <span
+                        className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                        style={{ background: '#47DFD3', color: '#0a0a0a' }}
+                      >
+                        {s.display_name.charAt(0).toUpperCase()}
+                      </span>
                       <span className="text-foreground">{s.display_name}</span>
                       {!s.claimed_at && (
-                        <span className="text-muted text-xs ml-2">(unclaimed)</span>
+                        <span className="text-muted text-xs">(unclaimed)</span>
                       )}
                     </button>
                   ))}
+
+                  {/* Divider only if there are results above */}
+                  {summonResults.length > 0 && (
+                    <div className="border-t border-border" />
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => openCreateMode(summonSearch.trim() || undefined)}
+                    className="w-full text-left px-4 py-2.5 text-sm text-creator hover:bg-border transition-colors flex items-center gap-2"
+                  >
+                    <span className="text-lg leading-none">+</span>
+                    {summonSearch.trim()
+                      ? <>Add <span className="font-semibold">&ldquo;{summonSearch.trim()}&rdquo;</span> as a new creator</>
+                      : 'Create a new creator profile'}
+                  </button>
                 </div>
+              )}
+
+              {/* Persistent create link when dropdown isn't open */}
+              {summonSearch.trim().length === 0 && (
+                <button
+                  type="button"
+                  onClick={() => openCreateMode()}
+                  className="mt-2 text-xs text-creator hover:underline"
+                >
+                  + Create a new creator profile
+                </button>
               )}
             </div>
           )}
