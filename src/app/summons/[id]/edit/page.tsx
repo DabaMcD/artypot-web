@@ -147,22 +147,6 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
         <h1 className="text-xl font-bold text-foreground">Edit Profile</h1>
       </div>
 
-      {/* Herald context banner for unclaimed summons */}
-      {!isClaimed && summon && (
-        <div className="bg-creator/5 border border-creator/20 rounded-xl p-4 mb-6 text-sm">
-          {summon.herald?.name ? (
-            <p className="text-muted">
-              You are editing as the <span className="text-creator font-semibold">reigning Herald</span>.
-              Setting both a profile picture and description will update your Herald bid snapshot.
-            </p>
-          ) : (
-            <p className="text-muted">
-              No Herald yet. Complete this profile (add both a photo and description) to become the first Herald.
-            </p>
-          )}
-        </div>
-      )}
-
       <form onSubmit={handleSave} className="space-y-6">
 
         {/* ── Profile picture ─────────────────────────────────────────── */}
@@ -258,9 +242,6 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
           <div>
             <label className="block text-xs text-muted mb-1">
               Description
-              {!isClaimed && (
-                <span className="ml-1 text-creator/70">(required for Herald status)</span>
-              )}
             </label>
             <textarea
               value={description}

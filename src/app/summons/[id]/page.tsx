@@ -71,7 +71,7 @@ function HeraldGateModal({
               <span className="text-xs font-semibold text-creator uppercase tracking-wider">Herald</span>
               <span className="text-sm font-medium text-foreground">{heraldName}</span>
             </div>
-            <span className="text-sm font-bold text-brand">{fmt(heraldTotal)}</span>
+            <span className="text-sm font-bold text-brand">{fmt(heraldTotal)}*</span>
           </div>
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
@@ -86,12 +86,17 @@ function HeraldGateModal({
         </div>
 
         {deficit > 0 && (
-          <p className="text-xs text-muted text-center mb-5">
+          <p className="text-xs text-muted text-center mb-3">
             You need{' '}
             <span className="text-foreground font-semibold">{fmt(deficit)} more</span>
             {' '}in pledges aged over 24 hours to take the Herald seat.
           </p>
         )}
+
+        <p className="text-xs text-muted/60 mb-5">
+          * {heraldName}&apos;s qualifying total is recorded at the time of their last edit to{' '}
+          {summon.display_name}&apos;s profile.
+        </p>
 
         <Link
           href={`/pots?summon_id=${summon.id}`}
