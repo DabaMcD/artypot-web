@@ -32,7 +32,16 @@ function NewPotForm() {
 
   // Inline create state
   const [newDisplayName, setNewDisplayName] = useState('');
-  const [newDescription, setNewDescription] = useState('');
+  const [newHandles, setNewHandles] = useState({
+    youtube_handle: '',
+    twitter_handle: '',
+    tiktok_handle: '',
+    instagram_handle: '',
+    domain: '',
+    wikipedia_handle: '',
+    soundcloud_handle: '',
+    bandcamp_handle: '',
+  });
   const [creatingNew, setCreatingNew] = useState(false);
   const [createError, setCreateError] = useState('');
 
@@ -77,21 +86,37 @@ function NewPotForm() {
 
   const openCreateMode = (prefill?: string) => {
     setNewDisplayName(prefill ?? summonSearch);
-    setNewDescription('');
+    setNewHandles({
+      youtube_handle: '',
+      twitter_handle: '',
+      tiktok_handle: '',
+      instagram_handle: '',
+      domain: '',
+      wikipedia_handle: '',
+      soundcloud_handle: '',
+      bandcamp_handle: '',
+    });
     setCreateError('');
     setSummonResults([]);
     setCreatorMode('create');
   };
 
+  const hasAtLeastOneHandle = Object.values(newHandles).some((v) => v.trim().length > 0);
+
   const handleCreateSummon = async (e: FormEvent) => {
     e.preventDefault();
+    if (!hasAtLeastOneHandle) {
+      setCreateError('Please fill in at least one social handle or website.');
+      return;
+    }
     setCreateError('');
     setCreatingNew(true);
     try {
-      const res = await summonsApi.create({
-        display_name: newDisplayName,
-        description: newDescription || undefined,
-      });
+      // Strip empty handle fields so we don't send empty strings
+      const handles = Object.fromEntries(
+        Object.entries(newHandles).filter(([, v]) => v.trim().length > 0),
+      );
+      const res = await summonsApi.create({ display_name: newDisplayName, ...handles });
       selectSummon(res.data);
       setCreatorMode('search');
     } catch (err: unknown) {
@@ -245,17 +270,45 @@ function NewPotForm() {
                 />
               </div>
 
+              {/* Social handles — at least one required */}
               <div>
-                <label className="block text-xs text-muted mb-1">
-                  Description <span className="text-muted font-normal">(optional)</span>
-                </label>
-                <textarea
-                  rows={2}
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                  placeholder="Who are they? What kind of work do they make?"
-                  className="w-full bg-surface border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors resize-none"
-                />
+                <div className="flex items-baseline justify-between mb-1.5">
+                  <label className="text-xs text-muted">
+                    Socials / Website <span className="text-red-400">*</span>
+                  </label>
+                  <span className="text-xs text-muted">at least one</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {(
+                    [
+                      { key: 'youtube_handle',    label: 'YouTube',      placeholder: 'channel name' },
+                      { key: 'twitter_handle',    label: 'X / Twitter',  placeholder: 'username' },
+                      { key: 'tiktok_handle',     label: 'TikTok',       placeholder: 'username' },
+                      { key: 'instagram_handle',  label: 'Instagram',    placeholder: 'username' },
+                      { key: 'domain',            label: 'Website',      placeholder: 'example.com' },
+                      { key: 'wikipedia_handle',  label: 'Wikipedia',    placeholder: 'article title' },
+                      { key: 'soundcloud_handle', label: 'SoundCloud',   placeholder: 'username' },
+                      { key: 'bandcamp_handle',   label: 'Bandcamp',     placeholder: 'username' },
+                    ] as const
+                  ).map(({ key, label, placeholder }) => (
+                    <div key={key}>
+                      <label className="block text-xs text-muted mb-0.5">{label}</label>
+                      <input
+                        type="text"
+                        value={newHandles[key]}
+                        onChange={(e) =>
+                          setNewHandles((prev) => ({ ...prev, [key]: e.target.value }))
+                        }
+                        placeholder={placeholder}
+                        className={`w-full bg-surface border rounded px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted focus:outline-none transition-colors ${
+                          newHandles[key].trim()
+                            ? 'border-creator/60 focus:border-creator'
+                            : 'border-border focus:border-creator/60'
+                        }`}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {createError && (
@@ -265,15 +318,15 @@ function NewPotForm() {
               <button
                 type="button"
                 onClick={handleCreateSummon}
-                disabled={creatingNew || !newDisplayName.trim()}
+                disabled={creatingNew || !newDisplayName.trim() || !hasAtLeastOneHandle}
                 className="w-full bg-creator text-black font-semibold py-2 text-sm rounded-md hover:opacity-90 transition-opacity disabled:opacity-40"
               >
                 {creatingNew ? 'Creating…' : 'Create & Select'}
               </button>
 
               <p className="text-xs text-muted">
-                The creator can claim this profile later. Anyone can fund a pot for an unclaimed
-                creator.
+                The creator can claim this profile later. You can add a bio, fan name, and profile
+                picture from their page.
               </p>
             </div>
           ) : (
