@@ -47,8 +47,9 @@ function CardFormInner({ onSuccess, onCancel }: InnerProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <PaymentElement
         options={{
-          layout: 'tabs',
+          layout: 'accordion',
           fields: { billingDetails: { name: 'auto' } },
+          paymentMethodOrder: ['card'],
         }}
       />
 
