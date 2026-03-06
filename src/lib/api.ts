@@ -142,10 +142,10 @@ export const pots = {
 
   delete: (id: number) => request(`/pots/${id}`, { method: 'DELETE' }),
 
-  votive: (potId: number, amount: number) =>
+  votive: (potId: number, amount: number, expires_at?: string) =>
     request<{ data: PotVotive & { pot: { total_pledged: number } } }>(`/pots/${potId}/votives`, {
       method: 'POST',
-      body: JSON.stringify({ amount }),
+      body: JSON.stringify({ amount, ...(expires_at ? { expires_at } : {}) }),
     }),
 
   removeVotive: (potId: number, votiveId: number) =>

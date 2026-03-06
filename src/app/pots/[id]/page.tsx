@@ -1,6 +1,19 @@
 'use client';
 
-import { useState, useEffect, use, FormEvent } from 'react';
+import { useState, useEffect, use, FormEvent, useCallback } from 'react';
+
+type ExpireUnit = 'years' | 'months' | 'weeks' | 'days' | 'hours' | 'minutes';
+
+function computeExpiresAt(value: number, unit: ExpireUnit): string {
+  const d = new Date();
+  if (unit === 'years')   d.setFullYear(d.getFullYear() + value);
+  else if (unit === 'months')  d.setMonth(d.getMonth() + value);
+  else if (unit === 'weeks')   d.setDate(d.getDate() + value * 7);
+  else if (unit === 'days')    d.setDate(d.getDate() + value);
+  else if (unit === 'hours')   d.setHours(d.getHours() + value);
+  else if (unit === 'minutes') d.setMinutes(d.getMinutes() + value);
+  return d.toISOString();
+}
 import { useToast } from '@/lib/toast-context';
 import Link from 'next/link';
 import { pots as potsApi, billing } from '@/lib/api';
@@ -39,6 +52,8 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
 
   // Votive form
   const [votiveAmount, setVotiveAmount] = useState('');
+  const [expireValue, setExpireValue] = useState('10');
+  const [expireUnit, setExpireUnit] = useState<ExpireUnit>('years');
   const [votiveLoading, setVotiveLoading] = useState(false);
 
   // Completion form
@@ -79,10 +94,16 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       toast('Minimum votive is $1.00', 'error');
       return;
     }
+    const expVal = parseInt(expireValue, 10);
+    if (!Number.isInteger(expVal) || expVal < 1 || expVal > 999) {
+      toast('Expiry must be a whole number between 1 and 999.', 'error');
+      return;
+    }
+    const expiresAt = computeExpiresAt(expVal, expireUnit);
     const isUpdate = !!userVotive;
     setVotiveLoading(true);
     try {
-      const res = await potsApi.votive(Number(id), amount);
+      const res = await potsApi.votive(Number(id), amount, expiresAt);
       toast(isUpdate ? 'Votive updated!' : `Votive of $${amount.toFixed(2)} placed!`, 'success');
       setVotiveAmount('');
       setPot((prev) => {
@@ -177,6 +198,34 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const canVote = user && pot.status === 'open';
   const canSubmitCompletion = isCreator && pot.status === 'open';
 
+  // ── Expiry picker (shared between new + update forms) ───────────────────────
+  const renderExpirePicker = useCallback(() => (
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-muted shrink-0">Expires in</span>
+      <input
+        type="number"
+        min="1"
+        max="999"
+        step="1"
+        value={expireValue}
+        onChange={(e) => setExpireValue(e.target.value)}
+        className="w-16 bg-surface-2 border border-border rounded px-2 py-1.5 text-sm text-foreground focus:outline-none focus:border-brand transition-colors text-center"
+      />
+      <select
+        value={expireUnit}
+        onChange={(e) => setExpireUnit(e.target.value as ExpireUnit)}
+        className="flex-1 bg-surface-2 border border-border rounded px-2 py-1.5 text-sm text-foreground focus:outline-none focus:border-brand transition-colors"
+      >
+        <option value="years">year(s)</option>
+        <option value="months">month(s)</option>
+        <option value="weeks">week(s)</option>
+        <option value="days">day(s)</option>
+        <option value="hours">hour(s)</option>
+        <option value="minutes">minute(s)</option>
+      </select>
+    </div>
+  ), [expireValue, expireUnit]);
+
   // ── Votive panel content ────────────────────────────────────────────────────
   const renderVotivePanel = () => {
     if (!canVote) return null;
@@ -226,7 +275,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-surface-2 border border-border rounded-xl p-3 shadow-xl text-xs text-muted leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-20">
               <p className="text-foreground font-semibold mb-1.5">What&apos;s a votive?</p>
               <p className="mb-2">A votive is a pledge of support — like backing a Kickstarter. Your card is <strong className="text-foreground">not charged when you place a votive</strong>.</p>
-              <p className="mb-2">Cards are <strong className="text-foreground">only charged</strong> once per month, and only <strong className="text-foreground">for pots that have been completed</strong> and approved by The Council.</p>
+              <p className="mb-2">Cards are <strong className="text-foreground">only charged for pots that have been completed</strong> and approved by The Council, billed monthly.</p>
               <p>Most pots on Artypot are never completed, so most votives are never charged. You can revoke your votive at any time.</p>
             </div>
           </span>
@@ -235,14 +284,25 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         {userVotive ? (
           <div className="space-y-3">
             <div className="bg-brand/10 border border-brand/30 rounded-lg px-4 py-3 text-sm">
-              Your votive:{' '}
-              <span className="text-brand font-semibold">
-                ${Number(userVotive.amount).toFixed(2)}
-              </span>
+              <div>
+                Your votive:{' '}
+                <span className="text-brand font-semibold">
+                  ${Number(userVotive.amount).toFixed(2)}
+                </span>
+              </div>
+              {userVotive.expires_at && (
+                <div className="text-xs text-muted mt-0.5">
+                  Expires{' '}
+                  {new Date(userVotive.expires_at).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </div>
+              )}
             </div>
             <p className="text-xs text-muted">
-              Increase your votive by submitting a new amount — your previous votive will be
-              replaced.
+              Replace your votive by submitting a new amount and expiry.
             </p>
             <form onSubmit={handleVotive} className="space-y-2">
               <div className="relative">
@@ -260,6 +320,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                   className="w-full bg-surface-2 border border-border rounded-lg pl-7 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
                 />
               </div>
+              {renderExpirePicker()}
               <button
                 type="submit"
                 disabled={votiveLoading}
@@ -293,6 +354,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                 className="w-full bg-surface-2 border border-border rounded-lg pl-7 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
               />
             </div>
+            {renderExpirePicker()}
             <button
               type="submit"
               disabled={votiveLoading}
@@ -302,17 +364,6 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             </button>
           </form>
         )}
-
-        {/* Card on file indicator */}
-        <div className="mt-3 pt-3 border-t border-border flex items-center gap-1.5 text-xs text-muted">
-          <span>💳</span>
-          <span>
-            Charged to your saved card on the next billing cycle.{' '}
-            <Link href="/billing" className="text-brand hover:underline">
-              Manage
-            </Link>
-          </span>
-        </div>
       </div>
     );
   };
