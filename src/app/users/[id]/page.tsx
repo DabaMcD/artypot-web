@@ -64,7 +64,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  const totalPledged = profile.bids.reduce((sum, b) => sum + Number(b.amount), 0);
+  const totalVotives = profile.votives.reduce((sum, v) => sum + Number(v.amount), 0);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
@@ -114,26 +114,26 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
         </div>
       </div>
 
-      {/* Pledges */}
+      {/* Votives */}
       <div className="bg-surface border border-border rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-semibold text-foreground">
-              Top Pledges
+              Top Votives
             </h2>
-            {!profile.is_anonymous && profile.bids.length === 10 && (
+            {!profile.is_anonymous && profile.votives.length === 10 && (
               <p className="text-xs text-muted mt-0.5">Showing top 10 by amount</p>
             )}
           </div>
           <div className="flex items-center gap-3">
-            {profile.bids.length > 0 && (
+            {profile.votives.length > 0 && (
               <span className="text-sm text-muted">
-                <span className="text-creator font-semibold">${totalPledged.toFixed(2)}</span>
+                <span className="text-creator font-semibold">${totalVotives.toFixed(2)}</span>
               </span>
             )}
             {isOwnProfile && (
               <Link
-                href="/pledges"
+                href="/votives"
                 className="text-xs text-brand hover:underline"
               >
                 View all →
@@ -144,36 +144,36 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
 
         {profile.is_anonymous && !isOwnProfile ? (
           <p className="text-muted text-sm">This user has chosen to remain anonymous.</p>
-        ) : profile.bids.length === 0 ? (
+        ) : profile.votives.length === 0 ? (
           <p className="text-muted text-sm">
-            {isOwnProfile ? "You haven't pledged to any open projects yet." : 'No active pledges.'}
+            {isOwnProfile ? "You haven't placed any votives on open projects yet." : 'No active votives.'}
           </p>
         ) : (
           <div className="space-y-2">
-            {profile.bids.map((bid) => (
+            {profile.votives.map((votive) => (
               <div
-                key={bid.id}
+                key={votive.id}
                 className="flex items-center justify-between py-3 border-b border-border last:border-0"
               >
                 <div className="flex-1 min-w-0">
-                  {bid.pot ? (
+                  {votive.pot ? (
                     <Link
-                      href={`/pots/${bid.pot_id}`}
+                      href={`/pots/${votive.pot_id}`}
                       className="text-sm font-medium text-foreground hover:underline truncate block"
                     >
-                      {bid.pot.title}
+                      {votive.pot.title}
                     </Link>
                   ) : (
-                    <span className="text-sm text-muted">Project #{bid.pot_id}</span>
+                    <span className="text-sm text-muted">Project #{votive.pot_id}</span>
                   )}
-                  {bid.expires_at && (
+                  {votive.expires_at && (
                     <p className="text-xs text-muted mt-0.5">
-                      Expires {formatExpiry(bid.expires_at)}
+                      Expires {formatExpiry(votive.expires_at)}
                     </p>
                   )}
                 </div>
                 <span className="text-creator font-semibold text-sm ml-4">
-                  ${Number(bid.amount).toFixed(2)}
+                  ${Number(votive.amount).toFixed(2)}
                 </span>
               </div>
             ))}

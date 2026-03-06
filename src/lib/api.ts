@@ -4,11 +4,11 @@ import type {
   Summon,
   SummonName,
   Pot,
-  PotBid,
+  PotVotive,
   PotCompletion,
   SummonClaim,
   PaginatedResponse,
-  PledgePage,
+  VotivePage,
   CashBalance,
   PaymentMethod,
   PotStatus,
@@ -134,14 +134,14 @@ export const pots = {
 
   delete: (id: number) => request(`/pots/${id}`, { method: 'DELETE' }),
 
-  bid: (potId: number, amount: number) =>
-    request<{ data: PotBid & { pot: { total_pledged: number } } }>(`/pots/${potId}/bids`, {
+  votive: (potId: number, amount: number) =>
+    request<{ data: PotVotive & { pot: { total_pledged: number } } }>(`/pots/${potId}/votives`, {
       method: 'POST',
       body: JSON.stringify({ amount }),
     }),
 
-  removeBid: (potId: number, bidId: number) =>
-    request(`/pots/${potId}/bids/${bidId}`, { method: 'DELETE' }),
+  removeVotive: (potId: number, votiveId: number) =>
+    request(`/pots/${potId}/votives/${votiveId}`, { method: 'DELETE' }),
 
   submitCompletion: (potId: number, submission_url: string, submission_notes?: string) =>
     request<{ data: PotCompletion }>(`/pots/${potId}/completion`, {
@@ -162,14 +162,14 @@ export const users = {
     }),
 };
 
-// Pledges (authenticated user's own)
-export const pledges = {
+// Votives (authenticated user's own)
+export const votives = {
   list: (params?: { sort?: 'date' | 'amount'; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
     const qs = new URLSearchParams(entries).toString();
-    return request<PledgePage>(`/auth/pledges${qs ? `?${qs}` : ''}`);
+    return request<VotivePage>(`/auth/votives${qs ? `?${qs}` : ''}`);
   },
 };
 

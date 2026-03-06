@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { pots as potsApi, billing, pledges as pledgesApi } from '@/lib/api';
+import { pots as potsApi, billing, votives as votivesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { Pot, CashBalance, PaginatedResponse, PaymentMethod, PublicUserBid } from '@/lib/types';
+import type { Pot, CashBalance, PaginatedResponse, PaymentMethod, PublicUserVotive } from '@/lib/types';
 import PotCard from '@/components/PotCard';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
 
@@ -16,10 +16,10 @@ export default function DashboardPage() {
   const [myPots, setMyPots] = useState<PaginatedResponse<Pot> | null>(null);
   const [cash, setCash] = useState<CashBalance | null>(null);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
-  const [myPledges, setMyPledges] = useState<PublicUserBid[]>([]);
+  const [myVotives, setMyVotives] = useState<PublicUserVotive[]>([]);
   const [potsLoading, setPotsLoading] = useState(true);
   const [cashLoading, setCashLoading] = useState(true);
-  const [pledgesLoading, setPledgesLoading] = useState(true);
+  const [votivesLoading, setVotivesLoading] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -30,7 +30,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user) return;
 
-    // Load pots where user is initiator (we use their bids as proxy for "their activity")
+    // Load pots where user is initiator (we use their votives as proxy for "their activity")
     potsApi
       .list({ page: 1 })
       .then(setMyPots)
@@ -43,11 +43,11 @@ export default function DashboardPage() {
       .catch(() => {})
       .finally(() => setCashLoading(false));
 
-    pledgesApi
+    votivesApi
       .list({ sort: 'date', page: 1 })
-      .then((res) => setMyPledges(res.data))
+      .then((res) => setMyVotives(res.data))
       .catch(() => {})
-      .finally(() => setPledgesLoading(false));
+      .finally(() => setVotivesLoading(false));
   }, [user]);
 
   if (authLoading || !user) {
@@ -175,16 +175,16 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* My Pledges */}
+      {/* My Votives */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-foreground">My Pledges</h2>
-          <Link href="/pledges" className="text-sm text-muted hover:text-brand transition-colors">
+          <h2 className="text-lg font-bold text-foreground">My Votives</h2>
+          <Link href="/votives" className="text-sm text-muted hover:text-brand transition-colors">
             View all →
           </Link>
         </div>
 
-        {pledgesLoading ? (
+        {votivesLoading ? (
           <div className="bg-surface border border-border rounded-xl overflow-hidden">
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex items-center justify-between px-5 py-4 border-b border-border last:border-0">
@@ -193,46 +193,46 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
-        ) : myPledges.length === 0 ? (
+        ) : myVotives.length === 0 ? (
           <div className="text-center py-10 text-muted border border-dashed border-border rounded-xl">
-            No active pledges.{' '}
+            No active votives.{' '}
             <Link href="/pots" className="text-brand hover:underline">Browse pots</Link>
             {' '}to start backing projects.
           </div>
         ) : (
           <div className="bg-surface border border-border rounded-xl overflow-hidden">
-            {myPledges.slice(0, 5).map((bid, i) => (
+            {myVotives.slice(0, 5).map((votive, i) => (
               <div
-                key={bid.id}
-                className={`flex items-center justify-between px-5 py-3.5 ${i < Math.min(myPledges.length, 5) - 1 ? 'border-b border-border' : ''}`}
+                key={votive.id}
+                className={`flex items-center justify-between px-5 py-3.5 ${i < Math.min(myVotives.length, 5) - 1 ? 'border-b border-border' : ''}`}
               >
                 <div className="flex-1 min-w-0">
-                  {bid.pot ? (
+                  {votive.pot ? (
                     <Link
-                      href={`/pots/${bid.pot_id}`}
+                      href={`/pots/${votive.pot_id}`}
                       className="text-sm text-foreground hover:text-brand transition-colors font-medium truncate block"
                     >
-                      {bid.pot.title}
+                      {votive.pot.title}
                     </Link>
                   ) : (
-                    <span className="text-sm text-muted">Project #{bid.pot_id}</span>
+                    <span className="text-sm text-muted">Project #{votive.pot_id}</span>
                   )}
-                  {bid.expires_at && (
+                  {votive.expires_at && (
                     <p className="text-xs text-muted mt-0.5">
                       Expires{' '}
-                      {new Date(bid.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                      {new Date(votive.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                     </p>
                   )}
                 </div>
                 <span className="text-brand font-semibold text-sm ml-4">
-                  ${Number(bid.amount).toFixed(2)}
+                  ${Number(votive.amount).toFixed(2)}
                 </span>
               </div>
             ))}
-            {myPledges.length > 5 && (
+            {myVotives.length > 5 && (
               <div className="px-5 py-3 border-t border-border">
-                <Link href="/pledges" className="text-sm text-muted hover:text-brand transition-colors">
-                  +{myPledges.length - 5} more — View all pledges →
+                <Link href="/votives" className="text-sm text-muted hover:text-brand transition-colors">
+                  +{myVotives.length - 5} more — View all votives →
                 </Link>
               </div>
             )}

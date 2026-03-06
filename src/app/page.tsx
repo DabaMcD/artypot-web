@@ -11,7 +11,7 @@ const HOW_IT_WORKS = [
     step: '02',
     title: 'The community funds it',
     description:
-      'Fans pledge money. Funds are held safely until the work is done. No risk, no upfront contracts.',
+      'Fans place votives. Funds are held safely until the work is done. No risk, no upfront contracts.',
   },
   {
     step: '03',
@@ -91,7 +91,7 @@ export default function HomePage() {
               />
               <h3 className="font-semibold text-brand mb-1">The Mob</h3>
               <p className="text-sm text-muted">
-                Everyone. Fans and funders who pledge money into pots for creative work they want to
+                Everyone. Fans and funders who place votives into pots for creative work they want to
                 see made.
               </p>
             </div>
@@ -177,7 +177,7 @@ export default function HomePage() {
             Ready to fund some art?
           </h2>
           <p className="text-muted mb-8">
-            Browse open pots and pledge to the creative work you want to see made.
+            Browse open pots and place your votive on the creative work you want to see made.
           </p>
           <Link
             href="/pots"

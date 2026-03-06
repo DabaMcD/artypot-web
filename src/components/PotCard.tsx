@@ -11,7 +11,7 @@ const STATUS_STYLES: Record<PotStatus, { label: string; className: string }> = {
 
 export default function PotCard({ pot }: { pot: Pot }) {
   const status = STATUS_STYLES[pot.status];
-  const backerCount = pot.bids?.filter((b) => !b.revoked_at).length ?? null;
+  const backerCount = pot.votives?.filter((v) => !v.revoked_at).length ?? null;
 
   return (
     <Link

@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { pledges as pledgesApi } from '@/lib/api';
+import { votives as votivesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { PublicUserBid } from '@/lib/types';
+import type { PublicUserVotive } from '@/lib/types';
 
 type SortKey = 'date' | 'amount';
 
@@ -25,11 +25,11 @@ const STATUS_COLORS: Record<string, string> = {
   revoked:   'bg-red-900/40 text-red-400 border border-red-800/50',
 };
 
-export default function MyPledgesPage() {
+export default function MyVotivesPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
-  const [bids, setBids] = useState<PublicUserBid[]>([]);
+  const [votives, setVotives] = useState<PublicUserVotive[]>([]);
   const [sort, setSort] = useState<SortKey>('date');
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -42,10 +42,10 @@ export default function MyPledgesPage() {
 
   const load = useCallback((s: SortKey, p: number) => {
     setLoading(true);
-    pledgesApi
+    votivesApi
       .list({ sort: s, page: p })
       .then((res) => {
-        setBids(res.data);
+        setVotives(res.data);
         setLastPage(res.last_page);
         setTotal(res.total);
       })
@@ -72,17 +72,17 @@ export default function MyPledgesPage() {
     );
   }
 
-  const totalAmount = bids.reduce((sum, b) => sum + Number(b.amount), 0);
+  const totalAmount = votives.reduce((sum, v) => sum + Number(v.amount), 0);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">My Pledges</h1>
+          <h1 className="text-2xl font-bold text-foreground">My Votives</h1>
           <p className="text-sm text-muted mt-0.5">
-            {total} active pledge{total !== 1 ? 's' : ''}
-            {bids.length > 0 && ` · ${totalAmount.toFixed(2)} on this page`}
+            {total} active votive{total !== 1 ? 's' : ''}
+            {votives.length > 0 && ` · ${totalAmount.toFixed(2)} on this page`}
           </p>
         </div>
         <Link
@@ -111,7 +111,7 @@ export default function MyPledgesPage() {
         ))}
       </div>
 
-      {/* Pledge list */}
+      {/* Votive list */}
       {loading ? (
         <div className="bg-surface border border-border rounded-xl overflow-hidden">
           {[1, 2, 3, 4, 5].map((i) => (
@@ -124,32 +124,32 @@ export default function MyPledgesPage() {
             </div>
           ))}
         </div>
-      ) : bids.length === 0 ? (
+      ) : votives.length === 0 ? (
         <div className="text-center py-12 text-muted border border-dashed border-border rounded-xl">
-          No active pledges.{' '}
+          No active votives.{' '}
           <Link href="/pots" className="text-brand hover:underline">Browse pots</Link>
           {' '}to start backing projects.
         </div>
       ) : (
         <div className="bg-surface border border-border rounded-xl overflow-hidden">
-          {bids.map((bid, i) => {
-            const status = bid.pot?.status;
+          {votives.map((votive, i) => {
+            const status = votive.pot?.status;
             return (
               <div
-                key={bid.id}
-                className={`flex items-center gap-4 px-5 py-4 ${i < bids.length - 1 ? 'border-b border-border' : ''}`}
+                key={votive.id}
+                className={`flex items-center gap-4 px-5 py-4 ${i < votives.length - 1 ? 'border-b border-border' : ''}`}
               >
                 {/* Pot info */}
                 <div className="flex-1 min-w-0">
-                  {bid.pot ? (
+                  {votive.pot ? (
                     <Link
-                      href={`/pots/${bid.pot_id}`}
+                      href={`/pots/${votive.pot_id}`}
                       className="text-sm font-medium text-foreground hover:text-brand transition-colors block truncate"
                     >
-                      {bid.pot.title}
+                      {votive.pot.title}
                     </Link>
                   ) : (
-                    <span className="text-sm text-muted">Project #{bid.pot_id}</span>
+                    <span className="text-sm text-muted">Project #{votive.pot_id}</span>
                   )}
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
                     {status && (
@@ -157,22 +157,22 @@ export default function MyPledgesPage() {
                         {STATUS_LABELS[status] ?? status}
                       </span>
                     )}
-                    {bid.expires_at && (
+                    {votive.expires_at && (
                       <span className="text-xs text-muted">
                         Expires{' '}
-                        {new Date(bid.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                        {new Date(votive.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                       </span>
                     )}
                     <span className="text-xs text-muted">
-                      Pledged{' '}
-                      {new Date(bid.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      Placed{' '}
+                      {new Date(votive.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                   </div>
                 </div>
 
                 {/* Amount */}
                 <span className="shrink-0 text-brand font-bold text-sm">
-                  ${Number(bid.amount).toFixed(2)}
+                  ${Number(votive.amount).toFixed(2)}
                 </span>
               </div>
             );

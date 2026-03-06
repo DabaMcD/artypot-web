@@ -148,7 +148,7 @@ export default function SettingsPage() {
     try {
       const res = await authApi.broke();
       setShowBrokeConfirm(false);
-      setDangerMsg(`Done — ${res.data.revoked_count} pledge${res.data.revoked_count === 1 ? '' : 's'} cancelled.`);
+      setDangerMsg(`Done — ${res.data.revoked_count} votive${res.data.revoked_count === 1 ? '' : 's'} cancelled.`);
     } catch {
       setDangerMsg('Something went wrong. Please try again.');
     } finally {
@@ -184,14 +184,14 @@ export default function SettingsPage() {
       {/* BROKE confirmation */}
       {showBrokeConfirm && (
         <ConfirmDialog
-          title="Cancel All Pledges"
+          title="Cancel All Votives"
           body={
             <>
-              <p className="mb-2">This will immediately cancel <strong className="text-foreground">all your active pledges</strong> and remove your funding from every project.</p>
-              <p>This cannot easily be undone. You would need to re-pledge individually to each project.</p>
+              <p className="mb-2">This will immediately cancel <strong className="text-foreground">all your active votives</strong> and remove your funding from every project.</p>
+              <p>This cannot easily be undone. You would need to re-place your votive individually on each project.</p>
             </>
           }
-          confirmLabel="Yes, Cancel All Pledges"
+          confirmLabel="Yes, Cancel All Votives"
           onConfirm={handleBroke}
           onCancel={() => setShowBrokeConfirm(false)}
           loading={dangerLoading}
@@ -204,7 +204,7 @@ export default function SettingsPage() {
           title="Delete My Account"
           body={
             <>
-              <p className="mb-2">This will <strong className="text-foreground">permanently delete your account</strong>, cancel all your active pledges, and log you out immediately.</p>
+              <p className="mb-2">This will <strong className="text-foreground">permanently delete your account</strong>, cancel all your active votives, and log you out immediately.</p>
               <p>Your account cannot be recovered. You may re-register with the same email address.</p>
             </>
           }
@@ -227,7 +227,7 @@ export default function SettingsPage() {
           <Toggle
             id="anonymous-mode"
             label="Anonymous Mode"
-            description="Hide your pledges from your public profile. Your name will appear as [anonymous] on project backer lists."
+            description="Hide your votives from your public profile. Your name will appear as [anonymous] on project backer lists."
             checked={isAnonymous}
             onChange={(val) => handleToggle('is_anonymous', val)}
             saving={saving}
@@ -250,7 +250,7 @@ export default function SettingsPage() {
         {/* Billing link */}
         <div className="bg-surface border border-border rounded-xl p-5 mb-6">
           <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Billing</h2>
-          <p className="text-sm text-muted mb-3">Manage your saved payment methods and view your pledge history.</p>
+          <p className="text-sm text-muted mb-3">Manage your saved payment methods and view your votive history.</p>
           <Link
             href="/billing"
             className="inline-block bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-creator/50 transition-colors"
@@ -270,7 +270,7 @@ export default function SettingsPage() {
                 💸 CLICK THIS BUTTON IF YOU&apos;RE BROKE!!
               </p>
               <p className="text-sm text-muted mt-0.5">
-                DO NOT GIVE AWAY CASH YOU DON&apos;T HAVE. Instantly cancels all your active pledges.
+                DO NOT GIVE AWAY CASH YOU DON&apos;T HAVE. Instantly cancels ALL your active votives.
               </p>
             </div>
             <button
@@ -287,7 +287,7 @@ export default function SettingsPage() {
             <div className="flex-1">
               <p className="font-medium text-foreground">Delete My Account</p>
               <p className="text-sm text-muted mt-0.5">
-                Permanently deletes your account and cancels all pledges. Your email can be reused to sign up again.
+                Permanently deletes your account and cancels all votives. Your email can be reused to sign up again.
               </p>
             </div>
             <button

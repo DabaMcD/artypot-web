@@ -12,7 +12,7 @@ export interface User {
   role: UserRole;
   profile_picture?: string;
   total_given?: number;
-  open_bids_count?: number;
+  open_votives_count?: number;
   cover_processing_fees?: boolean;
   is_anonymous?: boolean;
   summon?: Summon;
@@ -33,7 +33,7 @@ export interface Summon {
   /** Herald of an unclaimed summon (has editing rights) */
   herald?: { id: number; name: string };
   herald_user_id?: number;
-  herald_total_bid?: number;
+  herald_total_votive?: number;
   display_name: string;
   description?: string;
   profile_picture?: string;
@@ -54,11 +54,11 @@ export interface Summon {
   projects_finished?: number;
   amount_earned?: number;
   /** Live-computed sum of total_pledged across all pots */
-  total_bid_sum?: number;
+  total_votive_sum?: number;
   /** Whether the currently authenticated user can edit this summon */
   can_edit?: boolean;
-  /** The authenticated user's own 24h-aged bid total across all pots for this summon */
-  user_aged_bid_total?: number | null;
+  /** The authenticated user's own 24h-aged votive total across all pots for this summon */
+  user_aged_votive_total?: number | null;
   claimed_at?: string;
   merged_into_summon_id?: number;
   summon_names?: SummonName[];
@@ -79,11 +79,11 @@ export interface Pot {
   approved_at?: string;
   revoke_deadline_at?: string;
   paid_out_at?: string;
-  bids?: PotBid[];
+  votives?: PotVotive[];
   completion?: PotCompletion;
 }
 
-export interface PotBid {
+export interface PotVotive {
   id: number;
   pot_id: number;
   user_id: number;
@@ -94,7 +94,7 @@ export interface PotBid {
   expires_at?: string;
 }
 
-export interface PublicUserBid {
+export interface PublicUserVotive {
   id: number;
   pot_id: number;
   pot?: Pick<Pot, 'id' | 'title' | 'status'>;
@@ -103,8 +103,8 @@ export interface PublicUserBid {
   created_at: string;
 }
 
-export interface PledgePage {
-  data: PublicUserBid[];
+export interface VotivePage {
+  data: PublicUserVotive[];
   current_page: number;
   last_page: number;
   total: number;
@@ -117,7 +117,7 @@ export interface PublicUser {
   profile_picture?: string;
   is_anonymous: boolean;
   created_at: string;
-  bids: PublicUserBid[];
+  votives: PublicUserVotive[];
 }
 
 export interface PotCompletion {

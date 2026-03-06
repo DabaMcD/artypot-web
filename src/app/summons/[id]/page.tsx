@@ -33,8 +33,8 @@ function HeraldGateModal({
   onClose: () => void;
 }) {
   const heraldName    = summon.herald?.name ?? 'The current Herald';
-  const heraldTotal   = Number(summon.herald_total_bid ?? 0);
-  const userTotal     = Number(summon.user_aged_bid_total ?? 0);
+  const heraldTotal   = Number(summon.herald_total_votive ?? 0);
+  const userTotal     = Number(summon.user_aged_votive_total ?? 0);
   const deficit       = Math.max(0, heraldTotal - userTotal);
 
   return (
@@ -66,8 +66,8 @@ function HeraldGateModal({
           ) : (
             <span className="text-brand font-semibold">{heraldName}</span>
           )}{' '}
-          is the current Herald for this unclaimed profile. The Herald is the top pledger who earns
-          the right to keep this profile up to date. To take the edit seat, your total pledges
+          is the current Herald for this unclaimed profile. The Herald is the top votive-maker who earns
+          the right to keep this profile up to date. To take the edit seat, your total votives
           (24+ hours old) must exceed theirs.
         </p>
 
@@ -102,7 +102,7 @@ function HeraldGateModal({
           <p className="text-xs text-muted text-center mb-3">
             You need{' '}
             <span className="text-foreground font-semibold">{fmt(deficit)} more</span>
-            {' '}in pledges aged over 24 hours to take the Herald seat.
+            {' '}in votives aged over 24 hours to take the Herald seat.
           </p>
         )}
 
@@ -116,7 +116,7 @@ function HeraldGateModal({
           onClick={onClose}
           className="block w-full text-center bg-brand text-black font-semibold text-sm py-2.5 rounded-lg hover:opacity-90 transition-opacity"
         >
-          View pots to pledge on →
+          View pots to place votives on →
         </Link>
       </div>
     </div>
@@ -449,12 +449,12 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
                     <div className="text-muted text-xs">Total earned</div>
                   </div>
                 )}
-                {summon.total_bid_sum != null && (
+                {summon.total_votive_sum != null && (
                   <div>
                     <div className="text-brand font-semibold text-lg">
-                      ${Number(summon.total_bid_sum).toLocaleString()}
+                      ${Number(summon.total_votive_sum).toLocaleString()}
                     </div>
-                    <div className="text-muted text-xs">Total pledged (all pots)</div>
+                    <div className="text-muted text-xs">Total votives (all pots)</div>
                   </div>
                 )}
               </div>

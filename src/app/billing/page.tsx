@@ -27,7 +27,7 @@ export default function BillingPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-foreground mb-1">Payment Methods</h1>
         <p className="text-muted text-sm">
-          Your saved cards are used to charge your pledges when a pot pays out. You are only
+          Your saved cards are used to charge your votives when a pot pays out. You are only
           charged once a completed work is council-approved and the 7-day review window closes.
         </p>
       </div>
@@ -41,9 +41,9 @@ export default function BillingPage() {
         <h2 className="text-sm font-semibold text-foreground">How billing works</h2>
         <ul className="space-y-2 text-sm text-muted">
           {[
-            'You pledge a fixed amount when you back a pot. Nothing is charged at that point.',
+            'You place a votive (a fixed amount) when you back a pot. Nothing is charged at that point.',
             "When a creator submits their work and the council approves it, a 7-day review window opens.",
-            'If you don\'t revoke your pledge during that window, you\'re charged on the next billing cycle (the 24th of the month).',
+            'If you don\'t revoke your votive during that window, you\'re charged on the next billing cycle (the 24th of the month).',
             'Artypot takes a 5% platform fee. Stripe processing fees (2.9% + $0.30) are deducted from the creator\'s payout unless you opt to cover them.',
           ].map((item) => (
             <li key={item} className="flex items-start gap-2">

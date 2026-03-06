@@ -36,6 +36,9 @@ export default function Nav() {
           <Link href="/summons" className={`transition-colors ${isActive('/summons')}`}>
             Creators
           </Link>
+          <Link href="/guide" className={`transition-colors ${isActive('/guide')}`}>
+            I&apos;m Confused
+          </Link>
         </div>
 
         {/* Right side */}
