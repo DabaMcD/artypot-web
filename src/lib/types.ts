@@ -179,6 +179,5 @@ export interface NotificationSettings {
   votive_confirmation: boolean;
   monthly_votive_preview: boolean;
   monthly_votive_receipt: boolean;
-  herald_status_gained: boolean;
   herald_status_lost: boolean;
 }

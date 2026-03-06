@@ -335,14 +335,6 @@ export default function SettingsPage() {
                 saving={notifSaving.has('monthly_votive_receipt')}
               />
               <Toggle
-                id="notif-herald-gained"
-                label="Herald Status Gained"
-                description="Get an email when you become the Herald for a creator's unclaimed profile."
-                checked={notifSettings.herald_status_gained}
-                onChange={(val) => handleNotifToggle('herald_status_gained', val)}
-                saving={notifSaving.has('herald_status_gained')}
-              />
-              <Toggle
                 id="notif-herald-lost"
                 label="Herald Status Lost"
                 description="Get an email when another fan surpasses you and takes over as Herald."
