@@ -188,7 +188,7 @@ export default function SettingsPage() {
           body={
             <>
               <p className="mb-2">This will immediately cancel <strong className="text-foreground">all your active pledges</strong> and remove your funding from every project.</p>
-              <p>This cannot be undone. You would need to re-pledge individually to each project.</p>
+              <p>This cannot easily be undone. You would need to re-pledge individually to each project.</p>
             </>
           }
           confirmLabel="Yes, Cancel All Pledges"
@@ -240,7 +240,7 @@ export default function SettingsPage() {
           <Toggle
             id="cover-fees"
             label="Cover Payment Processing Fees"
-            description="Automatically add the Stripe processing fee (~2.9% + $0.30) to your pledge so creators receive your full stated amount."
+            description="Automatically add the Stripe processing fee (~2.9% + $0.30) to your monthly payment so creators receive your full stated amount."
             checked={coverFees}
             onChange={(val) => handleToggle('cover_processing_fees', val)}
             saving={saving}

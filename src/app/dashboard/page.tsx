@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { pots as potsApi, billing } from '@/lib/api';
+import { pots as potsApi, billing, pledges as pledgesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { Pot, CashBalance, PaginatedResponse, PaymentMethod } from '@/lib/types';
+import type { Pot, CashBalance, PaginatedResponse, PaymentMethod, PublicUserBid } from '@/lib/types';
 import PotCard from '@/components/PotCard';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
 
@@ -16,8 +16,10 @@ export default function DashboardPage() {
   const [myPots, setMyPots] = useState<PaginatedResponse<Pot> | null>(null);
   const [cash, setCash] = useState<CashBalance | null>(null);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [myPledges, setMyPledges] = useState<PublicUserBid[]>([]);
   const [potsLoading, setPotsLoading] = useState(true);
   const [cashLoading, setCashLoading] = useState(true);
+  const [pledgesLoading, setPledgesLoading] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -40,6 +42,12 @@ export default function DashboardPage() {
       .then(setCash)
       .catch(() => {})
       .finally(() => setCashLoading(false));
+
+    pledgesApi
+      .list({ sort: 'date', page: 1 })
+      .then((res) => setMyPledges(res.data))
+      .catch(() => {})
+      .finally(() => setPledgesLoading(false));
   }, [user]);
 
   if (authLoading || !user) {
@@ -163,6 +171,71 @@ export default function DashboardPage() {
             <PaymentMethodManager
               onMethodsChange={setPaymentMethods}
             />
+          </div>
+        )}
+      </div>
+
+      {/* My Pledges */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-foreground">My Pledges</h2>
+          <Link href="/pledges" className="text-sm text-muted hover:text-brand transition-colors">
+            View all →
+          </Link>
+        </div>
+
+        {pledgesLoading ? (
+          <div className="bg-surface border border-border rounded-xl overflow-hidden">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center justify-between px-5 py-4 border-b border-border last:border-0">
+                <div className="h-4 w-48 bg-surface-2 animate-pulse rounded" />
+                <div className="h-4 w-16 bg-surface-2 animate-pulse rounded" />
+              </div>
+            ))}
+          </div>
+        ) : myPledges.length === 0 ? (
+          <div className="text-center py-10 text-muted border border-dashed border-border rounded-xl">
+            No active pledges.{' '}
+            <Link href="/pots" className="text-brand hover:underline">Browse pots</Link>
+            {' '}to start backing projects.
+          </div>
+        ) : (
+          <div className="bg-surface border border-border rounded-xl overflow-hidden">
+            {myPledges.slice(0, 5).map((bid, i) => (
+              <div
+                key={bid.id}
+                className={`flex items-center justify-between px-5 py-3.5 ${i < Math.min(myPledges.length, 5) - 1 ? 'border-b border-border' : ''}`}
+              >
+                <div className="flex-1 min-w-0">
+                  {bid.pot ? (
+                    <Link
+                      href={`/pots/${bid.pot_id}`}
+                      className="text-sm text-foreground hover:text-brand transition-colors font-medium truncate block"
+                    >
+                      {bid.pot.title}
+                    </Link>
+                  ) : (
+                    <span className="text-sm text-muted">Project #{bid.pot_id}</span>
+                  )}
+                  {bid.expires_at && (
+                    <p className="text-xs text-muted mt-0.5">
+                      Expires{' '}
+                      {new Date(bid.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                    </p>
+                  )}
+                </div>
+                <span className="text-brand font-semibold text-sm ml-4">
+                  ${Number(bid.amount).toFixed(2)}
+                </span>
+              </div>
+            ))}
+            {myPledges.length > 5 && (
+              <div className="px-5 py-3 border-t border-border">
+                <Link href="/pledges" className="text-sm text-muted hover:text-brand transition-colors">
+                  +{myPledges.length - 5} more — View all pledges →
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>

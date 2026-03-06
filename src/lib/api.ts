@@ -8,6 +8,7 @@ import type {
   PotCompletion,
   SummonClaim,
   PaginatedResponse,
+  PledgePage,
   CashBalance,
   PaymentMethod,
   PotStatus,
@@ -159,6 +160,17 @@ export const users = {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
+};
+
+// Pledges (authenticated user's own)
+export const pledges = {
+  list: (params?: { sort?: 'date' | 'amount'; page?: number }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null)
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<PledgePage>(`/auth/pledges${qs ? `?${qs}` : ''}`);
+  },
 };
 
 // Cash / Billing

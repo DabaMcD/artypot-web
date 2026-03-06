@@ -117,12 +117,29 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
       {/* Pledges */}
       <div className="bg-surface border border-border rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-foreground">Active Pledges</h2>
-          {profile.bids.length > 0 && (
-            <span className="text-sm text-muted">
-              Total: <span className="text-creator font-semibold">${totalPledged.toFixed(2)}</span>
-            </span>
-          )}
+          <div>
+            <h2 className="font-semibold text-foreground">
+              Top Pledges
+            </h2>
+            {!profile.is_anonymous && profile.bids.length === 10 && (
+              <p className="text-xs text-muted mt-0.5">Showing top 10 by amount</p>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            {profile.bids.length > 0 && (
+              <span className="text-sm text-muted">
+                <span className="text-creator font-semibold">${totalPledged.toFixed(2)}</span>
+              </span>
+            )}
+            {isOwnProfile && (
+              <Link
+                href="/pledges"
+                className="text-xs text-brand hover:underline"
+              >
+                View all →
+              </Link>
+            )}
+          </div>
         </div>
 
         {profile.is_anonymous && !isOwnProfile ? (

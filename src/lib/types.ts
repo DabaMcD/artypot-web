@@ -97,10 +97,18 @@ export interface PotBid {
 export interface PublicUserBid {
   id: number;
   pot_id: number;
-  pot?: Pick<Pot, 'id' | 'title'>;
+  pot?: Pick<Pot, 'id' | 'title' | 'status'>;
   amount: number;
   expires_at?: string;
   created_at: string;
+}
+
+export interface PledgePage {
+  data: PublicUserBid[];
+  current_page: number;
+  last_page: number;
+  total: number;
+  per_page: number;
 }
 
 export interface PublicUser {

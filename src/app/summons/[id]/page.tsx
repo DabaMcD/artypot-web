@@ -60,11 +60,11 @@ function HeraldGateModal({
         {/* Explanation */}
         <p className="text-sm text-muted leading-relaxed mb-5">
           {summon.herald?.id ? (
-            <Link href={`/users/${summon.herald.id}`} onClick={onClose} className="text-creator font-semibold hover:underline">
+            <Link href={`/users/${summon.herald.id}`} onClick={onClose} className="text-brand font-semibold hover:underline">
               {heraldName}
             </Link>
           ) : (
-            <span className="text-creator font-semibold">{heraldName}</span>
+            <span className="text-brand font-semibold">{heraldName}</span>
           )}{' '}
           is the current Herald for this unclaimed profile. The Herald is the top pledger who earns
           the right to keep this profile up to date. To take the edit seat, your total pledges
