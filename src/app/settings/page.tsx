@@ -133,8 +133,10 @@ export default function SettingsPage() {
     try {
       const updated = await notifApi.update({ [key]: value });
       setNotifSettings(updated);
+      toast('Settings saved.', 'success');
     } catch {
       setNotifSettings({ ...notifSettings, [key]: !value });
+      toast('Failed to save. Please try again.', 'error');
     } finally {
       setNotifSaving((prev) => { const s = new Set(prev); s.delete(key); return s; });
     }
