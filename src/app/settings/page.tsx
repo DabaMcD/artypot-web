@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { users as usersApi, auth as authApi } from '@/lib/api';
+import { users as usersApi, auth as authApi, notificationSettings as notifApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import type { NotificationSettings } from '@/lib/types';
 
 interface ToggleProps {
   id: string;
@@ -103,6 +104,10 @@ export default function SettingsPage() {
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Notification settings
+  const [notifSettings, setNotifSettings] = useState<NotificationSettings | null>(null);
+  const [notifSaving, setNotifSaving] = useState<Set<string>>(new Set());
+
   // Danger zone dialogs
   const [showBrokeConfirm, setShowBrokeConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -117,7 +122,22 @@ export default function SettingsPage() {
     }
     setIsAnonymous(user.is_anonymous ?? false);
     setCoverFees(user.cover_processing_fees ?? false);
+    notifApi.get().then(setNotifSettings).catch(() => {});
   }, [user, authLoading, router]);
+
+  const handleNotifToggle = async (key: keyof NotificationSettings, value: boolean) => {
+    if (!notifSettings) return;
+    setNotifSettings({ ...notifSettings, [key]: value });
+    setNotifSaving((prev) => new Set(prev).add(key));
+    try {
+      const updated = await notifApi.update({ [key]: value });
+      setNotifSettings(updated);
+    } catch {
+      setNotifSettings({ ...notifSettings, [key]: !value });
+    } finally {
+      setNotifSaving((prev) => { const s = new Set(prev); s.delete(key); return s; });
+    }
+  };
 
   const handleToggle = async (field: 'is_anonymous' | 'cover_processing_fees', value: boolean) => {
     if (!user) return;
@@ -257,6 +277,81 @@ export default function SettingsPage() {
           >
             Go to Billing →
           </Link>
+        </div>
+
+        {/* Notifications */}
+        <div id="notifications" className="bg-surface border border-border rounded-xl p-5 mb-6">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-1">Email Notifications</h2>
+          {!notifSettings ? (
+            <div className="py-6 text-center text-sm text-muted">Loading…</div>
+          ) : (
+            <>
+              <Toggle
+                id="notif-summon-answered"
+                label="Summon Answered"
+                description="Get an email when a creator claims their profile and your votive activates."
+                checked={notifSettings.summon_answered}
+                onChange={(val) => handleNotifToggle('summon_answered', val)}
+                saving={notifSaving.has('summon_answered')}
+              />
+              <Toggle
+                id="notif-pot-pending"
+                label="Pot Pending Completion"
+                description="Get an email when a creator submits a pot for Council review."
+                checked={notifSettings.pot_pending_completion}
+                onChange={(val) => handleNotifToggle('pot_pending_completion', val)}
+                saving={notifSaving.has('pot_pending_completion')}
+              />
+              <Toggle
+                id="notif-pot-confirmed"
+                label="Pot Confirmed Complete"
+                description="Get an email when The Council confirms a pot is complete and payment is queued."
+                checked={notifSettings.pot_confirmed_completed}
+                onChange={(val) => handleNotifToggle('pot_confirmed_completed', val)}
+                saving={notifSaving.has('pot_confirmed_completed')}
+              />
+              <Toggle
+                id="notif-votive-confirmation"
+                label="Votive Confirmation"
+                description="Get a confirmation email every time you place a votive."
+                checked={notifSettings.votive_confirmation}
+                onChange={(val) => handleNotifToggle('votive_confirmation', val)}
+                saving={notifSaving.has('votive_confirmation')}
+              />
+              <Toggle
+                id="notif-monthly-preview"
+                label="Monthly Votive Preview"
+                description="Get a heads-up email 24 hours before your payment method is charged."
+                checked={notifSettings.monthly_votive_preview}
+                onChange={(val) => handleNotifToggle('monthly_votive_preview', val)}
+                saving={notifSaving.has('monthly_votive_preview')}
+              />
+              <Toggle
+                id="notif-monthly-receipt"
+                label="Monthly Votive Receipt"
+                description="Get a full breakdown email after your payment is processed each month."
+                checked={notifSettings.monthly_votive_receipt}
+                onChange={(val) => handleNotifToggle('monthly_votive_receipt', val)}
+                saving={notifSaving.has('monthly_votive_receipt')}
+              />
+              <Toggle
+                id="notif-herald-gained"
+                label="Herald Status Gained"
+                description="Get an email when you become the Herald for a creator's unclaimed profile."
+                checked={notifSettings.herald_status_gained}
+                onChange={(val) => handleNotifToggle('herald_status_gained', val)}
+                saving={notifSaving.has('herald_status_gained')}
+              />
+              <Toggle
+                id="notif-herald-lost"
+                label="Herald Status Lost"
+                description="Get an email when another fan surpasses you and takes over as Herald."
+                checked={notifSettings.herald_status_lost}
+                onChange={(val) => handleNotifToggle('herald_status_lost', val)}
+                saving={notifSaving.has('herald_status_lost')}
+              />
+            </>
+          )}
         </div>
 
         {/* Danger zone */}

@@ -3,6 +3,7 @@ import type {
   PublicUser,
   Summon,
   SummonName,
+  NotificationSettings,
   Pot,
   PotVotive,
   PotCompletion,
@@ -171,6 +172,16 @@ export const votives = {
     const qs = new URLSearchParams(entries).toString();
     return request<VotivePage>(`/auth/votives${qs ? `?${qs}` : ''}`);
   },
+};
+
+// Notification settings
+export const notificationSettings = {
+  get: () => request<NotificationSettings>('/auth/notification-settings'),
+  update: (data: Partial<NotificationSettings>) =>
+    request<NotificationSettings>('/auth/notification-settings', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
 };
 
 // Cash / Billing

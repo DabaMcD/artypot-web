@@ -171,3 +171,14 @@ export interface PaymentMethod {
   exp_month: number;
   exp_year: number;
 }
+
+export interface NotificationSettings {
+  summon_answered: boolean;
+  pot_pending_completion: boolean;
+  pot_confirmed_completed: boolean;
+  votive_confirmation: boolean;
+  monthly_votive_preview: boolean;
+  monthly_votive_receipt: boolean;
+  herald_status_gained: boolean;
+  herald_status_lost: boolean;
+}
