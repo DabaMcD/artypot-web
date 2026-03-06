@@ -34,7 +34,7 @@ export default function Nav() {
             Browse Pots
           </Link>
           <Link href="/summons" className={`transition-colors ${isActive('/summons')}`}>
-            Creators
+            The Summoned Ones
           </Link>
           <Link href="/guide" className={`transition-colors ${isActive('/guide')}`}>
             I&apos;m Confused

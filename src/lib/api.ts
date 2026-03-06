@@ -82,8 +82,15 @@ export const auth = {
 
 // Summons
 export const summons = {
-  list: (params?: { q?: string; page?: number }) => {
-    const entries = Object.entries(params ?? {}).filter(([, v]) => v != null) as [string, string][];
+  list: (params?: {
+    q?: string;
+    page?: number;
+    status?: 'answered' | 'unanswered';
+    sort?: 'newest' | 'most_summoned' | 'most_completed';
+  }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null)
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
     const qs = new URLSearchParams(entries).toString();
     return request<PaginatedResponse<Summon>>(`/summons${qs ? `?${qs}` : ''}`);
   },
