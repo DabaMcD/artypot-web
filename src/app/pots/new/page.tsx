@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent, useEffect, Suspense } from 'react';
+import { useState, FormEvent, useEffect, useRef, Suspense } from 'react';
 import { useToast } from '@/lib/toast-context';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -9,6 +9,28 @@ import { useAuth } from '@/lib/auth-context';
 import type { Summon } from '@/lib/types';
 
 type CreatorMode = 'search' | 'create';
+
+/** Small avatar: profile picture if available, else coloured initial. */
+function SummonAvatar({ summon, size = 'sm' }: { summon: Summon; size?: 'sm' | 'md' }) {
+  const dim = size === 'md' ? 'w-7 h-7 text-sm' : 'w-5 h-5 text-xs';
+  if (summon.profile_picture) {
+    return (
+      <img
+        src={summon.profile_picture}
+        alt={summon.display_name}
+        className={`${dim} rounded-full object-cover shrink-0`}
+      />
+    );
+  }
+  return (
+    <span
+      className={`${dim} rounded-full flex items-center justify-center font-bold shrink-0`}
+      style={{ background: '#47DFD3', color: '#0a0a0a' }}
+    >
+      {summon.display_name.charAt(0).toUpperCase()}
+    </span>
+  );
+}
 
 function NewPotForm() {
   const { user, loading: authLoading } = useAuth();
@@ -31,6 +53,9 @@ function NewPotForm() {
   // Search state
   const [summonSearch, setSummonSearch] = useState('');
   const [summonResults, setSummonResults] = useState<Summon[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchBlurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Inline create state
   const [newDisplayName, setNewDisplayName] = useState('');
@@ -59,13 +84,20 @@ function NewPotForm() {
 
   // Debounced summon search
   useEffect(() => {
-    if (!summonSearch || selectedSummon) return;
+    if (!summonSearch || selectedSummon) {
+      setSummonResults([]);
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
     const t = setTimeout(async () => {
       try {
         const res = await summonsApi.list({ q: summonSearch });
         setSummonResults(res.data.slice(0, 5));
       } catch {
         // ignore
+      } finally {
+        setSearchLoading(false);
       }
     }, 350);
     return () => clearTimeout(t);
@@ -76,6 +108,7 @@ function NewPotForm() {
     setSummonId(String(s.id));
     setSummonResults([]);
     setSummonSearch('');
+    setSearchFocused(false);
   };
 
   const clearCreator = () => {
@@ -100,13 +133,18 @@ function NewPotForm() {
     });
     setCreateError('');
     setSummonResults([]);
+    setSearchFocused(false);
     setCreatorMode('create');
   };
 
   const hasAtLeastOneHandle = Object.values(newHandles).some((v) => v.trim().length > 0);
 
-  const handleCreateSummon = async (e: FormEvent) => {
-    e.preventDefault();
+  // Prevent Enter key inside the create section from submitting the outer pot form
+  const preventEnter = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') e.preventDefault();
+  };
+
+  const handleCreateSummon = async () => {
     if (!hasAtLeastOneHandle) {
       setCreateError('Please fill in at least one social handle or website.');
       return;
@@ -152,6 +190,9 @@ function NewPotForm() {
       setSubmitting(false);
     }
   };
+
+  // Whether to show the search dropdown
+  const showDropdown = !selectedSummon && creatorMode === 'search' && (searchFocused || summonResults.length > 0 || summonSearch.trim().length > 0);
 
   if (authLoading) return null;
 
@@ -209,16 +250,11 @@ function NewPotForm() {
         <div>
           <label className="block text-sm font-medium text-foreground mb-1.5">Creator</label>
 
-          {/* Selected */}
+          {/* ── Selected ── */}
           {selectedSummon ? (
             <div className="flex items-center justify-between bg-surface-2 border border-creator/30 rounded-lg px-3 py-2.5">
               <div className="flex items-center gap-2">
-                <span
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                  style={{ background: '#47DFD3', color: '#0a0a0a' }}
-                >
-                  {selectedSummon.display_name.charAt(0).toUpperCase()}
-                </span>
+                <SummonAvatar summon={selectedSummon} />
                 <span className="text-sm text-creator font-medium">
                   {selectedSummon.display_name}
                 </span>
@@ -235,7 +271,7 @@ function NewPotForm() {
               </button>
             </div>
           ) : creatorMode === 'create' ? (
-            /* ── Inline create form ── */
+            /* ── Inline create panel ── */
             <div className="bg-surface-2 border border-creator/30 rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-semibold text-creator uppercase tracking-wider">
@@ -256,10 +292,10 @@ function NewPotForm() {
                 </label>
                 <input
                   type="text"
-                  required={creatorMode === 'create'}
                   maxLength={255}
                   value={newDisplayName}
                   onChange={(e) => setNewDisplayName(e.target.value)}
+                  onKeyDown={preventEnter}
                   placeholder="e.g. Kendrick Lamar"
                   autoFocus
                   className="w-full bg-surface border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors"
@@ -295,6 +331,7 @@ function NewPotForm() {
                         onChange={(e) =>
                           setNewHandles((prev) => ({ ...prev, [key]: e.target.value }))
                         }
+                        onKeyDown={preventEnter}
                         placeholder={placeholder}
                         className={`w-full bg-surface border rounded px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted focus:outline-none transition-colors ${
                           newHandles[key].trim()
@@ -332,26 +369,40 @@ function NewPotForm() {
                 type="text"
                 value={summonSearch}
                 onChange={(e) => setSummonSearch(e.target.value)}
-                placeholder="Search for a creator…"
+                onFocus={() => {
+                  if (searchBlurTimer.current) clearTimeout(searchBlurTimer.current);
+                  setSearchFocused(true);
+                }}
+                onBlur={() => {
+                  searchBlurTimer.current = setTimeout(() => setSearchFocused(false), 150);
+                }}
+                placeholder="Search by name…"
                 className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
               />
 
-              {/* Dropdown: results + create option */}
-              {(summonResults.length > 0 || summonSearch.trim().length > 0) && (
+              {/* Dropdown: results + loading + create option */}
+              {showDropdown && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-surface-2 border border-border rounded-lg shadow-xl z-10 overflow-hidden">
-                  {summonResults.map((s) => (
+                  {/* Loading indicator */}
+                  {searchLoading && (
+                    <div className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted">
+                      <svg className="w-3.5 h-3.5 animate-spin shrink-0" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                      </svg>
+                      Searching…
+                    </div>
+                  )}
+
+                  {/* Results */}
+                  {!searchLoading && summonResults.map((s) => (
                     <button
                       key={s.id}
                       type="button"
                       onClick={() => selectSummon(s)}
                       className="w-full text-left px-4 py-2.5 text-sm hover:bg-border transition-colors flex items-center gap-2"
                     >
-                      <span
-                        className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                        style={{ background: '#47DFD3', color: '#0a0a0a' }}
-                      >
-                        {s.display_name.charAt(0).toUpperCase()}
-                      </span>
+                      <SummonAvatar summon={s} />
                       <span className="text-foreground">{s.display_name}</span>
                       {!s.claimed_at && (
                         <span className="text-muted text-xs">(unclaimed)</span>
@@ -359,8 +410,13 @@ function NewPotForm() {
                     </button>
                   ))}
 
+                  {/* No results message */}
+                  {!searchLoading && summonSearch.trim().length > 0 && summonResults.length === 0 && (
+                    <div className="px-4 py-2.5 text-sm text-muted">No creators found.</div>
+                  )}
+
                   {/* Divider only if there are results above */}
-                  {summonResults.length > 0 && (
+                  {!searchLoading && summonResults.length > 0 && (
                     <div className="border-t border-border" />
                   )}
 
@@ -375,17 +431,6 @@ function NewPotForm() {
                       : 'Create a new creator profile'}
                   </button>
                 </div>
-              )}
-
-              {/* Persistent create link when dropdown isn't open */}
-              {summonSearch.trim().length === 0 && (
-                <button
-                  type="button"
-                  onClick={() => openCreateMode()}
-                  className="mt-2 text-xs text-creator hover:underline"
-                >
-                  + Create a new creator profile
-                </button>
               )}
             </div>
           )}

@@ -226,7 +226,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-surface-2 border border-border rounded-xl p-3 shadow-xl text-xs text-muted leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-20">
               <p className="text-foreground font-semibold mb-1.5">What&apos;s a votive?</p>
               <p className="mb-2">A votive is a pledge of support — like backing a Kickstarter. Your card is <strong className="text-foreground">not charged when you place a votive</strong>.</p>
-              <p className="mb-2">Cards are only charged once per month, and <strong className="text-foreground">only for pots that have been completed and approved</strong> by The Council.</p>
+              <p className="mb-2">Cards are <strong className="text-foreground">only charged</strong> once per month, and only <strong className="text-foreground">for pots that have been completed</strong> and approved by The Council.</p>
               <p>Most pots on Artypot are never completed, so most votives are never charged. You can revoke your votive at any time.</p>
             </div>
           </span>
