@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { users as usersApi, auth as authApi, notificationSettings as notifApi } from '@/lib/api';
+import { useToast } from '@/lib/toast-context';
 import { useAuth } from '@/lib/auth-context';
 import type { NotificationSettings } from '@/lib/types';
 
@@ -98,11 +99,11 @@ export default function SettingsPage() {
   const router = useRouter();
   const { user, loading: authLoading, refreshUser, logout } = useAuth();
 
+  const { toast } = useToast();
+
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [coverFees, setCoverFees] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
 
   // Notification settings
   const [notifSettings, setNotifSettings] = useState<NotificationSettings | null>(null);
@@ -142,8 +143,6 @@ export default function SettingsPage() {
   const handleToggle = async (field: 'is_anonymous' | 'cover_processing_fees', value: boolean) => {
     if (!user) return;
     setSaving(true);
-    setSuccessMsg('');
-    setErrorMsg('');
 
     if (field === 'is_anonymous') setIsAnonymous(value);
     if (field === 'cover_processing_fees') setCoverFees(value);
@@ -151,12 +150,11 @@ export default function SettingsPage() {
     try {
       await usersApi.update(user.id, { [field]: value });
       await refreshUser();
-      setSuccessMsg('Settings saved.');
-      setTimeout(() => setSuccessMsg(''), 3000);
+      toast('Settings saved.', 'success');
     } catch {
       if (field === 'is_anonymous') setIsAnonymous(!value);
       if (field === 'cover_processing_fees') setCoverFees(!value);
-      setErrorMsg('Failed to save. Please try again.');
+      toast('Failed to save. Please try again.', 'error');
     } finally {
       setSaving(false);
     }
@@ -391,9 +389,6 @@ export default function SettingsPage() {
           )}
         </div>
 
-        {/* Status messages */}
-        {successMsg && <p className="mt-4 text-sm text-green-400">{successMsg}</p>}
-        {errorMsg && <p className="mt-4 text-sm text-red-400">{errorMsg}</p>}
       </div>
     </>
   );

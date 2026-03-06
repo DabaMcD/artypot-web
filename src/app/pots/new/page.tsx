@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent, useEffect, Suspense } from 'react';
+import { useToast } from '@/lib/toast-context';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { pots as potsApi, summons as summonsApi } from '@/lib/api';
@@ -15,10 +16,11 @@ function NewPotForm() {
   const searchParams = useSearchParams();
   const prefillSummonId = searchParams.get('summon_id');
 
+  const { toast } = useToast();
+
   // Pot fields
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   // Creator selection
@@ -131,10 +133,9 @@ function NewPotForm() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!summonId) {
-      setError('Please select or create a creator for this pot.');
+      toast('Please select or create a creator for this pot.', 'error');
       return;
     }
-    setError('');
     setSubmitting(true);
     try {
       const res = await potsApi.create({
@@ -142,10 +143,11 @@ function NewPotForm() {
         description: description || undefined,
         summon_id: Number(summonId),
       });
-      router.push(`/pots/${res.data.id}`);
+      toast('Pot created!', 'success');
+      setTimeout(() => router.push(`/pots/${res.data.id}`), 700);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setError(e.message ?? 'Failed to create pot.');
+      toast(e.message ?? 'Failed to create pot.', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -175,12 +177,6 @@ function NewPotForm() {
         onSubmit={handleSubmit}
         className="bg-surface border border-border rounded-xl p-6 space-y-5"
       >
-        {error && (
-          <div className="bg-red-900/20 border border-red-800/50 text-red-400 text-sm rounded-lg px-4 py-3">
-            {error}
-          </div>
-        )}
-
         {/* Title */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-1.5">Title</label>

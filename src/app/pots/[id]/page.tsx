@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, use, FormEvent } from 'react';
+import { useToast } from '@/lib/toast-context';
 import Link from 'next/link';
 import { pots as potsApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -26,6 +27,7 @@ const STATUS_COLORS: Record<string, string> = {
 export default function PotDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const [pot, setPot] = useState<Pot | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,9 +39,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
 
   // Votive form
   const [votiveAmount, setVotiveAmount] = useState('');
-  const [votiveError, setVotiveError] = useState('');
   const [votiveLoading, setVotiveLoading] = useState(false);
-  const [votiveSuccess, setVotiveSuccess] = useState('');
 
   // Completion form
   const [showCompletion, setShowCompletion] = useState(false);
@@ -74,17 +74,16 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
 
   const handleVotive = async (e: FormEvent) => {
     e.preventDefault();
-    setVotiveError('');
-    setVotiveSuccess('');
     const amount = parseFloat(votiveAmount);
     if (isNaN(amount) || amount < 1) {
-      setVotiveError('Minimum votive is $1.00');
+      toast('Minimum votive is $1.00', 'error');
       return;
     }
+    const isUpdate = !!userVotive;
     setVotiveLoading(true);
     try {
       const res = await potsApi.votive(Number(id), amount);
-      setVotiveSuccess(`Votive of $${amount.toFixed(2)} placed!`);
+      toast(isUpdate ? 'Votive updated!' : `Votive of $${amount.toFixed(2)} placed!`, 'success');
       setVotiveAmount('');
       setPot((prev) => {
         if (!prev) return prev;
@@ -103,7 +102,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       });
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setVotiveError(e.message ?? 'Failed to place votive.');
+      toast(e.message ?? 'Failed to place votive.', 'error');
     } finally {
       setVotiveLoading(false);
     }
@@ -112,7 +111,6 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const handleRevokeVotive = async () => {
     if (!userVotive) return;
     setVotiveLoading(true);
-    setVotiveError('');
     try {
       await potsApi.removeVotive(Number(id), userVotive.id);
       setPot((prev) => {
@@ -125,10 +123,10 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           ),
         };
       });
-      setVotiveSuccess('Your votive has been revoked.');
+      toast('Votive revoked.', 'success');
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setVotiveError(e.message ?? 'Failed to revoke votive.');
+      toast(e.message ?? 'Failed to revoke votive.', 'error');
     } finally {
       setVotiveLoading(false);
     }
@@ -219,7 +217,20 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
     // Has payment method — show normal votive form
     return (
       <div className="bg-surface border border-border rounded-xl p-5">
-        <h2 className="font-semibold text-foreground mb-4">Back this pot</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="font-semibold text-foreground">Back this pot</h2>
+          <span className="relative group cursor-default">
+            <span className="text-muted text-xs w-4 h-4 rounded-full border border-muted/40 inline-flex items-center justify-center leading-none select-none hover:border-foreground/40 hover:text-foreground transition-colors">
+              i
+            </span>
+            <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-surface-2 border border-border rounded-xl p-3 shadow-xl text-xs text-muted leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-20">
+              <p className="text-foreground font-semibold mb-1.5">What&apos;s a votive?</p>
+              <p className="mb-2">A votive is a pledge of support — like backing a Kickstarter. Your card is <strong className="text-foreground">not charged when you place a votive</strong>.</p>
+              <p className="mb-2">Cards are only charged once per month, and <strong className="text-foreground">only for pots that have been completed and approved</strong> by The Council.</p>
+              <p>Most pots on Artypot are never completed, so most votives are never charged. You can revoke your votive at any time.</p>
+            </div>
+          </span>
+        </div>
 
         {userVotive ? (
           <div className="space-y-3">
@@ -291,9 +302,6 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             </button>
           </form>
         )}
-
-        {votiveError && <p className="text-red-400 text-xs mt-2">{votiveError}</p>}
-        {votiveSuccess && <p className="text-green-400 text-xs mt-2">{votiveSuccess}</p>}
 
         {/* Card on file indicator */}
         <div className="mt-3 pt-3 border-t border-border flex items-center gap-1.5 text-xs text-muted">
