@@ -231,3 +231,31 @@ export interface RemoveVotiveResult {
   pot_deleted: boolean;
   new_initiator_id: number | null;
 }
+
+export type PotHistoryEventType =
+  | 'created'
+  | 'votive_added'
+  | 'votive_revoked'
+  | 'details_edited'
+  | 'privilege_transfer'
+  | 'completed'
+  | 'approved';
+
+export interface PotHistoryEvent {
+  type: PotHistoryEventType;
+  /** ISO 8601 timestamp */
+  at: string;
+  user?: { id: number; name: string } | null;
+  amount?: number | null;
+  field?: string | null;
+  old_value?: string | null;
+  meta?: Record<string, unknown> | null;
+  votive_id?: number | null;
+  running_total: number;
+  snapshot: { title: string; description: string | null };
+}
+
+export interface PotHistory {
+  events: PotHistoryEvent[];
+  current: { title: string; description: string | null; total_pledged: number };
+}

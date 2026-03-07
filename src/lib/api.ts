@@ -9,6 +9,7 @@ import type {
   Pot,
   PotVotive,
   PotCompletion,
+  PotHistory,
   SummonClaim,
   PaginatedResponse,
   VotivePage,
@@ -218,6 +219,9 @@ export const pots = {
       method: 'POST',
       body: JSON.stringify({ submission_url, submission_notes }),
     }),
+
+  history: (potId: number) =>
+    request<PotHistory>(`/pots/${potId}/history`),
 };
 
 // Users

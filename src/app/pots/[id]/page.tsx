@@ -19,9 +19,10 @@ import { useToast } from '@/lib/toast-context';
 import Link from 'next/link';
 import { pots as potsApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { Pot, PotVotive, PaymentMethod } from '@/lib/types';
+import type { Pot, PotVotive, PaymentMethod, PotHistoryEvent } from '@/lib/types';
 import AddCardForm from '@/components/AddCardForm';
 import ShareButton from '@/components/ShareButton';
+import PotHistoryChart from '@/components/PotHistoryChart';
 
 const STATUS_LABELS: Record<string, string> = {
   open: 'Open',
@@ -38,6 +39,17 @@ const STATUS_COLORS: Record<string, string> = {
   paid_out: 'bg-council/10 text-council border-council/30',
   revoked: 'bg-red-900/40 text-red-400 border-red-800/50',
 };
+
+function formatHoverDate(iso: string): string {
+  return new Date(iso).toLocaleString('en-US', {
+    month:  'long',
+    day:    'numeric',
+    year:   'numeric',
+    hour:   'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
 
 export default function PotDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -75,6 +87,18 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const [completionError, setCompletionError] = useState('');
   const [completionLoading, setCompletionLoading] = useState(false);
 
+  // ── History ──────────────────────────────────────────────────────────────────
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyEvents, setHistoryEvents] = useState<PotHistoryEvent[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
+
+  /** Event the user is hovering over on the chart */
+  const [hoveredEvent, setHoveredEvent] = useState<PotHistoryEvent | null>(null);
+
+  /** When set, the header shows the historical title/description for this snapshot */
+  const [snapshotView, setSnapshotView] = useState<{ title: string; description: string | null } | null>(null);
+
   // Load pot
   useEffect(() => {
     potsApi
@@ -95,9 +119,28 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       .finally(() => setPmLoading(false));
   }, [user, pot?.status]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Fetch history the first time the panel is opened
+  useEffect(() => {
+    if (!showHistory || historyLoaded) return;
+    setHistoryLoading(true);
+    potsApi
+      .history(Number(id))
+      .then((res) => {
+        setHistoryEvents(res.events);
+        setHistoryLoaded(true);
+      })
+      .catch(() => toast('Failed to load history.', 'error'))
+      .finally(() => setHistoryLoading(false));
+  }, [showHistory]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const activeVotives = pot?.votives?.filter((v) => !v.revoked_at) ?? [];
   const userVotive = user ? activeVotives.find((v) => v.user_id === user.id) : null;
   const hasPaymentMethod = paymentMethods !== null && paymentMethods.length > 0;
+
+  // ── Derived display values ────────────────────────────────────────────────
+  const displayedTotal = hoveredEvent ? hoveredEvent.running_total : Number(pot?.total_pledged ?? 0);
+  const displayedTitle = snapshotView?.title ?? pot?.title ?? '';
+  const displayedDescription = snapshotView !== null ? snapshotView.description : pot?.description;
 
   const handleVotive = async (e: FormEvent) => {
     e.preventDefault();
@@ -186,6 +229,9 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       setPot((prev) => (prev ? { ...prev, title: res.data.title, description: res.data.description } : prev));
       toast('Pot updated!', 'success');
       setShowEditForm(false);
+      // Invalidate history cache so next open reflects the new edit
+      setHistoryLoaded(false);
+      setHistoryEvents([]);
     } catch (err: unknown) {
       const e = err as { message?: string };
       toast(e.message ?? 'Failed to update pot.', 'error');
@@ -452,9 +498,29 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-start gap-3">
-              <h1 className="text-2xl font-bold text-foreground leading-snug flex-1 min-w-0">
-                {pot.title}
-              </h1>
+              {/* Historical snapshot banner */}
+              {snapshotView !== null ? (
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-xs text-blue-400 bg-blue-400/10 border border-blue-400/20 rounded-full px-2 py-0.5">
+                      Historical view
+                    </span>
+                    <button
+                      onClick={() => setSnapshotView(null)}
+                      className="text-xs text-muted hover:text-foreground transition-colors"
+                    >
+                      ✕ Back to current
+                    </button>
+                  </div>
+                  <h1 className="text-2xl font-bold text-foreground/70 leading-snug flex-1 min-w-0">
+                    {displayedTitle}
+                  </h1>
+                </div>
+              ) : (
+                <h1 className="text-2xl font-bold text-foreground leading-snug flex-1 min-w-0">
+                  {displayedTitle}
+                </h1>
+              )}
               {isOwner && pot.status === 'open' && !showEditForm && (
                 <button
                   onClick={() => {
@@ -487,6 +553,12 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         {/* Inline edit form */}
         {showEditForm && isOwner && pot.status === 'open' && (
           <form onSubmit={handleEditSubmit} className="mb-4 space-y-3">
+            {/* Edit policy warning */}
+            <div className="bg-amber-900/20 border border-amber-700/40 rounded-lg px-3 py-2.5 text-xs text-amber-300/90 leading-relaxed">
+              <strong className="text-amber-300">Heads up:</strong> Edits may only clarify details
+              — you cannot change the core nature or purpose of this pot. The Council reviews the
+              full edit history before approving any pot.
+            </div>
             <div>
               <label className="block text-xs text-muted mb-1">Title</label>
               <input
@@ -526,8 +598,13 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           </form>
         )}
 
-        {pot.description && !showEditForm && (
-          <p className="text-muted leading-relaxed mb-5">{pot.description}</p>
+        {/* Description — show historical if in snapshot view */}
+        {!showEditForm && (
+          displayedDescription ? (
+            <p className={`leading-relaxed mb-5 ${snapshotView !== null ? 'text-muted/60' : 'text-muted'}`}>
+              {displayedDescription}
+            </p>
+          ) : null
         )}
 
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
@@ -550,14 +627,47 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           )}
         </div>
 
-        {/* Total pledged */}
+        {/* Total pledged + history toggle */}
         <div className="mt-5 pt-5 border-t border-border">
           <div className="text-brand font-bold text-3xl">
-            ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            ${displayedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
-          <div className="text-muted text-sm mt-0.5">
-            supported by {activeVotives.length} {activeVotives.length === 1 ? 'backer' : 'backers'}
+          <div className="flex items-center justify-between gap-2 mt-0.5">
+            <div>
+              <div className="text-muted text-sm">
+                supported by {activeVotives.length} {activeVotives.length === 1 ? 'backer' : 'backers'}
+              </div>
+              {hoveredEvent && (
+                <p className="text-xs text-muted/60 italic mt-0.5">
+                  *Votive total on {formatHoverDate(hoveredEvent.at)}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => setShowHistory((v) => !v)}
+              className="text-xs text-muted hover:text-foreground transition-colors px-2 py-1 rounded border border-border hover:border-foreground/30 shrink-0"
+            >
+              {showHistory ? 'Hide history' : 'Show history'}
+            </button>
           </div>
+
+          {/* History chart panel */}
+          {showHistory && (
+            <div className="mt-4">
+              {historyLoading ? (
+                <div className="h-[200px] bg-surface-2 animate-pulse rounded-xl" />
+              ) : (
+                <PotHistoryChart
+                  events={historyEvents}
+                  onHover={setHoveredEvent}
+                  onClickEdit={(event) => {
+                    setSnapshotView(event.snapshot);
+                    setHoveredEvent(null);
+                  }}
+                />
+              )}
+            </div>
+          )}
         </div>
       </div>
 
