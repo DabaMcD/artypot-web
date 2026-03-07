@@ -93,8 +93,8 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
 
-  /** Event the user is hovering over on the chart */
-  const [hoveredEvent, setHoveredEvent] = useState<PotHistoryEvent | null>(null);
+  /** Event the user has selected in the history list */
+  const [selectedEvent, setSelectedEvent] = useState<PotHistoryEvent | null>(null);
 
   /** When set, the header shows the historical title/description for this snapshot */
   const [snapshotView, setSnapshotView] = useState<{ title: string; description: string | null } | null>(null);
@@ -138,7 +138,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const hasPaymentMethod = paymentMethods !== null && paymentMethods.length > 0;
 
   // ── Derived display values ────────────────────────────────────────────────
-  const displayedTotal = hoveredEvent ? hoveredEvent.running_total : Number(pot?.total_pledged ?? 0);
+  const displayedTotal = selectedEvent ? selectedEvent.running_total : Number(pot?.total_pledged ?? 0);
   const displayedTitle = snapshotView?.title ?? pot?.title ?? '';
   const displayedDescription = snapshotView !== null ? snapshotView.description : pot?.description;
 
@@ -506,7 +506,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                       Historical view
                     </span>
                     <button
-                      onClick={() => setSnapshotView(null)}
+                      onClick={() => { setSnapshotView(null); setSelectedEvent(null); }}
                       className="text-xs text-muted hover:text-foreground transition-colors"
                     >
                       ✕ Back to current
@@ -637,9 +637,9 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               <div className="text-muted text-sm">
                 supported by {activeVotives.length} {activeVotives.length === 1 ? 'backer' : 'backers'}
               </div>
-              {hoveredEvent && (
+              {selectedEvent && (
                 <p className="text-xs text-muted/60 italic mt-0.5">
-                  *Votive total on {formatHoverDate(hoveredEvent.at)}
+                  *Votive total on {formatHoverDate(selectedEvent.at)}
                 </p>
               )}
             </div>
@@ -655,14 +655,22 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           {showHistory && (
             <div className="mt-4">
               {historyLoading ? (
-                <div className="h-[200px] bg-surface-2 animate-pulse rounded-xl" />
+                <div className="space-y-2">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="h-12 bg-surface-2 animate-pulse rounded-lg" />
+                  ))}
+                </div>
               ) : (
                 <PotHistoryChart
                   events={historyEvents}
-                  onHover={setHoveredEvent}
-                  onClickEdit={(event) => {
-                    setSnapshotView(event.snapshot);
-                    setHoveredEvent(null);
+                  selectedEvent={selectedEvent}
+                  onSelect={(event) => {
+                    setSelectedEvent(event);
+                    if (event && (event.type === 'created' || event.type === 'details_edited')) {
+                      setSnapshotView(event.snapshot);
+                    } else {
+                      setSnapshotView(null);
+                    }
                   }}
                 />
               )}
