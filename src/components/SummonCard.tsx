@@ -10,10 +10,7 @@ export default function SummonCard({ summon }: { summon: Summon }) {
     summon.total_votive_sum != null;
 
   return (
-    <Link
-      href={`/summons/${summon.id}`}
-      className="block bg-surface border border-border rounded-xl p-5 hover:border-creator/50 transition-colors group"
-    >
+    <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-creator/50 transition-colors group">
       <div className="flex items-center gap-3 mb-3">
         {/* Avatar */}
         {summon.profile_picture ? (
@@ -31,9 +28,15 @@ export default function SummonCard({ summon }: { summon: Summon }) {
           </div>
         )}
 
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
+          {/* Stretched link title */}
           <div className="font-semibold text-foreground group-hover:text-creator transition-colors truncate">
-            {summon.display_name}
+            <Link
+              href={`/summons/${summon.id}`}
+              className="after:absolute after:inset-0 focus:outline-none"
+            >
+              {summon.display_name}
+            </Link>
           </div>
           {isClaimed ? (
             <div className="text-xs text-creator">Answered ✓</div>
@@ -41,6 +44,7 @@ export default function SummonCard({ summon }: { summon: Summon }) {
             <div className="text-xs text-muted">Unanswered</div>
           )}
         </div>
+
       </div>
 
       {summon.description && (
@@ -69,11 +73,11 @@ export default function SummonCard({ summon }: { summon: Summon }) {
                   maximumFractionDigits: 0,
                 })}
               </span>{' '}
-              summoned
+              in active votives
             </span>
           )}
         </div>
       )}
-    </Link>
+    </div>
   );
 }

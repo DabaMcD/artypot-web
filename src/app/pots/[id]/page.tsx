@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, use, FormEvent, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 
 type ExpireUnit = 'years' | 'months' | 'weeks' | 'days' | 'hours' | 'minutes';
 
@@ -20,6 +21,7 @@ import { pots as potsApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { Pot, PotVotive, PaymentMethod } from '@/lib/types';
 import AddCardForm from '@/components/AddCardForm';
+import ShareButton from '@/components/ShareButton';
 
 const STATUS_LABELS: Record<string, string> = {
   open: 'Open',
@@ -41,6 +43,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const { id } = use(params);
   const { user } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
 
   const [pot, setPot] = useState<Pot | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,6 +58,15 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const [expireValue, setExpireValue] = useState('10');
   const [expireUnit, setExpireUnit] = useState<ExpireUnit>('years');
   const [votiveLoading, setVotiveLoading] = useState(false);
+
+  // Last-votive confirm dialog
+  const [showLastVotiveConfirm, setShowLastVotiveConfirm] = useState(false);
+
+  // Edit form
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editLoading, setEditLoading] = useState(false);
 
   // Completion form
   const [showCompletion, setShowCompletion] = useState(false);
@@ -132,17 +144,27 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const handleRevokeVotive = async () => {
     if (!userVotive) return;
     setVotiveLoading(true);
+    setShowLastVotiveConfirm(false);
     try {
-      await potsApi.removeVotive(Number(id), userVotive.id);
+      const result = await potsApi.removeVotive(Number(id), userVotive.id);
+      if (result.pot_deleted) {
+        toast('Your votive was revoked and the pot was deleted.', 'success');
+        router.push('/pots');
+        return;
+      }
       setPot((prev) => {
         if (!prev) return prev;
-        return {
+        const updated: Pot = {
           ...prev,
           total_pledged: prev.total_pledged - userVotive.amount,
           votives: (prev.votives ?? []).map((v) =>
             v.id === userVotive.id ? { ...v, revoked_at: new Date().toISOString() } : v,
           ),
         };
+        if (result.new_initiator_id !== null) {
+          updated.initiator_user_id = result.new_initiator_id!;
+        }
+        return updated;
       });
       toast('Votive revoked.', 'success');
     } catch (err: unknown) {
@@ -150,6 +172,25 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       toast(e.message ?? 'Failed to revoke votive.', 'error');
     } finally {
       setVotiveLoading(false);
+    }
+  };
+
+  const handleEditSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setEditLoading(true);
+    try {
+      const res = await potsApi.update(Number(id), {
+        title: editTitle,
+        description: editDescription || undefined,
+      });
+      setPot((prev) => (prev ? { ...prev, title: res.data.title, description: res.data.description } : prev));
+      toast('Pot updated!', 'success');
+      setShowEditForm(false);
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast(e.message ?? 'Failed to update pot.', 'error');
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -173,32 +214,8 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
     }
   };
 
-  if (loading) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 py-10 space-y-4">
-        <div className="h-48 bg-surface border border-border rounded-xl animate-pulse" />
-        <div className="h-32 bg-surface border border-border rounded-xl animate-pulse" />
-      </div>
-    );
-  }
-
-  if (error || !pot) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 py-10 text-red-400">
-        {error || 'Pot not found.'}
-      </div>
-    );
-  }
-
-  const isOwner = user && pot.initiator_user_id === user.id;
-  const isCreator =
-    user &&
-    pot.summon?.user_id === user.id &&
-    (user.role === 'summoned' || user.role === 'council');
-  const canVote = user && pot.status === 'open';
-  const canSubmitCompletion = isCreator && pot.status === 'open';
-
   // ── Expiry picker (shared between new + update forms) ───────────────────────
+  // Must be declared before any early returns to satisfy Rules of Hooks.
   const renderExpirePicker = useCallback(() => (
     <div className="flex items-center gap-2">
       <span className="text-xs text-muted shrink-0">Expires in</span>
@@ -225,6 +242,31 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       </select>
     </div>
   ), [expireValue, expireUnit]);
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-10 space-y-4">
+        <div className="h-48 bg-surface border border-border rounded-xl animate-pulse" />
+        <div className="h-32 bg-surface border border-border rounded-xl animate-pulse" />
+      </div>
+    );
+  }
+
+  if (error || !pot) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-10 text-red-400">
+        {error || 'Pot not found.'}
+      </div>
+    );
+  }
+
+  const isOwner = user && pot.initiator_user_id === user.id;
+  const isCreator =
+    user &&
+    pot.summon?.user_id === user.id &&
+    (user.role === 'summoned' || user.role === 'council');
+  const canVote = user && pot.status === 'open';
+  const canSubmitCompletion = isCreator && pot.status === 'open';
 
   // ── Votive panel content ────────────────────────────────────────────────────
   const renderVotivePanel = () => {
@@ -330,7 +372,13 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               </button>
             </form>
             <button
-              onClick={handleRevokeVotive}
+              onClick={() => {
+                if (activeVotives.length === 1) {
+                  setShowLastVotiveConfirm(true);
+                } else {
+                  handleRevokeVotive();
+                }
+              }}
               disabled={votiveLoading}
               className="w-full text-sm text-muted hover:text-red-400 transition-colors py-1"
             >
@@ -370,18 +418,115 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
+      {/* Last-votive confirm dialog */}
+      {showLastVotiveConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-surface border border-border rounded-xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 className="font-bold text-foreground text-lg mb-2">Remove last votive?</h3>
+            <p className="text-muted text-sm leading-relaxed mb-6">
+              You&apos;re the only backer of this pot. Removing your votive will permanently delete the
+              pot. This cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleRevokeVotive}
+                disabled={votiveLoading}
+                className="flex-1 bg-red-600 hover:bg-red-500 text-white font-semibold py-2 text-sm rounded-lg disabled:opacity-50 transition-colors"
+              >
+                {votiveLoading ? 'Removing…' : 'Yes, delete pot'}
+              </button>
+              <button
+                onClick={() => setShowLastVotiveConfirm(false)}
+                disabled={votiveLoading}
+                className="flex-1 bg-surface-2 border border-border text-muted hover:text-foreground font-medium py-2 text-sm rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Pot header */}
       <div className="bg-surface border border-border rounded-xl p-6 mb-6">
         <div className="flex items-start justify-between gap-4 mb-4">
-          <h1 className="text-2xl font-bold text-foreground leading-snug">{pot.title}</h1>
-          <span
-            className={`shrink-0 text-sm font-medium px-3 py-1 rounded-full border ${STATUS_COLORS[pot.status]}`}
-          >
-            {STATUS_LABELS[pot.status]}
-          </span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start gap-3">
+              <h1 className="text-2xl font-bold text-foreground leading-snug flex-1 min-w-0">
+                {pot.title}
+              </h1>
+              {isOwner && pot.status === 'open' && !showEditForm && (
+                <button
+                  onClick={() => {
+                    setEditTitle(pot.title);
+                    setEditDescription(pot.description ?? '');
+                    setShowEditForm(true);
+                  }}
+                  className="shrink-0 text-xs text-muted hover:text-foreground transition-colors mt-1 px-2 py-1 rounded border border-border hover:border-foreground/30"
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <ShareButton
+              path={`/pots/${pot.id}`}
+              title={pot.title}
+              text={`Back "${pot.title}" on artypot!`}
+              size="sm"
+            />
+            <span
+              className={`text-sm font-medium px-3 py-1 rounded-full border ${STATUS_COLORS[pot.status]}`}
+            >
+              {STATUS_LABELS[pot.status]}
+            </span>
+          </div>
         </div>
 
-        {pot.description && (
+        {/* Inline edit form */}
+        {showEditForm && isOwner && pot.status === 'open' && (
+          <form onSubmit={handleEditSubmit} className="mb-4 space-y-3">
+            <div>
+              <label className="block text-xs text-muted mb-1">Title</label>
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                maxLength={255}
+                required
+                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-muted mb-1">Description</label>
+              <textarea
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                rows={3}
+                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={editLoading}
+                className="bg-brand text-black font-semibold px-4 py-2 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50 transition-colors"
+              >
+                {editLoading ? 'Saving…' : 'Save changes'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowEditForm(false)}
+                className="px-4 py-2 text-sm text-muted hover:text-foreground transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+
+        {pot.description && !showEditForm && (
           <p className="text-muted leading-relaxed mb-5">{pot.description}</p>
         )}
 
@@ -411,7 +556,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
           <div className="text-muted text-sm mt-0.5">
-            pledged by {activeVotives.length} {activeVotives.length === 1 ? 'backer' : 'backers'}
+            supported by {activeVotives.length} {activeVotives.length === 1 ? 'backer' : 'backers'}
           </div>
         </div>
       </div>

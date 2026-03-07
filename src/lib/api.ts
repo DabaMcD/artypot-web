@@ -4,6 +4,8 @@ import type {
   Summon,
   SummonName,
   NotificationSettings,
+  UserNotification,
+  NotificationPage,
   Pot,
   PotVotive,
   PotCompletion,
@@ -13,6 +15,7 @@ import type {
   CashBalance,
   PaymentMethod,
   PotStatus,
+  RemoveVotiveResult,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -78,6 +81,62 @@ export const auth = {
     request<{ data: { revoked_count: number } }>('/auth/broke', { method: 'POST' }),
 
   deleteAccount: () => request('/auth/account', { method: 'DELETE' }),
+
+  verifyEmail: (id: string, hash: string, expires: string, signature: string) =>
+    request<{ message: string }>(
+      `/auth/email/verify/${id}/${hash}?expires=${expires}&signature=${signature}`
+    ),
+
+  resendVerification: () =>
+    request<{ message: string }>('/auth/email/resend', { method: 'POST' }),
+
+  forgotPassword: (email: string) =>
+    request<{ message: string }>('/auth/password/forgot', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (data: {
+    token: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+  }) =>
+    request<{ message: string }>('/auth/password/reset', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  changePassword: (data: {
+    current_password: string;
+    password: string;
+    password_confirmation: string;
+  }) =>
+    request<{ message: string }>('/auth/password/change', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+};
+
+// Phone number verification
+export const phone = {
+  /** Send a 6-digit code to the given number and save it as pending. */
+  sendCode: (phone_number: string) =>
+    request<{ message: string }>('/auth/phone', {
+      method: 'POST',
+      body: JSON.stringify({ phone_number }),
+    }),
+
+  /** Verify the 6-digit code received via SMS. */
+  verifyCode: (code: string) =>
+    request<{ message: string; phone_number: string; phone_verified_at: string }>('/auth/phone/verify', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    }),
+
+  /** Remove the saved phone number entirely. */
+  remove: () =>
+    request<{ message: string }>('/auth/phone', { method: 'DELETE' }),
 };
 
 // Summons
@@ -142,6 +201,9 @@ export const pots = {
 
   delete: (id: number) => request(`/pots/${id}`, { method: 'DELETE' }),
 
+  update: (id: number, data: { title?: string; description?: string }) =>
+    request<{ data: Pot }>(`/pots/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+
   votive: (potId: number, amount: number, expires_at?: string) =>
     request<{ data: PotVotive & { pot: { total_pledged: number } } }>(`/pots/${potId}/votives`, {
       method: 'POST',
@@ -149,7 +211,7 @@ export const pots = {
     }),
 
   removeVotive: (potId: number, votiveId: number) =>
-    request(`/pots/${potId}/votives/${votiveId}`, { method: 'DELETE' }),
+    request<RemoveVotiveResult>(`/pots/${potId}/votives/${votiveId}`, { method: 'DELETE' }),
 
   submitCompletion: (potId: number, submission_url: string, submission_notes?: string) =>
     request<{ data: PotCompletion }>(`/pots/${potId}/completion`, {
@@ -188,6 +250,27 @@ export const notificationSettings = {
     request<NotificationSettings>('/auth/notification-settings', {
       method: 'PUT',
       body: JSON.stringify(data),
+    }),
+};
+
+// In-app notifications
+export const notifications = {
+  list: (page = 1) =>
+    request<NotificationPage>(`/notifications?page=${page}`),
+
+  unreadCount: () =>
+    request<{ unread_count: number }>('/notifications/unread-count'),
+
+  markRead: (id: number) =>
+    request<UserNotification>(`/notifications/${id}/read`, { method: 'PATCH' }),
+
+  markAllRead: () =>
+    request<{ message: string }>('/notifications/read-all', { method: 'POST' }),
+
+  bulkRead: (ids: number[]) =>
+    request<{ message: string }>('/notifications/bulk-read', {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
     }),
 };
 

@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth-context';
 import type { Pot, CashBalance, PaginatedResponse, PaymentMethod, PublicUserVotive } from '@/lib/types';
 import PotCard from '@/components/PotCard';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
+import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -66,6 +67,11 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
+      {/* Email verification warning */}
+      {!user.email_verified_at && (
+        <EmailVerificationBanner email={user.email} />
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>

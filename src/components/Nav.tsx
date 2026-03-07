@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useState } from 'react';
+import NotificationBell from '@/components/NotificationBell';
 
 export default function Nav() {
   const { user, logout, loading } = useAuth();
@@ -46,6 +47,8 @@ export default function Nav() {
           {loading ? (
             <div className="w-20 h-8 rounded bg-surface-2 animate-pulse" />
           ) : user ? (
+            <>
+            <NotificationBell />
             <div className="relative">
               <button
                 onClick={() => setMenuOpen((o) => !o)}
@@ -124,6 +127,7 @@ export default function Nav() {
                 </>
               )}
             </div>
+            </>
           ) : (
             <>
               <Link

@@ -18,10 +18,81 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  /* Bump base font from 16px to 17px — scales all rem-based sizes up proportionally */
+  font-size: 17px;
+}
+
 body {
   background-color: #0a0a0a;
   color: #ededed;
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-size: 1rem; /* 17px */
+}
+
+/* ── react-phone-number-input dark theme ────────────────────────────────── */
+/* Scoped to .artypot-phone-input so we don't bleed into any other use      */
+.artypot-phone-input .PhoneInput {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.artypot-phone-input .PhoneInputCountry {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+  position: relative;
+}
+
+/* The native <select> sits invisibly over the flag and handles click/keyboard */
+.artypot-phone-input .PhoneInputCountrySelect {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.artypot-phone-input .PhoneInputCountrySelect[disabled] {
+  cursor: default;
+}
+
+/* Flag wrapper — remove default light-mode box-shadow */
+.artypot-phone-input .PhoneInputCountryIcon {
+  width: 1.5em;
+  height: 1em;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.artypot-phone-input .PhoneInputCountryIcon--border {
+  box-shadow: none;
+  background: transparent;
+}
+
+.artypot-phone-input .PhoneInputCountryIconImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dropdown arrow */
+.artypot-phone-input .PhoneInputCountrySelectArrow {
+  display: block;
+  width: 0.3em;
+  height: 0.3em;
+  margin-left: 0.3em;
+  margin-bottom: 0.1em;
+  border-style: solid;
+  border-color: #888888;
+  border-top-width: 0;
+  border-left-width: 0;
+  transform: rotate(45deg);
+  opacity: 0.7;
 }
 
 /* Scrollbar */

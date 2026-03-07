@@ -43,7 +43,7 @@ export default function GuidePage() {
             <div>
               <h2 className="text-lg font-bold text-brand mb-1">The Votive</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                A pledge of money placed into a pot. Like a candle lit in hope — your votive signals your belief in a project and your willingness to pay when it&apos;s completed. Votives are only charged when a project is approved and paid out by The Council. You can cancel your votive at any time before that.
+                A pledge of money placed into a pot. Your votive signals your belief in a project and your willingness to pay when it&apos;s completed. Votives are only charged when a project is approved and paid out by The Council. You can cancel your votive at any time before that.
               </p>
             </div>
           </div>

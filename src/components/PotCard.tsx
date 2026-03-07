@@ -14,13 +14,16 @@ export default function PotCard({ pot }: { pot: Pot }) {
   const backerCount = pot.votives?.filter((v) => !v.revoked_at).length ?? null;
 
   return (
-    <Link
-      href={`/pots/${pot.id}`}
-      className="block bg-surface border border-border rounded-xl p-5 hover:border-brand/50 transition-colors group"
-    >
+    <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-brand/50 transition-colors group">
       <div className="flex items-start justify-between gap-3 mb-3">
+        {/* Stretched link title — ::after pseudo-element covers the whole card */}
         <h3 className="font-semibold text-foreground group-hover:text-brand transition-colors line-clamp-2 leading-snug">
-          {pot.title}
+          <Link
+            href={`/pots/${pot.id}`}
+            className="after:absolute after:inset-0 focus:outline-none"
+          >
+            {pot.title}
+          </Link>
         </h3>
         <span
           className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full border ${status.className}`}
@@ -53,6 +56,6 @@ export default function PotCard({ pot }: { pot: Pot }) {
           </div>
         )}
       </div>
-    </Link>
+    </div>
   );
 }

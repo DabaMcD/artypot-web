@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { users as usersApi, auth as authApi, notificationSettings as notifApi } from '@/lib/api';
+import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi } from '@/lib/api';
+import EmailVerificationBanner from '@/components/EmailVerificationBanner';
+import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 import { useToast } from '@/lib/toast-context';
 import { useAuth } from '@/lib/auth-context';
 import type { NotificationSettings } from '@/lib/types';
@@ -44,6 +46,41 @@ function Toggle({ id, label, description, checked, onChange, saving }: TogglePro
         />
       </button>
     </div>
+  );
+}
+
+// Small inline toggle pill for the compact notification table
+function MiniToggle({
+  checked,
+  onChange,
+  saving,
+  label,
+  disabled = false,
+}: {
+  checked: boolean;
+  onChange: (val: boolean) => void;
+  saving: boolean;
+  label: string;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      role="switch"
+      type="button"
+      aria-checked={checked}
+      aria-label={label}
+      disabled={saving || disabled}
+      onClick={() => !disabled && onChange(!checked)}
+      className={`relative shrink-0 w-9 h-5 rounded-full transition-colors focus:outline-none disabled:opacity-30 ${
+        checked && !disabled ? 'bg-creator' : 'bg-surface-2 border border-border'
+      }`}
+    >
+      <span
+        className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+          checked ? 'translate-x-4' : 'translate-x-0'
+        }`}
+      />
+    </button>
   );
 }
 
@@ -94,6 +131,79 @@ function ConfirmDialog({
   );
 }
 
+// ── Notification rows definition ───────────────────────────────────────────
+const NOTIF_ROWS: {
+  label: string;
+  desc: string;
+  emailKey: keyof NotificationSettings;
+  smsKey: keyof NotificationSettings;
+  inAppKey: keyof NotificationSettings;
+}[] = [
+  {
+    label: 'Summon Answered',
+    desc: 'A creator claims their profile and your votive activates.',
+    emailKey: 'summon_answered',
+    smsKey: 'sms_summon_answered',
+    inAppKey: 'in_app_summon_answered',
+  },
+  {
+    label: 'Pot Pending Review',
+    desc: 'A creator submits a pot for Council review.',
+    emailKey: 'pot_pending_completion',
+    smsKey: 'sms_pot_pending_completion',
+    inAppKey: 'in_app_pot_pending_completion',
+  },
+  {
+    label: 'Pot Confirmed Complete',
+    desc: 'Council approves a pot and payment is queued.',
+    emailKey: 'pot_confirmed_completed',
+    smsKey: 'sms_pot_confirmed_completed',
+    inAppKey: 'in_app_pot_confirmed_completed',
+  },
+  {
+    label: 'Votive Confirmation',
+    desc: 'You placed a votive.',
+    emailKey: 'votive_confirmation',
+    smsKey: 'sms_votive_confirmation',
+    inAppKey: 'in_app_votive_confirmation',
+  },
+  {
+    label: 'Votive Expired',
+    desc: 'A votive of yours reached its expiry and was removed.',
+    emailKey: 'votive_expired',
+    smsKey: 'sms_votive_expired',
+    inAppKey: 'in_app_votive_expired',
+  },
+  {
+    label: 'Pot Updated',
+    desc: 'An initiator changes the title or description of a pot you back.',
+    emailKey: 'pot_updated',
+    smsKey: 'sms_pot_updated',
+    inAppKey: 'in_app_pot_updated',
+  },
+  {
+    label: 'Monthly Billing Preview',
+    desc: 'Heads-up before your payment method is charged.',
+    emailKey: 'monthly_votive_preview',
+    smsKey: 'sms_monthly_votive_preview',
+    inAppKey: 'in_app_monthly_votive_preview',
+  },
+  {
+    label: 'Monthly Receipt',
+    desc: 'Breakdown after your monthly payment is processed.',
+    emailKey: 'monthly_votive_receipt',
+    smsKey: 'sms_monthly_votive_receipt',
+    inAppKey: 'in_app_monthly_votive_receipt',
+  },
+  {
+    label: 'Herald Status Lost',
+    desc: 'Another fan outbids you as Herald on a summon.',
+    emailKey: 'herald_status_lost',
+    smsKey: 'sms_herald_status_lost',
+    inAppKey: 'in_app_herald_status_lost',
+  },
+];
+
 // ── Main page ──────────────────────────────────────────────────────────────
 export default function SettingsPage() {
   const router = useRouter();
@@ -108,6 +218,18 @@ export default function SettingsPage() {
   // Notification settings
   const [notifSettings, setNotifSettings] = useState<NotificationSettings | null>(null);
   const [notifSaving, setNotifSaving] = useState<Set<string>>(new Set());
+
+  // Phone management
+  const [phoneInput, setPhoneInput] = useState<E164Number | undefined>(undefined);
+  const [codeInput, setCodeInput] = useState('');
+  const [phoneStep, setPhoneStep] = useState<'idle' | 'awaiting_code'>('idle');
+  const [phoneSaving, setPhoneSaving] = useState(false);
+
+  // Change password
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
+  const [pwLoading, setPwLoading] = useState(false);
 
   // Danger zone dialogs
   const [showBrokeConfirm, setShowBrokeConfirm] = useState(false);
@@ -162,6 +284,82 @@ export default function SettingsPage() {
     }
   };
 
+  const handleSendCode = async () => {
+    if (!phoneInput || !isValidPhoneNumber(phoneInput)) return;
+    setPhoneSaving(true);
+    try {
+      await phoneApi.sendCode(phoneInput);
+      setPhoneStep('awaiting_code');
+      setCodeInput('');
+      toast('Verification code sent!', 'success');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast(e.message ?? 'Failed to send code. Check the number and try again.', 'error');
+    } finally {
+      setPhoneSaving(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (!codeInput.trim()) return;
+    setPhoneSaving(true);
+    try {
+      await phoneApi.verifyCode(codeInput.trim());
+      await refreshUser();
+      setPhoneStep('idle');
+      setPhoneInput(undefined);
+      setCodeInput('');
+      toast('Phone number verified!', 'success');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast(e.message ?? 'Invalid or expired code. Please try again.', 'error');
+    } finally {
+      setPhoneSaving(false);
+    }
+  };
+
+  const handleRemovePhone = async () => {
+    setPhoneSaving(true);
+    try {
+      await phoneApi.remove();
+      await refreshUser();
+      setPhoneStep('idle');
+      setPhoneInput(undefined);
+      setCodeInput('');
+      toast('Phone number removed.', 'success');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast(e.message ?? 'Failed to remove phone number.', 'error');
+    } finally {
+      setPhoneSaving(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== newPasswordConfirm) {
+      toast('New passwords do not match.', 'error');
+      return;
+    }
+    setPwLoading(true);
+    try {
+      await authApi.changePassword({
+        current_password: currentPassword,
+        password: newPassword,
+        password_confirmation: newPasswordConfirm,
+      });
+      toast('Password changed successfully.', 'success');
+      setCurrentPassword('');
+      setNewPassword('');
+      setNewPasswordConfirm('');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast(e.message ?? 'Failed to change password.', 'error');
+    } finally {
+      setPwLoading(false);
+    }
+  };
+
   const handleBroke = async () => {
     setDangerLoading(true);
     setDangerMsg('');
@@ -198,6 +396,9 @@ export default function SettingsPage() {
   }
 
   if (!user) return null;
+
+  const emailVerified = !!user.email_verified_at;
+  const phoneVerified = !!user.phone_verified_at;
 
   return (
     <>
@@ -241,6 +442,62 @@ export default function SettingsPage() {
           <p className="text-sm text-muted mt-1">Manage your account preferences.</p>
         </div>
 
+        {/* Email verification warning */}
+        {!emailVerified && (
+          <EmailVerificationBanner email={user.email} />
+        )}
+
+        {/* Change Password — only for verified users */}
+        {emailVerified && (
+          <div className="bg-surface border border-border rounded-xl p-5 mb-6">
+            <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">Change Password</h2>
+            <form onSubmit={handleChangePassword} className="space-y-3">
+              <div>
+                <label className="block text-xs text-muted mb-1">Current password</label>
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-muted mb-1">New password</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-muted mb-1">Confirm new password</label>
+                <input
+                  type="password"
+                  value={newPasswordConfirm}
+                  onChange={(e) => setNewPasswordConfirm(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand transition-colors"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={pwLoading || !currentPassword || !newPassword || !newPasswordConfirm}
+                className="bg-brand text-black font-semibold px-5 py-2 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50 transition-colors"
+              >
+                {pwLoading ? 'Saving…' : 'Update password'}
+              </button>
+            </form>
+          </div>
+        )}
+
         {/* Privacy */}
         <div className="bg-surface border border-border rounded-xl p-5 mb-6">
           <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-1">Privacy</h2>
@@ -279,69 +536,144 @@ export default function SettingsPage() {
           </Link>
         </div>
 
-        {/* Notifications */}
+        {/* Phone Number */}
+        <div className="bg-surface border border-border rounded-xl p-5 mb-6">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-1">Phone Number</h2>
+          <p className="text-sm text-muted mb-4">Add a verified phone number to receive SMS notifications.</p>
+
+          {phoneVerified ? (
+            /* Verified state */
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <span className="text-sm text-foreground font-medium">{user.phone_number}</span>
+                <span className="ml-2 text-xs text-green-400 font-medium">✓ Verified</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleRemovePhone}
+                disabled={phoneSaving}
+                className="text-sm text-red-400 hover:text-red-300 transition-colors disabled:opacity-40"
+              >
+                {phoneSaving ? 'Removing…' : 'Remove'}
+              </button>
+            </div>
+          ) : phoneStep === 'awaiting_code' ? (
+            /* Code sent — show verify step */
+            <div className="space-y-3">
+              <p className="text-xs text-muted">
+                A 6-digit code was sent to <span className="text-foreground font-medium">{phoneInput}</span>.
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="000000"
+                  value={codeInput}
+                  onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, ''))}
+                  className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground tracking-widest focus:outline-none focus:border-brand transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={handleVerifyCode}
+                  disabled={phoneSaving || codeInput.length !== 6}
+                  className="bg-brand text-black font-semibold px-4 py-2 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50 transition-colors"
+                >
+                  {phoneSaving ? 'Verifying…' : 'Verify'}
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => { setPhoneStep('idle'); setPhoneInput(undefined); setCodeInput(''); }}
+                className="text-xs text-muted hover:text-foreground transition-colors"
+              >
+                ← Use a different number
+              </button>
+            </div>
+          ) : (
+            /* Add / change phone */
+            <div className="flex gap-2">
+              <PhoneNumberInput
+                value={phoneInput}
+                onChange={setPhoneInput}
+                disabled={phoneSaving}
+              />
+              <button
+                type="button"
+                onClick={handleSendCode}
+                disabled={phoneSaving || !phoneInput || !isValidPhoneNumber(phoneInput)}
+                className="bg-brand text-black font-semibold px-4 py-2 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50 transition-colors whitespace-nowrap"
+              >
+                {phoneSaving ? 'Sending…' : 'Send code'}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Notifications — compact triple-column table */}
         <div id="notifications" className="bg-surface border border-border rounded-xl p-5 mb-6">
-          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-1">Email Notifications</h2>
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">Notifications</h2>
+
+          {/* Verification banners */}
+          {!emailVerified && (
+            <div className="flex items-center gap-2 bg-amber-900/20 border border-amber-700/30 rounded-lg px-3 py-2 mb-3 text-xs text-amber-300">
+              <span>✉️</span>
+              <span>Verify your email to enable email notifications.</span>
+            </div>
+          )}
+          {!phoneVerified && (
+            <div className="flex items-center gap-2 bg-amber-900/20 border border-amber-700/30 rounded-lg px-3 py-2 mb-3 text-xs text-amber-300">
+              <span>📱</span>
+              <span>
+                {user.phone_number
+                  ? 'Verify your phone number to enable SMS notifications.'
+                  : 'Add and verify your phone number to enable SMS notifications.'}
+              </span>
+            </div>
+          )}
+
           {!notifSettings ? (
             <div className="py-6 text-center text-sm text-muted">Loading…</div>
           ) : (
             <>
-              <Toggle
-                id="notif-summon-answered"
-                label="Summon Answered"
-                description="Get an email when a creator claims their profile and your votive activates."
-                checked={notifSettings.summon_answered}
-                onChange={(val) => handleNotifToggle('summon_answered', val)}
-                saving={notifSaving.has('summon_answered')}
-              />
-              <Toggle
-                id="notif-pot-pending"
-                label="Pot Pending Completion"
-                description="Get an email when a creator submits a pot for Council review."
-                checked={notifSettings.pot_pending_completion}
-                onChange={(val) => handleNotifToggle('pot_pending_completion', val)}
-                saving={notifSaving.has('pot_pending_completion')}
-              />
-              <Toggle
-                id="notif-pot-confirmed"
-                label="Pot Confirmed Complete"
-                description="Get an email when The Council confirms a pot is complete and payment is queued."
-                checked={notifSettings.pot_confirmed_completed}
-                onChange={(val) => handleNotifToggle('pot_confirmed_completed', val)}
-                saving={notifSaving.has('pot_confirmed_completed')}
-              />
-              <Toggle
-                id="notif-votive-confirmation"
-                label="Votive Confirmation"
-                description="Get a confirmation email every time you place a votive."
-                checked={notifSettings.votive_confirmation}
-                onChange={(val) => handleNotifToggle('votive_confirmation', val)}
-                saving={notifSaving.has('votive_confirmation')}
-              />
-              <Toggle
-                id="notif-monthly-preview"
-                label="Monthly Votive Preview"
-                description="Get a heads-up email 24 hours before your payment method is charged."
-                checked={notifSettings.monthly_votive_preview}
-                onChange={(val) => handleNotifToggle('monthly_votive_preview', val)}
-                saving={notifSaving.has('monthly_votive_preview')}
-              />
-              <Toggle
-                id="notif-monthly-receipt"
-                label="Monthly Votive Receipt"
-                description="Get a full breakdown email after your payment is processed each month."
-                checked={notifSettings.monthly_votive_receipt}
-                onChange={(val) => handleNotifToggle('monthly_votive_receipt', val)}
-                saving={notifSaving.has('monthly_votive_receipt')}
-              />
-              <Toggle
-                id="notif-herald-lost"
-                label="Herald Status Lost"
-                description="Get an email when another fan surpasses you and takes over as Herald."
-                checked={notifSettings.herald_status_lost}
-                onChange={(val) => handleNotifToggle('herald_status_lost', val)}
-                saving={notifSaving.has('herald_status_lost')}
-              />
+              {/* Column headers */}
+              <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 items-center mb-2 px-1">
+                <span />
+                <span className="text-xs text-muted font-medium text-center w-9">Email</span>
+                <span className="text-xs text-muted font-medium text-center w-9">SMS</span>
+                <span className="text-xs text-muted font-medium text-center w-9">Bell</span>
+              </div>
+              {NOTIF_ROWS.map(({ label, desc, emailKey, smsKey, inAppKey }) => (
+                <div
+                  key={emailKey}
+                  className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 items-center py-2.5 border-b border-border last:border-0"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{label}</p>
+                    <p className="text-xs text-muted mt-0.5">{desc}</p>
+                  </div>
+                  <MiniToggle
+                    checked={notifSettings[emailKey] as boolean}
+                    onChange={(val) => handleNotifToggle(emailKey, val)}
+                    saving={notifSaving.has(emailKey)}
+                    label={`Email: ${label}`}
+                    disabled={!emailVerified}
+                  />
+                  <MiniToggle
+                    checked={notifSettings[smsKey] as boolean}
+                    onChange={(val) => handleNotifToggle(smsKey, val)}
+                    saving={notifSaving.has(smsKey)}
+                    label={`SMS: ${label}`}
+                    disabled={!phoneVerified}
+                  />
+                  <MiniToggle
+                    checked={notifSettings[inAppKey] as boolean}
+                    onChange={(val) => handleNotifToggle(inAppKey, val)}
+                    saving={notifSaving.has(inAppKey)}
+                    label={`In-app: ${label}`}
+                  />
+                </div>
+              ))}
             </>
           )}
         </div>

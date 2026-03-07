@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { votives as votivesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { PublicUserVotive } from '@/lib/types';
-
 type SortKey = 'date' | 'amount';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -171,7 +170,7 @@ export default function MyVotivesPage() {
                 </div>
 
                 {/* Amount */}
-                <span className="shrink-0 text-brand font-bold text-sm">
+                <span className="text-brand font-bold text-sm shrink-0">
                   ${Number(votive.amount).toFixed(2)}
                 </span>
               </div>

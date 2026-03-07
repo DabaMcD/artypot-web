@@ -9,6 +9,9 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  email_verified_at?: string | null;
+  phone_number?: string | null;
+  phone_verified_at?: string | null;
   role: UserRole;
   profile_picture?: string;
   total_given?: number;
@@ -173,11 +176,58 @@ export interface PaymentMethod {
 }
 
 export interface NotificationSettings {
+  // Email preferences
   summon_answered: boolean;
   pot_pending_completion: boolean;
   pot_confirmed_completed: boolean;
   votive_confirmation: boolean;
+  votive_expired: boolean;
+  pot_updated: boolean;
   monthly_votive_preview: boolean;
   monthly_votive_receipt: boolean;
   herald_status_lost: boolean;
+  // In-app preferences
+  in_app_summon_answered: boolean;
+  in_app_pot_pending_completion: boolean;
+  in_app_pot_confirmed_completed: boolean;
+  in_app_votive_confirmation: boolean;
+  in_app_votive_expired: boolean;
+  in_app_pot_updated: boolean;
+  in_app_monthly_votive_preview: boolean;
+  in_app_monthly_votive_receipt: boolean;
+  in_app_herald_status_lost: boolean;
+  // SMS preferences
+  sms_summon_answered: boolean;
+  sms_pot_pending_completion: boolean;
+  sms_pot_confirmed_completed: boolean;
+  sms_votive_confirmation: boolean;
+  sms_votive_expired: boolean;
+  sms_pot_updated: boolean;
+  sms_monthly_votive_preview: boolean;
+  sms_monthly_votive_receipt: boolean;
+  sms_herald_status_lost: boolean;
+}
+
+export interface UserNotification {
+  id: number;
+  user_id: number;
+  type: string;
+  title: string;
+  body?: string | null;
+  link?: string | null;
+  read_at?: string | null;
+  created_at: string;
+}
+
+export interface NotificationPage {
+  data: UserNotification[];
+  current_page: number;
+  last_page: number;
+  total: number;
+  per_page: number;
+}
+
+export interface RemoveVotiveResult {
+  pot_deleted: boolean;
+  new_initiator_id: number | null;
 }

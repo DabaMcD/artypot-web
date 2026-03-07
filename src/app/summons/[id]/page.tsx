@@ -7,6 +7,7 @@ import { summons as summonsApi, pots as potsApi, summonNames as summonNamesApi }
 import { useAuth } from '@/lib/auth-context';
 import type { Summon, PaginatedResponse, Pot, SummonName } from '@/lib/types';
 import PotCard from '@/components/PotCard';
+import ShareButton from '@/components/ShareButton';
 
 const SOCIAL_LINKS: { key: keyof Summon; label: string; prefix: string }[] = [
   { key: 'youtube_handle',    label: 'YouTube',    prefix: 'https://youtube.com/@' },
@@ -369,6 +370,12 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 flex-wrap mb-1">
                     <h1 className="text-2xl font-bold text-foreground">{summon.display_name}</h1>
+                    <ShareButton
+                      path={`/summons/${summon.id}`}
+                      title={summon.display_name}
+                      text={`Support ${summon.display_name} on artypot!`}
+                      size="sm"
+                    />
                     {isClaimed ? (
                       <span className="text-xs font-medium bg-creator/10 text-creator border border-creator/30 px-2 py-0.5 rounded-full">
                         Verified Creator
@@ -429,16 +436,16 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
 
               {/* Stats */}
               <div className="flex flex-wrap gap-6 mt-5 pt-5 border-t border-border text-sm">
-                {summon.projects_finished != null && (
-                  <div>
-                    <div className="text-foreground font-semibold text-lg">{summon.projects_finished}</div>
-                    <div className="text-muted text-xs">Completed</div>
-                  </div>
-                )}
                 {summon.projects_open != null && (
                   <div>
                     <div className="text-foreground font-semibold text-lg">{summon.projects_open}</div>
                     <div className="text-muted text-xs">Open pots</div>
+                  </div>
+                )}
+                {summon.projects_finished != null && (
+                  <div>
+                    <div className="text-foreground font-semibold text-lg">{summon.projects_finished}</div>
+                    <div className="text-muted text-xs">Completed</div>
                   </div>
                 )}
                 {summon.amount_earned != null && (
@@ -454,7 +461,7 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
                     <div className="text-brand font-semibold text-lg">
                       ${Number(summon.total_votive_sum).toLocaleString()}
                     </div>
-                    <div className="text-muted text-xs">Total votives (all pots)</div>
+                    <div className="text-muted text-xs">Active votives</div>
                   </div>
                 )}
               </div>

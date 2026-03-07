@@ -14,7 +14,8 @@
     "next": "16.1.6",
     "next-cloudinary": "^6.17.5",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-phone-number-input": "^3.4.16"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
