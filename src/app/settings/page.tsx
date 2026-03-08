@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi } from '@/lib/api';
+import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi, votives as votivesApi } from '@/lib/api';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 import { useToast } from '@/lib/toast-context';
@@ -225,17 +225,17 @@ export default function SettingsPage() {
   const [phoneStep, setPhoneStep] = useState<'idle' | 'awaiting_code'>('idle');
   const [phoneSaving, setPhoneSaving] = useState(false);
 
-  // Change password
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
-  const [pwLoading, setPwLoading] = useState(false);
+  // Email change
+  const [emailChangeInput, setEmailChangeInput] = useState('');
+  const [emailChangeLoading, setEmailChangeLoading] = useState(false);
+  const [emailChangeSent, setEmailChangeSent] = useState<string | null>(null);
 
   // Danger zone dialogs
   const [showBrokeConfirm, setShowBrokeConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [dangerLoading, setDangerLoading] = useState(false);
   const [dangerMsg, setDangerMsg] = useState('');
+  const [votiveTotalAmount, setVotiveTotalAmount] = useState<number | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -246,6 +246,7 @@ export default function SettingsPage() {
     setIsAnonymous(user.is_anonymous ?? false);
     setCoverFees(user.cover_processing_fees ?? false);
     notifApi.get().then(setNotifSettings).catch(() => {});
+    votivesApi.list().then((res) => setVotiveTotalAmount(res.total_active_amount)).catch(() => {});
   }, [user, authLoading, router]);
 
   const handleNotifToggle = async (key: keyof NotificationSettings, value: boolean) => {
@@ -335,28 +336,20 @@ export default function SettingsPage() {
     }
   };
 
-  const handleChangePassword = async (e: React.FormEvent) => {
+  const handleRequestEmailChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword !== newPasswordConfirm) {
-      toast('New passwords do not match.', 'error');
-      return;
-    }
-    setPwLoading(true);
+    if (!emailChangeInput.trim()) return;
+    setEmailChangeLoading(true);
     try {
-      await authApi.changePassword({
-        current_password: currentPassword,
-        password: newPassword,
-        password_confirmation: newPasswordConfirm,
-      });
-      toast('Password changed successfully.', 'success');
-      setCurrentPassword('');
-      setNewPassword('');
-      setNewPasswordConfirm('');
+      await authApi.requestEmailChange(emailChangeInput.trim());
+      setEmailChangeSent(emailChangeInput.trim());
+      setEmailChangeInput('');
+      toast('Confirmation email sent! Check your new inbox.', 'success');
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Failed to change password.', 'error');
+      toast(e.message ?? 'Failed to send confirmation email.', 'error');
     } finally {
-      setPwLoading(false);
+      setEmailChangeLoading(false);
     }
   };
 
@@ -409,6 +402,9 @@ export default function SettingsPage() {
           body={
             <>
               <p className="mb-2">This will immediately cancel <strong className="text-foreground">all your active votives</strong> and remove your funding from every project.</p>
+              {votiveTotalAmount != null && votiveTotalAmount > 0 && (
+                <p className="mb-2 font-semibold text-foreground">${votiveTotalAmount.toFixed(2)} in active votives will be cancelled.</p>
+              )}
               <p>This cannot easily be undone. You would need to re-place your votive individually on each project.</p>
             </>
           }
@@ -447,54 +443,47 @@ export default function SettingsPage() {
           <EmailVerificationBanner email={user.email} />
         )}
 
-        {/* Change Password — only for verified users */}
+        {/* Email Address — change email (only for verified users) */}
         {emailVerified && (
           <div className="bg-surface border border-border rounded-xl p-5 mb-6">
-            <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">Change Password</h2>
-            <form onSubmit={handleChangePassword} className="space-y-3">
-              <div>
-                <label className="block text-xs text-muted mb-1">Current password</label>
-                <input
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                  className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand transition-colors"
-                />
+            <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">Email Address</h2>
+
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-sm text-foreground font-medium">{user.email}</span>
+              <span className="text-xs text-green-400 font-medium">✓ Verified</span>
+            </div>
+
+            {user.pending_email && !emailChangeSent && (
+              <div className="flex items-center gap-2 bg-amber-900/20 border border-amber-700/30 rounded-lg px-3 py-2 mb-3 text-xs text-amber-300">
+                <span>⏳</span>
+                <span>Pending change to <strong>{user.pending_email}</strong> — check that inbox for the confirmation link.</span>
               </div>
-              <div>
-                <label className="block text-xs text-muted mb-1">New password</label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                  className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand transition-colors"
-                />
+            )}
+
+            {emailChangeSent ? (
+              <div className="flex items-center gap-2 bg-green-900/20 border border-green-700/30 rounded-lg px-3 py-2 text-xs text-green-300">
+                <span>✉️</span>
+                <span>Confirmation email sent to <strong>{emailChangeSent}</strong>. Click the link to complete the change.</span>
               </div>
-              <div>
-                <label className="block text-xs text-muted mb-1">Confirm new password</label>
+            ) : (
+              <form onSubmit={handleRequestEmailChange} className="flex gap-2">
                 <input
-                  type="password"
-                  value={newPasswordConfirm}
-                  onChange={(e) => setNewPasswordConfirm(e.target.value)}
+                  type="email"
                   required
-                  minLength={8}
-                  autoComplete="new-password"
-                  className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand transition-colors"
+                  placeholder="New email address"
+                  value={emailChangeInput}
+                  onChange={(e) => setEmailChangeInput(e.target.value)}
+                  className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
                 />
-              </div>
-              <button
-                type="submit"
-                disabled={pwLoading || !currentPassword || !newPassword || !newPasswordConfirm}
-                className="bg-brand text-black font-semibold px-5 py-2 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50 transition-colors"
-              >
-                {pwLoading ? 'Saving…' : 'Update password'}
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  disabled={emailChangeLoading || !emailChangeInput.trim()}
+                  className="bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-brand/50 disabled:opacity-50 transition-colors whitespace-nowrap"
+                >
+                  {emailChangeLoading ? 'Sending…' : 'Change email'}
+                </button>
+              </form>
+            )}
           </div>
         )}
 
@@ -677,6 +666,22 @@ export default function SettingsPage() {
             </>
           )}
         </div>
+
+        {/* Change Password link — only for verified users */}
+        {emailVerified && (
+          <div className="bg-surface border border-border rounded-xl p-5 mb-6 flex items-center justify-between gap-4">
+            <div>
+              <p className="font-medium text-foreground text-sm">Password</p>
+              <p className="text-xs text-muted mt-0.5">Update your login password.</p>
+            </div>
+            <Link
+              href="/settings/password"
+              className="shrink-0 bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-brand/50 transition-colors"
+            >
+              Change password →
+            </Link>
+          </div>
+        )}
 
         {/* Danger zone */}
         <div className="bg-surface border border-red-900/40 rounded-xl p-5">

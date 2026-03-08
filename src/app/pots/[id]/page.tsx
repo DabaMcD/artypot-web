@@ -470,8 +470,8 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           <div className="bg-surface border border-border rounded-xl p-6 max-w-sm w-full shadow-2xl">
             <h3 className="font-bold text-foreground text-lg mb-2">Remove last votive?</h3>
             <p className="text-muted text-sm leading-relaxed mb-6">
-              You&apos;re the only backer of this pot. Removing your votive will permanently delete the
-              pot. This cannot be undone.
+              You&apos;re the only backer of this pot. Removing your votive will leave the pot empty — it
+              will be cleared automatically.
             </p>
             <div className="flex gap-3">
               <button
@@ -479,7 +479,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                 disabled={votiveLoading}
                 className="flex-1 bg-red-600 hover:bg-red-500 text-white font-semibold py-2 text-sm rounded-lg disabled:opacity-50 transition-colors"
               >
-                {votiveLoading ? 'Removing…' : 'Yes, delete pot'}
+                {votiveLoading ? 'Removing…' : 'Yes, remove votive'}
               </button>
               <button
                 onClick={() => setShowLastVotiveConfirm(false)}
@@ -754,24 +754,6 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             </div>
           )}
 
-          {/* Pot initiator: delete */}
-          {isOwner && pot.status === 'open' && (
-            <button
-              className="w-full text-xs text-muted hover:text-red-400 transition-colors py-1"
-              onClick={async () => {
-                if (!confirm('Delete this pot? This cannot be undone.')) return;
-                try {
-                  await potsApi.delete(Number(id));
-                  window.location.href = '/pots';
-                } catch (err: unknown) {
-                  const e = err as { message?: string };
-                  alert(e.message ?? 'Failed to delete pot.');
-                }
-              }}
-            >
-              Delete pot
-            </button>
-          )}
         </div>
 
         {/* Backers + completion */}

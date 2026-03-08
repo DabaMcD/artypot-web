@@ -9,6 +9,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  pending_email?: string | null;
   email_verified_at?: string | null;
   phone_number?: string | null;
   phone_verified_at?: string | null;
@@ -112,6 +113,14 @@ export interface VotivePage {
   last_page: number;
   total: number;
   per_page: number;
+  total_active_amount: number;
+}
+
+export interface DeletePaymentMethodResult {
+  data: {
+    revoked_count: number;
+    revoked_amount: number;
+  };
 }
 
 export interface PublicUser {

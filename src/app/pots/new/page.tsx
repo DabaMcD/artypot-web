@@ -43,6 +43,7 @@ function NewPotForm() {
   // Pot fields
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [initialVotiveAmount, setInitialVotiveAmount] = useState('1');
   const [submitting, setSubmitting] = useState(false);
 
   // Creator selection
@@ -174,12 +175,18 @@ function NewPotForm() {
       toast('Please select or create a creator for this pot.', 'error');
       return;
     }
+    const amount = parseFloat(initialVotiveAmount);
+    if (isNaN(amount) || amount < 1) {
+      toast('Initial votive must be at least $1.', 'error');
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await potsApi.create({
         title,
         description: description || undefined,
         summon_id: Number(summonId),
+        initial_votive_amount: amount,
       });
       toast('Pot created!', 'success');
       setTimeout(() => router.push(`/pots/${res.data.id}`), 700);
@@ -218,35 +225,7 @@ function NewPotForm() {
         onSubmit={handleSubmit}
         className="bg-surface border border-border rounded-xl p-6 space-y-5"
       >
-        {/* Title */}
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Title</label>
-          <input
-            type="text"
-            required
-            maxLength={255}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. New album from The Weeknd"
-            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
-          />
-        </div>
-
-        {/* Description */}
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">
-            Description <span className="text-muted font-normal">(optional)</span>
-          </label>
-          <textarea
-            rows={3}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="What specifically should be made? Any requirements?"
-            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
-          />
-        </div>
-
-        {/* Creator */}
+        {/* Creator — first so the pot is anchored before anything else */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-1.5">Creator</label>
 
@@ -434,6 +413,57 @@ function NewPotForm() {
               )}
             </div>
           )}
+        </div>
+
+        {/* Title */}
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1.5">Title</label>
+          <input
+            type="text"
+            required
+            maxLength={255}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g. New album from The Weeknd"
+            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+          />
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1.5">
+            Description <span className="text-muted font-normal">(optional)</span>
+          </label>
+          <textarea
+            rows={3}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="What specifically should be made? Any requirements?"
+            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
+          />
+        </div>
+
+        {/* Initial votive amount */}
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-1.5">
+            Your opening votive
+          </label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm select-none">$</span>
+            <input
+              type="number"
+              required
+              min={1}
+              max={999999.99}
+              step="0.01"
+              value={initialVotiveAmount}
+              onChange={(e) => setInitialVotiveAmount(e.target.value)}
+              className="w-full bg-surface-2 border border-border rounded-lg pl-7 pr-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-brand transition-colors"
+            />
+          </div>
+          <p className="text-xs text-muted mt-1.5">
+            Minimum $1. Your votive is only charged if The Council confirms the pot is completed.
+          </p>
         </div>
 
         <button

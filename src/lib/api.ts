@@ -17,6 +17,7 @@ import type {
   PaymentMethod,
   PotStatus,
   RemoveVotiveResult,
+  DeletePaymentMethodResult,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -117,6 +118,17 @@ export const auth = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  requestEmailChange: (email: string) =>
+    request<{ message: string }>('/auth/email/change', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  confirmEmailChange: (id: string, hash: string, expires: string, signature: string) =>
+    request<{ message: string }>(
+      `/auth/email/change/confirm/${id}/${hash}?expires=${expires}&signature=${signature}`
+    ),
 };
 
 // Phone number verification
@@ -197,10 +209,8 @@ export const pots = {
 
   get: (id: number) => request<{ data: Pot }>(`/pots/${id}`),
 
-  create: (data: { title: string; description?: string; summon_id: number }) =>
+  create: (data: { title: string; description?: string; summon_id: number; initial_votive_amount?: number }) =>
     request<{ data: Pot }>('/pots', { method: 'POST', body: JSON.stringify(data) }),
-
-  delete: (id: number) => request(`/pots/${id}`, { method: 'DELETE' }),
 
   update: (id: number, data: { title?: string; description?: string }) =>
     request<{ data: Pot }>(`/pots/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
@@ -290,5 +300,5 @@ export const billing = {
     }),
 
   deletePaymentMethod: (id: string) =>
-    request(`/billing/payment-methods/${id}`, { method: 'DELETE' }),
+    request<DeletePaymentMethodResult>(`/billing/payment-methods/${id}`, { method: 'DELETE' }),
 };

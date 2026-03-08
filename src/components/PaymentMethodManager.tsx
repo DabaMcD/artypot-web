@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { billing } from '@/lib/api';
+import { billing, votives as votivesApi } from '@/lib/api';
 import type { PaymentMethod } from '@/lib/types';
+import { useToast } from '@/lib/toast-context';
 import AddCardForm from './AddCardForm';
 
 const BRAND_ICONS: Record<string, string> = {
@@ -27,11 +28,19 @@ interface Props {
 }
 
 export default function PaymentMethodManager({ onMethodsChange, compact = false }: Props) {
+  const { toast } = useToast();
+
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
   const [error, setError] = useState('');
+
+  // For the confirm dialog
+  const [removeTarget, setRemoveTarget] = useState<string | null>(null);
+
+  // Total active votive amount — fetched once on mount for last-card warning
+  const [votiveTotalAmount, setVotiveTotalAmount] = useState(0);
 
   const fetchMethods = useCallback(async () => {
     setLoading(true);
@@ -48,6 +57,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
 
   useEffect(() => {
     fetchMethods();
+    votivesApi.list().then((res) => setVotiveTotalAmount(res.total_active_amount)).catch(() => {});
   }, [fetchMethods]);
 
   const handleAdded = async () => {
@@ -55,20 +65,30 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
     await fetchMethods();
   };
 
-  const handleRemove = async (id: string) => {
-    if (!confirm('Remove this payment method?')) return;
-    setRemoving(id);
+  const confirmRemove = async () => {
+    if (!removeTarget) return;
+    const targetId = removeTarget;
+    setRemoveTarget(null);
+    setRemoving(targetId);
     try {
-      await billing.deletePaymentMethod(id);
-      const updated = methods.filter((m) => m.id !== id);
+      const res = await billing.deletePaymentMethod(targetId);
+      const updated = methods.filter((m) => m.id !== targetId);
       setMethods(updated);
       onMethodsChange?.(updated);
+      if (res.data.revoked_count > 0) {
+        toast(
+          `Payment method removed — ${res.data.revoked_count} votive${res.data.revoked_count === 1 ? '' : 's'} ($${res.data.revoked_amount.toFixed(2)}) cancelled.`,
+          'error',
+        );
+      }
     } catch {
       setError('Could not remove payment method.');
     } finally {
       setRemoving(null);
     }
   };
+
+  const isLastCard = methods.length === 1;
 
   if (loading) {
     return (
@@ -79,66 +99,118 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
   }
 
   return (
-    <div className="space-y-3">
-      {error && <p className="text-red-400 text-sm">{error}</p>}
-
-      {/* Saved cards */}
-      {methods.length > 0 && (
-        <div className="space-y-2">
-          {methods.map((m) => (
-            <div
-              key={m.id}
-              className="flex items-center justify-between bg-surface-2 border border-border rounded-lg px-4 py-3"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-foreground text-sm font-medium">
-                  {cardLabel(m.brand)}
-                </span>
-                <span className="text-muted text-sm">
-                  •••• {m.last4}
-                </span>
-                <span className="text-muted text-xs">
-                  {m.exp_month}/{m.exp_year}
-                </span>
-              </div>
+    <>
+      {/* Remove confirm dialog */}
+      {removeTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={(e) => { if (e.target === e.currentTarget) setRemoveTarget(null); }}
+        >
+          <div className="bg-surface border border-border rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+            <h2 className="text-lg font-bold text-foreground mb-3">
+              {isLastCard ? 'Remove last payment method' : 'Remove payment method'}
+            </h2>
+            <div className="text-sm text-muted leading-relaxed mb-6">
+              {isLastCard && votiveTotalAmount > 0 ? (
+                <>
+                  <p className="mb-2">
+                    This is your <strong className="text-foreground">only payment method</strong>. Removing it will
+                    immediately cancel{' '}
+                    <strong className="text-foreground">
+                      all ${votiveTotalAmount.toFixed(2)} of your active votives
+                    </strong>.
+                  </p>
+                  <p>You won&apos;t be charged for completed pots until you add a new payment method.</p>
+                </>
+              ) : isLastCard ? (
+                <p>This is your only saved payment method. Remove it?</p>
+              ) : (
+                <p>Remove this payment method?</p>
+              )}
+            </div>
+            <div className="flex gap-3">
               <button
-                onClick={() => handleRemove(m.id)}
-                disabled={removing === m.id}
-                className="text-xs text-muted hover:text-red-400 transition-colors disabled:opacity-40"
+                type="button"
+                onClick={() => setRemoveTarget(null)}
+                disabled={!!removing}
+                className="flex-1 border border-border text-foreground text-sm font-medium py-2.5 rounded-lg hover:border-foreground/30 transition-colors disabled:opacity-40"
               >
-                {removing === m.id ? 'Removing…' : 'Remove'}
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmRemove}
+                disabled={!!removing}
+                className="flex-1 bg-red-600 text-white text-sm font-semibold py-2.5 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-40"
+              >
+                {removing ? 'Removing…' : 'Remove'}
               </button>
             </div>
-          ))}
+          </div>
         </div>
       )}
 
-      {/* Empty state */}
-      {methods.length === 0 && !showAdd && (
-        <p className={`text-muted text-sm ${compact ? '' : 'py-2'}`}>
-          No payment methods saved yet.
-        </p>
-      )}
+      <div className="space-y-3">
+        {error && <p className="text-red-400 text-sm">{error}</p>}
 
-      {/* Add card form */}
-      {showAdd ? (
-        <div className="border border-brand/30 rounded-xl p-5 bg-surface">
-          {!compact && (
-            <p className="text-sm font-medium text-foreground mb-4">Add a card</p>
-          )}
-          <AddCardForm
-            onSuccess={handleAdded}
-            onCancel={() => setShowAdd(false)}
-          />
-        </div>
-      ) : (
-        <button
-          onClick={() => setShowAdd(true)}
-          className={`text-sm font-medium text-brand hover:underline ${compact ? '' : 'mt-1 block'}`}
-        >
-          + Add payment method
-        </button>
-      )}
-    </div>
+        {/* Saved cards */}
+        {methods.length > 0 && (
+          <div className="space-y-2">
+            {methods.map((m) => (
+              <div
+                key={m.id}
+                className="flex items-center justify-between bg-surface-2 border border-border rounded-lg px-4 py-3"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-foreground text-sm font-medium">
+                    {cardLabel(m.brand)}
+                  </span>
+                  <span className="text-muted text-sm">
+                    •••• {m.last4}
+                  </span>
+                  <span className="text-muted text-xs">
+                    {m.exp_month}/{m.exp_year}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setRemoveTarget(m.id)}
+                  disabled={removing === m.id}
+                  className="text-xs text-muted hover:text-red-400 transition-colors disabled:opacity-40"
+                >
+                  {removing === m.id ? 'Removing…' : 'Remove'}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Empty state */}
+        {methods.length === 0 && !showAdd && (
+          <p className={`text-muted text-sm ${compact ? '' : 'py-2'}`}>
+            No payment methods saved yet.
+          </p>
+        )}
+
+        {/* Add card form */}
+        {showAdd ? (
+          <div className="border border-brand/30 rounded-xl p-5 bg-surface">
+            {!compact && (
+              <p className="text-sm font-medium text-foreground mb-4">Add a card</p>
+            )}
+            <AddCardForm
+              onSuccess={handleAdded}
+              onCancel={() => setShowAdd(false)}
+            />
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowAdd(true)}
+            className={`text-sm font-medium text-brand hover:underline ${compact ? '' : 'mt-1 block'}`}
+          >
+            + Add payment method
+          </button>
+        )}
+      </div>
+    </>
   );
 }
