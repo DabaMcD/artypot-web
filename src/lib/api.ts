@@ -18,6 +18,8 @@ import type {
   PotStatus,
   RemoveVotiveResult,
   DeletePaymentMethodResult,
+  CouncilMember,
+  CouncilPage,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -301,4 +303,19 @@ export const billing = {
 
   deletePaymentMethod: (id: string) =>
     request<DeletePaymentMethodResult>(`/billing/payment-methods/${id}`, { method: 'DELETE' }),
+};
+
+// Overlord — grant/revoke Council by email
+export const overlord = {
+  listCouncil: () =>
+    request<CouncilPage>('/overlord/council'),
+
+  grantCouncil: (email: string) =>
+    request<{ data: CouncilMember }>('/overlord/council', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  revokeCouncil: (councilId: number) =>
+    request<void>(`/overlord/council/${councilId}`, { method: 'DELETE' }),
 };

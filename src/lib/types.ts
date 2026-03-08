@@ -19,7 +19,26 @@ export interface User {
   open_votives_count?: number;
   cover_processing_fees?: boolean;
   is_anonymous?: boolean;
+  is_overlord?: boolean;
   summon?: Summon;
+}
+
+export interface CouncilMember {
+  id: number;
+  user_id: number;
+  user: { id: number; name: string; email: string };
+  appointed_by: number | null;
+  appointedBy?: { id: number; name: string; email: string } | null;
+  permissions: Record<string, boolean>;
+  appointed_at: string;
+}
+
+export interface CouncilPage {
+  data: CouncilMember[];
+  current_page: number;
+  last_page: number;
+  total: number;
+  per_page: number;
 }
 
 export interface SummonName {
