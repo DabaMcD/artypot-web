@@ -72,11 +72,6 @@ export default function AdminPage() {
         ))}
       </div>
 
-      <div className="mt-8 p-5 bg-surface border border-border rounded-xl text-sm text-muted">
-        <strong className="text-foreground">Note:</strong> Detailed admin views (claims approval,
-        completion review, billing triggers) are scoped to future iterations. The API is fully
-        implemented — these pages will wire up to those endpoints as the platform grows.
-      </div>
     </div>
   );
 }

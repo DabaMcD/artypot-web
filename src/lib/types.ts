@@ -27,8 +27,8 @@ export interface CouncilMember {
   id: number;
   user_id: number;
   user: { id: number; name: string; email: string };
-  appointed_by: number | null;
-  appointedBy?: { id: number; name: string; email: string } | null;
+  /** When the appointedBy relation is loaded, this is the appointing user object; otherwise null. */
+  appointed_by: { id: number; name: string; email: string } | null;
   permissions: Record<string, boolean>;
   appointed_at: string;
 }
@@ -178,6 +178,47 @@ export interface PaginatedResponse<T> {
   current_page: number;
   last_page: number;
   per_page: number;
+}
+
+// ── Admin types ─────────────────────────────────────────────────────────────
+
+export interface AdminSummonClaim {
+  id: number;
+  user_id: number;
+  user: { id: number; name: string; email: string };
+  summon_id: number;
+  summon: { id: number; display_name: string };
+  contact_info: string;
+  status: SummonClaimStatus;
+  council_notes?: string | null;
+  reviewed_by?: number | null;
+  reviewer?: { id: number; name: string } | null;
+  reviewed_at?: string | null;
+  created_at: string;
+}
+
+export interface AdminPotCompletion {
+  id: number;
+  pot_id: number;
+  pot: {
+    id: number;
+    title: string;
+    total_pledged: number;
+    summon_id: number;
+    status: PotStatus;
+    summon?: { id: number; display_name: string } | null;
+  };
+  submitted_by_user_id: number;
+  submitted_by: { id: number; name: string };
+  submission_url: string;
+  submission_notes?: string | null;
+  status: PotCompletionStatus;
+  council_notes?: string | null;
+  reviewed_by?: number | null;
+  reviewer?: { id: number; name: string } | null;
+  reviewed_at?: string | null;
+  verified_at?: string | null;
+  created_at: string;
 }
 
 export interface CashBalance {

@@ -189,7 +189,7 @@ export default function OverlordPage() {
                           month: 'short',
                           day: 'numeric',
                         })}
-                        {m.appointedBy && ` by ${m.appointedBy.name}`}
+                        {m.appointed_by && ` by ${m.appointed_by.name}`}
                       </p>
                     )}
                   </div>

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi, votives as votivesApi } from '@/lib/api';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
@@ -141,14 +142,14 @@ const NOTIF_ROWS: {
 }[] = [
   {
     label: 'Summon Answered',
-    desc: 'A creator claims their profile and your votive activates.',
+    desc: 'A creator or entity claims their profile and your votive activates.',
     emailKey: 'summon_answered',
     smsKey: 'sms_summon_answered',
     inAppKey: 'in_app_summon_answered',
   },
   {
     label: 'Pot Pending Review',
-    desc: 'A creator submits a pot for Council review.',
+    desc: 'A creator or entity submits a pot for Council review.',
     emailKey: 'pot_pending_completion',
     smsKey: 'sms_pot_pending_completion',
     inAppKey: 'in_app_pot_pending_completion',
@@ -197,7 +198,7 @@ const NOTIF_ROWS: {
   },
   {
     label: 'Herald Status Lost',
-    desc: 'Another fan outbids you as Herald on a summon.',
+    desc: 'Another fan outbids you and edits a profile you were heralding.',
     emailKey: 'herald_status_lost',
     smsKey: 'sms_herald_status_lost',
     inAppKey: 'in_app_herald_status_lost',
@@ -229,6 +230,12 @@ export default function SettingsPage() {
   const [emailChangeInput, setEmailChangeInput] = useState('');
   const [emailChangeLoading, setEmailChangeLoading] = useState(false);
   const [emailChangeSent, setEmailChangeSent] = useState<string | null>(null);
+
+  // Profile picture
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [picPreview, setPicPreview] = useState<string | null>(null);
+  const [picFile, setPicFile] = useState<File | null>(null);
+  const [picUploading, setPicUploading] = useState(false);
 
   // Danger zone dialogs
   const [showBrokeConfirm, setShowBrokeConfirm] = useState(false);
@@ -350,6 +357,31 @@ export default function SettingsPage() {
       toast(e.message ?? 'Failed to send confirmation email.', 'error');
     } finally {
       setEmailChangeLoading(false);
+    }
+  };
+
+  const handlePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPicFile(file);
+    setPicPreview(URL.createObjectURL(file));
+  };
+
+  const handlePicUpload = async () => {
+    if (!user || !picFile) return;
+    setPicUploading(true);
+    try {
+      await usersApi.uploadProfilePicture(user.id, picFile);
+      await refreshUser();
+      setPicFile(null);
+      setPicPreview(null);
+      toast('Profile picture updated!', 'success');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast(e.message ?? 'Failed to upload picture.', 'error');
+    } finally {
+      setPicUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -486,6 +518,61 @@ export default function SettingsPage() {
             )}
           </div>
         )}
+
+        {/* Profile Picture */}
+        <div className="bg-surface border border-border rounded-xl p-5 mb-6">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">Profile Picture</h2>
+
+          <div className="flex items-center gap-4">
+            {/* Current / preview avatar */}
+            <div className="relative w-16 h-16 rounded-full overflow-hidden bg-surface-2 border border-border shrink-0">
+              {(picPreview || user.profile_picture) ? (
+                <Image
+                  src={picPreview ?? user.profile_picture!}
+                  alt="Profile picture"
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-2xl text-muted select-none">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                className="hidden"
+                onChange={handlePicChange}
+              />
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={picUploading}
+                  className="bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-brand/50 transition-colors disabled:opacity-50"
+                >
+                  {picFile ? 'Choose different…' : 'Choose photo…'}
+                </button>
+                {picFile && (
+                  <button
+                    type="button"
+                    onClick={handlePicUpload}
+                    disabled={picUploading}
+                    className="bg-brand text-black text-sm font-semibold px-4 py-2 rounded-lg hover:bg-brand-dim transition-colors disabled:opacity-50"
+                  >
+                    {picUploading ? 'Uploading…' : 'Upload'}
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-muted mt-2">JPEG, PNG, GIF or WebP — max 2 MB. Anonymity mode hides your picture from other users.</p>
+            </div>
+          </div>
+        </div>
 
         {/* Privacy */}
         <div className="bg-surface border border-border rounded-xl p-5 mb-6">

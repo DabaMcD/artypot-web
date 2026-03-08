@@ -20,6 +20,8 @@ import type {
   DeletePaymentMethodResult,
   CouncilMember,
   CouncilPage,
+  AdminSummonClaim,
+  AdminPotCompletion,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -60,6 +62,23 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 
   if (res.status === 204) return undefined as T;
+  return res.json() as Promise<T>;
+}
+
+// For multipart/form-data (file uploads) — no Content-Type header so browser sets boundary
+async function requestMultipart<T>(path: string, body: FormData): Promise<T> {
+  const token = getToken();
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE}${path}`, { method: 'POST', headers, body });
+
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    const error: ApiError = { status: res.status, message: (json as { message?: string }).message ?? res.statusText };
+    throw error;
+  }
+
   return res.json() as Promise<T>;
 }
 
@@ -246,6 +265,12 @@ export const users = {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
+
+  uploadProfilePicture: (id: number, file: File) => {
+    const form = new FormData();
+    form.append('profile_picture', file);
+    return requestMultipart<{ data: { profile_picture: string } }>(`/users/${id}/profile-picture`, form);
+  },
 };
 
 // Votives (authenticated user's own)
@@ -305,6 +330,26 @@ export const billing = {
     request<DeletePaymentMethodResult>(`/billing/payment-methods/${id}`, { method: 'DELETE' }),
 };
 
+// Overlord — logs
+export const logs = {
+  list: (params?: { page?: number; level?: string; search?: string }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<{
+      data: { logged_at: string; level: string; message: string; context: string | null }[];
+      meta: { current_page: number; last_page: number; total: number; per_page: number };
+    }>(`/overlord/logs${qs ? `?${qs}` : ''}`);
+  },
+
+  deleteBefore: (before: string) =>
+    request<{ message: string; deleted: number; remaining: number }>('/overlord/logs', {
+      method: 'DELETE',
+      body: JSON.stringify({ before }),
+    }),
+};
+
 // Overlord — grant/revoke Council by email
 export const overlord = {
   listCouncil: () =>
@@ -318,4 +363,31 @@ export const overlord = {
 
   revokeCouncil: (councilId: number) =>
     request<void>(`/overlord/council/${councilId}`, { method: 'DELETE' }),
+};
+
+// Admin (Council only)
+export const admin = {
+  // Summon Claims
+  listClaims: (status: 'pending' | 'approved' | 'rejected' | 'all' = 'pending', page = 1) =>
+    request<PaginatedResponse<AdminSummonClaim>>(`/admin/summon-claims?status=${status}&page=${page}`),
+
+  reviewClaim: (claimId: number, data: { status: 'approved' | 'rejected'; council_notes?: string }) =>
+    request<{ data: AdminSummonClaim }>(`/admin/summon-claims/${claimId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  // Pot Completions
+  listCompletions: (status: 'pending_review' | 'approved' | 'rejected' | 'all' = 'pending_review', page = 1) =>
+    request<PaginatedResponse<AdminPotCompletion>>(`/admin/pot-completions?status=${status}&page=${page}`),
+
+  reviewCompletion: (potId: number, data: { status: 'approved' | 'rejected'; council_notes?: string }) =>
+    request<{ data: Pot }>(`/admin/pots/${potId}/completion`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  // Council Members
+  listCouncil: (page = 1) =>
+    request<PaginatedResponse<CouncilMember>>(`/admin/council?page=${page}`),
 };
