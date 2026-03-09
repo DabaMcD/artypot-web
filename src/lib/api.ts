@@ -22,6 +22,7 @@ import type {
   CouncilPage,
   AdminSummonClaim,
   AdminPotCompletion,
+  SummonEarning,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -328,6 +329,17 @@ export const billing = {
 
   deletePaymentMethod: (id: string) =>
     request<DeletePaymentMethodResult>(`/billing/payment-methods/${id}`, { method: 'DELETE' }),
+
+  /** Immediately charge the authenticated user's full negative available_cash balance. */
+  payNow: () =>
+    request<{ message: string; charged: number }>('/billing/pay-now', { method: 'POST' }),
+};
+
+// Cash (summon-specific endpoints)
+export const cash = {
+  /** Per-pot earnings breakdown for the authenticated summon. */
+  summonEarnings: () =>
+    request<{ data: SummonEarning[] }>('/cash/summon-earnings'),
 };
 
 // Overlord — logs

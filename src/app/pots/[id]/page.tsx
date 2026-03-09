@@ -698,6 +698,84 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             </div>
           )}
 
+          {/* Closed-pot notice — shown for every non-open status */}
+          {pot.status !== 'open' && (() => {
+            const summonName = pot.summon?.display_name ?? 'The creator';
+            const notices: Record<string, { icon: string; heading: string; body: string; style: string }> = {
+              completed: {
+                icon: '📋',
+                heading: 'Awaiting Council review',
+                body: `${summonName} has submitted this pot for review. Votives are locked while the Council considers the completion.`,
+                style: 'border-blue-800/40 bg-blue-900/10',
+              },
+              approved: {
+                icon: '✅',
+                heading: 'Approved — payout pending',
+                body: 'The Council has approved this pot. You have 48 hours to revoke your votive — after that, your card will be charged in the next billing cycle.',
+                style: 'border-creator/30 bg-creator/5',
+              },
+              paid_out: {
+                icon: '💸',
+                heading: 'Paid out',
+                body: `This pot has been paid out. ${summonName} has been compensated for their work.`,
+                style: 'border-council/30 bg-council/5',
+              },
+              revoked: {
+                icon: '🚫',
+                heading: 'Pot revoked',
+                body: 'This pot has been revoked and is no longer active.',
+                style: 'border-red-800/40 bg-red-900/10',
+              },
+            };
+            const notice = notices[pot.status];
+            if (!notice) return null;
+
+            const revokableUntil = pot.revoke_deadline_at ? new Date(pot.revoke_deadline_at) : null;
+            const inGracePeriod = revokableUntil && revokableUntil > new Date();
+
+            return (
+              <>
+                <div className={`border rounded-xl p-5 ${notice.style}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span>{notice.icon}</span>
+                    <h3 className="font-semibold text-foreground text-sm">{notice.heading}</h3>
+                  </div>
+                  <p className="text-muted text-sm leading-relaxed">{notice.body}</p>
+                  {pot.status === 'approved' && revokableUntil && (
+                    <p className="text-xs text-muted mt-2">
+                      {inGracePeriod ? (
+                        <>
+                          Grace period ends:{' '}
+                          <span className="text-foreground">
+                            {revokableUntil.toLocaleString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true,
+                            })}
+                          </span>
+                        </>
+                      ) : (
+                        'The grace period has ended — your charge is locked in.'
+                      )}
+                    </p>
+                  )}
+                </div>
+                {/* Revoke button during the 48-hour grace period */}
+                {pot.status === 'approved' && inGracePeriod && userVotive && (
+                  <button
+                    onClick={handleRevokeVotive}
+                    disabled={votiveLoading}
+                    className="w-full text-sm text-amber-400 hover:text-red-400 border border-amber-800/40 bg-amber-900/10 rounded-xl py-2.5 transition-colors disabled:opacity-50"
+                  >
+                    {votiveLoading ? 'Revoking…' : 'Revoke votive (last chance)'}
+                  </button>
+                )}
+              </>
+            );
+          })()}
+
           {/* Creator: submit completion */}
           {canSubmitCompletion && !showCompletion && (
             <button
