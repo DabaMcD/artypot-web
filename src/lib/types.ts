@@ -244,6 +244,16 @@ export interface PaymentMethod {
   exp_year: number;
 }
 
+export interface SummonEarning {
+  pot: Pick<Pot, 'id' | 'title'> & { status: PotStatus };
+  /** Confirmed available_cash credits already received (net of fees) */
+  earned: number;
+  /** Gross fan amounts not yet billed — actual credit will be lower after fees */
+  incoming: number;
+  /** earned + incoming */
+  total: number;
+}
+
 export interface NotificationSettings {
   // Email preferences
   summon_answered: boolean;

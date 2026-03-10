@@ -1,17 +1,48 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { useToast } from '@/lib/toast-context';
+import { billing } from '@/lib/api';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
 
 export default function BillingPage() {
   const { user, loading } = useAuth();
+  const { toast } = useToast();
   const router = useRouter();
+
+  const [balance, setBalance] = useState<number | null>(null);
+  const [balanceLoading, setBalanceLoading] = useState(true);
+  const [paying, setPaying] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) router.push('/login');
   }, [loading, user, router]);
+
+  useEffect(() => {
+    if (!user) return;
+    billing
+      .cash()
+      .then((res) => setBalance(res.balance))
+      .catch(() => setBalance(null))
+      .finally(() => setBalanceLoading(false));
+  }, [user]);
+
+  const handlePayNow = async () => {
+    if (paying) return;
+    setPaying(true);
+    try {
+      const res = await billing.payNow();
+      toast(res.message, 'success');
+      setBalance(0);
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast(e.message ?? 'Payment failed.', 'error');
+    } finally {
+      setPaying(false);
+    }
+  };
 
   if (loading || !user) {
     return (
@@ -22,15 +53,41 @@ export default function BillingPage() {
     );
   }
 
+  const hasOutstandingBalance = balance !== null && balance < 0;
+  const outstandingAmount = hasOutstandingBalance ? Math.abs(balance) : 0;
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-foreground mb-1">Payment Methods</h1>
         <p className="text-muted text-sm">
           Your saved cards are used to charge your votives when a pot pays out. You are only
-          charged once a completed work is council-approved and the 7-day review window closes.
+          charged once a completed work is council-approved and the 48-hour review window closes.
         </p>
       </div>
+
+      {/* Outstanding balance section — only shown when negative */}
+      {!balanceLoading && hasOutstandingBalance && (
+        <div className="border border-amber-800/40 bg-amber-900/10 rounded-xl p-5 mb-6">
+          <h3 className="font-semibold text-foreground mb-1">Outstanding Balance</h3>
+          <p className="text-2xl font-bold text-red-400 mb-2">
+            ${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          </p>
+          <p className="text-muted text-sm mb-4 leading-relaxed">
+            Your balance is charged automatically on the 24th of each month. Paying early is an
+            option, but usually not necessary — waiting avoids multiple small Stripe transactions.
+          </p>
+          <button
+            onClick={handlePayNow}
+            disabled={paying}
+            className="bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-semibold px-4 py-2 text-sm rounded-lg transition-colors"
+          >
+            {paying
+              ? 'Processing…'
+              : `Pay $${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} now`}
+          </button>
+        </div>
+      )}
 
       <div className="bg-surface border border-border rounded-xl p-6 mb-6">
         <PaymentMethodManager />
@@ -42,8 +99,8 @@ export default function BillingPage() {
         <ul className="space-y-2 text-sm text-muted">
           {[
             'You place a votive (a fixed amount) when you back a pot. Nothing is charged at that point.',
-            "When a creator submits their work and the council approves it, a 7-day review window opens.",
-            'If you don\'t revoke your votive during that window, you\'re charged on the next billing cycle (the 24th of the month).',
+            'When a creator submits their work and the Council approves it, a 48-hour revocation window opens.',
+            'If you don\'t revoke your votive during that 48-hour window, your charge is locked in and will be collected on the next billing cycle (the 24th of the month).',
             'Artypot takes a 5% platform fee. Stripe processing fees (2.9% + $0.30) are deducted from the creator\'s payout unless you opt to cover them.',
           ].map((item) => (
             <li key={item} className="flex items-start gap-2">
