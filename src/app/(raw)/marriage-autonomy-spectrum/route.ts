@@ -29,6 +29,10 @@ export async function GET() {
     margin: 0 auto;
   }
 
+  @media (max-width: 640px) {
+    body { padding: 28px 20px; font-size: 14px; }
+  }
+
   header {
     text-align: center;
     padding-bottom: 28px;
@@ -55,6 +59,10 @@ export async function GET() {
     margin-bottom: 12px;
   }
 
+  @media (max-width: 640px) {
+    h1 { font-size: 36px; }
+  }
+
   .subtitle {
     font-family: 'Libre Baskerville', serif;
     font-style: italic;
@@ -71,9 +79,15 @@ export async function GET() {
     font-size: 11px;
     color: var(--muted);
     letter-spacing: 0.08em;
+    flex-wrap: wrap;
   }
   .axis-label span { font-style: italic; }
   .axis-label .sep { color: var(--rule); }
+
+  @media (max-width: 640px) {
+    .axis-label .sep { display: none; }
+    .axis-label { flex-direction: column; gap: 2px; }
+  }
 
   .spectrum-bar {
     display: flex;
@@ -111,6 +125,10 @@ export async function GET() {
   }
   .col-headers span:nth-child(3) { padding-left: 16px; }
 
+  @media (max-width: 640px) {
+    .col-headers { display: none; }
+  }
+
   .level {
     display: grid;
     grid-template-columns: 52px 1fr 1fr;
@@ -121,6 +139,13 @@ export async function GET() {
     animation: fadeIn 0.4s ease both;
   }
   .level:last-of-type { border-bottom: none; }
+
+  @media (max-width: 640px) {
+    .level {
+      grid-template-columns: 44px 1fr;
+      grid-template-rows: auto auto;
+    }
+  }
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(6px); }
@@ -225,6 +250,31 @@ export async function GET() {
     text-transform: uppercase;
     color: var(--ink);
     margin-bottom: 4px;
+  }
+
+  @media (max-width: 640px) {
+    .level-left { padding-right: 0; }
+
+    .level-right {
+      grid-column: 2 / 3;
+      border-left: none;
+      border-top: 1px solid var(--rule);
+      padding-left: 0;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
+    .num-badge { width: 34px; height: 34px; font-size: 17px; }
+
+    .level-title { font-size: 14px; }
+    .level-body  { font-size: 13px; }
+    .quote       { font-size: 13px; }
+
+    footer {
+      grid-template-columns: 1fr;
+      gap: 16px;
+      font-size: 12px;
+    }
   }
 
   @media print {
