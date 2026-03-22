@@ -93,7 +93,7 @@ export default function GuidePage() {
       <div className="mt-8 p-5 bg-surface border border-border rounded-xl text-center">
         <p className="text-muted text-sm">
           Still confused?{' '}
-          <a href="mailto:hello@artypot.com" className="text-brand hover:underline">
+          <a href="mailto:baldwig@artypot.com" className="text-brand hover:underline">
             Drop us a line.
           </a>
         </p>
