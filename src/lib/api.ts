@@ -23,6 +23,7 @@ import type {
   AdminSummonClaim,
   AdminPotCompletion,
   SummonEarning,
+  SummonBalance,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -337,6 +338,10 @@ export const billing = {
 
 // Cash (summon-specific endpoints)
 export const cash = {
+  /** Wallet overview for the authenticated summon: confirmed balance + pending earnings. */
+  summonBalance: () =>
+    request<SummonBalance>('/cash/summon-balance'),
+
   /** Per-pot earnings breakdown for the authenticated summon. */
   summonEarnings: () =>
     request<{ data: SummonEarning[] }>('/cash/summon-earnings'),

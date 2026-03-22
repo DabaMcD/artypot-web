@@ -46,6 +46,11 @@ export default function PotCard({ pot }: { pot: Pot }) {
               {backerCount} {backerCount === 1 ? 'backer' : 'backers'}
             </div>
           )}
+          {(pot.status === 'approved' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (
+            <div className="text-xs text-muted mt-0.5">
+              ${pot.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cleared
+            </div>
+          )}
         </div>
         {pot.summon && (
           <div className="text-right">

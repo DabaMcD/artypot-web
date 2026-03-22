@@ -637,6 +637,11 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               <div className="text-muted text-sm">
                 supported by {activeVotives.length} {activeVotives.length === 1 ? 'backer' : 'backers'}
               </div>
+              {(pot.status === 'approved' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (
+                <div className="text-xs text-muted mt-0.5">
+                  ${pot.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2 })} of ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })} cleared
+                </div>
+              )}
               {selectedEvent && (
                 <p className="text-xs text-muted/60 italic mt-0.5">
                   *Votive total on {formatHoverDate(selectedEvent.at)}
@@ -711,7 +716,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               approved: {
                 icon: '✅',
                 heading: 'Approved — payout pending',
-                body: 'The Council has approved this pot. You have 48 hours to revoke your votive — after that, your card will be charged in the next billing cycle.',
+                body: 'The Council has approved this pot. Votives are now locked — your card will be charged in the next billing cycle.',
                 style: 'border-creator/30 bg-creator/5',
               },
               paid_out: {
@@ -730,49 +735,14 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             const notice = notices[pot.status];
             if (!notice) return null;
 
-            const revokableUntil = pot.revoke_deadline_at ? new Date(pot.revoke_deadline_at) : null;
-            const inGracePeriod = revokableUntil && revokableUntil > new Date();
-
             return (
-              <>
-                <div className={`border rounded-xl p-5 ${notice.style}`}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span>{notice.icon}</span>
-                    <h3 className="font-semibold text-foreground text-sm">{notice.heading}</h3>
-                  </div>
-                  <p className="text-muted text-sm leading-relaxed">{notice.body}</p>
-                  {pot.status === 'approved' && revokableUntil && (
-                    <p className="text-xs text-muted mt-2">
-                      {inGracePeriod ? (
-                        <>
-                          Grace period ends:{' '}
-                          <span className="text-foreground">
-                            {revokableUntil.toLocaleString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              hour: 'numeric',
-                              minute: '2-digit',
-                              hour12: true,
-                            })}
-                          </span>
-                        </>
-                      ) : (
-                        'The grace period has ended — your charge is locked in.'
-                      )}
-                    </p>
-                  )}
+              <div className={`border rounded-xl p-5 ${notice.style}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span>{notice.icon}</span>
+                  <h3 className="font-semibold text-foreground text-sm">{notice.heading}</h3>
                 </div>
-                {/* Revoke button during the 48-hour grace period */}
-                {pot.status === 'approved' && inGracePeriod && userVotive && (
-                  <button
-                    onClick={handleRevokeVotive}
-                    disabled={votiveLoading}
-                    className="w-full text-sm text-amber-400 hover:text-red-400 border border-amber-800/40 bg-amber-900/10 rounded-xl py-2.5 transition-colors disabled:opacity-50"
-                  >
-                    {votiveLoading ? 'Revoking…' : 'Revoke votive (last chance)'}
-                  </button>
-                )}
-              </>
+                <p className="text-muted text-sm leading-relaxed">{notice.body}</p>
+              </div>
             );
           })()}
 

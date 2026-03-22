@@ -102,6 +102,8 @@ export interface Pot {
   approved_at?: string;
   revoke_deadline_at?: string;
   paid_out_at?: string;
+  /** Sum of fan charges already collected via billing for this pot. */
+  cleared_amount?: number;
   votives?: PotVotive[];
   completion?: PotCompletion;
 }
@@ -242,6 +244,14 @@ export interface PaymentMethod {
   last4: string;
   exp_month: number;
   exp_year: number;
+}
+
+export interface SummonBalance {
+  /** Confirmed earnings already credited to the summon (billing_run_id IS NOT NULL) */
+  available_balance: number;
+  /** Locked fan charges not yet billed — net of fees, reflects actual creator payout */
+  pending_earnings: number;
+  available: PaginatedResponse<AvailableCash>;
 }
 
 export interface SummonEarning {
