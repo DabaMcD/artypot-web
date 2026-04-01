@@ -1,5 +1,5 @@
 export type UserRole = 'mob' | 'summoned' | 'council';
-export type PotStatus = 'open' | 'completed' | 'approved' | 'paid_out' | 'revoked';
+export type PotStatus = 'open' | 'pending' | 'completed' | 'paid_out' | 'revoked';
 export type PotType = 'direct';
 export type SummonClaimStatus = 'pending' | 'approved' | 'rejected';
 export type PotCompletionStatus = 'pending_review' | 'approved' | 'rejected';
@@ -100,7 +100,6 @@ export interface Pot {
   total_pledged: number;
   completed_at?: string;
   approved_at?: string;
-  revoke_deadline_at?: string;
   paid_out_at?: string;
   /** Sum of fan charges already collected via billing for this pot. */
   cleared_amount?: number;
@@ -225,9 +224,7 @@ export interface AdminPotCompletion {
 
 export interface CashBalance {
   balance: number;
-  pending_total: number;
   available: PaginatedResponse<AvailableCash>;
-  pending: AvailableCash[];
 }
 
 export interface AvailableCash {
@@ -327,8 +324,8 @@ export type PotHistoryEventType =
   | 'votive_revoked'
   | 'details_edited'
   | 'privilege_transfer'
-  | 'completed'
-  | 'approved';
+  | 'pending'
+  | 'completed';
 
 export interface PotHistoryEvent {
   type: PotHistoryEventType;

@@ -2,11 +2,11 @@ import Link from 'next/link';
 import type { Pot, PotStatus } from '@/lib/types';
 
 const STATUS_STYLES: Record<PotStatus, { label: string; className: string }> = {
-  open: { label: 'Open', className: 'bg-green-900/40 text-green-400 border-green-800/50' },
-  completed: { label: 'Submitted', className: 'bg-blue-900/40 text-blue-400 border-blue-800/50' },
-  approved: { label: 'Approved', className: 'bg-creator/10 text-creator border-creator/30' },
-  paid_out: { label: 'Paid Out', className: 'bg-council/10 text-council border-council/30' },
-  revoked: { label: 'Revoked', className: 'bg-red-900/40 text-red-400 border-red-800/50' },
+  open:      { label: 'Open',           className: 'bg-green-900/40 text-green-400 border-green-800/50' },
+  pending:   { label: 'Pending Review', className: 'bg-blue-900/40 text-blue-400 border-blue-800/50' },
+  completed: { label: 'Completed',      className: 'bg-creator/10 text-creator border-creator/30' },
+  paid_out:  { label: 'Paid Out',       className: 'bg-council/10 text-council border-council/30' },
+  revoked:   { label: 'Revoked',        className: 'bg-red-900/40 text-red-400 border-red-800/50' },
 };
 
 export default function PotCard({ pot }: { pot: Pot }) {
@@ -46,7 +46,7 @@ export default function PotCard({ pot }: { pot: Pot }) {
               {backerCount} {backerCount === 1 ? 'backer' : 'backers'}
             </div>
           )}
-          {(pot.status === 'approved' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (
+          {(pot.status === 'completed' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (
             <div className="text-xs text-muted mt-0.5">
               ${pot.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cleared
             </div>

@@ -25,19 +25,19 @@ import ShareButton from '@/components/ShareButton';
 import PotHistoryChart from '@/components/PotHistoryChart';
 
 const STATUS_LABELS: Record<string, string> = {
-  open: 'Open',
-  completed: 'Submitted',
-  approved: 'Approved',
-  paid_out: 'Paid Out',
-  revoked: 'Revoked',
+  open:      'Open',
+  pending:   'Pending Review',
+  completed: 'Completed',
+  paid_out:  'Paid Out',
+  revoked:   'Revoked',
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  open: 'bg-green-900/40 text-green-400 border-green-800/50',
-  completed: 'bg-blue-900/40 text-blue-400 border-blue-800/50',
-  approved: 'bg-creator/10 text-creator border-creator/30',
-  paid_out: 'bg-council/10 text-council border-council/30',
-  revoked: 'bg-red-900/40 text-red-400 border-red-800/50',
+  open:      'bg-green-900/40 text-green-400 border-green-800/50',
+  pending:   'bg-blue-900/40 text-blue-400 border-blue-800/50',
+  completed: 'bg-creator/10 text-creator border-creator/30',
+  paid_out:  'bg-council/10 text-council border-council/30',
+  revoked:   'bg-red-900/40 text-red-400 border-red-800/50',
 };
 
 function formatHoverDate(iso: string): string {
@@ -250,7 +250,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         submissionUrl,
         submissionNotes || undefined,
       );
-      setPot((prev) => (prev ? { ...prev, status: 'completed', completion: res.data } : prev));
+      setPot((prev) => (prev ? { ...prev, status: 'pending', completion: res.data } : prev));
       setShowCompletion(false);
     } catch (err: unknown) {
       const e = err as { message?: string };
@@ -637,7 +637,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               <div className="text-muted text-sm">
                 supported by {activeVotives.length} {activeVotives.length === 1 ? 'backer' : 'backers'}
               </div>
-              {(pot.status === 'approved' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (
+              {(pot.status === 'completed' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (
                 <div className="text-xs text-muted mt-0.5">
                   ${pot.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2 })} of ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })} cleared
                 </div>
@@ -707,15 +707,15 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           {pot.status !== 'open' && (() => {
             const summonName = pot.summon?.display_name ?? 'The creator';
             const notices: Record<string, { icon: string; heading: string; body: string; style: string }> = {
-              completed: {
+              pending: {
                 icon: '📋',
                 heading: 'Awaiting Council review',
                 body: `${summonName} has submitted this pot for review. Votives are locked while the Council considers the completion.`,
                 style: 'border-blue-800/40 bg-blue-900/10',
               },
-              approved: {
+              completed: {
                 icon: '✅',
-                heading: 'Approved — payout pending',
+                heading: 'Completed — payout pending',
                 body: 'The Council has approved this pot. Votives are now locked — your card will be charged in the next billing cycle.',
                 style: 'border-creator/30 bg-creator/5',
               },

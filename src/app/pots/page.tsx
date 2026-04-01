@@ -8,11 +8,11 @@ import type { Pot, PaginatedResponse, PotStatus } from '@/lib/types';
 import PotCard from '@/components/PotCard';
 
 const STATUS_FILTERS: { value: PotStatus | ''; label: string }[] = [
-  { value: '', label: 'All' },
-  { value: 'open', label: 'Open' },
-  { value: 'completed', label: 'Submitted' },
-  { value: 'approved', label: 'Approved' },
-  { value: 'paid_out', label: 'Paid Out' },
+  { value: '',          label: 'All' },
+  { value: 'open',      label: 'Open' },
+  { value: 'pending',   label: 'Pending Review' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'paid_out',  label: 'Paid Out' },
 ];
 
 export default function PotsPage() {
