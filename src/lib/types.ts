@@ -75,9 +75,12 @@ export interface Summon {
   projects_open?: number;
   /** Live-computed count of paid-out pots */
   projects_finished?: number;
+  /** Confirmed earnings: sum of creator credits where Stripe has collected */
   amount_earned?: number;
-  /** Live-computed sum of total_pledged across all pots */
+  /** Gross pledges on open/pending pots (no charge written yet) */
   total_votive_sum?: number;
+  /** Gross votive amounts locked on completed pots, not yet charged via Stripe */
+  pending_votive_total?: number;
   /** Whether the currently authenticated user can edit this summon */
   can_edit?: boolean;
   /** The authenticated user's own 24h-aged votive total across all pots for this summon */

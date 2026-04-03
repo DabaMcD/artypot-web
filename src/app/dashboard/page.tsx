@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { pots as potsApi, billing, votives as votivesApi, cash as cashApi } from '@/lib/api';
+import { pots as potsApi, billing, votives as votivesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { Pot, CashBalance, SummonBalance, PaginatedResponse, PaymentMethod, PublicUserVotive } from '@/lib/types';
+import type { Pot, CashBalance, PaginatedResponse, PaymentMethod, PublicUserVotive } from '@/lib/types';
 import PotCard from '@/components/PotCard';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
@@ -14,7 +14,7 @@ import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 function InfoTip({ content }: { content: string }) {
   return (
     <span className="relative group cursor-default ml-1 inline-flex items-center">
-      <span className="text-muted text-xs w-3.5 h-3.5 rounded-full border border-muted/40 inline-flex items-center justify-center leading-none select-none hover:border-foreground/40 hover:text-foreground transition-colors">
+      <span className="italic font-serif text-muted text-xs w-3.5 h-3.5 rounded-full border border-muted/40 inline-flex items-center justify-center leading-none select-none hover:border-foreground/40 hover:text-foreground transition-colors">
         i
       </span>
       <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-surface-2 border border-border rounded-xl p-3 shadow-xl text-xs text-muted leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-20 text-left">
@@ -30,7 +30,6 @@ export default function DashboardPage() {
 
   const [myPots, setMyPots] = useState<PaginatedResponse<Pot> | null>(null);
   const [cash, setCash] = useState<CashBalance | null>(null);
-  const [summonBalance, setSummonBalance] = useState<SummonBalance | null>(null);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [myVotives, setMyVotives] = useState<PublicUserVotive[]>([]);
   const [totalActiveVotiveAmount, setTotalActiveVotiveAmount] = useState<number>(0);
@@ -67,10 +66,6 @@ export default function DashboardPage() {
       .catch(() => {})
       .finally(() => setVotivesLoading(false));
 
-    // Fetch summon wallet data for creator users
-    if (user.role === 'summoned' || user.role === 'council') {
-      cashApi.summonBalance().then(setSummonBalance).catch(() => {});
-    }
   }, [user]);
 
   if (authLoading || !user) {
@@ -175,9 +170,9 @@ export default function DashboardPage() {
           {/* Creator metric row */}
           <div className="grid grid-cols-3 gap-4 pt-4 border-t border-creator/20">
             <div>
-              <div className="text-xs text-muted uppercase tracking-wider mb-1 flex items-center">
-                Active Votives
-                <InfoTip content="Total amount currently pledged by fans on your open pots. These are live commitments that haven't been billed yet." />
+              <div className="text-xs text-muted tracking-wider mb-1 flex items-center">
+                OPEN VOTIVES
+                <InfoTip content="Total pledged by fans on your open or submitted pots. No charge has been written yet — these convert once the Council approves." />
               </div>
               <div className="text-xl font-bold text-foreground">
                 ${Number(user.summon!.total_votive_sum ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
@@ -185,19 +180,19 @@ export default function DashboardPage() {
             </div>
 
             <div>
-              <div className="text-xs text-muted uppercase tracking-wider mb-1 flex items-center">
-                Pending Payout
-                <InfoTip content="Your net share (after Stripe and platform fees) of fan charges that are locked in but not yet collected. Credited to your wallet on the 24th of each month." />
+              <div className="text-xs text-muted tracking-wider mb-1 flex items-center">
+                PENDING VOTIVES
+                <InfoTip content="Fan pledges on council-approved pots that are locked in but not yet charged. These will be collected on the next billing cycle (the 24th)." />
               </div>
               <div className="text-xl font-bold text-amber-400">
-                ${Number(summonBalance?.pending_earnings ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                ${Number(user.summon!.pending_votive_total ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </div>
 
             <div>
-              <div className="text-xs text-muted uppercase tracking-wider mb-1 flex items-center">
-                Total Earned
-                <InfoTip content="Confirmed earnings already credited to your wallet from completed, fully-billed pots." />
+              <div className="text-xs text-muted tracking-wider mb-1 flex items-center">
+                TOTAL EARNED
+                <InfoTip content="Confirmed earnings in your wallet — fan payments that have been collected via Stripe and credited to you." />
               </div>
               <div className="text-xl font-bold text-creator">
                 ${Number(user.summon!.amount_earned ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
