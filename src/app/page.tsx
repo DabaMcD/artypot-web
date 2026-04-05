@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import HomeAuthGate from '@/components/HomeAuthGate';
+import { ROLE_COLORS } from '@/lib/theme';
 
 const HOW_IT_WORKS = [
   {
@@ -23,6 +25,7 @@ const HOW_IT_WORKS = [
 
 export default function HomePage() {
   return (
+    <HomeAuthGate>
     <div className="min-h-screen">
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-4 pt-24 pb-20">
@@ -87,9 +90,9 @@ export default function HomePage() {
             <div className="rounded-xl border border-brand/30 bg-brand/5 p-6">
               <div
                 className="w-3 h-3 rounded-full mb-4"
-                style={{ background: '#F5A623' }}
+                style={{ background: ROLE_COLORS.mob }}
               />
-              <h3 className="font-semibold text-brand mb-1">The Mob</h3>
+              <h3 className="font-semibold text-brand mb-1">Fans</h3>
               <p className="text-sm text-muted">
                 Everyone. Fans and funders who place votives into pots for creative work they want to
                 see made.
@@ -97,7 +100,7 @@ export default function HomePage() {
             </div>
 
             <div className="rounded-xl border border-creator/30 bg-creator/5 p-6">
-              <div className="w-3 h-3 rounded-full mb-4" style={{ background: '#47DFD3' }} />
+              <div className="w-3 h-3 rounded-full mb-4" style={{ background: ROLE_COLORS.summoned }} />
               <h3 className="font-semibold text-creator mb-1">The Summoned</h3>
               <p className="text-sm text-muted">
                 Creators who can receive payouts. They claim their profile and submit completed work
@@ -106,7 +109,7 @@ export default function HomePage() {
             </div>
 
             <div className="rounded-xl border border-council/30 bg-council/5 p-6">
-              <div className="w-3 h-3 rounded-full mb-4" style={{ background: '#8A2BE2' }} />
+              <div className="w-3 h-3 rounded-full mb-4" style={{ background: ROLE_COLORS.council }} />
               <h3 className="font-semibold text-council mb-1">The Council</h3>
               <p className="text-sm text-muted">
                 Platform admins who verify creator identities, approve completions, and keep things
@@ -188,5 +191,6 @@ export default function HomePage() {
         </div>
       </section>
     </div>
+    </HomeAuthGate>
   );
 }

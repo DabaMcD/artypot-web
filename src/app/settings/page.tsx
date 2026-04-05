@@ -231,6 +231,10 @@ export default function SettingsPage() {
   const [emailChangeLoading, setEmailChangeLoading] = useState(false);
   const [emailChangeSent, setEmailChangeSent] = useState<string | null>(null);
 
+  // Display name
+  const [nameInput, setNameInput] = useState('');
+  const [nameSaving, setNameSaving] = useState(false);
+
   // Profile picture
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [picPreview, setPicPreview] = useState<string | null>(null);
@@ -252,6 +256,7 @@ export default function SettingsPage() {
     }
     setIsAnonymous(user.is_anonymous ?? false);
     setCoverFees(user.cover_processing_fees ?? false);
+    setNameInput(user.name ?? '');
     notifApi.get().then(setNotifSettings).catch(() => {});
     votivesApi.list().then((res) => setVotiveTotalAmount(res.total_active_amount)).catch(() => {});
   }, [user, authLoading, router]);
@@ -289,6 +294,21 @@ export default function SettingsPage() {
       toast('Failed to save. Please try again.', 'error');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !nameInput.trim()) return;
+    setNameSaving(true);
+    try {
+      await usersApi.update(user.id, { name: nameInput.trim() });
+      await refreshUser();
+      toast('Name updated!', 'success');
+    } catch {
+      toast('Failed to save name.', 'error');
+    } finally {
+      setNameSaving(false);
     }
   };
 
@@ -574,13 +594,34 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {/* Display Name */}
+        <div className="bg-surface border border-border rounded-xl p-5 mb-6">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">Display Name</h2>
+          <form onSubmit={handleSaveName} className="flex gap-2">
+            <input
+              type="text"
+              required
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+            />
+            <button
+              type="submit"
+              disabled={nameSaving || !nameInput.trim() || nameInput.trim() === user.name}
+              className="bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-brand/50 disabled:opacity-50 transition-colors whitespace-nowrap"
+            >
+              {nameSaving ? 'Saving…' : 'Save name'}
+            </button>
+          </form>
+        </div>
+
         {/* Privacy */}
         <div className="bg-surface border border-border rounded-xl p-5 mb-6">
           <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-1">Privacy</h2>
           <Toggle
             id="anonymous-mode"
             label="Anonymous Mode"
-            description="Hide your votives from your public profile. Your name will appear as [anonymous] on project backer lists."
+            description="Hide your votives from your public profile. Your name will appear as [anonymous] on project supporter lists."
             checked={isAnonymous}
             onChange={(val) => handleToggle('is_anonymous', val)}
             saving={saving}
@@ -611,6 +652,20 @@ export default function SettingsPage() {
             Go to Billing →
           </Link>
         </div>
+
+        {/* Creator Profile */}
+        {user.role === 'summoned' && user.summon && (
+          <div className="bg-surface border border-border rounded-xl p-5 mb-6">
+            <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Creator Profile</h2>
+            <p className="text-sm text-muted mb-3">Edit your public creator page — display name, bio, social handles, and fan name.</p>
+            <Link
+              href={`/summons/${user.summon.id}/edit`}
+              className="inline-block bg-surface-2 border border-border text-creator text-sm font-medium px-4 py-2 rounded-lg hover:border-creator/50 transition-colors"
+            >
+              Edit Creator Profile →
+            </Link>
+          </div>
+        )}
 
         {/* Phone Number */}
         <div className="bg-surface border border-border rounded-xl p-5 mb-6">

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Summon } from '@/lib/types';
+import { ROLE_COLORS, ROLE_TEXT_COLORS } from '@/lib/theme';
 
 export default function SummonCard({ summon }: { summon: Summon }) {
   const isClaimed = !!summon.claimed_at;
@@ -22,7 +23,7 @@ export default function SummonCard({ summon }: { summon: Summon }) {
         ) : (
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-            style={{ background: '#47DFD3', color: '#0a0a0a' }}
+            style={{ background: ROLE_COLORS.summoned, color: ROLE_TEXT_COLORS.summoned }}
           >
             {summon.display_name.charAt(0).toUpperCase()}
           </div>

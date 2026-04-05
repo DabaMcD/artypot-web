@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { users as usersApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { PublicUser } from '@/lib/types';
+import { COLORS } from '@/lib/theme';
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', {
@@ -82,7 +83,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
             ) : (
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold border border-border"
-                style={{ background: '#47DFD3', color: '#0a0a0a' }}
+                style={{ background: COLORS.brand, color: '#0a0a0a' }}
               >
                 {profile.name.charAt(0).toUpperCase()}
               </div>
