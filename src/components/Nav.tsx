@@ -75,8 +75,7 @@ export default function Nav() {
                 <div className="hidden md:block relative">
                   <button
                     onClick={() => setMenuOpen((o) => !o)}
-                    className="flex items-center gap-2 text-sm text-foreground hover:text-brand transition-colors border-b-2"
-                    style={{ borderBottomColor: roleColor }}
+                    className="flex items-center gap-2 text-sm text-foreground hover:text-brand transition-colors"
                   >
                     <span
                       className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
@@ -105,7 +104,6 @@ export default function Nav() {
                             </span>
                             <div className="min-w-0">
                               <p className="font-medium text-foreground truncate">{user.name}</p>
-                              <p className="text-xs font-medium" style={{ color: roleColor }}>{roleLabel}</p>
                             </div>
                           </div>
                         </div>
