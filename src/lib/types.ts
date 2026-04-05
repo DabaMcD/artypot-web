@@ -98,6 +98,7 @@ export interface Summon {
   bandcamp_handle?: string;
   domain?: string;
   wikipedia_handle?: string;
+  country_code?: string | null;
   rating?: number;
   /** Live-computed count of open pots */
   projects_open?: number;

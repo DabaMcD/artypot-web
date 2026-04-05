@@ -173,16 +173,16 @@ export default function HomePage() {
               </h2>
               <p className="text-muted mb-6 leading-relaxed">
                 I know how crowdfunding usually goes. You pay, you wait, you get a link to a
-                Discord. Here, your money doesn&apos;t move until the thing exists. It sits in
-                the form of a promise until The Council signs off.
+                Discord. Here, your card isn&apos;t charged until the work actually ships.
+                The Council verifies delivery before any money moves.
               </p>
               <ul className="space-y-3 text-sm text-muted">
                 {[
-                  'Held via Stripe until delivery — not in my pocket',
+                  'Your credit card is not charged until the work is done',
                   'Short review window before payout goes out',
-                  '5% platform fee, voted on by the community each year',
+                  '5% platform fee — I need to eat',
                   'Direct bank payout to the summon',
-                  'The finished work is free to the public',
+                  'Fans who funded the project get no special access — same as everyone else',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
                     <span className="text-brand mt-0.5">✓</span>
@@ -225,6 +225,21 @@ export default function HomePage() {
             <p className="text-sm text-muted leading-relaxed">
               There are obvious limits — illegal is illegal — but the platform doesn&apos;t have
               opinions about art.
+            </p>
+          </div>
+
+          {/* Current limitations */}
+          <div className="mt-10 pt-10 border-t border-border max-w-3xl">
+            <p className="text-xs font-mono text-muted uppercase tracking-wider mb-3">A note on where we&apos;re at</p>
+            <p className="text-base text-muted leading-relaxed mb-3">
+              Right now, Artypot only supports <span className="text-foreground">credit card payments</span>, and payouts
+              can only go to summons who are <span className="text-foreground">based in the United States</span>. That&apos;s
+              not a vision statement — it&apos;s just where the legal paperwork is currently in order.
+            </p>
+            <p className="text-sm text-muted leading-relaxed">
+              I&apos;m working on it. The goal is eventually worldwide. For now: if you&apos;re a fan
+              anywhere in the world, you can still back pots. If you&apos;re the one getting paid,
+              you&apos;ll need a US bank account.
             </p>
           </div>
         </div>

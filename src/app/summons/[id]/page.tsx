@@ -4,6 +4,7 @@ import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { summons as summonsApi, pots as potsApi, summonNames as summonNamesApi } from '@/lib/api';
+import { countryFlag, countryName } from '@/lib/countries';
 import { useAuth } from '@/lib/auth-context';
 import type { Summon, PaginatedResponse, Pot, SummonName } from '@/lib/types';
 import PotCard from '@/components/PotCard';
@@ -391,6 +392,13 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
                     <p className="text-sm text-muted mb-2">
                       Fans called:{' '}
                       <span className="text-foreground">{summon.fan_name_plural ?? summon.fan_name}</span>
+                    </p>
+                  )}
+
+                  {summon.country_code && (
+                    <p className="text-sm text-muted mb-2">
+                      {countryFlag(summon.country_code)}{' '}
+                      <span className="text-foreground">{countryName(summon.country_code)}</span>
                     </p>
                   )}
 
