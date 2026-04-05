@@ -69,14 +69,9 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-sm font-medium text-foreground" htmlFor="password">
-                Password
-              </label>
-              <Link href="/forgot-password" className="text-xs text-muted hover:text-brand transition-colors">
-                Forgot password?
-              </Link>
-            </div>
+            <label className="block text-sm font-medium text-foreground mb-1.5" htmlFor="password">
+              Password
+            </label>
             <input
               id="password"
               type="password"
@@ -87,6 +82,11 @@ export default function LoginPage() {
               className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
               placeholder="••••••••"
             />
+            <div className="text-right mt-1.5">
+              <Link href="/forgot-password" className="text-xs text-muted hover:text-brand transition-colors">
+                Forgot password?
+              </Link>
+            </div>
           </div>
 
           <button
