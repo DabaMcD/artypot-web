@@ -183,6 +183,8 @@ export interface PublicUser {
   is_anonymous: boolean;
   created_at: string;
   votives: PublicUserVotive[];
+  /** Server-computed sum of all active (unrevoked) votives. Null for anonymous users viewed by others. */
+  total_votive_amount?: number;
 }
 
 export interface PotCompletion {

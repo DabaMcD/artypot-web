@@ -65,7 +65,9 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  const totalVotives = profile.votives.reduce((sum, v) => sum + Number(v.amount), 0);
+  // Use server-computed total (all active unrevoked votives) when available;
+  // fall back to summing the displayed top-10 slice only if not present.
+  const totalVotives = profile.total_votive_amount ?? profile.votives.reduce((sum, v) => sum + Number(v.amount), 0);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
