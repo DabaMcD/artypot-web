@@ -621,7 +621,7 @@ export default function SettingsPage() {
           <Toggle
             id="anonymous-mode"
             label="Anonymous Mode"
-            description="Hide your votives from your public profile. Your name will appear as [anonymous] on project backer lists."
+            description="Hide your votives from your public profile. Your name will appear as [anonymous] on project supporter lists."
             checked={isAnonymous}
             onChange={(val) => handleToggle('is_anonymous', val)}
             saving={saving}

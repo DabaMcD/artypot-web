@@ -12,6 +12,8 @@ const STATUS_STYLES: Record<PotStatus, { label: string; className: string }> = {
 export default function PotCard({ pot }: { pot: Pot }) {
   const status = STATUS_STYLES[pot.status];
   const backerCount = pot.votives?.filter((v) => !v.revoked_at).length ?? null;
+  const fanSingular = pot.summon?.fan_name || 'supporter';
+  const fanPlural   = pot.summon?.fan_name_plural || pot.summon?.fan_name || 'supporters';
 
   return (
     <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-brand/50 transition-colors group">
@@ -43,7 +45,7 @@ export default function PotCard({ pot }: { pot: Pot }) {
           </div>
           {backerCount !== null && (
             <div className="text-xs text-muted mt-0.5">
-              {backerCount} {backerCount === 1 ? 'backer' : 'backers'}
+              {backerCount} {backerCount === 1 ? fanSingular : fanPlural}
             </div>
           )}
           {(pot.status === 'completed' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (

@@ -92,7 +92,7 @@ export default function HomePage() {
                 className="w-3 h-3 rounded-full mb-4"
                 style={{ background: ROLE_COLORS.mob }}
               />
-              <h3 className="font-semibold text-brand mb-1">The Mob</h3>
+              <h3 className="font-semibold text-brand mb-1">Fans</h3>
               <p className="text-sm text-muted">
                 Everyone. Fans and funders who place votives into pots for creative work they want to
                 see made.

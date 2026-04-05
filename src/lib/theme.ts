@@ -21,7 +21,7 @@ export const ROLE_TEXT_CLASSES = {
 
 // Human-readable labels
 export const ROLE_LABELS = {
-  mob:      'The Mob',
+  mob:      'Fan',
   summoned: 'The Summoned',
   council:  'The Council',
 } as const;

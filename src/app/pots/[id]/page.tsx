@@ -522,7 +522,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           <div className="bg-surface border border-border rounded-xl p-6 max-w-sm w-full shadow-2xl">
             <h3 className="font-bold text-foreground text-lg mb-2">Remove last votive?</h3>
             <p className="text-muted text-sm leading-relaxed mb-6">
-              You&apos;re the only backer of this pot. Removing your votive will leave the pot empty — it
+              You&apos;re the only {pot?.summon?.fan_name ?? 'supporter'} of this pot. Removing your votive will leave the pot empty — it
               will be cleared automatically.
             </p>
             <div className="flex gap-3">
@@ -687,7 +687,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           <div className="flex items-center justify-between gap-2 mt-0.5">
             <div>
               <div className="text-muted text-sm">
-                supported by {activeVotives.length} {activeVotives.length === 1 ? 'backer' : 'backers'}
+                supported by {activeVotives.length} {activeVotives.length === 1 ? (pot.summon?.fan_name ?? 'supporter') : (pot.summon?.fan_name_plural ?? pot.summon?.fan_name ?? 'supporters')}
               </div>
               {(pot.status === 'completed' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (
                 <div className="text-xs text-muted mt-0.5">
@@ -909,11 +909,11 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           {/* Backers list */}
           <div className="bg-surface border border-border rounded-xl p-5">
             <h2 className="font-semibold text-foreground mb-4">
-              Backers{' '}
+              {pot.summon?.fan_name_plural ?? pot.summon?.fan_name ?? 'Supporters'}{' '}
               <span className="text-muted font-normal text-sm">({activeVotives.length})</span>
             </h2>
             {activeVotives.length === 0 ? (
-              <p className="text-muted text-sm">No backers yet. Be the first!</p>
+              <p className="text-muted text-sm">No {pot.summon?.fan_name_plural ?? pot.summon?.fan_name ?? 'supporters'} yet. Be the first!</p>
             ) : (
               <div className="space-y-2">
                 {activeVotives.map((votive) => {
