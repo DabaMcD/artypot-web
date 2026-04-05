@@ -1,4 +1,5 @@
 import { loadStripe } from '@stripe/stripe-js';
+import { COLORS } from '@/lib/theme';
 
 // Initialised once outside any component so the Stripe object is a singleton.
 export const stripePromise = loadStripe(
@@ -9,7 +10,7 @@ export const stripePromise = loadStripe(
 export const stripeAppearance = {
   theme: 'night' as const,
   variables: {
-    colorPrimary: '#F5A623',
+    colorPrimary: COLORS.brand,
     colorBackground: '#1e1e1e',
     colorText: '#ededed',
     colorTextSecondary: '#888888',
@@ -17,6 +18,6 @@ export const stripeAppearance = {
     fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
     borderRadius: '8px',
     focusBoxShadow: 'none',
-    focusOutline: '1px solid #F5A623',
+    focusOutline: `1px solid ${COLORS.brand}`,
   },
 };

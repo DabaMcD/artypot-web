@@ -9,6 +9,8 @@ import type { Pot, CashBalance, PaginatedResponse, PaymentMethod, PublicUserVoti
 import PotCard from '@/components/PotCard';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
+import { ROLE_TEXT_CLASSES, ROLE_LABELS } from '@/lib/theme';
+import type { RoleKey } from '@/lib/theme';
 
 // Small info-tooltip component (reused for creator metrics)
 function InfoTip({ content }: { content: string }) {
@@ -76,10 +78,8 @@ export default function DashboardPage() {
     );
   }
 
-  const roleColor =
-    user.role === 'council' ? 'text-council' : user.role === 'summoned' ? 'text-creator' : 'text-brand';
-  const roleLabel =
-    user.role === 'council' ? 'The Council' : user.role === 'summoned' ? 'The Summoned' : 'The Mob';
+  const roleColor = ROLE_TEXT_CLASSES[user.role as RoleKey];
+  const roleLabel = ROLE_LABELS[user.role as RoleKey];
 
   const isCreator = (user.role === 'summoned' || user.role === 'council') && !!user.summon;
 
@@ -94,15 +94,25 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Welcome back, {user.name.split(' ')[0]}</h1>
-          <p className={`text-sm font-medium mt-0.5 ${roleColor}`}>{roleLabel}</p>
+          <h1 className="text-2xl font-bold text-foreground">My Dashboard</h1>
+          <p className={`text-sm font-medium mt-0.5 ${roleColor}`}>
+            {user.name.split(' ')[0]} · {roleLabel}
+          </p>
         </div>
-        <Link
-          href="/pots/new"
-          className="shrink-0 bg-brand text-black font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-brand-dim transition-colors"
-        >
-          + New Pot
-        </Link>
+        <div className="flex items-center gap-3 shrink-0">
+          <Link
+            href={`/users/${user.id}`}
+            className="text-sm text-muted hover:text-foreground transition-colors"
+          >
+            View public profile →
+          </Link>
+          <Link
+            href="/pots/new"
+            className="bg-brand text-black font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-brand-dim transition-colors"
+          >
+            + New Pot
+          </Link>
+        </div>
       </div>
 
       {/* ── Fan metric cards ─────────────────────────────────────────────────── */}
