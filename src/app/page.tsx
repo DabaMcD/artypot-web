@@ -129,7 +129,7 @@ export default function HomePage() {
       <section className="border-t border-border">
         <div className="max-w-6xl mx-auto px-4 py-20">
           <h2 className="text-2xl font-bold text-foreground mb-2">Who&apos;s in the room</h2>
-          <p className="text-muted mb-12">Three kinds of people. You&apos;re probably one of them.</p>
+          <p className="text-muted mb-12">Three kinds of people. Two of them are open to anyone. The third is me and some friends — we&apos;ll let you know.</p>
 
           <div className="grid sm:grid-cols-3 gap-6">
             <div className="rounded-xl border border-brand/30 bg-brand/5 p-6">
