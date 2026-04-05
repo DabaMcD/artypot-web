@@ -129,15 +129,15 @@ export default function HomePage() {
       <section className="border-t border-border">
         <div className="max-w-6xl mx-auto px-4 py-20">
           <h2 className="text-2xl font-bold text-foreground mb-2">Who&apos;s in the room</h2>
-          <p className="text-muted mb-12">Three kinds of people. Two of them are open to anyone. The third is me and some friends — we&apos;ll let you know.</p>
+          <p className="text-muted mb-12">Three kinds of people. You&apos;re probably one of them.</p>
 
           <div className="grid sm:grid-cols-3 gap-6">
             <div className="rounded-xl border border-brand/30 bg-brand/5 p-6">
               <div className="w-3 h-3 rounded-full mb-4 bg-brand" />
               <h3 className="font-semibold text-brand mb-2">Fans</h3>
               <p className="text-sm text-muted leading-relaxed">
-                Anyone willing to put actual money behind what they want made, instead of
-                just asking nicely on the internet.
+                You. You want a specific thing made and you&apos;re willing to back it with
+                real money instead of a strongly-worded tweet.
               </p>
             </div>
 
@@ -145,9 +145,9 @@ export default function HomePage() {
               <div className="w-3 h-3 rounded-full mb-4 bg-creator" />
               <h3 className="font-semibold text-creator mb-2">The Summoned</h3>
               <p className="text-sm text-muted leading-relaxed">
-                Public figures who&apos;ve claimed their Artypot profile. They see their pots
-                growing. They decide whether to take the commission. When they deliver and
-                The Council signs off, they get paid.
+                Whoever the pot is for. They don&apos;t owe anyone anything — but there&apos;s
+                real money sitting there with their name on it. Most people turn around
+                eventually.
               </p>
             </div>
 
@@ -155,8 +155,8 @@ export default function HomePage() {
               <div className="w-3 h-3 rounded-full mb-4 bg-council" />
               <h3 className="font-semibold text-council mb-2">The Council</h3>
               <p className="text-sm text-muted leading-relaxed">
-                A small team that verifies submitted work actually matches what the pot asked
-                for. No delivery, no payout. They keep the whole thing honest.
+                Me and some people I trust. We check that the thing is actually the thing
+                before any money moves. Nobody gets paid without us.
               </p>
             </div>
           </div>
