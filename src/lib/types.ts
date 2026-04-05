@@ -4,6 +4,34 @@ export type PotType = 'direct';
 export type SummonClaimStatus = 'pending' | 'approved' | 'rejected';
 export type PotCompletionStatus = 'pending_review' | 'approved' | 'rejected';
 export type WithdrawalStatus = 'pending' | 'processing' | 'paid' | 'failed';
+export type Summon1099Status = 'initiated' | 'completed' | 'submitted' | 'accepted' | 'rejected';
+
+export interface Summon1099Record {
+  id: number;
+  status: Summon1099Status;
+  qualifies: boolean;
+  filing_url: string | null;
+  filing_url_expires_at: string | null;
+  completed_at: string | null;
+}
+
+export interface Form1099StatusResponse {
+  tax_year: number;
+  ytd_withdrawals: number;
+  threshold: number;
+  requires_1099: boolean;
+  record: Summon1099Record | null;
+}
+
+export interface Withdrawal {
+  id: number;
+  summon_id: number;
+  amount: number;
+  status: WithdrawalStatus;
+  plaid_transfer_id?: string | null;
+  initiated_at?: string | null;
+  created_at: string;
+}
 
 export interface User {
   id: number;
@@ -85,6 +113,8 @@ export interface Summon {
   can_edit?: boolean;
   /** The authenticated user's own 24h-aged votive total across all pots for this summon */
   user_aged_votive_total?: number | null;
+  /** True when the summon has a linked Plaid bank account */
+  bank_connected?: boolean;
   claimed_at?: string;
   merged_into_summon_id?: number;
   summon_names?: SummonName[];

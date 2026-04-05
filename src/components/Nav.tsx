@@ -107,13 +107,31 @@ export default function Nav() {
                     >
                       Settings
                     </Link>
+                    {(user.role === 'summoned' || user.role === 'council') && !!user.summon && (
+                      <Link
+                        href="/sanctum"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-4 py-2.5 hover:bg-border transition-colors text-creator"
+                      >
+                        Summon Sanctum
+                      </Link>
+                    )}
                     {user.role === 'council' && (
                       <Link
                         href="/admin"
                         onClick={() => setMenuOpen(false)}
                         className="block px-4 py-2.5 hover:bg-border transition-colors text-council"
                       >
-                        Admin Panel
+                        Council Chamber
+                      </Link>
+                    )}
+                    {user.is_overlord && (
+                      <Link
+                        href="/overlord"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-4 py-2.5 hover:bg-border transition-colors text-amber-400"
+                      >
+                        Overlord Obelisk
                       </Link>
                     )}
                     <div className="border-t border-border" />

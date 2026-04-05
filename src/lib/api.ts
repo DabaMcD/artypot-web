@@ -347,6 +347,43 @@ export const cash = {
     request<{ data: SummonEarning[] }>('/cash/summon-earnings'),
 };
 
+// 1099-K — tax compliance for creators
+export const form1099 = {
+  /** Current 1099-K status + YTD withdrawal total for the authenticated summon. */
+  status: () =>
+    request<{ data: import('./types').Form1099StatusResponse }>('/1099/status'),
+
+  /** Create or retrieve the TaxBandits hosted filing URL for the current tax year. */
+  filingUrl: () =>
+    request<{ data: { filing_url: string; filing_url_expires_at: string; status: string } }>('/1099/filing-url', {
+      method: 'POST',
+    }),
+};
+
+// Withdrawals — creator payout (summoned/council only)
+export const withdrawals = {
+  /** Request a payout of `amount` dollars to the linked bank account. */
+  request: (amount: number) =>
+    request<{ data: import('./types').Withdrawal }>('/withdrawals', {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    }),
+};
+
+// Plaid — bank account connection (creator-only)
+export const plaid = {
+  /** Get a Plaid Link token to initialise the Link flow. */
+  linkToken: () =>
+    request<{ data: { link_token: string } }>('/payout/plaid/link-token', { method: 'POST' }),
+
+  /** Exchange a public token returned by Plaid Link for stored credentials. */
+  exchange: (publicToken: string) =>
+    request<{ data: { item_id: string; account_id: string; linked: boolean } }>('/payout/plaid/exchange', {
+      method: 'POST',
+      body: JSON.stringify({ public_token: publicToken }),
+    }),
+};
+
 // Overlord — logs
 export const logs = {
   list: (params?: { page?: number; level?: string; search?: string }) => {

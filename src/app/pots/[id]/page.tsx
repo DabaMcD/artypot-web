@@ -74,6 +74,9 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   // Last-votive confirm dialog
   const [showLastVotiveConfirm, setShowLastVotiveConfirm] = useState(false);
 
+  // Pending-pot revoke warning (shown when pot.status === 'pending')
+  const [showPendingRevokeWarning, setShowPendingRevokeWarning] = useState(false);
+
   // Edit form
   const [showEditForm, setShowEditForm] = useState(false);
   const [editTitle, setEditTitle] = useState('');
@@ -419,7 +422,9 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             </form>
             <button
               onClick={() => {
-                if (activeVotives.length === 1) {
+                if (pot?.status === 'pending') {
+                  setShowPendingRevokeWarning(true);
+                } else if (activeVotives.length === 1) {
                   setShowLastVotiveConfirm(true);
                 } else {
                   handleRevokeVotive();
@@ -464,6 +469,53 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
+      {/* Pending-pot revoke warning */}
+      {showPendingRevokeWarning && userVotive && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-surface border border-border rounded-xl p-6 max-w-sm w-full shadow-2xl">
+            <div className="text-2xl mb-3">⚠️</div>
+            <h3 className="font-bold text-foreground text-lg mb-3">Hold on, {user?.name.split(' ')[0]}.</h3>
+            <p className="text-muted text-sm leading-relaxed mb-2">
+              <span className="text-foreground font-semibold">{pot?.summon?.display_name ?? 'The creator'}</span> has
+              already submitted their work. The Council is reviewing it.
+            </p>
+            <p className="text-muted text-sm leading-relaxed mb-1">
+              Pulling your{' '}
+              <span className="text-foreground font-semibold">
+                ${Number(userVotive.amount).toFixed(2)}
+              </span>{' '}
+              votive now would be a d*** move. Just saying.
+            </p>
+            <p className="text-xs text-muted/60 mb-6 mt-2">
+              (You can still do it. We&apos;re just saying.)
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowPendingRevokeWarning(false);
+                  if (activeVotives.length === 1) {
+                    setShowLastVotiveConfirm(true);
+                  } else {
+                    handleRevokeVotive();
+                  }
+                }}
+                disabled={votiveLoading}
+                className="flex-1 bg-red-900/40 hover:bg-red-900/60 border border-red-800/50 text-red-400 font-semibold py-2 text-sm rounded-lg disabled:opacity-50 transition-colors"
+              >
+                Proceed anyway
+              </button>
+              <button
+                onClick={() => setShowPendingRevokeWarning(false)}
+                disabled={votiveLoading}
+                className="flex-1 bg-surface-2 border border-border text-foreground hover:border-brand/40 font-semibold py-2 text-sm rounded-lg transition-colors"
+              >
+                Keep my votive
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Last-votive confirm dialog */}
       {showLastVotiveConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
