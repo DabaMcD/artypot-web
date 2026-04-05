@@ -275,6 +275,11 @@ export const users = {
   },
 };
 
+// Featured pots (public)
+export const featuredPots = {
+  list: () => request<{ data: Pot[] }>('/featured-pots'),
+};
+
 // Votives (authenticated user's own)
 export const votives = {
   list: (params?: { sort?: 'date' | 'amount'; page?: number }) => {
@@ -444,4 +449,14 @@ export const admin = {
   // Council Members
   listCouncil: (page = 1) =>
     request<PaginatedResponse<CouncilMember>>(`/admin/council?page=${page}`),
+
+  // Featured Pots
+  getFeaturedPots: () =>
+    request<{ data: Array<{ position: number; pot: Pot | null; added_by: { id: number; name: string } | null; updated_at: string }> }>('/admin/featured-pots'),
+
+  setFeaturedPots: (slots: Array<{ pot_id: number }>) =>
+    request<{ data: Array<{ position: number; pot: Pot | null; added_by: { id: number; name: string } | null; updated_at: string }> }>('/admin/featured-pots', {
+      method: 'PUT',
+      body: JSON.stringify({ slots }),
+    }),
 };

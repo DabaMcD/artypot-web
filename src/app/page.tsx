@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import HomeAuthGate from '@/components/HomeAuthGate';
+import FeaturedPotsSection from '@/components/FeaturedPotsSection';
 
 const HOW_IT_WORKS = [
   {
@@ -41,9 +42,9 @@ export default function HomePage() {
             <br /><span className="text-brand">$10,000 is harder.</span>
           </h1>
 
-          <p className="text-lg text-muted max-w-xl leading-relaxed mb-10">
-            Artypot lets fans pool real money for specific work from whoever they follow.
-            The money holds until the work ships. No subscriptions. No vibes-based donations.
+          <p className="text-xl text-muted max-w-xl leading-relaxed mb-10">
+            Fans pool money for specific requests from online entities.
+            Wallets are untouched until the work is done. No risk. Guaranteed results.
           </p>
 
           <div className="flex flex-wrap gap-3 mb-5">
@@ -120,7 +121,7 @@ export default function HomePage() {
                 <h3 className="font-semibold text-foreground mb-2">{title}</h3>
                 <p className="text-sm text-muted leading-relaxed">{description}</p>
               </div>
-            ))}
+            ))} 
           </div>
         </div>
       </section>
@@ -146,8 +147,7 @@ export default function HomePage() {
               <h3 className="font-semibold text-creator mb-2">The Summoned</h3>
               <p className="text-sm text-muted leading-relaxed">
                 Whoever the pot is for. They don&apos;t owe anyone anything — but there&apos;s
-                real money sitting there with their name on it. Most people turn around
-                eventually.
+                real money sitting there with their name on it. It's only a matter of time...
               </p>
             </div>
 
@@ -173,8 +173,8 @@ export default function HomePage() {
               </h2>
               <p className="text-muted mb-6 leading-relaxed">
                 I know how crowdfunding usually goes. You pay, you wait, you get a link to a
-                Discord. Here, your money doesn&apos;t move until the thing exists. It sits in a
-                pot — held through Stripe, not by me — until The Council signs off.
+                Discord. Here, your money doesn&apos;t move until the thing exists. It sits in
+                the form of a promise until The Council signs off.
               </p>
               <ul className="space-y-3 text-sm text-muted">
                 {[
@@ -229,6 +229,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Featured Pots */}
+      <FeaturedPotsSection />
 
       {/* CTA */}
       <section className="border-t border-border">

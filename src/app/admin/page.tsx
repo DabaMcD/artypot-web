@@ -34,6 +34,13 @@ const ADMIN_SECTIONS = [
     color: 'border-council/30 hover:border-council/60',
     badge: 'council',
   },
+  {
+    title: 'Featured Pots',
+    description: 'Choose the 3 pots shown on the landing page.',
+    href: '/admin/featured-pots',
+    color: 'border-brand/30 hover:border-brand/60',
+    badge: 'brand',
+  },
 ];
 
 export default function AdminPage() {
