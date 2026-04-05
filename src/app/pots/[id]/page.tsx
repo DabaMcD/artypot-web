@@ -909,7 +909,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           {/* Backers list */}
           <div className="bg-surface border border-border rounded-xl p-5">
             <h2 className="font-semibold text-foreground mb-4">
-              {pot.summon?.fan_name_plural ?? pot.summon?.fan_name ?? 'Supporters'}{' '}
+              {((s) => s.charAt(0).toUpperCase() + s.slice(1))(pot.summon?.fan_name_plural ?? pot.summon?.fan_name ?? 'Supporters')}{' '}
               <span className="text-muted font-normal text-sm">({activeVotives.length})</span>
             </h2>
             {activeVotives.length === 0 ? (
