@@ -98,8 +98,8 @@ export default function HomePage() {
               </p>
               <p className="text-foreground text-base leading-relaxed">
                 You and 200 strangers who have extremely specific taste put money in a pot.
-                The pot just sits there, growing, being very visible. Some people only show
-                up when the price is right. No judgment. That&apos;s just physics.
+                The pot becomes impossible to ignore. Some people only show
+                up when the price is right. No judgment, that&apos;s just physics.
               </p>
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function HomePage() {
       <section id="how-it-works" className="border-t border-border">
         <div className="max-w-6xl mx-auto px-4 py-20">
           <h2 className="text-2xl font-bold text-foreground mb-2">How it works</h2>
-          <p className="text-muted mb-12">Three steps. One idea. You&apos;ll get it.</p>
+          <p className="text-muted mb-12">Three steps. Smart people usually have it by step two.</p>
 
           <div className="grid sm:grid-cols-3 gap-6">
             {HOW_IT_WORKS.map(({ step, title, description }) => (
