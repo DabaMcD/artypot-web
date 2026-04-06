@@ -23,6 +23,7 @@ import type { Pot, PotVotive, PaymentMethod, PotHistoryEvent } from '@/lib/types
 import AddCardForm from '@/components/AddCardForm';
 import ShareButton from '@/components/ShareButton';
 import PotHistoryChart from '@/components/PotHistoryChart';
+import CommentSection from '@/components/CommentSection';
 
 const STATUS_LABELS: Record<string, string> = {
   open:      'Open',
@@ -89,6 +90,10 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const [submissionNotes, setSubmissionNotes] = useState('');
   const [completionError, setCompletionError] = useState('');
   const [completionLoading, setCompletionLoading] = useState(false);
+
+  // Backers / Comments tab
+  const [activeTab, setActiveTab]       = useState<'votives' | 'comments'>('votives');
+  const [commentCount, setCommentCount] = useState<number | null>(null);
 
   // ── History ──────────────────────────────────────────────────────────────────
   const [showHistory, setShowHistory] = useState(false);
@@ -906,64 +911,101 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             </div>
           )}
 
-          {/* Backers list */}
-          <div className="bg-surface border border-border rounded-xl p-5">
-            <h2 className="font-semibold text-foreground mb-4">
-              {((s) => s.charAt(0).toUpperCase() + s.slice(1))(pot.summon?.fan_name_plural ?? pot.summon?.fan_name ?? 'Supporters')}{' '}
-              <span className="text-muted font-normal text-sm">({activeVotives.length})</span>
-            </h2>
-            {activeVotives.length === 0 ? (
-              <p className="text-muted text-sm">No {pot.summon?.fan_name_plural ?? pot.summon?.fan_name ?? 'supporters'} yet. Be the first!</p>
-            ) : (
-              <div className="space-y-2">
-                {activeVotives.map((votive) => {
-                  const isAnon = votive.user_id === 0;
-                  const displayName = isAnon ? '[anonymous]' : (votive.user?.name ?? 'Unknown');
-                  const initial = isAnon ? '?' : (votive.user?.name?.charAt(0).toUpperCase() ?? '?');
-                  const expiryDate = votive.expires_at
-                    ? new Date(votive.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-                    : null;
-                  return (
-                    <div
-                      key={votive.id}
-                      className="flex items-center justify-between py-2 border-b border-border last:border-0"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                          style={{ background: '#F5A623', color: '#0a0a0a' }}
-                        >
-                          {initial}
+          {/* Backers / Comments tabbed card */}
+          <div className="bg-surface border border-border rounded-xl overflow-hidden">
+
+            {/* Tab bar */}
+            <div className="flex border-b border-border">
+              <button
+                onClick={() => setActiveTab('votives')}
+                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                  activeTab === 'votives'
+                    ? 'text-foreground border-b-2 border-brand -mb-px bg-transparent'
+                    : 'text-muted hover:text-foreground'
+                }`}
+              >
+                Votives{' '}
+                <span className={activeTab === 'votives' ? 'text-muted font-normal' : ''}>
+                  ({activeVotives.length})
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('comments')}
+                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                  activeTab === 'comments'
+                    ? 'text-foreground border-b-2 border-brand -mb-px bg-transparent'
+                    : 'text-muted hover:text-foreground'
+                }`}
+              >
+                Comments{' '}
+                <span className={activeTab === 'comments' ? 'text-muted font-normal' : ''}>
+                  ({commentCount ?? '…'})
+                </span>
+              </button>
+            </div>
+
+            {/* Votives panel */}
+            <div className={`p-5 ${activeTab !== 'votives' ? 'hidden' : ''}`}>
+              {activeVotives.length === 0 ? (
+                <p className="text-muted text-sm">No {pot.summon?.fan_name_plural ?? pot.summon?.fan_name ?? 'supporters'} yet. Be the first!</p>
+              ) : (
+                <div className="space-y-2">
+                  {activeVotives.map((votive) => {
+                    const isAnon = votive.user_id === 0;
+                    const displayName = isAnon ? '[anonymous]' : (votive.user?.name ?? 'Unknown');
+                    const initial = isAnon ? '?' : (votive.user?.name?.charAt(0).toUpperCase() ?? '?');
+                    const expiryDate = votive.expires_at
+                      ? new Date(votive.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                      : null;
+                    return (
+                      <div
+                        key={votive.id}
+                        className="flex items-center justify-between py-2 border-b border-border last:border-0"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                            style={{ background: '#F5A623', color: '#0a0a0a' }}
+                          >
+                            {initial}
+                          </div>
+                          <div>
+                            {isAnon ? (
+                              <span className="text-sm text-muted">{displayName}</span>
+                            ) : (
+                              <Link
+                                href={`/users/${votive.user_id}`}
+                                className="text-sm text-foreground hover:underline"
+                              >
+                                {displayName}
+                              </Link>
+                            )}
+                            {user && votive.user_id === user.id && (
+                              <span className="text-muted text-xs ml-1">(you)</span>
+                            )}
+                            {expiryDate && (
+                              <p className="text-xs text-muted">Expires {expiryDate}</p>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          {isAnon ? (
-                            <span className="text-sm text-muted">{displayName}</span>
-                          ) : (
-                            <Link
-                              href={`/users/${votive.user_id}`}
-                              className="text-sm text-foreground hover:underline"
-                            >
-                              {displayName}
-                            </Link>
-                          )}
-                          {user && votive.user_id === user.id && (
-                            <span className="text-muted text-xs ml-1">(you)</span>
-                          )}
-                          {expiryDate && (
-                            <p className="text-xs text-muted">Expires {expiryDate}</p>
-                          )}
-                        </div>
+                        <span className="text-brand text-sm font-semibold">
+                          ${Number(votive.amount).toFixed(2)}
+                        </span>
                       </div>
-                      <span className="text-brand text-sm font-semibold">
-                        ${Number(votive.amount).toFixed(2)}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Comments panel — always mounted so it silently fetches the count */}
+            <div className={`p-5 ${activeTab !== 'comments' ? 'hidden' : ''}`}>
+              <CommentSection potId={pot.id} inline onTotalChange={setCommentCount} />
+            </div>
+
           </div>
         </div>
+
       </div>
     </div>
   );

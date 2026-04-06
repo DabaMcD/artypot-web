@@ -354,6 +354,28 @@ export interface RemoveVotiveResult {
   new_initiator_id: number | null;
 }
 
+export interface Comment {
+  id: number;
+  user: {
+    id: number;
+    name: string;
+    profile_picture?: string;
+    is_anonymous: boolean;
+    role: UserRole;
+  } | null;
+  content: string;        // '[deleted]' when deleted === true
+  deleted: boolean;
+  parent_id: number | null;
+  reply_count: number;
+  likes_count: number;
+  dislikes_count: number;
+  user_reaction: 'like' | 'dislike' | null;
+  is_edited: boolean;
+  edited_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export type PotHistoryEventType =
   | 'created'
   | 'votive_added'

@@ -24,6 +24,7 @@ import type {
   AdminPotCompletion,
   SummonEarning,
   SummonBalance,
+  Comment,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -273,6 +274,52 @@ export const users = {
     form.append('profile_picture', file);
     return requestMultipart<{ data: { profile_picture: string } }>(`/users/${id}/profile-picture`, form);
   },
+};
+
+// Comments
+export const comments = {
+  /** Paginated top-level comments for a pot. */
+  list: (potId: number, page = 1) =>
+    request<PaginatedResponse<Comment>>(`/pots/${potId}/comments?page=${page}`),
+
+  /** All direct replies to a top-level comment (not paginated). */
+  replies: (commentId: number) =>
+    request<{ data: Comment[] }>(`/comments/${commentId}/replies`),
+
+  /** Post a new top-level comment on a pot. */
+  create: (potId: number, content: string) =>
+    request<{ data: Comment }>(`/pots/${potId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    }),
+
+  /** Post a reply to a top-level comment. */
+  createReply: (commentId: number, content: string) =>
+    request<{ data: Comment }>(`/comments/${commentId}/replies`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    }),
+
+  /** Edit a comment's content. */
+  update: (commentId: number, content: string) =>
+    request<{ data: Comment }>(`/comments/${commentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ content }),
+    }),
+
+  /** Soft-delete a comment. */
+  delete: (commentId: number) =>
+    request<{ message: string }>(`/comments/${commentId}`, { method: 'DELETE' }),
+
+  /**
+   * React to a comment. Toggles: calling with the same type removes the reaction;
+   * calling with a different type swaps it.
+   */
+  react: (commentId: number, type: 'like' | 'dislike') =>
+    request<{ likes_count: number; dislikes_count: number; user_reaction: 'like' | 'dislike' | null }>(
+      `/comments/${commentId}/react`,
+      { method: 'POST', body: JSON.stringify({ type }) }
+    ),
 };
 
 // Featured pots (public)
