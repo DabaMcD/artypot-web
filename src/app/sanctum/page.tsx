@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
-import { cash as cashApi, plaid as plaidApi, withdrawals as withdrawalsApi, form1099 as form1099Api } from '@/lib/api';
-import type { SummonBalance, Form1099StatusResponse } from '@/lib/types';
+import { cash as cashApi, plaid as plaidApi, withdrawals as withdrawalsApi, w9 as w9Api } from '@/lib/api';
+import type { SummonBalance, FormW9StatusResponse } from '@/lib/types';
 
 declare global {
   interface Window {
@@ -30,6 +30,7 @@ export default function SanctumPage() {
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [balance, setBalance] = useState<SummonBalance | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
@@ -46,10 +47,9 @@ export default function SanctumPage() {
   const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [withdrawConfirm, setWithdrawConfirm] = useState(false);
 
-  // 1099-K state
-  const [form1099Status, setForm1099Status] = useState<Form1099StatusResponse | null>(null);
-  const [form1099Loading, setForm1099Loading] = useState(false);
-  const [filingUrlLoading, setFilingUrlLoading] = useState(false);
+  // W-9 state
+  const [w9Status, setW9Status] = useState<FormW9StatusResponse | null>(null);
+  const [w9UrlLoading, setW9UrlLoading] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/login');
@@ -64,14 +64,31 @@ export default function SanctumPage() {
       .then(setBalance)
       .catch(() => {})
 
-    form1099Api
+    w9Api
       .status()
-      .then((res) => setForm1099Status(res.data))
+      .then((res) => setW9Status(res.data))
       .catch(() => {})
       .finally(() => setBalanceLoading(false));
 
     // bank_connected comes from /me (MeController appends it); no local override needed on load.
   }, [user]);
+
+  // Handle return from TaxBandits W-9 form
+  useEffect(() => {
+    const w9Param = searchParams.get('w9');
+    if (!w9Param) return;
+
+    // Clean the query param from the URL without adding a history entry
+    router.replace('/sanctum', { scroll: false });
+
+    if (w9Param === 'complete') {
+      toast('W-9 submitted! We\'ll notify you once your SSN/TIN has been verified.', 'success');
+      // Refresh W-9 status so the progress steps update immediately
+      w9Api.status().then((res) => setW9Status(res.data)).catch(() => {});
+    } else if (w9Param === 'cancelled') {
+      toast('W-9 not completed — you can come back and finish it any time.', 'error');
+    }
+  }, [searchParams, router, toast]);
 
   const handleConnectBank = useCallback(async () => {
     if (plaidLinking) return;
@@ -119,13 +136,13 @@ export default function SanctumPage() {
       toast(`Payout of $${amount.toFixed(2)} initiated! It'll hit your bank in 1–3 business days.`, 'success');
       setWithdrawAmount('');
       cashApi.summonBalance().then(setBalance).catch(() => {});
-      form1099Api.status().then((res) => setForm1099Status(res.data)).catch(() => {});
+      w9Api.status().then((res) => setW9Status(res.data)).catch(() => {});
     } catch (err: unknown) {
-      const e = err as { message?: string; requires_1099?: boolean };
-      if (e.requires_1099) {
-        // Refresh 1099 status so the section below lights up
-        form1099Api.status().then((res) => setForm1099Status(res.data)).catch(() => {});
-        toast('A 1099-K is required before this withdrawal. See below.', 'error');
+      const e = err as { message?: string; requires_w9?: boolean };
+      if (e.requires_w9) {
+        // Refresh W-9 status so the section below lights up
+        w9Api.status().then((res) => setW9Status(res.data)).catch(() => {});
+        toast('A W-9 is required before this withdrawal — see the Tax Compliance section below.', 'error');
       } else {
         toast(e.message ?? 'Payout failed. Please try again.', 'error');
       }
@@ -134,19 +151,19 @@ export default function SanctumPage() {
     }
   }, [withdrawAmount, toast]);
 
-  const handleGetFilingUrl = useCallback(async () => {
-    setFilingUrlLoading(true);
+  const handleGetW9Url = useCallback(async () => {
+    setW9UrlLoading(true);
     try {
-      const res = await form1099Api.filingUrl();
-      // Open in a new tab
-      window.open(res.data.filing_url, '_blank', 'noopener,noreferrer');
-      // Refresh status
-      form1099Api.status().then((r) => setForm1099Status(r.data)).catch(() => {});
+      const res = await w9Api.w9Url();
+      // Open the TaxBandits hosted W-9 form in a new tab
+      window.open(res.data.w9_url, '_blank', 'noopener,noreferrer');
+      // Refresh W-9 status
+      w9Api.status().then((r) => setW9Status(r.data)).catch(() => {});
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Failed to get 1099 filing link. Please try again.', 'error');
+      toast(e.message ?? 'Failed to get W-9 link. Please try again.', 'error');
     } finally {
-      setFilingUrlLoading(false);
+      setW9UrlLoading(false);
     }
   }, [toast]);
 
@@ -378,59 +395,117 @@ export default function SanctumPage() {
         </div>
       </div>
 
-      {/* 1099-K Tax Compliance */}
-      {form1099Status && (form1099Status.requires_1099 || (form1099Status.record && !form1099Status.record.qualifies)) && (
+      {/* W-9 Tax Compliance */}
+      {w9Status && (
         <div className={`border rounded-xl p-5 mb-8 ${
-          form1099Status.record?.qualifies
+          w9Status.record?.tin_matched
             ? 'bg-creator/5 border-creator/30'
-            : 'bg-amber-900/10 border-amber-700/40'
+            : w9Status.record?.qualifies
+              ? 'bg-surface border-border'
+              : w9Status.requires_w9
+                ? 'bg-amber-900/10 border-amber-700/40'
+                : 'bg-surface border-border'
         }`}>
-          <div className="flex items-start justify-between gap-4 mb-3">
+          {/* Header row */}
+          <div className="flex items-start justify-between gap-4 mb-4">
             <div>
-              <h2 className="text-base font-bold text-foreground mb-1">
-                {form1099Status.record?.qualifies ? '✓ 1099-K On File' : '⚠ 1099-K Required'}
-              </h2>
+              <h2 className="text-base font-bold text-foreground mb-1">Tax Compliance — W-9</h2>
               <p className="text-sm text-muted leading-relaxed">
-                {form1099Status.record?.qualifies
-                  ? `Your ${form1099Status.tax_year} 1099-K has been received. You're all set to withdraw.`
-                  : `Your total ${form1099Status.tax_year} payouts ($${form1099Status.ytd_withdrawals.toFixed(2)}) meet or will meet the $${form1099Status.threshold.toFixed(0)} reporting threshold. Complete your 1099-K with TaxBandits before withdrawing.`
+                {w9Status.record?.tin_matched
+                  ? `Your W-9 is complete and your SSN/TIN has been verified. You're all set to withdraw.`
+                  : w9Status.record?.status === 'completed'
+                    ? `Your W-9 has been received. SSN/TIN verification is in progress — withdrawals are unlocked while we wait.`
+                    : w9Status.record?.status === 'tin_failed'
+                      ? `SSN/TIN verification failed. Please re-submit your W-9 with corrected information.`
+                      : w9Status.requires_w9
+                        ? `Your ${w9Status.tax_year} payouts have reached $${w9Status.ytd_withdrawals.toFixed(2)}. Artypot requires a W-9 on file once annual payouts hit $${w9Status.threshold.toFixed(0)} — please complete yours before withdrawing.`
+                        : `You've earned $${w9Status.ytd_withdrawals.toFixed(2)} this year. Artypot requires a W-9 on file once you hit $${w9Status.threshold.toFixed(0)} in annual payouts — getting ahead of it now means no interruption to withdrawals later.`
                 }
               </p>
             </div>
-            {form1099Status.record && (
+            {/* Overall status badge */}
+            {w9Status.record && (
               <span className={`shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full border ${
-                form1099Status.record.status === 'accepted'  ? 'text-creator bg-creator/10 border-creator/30' :
-                form1099Status.record.status === 'submitted' ? 'text-blue-400 bg-blue-900/20 border-blue-700/40' :
-                form1099Status.record.status === 'completed' ? 'text-green-400 bg-green-900/20 border-green-700/40' :
-                form1099Status.record.status === 'rejected'  ? 'text-red-400 bg-red-900/20 border-red-700/40' :
+                w9Status.record.status === 'tin_matched' ? 'text-creator bg-creator/10 border-creator/30' :
+                w9Status.record.status === 'completed'   ? 'text-blue-400 bg-blue-900/20 border-blue-700/40' :
+                w9Status.record.status === 'tin_failed'  ? 'text-red-400 bg-red-900/20 border-red-700/40' :
                 'text-amber-400 bg-amber-900/20 border-amber-700/40'
               }`}>
-                {form1099Status.record.status.charAt(0).toUpperCase() + form1099Status.record.status.slice(1)}
+                {w9Status.record.status === 'tin_matched' ? 'SSN Verified' :
+                 w9Status.record.status === 'completed'   ? 'Submitted' :
+                 w9Status.record.status === 'tin_failed'  ? 'SSN Mismatch' :
+                 'Pending'}
               </span>
             )}
           </div>
 
-          {!form1099Status.record?.qualifies && (
-            <div className="mt-3">
-              {form1099Status.record?.status === 'rejected' && (
+          {/* Progress steps */}
+          {w9Status.record && (
+            <div className="flex items-center gap-2 mb-4 text-xs">
+              {/* Step 1: Form submitted */}
+              <div className={`flex items-center gap-1.5 ${
+                w9Status.record.completed_at ? 'text-creator' : 'text-muted'
+              }`}>
+                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] font-bold ${
+                  w9Status.record.completed_at
+                    ? 'bg-creator/20 border-creator text-creator'
+                    : 'border-border text-muted'
+                }`}>
+                  {w9Status.record.completed_at ? '✓' : '1'}
+                </span>
+                W-9 Submitted
+              </div>
+              <div className="flex-1 h-px bg-border" />
+              {/* Step 2: SSN/TIN matched */}
+              <div className={`flex items-center gap-1.5 ${
+                w9Status.record.tin_matched
+                  ? 'text-creator'
+                  : w9Status.record.tin_failed
+                    ? 'text-red-400'
+                    : 'text-muted'
+              }`}>
+                <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] font-bold ${
+                  w9Status.record.tin_matched
+                    ? 'bg-creator/20 border-creator text-creator'
+                    : w9Status.record.tin_failed
+                      ? 'bg-red-900/20 border-red-500 text-red-400'
+                      : 'border-border text-muted'
+                }`}>
+                  {w9Status.record.tin_matched ? '✓' : w9Status.record.tin_failed ? '✕' : '2'}
+                </span>
+                SSN / TIN Match
+              </div>
+            </div>
+          )}
+
+          {/* Action button — show unless fully verified */}
+          {!w9Status.record?.tin_matched && (
+            <div>
+              {w9Status.record?.status === 'tin_failed' && (
                 <p className="text-sm text-red-400 mb-3">
-                  Your previous submission was rejected by the IRS. Please re-submit.
+                  The SSN/TIN you provided could not be matched. Please re-submit your W-9 with corrected details.
                 </p>
               )}
               <button
-                onClick={handleGetFilingUrl}
-                disabled={filingUrlLoading || form1099Loading}
-                className="bg-amber-500 hover:bg-amber-400 text-black font-semibold text-sm px-4 py-2.5 rounded-lg disabled:opacity-50 transition-colors"
+                onClick={handleGetW9Url}
+                disabled={w9UrlLoading}
+                className={`font-semibold text-sm px-4 py-2.5 rounded-lg disabled:opacity-50 transition-colors ${
+                  w9Status.requires_w9 || w9Status.record?.status === 'tin_failed'
+                    ? 'bg-amber-500 hover:bg-amber-400 text-black'
+                    : 'bg-surface-2 hover:bg-surface border border-border text-foreground'
+                }`}
               >
-                {filingUrlLoading
+                {w9UrlLoading
                   ? 'Loading…'
-                  : form1099Status.record
-                    ? 'Continue 1099-K →'
-                    : 'Start 1099-K with TaxBandits →'
+                  : w9Status.record?.status === 'tin_failed'
+                    ? 'Re-submit W-9 →'
+                    : w9Status.record
+                      ? 'Continue W-9 →'
+                      : 'Complete W-9 with TaxBandits →'
                 }
               </button>
               <p className="text-xs text-muted mt-2">
-                Opens TaxBandits in a new tab. Return here once complete — withdrawals unlock automatically.
+                Opens TaxBandits in a new tab. Your SSN is collected and verified by TaxBandits — Artypot never sees it.
               </p>
             </div>
           )}

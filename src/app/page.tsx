@@ -111,7 +111,7 @@ export default function HomePage() {
       {/* How it works */}
       <section id="how-it-works" className="border-t border-border">
         <div className="max-w-6xl mx-auto px-4 py-20">
-          <h2 className="text-2xl font-bold text-foreground mb-2">How it works</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-2">How it works</h2>
           <p className="text-muted mb-12">Three steps. Smart people usually have it by step two.</p>
 
           <div className="grid sm:grid-cols-3 gap-6">
@@ -119,7 +119,7 @@ export default function HomePage() {
               <div key={step} className="bg-surface border border-border rounded-xl p-6">
                 <div className="text-brand font-mono text-sm font-bold mb-4">{step}</div>
                 <h3 className="font-semibold text-foreground mb-2">{title}</h3>
-                <p className="text-sm text-muted leading-relaxed">{description}</p>
+                <p className="text-base text-muted leading-relaxed">{description}</p>
               </div>
             ))} 
           </div>
@@ -129,14 +129,14 @@ export default function HomePage() {
       {/* Who's in the room */}
       <section className="border-t border-border">
         <div className="max-w-6xl mx-auto px-4 py-20">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Who&apos;s in the room where it happens?</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-2">Who&apos;s in the room where it happens?</h2>
           <p className="text-muted mb-12">Three kinds of people. You&apos;re probably one of them.</p>
 
           <div className="grid sm:grid-cols-3 gap-6">
             <div className="rounded-xl border border-brand/30 bg-brand/5 p-6">
               <div className="w-3 h-3 rounded-full mb-4 bg-brand" />
               <h3 className="font-semibold text-brand mb-2">Fans</h3>
-              <p className="text-sm text-muted leading-relaxed">
+              <p className="text-base text-muted leading-relaxed">
                 You. You want a specific thing made and you&apos;re willing to back it with
                 real money instead of a strongly-worded tweet.
               </p>
@@ -145,7 +145,7 @@ export default function HomePage() {
             <div className="rounded-xl border border-creator/30 bg-creator/5 p-6">
               <div className="w-3 h-3 rounded-full mb-4 bg-creator" />
               <h3 className="font-semibold text-creator mb-2">The Summoned</h3>
-              <p className="text-sm text-muted leading-relaxed">
+              <p className="text-base text-muted leading-relaxed">
                 Whoever the pot is for. They don&apos;t owe anyone anything — but there&apos;s
                 real money sitting there with their name on it. It's only a matter of time...
               </p>
@@ -154,7 +154,7 @@ export default function HomePage() {
             <div className="rounded-xl border border-council/30 bg-council/5 p-6">
               <div className="w-3 h-3 rounded-full mb-4 bg-council" />
               <h3 className="font-semibold text-council mb-2">The Council</h3>
-              <p className="text-sm text-muted leading-relaxed">
+              <p className="text-base text-muted leading-relaxed">
                 Me and some people I trust. We check that the thing is actually the thing
                 before any money moves. Nobody gets paid without us.
               </p>
@@ -168,7 +168,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 py-20">
           <div className="grid sm:grid-cols-2 gap-12 items-start">
             <div>
-              <h2 className="text-2xl font-bold text-foreground mb-4">
+              <h2 className="text-3xl font-bold text-foreground mb-4">
                 The technical part
               </h2>
               <p className="text-muted mb-6 leading-relaxed">
@@ -176,7 +176,7 @@ export default function HomePage() {
                 Discord. Here, your card isn&apos;t charged until the work is DONE.
                 The Council verifies completion before any money moves.
               </p>
-              <ul className="space-y-3 text-sm text-muted">
+              <ul className="space-y-3 text-base text-muted">
                 {[
                   'Your credit card is not charged until the work is done',
                   '5% platform fee — I need to eat',
@@ -210,7 +210,7 @@ export default function HomePage() {
                       <div className="w-px grow bg-border mt-1" />
                     )}
                   </div>
-                  <span className={`text-sm text-foreground ${i < arr.length - 1 ? 'pb-4' : ''}`}>
+                  <span className={`text-base text-foreground ${i < arr.length - 1 ? 'pb-4' : ''}`}>
                     {label}
                   </span>
                 </div>
@@ -225,7 +225,7 @@ export default function HomePage() {
               I don&apos;t have a content policy that quietly updates on a Friday night. I don&apos;t
               decide what&apos;s worth making. You and your fans do. That&apos;s the whole thing.
             </p>
-            <p className="text-sm text-muted leading-relaxed">
+            <p className="text-base text-muted leading-relaxed">
               There are obvious limits — illegal is illegal — but the platform doesn&apos;t have
               opinions about art.
             </p>
@@ -239,7 +239,7 @@ export default function HomePage() {
               can only go to summons who are <span className="text-foreground">based among the United States</span>. That&apos;s
               not a vision statement — it&apos;s just where the legal paperwork is currently in order.
             </p>
-            <p className="text-sm text-muted leading-relaxed">
+            <p className="text-base text-muted leading-relaxed">
               I&apos;m working on it. The goal is eventually worldwide. For now: if you&apos;re a fan
               anywhere in the world, you can still back pots. If you&apos;re the one getting paid,
               you&apos;ll need a US bank account.

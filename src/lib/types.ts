@@ -4,23 +4,26 @@ export type PotType = 'direct';
 export type SummonClaimStatus = 'pending' | 'approved' | 'rejected';
 export type PotCompletionStatus = 'pending_review' | 'approved' | 'rejected';
 export type WithdrawalStatus = 'pending' | 'processing' | 'paid' | 'failed';
-export type Summon1099Status = 'initiated' | 'completed' | 'submitted' | 'accepted' | 'rejected';
+export type SummonW9Status = 'initiated' | 'completed' | 'tin_matched' | 'tin_failed';
 
-export interface Summon1099Record {
+export interface SummonW9Record {
   id: number;
-  status: Summon1099Status;
+  status: SummonW9Status;
   qualifies: boolean;
-  filing_url: string | null;
-  filing_url_expires_at: string | null;
+  tin_matched: boolean;
+  tin_failed: boolean;
+  w9_url: string | null;
+  w9_url_expires_at: string | null;
   completed_at: string | null;
+  tin_matched_at: string | null;
 }
 
-export interface Form1099StatusResponse {
+export interface FormW9StatusResponse {
   tax_year: number;
   ytd_withdrawals: number;
   threshold: number;
-  requires_1099: boolean;
-  record: Summon1099Record | null;
+  requires_w9: boolean;
+  record: SummonW9Record | null;
 }
 
 export interface Withdrawal {

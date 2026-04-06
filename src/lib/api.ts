@@ -399,15 +399,15 @@ export const cash = {
     request<{ data: SummonEarning[] }>('/cash/summon-earnings'),
 };
 
-// 1099-K — tax compliance for creators
-export const form1099 = {
-  /** Current 1099-K status + YTD withdrawal total for the authenticated summon. */
+// W-9 — tax compliance for creators
+export const w9 = {
+  /** Current W-9 status + YTD withdrawal total for the authenticated summon. */
   status: () =>
-    request<{ data: import('./types').Form1099StatusResponse }>('/1099/status'),
+    request<{ data: import('./types').FormW9StatusResponse }>('/w9/status'),
 
-  /** Create or retrieve the TaxBandits hosted filing URL for the current tax year. */
-  filingUrl: () =>
-    request<{ data: { filing_url: string; filing_url_expires_at: string; status: string } }>('/1099/filing-url', {
+  /** Create or retrieve the TaxBandits hosted W-9 form URL for the current tax year. */
+  w9Url: () =>
+    request<{ data: { w9_url: string; w9_url_expires_at: string; status: string } }>('/w9/url', {
       method: 'POST',
     }),
 };
