@@ -39,7 +39,7 @@ export default function HomePage() {
           <h1 className="text-5xl sm:text-6xl font-bold tracking-tight text-foreground leading-tight mb-6">
             A comment saying &apos;please&apos;
             <br />is easy to scroll past.
-            <br /><span className="text-brand">$10,000 is harder.</span>
+            <br /><span className="text-brand">$10,000? Not so much</span>
           </h1>
 
           <p className="text-xl text-muted max-w-xl leading-relaxed mb-10">
@@ -129,7 +129,7 @@ export default function HomePage() {
       {/* Who's in the room */}
       <section className="border-t border-border">
         <div className="max-w-6xl mx-auto px-4 py-20">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Who&apos;s in the room</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-2">Who&apos;s in the room where it happens?</h2>
           <p className="text-muted mb-12">Three kinds of people. You&apos;re probably one of them.</p>
 
           <div className="grid sm:grid-cols-3 gap-6">
@@ -169,17 +169,16 @@ export default function HomePage() {
           <div className="grid sm:grid-cols-2 gap-12 items-start">
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-4">
-                The boring-but-important part
+                The technical part
               </h2>
               <p className="text-muted mb-6 leading-relaxed">
                 I know how crowdfunding usually goes. You pay, you wait, you get a link to a
-                Discord. Here, your card isn&apos;t charged until the work actually ships.
-                The Council verifies delivery before any money moves.
+                Discord. Here, your card isn&apos;t charged until the work is DONE.
+                The Council verifies completion before any money moves.
               </p>
               <ul className="space-y-3 text-sm text-muted">
                 {[
                   'Your credit card is not charged until the work is done',
-                  'Short review window before payout goes out',
                   '5% platform fee — I need to eat',
                   'Direct bank payout to the summon',
                   'Fans who funded the project get no special access — same as everyone else',
@@ -192,24 +191,28 @@ export default function HomePage() {
               </ul>
             </div>
 
-            <div className="bg-surface border border-border rounded-xl p-6 space-y-4">
-              <div className="text-sm text-muted font-medium uppercase tracking-wider mb-4">
+            <div className="bg-surface border border-border rounded-xl p-6">
+              <div className="text-sm text-muted font-medium uppercase tracking-wider mb-6">
                 A pot&apos;s life
               </div>
               {[
-                { label: 'Pot opens', color: 'bg-muted' },
+                { label: 'Pot opens', color: 'bg-brand' },
                 { label: 'Fans add votives', color: 'bg-brand' },
-                { label: 'Summon submits work', color: 'bg-blue-500' },
-                { label: 'Council signs off', color: 'bg-creator' },
-                { label: 'Short review window', color: 'bg-yellow-500' },
-                { label: 'Summon gets paid', color: 'bg-council' },
-              ].map(({ label, color }, i) => (
-                <div key={label} className="flex items-center gap-3">
-                  <div className="flex flex-col items-center">
-                    <div className={`w-2.5 h-2.5 rounded-full ${color}`} />
-                    {i < 5 && <div className="w-px h-4 bg-border" />}
+                { label: 'Summon submits work', color: 'bg-creator' },
+                { label: 'Council signs off', color: 'bg-council' },
+                { label: 'Fans get charged', color: 'bg-brand' },
+                { label: 'Summon gets paid', color: 'bg-creator' },
+              ].map(({ label, color }, i, arr) => (
+                <div key={label} className="flex gap-3">
+                  <div className="flex flex-col items-center shrink-0">
+                    <div className={`w-2.5 h-2.5 rounded-full shrink-0 mt-1 ${color}`} />
+                    {i < arr.length - 1 && (
+                      <div className="w-px grow bg-border mt-1" />
+                    )}
                   </div>
-                  <span className="text-sm text-foreground">{label}</span>
+                  <span className={`text-sm text-foreground ${i < arr.length - 1 ? 'pb-4' : ''}`}>
+                    {label}
+                  </span>
                 </div>
               ))}
             </div>
@@ -230,10 +233,10 @@ export default function HomePage() {
 
           {/* Current limitations */}
           <div className="mt-10 pt-10 border-t border-border max-w-3xl">
-            <p className="text-xs font-mono text-muted uppercase tracking-wider mb-3">A note on where we&apos;re at</p>
+            <p className="text-xs font-mono text-muted uppercase tracking-wider mb-3">A note on where I&apos;m at</p>
             <p className="text-base text-muted leading-relaxed mb-3">
               Right now, Artypot only supports <span className="text-foreground">credit card payments</span>, and payouts
-              can only go to summons who are <span className="text-foreground">based in the United States</span>. That&apos;s
+              can only go to summons who are <span className="text-foreground">based among the United States</span>. That&apos;s
               not a vision statement — it&apos;s just where the legal paperwork is currently in order.
             </p>
             <p className="text-sm text-muted leading-relaxed">
