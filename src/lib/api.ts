@@ -506,4 +506,41 @@ export const admin = {
       method: 'PUT',
       body: JSON.stringify({ slots }),
     }),
+
+  // Users
+  listUsers: (params?: { q?: string; filter?: 'summoned' | 'council' | 'mob'; page?: number }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<import('./types').PaginatedResponse<import('./types').AdminUser>>(
+      `/admin/users${qs ? `?${qs}` : ''}`
+    );
+  },
+
+  getUser: (id: number) =>
+    request<{ data: import('./types').AdminUser }>(`/admin/users/${id}`),
+
+  // Summons
+  listSummons: (params?: { q?: string; claimed?: 'true' | 'false' | 'all'; page?: number }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null && v !== '' && v !== 'all')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<import('./types').PaginatedResponse<import('./types').AdminSummon>>(
+      `/admin/summons${qs ? `?${qs}` : ''}`
+    );
+  },
+
+  getSummon: (id: number) =>
+    request<{ data: import('./types').AdminSummon & {
+      w9_records: Array<{
+        id: number;
+        tax_year: number;
+        status: import('./types').SummonW9Status;
+        completed_at: string | null;
+        tin_matched_at: string | null;
+        created_at: string;
+      }>;
+    } }>(`/admin/summons/${id}`),
 };

@@ -406,3 +406,46 @@ export interface PotHistory {
   events: PotHistoryEvent[];
   current: { title: string; description: string | null; total_pledged: number };
 }
+
+// ── Admin: User & Summon search ─────────────────────────────────────────────
+
+export interface AdminUser {
+  id: number;
+  name: string;
+  email: string;
+  role: UserRole;
+  is_anonymous: boolean;
+  email_verified_at: string | null;
+  phone_number: string | null;
+  phone_verified_at: string | null;
+  created_at: string;
+  deleted_at: string | null;
+  summon: {
+    id: number;
+    display_name: string;
+    claimed: boolean;
+    claimed_at: string | null;
+    amount_earned: number;
+    projects_open: number;
+    projects_finished: number;
+    w9: {
+      id: number;
+      status: SummonW9Status;
+      completed_at: string | null;
+      tin_matched_at: string | null;
+    } | null;
+  } | null;
+}
+
+export interface AdminSummon {
+  id: number;
+  display_name: string;
+  claimed: boolean;
+  claimed_at: string | null;
+  user: { id: number; name: string; email: string } | null;
+  w9_status: SummonW9Status | null;
+  amount_earned: number;
+  projects_open: number;
+  projects_finished: number;
+  created_at: string;
+}
