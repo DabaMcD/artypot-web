@@ -136,7 +136,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
             )}
             {isOwnProfile && (
               <Link
-                href="/votives"
+                href="/pledges"
                 className="text-xs text-brand hover:underline"
               >
                 View all →
@@ -161,7 +161,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
                 <div className="flex-1 min-w-0">
                   {votive.pot ? (
                     <Link
-                      href={`/pots/${votive.pot_id}`}
+                      href={`/bounties/${votive.pot_id}`}
                       className="text-sm font-medium text-foreground hover:underline truncate block"
                     >
                       {votive.pot.title}

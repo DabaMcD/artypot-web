@@ -78,9 +78,9 @@ export default function MyVotivesPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">My Votives</h1>
+          <h1 className="text-2xl font-bold text-foreground">My Pledges</h1>
           <p className="text-sm text-muted mt-0.5">
-            {total} active votive{total !== 1 ? 's' : ''}
+            {total} active pledge{total !== 1 ? 's' : ''}
             {totalActiveAmount !== null && totalActiveAmount > 0 && (
               <> · <span className="text-foreground">${totalActiveAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total</span></>
             )}
@@ -127,8 +127,8 @@ export default function MyVotivesPage() {
         </div>
       ) : votives.length === 0 ? (
         <div className="text-center py-12 text-muted border border-dashed border-border rounded-xl">
-          No active votives.{' '}
-          <Link href="/pots" className="text-brand hover:underline">Browse pots</Link>
+          No active pledges.{' '}
+          <Link href="/bounties" className="text-brand hover:underline">Browse bounties</Link>
           {' '}to start backing projects.
         </div>
       ) : (
@@ -144,7 +144,7 @@ export default function MyVotivesPage() {
                 <div className="flex-1 min-w-0">
                   {votive.pot ? (
                     <Link
-                      href={`/pots/${votive.pot_id}`}
+                      href={`/bounties/${votive.pot_id}`}
                       className="text-sm font-medium text-foreground hover:text-brand transition-colors block truncate"
                     >
                       {votive.pot.title}

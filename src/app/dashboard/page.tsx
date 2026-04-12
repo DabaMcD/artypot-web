@@ -94,7 +94,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">My Dashboard</h1>
+          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
           <p className={`text-sm font-medium mt-0.5 ${roleColor}`}>
             {user.name.split(' ')[0]} · {roleLabel}
           </p>
@@ -107,10 +107,10 @@ export default function DashboardPage() {
             View public profile →
           </Link>
           <Link
-            href="/pots/new"
+            href="/bounties/new"
             className="bg-brand text-black font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-brand-dim transition-colors"
           >
-            + New Pot
+            + New Bounty
           </Link>
         </div>
       </div>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
       <div className="grid sm:grid-cols-3 gap-4 mb-8">
         {/* Total Votives */}
         <div className="bg-surface border border-border rounded-xl p-5">
-          <div className="text-xs text-muted uppercase tracking-wider mb-2">Total Votives</div>
+          <div className="text-xs text-muted uppercase tracking-wider mb-2">Total Pledges</div>
           {votivesLoading ? (
             <div className="h-8 w-24 bg-surface-2 animate-pulse rounded" />
           ) : (
@@ -127,7 +127,7 @@ export default function DashboardPage() {
               <div className="text-2xl font-bold text-brand">
                 ${totalActiveVotiveAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
-              <div className="text-xs text-muted mt-1">across open &amp; approved pots</div>
+              <div className="text-xs text-muted mt-1">across open &amp; approved bounties</div>
             </>
           )}
         </div>
@@ -181,8 +181,8 @@ export default function DashboardPage() {
           <div className="grid grid-cols-3 gap-4 pt-4 border-t border-creator/20">
             <div>
               <div className="text-xs text-muted tracking-wider mb-1 flex items-center">
-                OPEN VOTIVES
-                <InfoTip content="Total pledged by fans on your open or submitted pots. No charge has been written yet — these convert once the Council approves." />
+                OPEN PLEDGES
+                <InfoTip content="Total pledged by fans on your open or submitted bounties. No charge has been written yet — these convert once the Council approves." />
               </div>
               <div className="text-xl font-bold text-foreground">
                 ${Number(user.summon!.total_votive_sum ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
@@ -191,8 +191,8 @@ export default function DashboardPage() {
 
             <div>
               <div className="text-xs text-muted tracking-wider mb-1 flex items-center">
-                PENDING VOTIVES
-                <InfoTip content="Fan pledges on council-approved pots that are locked in but not yet charged. These will be collected on the next billing cycle (the 24th)." />
+                PENDING PAYMENT
+                <InfoTip content="Fan obligations locked on council-approved bounties, not yet billed. Fans have up to 50 days to pay or declare broke." />
               </div>
               <div className="text-xl font-bold text-amber-400">
                 ${Number(user.summon!.pending_votive_total ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
@@ -202,7 +202,7 @@ export default function DashboardPage() {
             <div>
               <div className="text-xs text-muted tracking-wider mb-1 flex items-center">
                 TOTAL EARNED
-                <InfoTip content="Confirmed earnings in your wallet — fan payments that have been collected via Stripe and credited to you." />
+                <InfoTip content="Lifetime earnings credited to your wallet — all fan payments collected via Stripe, including amounts still in clearing or available to withdraw." />
               </div>
               <div className="text-xl font-bold text-creator">
                 ${Number(user.summon!.amount_earned ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
@@ -244,7 +244,7 @@ export default function DashboardPage() {
         {paymentMethods.length === 0 ? (
           <div className="bg-surface border border-brand/30 rounded-xl p-5">
             <p className="text-sm text-muted mb-3">
-              No payment methods saved. Add one to start backing pots.
+              No payment methods saved. Add one to start backing bounties.
             </p>
             <PaymentMethodManager onMethodsChange={setPaymentMethods} compact />
           </div>
@@ -258,8 +258,8 @@ export default function DashboardPage() {
       {/* My Votives */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-foreground">My Votives</h2>
-          <Link href="/votives" className="text-sm text-muted hover:text-brand transition-colors">
+          <h2 className="text-lg font-bold text-foreground">My Pledges</h2>
+          <Link href="/pledges" className="text-sm text-muted hover:text-brand transition-colors">
             View all →
           </Link>
         </div>
@@ -275,8 +275,8 @@ export default function DashboardPage() {
           </div>
         ) : myVotives.length === 0 ? (
           <div className="text-center py-10 text-muted border border-dashed border-border rounded-xl">
-            No active votives.{' '}
-            <Link href="/pots" className="text-brand hover:underline">Browse pots</Link>
+            No active pledges.{' '}
+            <Link href="/bounties" className="text-brand hover:underline">Browse bounties</Link>
             {' '}to start backing projects.
           </div>
         ) : (
@@ -289,7 +289,7 @@ export default function DashboardPage() {
                 <div className="flex-1 min-w-0">
                   {votive.pot ? (
                     <Link
-                      href={`/pots/${votive.pot_id}`}
+                      href={`/bounties/${votive.pot_id}`}
                       className="text-sm text-foreground hover:text-brand transition-colors font-medium truncate block"
                     >
                       {votive.pot.title}
@@ -311,8 +311,8 @@ export default function DashboardPage() {
             ))}
             {myVotives.length > 5 && (
               <div className="px-5 py-3 border-t border-border">
-                <Link href="/votives" className="text-sm text-muted hover:text-brand transition-colors">
-                  +{myVotives.length - 5} more — View all votives →
+                <Link href="/pledges" className="text-sm text-muted hover:text-brand transition-colors">
+                  +{myVotives.length - 5} more — View all pledges →
                 </Link>
               </div>
             )}
@@ -334,7 +334,7 @@ export default function DashboardPage() {
                   <div className="text-sm text-foreground">{entry.description}</div>
                   {entry.pot && (
                     <Link
-                      href={`/pots/${entry.pot.id}`}
+                      href={`/bounties/${entry.pot.id}`}
                       className="text-xs text-muted hover:text-brand transition-colors"
                     >
                       {entry.pot.title}
@@ -353,8 +353,8 @@ export default function DashboardPage() {
       {/* Browse Pots */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-foreground">Browse Pots</h2>
-          <Link href="/pots" className="text-sm text-muted hover:text-brand transition-colors">
+          <h2 className="text-lg font-bold text-foreground">Browse Bounties</h2>
+          <Link href="/bounties" className="text-sm text-muted hover:text-brand transition-colors">
             View all →
           </Link>
         </div>
@@ -367,8 +367,8 @@ export default function DashboardPage() {
           </div>
         ) : !myPots || myPots.data.length === 0 ? (
           <div className="text-center py-12 text-muted border border-dashed border-border rounded-xl">
-            No pots yet.{' '}
-            <Link href="/pots/new" className="text-brand hover:underline">Create one</Link>
+            No bounties yet.{' '}
+            <Link href="/bounties/new" className="text-brand hover:underline">Create one</Link>
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -45,6 +45,7 @@ export function clearToken(): void {
 interface ApiError {
   status: number;
   message: string;
+  requires_w9?: boolean;
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -60,7 +61,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    const error: ApiError = { status: res.status, message: body.message ?? res.statusText };
+    const error: ApiError = {
+      status: res.status,
+      message: body.message ?? res.statusText,
+      ...(body.requires_w9 ? { requires_w9: true } : {}),
+    };
     throw error;
   }
 
@@ -256,6 +261,12 @@ export const pots = {
 
   history: (potId: number) =>
     request<PotHistory>(`/pots/${potId}/history`),
+
+  summonRemove: (potId: number, reason: string) =>
+    request<{ message: string }>(`/pots/${potId}/summon-remove`, {
+      method: 'DELETE',
+      body: JSON.stringify({ reason }),
+    }),
 };
 
 // Users

@@ -62,7 +62,7 @@ export default function FeaturedPotsAdminPage() {
     if (!trimmed || isNaN(Number(trimmed))) {
       setSlots((prev) => {
         const next = [...prev] as [Slot, Slot, Slot];
-        next[idx] = { ...next[idx], preview: null, previewError: trimmed ? 'Enter a valid pot ID.' : '' };
+        next[idx] = { ...next[idx], preview: null, previewError: trimmed ? 'Enter a valid bounty ID.' : '' };
         return next;
       });
       return;
@@ -102,7 +102,7 @@ export default function FeaturedPotsAdminPage() {
     setError('');
     const filled = slots.filter((s) => s.pot_id.trim());
     if (filled.length === 0) {
-      setError('Add at least one pot ID.');
+      setError('Add at least one bounty ID.');
       return;
     }
     if (filled.some((s) => !s.preview)) {
@@ -118,7 +118,7 @@ export default function FeaturedPotsAdminPage() {
       setSavedAt(new Date());
       await load();
     } catch {
-      setError('Failed to save. Check pot IDs and try again.');
+      setError('Failed to save. Check bounty IDs and try again.');
     } finally {
       setSaving(false);
     }
@@ -134,10 +134,10 @@ export default function FeaturedPotsAdminPage() {
           ← Admin
         </Link>
       </div>
-      <h1 className="text-2xl font-bold text-foreground mb-1">Featured Pots</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-1">Featured Bounties</h1>
       <p className="text-sm text-muted mb-8">
-        These 3 pots appear on the landing page for logged-out visitors.
-        Enter a pot ID in each slot, preview it, then save.
+        These 3 bounties appear on the landing page for logged-out visitors.
+        Enter a bounty ID in each slot, preview it, then save.
       </p>
 
       {loading ? (
@@ -157,7 +157,7 @@ export default function FeaturedPotsAdminPage() {
                 <input
                   type="text"
                   inputMode="numeric"
-                  placeholder="Pot ID"
+                  placeholder="Bounty ID"
                   value={slot.pot_id}
                   onChange={(e) => handleIdChange(idx, e.target.value)}
                   onBlur={(e) => previewSlot(idx, e.target.value)}
@@ -211,7 +211,7 @@ export default function FeaturedPotsAdminPage() {
           disabled={saving || loading}
           className="bg-brand text-black font-semibold px-5 py-2.5 rounded-lg hover:bg-brand-dim disabled:opacity-40 transition-colors text-sm"
         >
-          {saving ? 'Saving…' : 'Save Featured Pots'}
+          {saving ? 'Saving…' : 'Save Featured Bounties'}
         </button>
         <button
           onClick={load}

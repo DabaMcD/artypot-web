@@ -15,9 +15,10 @@ const SOCIAL_LINKS: { key: keyof Summon; label: string; prefix: string }[] = [
   { key: 'twitter_handle',    label: 'X / Twitter', prefix: 'https://x.com/' },
   { key: 'tiktok_handle',     label: 'TikTok',     prefix: 'https://tiktok.com/@' },
   { key: 'instagram_handle',  label: 'Instagram',  prefix: 'https://instagram.com/' },
-  { key: 'soundcloud_handle', label: 'SoundCloud', prefix: 'https://soundcloud.com/' },
-  { key: 'bandcamp_handle',   label: 'Bandcamp',   prefix: 'https://' },
-  { key: 'domain',            label: 'Website',    prefix: 'https://' },
+  { key: 'soundcloud_url',  label: 'SoundCloud', prefix: '' },
+  { key: 'bandcamp_url',    label: 'Bandcamp',   prefix: '' },
+  { key: 'wikipedia_url',   label: 'Wikipedia',  prefix: '' },
+  { key: 'domain',          label: 'Website',    prefix: '' },
 ];
 
 function fmt(n: number | null | undefined) {
@@ -104,7 +105,7 @@ function HeraldGateModal({
           <p className="text-xs text-muted text-center mb-3">
             You need{' '}
             <span className="text-foreground font-semibold">{fmt(deficit)} more</span>
-            {' '}in votives aged over 24 hours to take the Herald seat.
+            {' '}in pledges aged over 24 hours to take the Herald seat.
           </p>
         )}
 
@@ -114,11 +115,11 @@ function HeraldGateModal({
         </p>
 
         <Link
-          href={`/pots?summon_id=${summon.id}`}
+          href={`/bounties?summon_id=${summon.id}`}
           onClick={onClose}
           className="block w-full text-center bg-brand text-black font-semibold text-sm py-2.5 rounded-lg hover:opacity-90 transition-opacity"
         >
-          View pots to place votives on →
+          View bounties to place pledges on →
         </Link>
       </div>
     </div>
@@ -447,7 +448,7 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
                 {summon.projects_open != null && (
                   <div>
                     <div className="text-foreground font-semibold text-lg">{summon.projects_open}</div>
-                    <div className="text-muted text-xs">Open pots</div>
+                    <div className="text-muted text-xs">Open bounties</div>
                   </div>
                 )}
                 {summon.projects_finished != null && (
@@ -469,7 +470,7 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
                     <div className="text-brand font-semibold text-lg">
                       ${Number(summon.total_votive_sum).toLocaleString()}
                     </div>
-                    <div className="text-muted text-xs">Active votives</div>
+                    <div className="text-muted text-xs">Active pledges</div>
                   </div>
                 )}
               </div>
@@ -498,22 +499,22 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
             {/* Pots */}
             <div>
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-xl font-bold text-foreground">Pots for {summon.display_name}</h2>
+                <h2 className="text-xl font-bold text-foreground">Bounties for {summon.display_name}</h2>
                 {user && (
                   <Link
-                    href={`/pots/new?summon_id=${summon.id}`}
+                    href={`/bounties/new?summon_id=${summon.id}`}
                     className="text-sm bg-brand text-black font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                   >
-                    + New Pot
+                    + New Bounty
                   </Link>
                 )}
               </div>
 
               {!potsData || potsData.data.length === 0 ? (
                 <div className="text-center py-16 text-muted border border-border border-dashed rounded-xl">
-                  No pots yet for this creator.{' '}
+                  No bounties yet for this creator.{' '}
                   {user && (
-                    <Link href={`/pots/new?summon_id=${summon.id}`} className="text-brand hover:underline">
+                    <Link href={`/bounties/new?summon_id=${summon.id}`} className="text-brand hover:underline">
                       Create the first one
                     </Link>
                   )}

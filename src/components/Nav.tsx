@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useState, useEffect } from 'react';
 import NotificationBell from '@/components/NotificationBell';
+import SummonSearchWidget from '@/components/SummonSearchWidget';
 import { ROLE_COLORS, ROLE_TEXT_COLORS, ROLE_LABELS } from '@/lib/theme';
 import type { RoleKey } from '@/lib/theme';
 
@@ -35,36 +36,49 @@ export default function Nav() {
   const roleLabel = user ? ROLE_LABELS[user.role as RoleKey] : '';
 
   const logoHref = user ? '/dashboard' : '/';
+  const isHomePage = pathname === '/';
 
   return (
     <>
-      <nav className="border-b border-border bg-surface sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-6">
+      <nav className={`bg-surface sticky top-0 z-50 ${isHomePage ? '' : 'border-b border-border'}`}>
+        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           {/* Logo */}
           <Link href={logoHref} className="text-brand font-bold text-xl tracking-tight shrink-0">
             artypot
           </Link>
 
-          {/* Center links (desktop) */}
-          <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <Link href="/pots" className={`transition-colors ${isActive('/pots')}`}>
-              Browse Pots
-            </Link>
-            <Link href="/summons" className={`transition-colors ${isActive('/summons')}`}>
-              Creators
-            </Link>
-            <Link href="/guide" className={`transition-colors ${isActive('/guide')}`}>
-              Guide
-            </Link>
-            {!user && (
-              <Link href="/#how-it-works" className="text-muted hover:text-foreground transition-colors">
-                How it works
+          {/* Center: links + search (desktop, non-homepage only) */}
+          {!isHomePage && (
+            <div className="hidden md:flex items-center gap-4 flex-1 justify-center min-w-0">
+              <Link href="/about" className={`transition-colors text-sm font-medium shrink-0 ${isActive('/about')}`}>
+                About
               </Link>
-            )}
-          </div>
+              <Link href="/guide" className={`transition-colors text-sm font-medium shrink-0 ${isActive('/guide')}`}>
+                Guide
+              </Link>
+              <div className="w-80 shrink-0">
+                <SummonSearchWidget
+                  navigateOnSelect
+                  placeholder="Search creators…"
+                  inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Right side */}
           <div className="flex items-center gap-3">
+            {/* Homepage-only desktop links (no search — page is the search) */}
+            {isHomePage && (
+              <div className="hidden md:flex items-center gap-5 mr-1">
+                <Link href="/about" className={`transition-colors text-sm font-medium ${isActive('/about')}`}>
+                  About
+                </Link>
+                <Link href="/guide" className={`transition-colors text-sm font-medium ${isActive('/guide')}`}>
+                  Guide
+                </Link>
+              </div>
+            )}
             {loading ? (
               <div className="w-20 h-8 rounded bg-surface-2 animate-pulse" />
             ) : user ? (
@@ -115,7 +129,7 @@ export default function Nav() {
                           className="block px-4 py-2.5 hover:bg-border transition-colors"
                         >
                           <span className="font-medium text-foreground">My Dashboard</span>
-                          <span className="block text-xs text-muted mt-0.5">Votives, billing &amp; metrics</span>
+                          <span className="block text-xs text-muted mt-0.5">Pledges, billing &amp; metrics</span>
                         </Link>
                         <Link
                           href={`/users/${user.id}`}
@@ -277,21 +291,23 @@ export default function Nav() {
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto py-2">
+          {/* Search */}
+          <div className="px-4 py-3">
+            <SummonSearchWidget
+              navigateOnSelect
+              placeholder="Search creators…"
+              inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+            />
+          </div>
+          <div className="border-t border-border" />
+
           {/* Nav links */}
-          <Link href="/pots" onClick={() => setDrawerOpen(false)} className={`block px-4 py-3 text-sm font-medium transition-colors ${isActive('/pots')}`}>
-            Browse Pots
-          </Link>
-          <Link href="/summons" onClick={() => setDrawerOpen(false)} className={`block px-4 py-3 text-sm font-medium transition-colors ${isActive('/summons')}`}>
-            Creators
+          <Link href="/about" onClick={() => setDrawerOpen(false)} className={`block px-4 py-3 text-sm font-medium transition-colors ${isActive('/about')}`}>
+            About
           </Link>
           <Link href="/guide" onClick={() => setDrawerOpen(false)} className={`block px-4 py-3 text-sm font-medium transition-colors ${isActive('/guide')}`}>
             Guide
           </Link>
-          {!user && (
-            <Link href="/#how-it-works" onClick={() => setDrawerOpen(false)} className="block px-4 py-3 text-sm font-medium text-muted hover:text-foreground transition-colors">
-              How it works
-            </Link>
-          )}
 
           {/* Account section (logged in) */}
           {user && (

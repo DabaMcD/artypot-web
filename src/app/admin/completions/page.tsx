@@ -53,7 +53,7 @@ function ReviewModal({
       <div className="bg-surface border border-border rounded-2xl w-full max-w-lg p-6 shadow-2xl">
         <h2 className="text-lg font-bold text-foreground mb-1">Review Completion</h2>
         <p className="text-sm text-muted mb-4">
-          <Link href={`/pots/${completion.pot_id}`} className="text-brand hover:underline font-medium">
+          <Link href={`/bounties/${completion.pot_id}`} className="text-brand hover:underline font-medium">
             {completion.pot.title}
           </Link>
           {completion.pot.summon && (
@@ -245,7 +245,7 @@ export default function AdminCompletionsPage() {
             ← Admin
           </Link>
           <span className="text-border">/</span>
-          <h1 className="text-xl font-bold text-foreground">Pot Completions</h1>
+          <h1 className="text-xl font-bold text-foreground">Bounty Completions</h1>
           <span className="ml-auto text-sm text-muted">{total} total</span>
         </div>
 
@@ -287,7 +287,7 @@ export default function AdminCompletionsPage() {
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <Link href={`/pots/${c.pot_id}`} className="font-medium text-foreground text-sm hover:underline">
+                    <Link href={`/bounties/${c.pot_id}`} className="font-medium text-foreground text-sm hover:underline">
                       {c.pot.title}
                     </Link>
                     <StatusBadge status={c.status} />

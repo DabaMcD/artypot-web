@@ -68,25 +68,40 @@ export default function CashPage() {
       ) : balance && (
         <div className="bg-surface border border-border rounded-xl p-5 mb-6">
           <p className="text-xs text-muted font-semibold uppercase tracking-widest mb-4">Wallet</p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
-              <p className="text-2xl font-bold text-foreground">
+              <p className="text-xs text-muted uppercase tracking-wider mb-1">Pending Payment</p>
+              <p className="text-xl font-bold text-amber-400">
+                ${balance.pending_payment.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </p>
+              <p className="text-xs text-muted mt-0.5">fans not yet billed</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted uppercase tracking-wider mb-1">Clearing</p>
+              <p className="text-xl font-bold text-blue-400">
+                ${balance.clearing.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </p>
+              <p className="text-xs text-muted mt-0.5">7-day hold</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted uppercase tracking-wider mb-1">Available</p>
+              <p className="text-xl font-bold text-creator">
                 ${balance.available_balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </p>
-              <p className="text-xs text-muted mt-0.5">Available to withdraw</p>
+              <p className="text-xs text-muted mt-0.5">ready to withdraw</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-amber-400">
-                ${balance.pending_earnings.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              <p className="text-xs text-muted uppercase tracking-wider mb-1">Paid Out</p>
+              <p className="text-xl font-bold text-foreground">
+                ${balance.paid_out.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </p>
-              <p className="text-xs text-muted mt-0.5">Pending payout</p>
+              <p className="text-xs text-muted mt-0.5">sent to bank</p>
             </div>
           </div>
-          {balance.pending_earnings > 0 && (
+          {balance.pending_payment > 0 && (
             <p className="text-xs text-muted mt-4 pt-4 border-t border-border leading-relaxed">
-              Pending amounts are your net share (after fees) of fan charges that have been locked
-              in but not yet collected. They will be credited to your available balance once fans
-              are billed on the 24th.
+              Pending Payment amounts are fan obligations locked in at bounty approval. Fans have
+              up to 50 days to pay; amounts will flow through Clearing into Available once collected.
             </p>
           )}
         </div>
@@ -111,7 +126,7 @@ export default function CashPage() {
               <div key={earning.pot.id} className="bg-surface border border-border rounded-xl p-5">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <Link
-                    href={`/pots/${earning.pot.id}`}
+                    href={`/bounties/${earning.pot.id}`}
                     className="text-creator font-semibold hover:underline leading-snug"
                   >
                     {earning.pot.title}
@@ -154,9 +169,9 @@ export default function CashPage() {
         </div>
       ) : (
         <div className="bg-surface border border-border rounded-xl p-10 text-center">
-          <p className="text-muted text-sm">No pot earnings yet.</p>
+          <p className="text-muted text-sm">No bounty earnings yet.</p>
           <p className="text-muted text-xs mt-2">
-            Earnings appear here once a pot you own has been approved by the Council.
+            Earnings appear here once a bounty you own has been approved by the Council.
           </p>
         </div>
       )}

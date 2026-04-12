@@ -97,10 +97,10 @@ export interface Summon {
   twitter_handle?: string;
   tiktok_handle?: string;
   instagram_handle?: string;
-  soundcloud_handle?: string;
-  bandcamp_handle?: string;
+  soundcloud_url?: string;
+  bandcamp_url?: string;
   domain?: string;
-  wikipedia_handle?: string;
+  wikipedia_url?: string;
   country_code?: string | null;
   rating?: number;
   /** Live-computed count of open pots */
@@ -263,13 +263,16 @@ export interface AdminPotCompletion {
 
 export interface CashBalance {
   balance: number;
-  available: PaginatedResponse<AvailableCash>;
+  available: PaginatedResponse<CashLedgerEntry>;
 }
 
-export interface AvailableCash {
+export interface CashLedgerEntry {
   id: number;
+  entity_type: 'user' | 'summon';
+  entity_id: number;
   amount: number;
   running_balance: number;
+  available_after: string | null;
   description: string;
   pot?: Pick<Pot, 'id' | 'title'>;
 }
@@ -283,11 +286,19 @@ export interface PaymentMethod {
 }
 
 export interface SummonBalance {
-  /** Confirmed earnings already credited to the summon (billing_run_id IS NOT NULL) */
+  /** Soft pledges on open pots — no charge locked yet */
+  open_votives: number;
+  /** Pledges on pots awaiting Council approval */
+  pending_verification: number;
+  /** Gross fan obligations locked on approved pots, not yet billed */
+  pending_payment: number;
+  /** Stripe-collected funds within the 7-day hold period */
+  clearing: number;
+  /** Withdrawable balance (hold period elapsed) */
   available_balance: number;
-  /** Locked fan charges not yet billed — net of fees, reflects actual creator payout */
-  pending_earnings: number;
-  available: PaginatedResponse<AvailableCash>;
+  /** Total ever transferred to the creator's bank */
+  paid_out: number;
+  available: PaginatedResponse<CashLedgerEntry>;
 }
 
 export interface SummonEarning {

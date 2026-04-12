@@ -26,6 +26,19 @@ function loadPlaidScript(): Promise<void> {
   });
 }
 
+function InfoTip({ content }: { content: string }) {
+  return (
+    <span className="relative group cursor-default ml-1 inline-flex items-center">
+      <span className="italic font-serif text-muted text-xs w-3.5 h-3.5 rounded-full border border-muted/40 inline-flex items-center justify-center leading-none select-none hover:border-foreground/40 hover:text-foreground transition-colors">
+        i
+      </span>
+      <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-surface-2 border border-border rounded-xl p-3 shadow-xl text-xs text-muted leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-20 text-left">
+        {content}
+      </div>
+    </span>
+  );
+}
+
 export default function SanctumPage() {
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -176,9 +189,13 @@ export default function SanctumPage() {
   }
 
   const summon = user.summon;
-  const availableBalance = balance?.available_balance ?? 0;
-  const pendingEarnings = balance?.pending_earnings ?? 0;
-  const recentTransactions = balance?.available?.data?.slice(0, 5) ?? [];
+  const openVotives         = balance?.open_votives ?? 0;
+  const pendingVerification = balance?.pending_verification ?? 0;
+  const pendingPayment      = balance?.pending_payment ?? 0;
+  const clearing            = balance?.clearing ?? 0;
+  const availableBalance    = balance?.available_balance ?? 0;
+  const paidOut             = balance?.paid_out ?? 0;
+  const recentTransactions  = balance?.available?.data?.slice(0, 5) ?? [];
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
@@ -196,40 +213,105 @@ export default function SanctumPage() {
         </Link>
       </div>
 
-      {/* Earnings metrics */}
+      {/* Earnings pipeline — 6 stages */}
       <div className="grid sm:grid-cols-3 gap-4 mb-8">
-        {/* Open Votives */}
+
+        {/* 1 — Open Votives */}
         <div className="bg-surface border border-border rounded-xl p-5">
-          <div className="text-xs text-muted uppercase tracking-wider mb-2 flex items-center gap-1">
-            Open Votives
+          <div className="text-xs text-muted tracking-wider mb-2 flex items-center">
+            OPEN PLEDGES
+            <InfoTip content={`Sum total of all pledges on open bounties placed by your ${summon.fan_name_plural ?? 'fans'}`} />
           </div>
-          <div className="text-2xl font-bold text-foreground">
-            ${Number(summon.total_votive_sum ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-          </div>
-          <div className="text-xs text-muted mt-1">pledged on open &amp; submitted pots</div>
+          {balanceLoading ? (
+            <div className="h-7 w-28 bg-surface-2 animate-pulse rounded mb-1" />
+          ) : (
+            <div className="text-2xl font-bold text-foreground">
+              ${openVotives.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            </div>
+          )}
+          <div className="text-xs text-muted mt-1">soft pledges, perishable</div>
         </div>
 
-        {/* Pending Votives */}
+        {/* 2 — Pending Verification */}
         <div className="bg-surface border border-border rounded-xl p-5">
-          <div className="text-xs text-muted uppercase tracking-wider mb-2 flex items-center gap-1">
-            Pending Votives
+          <div className="text-xs text-muted tracking-wider mb-2 flex items-center">
+            PENDING VERIFICATION
+            <InfoTip content="Pledge total across bounties submitted for review by Council" />
           </div>
-          <div className="text-2xl font-bold text-amber-400">
-            ${Number(summon.pending_votive_total ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-          </div>
-          <div className="text-xs text-muted mt-1">locked on approved pots, not yet collected</div>
+          {balanceLoading ? (
+            <div className="h-7 w-28 bg-surface-2 animate-pulse rounded mb-1" />
+          ) : (
+            <div className="text-2xl font-bold text-foreground">
+              ${pendingVerification.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            </div>
+          )}
+          <div className="text-xs text-muted mt-1">awaiting Council approval</div>
         </div>
 
-        {/* Total Earned */}
+        {/* 3 — Pending Payment */}
         <div className="bg-surface border border-border rounded-xl p-5">
-          <div className="text-xs text-muted uppercase tracking-wider mb-2 flex items-center gap-1">
-            Total Earned
+          <div className="text-xs text-muted tracking-wider mb-2 flex items-center">
+            PENDING PAYMENT
+            <InfoTip content={`${summon.fan_name_plural ?? 'Fans'} have up to 50 days to either pay or declare BROKE status. Go pray that they choose to cover the ~8% fees for you`} />
           </div>
-          <div className="text-2xl font-bold text-creator">
-            ${Number(summon.amount_earned ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-          </div>
-          <div className="text-xs text-muted mt-1">confirmed Stripe-collected payments</div>
+          {balanceLoading ? (
+            <div className="h-7 w-28 bg-surface-2 animate-pulse rounded mb-1" />
+          ) : (
+            <div className="text-2xl font-bold text-amber-400">
+              ${pendingPayment.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            </div>
+          )}
+          <div className="text-xs text-muted mt-1">locked, billing pending</div>
         </div>
+
+        {/* 4 — Clearing */}
+        <div className="bg-surface border border-border rounded-xl p-5">
+          <div className="text-xs text-muted tracking-wider mb-2 flex items-center">
+            CLEARING
+            <InfoTip content="For logistical reasons I have to wait 7 days before giving you money, chill bro. Lmk if your rent is due or something, I gotchu" />
+          </div>
+          {balanceLoading ? (
+            <div className="h-7 w-28 bg-surface-2 animate-pulse rounded mb-1" />
+          ) : (
+            <div className="text-2xl font-bold text-blue-400">
+              ${clearing.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            </div>
+          )}
+          <div className="text-xs text-muted mt-1">paid, 7-day hold</div>
+        </div>
+
+        {/* 5 — Available */}
+        <div className="bg-creator/5 border border-creator/30 rounded-xl p-5">
+          <div className="text-xs text-muted tracking-wider mb-2 flex items-center">
+            AVAILABLE
+            <InfoTip content="Take it already! There's actually no point in waiting. No extra fees or anything" />
+          </div>
+          {balanceLoading ? (
+            <div className="h-7 w-28 bg-surface-2 animate-pulse rounded mb-1" />
+          ) : (
+            <div className="text-2xl font-bold text-creator">
+              ${availableBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            </div>
+          )}
+          <div className="text-xs text-muted mt-1">ready to withdraw</div>
+        </div>
+
+        {/* 6 — Paid Out */}
+        <div className="bg-surface border border-border rounded-xl p-5">
+          <div className="text-xs text-muted tracking-wider mb-2 flex items-center">
+            PAID OUT
+            <InfoTip content="Total money from Artypot that has been transferred to your bank" />
+          </div>
+          {balanceLoading ? (
+            <div className="h-7 w-28 bg-surface-2 animate-pulse rounded mb-1" />
+          ) : (
+            <div className="text-2xl font-bold text-foreground">
+              ${paidOut.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            </div>
+          )}
+          <div className="text-xs text-muted mt-1">transferred to your bank</div>
+        </div>
+
       </div>
 
       {/* Wallet */}
@@ -239,29 +321,6 @@ export default function SanctumPage() {
           <Link href="/cash" className="text-sm text-creator/70 hover:text-creator transition-colors">
             Full ledger →
           </Link>
-        </div>
-
-        <div className="grid sm:grid-cols-2 gap-4 mb-4">
-          <div>
-            <div className="text-xs text-muted uppercase tracking-wider mb-1">Available Balance</div>
-            {balanceLoading ? (
-              <div className="h-7 w-28 bg-surface-2 animate-pulse rounded" />
-            ) : (
-              <div className="text-xl font-bold text-creator">
-                ${availableBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-              </div>
-            )}
-          </div>
-          <div>
-            <div className="text-xs text-muted uppercase tracking-wider mb-1">Incoming (unbilled)</div>
-            {balanceLoading ? (
-              <div className="h-7 w-28 bg-surface-2 animate-pulse rounded" />
-            ) : (
-              <div className="text-xl font-bold text-amber-400">
-                ${pendingEarnings.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-              </div>
-            )}
-          </div>
         </div>
 
         {!balanceLoading && recentTransactions.length > 0 && (
@@ -515,11 +574,11 @@ export default function SanctumPage() {
       {/* Quick links */}
       <div className="grid sm:grid-cols-2 gap-4">
         <Link
-          href="/pots/new"
+          href="/bounties/new"
           className="bg-surface border border-border rounded-xl p-4 hover:border-brand/40 transition-colors group"
         >
           <div className="text-sm font-semibold text-foreground group-hover:text-brand transition-colors mb-0.5">
-            + New Pot
+            + New Bounty
           </div>
           <div className="text-xs text-muted">Start a new project for your fans to back</div>
         </Link>

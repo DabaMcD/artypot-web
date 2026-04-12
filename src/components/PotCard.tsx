@@ -21,7 +21,7 @@ export default function PotCard({ pot }: { pot: Pot }) {
         {/* Stretched link title — ::after pseudo-element covers the whole card */}
         <h3 className="font-semibold text-foreground group-hover:text-brand transition-colors line-clamp-2 leading-snug">
           <Link
-            href={`/pots/${pot.id}`}
+            href={`/bounties/${pot.id}`}
             className="after:absolute after:inset-0 focus:outline-none"
           >
             {pot.title}
