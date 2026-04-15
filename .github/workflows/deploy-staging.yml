@@ -24,5 +24,5 @@ jobs:
             git reset --hard origin/staging
             npm ci
             npm run build
-            PORT=3001 pm2 restart artypot-web-staging || PORT=3001 pm2 start npm --name artypot-web-staging -- start
+            pm2 restart artypot-web-staging
             echo "Staging deploy complete."
