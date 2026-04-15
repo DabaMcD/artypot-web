@@ -5,13 +5,18 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { cash as cashApi } from '@/lib/api';
-import type { SummonEarning } from '@/lib/types';
+import type { SummonBalance, SummonEarning } from '@/lib/types';
 
 export default function CashPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+
+  const [balance, setBalance] = useState<SummonBalance | null>(null);
+  const [balanceLoading, setBalanceLoading] = useState(true);
+
   const [earnings, setEarnings] = useState<SummonEarning[] | null>(null);
   const [earningsLoading, setEarningsLoading] = useState(true);
+
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -22,14 +27,20 @@ export default function CashPage() {
 
   useEffect(() => {
     if (!user || user.role === 'mob') return;
+
+    cashApi
+      .summonBalance()
+      .then(setBalance)
+      .catch(() => setError('Failed to load balance.'))
+      .finally(() => setBalanceLoading(false));
+
     cashApi
       .summonEarnings()
       .then((res) => setEarnings(res.data))
-      .catch(() => setError('Failed to load earnings.'))
+      .catch(() => {/* error already set above if both fail */})
       .finally(() => setEarningsLoading(false));
   }, [user]);
 
-  // Auth / role loading skeleton
   if (loading || !user) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-10 space-y-4">
@@ -42,14 +53,62 @@ export default function CashPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground mb-1">Earnings</h1>
         <p className="text-muted text-sm">
-          Your earnings from approved pots, grouped by project.
+          Your wallet summary and per-project breakdown.
         </p>
       </div>
 
       {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
+
+      {/* ── Wallet summary card ──────────────────────────────────────────── */}
+      {balanceLoading ? (
+        <div className="h-28 bg-surface animate-pulse rounded-xl border border-border mb-6" />
+      ) : balance && (
+        <div className="bg-surface border border-border rounded-xl p-5 mb-6">
+          <p className="text-xs text-muted font-semibold uppercase tracking-widest mb-4">Wallet</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div>
+              <p className="text-xs text-muted uppercase tracking-wider mb-1">Pending Payment</p>
+              <p className="text-xl font-bold text-amber-400">
+                ${balance.pending_payment.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </p>
+              <p className="text-xs text-muted mt-0.5">fans not yet billed</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted uppercase tracking-wider mb-1">Clearing</p>
+              <p className="text-xl font-bold text-blue-400">
+                ${balance.clearing.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </p>
+              <p className="text-xs text-muted mt-0.5">7-day hold</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted uppercase tracking-wider mb-1">Available</p>
+              <p className="text-xl font-bold text-creator">
+                ${balance.available_balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </p>
+              <p className="text-xs text-muted mt-0.5">ready to withdraw</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted uppercase tracking-wider mb-1">Paid Out</p>
+              <p className="text-xl font-bold text-foreground">
+                ${balance.paid_out.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </p>
+              <p className="text-xs text-muted mt-0.5">sent to bank</p>
+            </div>
+          </div>
+          {balance.pending_payment > 0 && (
+            <p className="text-xs text-muted mt-4 pt-4 border-t border-border leading-relaxed">
+              Pending Payment amounts are fan obligations locked in at bounty approval. Fans have
+              up to 50 days to pay; amounts will flow through Clearing into Available once collected.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* ── Per-pot breakdown ────────────────────────────────────────────── */}
+      <p className="text-xs text-muted font-semibold uppercase tracking-widest mb-3">By Project</p>
 
       {earningsLoading ? (
         <div className="space-y-4">
@@ -67,7 +126,7 @@ export default function CashPage() {
               <div key={earning.pot.id} className="bg-surface border border-border rounded-xl p-5">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <Link
-                    href={`/pots/${earning.pot.id}`}
+                    href={`/bounties/${earning.pot.id}`}
                     className="text-creator font-semibold hover:underline leading-snug"
                   >
                     {earning.pot.title}
@@ -75,7 +134,6 @@ export default function CashPage() {
                   <span className="text-xs text-muted shrink-0 capitalize">{statusLabel}</span>
                 </div>
 
-                {/* Progress bar: earned of total */}
                 <div className="h-1.5 bg-surface-2 rounded-full mb-3 overflow-hidden">
                   <div
                     className="h-full bg-creator rounded-full transition-all"
@@ -97,7 +155,7 @@ export default function CashPage() {
                       <p className="text-sm font-medium text-amber-400">
                         +${earning.incoming.toLocaleString('en-US', { minimumFractionDigits: 2 })} incoming
                       </p>
-                      <p className="text-xs text-muted">gross, pre-fee estimate</p>
+                      <p className="text-xs text-muted">gross fan charge, pre-fee</p>
                     </div>
                   )}
                 </div>
@@ -106,14 +164,14 @@ export default function CashPage() {
           })}
 
           <p className="text-xs text-muted text-center pt-2">
-            Incoming amounts are gross fan charges — your actual credit will be lower after Stripe and platform fees.
+            Incoming amounts shown here are gross fan charges. Your actual credit (shown in the wallet above) will be lower after Stripe and platform fees.
           </p>
         </div>
       ) : (
         <div className="bg-surface border border-border rounded-xl p-10 text-center">
-          <p className="text-muted text-sm">No pot earnings yet.</p>
+          <p className="text-muted text-sm">No bounty earnings yet.</p>
           <p className="text-muted text-xs mt-2">
-            Earnings appear here once a pot you own has been approved by the Council.
+            Earnings appear here once a bounty you own has been approved by the Council.
           </p>
         </div>
       )}

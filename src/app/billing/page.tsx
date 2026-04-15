@@ -99,8 +99,8 @@ export default function BillingPage() {
         <ul className="space-y-2 text-sm text-muted">
           {[
             'You place a votive (a fixed amount) when you back a pot. Nothing is charged at that point.',
-            'When a creator submits their work and the Council approves it, a 48-hour revocation window opens.',
-            'If you don\'t revoke your votive during that 48-hour window, your charge is locked in and will be collected on the next billing cycle (the 24th of the month).',
+            'When a creator submits their work and the Council approves it, your charge is locked in immediately. You can only revoke your votive while the pot is still open.',
+            'Locked charges are collected automatically on the 24th of each month, or you can pay early using the button above.',
             'Artypot takes a 5% platform fee. Stripe processing fees (2.9% + $0.30) are deducted from the creator\'s payout unless you opt to cover them.',
           ].map((item) => (
             <li key={item} className="flex items-start gap-2">

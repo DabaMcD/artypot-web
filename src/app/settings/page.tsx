@@ -142,42 +142,42 @@ const NOTIF_ROWS: {
 }[] = [
   {
     label: 'Summon Answered',
-    desc: 'A creator or entity claims their profile and your votive activates.',
+    desc: 'A creator or entity claims their profile and your pledge activates.',
     emailKey: 'summon_answered',
     smsKey: 'sms_summon_answered',
     inAppKey: 'in_app_summon_answered',
   },
   {
-    label: 'Pot Pending Review',
-    desc: 'A creator or entity submits a pot for Council review.',
+    label: 'Bounty Pending Review',
+    desc: 'A creator or entity submits a bounty for Council review.',
     emailKey: 'pot_pending_completion',
     smsKey: 'sms_pot_pending_completion',
     inAppKey: 'in_app_pot_pending_completion',
   },
   {
-    label: 'Pot Confirmed Complete',
-    desc: 'Council approves a pot and payment is queued.',
+    label: 'Bounty Confirmed Complete',
+    desc: 'Council approves a bounty and payment is queued.',
     emailKey: 'pot_confirmed_completed',
     smsKey: 'sms_pot_confirmed_completed',
     inAppKey: 'in_app_pot_confirmed_completed',
   },
   {
-    label: 'Votive Confirmation',
-    desc: 'You placed a votive.',
+    label: 'Pledge Confirmation',
+    desc: 'You placed a pledge.',
     emailKey: 'votive_confirmation',
     smsKey: 'sms_votive_confirmation',
     inAppKey: 'in_app_votive_confirmation',
   },
   {
-    label: 'Votive Expired',
-    desc: 'A votive of yours reached its expiry and was removed.',
+    label: 'Pledge Expired',
+    desc: 'A pledge of yours reached its expiry and was removed.',
     emailKey: 'votive_expired',
     smsKey: 'sms_votive_expired',
     inAppKey: 'in_app_votive_expired',
   },
   {
-    label: 'Pot Updated',
-    desc: 'An initiator changes the title or description of a pot you back.',
+    label: 'Bounty Updated',
+    desc: 'An initiator changes the title or description of a bounty you back.',
     emailKey: 'pot_updated',
     smsKey: 'sms_pot_updated',
     inAppKey: 'in_app_pot_updated',
@@ -231,6 +231,10 @@ export default function SettingsPage() {
   const [emailChangeLoading, setEmailChangeLoading] = useState(false);
   const [emailChangeSent, setEmailChangeSent] = useState<string | null>(null);
 
+  // Display name
+  const [nameInput, setNameInput] = useState('');
+  const [nameSaving, setNameSaving] = useState(false);
+
   // Profile picture
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [picPreview, setPicPreview] = useState<string | null>(null);
@@ -252,6 +256,7 @@ export default function SettingsPage() {
     }
     setIsAnonymous(user.is_anonymous ?? false);
     setCoverFees(user.cover_processing_fees ?? false);
+    setNameInput(user.name ?? '');
     notifApi.get().then(setNotifSettings).catch(() => {});
     votivesApi.list().then((res) => setVotiveTotalAmount(res.total_active_amount)).catch(() => {});
   }, [user, authLoading, router]);
@@ -289,6 +294,21 @@ export default function SettingsPage() {
       toast('Failed to save. Please try again.', 'error');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !nameInput.trim()) return;
+    setNameSaving(true);
+    try {
+      await usersApi.update(user.id, { name: nameInput.trim() });
+      await refreshUser();
+      toast('Name updated!', 'success');
+    } catch {
+      toast('Failed to save name.', 'error');
+    } finally {
+      setNameSaving(false);
     }
   };
 
@@ -391,7 +411,7 @@ export default function SettingsPage() {
     try {
       const res = await authApi.broke();
       setShowBrokeConfirm(false);
-      setDangerMsg(`Done — ${res.data.revoked_count} votive${res.data.revoked_count === 1 ? '' : 's'} cancelled.`);
+      setDangerMsg(`Done — ${res.data.revoked_count} pledge${res.data.revoked_count === 1 ? '' : 's'} cancelled.`);
     } catch {
       setDangerMsg('Something went wrong. Please try again.');
     } finally {
@@ -430,17 +450,17 @@ export default function SettingsPage() {
       {/* BROKE confirmation */}
       {showBrokeConfirm && (
         <ConfirmDialog
-          title="Cancel All Votives"
+          title="Cancel All Pledges"
           body={
             <>
-              <p className="mb-2">This will immediately cancel <strong className="text-foreground">all your active votives</strong> and remove your funding from every project.</p>
+              <p className="mb-2">This will immediately cancel <strong className="text-foreground">all your active pledges</strong> and remove your funding from every project.</p>
               {votiveTotalAmount != null && votiveTotalAmount > 0 && (
-                <p className="mb-2 font-semibold text-foreground">${votiveTotalAmount.toFixed(2)} in active votives will be cancelled.</p>
+                <p className="mb-2 font-semibold text-foreground">${votiveTotalAmount.toFixed(2)} in active pledges will be cancelled.</p>
               )}
-              <p>This cannot easily be undone. You would need to re-place your votive individually on each project.</p>
+              <p>This cannot easily be undone. You would need to re-place your pledge individually on each project.</p>
             </>
           }
-          confirmLabel="Yes, Cancel All Votives"
+          confirmLabel="Yes, Cancel All Pledges"
           onConfirm={handleBroke}
           onCancel={() => setShowBrokeConfirm(false)}
           loading={dangerLoading}
@@ -453,7 +473,7 @@ export default function SettingsPage() {
           title="Delete My Account"
           body={
             <>
-              <p className="mb-2">This will <strong className="text-foreground">permanently delete your account</strong>, cancel all your active votives, and log you out immediately.</p>
+              <p className="mb-2">This will <strong className="text-foreground">permanently delete your account</strong>, cancel all your active pledges, and log you out immediately.</p>
               <p>Your account cannot be recovered. You may re-register with the same email address.</p>
             </>
           }
@@ -574,13 +594,34 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {/* Display Name */}
+        <div className="bg-surface border border-border rounded-xl p-5 mb-6">
+          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">Display Name</h2>
+          <form onSubmit={handleSaveName} className="flex gap-2">
+            <input
+              type="text"
+              required
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+            />
+            <button
+              type="submit"
+              disabled={nameSaving || !nameInput.trim() || nameInput.trim() === user.name}
+              className="bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-brand/50 disabled:opacity-50 transition-colors whitespace-nowrap"
+            >
+              {nameSaving ? 'Saving…' : 'Save name'}
+            </button>
+          </form>
+        </div>
+
         {/* Privacy */}
         <div className="bg-surface border border-border rounded-xl p-5 mb-6">
           <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-1">Privacy</h2>
           <Toggle
             id="anonymous-mode"
             label="Anonymous Mode"
-            description="Hide your votives from your public profile. Your name will appear as [anonymous] on project backer lists."
+            description="Hide your pledges from your public profile. Your name will appear as [anonymous] on project supporter lists."
             checked={isAnonymous}
             onChange={(val) => handleToggle('is_anonymous', val)}
             saving={saving}
@@ -603,7 +644,7 @@ export default function SettingsPage() {
         {/* Billing link */}
         <div className="bg-surface border border-border rounded-xl p-5 mb-6">
           <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Billing</h2>
-          <p className="text-sm text-muted mb-3">Manage your saved payment methods and view your votive history.</p>
+          <p className="text-sm text-muted mb-3">Manage your saved payment methods and view your pledge history.</p>
           <Link
             href="/billing"
             className="inline-block bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-creator/50 transition-colors"
@@ -611,6 +652,20 @@ export default function SettingsPage() {
             Go to Billing →
           </Link>
         </div>
+
+        {/* Creator Profile */}
+        {user.role === 'summoned' && user.summon && (
+          <div className="bg-surface border border-border rounded-xl p-5 mb-6">
+            <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Creator Profile</h2>
+            <p className="text-sm text-muted mb-3">Edit your public creator page — display name, bio, social handles, and fan name.</p>
+            <Link
+              href={`/summons/${user.summon.id}/edit`}
+              className="inline-block bg-surface-2 border border-border text-creator text-sm font-medium px-4 py-2 rounded-lg hover:border-creator/50 transition-colors"
+            >
+              Edit Creator Profile →
+            </Link>
+          </div>
+        )}
 
         {/* Phone Number */}
         <div className="bg-surface border border-border rounded-xl p-5 mb-6">
@@ -781,7 +836,7 @@ export default function SettingsPage() {
                 💸 CLICK THIS BUTTON IF YOU&apos;RE BROKE!!
               </p>
               <p className="text-sm text-muted mt-0.5">
-                DO NOT GIVE AWAY CASH YOU DON&apos;T HAVE. Instantly cancels ALL your active votives.
+                DO NOT GIVE AWAY CASH YOU DON&apos;T HAVE. Instantly cancels ALL your active pledges.
               </p>
             </div>
             <button
@@ -798,7 +853,7 @@ export default function SettingsPage() {
             <div className="flex-1">
               <p className="font-medium text-foreground">Delete My Account</p>
               <p className="text-sm text-muted mt-0.5">
-                Permanently deletes your account and cancels all votives. Your email can be reused to sign up again.
+                Permanently deletes your account and cancels all pledges. Your email can be reused to sign up again.
               </p>
             </div>
             <button

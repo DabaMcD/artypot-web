@@ -33,6 +33,7 @@ export default function MyVotivesPage() {
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [totalActiveAmount, setTotalActiveAmount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,6 +48,7 @@ export default function MyVotivesPage() {
         setVotives(res.data);
         setLastPage(res.last_page);
         setTotal(res.total);
+        setTotalActiveAmount(res.total_active_amount);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -71,17 +73,17 @@ export default function MyVotivesPage() {
     );
   }
 
-  const totalAmount = votives.reduce((sum, v) => sum + Number(v.amount), 0);
-
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">My Votives</h1>
+          <h1 className="text-2xl font-bold text-foreground">My Pledges</h1>
           <p className="text-sm text-muted mt-0.5">
-            {total} active votive{total !== 1 ? 's' : ''}
-            {votives.length > 0 && ` · ${totalAmount.toFixed(2)} on this page`}
+            {total} active pledge{total !== 1 ? 's' : ''}
+            {totalActiveAmount !== null && totalActiveAmount > 0 && (
+              <> · <span className="text-foreground">${totalActiveAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total</span></>
+            )}
           </p>
         </div>
         <Link
@@ -125,8 +127,8 @@ export default function MyVotivesPage() {
         </div>
       ) : votives.length === 0 ? (
         <div className="text-center py-12 text-muted border border-dashed border-border rounded-xl">
-          No active votives.{' '}
-          <Link href="/pots" className="text-brand hover:underline">Browse pots</Link>
+          No active pledges.{' '}
+          <Link href="/bounties" className="text-brand hover:underline">Browse bounties</Link>
           {' '}to start backing projects.
         </div>
       ) : (
@@ -142,7 +144,7 @@ export default function MyVotivesPage() {
                 <div className="flex-1 min-w-0">
                   {votive.pot ? (
                     <Link
-                      href={`/pots/${votive.pot_id}`}
+                      href={`/bounties/${votive.pot_id}`}
                       className="text-sm font-medium text-foreground hover:text-brand transition-colors block truncate"
                     >
                       {votive.pot.title}

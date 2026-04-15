@@ -15,9 +15,9 @@ export default function GuidePage() {
           <div className="flex items-start gap-4">
             <span className="text-2xl">🪴</span>
             <div>
-              <h2 className="text-lg font-bold text-brand mb-1">The Pot</h2>
+              <h2 className="text-lg font-bold text-brand mb-1">The Bounty</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                A fan-created, crowdfunded request aimed at a specific Summoned One. Fans place votives into a pot to signal what they want The Summoned to make. If The Summoned completes the project, the pot pays out.
+                A fan-created, crowdfunded request aimed at a specific Summoned One. Fans place pledges into a bounty to signal what they want The Summoned to make. If The Summoned completes the project, the bounty pays out.
               </p>
             </div>
           </div>
@@ -30,7 +30,7 @@ export default function GuidePage() {
             <div>
               <h2 className="text-lg font-bold text-creator mb-1">The Summoned</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                A creator or entity who has claimed their Artypot profile. Once summoned, they can receive payouts from pots dedicated to their work, communicate directly with fans, and confirm or reject completed projects.
+                A creator or entity who has claimed their Artypot profile. Once summoned, they can receive payouts from bounties dedicated to their work, communicate directly with fans, and confirm or reject completed projects.
               </p>
             </div>
           </div>
@@ -41,15 +41,15 @@ export default function GuidePage() {
           <div className="flex items-start gap-4">
             <span className="text-2xl">🕯️</span>
             <div>
-              <h2 className="text-lg font-bold text-brand mb-1">The Votive</h2>
+              <h2 className="text-lg font-bold text-brand mb-1">The Pledge</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                A pledge of money placed into a pot. Your votive signals your belief in a project and your willingness to pay when it&apos;s completed. Votives are only charged when a project is approved and paid out by The Council. You can cancel your votive at any time before that.
+                A commitment of money placed into a bounty. Your pledge signals your belief in a project and your willingness to pay when it&apos;s completed. Pledges are only charged when a project is approved and paid out by The Council. You can cancel your pledge at any time before that.
               </p>
             </div>
           </div>
         </div>
 
-        {/* The Council */}
+        {/* The Council — verifies and approves bounties */}
         <div className="bg-surface border border-council/30 rounded-xl p-6">
           <div className="flex items-start gap-4">
             <span className="text-2xl">⚖️</span>

@@ -8,11 +8,11 @@ import type { Pot, PaginatedResponse, PotStatus } from '@/lib/types';
 import PotCard from '@/components/PotCard';
 
 const STATUS_FILTERS: { value: PotStatus | ''; label: string }[] = [
-  { value: '', label: 'All' },
-  { value: 'open', label: 'Open' },
-  { value: 'completed', label: 'Submitted' },
-  { value: 'approved', label: 'Approved' },
-  { value: 'paid_out', label: 'Paid Out' },
+  { value: '',          label: 'All' },
+  { value: 'open',      label: 'Open' },
+  { value: 'pending',   label: 'Pending Review' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'paid_out',  label: 'Paid Out' },
 ];
 
 export default function PotsPage() {
@@ -49,15 +49,15 @@ export default function PotsPage() {
     <div className="max-w-6xl mx-auto px-4 py-10">
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-1">Pots</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-1">Bounties</h1>
           <p className="text-muted">Fund the work you want to see made.</p>
         </div>
         {user && (
           <Link
-            href="/pots/new"
+            href="/bounties/new"
             className="shrink-0 bg-brand text-black font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-brand-dim transition-colors"
           >
-            + New Pot
+            + New Bounty
           </Link>
         )}
       </div>
@@ -90,9 +90,9 @@ export default function PotsPage() {
         </div>
       ) : !data || data.data.length === 0 ? (
         <div className="text-center py-20 text-muted border border-dashed border-border rounded-xl">
-          No pots found.{' '}
+          No bounties found.{' '}
           {user && (
-            <Link href="/pots/new" className="text-brand hover:underline">
+            <Link href="/bounties/new" className="text-brand hover:underline">
               Create one
             </Link>
           )}
@@ -100,7 +100,7 @@ export default function PotsPage() {
       ) : (
         <>
           <div className="text-xs text-muted mb-4">
-            {data.total} pot{data.total !== 1 ? 's' : ''}
+            {data.total} {data.total !== 1 ? 'bounties' : 'bounty'}
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.data.map((pot) => (

@@ -34,6 +34,27 @@ const ADMIN_SECTIONS = [
     color: 'border-council/30 hover:border-council/60',
     badge: 'council',
   },
+  {
+    title: 'Featured Pots',
+    description: 'Choose the 3 pots shown on the landing page.',
+    href: '/admin/featured-pots',
+    color: 'border-brand/30 hover:border-brand/60',
+    badge: 'brand',
+  },
+  {
+    title: 'Users',
+    description: 'Search and inspect user accounts.',
+    href: '/admin/users',
+    color: 'border-brand/30 hover:border-brand/60',
+    badge: 'brand',
+  },
+  {
+    title: 'Summons',
+    description: 'Browse summon profiles with claimed and W-9 status.',
+    href: '/admin/summons',
+    color: 'border-creator/30 hover:border-creator/60',
+    badge: 'creator',
+  },
 ];
 
 export default function AdminPage() {

@@ -1,9 +1,40 @@
 export type UserRole = 'mob' | 'summoned' | 'council';
-export type PotStatus = 'open' | 'completed' | 'approved' | 'paid_out' | 'revoked';
+export type PotStatus = 'open' | 'pending' | 'completed' | 'paid_out' | 'revoked';
 export type PotType = 'direct';
 export type SummonClaimStatus = 'pending' | 'approved' | 'rejected';
 export type PotCompletionStatus = 'pending_review' | 'approved' | 'rejected';
 export type WithdrawalStatus = 'pending' | 'processing' | 'paid' | 'failed';
+export type SummonW9Status = 'initiated' | 'completed' | 'tin_matched' | 'tin_failed';
+
+export interface SummonW9Record {
+  id: number;
+  status: SummonW9Status;
+  qualifies: boolean;
+  tin_matched: boolean;
+  tin_failed: boolean;
+  w9_url: string | null;
+  w9_url_expires_at: string | null;
+  completed_at: string | null;
+  tin_matched_at: string | null;
+}
+
+export interface FormW9StatusResponse {
+  tax_year: number;
+  ytd_withdrawals: number;
+  threshold: number;
+  requires_w9: boolean;
+  record: SummonW9Record | null;
+}
+
+export interface Withdrawal {
+  id: number;
+  summon_id: number;
+  amount: number;
+  status: WithdrawalStatus;
+  plaid_transfer_id?: string | null;
+  initiated_at?: string | null;
+  created_at: string;
+}
 
 export interface User {
   id: number;
@@ -66,22 +97,28 @@ export interface Summon {
   twitter_handle?: string;
   tiktok_handle?: string;
   instagram_handle?: string;
-  soundcloud_handle?: string;
-  bandcamp_handle?: string;
+  soundcloud_url?: string;
+  bandcamp_url?: string;
   domain?: string;
-  wikipedia_handle?: string;
+  wikipedia_url?: string;
+  country_code?: string | null;
   rating?: number;
   /** Live-computed count of open pots */
   projects_open?: number;
   /** Live-computed count of paid-out pots */
   projects_finished?: number;
+  /** Confirmed earnings: sum of creator credits where Stripe has collected */
   amount_earned?: number;
-  /** Live-computed sum of total_pledged across all pots */
+  /** Gross pledges on open/pending pots (no charge written yet) */
   total_votive_sum?: number;
+  /** Gross votive amounts locked on completed pots, not yet charged via Stripe */
+  pending_votive_total?: number;
   /** Whether the currently authenticated user can edit this summon */
   can_edit?: boolean;
   /** The authenticated user's own 24h-aged votive total across all pots for this summon */
   user_aged_votive_total?: number | null;
+  /** True when the summon has a linked Plaid bank account */
+  bank_connected?: boolean;
   claimed_at?: string;
   merged_into_summon_id?: number;
   summon_names?: SummonName[];
@@ -100,8 +137,9 @@ export interface Pot {
   total_pledged: number;
   completed_at?: string;
   approved_at?: string;
-  revoke_deadline_at?: string;
   paid_out_at?: string;
+  /** Sum of fan charges already collected via billing for this pot. */
+  cleared_amount?: number;
   votives?: PotVotive[];
   completion?: PotCompletion;
 }
@@ -149,6 +187,8 @@ export interface PublicUser {
   is_anonymous: boolean;
   created_at: string;
   votives: PublicUserVotive[];
+  /** Server-computed sum of all active (unrevoked) votives. Null for anonymous users viewed by others. */
+  total_votive_amount?: number;
 }
 
 export interface PotCompletion {
@@ -223,15 +263,16 @@ export interface AdminPotCompletion {
 
 export interface CashBalance {
   balance: number;
-  pending_total: number;
-  available: PaginatedResponse<AvailableCash>;
-  pending: AvailableCash[];
+  available: PaginatedResponse<CashLedgerEntry>;
 }
 
-export interface AvailableCash {
+export interface CashLedgerEntry {
   id: number;
+  entity_type: 'user' | 'summon';
+  entity_id: number;
   amount: number;
   running_balance: number;
+  available_after: string | null;
   description: string;
   pot?: Pick<Pot, 'id' | 'title'>;
 }
@@ -242,6 +283,22 @@ export interface PaymentMethod {
   last4: string;
   exp_month: number;
   exp_year: number;
+}
+
+export interface SummonBalance {
+  /** Soft pledges on open pots — no charge locked yet */
+  open_votives: number;
+  /** Pledges on pots awaiting Council approval */
+  pending_verification: number;
+  /** Gross fan obligations locked on approved pots, not yet billed */
+  pending_payment: number;
+  /** Stripe-collected funds within the 7-day hold period */
+  clearing: number;
+  /** Withdrawable balance (hold period elapsed) */
+  available_balance: number;
+  /** Total ever transferred to the creator's bank */
+  paid_out: number;
+  available: PaginatedResponse<CashLedgerEntry>;
 }
 
 export interface SummonEarning {
@@ -311,14 +368,36 @@ export interface RemoveVotiveResult {
   new_initiator_id: number | null;
 }
 
+export interface Comment {
+  id: number;
+  user: {
+    id: number;
+    name: string;
+    profile_picture?: string;
+    is_anonymous: boolean;
+    role: UserRole;
+  } | null;
+  content: string;        // '[deleted]' when deleted === true
+  deleted: boolean;
+  parent_id: number | null;
+  reply_count: number;
+  likes_count: number;
+  dislikes_count: number;
+  user_reaction: 'like' | 'dislike' | null;
+  is_edited: boolean;
+  edited_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export type PotHistoryEventType =
   | 'created'
   | 'votive_added'
   | 'votive_revoked'
   | 'details_edited'
   | 'privilege_transfer'
-  | 'completed'
-  | 'approved';
+  | 'pending'
+  | 'completed';
 
 export interface PotHistoryEvent {
   type: PotHistoryEventType;
@@ -337,4 +416,47 @@ export interface PotHistoryEvent {
 export interface PotHistory {
   events: PotHistoryEvent[];
   current: { title: string; description: string | null; total_pledged: number };
+}
+
+// ── Admin: User & Summon search ─────────────────────────────────────────────
+
+export interface AdminUser {
+  id: number;
+  name: string;
+  email: string;
+  role: UserRole;
+  is_anonymous: boolean;
+  email_verified_at: string | null;
+  phone_number: string | null;
+  phone_verified_at: string | null;
+  created_at: string;
+  deleted_at: string | null;
+  summon: {
+    id: number;
+    display_name: string;
+    claimed: boolean;
+    claimed_at: string | null;
+    amount_earned: number;
+    projects_open: number;
+    projects_finished: number;
+    w9: {
+      id: number;
+      status: SummonW9Status;
+      completed_at: string | null;
+      tin_matched_at: string | null;
+    } | null;
+  } | null;
+}
+
+export interface AdminSummon {
+  id: number;
+  display_name: string;
+  claimed: boolean;
+  claimed_at: string | null;
+  user: { id: number; name: string; email: string } | null;
+  w9_status: SummonW9Status | null;
+  amount_earned: number;
+  projects_open: number;
+  projects_finished: number;
+  created_at: string;
 }

@@ -8,16 +8,17 @@ import type { CloudinaryUploadWidgetResults } from 'next-cloudinary';
 import { summons as summonsApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { Summon } from '@/lib/types';
+import { COUNTRIES } from '@/lib/countries';
 
 const HANDLE_FIELDS: { key: keyof Summon; label: string; placeholder: string }[] = [
   { key: 'youtube_handle',    label: 'YouTube',    placeholder: 'channelname' },
   { key: 'twitter_handle',    label: 'X / Twitter', placeholder: 'username' },
   { key: 'tiktok_handle',     label: 'TikTok',     placeholder: 'username' },
   { key: 'instagram_handle',  label: 'Instagram',  placeholder: 'username' },
-  { key: 'domain',            label: 'Website',    placeholder: 'example.com' },
-  { key: 'wikipedia_handle',  label: 'Wikipedia',  placeholder: 'Artist_Name' },
-  { key: 'soundcloud_handle', label: 'SoundCloud', placeholder: 'username' },
-  { key: 'bandcamp_handle',   label: 'Bandcamp',   placeholder: 'artist.bandcamp.com' },
+  { key: 'domain',            label: 'Website',    placeholder: 'example.com or example.com/page' },
+  { key: 'wikipedia_url',  label: 'Wikipedia',  placeholder: 'en.wikipedia.org/wiki/Artist_Name' },
+  { key: 'soundcloud_url', label: 'SoundCloud', placeholder: 'soundcloud.com/artistname' },
+  { key: 'bandcamp_url',   label: 'Bandcamp',   placeholder: 'artistname.bandcamp.com' },
 ];
 
 export default function EditSummonPage({ params }: { params: Promise<{ id: string }> }) {
@@ -35,9 +36,10 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
   const [profilePicture, setProfilePicture] = useState('');
   const [fanName, setFanName] = useState('');
   const [fanNamePlural, setFanNamePlural] = useState('');
+  const [countryCode, setCountryCode] = useState<string>('');
   const [handles, setHandles] = useState<Record<string, string>>({
     youtube_handle: '', twitter_handle: '', tiktok_handle: '', instagram_handle: '',
-    domain: '', wikipedia_handle: '', soundcloud_handle: '', bandcamp_handle: '',
+    domain: '', wikipedia_url: '', soundcloud_url: '', bandcamp_url: '',
   });
 
   const [saving, setSaving] = useState(false);
@@ -64,15 +66,16 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
         setProfilePicture(s.profile_picture ?? '');
         setFanName(s.fan_name ?? '');
         setFanNamePlural(s.fan_name_plural ?? '');
+        setCountryCode(s.country_code ?? '');
         setHandles({
           youtube_handle:    s.youtube_handle    ?? '',
           twitter_handle:    s.twitter_handle    ?? '',
           tiktok_handle:     s.tiktok_handle     ?? '',
           instagram_handle:  s.instagram_handle  ?? '',
           domain:            s.domain            ?? '',
-          wikipedia_handle:  s.wikipedia_handle  ?? '',
-          soundcloud_handle: s.soundcloud_handle ?? '',
-          bandcamp_handle:   s.bandcamp_handle   ?? '',
+          wikipedia_url:  s.wikipedia_url  ?? '',
+          soundcloud_url: s.soundcloud_url ?? '',
+          bandcamp_url:   s.bandcamp_url   ?? '',
         });
         setLoading(false);
       })
@@ -101,6 +104,7 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
         profile_picture: profilePicture.trim() || null,
         fan_name:        fanName.trim() || undefined,
         fan_name_plural: fanNamePlural.trim() || undefined,
+        country_code:    countryCode || null,
         ...handlePayload,
       } as Partial<Summon>);
       router.push(`/summons/${id}`);
@@ -250,6 +254,22 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
               placeholder="Who is this creator? What kind of work do they make?"
               className="w-full bg-surface-2 border border-border text-foreground text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-creator/50 placeholder:text-muted resize-y"
             />
+          </div>
+
+          <div>
+            <label className="block text-xs text-muted mb-1">Country</label>
+            <select
+              value={countryCode}
+              onChange={(e) => setCountryCode(e.target.value)}
+              className="w-full bg-surface-2 border border-border text-foreground text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-creator/50"
+            >
+              <option value="">— Not specified —</option>
+              {COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">

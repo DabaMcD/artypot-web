@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { users as usersApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { PublicUser } from '@/lib/types';
+import { COLORS } from '@/lib/theme';
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', {
@@ -64,7 +65,9 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  const totalVotives = profile.votives.reduce((sum, v) => sum + Number(v.amount), 0);
+  // Use server-computed total (all active unrevoked votives) when available;
+  // fall back to summing the displayed top-10 slice only if not present.
+  const totalVotives = profile.total_votive_amount ?? profile.votives.reduce((sum, v) => sum + Number(v.amount), 0);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
@@ -82,7 +85,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
             ) : (
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold border border-border"
-                style={{ background: '#47DFD3', color: '#0a0a0a' }}
+                style={{ background: COLORS.brand, color: '#0a0a0a' }}
               >
                 {profile.name.charAt(0).toUpperCase()}
               </div>
@@ -133,7 +136,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
             )}
             {isOwnProfile && (
               <Link
-                href="/votives"
+                href="/pledges"
                 className="text-xs text-brand hover:underline"
               >
                 View all →
@@ -158,7 +161,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
                 <div className="flex-1 min-w-0">
                   {votive.pot ? (
                     <Link
-                      href={`/pots/${votive.pot_id}`}
+                      href={`/bounties/${votive.pot_id}`}
                       className="text-sm font-medium text-foreground hover:underline truncate block"
                     >
                       {votive.pot.title}

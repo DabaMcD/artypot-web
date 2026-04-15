@@ -2,16 +2,18 @@ import Link from 'next/link';
 import type { Pot, PotStatus } from '@/lib/types';
 
 const STATUS_STYLES: Record<PotStatus, { label: string; className: string }> = {
-  open: { label: 'Open', className: 'bg-green-900/40 text-green-400 border-green-800/50' },
-  completed: { label: 'Submitted', className: 'bg-blue-900/40 text-blue-400 border-blue-800/50' },
-  approved: { label: 'Approved', className: 'bg-creator/10 text-creator border-creator/30' },
-  paid_out: { label: 'Paid Out', className: 'bg-council/10 text-council border-council/30' },
-  revoked: { label: 'Revoked', className: 'bg-red-900/40 text-red-400 border-red-800/50' },
+  open:      { label: 'Open',           className: 'bg-green-900/40 text-green-400 border-green-800/50' },
+  pending:   { label: 'Pending Review', className: 'bg-blue-900/40 text-blue-400 border-blue-800/50' },
+  completed: { label: 'Completed',      className: 'bg-creator/10 text-creator border-creator/30' },
+  paid_out:  { label: 'Paid Out',       className: 'bg-council/10 text-council border-council/30' },
+  revoked:   { label: 'Revoked',        className: 'bg-red-900/40 text-red-400 border-red-800/50' },
 };
 
 export default function PotCard({ pot }: { pot: Pot }) {
   const status = STATUS_STYLES[pot.status];
   const backerCount = pot.votives?.filter((v) => !v.revoked_at).length ?? null;
+  const fanSingular = pot.summon?.fan_name || 'supporter';
+  const fanPlural   = pot.summon?.fan_name_plural || pot.summon?.fan_name || 'supporters';
 
   return (
     <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-brand/50 transition-colors group">
@@ -19,7 +21,7 @@ export default function PotCard({ pot }: { pot: Pot }) {
         {/* Stretched link title — ::after pseudo-element covers the whole card */}
         <h3 className="font-semibold text-foreground group-hover:text-brand transition-colors line-clamp-2 leading-snug">
           <Link
-            href={`/pots/${pot.id}`}
+            href={`/bounties/${pot.id}`}
             className="after:absolute after:inset-0 focus:outline-none"
           >
             {pot.title}
@@ -43,7 +45,12 @@ export default function PotCard({ pot }: { pot: Pot }) {
           </div>
           {backerCount !== null && (
             <div className="text-xs text-muted mt-0.5">
-              {backerCount} {backerCount === 1 ? 'backer' : 'backers'}
+              {backerCount} {backerCount === 1 ? fanSingular : fanPlural}
+            </div>
+          )}
+          {(pot.status === 'completed' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (
+            <div className="text-xs text-muted mt-0.5">
+              ${pot.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cleared
             </div>
           )}
         </div>
