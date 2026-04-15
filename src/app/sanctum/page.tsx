@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
@@ -39,7 +39,7 @@ function InfoTip({ content }: { content: string }) {
   );
 }
 
-export default function SanctumPage() {
+function SanctumPageContent() {
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
@@ -593,5 +593,13 @@ export default function SanctumPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function SanctumPage() {
+  return (
+    <Suspense>
+      <SanctumPageContent />
+    </Suspense>
   );
 }
