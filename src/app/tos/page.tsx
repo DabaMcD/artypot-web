@@ -96,8 +96,8 @@ export default function ToSPage() {
           </Section>
 
           <Section id="pledges" title="5. Pledges and Payments">
-            <p><strong className="text-foreground">Pledge vs. charge:</strong> When you place a pledge, no money moves and no authorization hold is placed on your card. Your card is only charged after The Council confirms a bounty is complete and a settlement window has passed.</p>
-            <p><strong className="text-foreground">Revoking a pledge:</strong> You may revoke your pledge at any time before a bounty enters the &quot;pending review&quot; stage. Once a bounty is submitted for Council review, pledges are locked in pending the outcome.</p>
+            <p><strong className="text-foreground">Pledge vs. charge:</strong> When you place a pledge, no money moves and no authorization hold is placed on your card. Your card is only charged after The Council confirms a bounty is complete.</p>
+            <p><strong className="text-foreground">Revoking a pledge:</strong> You may revoke your pledge at any time before a bounty is confirmed completed by Council, even during the &quot;pending review&quot; stage.</p>
             <p><strong className="text-foreground">Failed charges:</strong> If your card cannot be charged when a bounty completes (expired card, insufficient funds, etc.), the charge will fail and you will be notified. You will not be able to place new pledges until the payment method is resolved.</p>
             <p><strong className="text-foreground">No completed-bounty refunds:</strong> Once a bounty has been approved by The Council and charges have been processed, payments are final and non-refundable. You had the opportunity to revoke your pledge before completion.</p>
             <p><strong className="text-foreground">Uncompleted bounties:</strong> If a bounty is closed or revoked before completion, no charges are made. Nothing was ever held against your card.</p>
@@ -105,13 +105,13 @@ export default function ToSPage() {
           </Section>
 
           <Section id="creators" title="6. Creator Obligations">
-            <p>Summons who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith.</p>
+            <p>Summons who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith, as understood by their community.</p>
             <p>Submission of a completion claim constitutes a representation that the submitted work satisfies the bounty description. Fraudulent submissions — submitting work that does not fulfil the bounty, or submitting work you do not own the rights to — may result in account termination and, where applicable, legal action.</p>
             <p>Creators receiving payouts must be based in the United States and must provide accurate payment and tax information (including a completed W-9 where required). Artypot will issue 1099s where required by law.</p>
           </Section>
 
           <Section id="council" title="7. The Council">
-            <p>The Council is a group of human reviewers appointed by Artypot. Their role is to verify that a submitted work actually fulfils the bounty before any funds are released.</p>
+            <p>The Council is a group of human reviewers appointed by Artypot. Their role is to verify that a submitted work actually fulfils the bounty before any funds are collected.</p>
             <p>The Council&apos;s decisions are final. There is no formal appeals process, though you may contact us to raise concerns.</p>
             <p>Council members are not liable for reasonable errors in judgment made in good faith during the review process.</p>
           </Section>
@@ -127,15 +127,7 @@ export default function ToSPage() {
           </Section>
 
           <Section id="content" title="9. Content Policy">
-            <p>You may not use Artypot to request, fund, or distribute content that:</p>
-            <ul className="list-disc list-inside space-y-1 pl-2">
-              <li>Is illegal under US federal or state law</li>
-              <li>Constitutes child sexual abuse material (CSAM) — zero tolerance, reported to NCMEC</li>
-              <li>Is designed to facilitate real-world violence or terrorism</li>
-              <li>Is defamatory and presented as fact</li>
-              <li>Violates another person&apos;s copyright or intellectual property rights</li>
-            </ul>
-            <p>Beyond the above, Artypot does not adjudicate taste. Explicit adult content is permitted on bounties where the summon has consented and the content is legal.</p>
+            <p>You may not use Artypot to request, fund, or distribute content that is illegal under US federal or state law.</p>
             <p>We reserve the right to remove content and suspend accounts at our discretion, but we do not have a general content moderation policy beyond what is listed here.</p>
           </Section>
 
