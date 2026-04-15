@@ -41,7 +41,7 @@ export default function AboutPage() {
           </h1>
 
           <p className="text-xl text-muted max-w-xl leading-relaxed mb-10">
-            Fans pool money for specific requests from online entities.
+            Fans pool money for specific requests from public entities.
             Wallets are untouched until the work is done. No risk. Guaranteed results.
           </p>
 

@@ -1,17 +1,16 @@
-name: Deploy to Production
+name: Deploy to Staging
 
 on:
   pull_request:
     branches:
-      - main
+      - staging
     types: [closed]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Deploy to DigitalOcean Droplet
+      - name: Deploy to Staging
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DO_HOST }}
@@ -19,10 +18,10 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           script: |
             set -e
-            cd /var/www/artypot-web
-            git fetch origin main
-            git reset --hard origin/main
+            cd /var/www/artypot-web-staging
+            git fetch origin staging
+            git reset --hard origin/staging
             npm ci
             npm run build
-            pm2 restart artypot-web || pm2 start npm --name artypot-web -- start
-            echo "Deploy complete."
+            PORT=3001 pm2 restart artypot-web-staging || PORT=3001 pm2 start npm --name artypot-web-staging -- start
+            echo "Staging deploy complete."

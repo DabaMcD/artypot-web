@@ -78,7 +78,7 @@ export default function ToSPage() {
           </Section>
 
           <Section id="description" title="2. What Artypot Is">
-            <p>Artypot is a bounty-style crowdfunding platform. Fans (&quot;backers&quot;) pool pledges toward specific tasks from online creators (&quot;summons&quot;). Pledges are a commitment of funds, but no money moves when a pledge is placed. Charges only occur after The Council reviews and confirms a bounty as complete.</p>
+            <p>Artypot is a bounty-style crowdfunding platform. Fans (&quot;backers&quot;) pool pledges toward specific tasks from public entities (&quot;summons&quot;). Pledges are a commitment of funds, but no money moves when a pledge is placed. Charges only occur after The Council reviews and confirms a bounty as complete.</p>
             <p>Artypot is not a tip jar, subscription service, or pre-order platform. It is a mechanism for coordinating demand signals and releasing payment only on delivery.</p>
           </Section>
 
@@ -91,8 +91,8 @@ export default function ToSPage() {
           <Section id="bounties" title="4. Bounties">
             <p>Any registered user may open a bounty for any task a named summon could verifiably complete. There is no restriction on subject matter beyond legality and the Content Policy (Section 9). If it can be done and confirmed, it can be a bounty.</p>
             <p>Opening a bounty does not guarantee the named summon will fulfil it. The summon is under no contractual obligation to Artypot or to backers. A bounty is an expression of collective demand, not a contract with the creator.</p>
-            <p>We reserve the right to remove any bounty at our sole discretion, including but not limited to bounties that are too vague to verify, too difficult to verify in practice, illegal, or that we find too depraved to host. We are not obligated to explain every removal.</p>
-            <p>The summon a bounty is directed at may also remove that bounty at their sole discretion, for any reason or no reason.</p>
+            <p>We reserve the right to remove any bounty at our sole discretion, including but not limited to bounties that are too vague, too difficult to verify completion, harmful, or illegal. We are not obligated to explain every removal, though we will attempt to provide a reason when possible.</p>
+            <p>While we are committed to being reasonable, the summon a bounty is directed at may also remove that bounty at their sole discretion, for any reason or no reason.</p>
           </Section>
 
           <Section id="pledges" title="5. Pledges and Payments">

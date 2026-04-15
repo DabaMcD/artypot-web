@@ -61,9 +61,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
+    let message: string = body.message ?? res.statusText;
+    if (res.status === 422 && body.errors) {
+      const firstField = Object.values(body.errors as Record<string, string[]>)[0];
+      if (firstField?.[0]) message = firstField[0];
+    }
     const error: ApiError = {
       status: res.status,
-      message: body.message ?? res.statusText,
+      message,
       ...(body.requires_w9 ? { requires_w9: true } : {}),
     };
     throw error;
@@ -82,8 +87,13 @@ async function requestMultipart<T>(path: string, body: FormData): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, { method: 'POST', headers, body });
 
   if (!res.ok) {
-    const json = await res.json().catch(() => ({}));
-    const error: ApiError = { status: res.status, message: (json as { message?: string }).message ?? res.statusText };
+    const json = await res.json().catch(() => ({})) as { message?: string; errors?: Record<string, string[]> };
+    let message: string = json.message ?? res.statusText;
+    if (res.status === 422 && json.errors) {
+      const firstField = Object.values(json.errors)[0];
+      if (firstField?.[0]) message = firstField[0];
+    }
+    const error: ApiError = { status: res.status, message };
     throw error;
   }
 

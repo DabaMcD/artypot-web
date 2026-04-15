@@ -285,7 +285,7 @@ function NewPotForm() {
             maxLength={255}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. New album from The Weeknd"
+            placeholder="e.g. Do a backflip while singing the national anthem"
             className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
           />
         </div>
@@ -293,13 +293,13 @@ function NewPotForm() {
         {/* Description */}
         <div>
           <label className="block text-s font-medium text-foreground mb-1.5">
-            Description <span className="text-sm text-muted font-normal">(optional)</span>
+            Description
           </label>
           <textarea
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="What specifically should be made? Any requirements?"
+            placeholder="What specifically must be done? Any requirements?"
             className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
           />
         </div>
