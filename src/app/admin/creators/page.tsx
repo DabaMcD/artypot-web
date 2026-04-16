@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { admin as adminApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { AdminSummon, SummonW9Status } from '@/lib/types';
+import type { AdminCreator, CreatorW9Status } from '@/lib/types';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -17,15 +17,15 @@ function ClaimedBadge({ claimed }: { claimed: boolean }) {
   );
 }
 
-function W9Badge({ status }: { status: SummonW9Status | null }) {
+function W9Badge({ status }: { status: CreatorW9Status | null }) {
   if (!status) return <span className="text-xs text-muted">no W-9</span>;
-  const styles: Record<SummonW9Status, string> = {
+  const styles: Record<CreatorW9Status, string> = {
     initiated:   'bg-amber-900/30 border-amber-700/40 text-amber-300',
     completed:   'bg-blue-900/30 border-blue-700/40 text-blue-300',
     tin_matched: 'bg-green-900/30 border-green-700/40 text-green-300',
     tin_failed:  'bg-red-900/30 border-red-700/40 text-red-300',
   };
-  const labels: Record<SummonW9Status, string> = {
+  const labels: Record<CreatorW9Status, string> = {
     initiated:   'W-9 started',
     completed:   'W-9 done',
     tin_matched: 'TIN ✓',
@@ -38,20 +38,20 @@ function W9Badge({ status }: { status: SummonW9Status | null }) {
   );
 }
 
-// ── Summon detail drawer ─────────────────────────────────────────────────────
+// ── Creator detail drawer ─────────────────────────────────────────────────────
 
-type SummonDetail = AdminSummon & {
+type CreatorDetail = AdminCreator & {
   w9_records: Array<{
     id: number;
     tax_year: number;
-    status: SummonW9Status;
+    status: CreatorW9Status;
     completed_at: string | null;
     tin_matched_at: string | null;
     created_at: string;
   }>;
 };
 
-function SummonDrawer({ summon, onClose }: { summon: SummonDetail; onClose: () => void }) {
+function CreatorDrawer({ creator, onClose }: { creator: CreatorDetail; onClose: () => void }) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-sm"
@@ -60,70 +60,70 @@ function SummonDrawer({ summon, onClose }: { summon: SummonDetail; onClose: () =
       <div className="bg-surface border border-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg p-6 shadow-2xl max-h-[85vh] overflow-y-auto">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="text-lg font-bold text-foreground">{summon.display_name}</h2>
-            {summon.user && <p className="text-sm text-muted">{summon.user.email}</p>}
+            <h2 className="text-lg font-bold text-foreground">{creator.display_name}</h2>
+            {creator.user && <p className="text-sm text-muted">{creator.user.email}</p>}
           </div>
           <button onClick={onClose} className="text-muted hover:text-foreground transition-colors text-xl leading-none ml-4">×</button>
         </div>
 
         {/* Badges */}
         <div className="flex flex-wrap gap-2 mb-5">
-          <ClaimedBadge claimed={summon.claimed} />
-          <W9Badge status={summon.w9_status} />
+          <ClaimedBadge claimed={creator.claimed} />
+          <W9Badge status={creator.w9_status} />
         </div>
 
         {/* Stats */}
         <dl className="space-y-2 text-sm mb-5">
           <div className="flex justify-between">
-            <dt className="text-muted">Summon ID</dt>
-            <dd className="text-foreground font-mono">#{summon.id}</dd>
+            <dt className="text-muted">Creator ID</dt>
+            <dd className="text-foreground font-mono">#{creator.id}</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-muted">Created</dt>
-            <dd className="text-foreground">{new Date(summon.created_at).toLocaleDateString()}</dd>
+            <dd className="text-foreground">{new Date(creator.created_at).toLocaleDateString()}</dd>
           </div>
-          {summon.claimed_at && (
+          {creator.claimed_at && (
             <div className="flex justify-between">
               <dt className="text-muted">Claimed</dt>
-              <dd className="text-foreground">{new Date(summon.claimed_at).toLocaleDateString()}</dd>
+              <dd className="text-foreground">{new Date(creator.claimed_at).toLocaleDateString()}</dd>
             </div>
           )}
           <div className="flex justify-between">
             <dt className="text-muted">Total earned</dt>
-            <dd className="text-foreground">${Number(summon.amount_earned ?? 0).toFixed(2)}</dd>
+            <dd className="text-foreground">${Number(creator.amount_earned ?? 0).toFixed(2)}</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-muted">Open pots</dt>
-            <dd className="text-foreground">{summon.projects_open ?? 0}</dd>
+            <dd className="text-foreground">{creator.projects_open ?? 0}</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-muted">Finished pots</dt>
-            <dd className="text-foreground">{summon.projects_finished ?? 0}</dd>
+            <dd className="text-foreground">{creator.projects_finished ?? 0}</dd>
           </div>
         </dl>
 
         {/* Claimed-by user */}
-        {summon.user && (
+        {creator.user && (
           <div className="border border-border rounded-xl p-4 bg-surface-2 mb-4">
             <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">Claimed by</h3>
             <Link
-              href={`/users/${summon.user.id}`}
+              href={`/users/${creator.user.id}`}
               className="font-medium text-foreground hover:text-brand transition-colors text-sm"
             >
-              {summon.user.name} →
+              {creator.user.name} →
             </Link>
-            <p className="text-xs text-muted mt-0.5">{summon.user.email}</p>
+            <p className="text-xs text-muted mt-0.5">{creator.user.email}</p>
           </div>
         )}
 
         {/* W-9 history */}
         <div>
           <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">W-9 History</h3>
-          {summon.w9_records.length === 0 ? (
+          {creator.w9_records.length === 0 ? (
             <p className="text-sm text-muted italic">No W-9 records.</p>
           ) : (
             <div className="space-y-2">
-              {summon.w9_records.map((w) => (
+              {creator.w9_records.map((w) => (
                 <div key={w.id} className="bg-surface-2 border border-border rounded-lg px-3 py-2.5 flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-medium text-foreground">{w.tax_year}</p>
@@ -143,11 +143,11 @@ function SummonDrawer({ summon, onClose }: { summon: SummonDetail; onClose: () =
 
         <div className="mt-5">
           <Link
-            href={`/summons/${summon.id}`}
+            href={`/creators/${creator.id}`}
             target="_blank"
             className="text-sm text-creator hover:underline"
           >
-            View summon profile →
+            View creator profile →
           </Link>
         </div>
       </div>
@@ -159,18 +159,18 @@ function SummonDrawer({ summon, onClose }: { summon: SummonDetail; onClose: () =
 
 type ClaimedFilter = 'all' | 'true' | 'false';
 
-export default function AdminSummonsPage() {
+export default function AdminCreatorsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
   const [search, setSearch]           = useState('');
   const [claimedFilter, setClaimedFilter] = useState<ClaimedFilter>('all');
-  const [summons, setSummons]         = useState<AdminSummon[]>([]);
+  const [creators, setCreators]       = useState<AdminCreator[]>([]);
   const [page, setPage]               = useState(1);
   const [lastPage, setLastPage]       = useState(1);
   const [total, setTotal]             = useState(0);
   const [loading, setLoading]         = useState(true);
-  const [selected, setSelected]       = useState<SummonDetail | null>(null);
+  const [selected, setSelected]       = useState<CreatorDetail | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -181,15 +181,15 @@ export default function AdminSummonsPage() {
     }
   }, [authLoading, user, router]);
 
-  const fetchSummons = useCallback(async (q: string, claimed: ClaimedFilter, p: number) => {
+  const fetchCreators = useCallback(async (q: string, claimed: ClaimedFilter, p: number) => {
     setLoading(true);
     try {
-      const res = await adminApi.listSummons({
+      const res = await adminApi.listCreators({
         q: q || undefined,
         claimed: claimed !== 'all' ? claimed : 'all',
         page: p,
       });
-      setSummons(res.data);
+      setCreators(res.data);
       setPage(res.current_page);
       setLastPage(res.last_page);
       setTotal(res.total);
@@ -202,33 +202,33 @@ export default function AdminSummonsPage() {
 
   useEffect(() => {
     if (user?.role === 'council') {
-      fetchSummons('', 'all', 1);
+      fetchCreators('', 'all', 1);
     }
-  }, [user, fetchSummons]);
+  }, [user, fetchCreators]);
 
   const handleSearch = (val: string) => {
     setSearch(val);
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(() => {
       setPage(1);
-      fetchSummons(val, claimedFilter, 1);
+      fetchCreators(val, claimedFilter, 1);
     }, 350);
   };
 
   const handleClaimedChange = (f: ClaimedFilter) => {
     setClaimedFilter(f);
     setPage(1);
-    fetchSummons(search, f, 1);
+    fetchCreators(search, f, 1);
   };
 
-  const openDetail = async (s: AdminSummon) => {
+  const openDetail = async (s: AdminCreator) => {
     setLoadingDetail(true);
     try {
-      const res = await adminApi.getSummon(s.id);
-      setSelected(res.data as SummonDetail);
+      const res = await adminApi.getCreator(s.id);
+      setSelected(res.data as CreatorDetail);
     } catch {
       // fallback: show what we have without w9_records
-      setSelected({ ...s, w9_records: [] } as SummonDetail);
+      setSelected({ ...s, w9_records: [] } as CreatorDetail);
     } finally {
       setLoadingDetail(false);
     }
@@ -244,14 +244,14 @@ export default function AdminSummonsPage() {
 
   return (
     <>
-      {selected && <SummonDrawer summon={selected} onClose={() => setSelected(null)} />}
+      {selected && <CreatorDrawer creator={selected} onClose={() => setSelected(null)} />}
 
       <div className="max-w-5xl mx-auto px-4 py-10">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <Link href="/admin" className="text-muted hover:text-foreground transition-colors text-sm">← Admin</Link>
           <span className="text-border">/</span>
-          <h1 className="text-xl font-bold text-foreground">Summons</h1>
+          <h1 className="text-xl font-bold text-foreground">Creators</h1>
           <span className="ml-auto text-sm text-muted">{total} total</span>
         </div>
 
@@ -289,11 +289,11 @@ export default function AdminSummonsPage() {
               <div key={i} className="h-16 bg-surface border border-border rounded-xl animate-pulse" />
             ))}
           </div>
-        ) : summons.length === 0 ? (
-          <div className="text-center py-16 text-muted text-sm">No summons found.</div>
+        ) : creators.length === 0 ? (
+          <div className="text-center py-16 text-muted text-sm">No creators found.</div>
         ) : (
           <div className="space-y-2">
-            {summons.map((s) => (
+            {creators.map((s) => (
               <button
                 key={s.id}
                 type="button"
@@ -332,7 +332,7 @@ export default function AdminSummonsPage() {
             <button
               type="button"
               disabled={page === 1 || loading}
-              onClick={() => { const p = page - 1; fetchSummons(search, claimedFilter, p); }}
+              onClick={() => { const p = page - 1; fetchCreators(search, claimedFilter, p); }}
               className="px-4 py-2 text-sm border border-border rounded-lg text-foreground disabled:opacity-40 hover:border-foreground/30 transition-colors"
             >
               ← Prev
@@ -341,7 +341,7 @@ export default function AdminSummonsPage() {
             <button
               type="button"
               disabled={page === lastPage || loading}
-              onClick={() => { const p = page + 1; fetchSummons(search, claimedFilter, p); }}
+              onClick={() => { const p = page + 1; fetchCreators(search, claimedFilter, p); }}
               className="px-4 py-2 text-sm border border-border rounded-lg text-foreground disabled:opacity-40 hover:border-foreground/30 transition-colors"
             >
               Next →

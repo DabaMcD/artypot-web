@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useState, useEffect } from 'react';
 import NotificationBell from '@/components/NotificationBell';
-import SummonSearchWidget from '@/components/SummonSearchWidget';
+import CreatorSearchWidget from '@/components/CreatorSearchWidget';
 import { ROLE_COLORS, ROLE_TEXT_COLORS, ROLE_LABELS } from '@/lib/theme';
 import type { RoleKey } from '@/lib/theme';
 
@@ -57,7 +57,7 @@ export default function Nav() {
                 Guide
               </Link>
               <div className="w-80 shrink-0">
-                <SummonSearchWidget
+                <CreatorSearchWidget
                   navigateOnSelect
                   placeholder="Search creators…"
                   inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
@@ -155,7 +155,7 @@ export default function Nav() {
                         </Link>
 
                         {/* Creator-only */}
-                        {(user.role === 'summoned' || user.role === 'council') && !!user.summon && (
+                        {(user.role === 'creator' || user.role === 'council') && !!user.creator && (
                           <>
                             <div className="border-t border-border" />
                             <Link
@@ -163,7 +163,7 @@ export default function Nav() {
                               onClick={() => setMenuOpen(false)}
                               className="block px-4 py-2.5 hover:bg-border transition-colors text-creator"
                             >
-                              Summon Sanctum
+                              Creator Sanctum
                             </Link>
                           </>
                         )}
@@ -293,7 +293,7 @@ export default function Nav() {
         <div className="flex-1 overflow-y-auto py-2">
           {/* Search */}
           <div className="px-4 py-3">
-            <SummonSearchWidget
+            <CreatorSearchWidget
               navigateOnSelect
               placeholder="Search creators…"
               inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
@@ -325,9 +325,9 @@ export default function Nav() {
               <Link href="/settings" onClick={() => setDrawerOpen(false)} className="block px-4 py-3 text-sm font-medium text-muted hover:text-foreground transition-colors">
                 Settings
               </Link>
-              {(user.role === 'summoned' || user.role === 'council') && !!user.summon && (
+              {(user.role === 'creator' || user.role === 'council') && !!user.creator && (
                 <Link href="/sanctum" onClick={() => setDrawerOpen(false)} className="block px-4 py-3 text-sm font-medium text-creator transition-colors">
-                  Summon Sanctum
+                  Creator Sanctum
                 </Link>
               )}
               {user.role === 'council' && (

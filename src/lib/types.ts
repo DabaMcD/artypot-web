@@ -1,14 +1,14 @@
-export type UserRole = 'mob' | 'summoned' | 'council';
+export type UserRole = 'mob' | 'creator' | 'council';
 export type PotStatus = 'open' | 'pending' | 'completed' | 'paid_out' | 'revoked';
 export type PotType = 'direct';
-export type SummonClaimStatus = 'pending' | 'approved' | 'rejected';
+export type CreatorClaimStatus = 'pending' | 'approved' | 'rejected';
 export type PotCompletionStatus = 'pending_review' | 'approved' | 'rejected';
 export type WithdrawalStatus = 'pending' | 'processing' | 'paid' | 'failed';
-export type SummonW9Status = 'initiated' | 'completed' | 'tin_matched' | 'tin_failed';
+export type CreatorW9Status = 'initiated' | 'completed' | 'tin_matched' | 'tin_failed';
 
-export interface SummonW9Record {
+export interface CreatorW9Record {
   id: number;
-  status: SummonW9Status;
+  status: CreatorW9Status;
   qualifies: boolean;
   tin_matched: boolean;
   tin_failed: boolean;
@@ -23,12 +23,12 @@ export interface FormW9StatusResponse {
   ytd_withdrawals: number;
   threshold: number;
   requires_w9: boolean;
-  record: SummonW9Record | null;
+  record: CreatorW9Record | null;
 }
 
 export interface Withdrawal {
   id: number;
-  summon_id: number;
+  creator_id: number;
   amount: number;
   status: WithdrawalStatus;
   plaid_transfer_id?: string | null;
@@ -51,7 +51,7 @@ export interface User {
   cover_processing_fees?: boolean;
   is_anonymous?: boolean;
   is_overlord?: boolean;
-  summon?: Summon;
+  creator?: Creator;
 }
 
 export interface CouncilMember {
@@ -72,19 +72,19 @@ export interface CouncilPage {
   per_page: number;
 }
 
-export interface SummonName {
+export interface CreatorName {
   id: number;
-  summon_id: number;
+  creator_id: number;
   name: string;
   added_by_user_id?: number;
   created_at: string;
 }
 
-export interface Summon {
+export interface Creator {
   id: number;
   user_id?: number;
   user?: { id: number; name: string };
-  /** Herald of an unclaimed summon (has editing rights) */
+  /** Herald of an unclaimed creator (has editing rights) */
   herald?: { id: number; name: string };
   herald_user_id?: number;
   herald_total_votive?: number;
@@ -113,15 +113,15 @@ export interface Summon {
   total_votive_sum?: number;
   /** Gross votive amounts locked on completed pots, not yet charged via Stripe */
   pending_votive_total?: number;
-  /** Whether the currently authenticated user can edit this summon */
+  /** Whether the currently authenticated user can edit this creator */
   can_edit?: boolean;
-  /** The authenticated user's own 24h-aged votive total across all pots for this summon */
+  /** The authenticated user's own 24h-aged votive total across all pots for this creator */
   user_aged_votive_total?: number | null;
-  /** True when the summon has a linked Plaid bank account */
+  /** True when the creator has a linked Plaid bank account */
   bank_connected?: boolean;
   claimed_at?: string;
-  merged_into_summon_id?: number;
-  summon_names?: SummonName[];
+  merged_into_creator_id?: number;
+  creator_names?: CreatorName[];
 }
 
 export interface Pot {
@@ -132,8 +132,8 @@ export interface Pot {
   status: PotStatus;
   initiator_user_id: number;
   initiator?: User;
-  summon_id: number;
-  summon?: Summon;
+  creator_id: number;
+  creator?: Creator;
   total_pledged: number;
   completed_at?: string;
   approved_at?: string;
@@ -201,12 +201,12 @@ export interface PotCompletion {
   verified_at?: string;
 }
 
-export interface SummonClaim {
+export interface CreatorClaim {
   id: number;
   user_id: number;
-  summon_id: number;
-  summon?: Pick<Summon, 'id' | 'display_name'>;
-  status: SummonClaimStatus;
+  creator_id: number;
+  creator?: Pick<Creator, 'id' | 'display_name'>;
+  status: CreatorClaimStatus;
   council_notes?: string;
 }
 
@@ -222,14 +222,14 @@ export interface PaginatedResponse<T> {
 
 // ── Admin types ─────────────────────────────────────────────────────────────
 
-export interface AdminSummonClaim {
+export interface AdminCreatorClaim {
   id: number;
   user_id: number;
   user: { id: number; name: string; email: string };
-  summon_id: number;
-  summon: { id: number; display_name: string };
+  creator_id: number;
+  creator: { id: number; display_name: string };
   contact_info: string;
-  status: SummonClaimStatus;
+  status: CreatorClaimStatus;
   council_notes?: string | null;
   reviewed_by?: number | null;
   reviewer?: { id: number; name: string } | null;
@@ -244,9 +244,9 @@ export interface AdminPotCompletion {
     id: number;
     title: string;
     total_pledged: number;
-    summon_id: number;
+    creator_id: number;
     status: PotStatus;
-    summon?: { id: number; display_name: string } | null;
+    creator?: { id: number; display_name: string } | null;
   };
   submitted_by_user_id: number;
   submitted_by: { id: number; name: string };
@@ -268,7 +268,7 @@ export interface CashBalance {
 
 export interface CashLedgerEntry {
   id: number;
-  entity_type: 'user' | 'summon';
+  entity_type: 'user' | 'creator';
   entity_id: number;
   amount: number;
   running_balance: number;
@@ -285,7 +285,7 @@ export interface PaymentMethod {
   exp_year: number;
 }
 
-export interface SummonBalance {
+export interface CreatorBalance {
   /** Soft pledges on open pots — no charge locked yet */
   open_votives: number;
   /** Pledges on pots awaiting Council approval */
@@ -301,7 +301,7 @@ export interface SummonBalance {
   available: PaginatedResponse<CashLedgerEntry>;
 }
 
-export interface SummonEarning {
+export interface CreatorEarning {
   pot: Pick<Pot, 'id' | 'title'> & { status: PotStatus };
   /** Confirmed available_cash credits already received (net of fees) */
   earned: number;
@@ -313,7 +313,7 @@ export interface SummonEarning {
 
 export interface NotificationSettings {
   // Email preferences
-  summon_answered: boolean;
+  creator_answered: boolean;
   pot_pending_completion: boolean;
   pot_confirmed_completed: boolean;
   votive_confirmation: boolean;
@@ -323,7 +323,7 @@ export interface NotificationSettings {
   monthly_votive_receipt: boolean;
   herald_status_lost: boolean;
   // In-app preferences
-  in_app_summon_answered: boolean;
+  in_app_creator_answered: boolean;
   in_app_pot_pending_completion: boolean;
   in_app_pot_confirmed_completed: boolean;
   in_app_votive_confirmation: boolean;
@@ -333,7 +333,7 @@ export interface NotificationSettings {
   in_app_monthly_votive_receipt: boolean;
   in_app_herald_status_lost: boolean;
   // SMS preferences
-  sms_summon_answered: boolean;
+  sms_creator_answered: boolean;
   sms_pot_pending_completion: boolean;
   sms_pot_confirmed_completed: boolean;
   sms_votive_confirmation: boolean;
@@ -369,7 +369,6 @@ export interface RemoveVotiveResult {
 }
 
 export interface Comment {
-  id: number;
   user: {
     id: number;
     name: string;
@@ -418,7 +417,7 @@ export interface PotHistory {
   current: { title: string; description: string | null; total_pledged: number };
 }
 
-// ── Admin: User & Summon search ─────────────────────────────────────────────
+// ── Admin: User & Creator search ─────────────────────────────────────────────
 
 export interface AdminUser {
   id: number;
@@ -431,7 +430,7 @@ export interface AdminUser {
   phone_verified_at: string | null;
   created_at: string;
   deleted_at: string | null;
-  summon: {
+  creator: {
     id: number;
     display_name: string;
     claimed: boolean;
@@ -441,20 +440,20 @@ export interface AdminUser {
     projects_finished: number;
     w9: {
       id: number;
-      status: SummonW9Status;
+      status: CreatorW9Status;
       completed_at: string | null;
       tin_matched_at: string | null;
     } | null;
   } | null;
 }
 
-export interface AdminSummon {
+export interface AdminCreator {
   id: number;
   display_name: string;
   claimed: boolean;
   claimed_at: string | null;
   user: { id: number; name: string; email: string } | null;
-  w9_status: SummonW9Status | null;
+  w9_status: CreatorW9Status | null;
   amount_earned: number;
   projects_open: number;
   projects_finished: number;

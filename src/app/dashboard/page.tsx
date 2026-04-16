@@ -81,7 +81,7 @@ export default function DashboardPage() {
   const roleColor = ROLE_TEXT_CLASSES[user.role as RoleKey];
   const roleLabel = ROLE_LABELS[user.role as RoleKey];
 
-  const isCreator = (user.role === 'summoned' || user.role === 'council') && !!user.summon;
+  const isCreator = (user.role === 'creator' || user.role === 'council') && !!user.creator;
 
   // balance is negative when the user owes money (locked fan charges not yet billed)
   const balance = Number(cash?.balance ?? 0);
@@ -167,10 +167,10 @@ export default function DashboardPage() {
           <div className="flex items-start justify-between gap-4 mb-5">
             <div>
               <div className="text-creator font-semibold mb-0.5">Your Creator Profile</div>
-              <div className="text-foreground font-bold text-lg">{user.summon!.display_name}</div>
+              <div className="text-foreground font-bold text-lg">{user.creator!.display_name}</div>
             </div>
             <Link
-              href={`/summons/${user.summon!.id}`}
+              href={`/creators/${user.creator!.id}`}
               className="shrink-0 text-sm text-creator border border-creator/30 px-4 py-2 rounded-lg hover:bg-creator/10 transition-colors"
             >
               View Profile
@@ -185,7 +185,7 @@ export default function DashboardPage() {
                 <InfoTip content="Total pledged by fans on your open or submitted bounties. No charge has been written yet — these convert once the Council approves." />
               </div>
               <div className="text-xl font-bold text-foreground">
-                ${Number(user.summon!.total_votive_sum ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                ${Number(user.creator!.total_votive_sum ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </div>
 
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                 <InfoTip content="Fan obligations locked on council-approved bounties, not yet billed. Fans have up to 50 days to pay or declare broke." />
               </div>
               <div className="text-xl font-bold text-amber-400">
-                ${Number(user.summon!.pending_votive_total ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                ${Number(user.creator!.pending_votive_total ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </div>
 
@@ -205,7 +205,7 @@ export default function DashboardPage() {
                 <InfoTip content="Lifetime earnings credited to your wallet — all fan payments collected via Stripe, including amounts still in clearing or available to withdraw." />
               </div>
               <div className="text-xl font-bold text-creator">
-                ${Number(user.summon!.amount_earned ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                ${Number(user.creator!.amount_earned ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
               <Link href="/cash" className="text-xs text-creator/70 hover:text-creator transition-colors">
                 View wallet →

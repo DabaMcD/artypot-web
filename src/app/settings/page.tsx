@@ -141,11 +141,11 @@ const NOTIF_ROWS: {
   inAppKey: keyof NotificationSettings;
 }[] = [
   {
-    label: 'Summon Answered',
+    label: 'Creator Answered',
     desc: 'A creator or entity claims their profile and your pledge activates.',
-    emailKey: 'summon_answered',
-    smsKey: 'sms_summon_answered',
-    inAppKey: 'in_app_summon_answered',
+    emailKey: 'creator_answered',
+    smsKey: 'sms_creator_answered',
+    inAppKey: 'in_app_creator_answered',
   },
   {
     label: 'Bounty Pending Review',
@@ -654,12 +654,12 @@ export default function SettingsPage() {
         </div>
 
         {/* Creator Profile */}
-        {user.role === 'summoned' && user.summon && (
+        {user.role === 'creator' && user.creator && (
           <div className="bg-surface border border-border rounded-xl p-5 mb-6">
             <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Creator Profile</h2>
             <p className="text-sm text-muted mb-3">Edit your public creator page — display name, bio, social handles, and fan name.</p>
             <Link
-              href={`/summons/${user.summon.id}/edit`}
+              href={`/creators/${user.creator.id}/edit`}
               className="inline-block bg-surface-2 border border-border text-creator text-sm font-medium px-4 py-2 rounded-lg hover:border-creator/50 transition-colors"
             >
               Edit Creator Profile →

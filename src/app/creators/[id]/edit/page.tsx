@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CldUploadWidget } from 'next-cloudinary';
 import type { CloudinaryUploadWidgetResults } from 'next-cloudinary';
-import { summons as summonsApi } from '@/lib/api';
+import { creators as creatorsApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { Summon } from '@/lib/types';
+import type { Creator } from '@/lib/types';
 import { COUNTRIES } from '@/lib/countries';
 
-const HANDLE_FIELDS: { key: keyof Summon; label: string; placeholder: string }[] = [
+const HANDLE_FIELDS: { key: keyof Creator; label: string; placeholder: string }[] = [
   { key: 'youtube_handle',    label: 'YouTube',    placeholder: 'channelname' },
   { key: 'twitter_handle',    label: 'X / Twitter', placeholder: 'username' },
   { key: 'tiktok_handle',     label: 'TikTok',     placeholder: 'username' },
@@ -21,12 +21,12 @@ const HANDLE_FIELDS: { key: keyof Summon; label: string; placeholder: string }[]
   { key: 'bandcamp_url',   label: 'Bandcamp',   placeholder: 'artistname.bandcamp.com' },
 ];
 
-export default function EditSummonPage({ params }: { params: Promise<{ id: string }> }) {
+export default function EditCreatorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
-  const [summon, setSummon] = useState<Summon | null>(null);
+  const [creator, setCreator] = useState<Creator | null>(null);
   const [loading, setLoading] = useState(true);
   const [accessError, setAccessError] = useState('');
 
@@ -52,7 +52,7 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
       return;
     }
 
-    summonsApi.get(Number(id))
+    creatorsApi.get(Number(id))
       .then((res) => {
         const s = res.data;
         if (!s.can_edit) {
@@ -60,7 +60,7 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
           setLoading(false);
           return;
         }
-        setSummon(s);
+        setCreator(s);
         setDisplayName(s.display_name ?? '');
         setDescription(s.description ?? '');
         setProfilePicture(s.profile_picture ?? '');
@@ -80,14 +80,14 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
         setLoading(false);
       })
       .catch(() => {
-        setAccessError('Failed to load summon.');
+        setAccessError('Failed to load creator.');
         setLoading(false);
       });
   }, [id, user, authLoading, router]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!summon) return;
+    if (!creator) return;
     setSaving(true);
     setSaveError('');
 
@@ -98,7 +98,7 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
     }
 
     try {
-      await summonsApi.update(summon.id, {
+      await creatorsApi.update(creator.id, {
         display_name:    displayName.trim() || undefined,
         description:     description.trim() || null,
         profile_picture: profilePicture.trim() || null,
@@ -106,8 +106,8 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
         fan_name_plural: fanNamePlural.trim() || undefined,
         country_code:    countryCode || null,
         ...handlePayload,
-      } as Partial<Summon>);
-      router.push(`/summons/${id}`);
+      } as Partial<Creator>);
+      router.push(`/creators/${id}`);
     } catch (err: unknown) {
       const e = err as { message?: string };
       setSaveError(e.message ?? 'Failed to save changes.');
@@ -129,7 +129,7 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
       <div className="max-w-2xl mx-auto px-4 py-10 text-center">
         <div className="bg-surface border border-border rounded-xl p-8">
           <p className="text-red-400 mb-4">{accessError}</p>
-          <Link href={`/summons/${id}`} className="text-creator hover:underline text-sm">
+          <Link href={`/creators/${id}`} className="text-creator hover:underline text-sm">
             ← Back to profile
           </Link>
         </div>
@@ -137,15 +137,14 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
     );
   }
 
-  const isClaimed = !!summon?.claimed_at;
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? 'artypot_profiles';
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <div className="mb-6 flex items-center gap-3">
-        <Link href={`/summons/${id}`} className="text-muted hover:text-foreground transition-colors text-sm">
-          ← {summon?.display_name}
+        <Link href={`/creators/${id}`} className="text-muted hover:text-foreground transition-colors text-sm">
+          ← {creator?.display_name}
         </Link>
         <span className="text-border">/</span>
         <h1 className="text-xl font-bold text-foreground">Edit Profile</h1>
@@ -172,7 +171,7 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
                   className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold border border-border"
                   style={{ background: '#47DFD3', color: '#0a0a0a' }}
                 >
-                  {(displayName || summon?.display_name || '?').charAt(0).toUpperCase()}
+                  {(displayName || creator?.display_name || '?').charAt(0).toUpperCase()}
                 </div>
               )}
             </div>
@@ -332,7 +331,7 @@ export default function EditSummonPage({ params }: { params: Promise<{ id: strin
             {saving ? 'Saving…' : 'Save Changes'}
           </button>
           <Link
-            href={`/summons/${id}`}
+            href={`/creators/${id}`}
             className="text-sm text-muted hover:text-foreground transition-colors"
           >
             Cancel

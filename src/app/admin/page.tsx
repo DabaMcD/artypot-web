@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth-context';
 
 const ADMIN_SECTIONS = [
   {
-    title: 'Summon Claims',
+    title: 'Creator Claims',
     description: 'Review and approve creator identity claims.',
     href: '/admin/claims',
     color: 'border-creator/30 hover:border-creator/60',
@@ -49,9 +49,9 @@ const ADMIN_SECTIONS = [
     badge: 'brand',
   },
   {
-    title: 'Summons',
-    description: 'Browse summon profiles with claimed and W-9 status.',
-    href: '/admin/summons',
+    title: 'Creators',
+    description: 'Browse creator profiles with claimed and W-9 status.',
+    href: '/admin/creators',
     color: 'border-creator/30 hover:border-creator/60',
     badge: 'creator',
   },

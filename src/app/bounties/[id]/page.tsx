@@ -91,7 +91,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const [completionError, setCompletionError] = useState<{ message: string; requiresW9?: boolean } | null>(null);
   const [completionLoading, setCompletionLoading] = useState(false);
 
-  // Summon remove dialog
+  // Creator remove dialog
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   const [removeReason, setRemoveReason]         = useState('');
   const [removeLoading, setRemoveLoading]       = useState(false);
@@ -253,11 +253,11 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
     }
   };
 
-  const handleSummonRemove = async () => {
+  const handleCreatorRemove = async () => {
     if (!removeReason.trim()) return;
     setRemoveLoading(true);
     try {
-      await potsApi.summonRemove(Number(id), removeReason.trim());
+      await potsApi.creatorRemove(Number(id), removeReason.trim());
       toast('Bounty removed.', 'success');
       router.push('/bounties');
     } catch (err: unknown) {
@@ -339,11 +339,11 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const isOwner = user && pot.initiator_user_id === user.id;
   const isCreator =
     user &&
-    pot.summon?.user_id === user.id &&
-    (user.role === 'summoned' || user.role === 'council');
+    pot.creator?.user_id === user.id &&
+    (user.role === 'creator' || user.role === 'council');
   const canVote = user && pot.status === 'open';
   const canSubmitCompletion = isCreator && pot.status === 'open';
-  const canSummonRemove = isCreator && pot.status === 'open';
+  const canCreatorRemove = isCreator && pot.status === 'open';
 
   // ── Votive panel content ────────────────────────────────────────────────────
   const renderVotivePanel = () => {
@@ -504,7 +504,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             <div className="text-2xl mb-3">⚠️</div>
             <h3 className="font-bold text-foreground text-lg mb-3">Hold on, {user?.name.split(' ')[0]}.</h3>
             <p className="text-muted text-sm leading-relaxed mb-2">
-              <span className="text-foreground font-semibold">{pot?.summon?.display_name ?? 'The creator'}</span> has
+              <span className="text-foreground font-semibold">{pot?.creator?.display_name ?? 'The creator'}</span> has
               already submitted their work. The Council is reviewing it.
             </p>
             <p className="text-muted text-sm leading-relaxed mb-1">
@@ -544,7 +544,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         </div>
       )}
 
-      {/* Summon remove dialog */}
+      {/* Creator remove dialog */}
       {showRemoveDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-surface border border-border rounded-xl p-6 max-w-md w-full shadow-2xl">
@@ -563,7 +563,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             <p className="text-xs text-muted mb-5">{removeReason.length} / 1000</p>
             <div className="flex gap-3">
               <button
-                onClick={handleSummonRemove}
+                onClick={handleCreatorRemove}
                 disabled={removeLoading || removeReason.trim().length < 10}
                 className="flex-1 bg-red-600 hover:bg-red-500 text-white font-semibold py-2 text-sm rounded-lg disabled:opacity-50 transition-colors"
               >
@@ -587,7 +587,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           <div className="bg-surface border border-border rounded-xl p-6 max-w-sm w-full shadow-2xl">
             <h3 className="font-bold text-foreground text-lg mb-2">Remove last pledge?</h3>
             <p className="text-muted text-sm leading-relaxed mb-6">
-              You&apos;re the only {pot?.summon?.fan_name ?? 'supporter'} of this bounty. Removing your pledge will leave the bounty empty — it
+              You&apos;re the only {pot?.creator?.fan_name ?? 'supporter'} of this bounty. Removing your pledge will leave the bounty empty — it
               will be cleared automatically.
             </p>
             <div className="flex gap-3">
@@ -725,14 +725,14 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         )}
 
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
-          {pot.summon && (
+          {pot.creator && (
             <div>
               <span className="text-muted">For </span>
               <Link
-                href={`/summons/${pot.summon.id}`}
+                href={`/creators/${pot.creator.id}`}
                 className="text-creator hover:underline font-medium"
               >
-                {pot.summon.display_name}
+                {pot.creator.display_name}
               </Link>
             </div>
           )}
@@ -752,7 +752,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           <div className="flex items-center justify-between gap-2 mt-0.5">
             <div>
               <div className="text-muted text-sm">
-                supported by {activeVotives.length} {activeVotives.length === 1 ? (pot.summon?.fan_name ?? 'supporter') : (pot.summon?.fan_name_plural ?? pot.summon?.fan_name ?? 'supporters')}
+                supported by {activeVotives.length} {activeVotives.length === 1 ? (pot.creator?.fan_name ?? 'supporter') : (pot.creator?.fan_name_plural ?? pot.creator?.fan_name ?? 'supporters')}
               </div>
               {(pot.status === 'completed' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (
                 <div className="text-xs text-muted mt-0.5">
@@ -822,12 +822,12 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
 
           {/* Closed-pot notice — shown for every non-open status */}
           {pot.status !== 'open' && (() => {
-            const summonName = pot.summon?.display_name ?? 'The creator';
+            const creatorName = pot.creator?.display_name ?? 'The creator';
             const notices: Record<string, { icon: string; heading: string; body: string; style: string }> = {
               pending: {
                 icon: '📋',
                 heading: 'Awaiting Council review',
-                body: `${summonName} has submitted this bounty for review. Pledges are locked while the Council considers the completion.`,
+                body: `${creatorName} has submitted this bounty for review. Pledges are locked while the Council considers the completion.`,
                 style: 'border-blue-800/40 bg-blue-900/10',
               },
               completed: {
@@ -839,7 +839,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               paid_out: {
                 icon: '💸',
                 heading: 'Paid out',
-                body: `This bounty has been paid out. ${summonName} has been compensated for their work.`,
+                body: `This bounty has been paid out. ${creatorName} has been compensated for their work.`,
                 style: 'border-council/30 bg-council/5',
               },
               revoked: {
@@ -874,7 +874,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           )}
 
           {/* Creator: remove bounty */}
-          {canSummonRemove && !showCompletion && (
+          {canCreatorRemove && !showCompletion && (
             <button
               onClick={() => setShowRemoveDialog(true)}
               className="w-full border border-red-800/40 text-red-400 text-sm font-medium py-2 rounded-xl hover:bg-red-900/20 transition-colors"
@@ -882,6 +882,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               Remove this bounty
             </button>
           )}
+
 
           {showCompletion && (
             <div className="bg-surface border border-creator/30 rounded-xl p-5">
@@ -914,7 +915,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                     {completionError.requiresW9 && (
                       <p>
                         <Link href="/sanctum" className="underline underline-offset-2 hover:text-red-300 font-medium">
-                          Go to your Summon Sanctum →
+                          Go to your Creator Sanctum →
                         </Link>
                       </p>
                     )}
@@ -1028,7 +1029,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             {/* Votives panel */}
             <div className={`p-5 ${activeTab !== 'votives' ? 'hidden' : ''}`}>
               {activeVotives.length === 0 ? (
-                <p className="text-muted text-sm">No {pot.summon?.fan_name_plural ?? pot.summon?.fan_name ?? 'supporters'} yet. Be the first!</p>
+                <p className="text-muted text-sm">No {pot.creator?.fan_name_plural ?? pot.creator?.fan_name ?? 'supporters'} yet. Be the first!</p>
               ) : (
                 <div className="space-y-2">
                   {activeVotives.map((votive) => {

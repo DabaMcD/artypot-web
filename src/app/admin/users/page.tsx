@@ -11,9 +11,9 @@ import type { AdminUser, UserRole } from '@/lib/types';
 
 function RoleBadge({ role }: { role: UserRole }) {
   const styles: Record<UserRole, string> = {
-    mob:      'bg-zinc-800 border-zinc-700 text-zinc-300',
-    summoned: 'bg-creator/10 border-creator/30 text-creator',
-    council:  'bg-council/10 border-council/30 text-council',
+    mob:     'bg-zinc-800 border-zinc-700 text-zinc-300',
+    creator: 'bg-creator/10 border-creator/30 text-creator',
+    council: 'bg-council/10 border-council/30 text-council',
   };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${styles[role]}`}>
@@ -42,10 +42,10 @@ function UserDrawer({ user, onClose }: { user: AdminUser; onClose: () => void })
         {/* Meta badges */}
         <div className="flex flex-wrap gap-2 mb-5">
           <RoleBadge role={user.role} />
-          {/* Council (or mob) user who also owns a summon */}
-          {user.summon && user.role !== 'summoned' && (
+          {/* Council (or mob) user who also owns a creator profile */}
+          {user.creator && user.role !== 'creator' && (
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-creator/10 border-creator/30 text-creator">
-              summoned
+              creator
             </span>
           )}
           {user.deleted_at && (
@@ -83,25 +83,25 @@ function UserDrawer({ user, onClose }: { user: AdminUser; onClose: () => void })
           </div>
         </dl>
 
-        {/* Summon — name + claimed status + link only */}
-        {user.summon ? (
+        {/* Creator profile — name + claimed status + link only */}
+        {user.creator ? (
           <div className="border border-border rounded-xl p-4 bg-surface-2">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-foreground">Summon</h3>
+              <h3 className="text-sm font-semibold text-foreground">Creator</h3>
               <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${
-                user.summon.claimed
+                user.creator.claimed
                   ? 'bg-green-900/30 border-green-700/40 text-green-300'
                   : 'bg-zinc-800 border-zinc-700 text-zinc-400'
               }`}>
-                {user.summon.claimed ? 'claimed' : 'unclaimed'}
+                {user.creator.claimed ? 'claimed' : 'unclaimed'}
               </span>
             </div>
-            <Link href={`/summons/${user.summon.id}`} className="font-medium text-creator hover:underline text-sm">
-              {user.summon.display_name} →
+            <Link href={`/creators/${user.creator.id}`} className="font-medium text-creator hover:underline text-sm">
+              {user.creator.display_name} →
             </Link>
           </div>
         ) : (
-          <p className="text-sm text-muted italic">No summon profile.</p>
+          <p className="text-sm text-muted italic">No creator profile.</p>
         )}
       </div>
     </div>
@@ -110,7 +110,7 @@ function UserDrawer({ user, onClose }: { user: AdminUser; onClose: () => void })
 
 // ── Main page ────────────────────────────────────────────────────────────────
 
-type UserFilter = 'all' | 'summoned' | 'council' | 'mob';
+type UserFilter = 'all' | 'creator' | 'council' | 'mob';
 
 export default function AdminUsersPage() {
   const { user, loading: authLoading } = useAuth();
@@ -175,14 +175,14 @@ export default function AdminUsersPage() {
 
   if (authLoading || !user || user.role !== 'council') return null;
 
-  // Note: "Summoned" uses whereHas('summon') on the backend, not role=summoned.
-  // This means council members who also own a summon appear here too — the tabs
+  // Note: "Creator" uses whereHas('creator') on the backend, not role=creator.
+  // This means council members who also own a creator profile appear here too — the tabs
   // are independent views, not mutually exclusive role buckets.
   const FILTER_TABS: { label: string; value: UserFilter }[] = [
-    { label: 'All',      value: 'all' },
-    { label: 'Summoned', value: 'summoned' },
-    { label: 'Council',  value: 'council' },
-    { label: 'Mob',      value: 'mob' },
+    { label: 'All',     value: 'all' },
+    { label: 'Creator', value: 'creator' },
+    { label: 'Council', value: 'council' },
+    { label: 'Mob',     value: 'mob' },
   ];
 
   return (
@@ -253,10 +253,10 @@ export default function AdminUsersPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-medium text-foreground text-sm truncate">{u.name}</span>
                     <RoleBadge role={u.role} />
-                    {/* Show a summoned badge when this council/mob user also owns a summon */}
-                    {u.summon && u.role !== 'summoned' && (
+                    {/* Show a creator badge when this council/mob user also owns a creator profile */}
+                    {u.creator && u.role !== 'creator' && (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-creator/10 border-creator/30 text-creator">
-                        summoned
+                        creator
                       </span>
                     )}
                     {u.deleted_at && (
@@ -267,8 +267,8 @@ export default function AdminUsersPage() {
                 </div>
 
                 <div className="shrink-0 text-right hidden sm:block">
-                  {u.summon && (
-                    <p className="text-xs text-creator">{u.summon.display_name}</p>
+                  {u.creator && (
+                    <p className="text-xs text-creator">{u.creator.display_name}</p>
                   )}
                   <p className="text-xs text-muted">{new Date(u.created_at).toLocaleDateString()}</p>
                 </div>

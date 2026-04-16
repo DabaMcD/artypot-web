@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { summons as summonsApi } from '@/lib/api';
-import type { Summon, PaginatedResponse } from '@/lib/types';
-import SummonCard from '@/components/SummonCard';
+import { creators as creatorsApi } from '@/lib/api';
+import type { Creator, PaginatedResponse } from '@/lib/types';
+import CreatorCard from '@/components/CreatorCard';
 
 type StatusFilter = 'all' | 'answered' | 'unanswered';
-type SortOption = 'newest' | 'most_summoned' | 'most_completed';
+type SortOption = 'newest' | 'most_pledged' | 'most_completed';
 
 const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: 'all',        label: 'All' },
@@ -16,12 +16,12 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'newest',         label: 'Newly Added' },
-  { value: 'most_summoned',  label: 'Most Summoned' },
+  { value: 'most_pledged',   label: 'Most Bounties' },
   { value: 'most_completed', label: 'Most Completed' },
 ];
 
-export default function SummonedOnesPage() {
-  const [data, setData] = useState<PaginatedResponse<Summon> | null>(null);
+export default function CreatorsPage() {
+  const [data, setData] = useState<PaginatedResponse<Creator> | null>(null);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -43,7 +43,7 @@ export default function SummonedOnesPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await summonsApi.list({
+      const res = await creatorsApi.list({
         q: debouncedQuery || undefined,
         status: statusFilter === 'all' ? undefined : statusFilter,
         sort,
@@ -74,7 +74,7 @@ export default function SummonedOnesPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-1">The Summoned Ones</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-1">Creators</h1>
         <p className="text-muted">Artists, musicians, and makers whose communities are calling for their best work.</p>
       </div>
 
@@ -141,8 +141,8 @@ export default function SummonedOnesPage() {
           {debouncedQuery
             ? `No results for "${debouncedQuery}".`
             : statusFilter !== 'all'
-              ? `No ${statusFilter} summons yet.`
-              : 'No summons yet.'}
+              ? `No ${statusFilter} creators yet.`
+              : 'No creators yet.'}
         </div>
       ) : (
         <>
@@ -152,8 +152,8 @@ export default function SummonedOnesPage() {
           </p>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.data.map((summon) => (
-              <SummonCard key={summon.id} summon={summon} />
+            {data.data.map((creator) => (
+              <CreatorCard key={creator.id} creator={creator} />
             ))}
           </div>
 

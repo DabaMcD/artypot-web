@@ -2,16 +2,16 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { summons as summonsApi } from '@/lib/api';
-import type { Summon } from '@/lib/types';
+import { creators as creatorsApi } from '@/lib/api';
+import type { Creator } from '@/lib/types';
 
-export function SummonAvatar({ summon, size = 'sm' }: { summon: Summon; size?: 'sm' | 'md' }) {
+export function CreatorAvatar({ creator, size = 'sm' }: { creator: Creator; size?: 'sm' | 'md' }) {
   const dim = size === 'md' ? 'w-7 h-7 text-sm' : 'w-5 h-5 text-xs';
-  if (summon.profile_picture) {
+  if (creator.profile_picture) {
     return (
       <img
-        src={summon.profile_picture}
-        alt={summon.display_name}
+        src={creator.profile_picture}
+        alt={creator.display_name}
         className={`${dim} rounded-full object-cover shrink-0`}
       />
     );
@@ -21,17 +21,17 @@ export function SummonAvatar({ summon, size = 'sm' }: { summon: Summon; size?: '
       className={`${dim} rounded-full flex items-center justify-center font-bold shrink-0`}
       style={{ background: '#47DFD3', color: '#0a0a0a' }}
     >
-      {summon.display_name.charAt(0).toUpperCase()}
+      {creator.display_name.charAt(0).toUpperCase()}
     </span>
   );
 }
 
-interface SummonSearchWidgetProps {
-  /** Controlled mode — parent owns the selected summon */
-  selectedSummon?: Summon | null;
-  onSelect?: (summon: Summon) => void;
+interface CreatorSearchWidgetProps {
+  /** Controlled mode — parent owns the selected creator */
+  selectedCreator?: Creator | null;
+  onSelect?: (creator: Creator) => void;
   onClear?: () => void;
-  /** Navigate-on-select mode — no controlled selected state; just go to /summons/:id */
+  /** Navigate-on-select mode — no controlled selected state; just go to /creators/:id */
   navigateOnSelect?: boolean;
   /** If provided, renders a "+ create" row at the bottom of the dropdown */
   onCreateNew?: (prefill?: string) => void;
@@ -40,25 +40,25 @@ interface SummonSearchWidgetProps {
   inputClassName?: string;
 }
 
-export default function SummonSearchWidget({
-  selectedSummon,
+export default function CreatorSearchWidget({
+  selectedCreator,
   onSelect,
   onClear,
   navigateOnSelect = false,
   onCreateNew,
   placeholder = 'Search for a creator…',
   inputClassName,
-}: SummonSearchWidgetProps) {
+}: CreatorSearchWidgetProps) {
   const router = useRouter();
   const [search, setSearch] = useState('');
-  const [results, setResults] = useState<Summon[]>([]);
+  const [results, setResults] = useState<Creator[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [focused, setFocused] = useState(false);
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Debounced search
   useEffect(() => {
-    if (!search || selectedSummon) {
+    if (!search || selectedCreator) {
       setResults([]);
       setSearchLoading(false);
       return;
@@ -66,7 +66,7 @@ export default function SummonSearchWidget({
     setSearchLoading(true);
     const t = setTimeout(async () => {
       try {
-        const res = await summonsApi.list({ q: search });
+        const res = await creatorsApi.list({ q: search });
         setResults(res.data.slice(0, 5));
       } catch {
         // ignore
@@ -75,11 +75,11 @@ export default function SummonSearchWidget({
       }
     }, 350);
     return () => clearTimeout(t);
-  }, [search, selectedSummon]);
+  }, [search, selectedCreator]);
 
-  const handleSelect = (s: Summon) => {
+  const handleSelect = (s: Creator) => {
     if (navigateOnSelect) {
-      router.push(`/summons/${s.id}`);
+      router.push(`/creators/${s.id}`);
       setSearch('');
       setResults([]);
       setFocused(false);
@@ -92,25 +92,25 @@ export default function SummonSearchWidget({
   };
 
   const showDropdown =
-    !selectedSummon &&
+    !selectedCreator &&
     focused &&
     (results.length > 0 || search.trim().length > 0 || !!onCreateNew);
 
   // ── Selected state (controlled mode only) ─────────────────────────────────
-  if (selectedSummon && !navigateOnSelect) {
+  if (selectedCreator && !navigateOnSelect) {
     return (
       <div className="flex items-center justify-between bg-surface-2 border border-creator/30 rounded-lg px-3 py-2.5">
         <div className="flex items-center gap-2">
-          <SummonAvatar summon={selectedSummon} />
+          <CreatorAvatar creator={selectedCreator} />
           <a
-            href={`/summons/${selectedSummon.id}`}
+            href={`/creators/${selectedCreator.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-creator font-medium hover:underline"
           >
-            {selectedSummon.display_name}
+            {selectedCreator.display_name}
           </a>
-          {!selectedSummon.claimed_at && (
+          {!selectedCreator.claimed_at && (
             <span className="text-xs text-muted">(unclaimed)</span>
           )}
         </div>
@@ -170,14 +170,14 @@ export default function SummonSearchWidget({
                 onClick={() => handleSelect(s)}
                 className="flex-1 text-left px-4 py-2.5 text-sm flex items-center gap-2 min-w-0"
               >
-                <SummonAvatar summon={s} />
+                <CreatorAvatar creator={s} />
                 <span className="text-foreground truncate">{s.display_name}</span>
                 {!s.claimed_at && (
                   <span className="text-muted text-xs shrink-0">(unclaimed)</span>
                 )}
               </button>
               <a
-                href={`/summons/${s.id}`}
+                href={`/creators/${s.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden lg:block shrink-0 pr-3 text-xs text-muted hover:text-creator transition-colors opacity-0 group-hover:opacity-100"

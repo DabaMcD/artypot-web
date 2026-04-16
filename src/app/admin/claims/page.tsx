@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { admin as adminApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
-import type { AdminSummonClaim, SummonClaimStatus } from '@/lib/types';
+import type { AdminCreatorClaim, CreatorClaimStatus } from '@/lib/types';
 
 type StatusFilter = 'pending' | 'approved' | 'rejected' | 'all';
 
@@ -16,7 +16,7 @@ function ReviewModal({
   onClose,
   onDone,
 }: {
-  claim: AdminSummonClaim;
+  claim: AdminCreatorClaim;
   onClose: () => void;
   onDone: () => void;
 }) {
@@ -49,7 +49,7 @@ function ReviewModal({
         <h2 className="text-lg font-bold text-foreground mb-1">Review Claim</h2>
         <p className="text-sm text-muted mb-4">
           <span className="text-foreground font-medium">{claim.user.name}</span> ({claim.user.email}) claims{' '}
-          <span className="text-creator font-medium">{claim.summon.display_name}</span>
+          <span className="text-creator font-medium">{claim.creator.display_name}</span>
         </p>
 
         {/* Contact info */}
@@ -125,8 +125,8 @@ function ReviewModal({
 }
 
 // ── Status badge ────────────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: SummonClaimStatus }) {
-  const styles: Record<SummonClaimStatus, string> = {
+function StatusBadge({ status }: { status: CreatorClaimStatus }) {
+  const styles: Record<CreatorClaimStatus, string> = {
     pending:  'bg-amber-900/30 border-amber-700/40 text-amber-300',
     approved: 'bg-green-900/30 border-green-700/40 text-green-300',
     rejected: 'bg-red-900/30 border-red-700/40 text-red-300',
@@ -144,12 +144,12 @@ export default function AdminClaimsPage() {
   const router = useRouter();
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('pending');
-  const [claims, setClaims] = useState<AdminSummonClaim[]>([]);
+  const [claims, setClaims] = useState<AdminCreatorClaim[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [reviewing, setReviewing] = useState<AdminSummonClaim | null>(null);
+  const [reviewing, setReviewing] = useState<AdminCreatorClaim | null>(null);
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'council')) {
@@ -208,7 +208,7 @@ export default function AdminClaimsPage() {
             ← Admin
           </Link>
           <span className="text-border">/</span>
-          <h1 className="text-xl font-bold text-foreground">Summon Claims</h1>
+          <h1 className="text-xl font-bold text-foreground">Creator Claims</h1>
           <span className="ml-auto text-sm text-muted">{total} total</span>
         </div>
 
@@ -256,8 +256,8 @@ export default function AdminClaimsPage() {
                   </div>
                   <p className="text-sm text-muted mb-1">
                     Claims:{' '}
-                    <Link href={`/summons/${claim.summon.id}`} className="text-creator hover:underline font-medium">
-                      {claim.summon.display_name}
+                    <Link href={`/creators/${claim.creator.id}`} className="text-creator hover:underline font-medium">
+                      {claim.creator.display_name}
                     </Link>
                   </p>
                   <p className="text-xs text-muted line-clamp-1">

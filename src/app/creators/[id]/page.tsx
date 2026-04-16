@@ -3,14 +3,14 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { summons as summonsApi, pots as potsApi, summonNames as summonNamesApi } from '@/lib/api';
+import { creators as creatorsApi, pots as potsApi, creatorNames as creatorNamesApi } from '@/lib/api';
 import { countryFlag, countryName } from '@/lib/countries';
 import { useAuth } from '@/lib/auth-context';
-import type { Summon, PaginatedResponse, Pot, SummonName } from '@/lib/types';
+import type { Creator, PaginatedResponse, Pot, CreatorName } from '@/lib/types';
 import PotCard from '@/components/PotCard';
 import ShareButton from '@/components/ShareButton';
 
-const SOCIAL_LINKS: { key: keyof Summon; label: string; prefix: string }[] = [
+const SOCIAL_LINKS: { key: keyof Creator; label: string; prefix: string }[] = [
   { key: 'youtube_handle',    label: 'YouTube',    prefix: 'https://youtube.com/@' },
   { key: 'twitter_handle',    label: 'X / Twitter', prefix: 'https://x.com/' },
   { key: 'tiktok_handle',     label: 'TikTok',     prefix: 'https://tiktok.com/@' },
@@ -27,17 +27,17 @@ function fmt(n: number | null | undefined) {
 
 // ── Herald gate modal ─────────────────────────────────────────────────────
 function HeraldGateModal({
-  summon,
+  creator,
   userName,
   onClose,
 }: {
-  summon: Summon;
+  creator: Creator;
   userName: string;
   onClose: () => void;
 }) {
-  const heraldName    = summon.herald?.name ?? 'The current Herald';
-  const heraldTotal   = Number(summon.herald_total_votive ?? 0);
-  const userTotal     = Number(summon.user_aged_votive_total ?? 0);
+  const heraldName    = creator.herald?.name ?? 'The current Herald';
+  const heraldTotal   = Number(creator.herald_total_votive ?? 0);
+  const userTotal     = Number(creator.user_aged_votive_total ?? 0);
   const deficit       = Math.max(0, heraldTotal - userTotal);
 
   return (
@@ -50,7 +50,7 @@ function HeraldGateModal({
         <div className="flex items-start justify-between mb-4">
           <div>
             <h2 className="text-lg font-bold text-foreground">Herald Protected</h2>
-            <p className="text-xs text-muted mt-0.5">{summon.display_name}</p>
+            <p className="text-xs text-muted mt-0.5">{creator.display_name}</p>
           </div>
           <button
             onClick={onClose}
@@ -62,8 +62,8 @@ function HeraldGateModal({
 
         {/* Explanation */}
         <p className="text-sm text-muted leading-relaxed mb-5">
-          {summon.herald?.id ? (
-            <Link href={`/users/${summon.herald.id}`} onClick={onClose} className="text-brand font-semibold hover:underline">
+          {creator.herald?.id ? (
+            <Link href={`/users/${creator.herald.id}`} onClick={onClose} className="text-brand font-semibold hover:underline">
               {heraldName}
             </Link>
           ) : (
@@ -79,8 +79,8 @@ function HeraldGateModal({
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-creator uppercase tracking-wider">Herald</span>
-              {summon.herald?.id ? (
-                <Link href={`/users/${summon.herald.id}`} onClick={onClose} className="text-sm font-medium text-foreground hover:underline">
+              {creator.herald?.id ? (
+                <Link href={`/users/${creator.herald.id}`} onClick={onClose} className="text-sm font-medium text-foreground hover:underline">
                   {heraldName}
                 </Link>
               ) : (
@@ -111,11 +111,11 @@ function HeraldGateModal({
 
         <p className="text-xs text-muted/60 mb-5">
           * {heraldName}&apos;s qualifying total is recorded at the time of their last edit to{' '}
-          {summon.display_name}&apos;s profile.
+          {creator.display_name}&apos;s profile.
         </p>
 
         <Link
-          href={`/bounties?summon_id=${summon.id}`}
+          href={`/bounties?creator_id=${creator.id}`}
           onClick={onClose}
           className="block w-full text-center bg-brand text-black font-semibold text-sm py-2.5 rounded-lg hover:opacity-90 transition-opacity"
         >
@@ -128,11 +128,11 @@ function HeraldGateModal({
 
 // ── Claim confirmation modal ───────────────────────────────────────────────
 function ClaimModal({
-  summon,
+  creator,
   onClose,
   onSuccess,
 }: {
-  summon: Summon;
+  creator: Creator;
   onClose: () => void;
   onSuccess: () => void;
 }) {
@@ -149,7 +149,7 @@ function ClaimModal({
     setSubmitting(true);
     setError('');
     try {
-      await summonsApi.claim(summon.id, contactInfo.trim());
+      await creatorsApi.claim(creator.id, contactInfo.trim());
       onSuccess();
     } catch (err: unknown) {
       const e = err as { message?: string };
@@ -168,7 +168,7 @@ function ClaimModal({
         <div className="flex items-start justify-between mb-4">
           <div>
             <h2 className="text-lg font-bold text-foreground">Claim this Profile</h2>
-            <p className="text-xs text-muted mt-0.5">{summon.display_name}</p>
+            <p className="text-xs text-muted mt-0.5">{creator.display_name}</p>
           </div>
           <button
             onClick={onClose}
@@ -224,14 +224,14 @@ function ClaimModal({
 }
 
 // ── Main page ─────────────────────────────────────────────────────────────
-export default function SummonProfilePage({ params }: { params: Promise<{ id: string }> }) {
+export default function CreatorProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const { user } = useAuth();
 
-  const [summon, setSummon] = useState<Summon | null>(null);
+  const [creator, setCreator] = useState<Creator | null>(null);
   const [potsData, setPotsData] = useState<PaginatedResponse<Pot> | null>(null);
-  const [names, setNames] = useState<SummonName[]>([]);
+  const [names, setNames] = useState<CreatorName[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showHeraldModal, setShowHeraldModal] = useState(false);
@@ -245,17 +245,17 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
   const [addingAlias, setAddingAlias] = useState(false);
   const [aliasError, setAliasError] = useState('');
 
-  const loadNames = (summonId: number) =>
-    summonNamesApi.list(summonId).then((r) => setNames(r.data));
+  const loadNames = (creatorId: number) =>
+    creatorNamesApi.list(creatorId).then((r) => setNames(r.data));
 
   useEffect(() => {
     Promise.all([
-      summonsApi.get(Number(id)),
-      potsApi.list({ summon_id: Number(id) }),
-      summonNamesApi.list(Number(id)),
+      creatorsApi.get(Number(id)),
+      potsApi.list({ creator_id: Number(id) }),
+      creatorNamesApi.list(Number(id)),
     ])
-      .then(([summonRes, potsRes, namesRes]) => {
-        setSummon(summonRes.data);
+      .then(([creatorRes, potsRes, namesRes]) => {
+        setCreator(creatorRes.data);
         setPotsData(potsRes);
         setNames(namesRes.data);
       })
@@ -264,9 +264,9 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
   }, [id]);
 
   const handleEditClick = () => {
-    if (!summon) return;
-    if (summon.can_edit) {
-      router.push(`/summons/${id}/edit`);
+    if (!creator) return;
+    if (creator.can_edit) {
+      router.push(`/creators/${id}/edit`);
     } else {
       setShowHeraldModal(true);
     }
@@ -275,13 +275,13 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
 
   const handleAddAlias = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!summon || !newAlias.trim()) return;
+    if (!creator || !newAlias.trim()) return;
     setAddingAlias(true);
     setAliasError('');
     try {
-      await summonNamesApi.create(summon.id, newAlias.trim());
+      await creatorNamesApi.create(creator.id, newAlias.trim());
       setNewAlias('');
-      await loadNames(summon.id);
+      await loadNames(creator.id);
     } catch (err: unknown) {
       const e = err as { message?: string };
       setAliasError(e.message ?? 'Failed to add alias.');
@@ -291,10 +291,10 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
   };
 
   const handleDeleteAlias = async (nameId: number) => {
-    if (!summon) return;
+    if (!creator) return;
     try {
-      await summonNamesApi.delete(summon.id, nameId);
-      await loadNames(summon.id);
+      await creatorNamesApi.delete(creator.id, nameId);
+      await loadNames(creator.id);
     } catch (err: unknown) {
       const e = err as { message?: string };
       alert(e.message ?? 'Failed to delete alias.');
@@ -314,7 +314,7 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
     );
   }
 
-  if (error || !summon) {
+  if (error || !creator) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-10 text-red-400">
         {error || 'Creator not found.'}
@@ -322,25 +322,25 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
     );
   }
 
-  const isClaimed = !!summon.claimed_at;
-  const canClaim  = user && !isClaimed && user.role !== 'council' && !user.summon;
-  const isOwner   = user && summon.user_id === user.id;
-  const isHerald  = user && summon.herald_user_id === user.id;
+  const isClaimed = !!creator.claimed_at;
+  const canClaim  = user && !isClaimed && user.role !== 'council' && !user.creator;
+  const isOwner   = user && creator.user_id === user.id;
+  const isHerald  = user && creator.herald_user_id === user.id;
   const canDeleteAlias = () => !!(user && (isOwner || isHerald || user.role === 'council'));
-  const socialLinks = SOCIAL_LINKS.filter(({ key }) => summon[key]);
+  const socialLinks = SOCIAL_LINKS.filter(({ key }) => creator[key]);
 
   return (
     <>
       {showHeraldModal && user && (
         <HeraldGateModal
-          summon={summon}
+          creator={creator}
           userName={user.name}
           onClose={() => setShowHeraldModal(false)}
         />
       )}
-      {showClaimModal && summon && (
+      {showClaimModal && creator && (
         <ClaimModal
-          summon={summon}
+          creator={creator}
           onClose={() => setShowClaimModal(false)}
           onSuccess={() => { setShowClaimModal(false); setClaimSuccess(true); }}
         />
@@ -354,10 +354,10 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
             <div className="bg-surface border border-border rounded-xl p-6 mb-8">
               <div className="flex items-start gap-5">
                 {/* Avatar */}
-                {summon.profile_picture ? (
+                {creator.profile_picture ? (
                   <img
-                    src={summon.profile_picture}
-                    alt={summon.display_name}
+                    src={creator.profile_picture}
+                    alt={creator.display_name}
                     className="w-16 h-16 rounded-full object-cover shrink-0"
                   />
                 ) : (
@@ -365,17 +365,17 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
                     className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold shrink-0"
                     style={{ background: '#47DFD3', color: '#0a0a0a' }}
                   >
-                    {summon.display_name.charAt(0).toUpperCase()}
+                    {creator.display_name.charAt(0).toUpperCase()}
                   </div>
                 )}
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 flex-wrap mb-1">
-                    <h1 className="text-2xl font-bold text-foreground">{summon.display_name}</h1>
+                    <h1 className="text-2xl font-bold text-foreground">{creator.display_name}</h1>
                     <ShareButton
-                      path={`/summons/${summon.id}`}
-                      title={summon.display_name}
-                      text={`Support ${summon.display_name} on artypot!`}
+                      path={`/creators/${creator.id}`}
+                      title={creator.display_name}
+                      text={`Support ${creator.display_name} on artypot!`}
                       size="sm"
                     />
                     {isClaimed ? (
@@ -389,28 +389,28 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
                     )}
                   </div>
 
-                  {summon.fan_name && (
+                  {creator.fan_name && (
                     <p className="text-sm text-muted mb-2">
                       Fans called:{' '}
-                      <span className="text-foreground">{summon.fan_name_plural ?? summon.fan_name}</span>
+                      <span className="text-foreground">{creator.fan_name_plural ?? creator.fan_name}</span>
                     </p>
                   )}
 
-                  {summon.country_code && (
+                  {creator.country_code && (
                     <p className="text-sm text-muted mb-2">
-                      {countryFlag(summon.country_code)}{' '}
-                      <span className="text-foreground">{countryName(summon.country_code)}</span>
+                      {countryFlag(creator.country_code)}{' '}
+                      <span className="text-foreground">{countryName(creator.country_code)}</span>
                     </p>
                   )}
 
-                  {summon.description && (
-                    <p className="text-muted text-sm leading-relaxed mt-2">{summon.description}</p>
+                  {creator.description && (
+                    <p className="text-muted text-sm leading-relaxed mt-2">{creator.description}</p>
                   )}
                 </div>
 
                 {/* Action buttons */}
                 <div className="shrink-0 flex flex-col gap-2 items-end">
-                  {/* Edit — always shown to logged-in users on unclaimed summons */}
+                  {/* Edit — always shown to logged-in users on unclaimed creators */}
                   {user && !isClaimed && (
                     <button
                       onClick={handleEditClick}
@@ -419,10 +419,10 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
                       Edit Profile
                     </button>
                   )}
-                  {/* Edit — claimed summons, owner only */}
-                  {user && isClaimed && summon.can_edit && (
+                  {/* Edit — claimed creators, owner only */}
+                  {user && isClaimed && creator.can_edit && (
                     <Link
-                      href={`/summons/${id}/edit`}
+                      href={`/creators/${id}/edit`}
                       className="bg-creator text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                     >
                       Edit Profile
@@ -445,30 +445,30 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
 
               {/* Stats */}
               <div className="flex flex-wrap gap-6 mt-5 pt-5 border-t border-border text-sm">
-                {summon.projects_open != null && (
+                {creator.projects_open != null && (
                   <div>
-                    <div className="text-foreground font-semibold text-lg">{summon.projects_open}</div>
+                    <div className="text-foreground font-semibold text-lg">{creator.projects_open}</div>
                     <div className="text-muted text-xs">Open bounties</div>
                   </div>
                 )}
-                {summon.projects_finished != null && (
+                {creator.projects_finished != null && (
                   <div>
-                    <div className="text-foreground font-semibold text-lg">{summon.projects_finished}</div>
+                    <div className="text-foreground font-semibold text-lg">{creator.projects_finished}</div>
                     <div className="text-muted text-xs">Completed</div>
                   </div>
                 )}
-                {summon.amount_earned != null && (
+                {creator.amount_earned != null && (
                   <div>
                     <div className="text-brand font-semibold text-lg">
-                      ${Number(summon.amount_earned).toLocaleString()}
+                      ${Number(creator.amount_earned).toLocaleString()}
                     </div>
                     <div className="text-muted text-xs">Total earned</div>
                   </div>
                 )}
-                {summon.total_votive_sum != null && (
+                {creator.total_votive_sum != null && (
                   <div>
                     <div className="text-brand font-semibold text-lg">
-                      ${Number(summon.total_votive_sum).toLocaleString()}
+                      ${Number(creator.total_votive_sum).toLocaleString()}
                     </div>
                     <div className="text-muted text-xs">Active pledges</div>
                   </div>
@@ -479,7 +479,7 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
               {socialLinks.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-4">
                   {socialLinks.map(({ key, label, prefix }) => {
-                    const handle = summon[key] as string;
+                    const handle = creator[key] as string;
                     return (
                       <a
                         key={key}
@@ -499,10 +499,10 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
             {/* Pots */}
             <div>
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-xl font-bold text-foreground">Bounties for {summon.display_name}</h2>
+                <h2 className="text-xl font-bold text-foreground">Bounties for {creator.display_name}</h2>
                 {user && (
                   <Link
-                    href={`/bounties/new?summon_id=${summon.id}`}
+                    href={`/bounties/new?creator_id=${creator.id}`}
                     className="text-sm bg-brand text-black font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                   >
                     + New Bounty
@@ -514,7 +514,7 @@ export default function SummonProfilePage({ params }: { params: Promise<{ id: st
                 <div className="text-center py-16 text-muted border border-border border-dashed rounded-xl">
                   No bounties yet for this creator.{' '}
                   {user && (
-                    <Link href={`/bounties/new?summon_id=${summon.id}`} className="text-brand hover:underline">
+                    <Link href={`/bounties/new?creator_id=${creator.id}`} className="text-brand hover:underline">
                       Create the first one
                     </Link>
                   )}

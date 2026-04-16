@@ -46,7 +46,7 @@ function UserAvatar({ user, size = 8 }: { user: Comment['user']; size?: number }
   const roleColor =
     user.role === 'council'
       ? 'bg-council/20 text-council'
-      : user.role === 'summoned'
+      : user.role === 'creator'
         ? 'bg-creator/20 text-creator'
         : 'bg-brand/20 text-brand';
   return (

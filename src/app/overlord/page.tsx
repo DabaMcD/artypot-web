@@ -89,7 +89,7 @@ export default function OverlordPage() {
               (<span className="text-[#8A2BE2]">{confirmRevoke.user.email}</span>) from The Council?
             </p>
             <p className="text-xs text-muted mb-6">
-              Their role will downgrade to Summoned or Mob depending on whether they have a claimed summon.
+              Their role will downgrade to Creator or Mob depending on whether they have a claimed creator profile.
             </p>
             <div className="flex gap-3">
               <button

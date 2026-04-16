@@ -17,20 +17,20 @@ export default function GuidePage() {
             <div>
               <h2 className="text-lg font-bold text-brand mb-1">The Bounty</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                A fan-created, crowdfunded request aimed at a specific Summoned One. Fans place pledges into a bounty to signal what they want The Summoned to make. If The Summoned completes the project, the bounty pays out.
+                A fan-created, crowdfunded request aimed at a specific Creator. Fans place pledges into a bounty to signal what they want the Creator to make. If the Creator completes the project, the bounty pays out.
               </p>
             </div>
           </div>
         </div>
 
-        {/* The Summoned */}
+        {/* The Creator */}
         <div className="bg-surface border border-creator/30 rounded-xl p-6">
           <div className="flex items-start gap-4">
             <span className="text-2xl">🔮</span>
             <div>
-              <h2 className="text-lg font-bold text-creator mb-1">The Summoned</h2>
+              <h2 className="text-lg font-bold text-creator mb-1">The Creator</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                A creator or entity who has claimed their Artypot profile. Once summoned, they can receive payouts from bounties dedicated to their work, communicate directly with fans, and confirm or reject completed projects.
+                A creator or entity who has claimed their Artypot profile. Once answered, they can receive payouts from bounties dedicated to their work, communicate directly with fans, and confirm or reject completed projects.
               </p>
             </div>
           </div>
@@ -56,7 +56,7 @@ export default function GuidePage() {
             <div>
               <h2 className="text-lg font-bold text-council mb-1">The Council</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                The moderators and administrators of Artypot. The Council verifies Summon identities, approves completed projects for payout, and keeps the platform running with integrity.
+                The moderators and administrators of Artypot. The Council verifies Creator identities, approves completed projects for payout, and keeps the platform running with integrity.
               </p>
             </div>
           </div>
@@ -69,7 +69,7 @@ export default function GuidePage() {
             <div>
               <h2 className="text-lg font-bold text-brand mb-1">The Herald</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                When a Summon is yet unanswered, it is up to loyal fans to take on the role of Herald — the caretaker of that Summon&apos;s unclaimed presence on Artypot.
+                When a Creator profile is yet unclaimed, it is up to loyal fans to take on the role of Herald — the caretaker of that Creator&apos;s unclaimed presence on Artypot.
               </p>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { cash as cashApi, plaid as plaidApi, withdrawals as withdrawalsApi, w9 as w9Api } from '@/lib/api';
-import type { SummonBalance, FormW9StatusResponse } from '@/lib/types';
+import type { CreatorBalance, FormW9StatusResponse } from '@/lib/types';
 
 declare global {
   interface Window {
@@ -45,7 +45,7 @@ function SanctumPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [balance, setBalance] = useState<SummonBalance | null>(null);
+  const [balance, setBalance] = useState<CreatorBalance | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
 
   // Plaid state — null means "not yet initialised from server data"
@@ -53,7 +53,7 @@ function SanctumPageContent() {
   const [plaidLinking, setPlaidLinking] = useState(false);
 
   // True if the backend says the account is connected OR we just connected it this session.
-  const plaidLinked = plaidLinkedOverride ?? user?.summon?.bank_connected ?? false;
+  const plaidLinked = plaidLinkedOverride ?? user?.creator?.bank_connected ?? false;
 
   // Withdrawal state
   const [withdrawAmount, setWithdrawAmount] = useState('');
@@ -66,14 +66,14 @@ function SanctumPageContent() {
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/login');
-    if (!authLoading && user && !user.summon) router.push('/dashboard');
+    if (!authLoading && user && !user.creator) router.push('/dashboard');
   }, [authLoading, user, router]);
 
   useEffect(() => {
-    if (!user?.summon) return;
+    if (!user?.creator) return;
 
     cashApi
-      .summonBalance()
+      .creatorBalance()
       .then(setBalance)
       .catch(() => {})
 
@@ -148,7 +148,7 @@ function SanctumPageContent() {
       await withdrawalsApi.request(amount);
       toast(`Payout of $${amount.toFixed(2)} initiated! It'll hit your bank in 1–3 business days.`, 'success');
       setWithdrawAmount('');
-      cashApi.summonBalance().then(setBalance).catch(() => {});
+      cashApi.creatorBalance().then(setBalance).catch(() => {});
       w9Api.status().then((res) => setW9Status(res.data)).catch(() => {});
     } catch (err: unknown) {
       const e = err as { message?: string; requires_w9?: boolean };
@@ -180,7 +180,7 @@ function SanctumPageContent() {
     }
   }, [toast]);
 
-  if (authLoading || !user || !user.summon) {
+  if (authLoading || !user || !user.creator) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-10 space-y-4">
         <div className="h-24 bg-surface border border-border rounded-xl animate-pulse" />
@@ -188,7 +188,7 @@ function SanctumPageContent() {
     );
   }
 
-  const summon = user.summon;
+  const creator = user.creator;
   const openVotives         = balance?.open_votives ?? 0;
   const pendingVerification = balance?.pending_verification ?? 0;
   const pendingPayment      = balance?.pending_payment ?? 0;
@@ -202,11 +202,11 @@ function SanctumPageContent() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <p className="text-xs text-creator/70 uppercase tracking-widest font-medium mb-1">Summon Sanctum</p>
-          <h1 className="text-2xl font-bold text-foreground">{summon.display_name}</h1>
+          <p className="text-xs text-creator/70 uppercase tracking-widest font-medium mb-1">Creator Sanctum</p>
+          <h1 className="text-2xl font-bold text-foreground">{creator.display_name}</h1>
         </div>
         <Link
-          href={`/summons/${summon.id}`}
+          href={`/creators/${creator.id}`}
           className="shrink-0 text-sm text-creator border border-creator/30 px-4 py-2 rounded-lg hover:bg-creator/10 transition-colors"
         >
           Public Profile →
@@ -220,7 +220,7 @@ function SanctumPageContent() {
         <div className="bg-surface border border-border rounded-xl p-5">
           <div className="text-xs text-muted tracking-wider mb-2 flex items-center">
             OPEN PLEDGES
-            <InfoTip content={`Sum total of all pledges on open bounties placed by your ${summon.fan_name_plural ?? 'fans'}`} />
+            <InfoTip content={`Sum total of all pledges on open bounties placed by your ${creator.fan_name_plural ?? 'fans'}`} />
           </div>
           {balanceLoading ? (
             <div className="h-7 w-28 bg-surface-2 animate-pulse rounded mb-1" />
@@ -252,7 +252,7 @@ function SanctumPageContent() {
         <div className="bg-surface border border-border rounded-xl p-5">
           <div className="text-xs text-muted tracking-wider mb-2 flex items-center">
             PENDING PAYMENT
-            <InfoTip content={`${summon.fan_name_plural ?? 'Fans'} have up to 50 days to either pay or declare BROKE status. Go pray that they choose to cover the ~8% fees for you`} />
+            <InfoTip content={`${creator.fan_name_plural ?? 'Fans'} have up to 50 days to either pay or declare BROKE status. Go pray that they choose to cover the ~8% fees for you`} />
           </div>
           {balanceLoading ? (
             <div className="h-7 w-28 bg-surface-2 animate-pulse rounded mb-1" />
@@ -583,13 +583,13 @@ function SanctumPageContent() {
           <div className="text-xs text-muted">Start a new project for your fans to back</div>
         </Link>
         <Link
-          href={`/summons/${summon.id}`}
+          href={`/creators/${creator.id}`}
           className="bg-surface border border-border rounded-xl p-4 hover:border-creator/40 transition-colors group"
         >
           <div className="text-sm font-semibold text-foreground group-hover:text-creator transition-colors mb-0.5">
             View Public Profile
           </div>
-          <div className="text-xs text-muted">See your summon page as fans see it</div>
+          <div className="text-xs text-muted">See your creator page as fans see it</div>
         </Link>
       </div>
     </div>

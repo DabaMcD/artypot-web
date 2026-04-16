@@ -56,8 +56,8 @@ function ReviewModal({
           <Link href={`/bounties/${completion.pot_id}`} className="text-brand hover:underline font-medium">
             {completion.pot.title}
           </Link>
-          {completion.pot.summon && (
-            <span> by <Link href={`/summons/${completion.pot.summon.id}`} className="text-creator hover:underline">{completion.pot.summon.display_name}</Link></span>
+          {completion.pot.creator && (
+            <span> by <Link href={`/creators/${completion.pot.creator.id}`} className="text-creator hover:underline">{completion.pot.creator.display_name}</Link></span>
           )}
           {' '}&middot; ${completion.pot.total_pledged.toLocaleString('en-US', { minimumFractionDigits: 2 })} pledged
         </p>
@@ -294,9 +294,9 @@ export default function AdminCompletionsPage() {
                   </div>
 
                   <div className="flex items-center gap-3 text-xs text-muted mb-2 flex-wrap">
-                    {c.pot.summon && (
-                      <Link href={`/summons/${c.pot.summon.id}`} className="text-creator hover:underline">
-                        {c.pot.summon.display_name}
+                    {c.pot.creator && (
+                      <Link href={`/creators/${c.pot.creator.id}`} className="text-creator hover:underline">
+                        {c.pot.creator.display_name}
                       </Link>
                     )}
                     <span className="text-brand font-medium">

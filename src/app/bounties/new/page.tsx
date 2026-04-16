@@ -4,10 +4,10 @@ import { useState, FormEvent, useEffect, Suspense } from 'react';
 import { useToast } from '@/lib/toast-context';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { pots as potsApi, summons as summonsApi } from '@/lib/api';
+import { pots as potsApi, creators as creatorsApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import SummonSearchWidget from '@/components/SummonSearchWidget';
-import type { Summon } from '@/lib/types';
+import CreatorSearchWidget from '@/components/CreatorSearchWidget';
+import type { Creator } from '@/lib/types';
 
 type CreatorMode = 'search' | 'create';
 
@@ -15,7 +15,7 @@ function NewPotForm() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const prefillSummonId = searchParams.get('summon_id');
+  const prefillCreatorId = searchParams.get('creator_id');
 
   const { toast } = useToast();
 
@@ -26,8 +26,8 @@ function NewPotForm() {
   const [submitting, setSubmitting] = useState(false);
 
   // Creator selection
-  const [summonId, setSummonId] = useState(prefillSummonId ?? '');
-  const [selectedSummon, setSelectedSummon] = useState<Summon | null>(null);
+  const [creatorId, setCreatorId] = useState(prefillCreatorId ?? '');
+  const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
   const [creatorMode, setCreatorMode] = useState<CreatorMode>('search');
 
   // Inline create state
@@ -45,24 +45,24 @@ function NewPotForm() {
   const [creatingNew, setCreatingNew] = useState(false);
   const [createError, setCreateError] = useState('');
 
-  // If prefillSummonId, load that summon
+  // If prefillCreatorId, load that creator
   useEffect(() => {
-    if (prefillSummonId) {
-      summonsApi.get(Number(prefillSummonId)).then((res) => {
-        setSelectedSummon(res.data);
-        setSummonId(String(res.data.id));
+    if (prefillCreatorId) {
+      creatorsApi.get(Number(prefillCreatorId)).then((res) => {
+        setSelectedCreator(res.data);
+        setCreatorId(String(res.data.id));
       });
     }
-  }, [prefillSummonId]);
+  }, [prefillCreatorId]);
 
-  const selectSummon = (s: Summon) => {
-    setSelectedSummon(s);
-    setSummonId(String(s.id));
+  const selectCreator = (s: Creator) => {
+    setSelectedCreator(s);
+    setCreatorId(String(s.id));
   };
 
   const clearCreator = () => {
-    setSelectedSummon(null);
-    setSummonId('');
+    setSelectedCreator(null);
+    setCreatorId('');
     setCreatorMode('search');
   };
 
@@ -89,7 +89,7 @@ function NewPotForm() {
     if (e.key === 'Enter') e.preventDefault();
   };
 
-  const handleCreateSummon = async () => {
+  const handleCreateCreator = async () => {
     if (!hasAtLeastOneHandle) {
       setCreateError('Please fill in at least one social handle or website.');
       return;
@@ -101,8 +101,8 @@ function NewPotForm() {
       const handles = Object.fromEntries(
         Object.entries(newHandles).filter(([, v]) => v.trim().length > 0),
       );
-      const res = await summonsApi.create({ display_name: newDisplayName, ...handles });
-      selectSummon(res.data);
+      const res = await creatorsApi.create({ display_name: newDisplayName, ...handles });
+      selectCreator(res.data);
       setCreatorMode('search');
     } catch (err: unknown) {
       const e = err as { message?: string };
@@ -115,7 +115,7 @@ function NewPotForm() {
   // Main pot submit
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!summonId) {
+    if (!creatorId) {
       toast('Please select or create a creator for this bounty.', 'error');
       return;
     }
@@ -129,7 +129,7 @@ function NewPotForm() {
       const res = await potsApi.create({
         title,
         description: description || undefined,
-        summon_id: Number(summonId),
+        creator_id: Number(creatorId),
         initial_votive_amount: amount,
       });
       toast('Bounty created!', 'success');
@@ -169,15 +169,15 @@ function NewPotForm() {
         {/* Creator — first so the pot is anchored before anything else */}
         <div>
           <label className="flex items-baseline justify-between mb-1.5">
-            <span className="text-s font-medium text-foreground">Summon</span>
+            <span className="text-s font-medium text-foreground">Creator</span>
             <span className="text-sm text-muted font-normal">(Who's doing the work?)</span>
           </label>
 
           {/* ── Search widget (controlled) or create panel ── */}
           {creatorMode !== 'create' ? (
-            <SummonSearchWidget
-              selectedSummon={selectedSummon}
-              onSelect={selectSummon}
+            <CreatorSearchWidget
+              selectedCreator={selectedCreator}
+              onSelect={selectCreator}
               onClear={clearCreator}
               onCreateNew={openCreateMode}
               placeholder="Search by name… e.g. The Weeknd"
@@ -261,7 +261,7 @@ function NewPotForm() {
 
               <button
                 type="button"
-                onClick={handleCreateSummon}
+                onClick={handleCreateCreator}
                 disabled={creatingNew || !newDisplayName.trim() || !hasAtLeastOneHandle}
                 className="w-full bg-creator text-black font-semibold py-2 text-sm rounded-md hover:opacity-90 transition-opacity disabled:opacity-40"
               >

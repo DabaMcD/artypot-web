@@ -6,19 +6,19 @@ const HOW_IT_WORKS = [
     step: '01',
     title: 'Someone opens a bounty',
     description:
-      'Anyone can start one. Pick a summon, name the exact thing you want made — a song, a video essay, a drawing, whatever. Put your money in.',
+      'Anyone can start one. Pick a creator, name the exact thing you want made — a song, a video essay, a drawing, whatever. Put your money in.',
   },
   {
     step: '02',
     title: 'The bounty grows.',
     description:
-      'Other people who want the same thing add their pledges. The summon can see the bounty growing in real time. Sometimes that\'s all the signal they need.',
+      'Other people who want the same thing add their pledges. The creator can see the bounty growing in real time. Sometimes that\'s all the signal they need.',
   },
   {
     step: '03',
     title: 'Work ships. Money moves.',
     description:
-      'The summon submits. The Council checks it\'s actually the thing. After a short window, the bounty pays out. No delivery? No payout. Simple.',
+      'The creator submits. The Council checks it\'s actually the thing. After a short window, the bounty pays out. No delivery? No payout. Simple.',
   },
 ];
 
@@ -53,10 +53,10 @@ export default function AboutPage() {
               Browse Bounties
             </Link>
             <Link
-              href="/summons"
+              href="/creators"
               className="bg-surface border border-border text-foreground font-semibold px-6 py-3 rounded-lg hover:border-creator/50 hover:text-creator transition-colors"
             >
-              Find a Summon
+              Find a Creator
             </Link>
           </div>
           <a href="#how-it-works" className="text-sm text-muted hover:text-foreground transition-colors">
@@ -65,7 +65,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Summon Psychology */}
+      {/* Creator Psychology */}
       <section className="bg-surface border-t border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-24">
 
@@ -142,7 +142,7 @@ export default function AboutPage() {
 
             <div className="rounded-xl border border-creator/30 bg-creator/5 p-6">
               <div className="w-3 h-3 rounded-full mb-4 bg-creator" />
-              <h3 className="font-semibold text-creator mb-2">The Summoned</h3>
+              <h3 className="font-semibold text-creator mb-2">The Creator</h3>
               <p className="text-base text-muted leading-relaxed">
                 Whoever the bounty is for. They don&apos;t owe anyone anything — but there&apos;s
                 real money sitting there with their name on it. It&apos;s only a matter of time...
@@ -178,7 +178,7 @@ export default function AboutPage() {
                 {[
                   'Your credit card is not charged until the work is done',
                   '5% platform fee — I need to eat',
-                  'Direct bank payout to the summon',
+                  'Direct bank payout to the creator',
                   'Fans who funded the project get no special access — same as everyone else',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
@@ -196,10 +196,10 @@ export default function AboutPage() {
               {[
                 { label: 'Bounty opens', color: 'bg-brand' },
                 { label: 'Fans place pledges', color: 'bg-brand' },
-                { label: 'Summon submits work', color: 'bg-creator' },
+                { label: 'Creator submits work', color: 'bg-creator' },
                 { label: 'Council signs off', color: 'bg-council' },
                 { label: 'Fans get charged', color: 'bg-brand' },
-                { label: 'Summon gets paid', color: 'bg-creator' },
+                { label: 'Creator gets paid', color: 'bg-creator' },
               ].map(({ label, color }, i, arr) => (
                 <div key={label} className="flex gap-3">
                   <div className="flex flex-col items-center shrink-0">
@@ -234,7 +234,7 @@ export default function AboutPage() {
             <p className="text-xs font-mono text-muted uppercase tracking-wider mb-3">A note on where I&apos;m at</p>
             <p className="text-base text-muted leading-relaxed mb-3">
               Right now, Artypot only supports <span className="text-foreground">credit card payments</span>, and payouts
-              can only go to summons who are <span className="text-foreground">based among the United States</span>. That&apos;s
+              can only go to creators who are <span className="text-foreground">based among the United States</span>. That&apos;s
               not a vision statement — it&apos;s just where the legal paperwork is currently in order.
             </p>
             <p className="text-base text-muted leading-relaxed">

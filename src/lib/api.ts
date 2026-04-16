@@ -1,8 +1,8 @@
 import type {
   User,
   PublicUser,
-  Summon,
-  SummonName,
+  Creator,
+  CreatorName,
   NotificationSettings,
   UserNotification,
   NotificationPage,
@@ -10,7 +10,7 @@ import type {
   PotVotive,
   PotCompletion,
   PotHistory,
-  SummonClaim,
+  CreatorClaim,
   PaginatedResponse,
   VotivePage,
   CashBalance,
@@ -20,10 +20,10 @@ import type {
   DeletePaymentMethodResult,
   CouncilMember,
   CouncilPage,
-  AdminSummonClaim,
+  AdminCreatorClaim,
   AdminPotCompletion,
-  SummonEarning,
-  SummonBalance,
+  CreatorEarning,
+  CreatorBalance,
   Comment,
 } from './types';
 
@@ -191,54 +191,54 @@ export const phone = {
     request<{ message: string }>('/auth/phone', { method: 'DELETE' }),
 };
 
-// Summons
-export const summons = {
+// Creators
+export const creators = {
   list: (params?: {
     q?: string;
     page?: number;
     status?: 'answered' | 'unanswered';
-    sort?: 'newest' | 'most_summoned' | 'most_completed';
+    sort?: 'newest' | 'most_pledged' | 'most_completed';
   }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
     const qs = new URLSearchParams(entries).toString();
-    return request<PaginatedResponse<Summon>>(`/summons${qs ? `?${qs}` : ''}`);
+    return request<PaginatedResponse<Creator>>(`/creators${qs ? `?${qs}` : ''}`);
   },
 
-  get: (id: number) => request<{ data: Summon }>(`/summons/${id}`),
+  get: (id: number) => request<{ data: Creator }>(`/creators/${id}`),
 
-  create: (data: Partial<Summon>) =>
-    request<{ data: Summon }>('/summons', { method: 'POST', body: JSON.stringify(data) }),
+  create: (data: Partial<Creator>) =>
+    request<{ data: Creator }>('/creators', { method: 'POST', body: JSON.stringify(data) }),
 
-  update: (id: number, data: Partial<Summon>) =>
-    request<{ data: Summon }>(`/summons/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  update: (id: number, data: Partial<Creator>) =>
+    request<{ data: Creator }>(`/creators/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
-  claim: (summon_id: number, contact_info: string) =>
-    request<{ data: SummonClaim }>('/summon-claims', {
+  claim: (creator_id: number, contact_info: string) =>
+    request<{ data: CreatorClaim }>('/creator-claims', {
       method: 'POST',
-      body: JSON.stringify({ summon_id, contact_info }),
+      body: JSON.stringify({ creator_id, contact_info }),
     }),
 };
 
-// Summon Names (aliases)
-export const summonNames = {
-  list: (summonId: number) =>
-    request<{ data: SummonName[] }>(`/summons/${summonId}/names`),
+// Creator Names (aliases)
+export const creatorNames = {
+  list: (creatorId: number) =>
+    request<{ data: CreatorName[] }>(`/creators/${creatorId}/names`),
 
-  create: (summonId: number, name: string) =>
-    request<{ data: SummonName }>(`/summons/${summonId}/names`, {
+  create: (creatorId: number, name: string) =>
+    request<{ data: CreatorName }>(`/creators/${creatorId}/names`, {
       method: 'POST',
       body: JSON.stringify({ name }),
     }),
 
-  delete: (summonId: number, nameId: number) =>
-    request<void>(`/summons/${summonId}/names/${nameId}`, { method: 'DELETE' }),
+  delete: (creatorId: number, nameId: number) =>
+    request<void>(`/creators/${creatorId}/names/${nameId}`, { method: 'DELETE' }),
 };
 
 // Pots
 export const pots = {
-  list: (params?: { summon_id?: number; status?: PotStatus; page?: number }) => {
+  list: (params?: { creator_id?: number; status?: PotStatus; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
@@ -248,7 +248,7 @@ export const pots = {
 
   get: (id: number) => request<{ data: Pot }>(`/pots/${id}`),
 
-  create: (data: { title: string; description?: string; summon_id: number; initial_votive_amount?: number }) =>
+  create: (data: { title: string; description?: string; creator_id: number; initial_votive_amount?: number }) =>
     request<{ data: Pot }>('/pots', { method: 'POST', body: JSON.stringify(data) }),
 
   update: (id: number, data: { title?: string; description?: string }) =>
@@ -272,8 +272,8 @@ export const pots = {
   history: (potId: number) =>
     request<PotHistory>(`/pots/${potId}/history`),
 
-  summonRemove: (potId: number, reason: string) =>
-    request<{ message: string }>(`/pots/${potId}/summon-remove`, {
+  creatorRemove: (potId: number, reason: string) =>
+    request<{ message: string }>(`/pots/${potId}/creator-remove`, {
       method: 'DELETE',
       body: JSON.stringify({ reason }),
     }),
@@ -409,20 +409,20 @@ export const billing = {
     request<{ message: string; charged: number }>('/billing/pay-now', { method: 'POST' }),
 };
 
-// Cash (summon-specific endpoints)
+// Cash (creator-specific endpoints)
 export const cash = {
-  /** Wallet overview for the authenticated summon: confirmed balance + pending earnings. */
-  summonBalance: () =>
-    request<SummonBalance>('/cash/summon-balance'),
+  /** Wallet overview for the authenticated creator: confirmed balance + pending earnings. */
+  creatorBalance: () =>
+    request<CreatorBalance>('/cash/creator-balance'),
 
-  /** Per-pot earnings breakdown for the authenticated summon. */
-  summonEarnings: () =>
-    request<{ data: SummonEarning[] }>('/cash/summon-earnings'),
+  /** Per-pot earnings breakdown for the authenticated creator. */
+  creatorEarnings: () =>
+    request<{ data: CreatorEarning[] }>('/cash/creator-earnings'),
 };
 
 // W-9 — tax compliance for creators
 export const w9 = {
-  /** Current W-9 status + YTD withdrawal total for the authenticated summon. */
+  /** Current W-9 status + YTD withdrawal total for the authenticated creator. */
   status: () =>
     request<{ data: import('./types').FormW9StatusResponse }>('/w9/status'),
 
@@ -433,7 +433,7 @@ export const w9 = {
     }),
 };
 
-// Withdrawals — creator payout (summoned/council only)
+// Withdrawals — creator payout (creator/council only)
 export const withdrawals = {
   /** Request a payout of `amount` dollars to the linked bank account. */
   request: (amount: number) =>
@@ -494,12 +494,12 @@ export const overlord = {
 
 // Admin (Council only)
 export const admin = {
-  // Summon Claims
+  // Creator Claims
   listClaims: (status: 'pending' | 'approved' | 'rejected' | 'all' = 'pending', page = 1) =>
-    request<PaginatedResponse<AdminSummonClaim>>(`/admin/summon-claims?status=${status}&page=${page}`),
+    request<PaginatedResponse<AdminCreatorClaim>>(`/admin/creator-claims?status=${status}&page=${page}`),
 
   reviewClaim: (claimId: number, data: { status: 'approved' | 'rejected'; council_notes?: string }) =>
-    request<{ data: AdminSummonClaim }>(`/admin/summon-claims/${claimId}`, {
+    request<{ data: AdminCreatorClaim }>(`/admin/creator-claims/${claimId}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
@@ -529,7 +529,7 @@ export const admin = {
     }),
 
   // Users
-  listUsers: (params?: { q?: string; filter?: 'summoned' | 'council' | 'mob'; page?: number }) => {
+  listUsers: (params?: { q?: string; filter?: 'creator' | 'council' | 'mob'; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null && v !== '')
       .map(([k, v]) => [k, String(v)]) as [string, string][];
@@ -542,26 +542,26 @@ export const admin = {
   getUser: (id: number) =>
     request<{ data: import('./types').AdminUser }>(`/admin/users/${id}`),
 
-  // Summons
-  listSummons: (params?: { q?: string; claimed?: 'true' | 'false' | 'all'; page?: number }) => {
+  // Creators
+  listCreators: (params?: { q?: string; claimed?: 'true' | 'false' | 'all'; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null && v !== '' && v !== 'all')
       .map(([k, v]) => [k, String(v)]) as [string, string][];
     const qs = new URLSearchParams(entries).toString();
-    return request<import('./types').PaginatedResponse<import('./types').AdminSummon>>(
-      `/admin/summons${qs ? `?${qs}` : ''}`
+    return request<import('./types').PaginatedResponse<import('./types').AdminCreator>>(
+      `/admin/creators${qs ? `?${qs}` : ''}`
     );
   },
 
-  getSummon: (id: number) =>
-    request<{ data: import('./types').AdminSummon & {
+  getCreator: (id: number) =>
+    request<{ data: import('./types').AdminCreator & {
       w9_records: Array<{
         id: number;
         tax_year: number;
-        status: import('./types').SummonW9Status;
+        status: import('./types').CreatorW9Status;
         completed_at: string | null;
         tin_matched_at: string | null;
         created_at: string;
       }>;
-    } }>(`/admin/summons/${id}`),
+    } }>(`/admin/creators/${id}`),
 };

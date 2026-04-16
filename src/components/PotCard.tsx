@@ -12,8 +12,8 @@ const STATUS_STYLES: Record<PotStatus, { label: string; className: string }> = {
 export default function PotCard({ pot }: { pot: Pot }) {
   const status = STATUS_STYLES[pot.status];
   const backerCount = pot.votives?.filter((v) => !v.revoked_at).length ?? null;
-  const fanSingular = pot.summon?.fan_name || 'supporter';
-  const fanPlural   = pot.summon?.fan_name_plural || pot.summon?.fan_name || 'supporters';
+  const fanSingular = pot.creator?.fan_name || 'supporter';
+  const fanPlural   = pot.creator?.fan_name_plural || pot.creator?.fan_name || 'supporters';
 
   return (
     <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-brand/50 transition-colors group">
@@ -54,11 +54,11 @@ export default function PotCard({ pot }: { pot: Pot }) {
             </div>
           )}
         </div>
-        {pot.summon && (
+        {pot.creator && (
           <div className="text-right">
             <div className="text-xs text-muted">for</div>
             <div className="text-sm text-creator font-medium truncate max-w-[120px]">
-              {pot.summon.display_name}
+              {pot.creator.display_name}
             </div>
           </div>
         )}

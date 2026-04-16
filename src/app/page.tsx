@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import SummonSearchWidget from '@/components/SummonSearchWidget';
-import type { Summon } from '@/lib/types';
+import CreatorSearchWidget from '@/components/CreatorSearchWidget';
+import type { Creator } from '@/lib/types';
 
 export default function HomePage() {
   const router = useRouter();
-  const [selectedSummon, setSelectedSummon] = useState<Summon | null>(null);
+  const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-center px-4 -mt-7">
@@ -22,16 +22,16 @@ export default function HomePage() {
         </p>
 
         <div className="w-full">
-          <SummonSearchWidget
-            selectedSummon={selectedSummon}
-            onSelect={setSelectedSummon}
-            onClear={() => setSelectedSummon(null)}
+          <CreatorSearchWidget
+            selectedCreator={selectedCreator}
+            onSelect={setSelectedCreator}
+            onClear={() => setSelectedCreator(null)}
             placeholder="Search for a creator, artist, or public figure…"
           />
 
-          {selectedSummon && (
+          {selectedCreator && (
             <button
-              onClick={() => router.push(`/summons/${selectedSummon.id}`)}
+              onClick={() => router.push(`/creators/${selectedCreator.id}`)}
               className="mt-3 w-full bg-brand text-black font-semibold py-3 rounded-lg hover:bg-brand-dim transition-colors text-sm"
             >
               See Pots →

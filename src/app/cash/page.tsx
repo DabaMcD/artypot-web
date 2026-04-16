@@ -5,16 +5,16 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { cash as cashApi } from '@/lib/api';
-import type { SummonBalance, SummonEarning } from '@/lib/types';
+import type { CreatorBalance, CreatorEarning } from '@/lib/types';
 
 export default function CashPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  const [balance, setBalance] = useState<SummonBalance | null>(null);
+  const [balance, setBalance] = useState<CreatorBalance | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
 
-  const [earnings, setEarnings] = useState<SummonEarning[] | null>(null);
+  const [earnings, setEarnings] = useState<CreatorEarning[] | null>(null);
   const [earningsLoading, setEarningsLoading] = useState(true);
 
   const [error, setError] = useState('');
@@ -29,13 +29,13 @@ export default function CashPage() {
     if (!user || user.role === 'mob') return;
 
     cashApi
-      .summonBalance()
+      .creatorBalance()
       .then(setBalance)
       .catch(() => setError('Failed to load balance.'))
       .finally(() => setBalanceLoading(false));
 
     cashApi
-      .summonEarnings()
+      .creatorEarnings()
       .then((res) => setEarnings(res.data))
       .catch(() => {/* error already set above if both fail */})
       .finally(() => setEarningsLoading(false));

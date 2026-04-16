@@ -174,7 +174,7 @@ export default function FeaturedPotsAdminPage() {
                     {slot.preview.title}
                   </p>
                   <p className="text-xs text-muted mt-0.5">
-                    {slot.preview.summon?.display_name ?? '—'}
+                    {slot.preview.creator?.display_name ?? '—'}
                     {' · '}
                     <span className="capitalize">{String(slot.preview.status).replace('_', ' ')}</span>
                     {' · '}

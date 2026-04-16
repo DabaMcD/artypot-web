@@ -78,7 +78,7 @@ export default function ToSPage() {
           </Section>
 
           <Section id="description" title="2. What Artypot Is">
-            <p>Artypot is a bounty-style crowdfunding platform. Fans (&quot;backers&quot;) pool pledges toward specific tasks from public entities (&quot;summons&quot;). Pledges are a commitment of funds, but no money moves when a pledge is placed. Charges only occur after The Council reviews and confirms a bounty as complete.</p>
+            <p>Artypot is a bounty-style crowdfunding platform. Fans (&quot;backers&quot;) pool pledges toward specific tasks from public entities (&quot;creators&quot;). Pledges are a commitment of funds, but no money moves when a pledge is placed. Charges only occur after The Council reviews and confirms a bounty as complete.</p>
             <p>Artypot is not a tip jar, subscription service, or pre-order platform. It is a mechanism for coordinating demand signals and releasing payment only on delivery.</p>
           </Section>
 
@@ -89,10 +89,10 @@ export default function ToSPage() {
           </Section>
 
           <Section id="bounties" title="4. Bounties">
-            <p>Any registered user may open a bounty for any task a named summon could verifiably complete. There is no restriction on subject matter beyond legality and the Content Policy (Section 9). If it can be done and confirmed, it can be a bounty.</p>
-            <p>Opening a bounty does not guarantee the named summon will fulfil it. The summon is under no contractual obligation to Artypot or to backers. A bounty is an expression of collective demand, not a contract with the creator.</p>
+            <p>Any registered user may open a bounty for any task a named creator could verifiably complete. There is no restriction on subject matter beyond legality and the Content Policy (Section 9). If it can be done and confirmed, it can be a bounty.</p>
+            <p>Opening a bounty does not guarantee the named creator will fulfil it. The creator is under no contractual obligation to Artypot or to backers. A bounty is an expression of collective demand, not a contract with the creator.</p>
             <p>We reserve the right to remove any bounty at our sole discretion, including but not limited to bounties that are too vague, too difficult to verify completion, harmful, or illegal. We are not obligated to explain every removal, though we will attempt to provide a reason when possible.</p>
-            <p>While we are committed to being reasonable, the summon a bounty is directed at may also remove that bounty at their sole discretion, for any reason or no reason.</p>
+            <p>While we are committed to being reasonable, the creator a bounty is directed at may also remove that bounty at their sole discretion, for any reason or no reason.</p>
           </Section>
 
           <Section id="pledges" title="5. Pledges and Payments">
@@ -105,7 +105,7 @@ export default function ToSPage() {
           </Section>
 
           <Section id="creators" title="6. Creator Obligations">
-            <p>Summons who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith, as understood by their community.</p>
+            <p>Creators who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith, as understood by their community.</p>
             <p>Submission of a completion claim constitutes a representation that the submitted work satisfies the bounty description. Fraudulent submissions — submitting work that does not fulfil the bounty, or submitting work you do not own the rights to — may result in account termination and, where applicable, legal action.</p>
             <p>Creators receiving payouts must be based in the United States and must provide accurate payment and tax information (including a completed W-9 where required). Artypot will issue 1099s where required by law.</p>
           </Section>
@@ -132,7 +132,7 @@ export default function ToSPage() {
           </Section>
 
           <Section id="ip" title="10. Intellectual Property">
-            <p>Artypot does not claim ownership of any content created by summons in fulfilment of bounties. The creator retains all rights to their work.</p>
+            <p>Artypot does not claim ownership of any content created by creators in fulfilment of bounties. The creator retains all rights to their work.</p>
             <p>Backers who fund a bounty receive no special rights to the finished work — they receive the same access as the general public. Artypot is not a commissioned work platform.</p>
             <p>By posting content to Artypot (e.g., bounty descriptions, profile text), you grant us a non-exclusive, royalty-free licence to display that content on the Platform.</p>
           </Section>
@@ -144,7 +144,7 @@ export default function ToSPage() {
 
           <Section id="disclaimer" title="12. Disclaimers">
             <p>Artypot is provided &quot;as is&quot; and &quot;as available&quot; without warranties of any kind, express or implied. We do not guarantee that the Platform will be uninterrupted, error-free, or that any bounty will be fulfilled.</p>
-            <p>We are not responsible for the actions of summons, backers, or third parties.</p>
+            <p>We are not responsible for the actions of creators, backers, or third parties.</p>
           </Section>
 
           <Section id="liability" title="13. Limitation of Liability">
