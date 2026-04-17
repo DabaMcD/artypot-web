@@ -43,7 +43,7 @@ export default function RegisterPage() {
     <div className="min-h-[calc(100vh-56px)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="text-fan font-bold text-2xl mb-1">artypot</div>
+          <div className="text-fan font-display font-bold text-2xl mb-1">artypot</div>
           <h1 className="text-xl font-semibold text-foreground">Create an account</h1>
           <p className="text-muted text-sm mt-1">Join the community</p>
         </div>

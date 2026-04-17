@@ -2,7 +2,7 @@ export default function GuidePage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">The Lingo</h1>
+        <h1 className="text-3xl font-display font-bold text-foreground mb-2">The Lingo</h1>
         <p className="text-muted">
           Artypot has its own vocabulary. Here&apos;s everything you need to know.
         </p>

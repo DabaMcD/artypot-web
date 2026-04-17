@@ -486,7 +486,7 @@ export default function SettingsPage() {
 
       <div className="max-w-2xl mx-auto px-4 py-10">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+          <h1 className="text-2xl font-display font-bold text-foreground">Settings</h1>
           <p className="text-sm text-muted mt-1">Manage your account preferences.</p>
         </div>
 

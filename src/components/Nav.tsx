@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { useViewMode } from '@/lib/view-mode-context';
 import { useState, useEffect } from 'react';
 import NotificationBell from '@/components/NotificationBell';
 import CreatorSearchWidget from '@/components/CreatorSearchWidget';
@@ -12,6 +13,7 @@ import type { RoleKey } from '@/lib/theme';
 
 export default function Nav() {
   const { user, logout, loading } = useAuth();
+  const { mode, canSwitch, switchTo } = useViewMode();
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -29,9 +31,20 @@ export default function Nav() {
     router.push('/');
   };
 
-  const isActive = (href: string) =>
-    pathname === href ? 'text-fan' : 'text-muted hover:text-foreground';
+  const isCreatorMode = mode === 'creator';
+  const isAdminZone = pathname.startsWith('/admin') || pathname.startsWith('/overlord');
 
+  // Active-link color follows mode (council zone overrides both)
+  const activeClass = isAdminZone ? 'text-council' : isCreatorMode ? 'text-creator' : 'text-fan';
+  const isActive = (href: string) =>
+    pathname === href ? activeClass : 'text-muted hover:text-foreground';
+
+  // Accent color: council overrides mode in admin/overlord zone
+  const accentColor = isAdminZone
+    ? 'var(--color-council)'
+    : isCreatorMode ? 'var(--color-creator)' : 'var(--color-fan)';
+
+  // Avatar bg/text for role-based coloring in dropdown header
   const roleBgVar   = `var(--color-${user?.role ?? 'fan'})`;
   const roleTextVar = user?.role === 'council' ? 'var(--color-brand-light)' : 'var(--color-brand-dark)';
   const roleLabel   = user ? ROLE_LABELS[user.role as RoleKey] : '';
@@ -39,13 +52,21 @@ export default function Nav() {
   const logoHref = user ? '/dashboard' : '/';
   const isHomePage = pathname === '/';
 
+  // Nav bottom border color follows mode
+  const borderStyle = user
+    ? { borderBottomColor: accentColor, borderBottomWidth: '1px', borderBottomStyle: 'solid' as const }
+    : {};
+
   return (
     <>
-      <nav className={`bg-surface sticky top-0 z-50 ${isHomePage ? '' : 'border-b border-border'}`}>
+      <nav
+        className={`bg-surface sticky top-0 z-50 ${isHomePage ? '' : 'border-b border-border'}`}
+        style={isHomePage ? {} : borderStyle}
+      >
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           {/* Logo */}
           <Link href={logoHref} className="shrink-0 flex items-center">
-            <Image src="/artypot-logo-transparent-dark.png" alt="Artypot" width={1024} height={269} className="h-9 w-auto" priority />
+            <Image src="/artypot-logo-transparent-dark.png" alt="Artypot" width={1024} height={269} className="h-8 w-auto translate-y-[3px]" priority />
           </Link>
 
           {/* Center: links + search (desktop, non-homepage only) */}
@@ -69,7 +90,7 @@ export default function Nav() {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
-            {/* Homepage-only desktop links (no search — page is the search) */}
+            {/* Homepage-only desktop links */}
             {isHomePage && (
               <div className="hidden md:flex items-center gap-5 mr-1">
                 <Link href="/about" className={`transition-colors text-sm font-medium ${isActive('/about')}`}>
@@ -80,10 +101,39 @@ export default function Nav() {
                 </Link>
               </div>
             )}
+
             {loading ? (
               <div className="w-20 h-8 rounded bg-surface-2 animate-pulse" />
             ) : user ? (
               <>
+                {/* Mode switcher pill — creators only, desktop */}
+                {canSwitch && (
+                  <div className="hidden md:flex items-center rounded-full border border-border overflow-hidden text-xs font-semibold">
+                    <button
+                      onClick={() => switchTo('fan')}
+                      className="px-3 py-1.5 transition-colors"
+                      style={
+                        !isCreatorMode
+                          ? { background: 'var(--color-fan)', color: 'var(--color-brand-dark)' }
+                          : { color: 'var(--color-muted)' }
+                      }
+                    >
+                      Fan
+                    </button>
+                    <button
+                      onClick={() => switchTo('creator')}
+                      className="px-3 py-1.5 transition-colors"
+                      style={
+                        isCreatorMode
+                          ? { background: 'var(--color-creator)', color: 'var(--color-brand-dark)' }
+                          : { color: 'var(--color-muted)' }
+                      }
+                    >
+                      Creator
+                    </button>
+                  </div>
+                )}
+
                 <NotificationBell />
 
                 {/* Desktop avatar dropdown */}
@@ -123,7 +173,7 @@ export default function Nav() {
                           </div>
                         </div>
 
-                        {/* Nav links */}
+                        {/* Fan-side nav links */}
                         <Link
                           href="/dashboard"
                           onClick={() => setMenuOpen(false)}
@@ -155,7 +205,7 @@ export default function Nav() {
                           Settings
                         </Link>
 
-                        {/* Creator-only */}
+                        {/* Creator-side links */}
                         {(user.role === 'creator' || user.role === 'council') && !!user.creator && (
                           <>
                             <div className="border-t border-border" />
@@ -257,7 +307,10 @@ export default function Nav() {
         }`}
       >
         {/* Drawer header */}
-        <div className="flex items-center justify-between px-4 h-14 border-b border-border shrink-0">
+        <div
+          className="flex items-center justify-between px-4 h-14 border-b shrink-0"
+          style={user ? { borderBottomColor: accentColor } : { borderBottomColor: 'var(--color-border)' }}
+        >
           <Link href={logoHref} onClick={() => setDrawerOpen(false)} className="flex items-center">
             <Image src="/artypot-logo-transparent-dark.png" alt="Artypot" width={1024} height={269} className="h-9 w-auto" />
           </Link>
@@ -287,6 +340,34 @@ export default function Nav() {
                 <p className="text-xs font-medium" style={{ color: roleBgVar }}>{roleLabel}</p>
               </div>
             </div>
+
+            {/* Mode switcher — mobile, creators only */}
+            {canSwitch && (
+              <div className="mt-3 flex items-center rounded-full border border-border overflow-hidden text-xs font-semibold w-fit">
+                <button
+                  onClick={() => switchTo('fan')}
+                  className="px-4 py-1.5 transition-colors"
+                  style={
+                    !isCreatorMode
+                      ? { background: 'var(--color-fan)', color: 'var(--color-brand-dark)' }
+                      : { color: 'var(--color-muted)' }
+                  }
+                >
+                  Fan
+                </button>
+                <button
+                  onClick={() => switchTo('creator')}
+                  className="px-4 py-1.5 transition-colors"
+                  style={
+                    isCreatorMode
+                      ? { background: 'var(--color-creator)', color: 'var(--color-brand-dark)' }
+                      : { color: 'var(--color-muted)' }
+                  }
+                >
+                  Creator
+                </button>
+              </div>
+            )}
           </div>
         )}
 

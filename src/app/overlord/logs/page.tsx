@@ -133,7 +133,7 @@ export default function OverlordLogsPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Application Logs</h1>
+          <h1 className="text-2xl font-display font-bold text-foreground">Application Logs</h1>
           <p className="text-muted text-sm mt-1">
             {meta ? `${meta.total.toLocaleString()} entries` : '—'}
             {' · '}

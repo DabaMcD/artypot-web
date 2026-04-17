@@ -16,12 +16,17 @@
   --color-council: #4d6aca;
   --color-council-dim: #46509c;
 
-  /* Warm identity palette */
+  /* Semantic aliases for text-on-colored-surfaces (avatars, badges, pills).
+     Same values as background/foreground today — kept separate because they
+     express intent, not color. @theme inline can't resolve nested var()
+     references, so the hex values must be repeated here explicitly. */
   --color-brand-dark: #1A1812;
   --color-brand-light: #F2EFE6;
 
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-dm-sans);      /* body default — inherited everywhere */
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fraunces);  /* headings > 24px */
+  --font-geist: var(--font-geist-sans);  /* available if needed */
 }
 
 html {
@@ -30,9 +35,9 @@ html {
 }
 
 body {
-  background-color: #1A1812;
-  color: #F2EFE6;
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-dm-sans), Arial, Helvetica, sans-serif;
   font-size: 1rem; /* 17px */
 }
 
@@ -106,9 +111,9 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #27180F;
+  background: var(--color-surface);
 }
 ::-webkit-scrollbar-thumb {
-  background: #4A2D1E;
+  background: var(--color-border);
   border-radius: 3px;
 }

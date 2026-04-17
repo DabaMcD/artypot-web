@@ -134,7 +134,7 @@ export default function FeaturedPotsAdminPage() {
           ← Admin
         </Link>
       </div>
-      <h1 className="text-2xl font-bold text-foreground mb-1">Featured Bounties</h1>
+      <h1 className="text-2xl font-display font-bold text-foreground mb-1">Featured Bounties</h1>
       <p className="text-sm text-muted mb-8">
         These 3 bounties appear on the landing page for logged-out visitors.
         Enter a bounty ID in each slot, preview it, then save.

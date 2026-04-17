@@ -59,7 +59,7 @@ export default function BillingPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-foreground mb-1">Payment Methods</h1>
+        <h1 className="text-2xl font-display font-bold text-foreground mb-1">Payment Methods</h1>
         <p className="text-muted text-sm">
           Your saved cards are charged for the bounties you back when they pay out. You are only
           charged once a completed work is council-approved and the 48-hour review window closes.

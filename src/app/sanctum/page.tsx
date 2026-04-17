@@ -203,7 +203,7 @@ function SanctumPageContent() {
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
           <p className="text-xs text-creator/70 uppercase tracking-widest font-medium mb-1">Creator Sanctum</p>
-          <h1 className="text-2xl font-bold text-foreground">{creator.display_name}</h1>
+          <h1 className="text-2xl font-display font-bold text-foreground">{creator.display_name}</h1>
         </div>
         <Link
           href={`/creators/${creator.id}`}

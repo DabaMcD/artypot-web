@@ -12,7 +12,7 @@ export default function HomePage() {
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-center px-4 -mt-7">
       <div className="w-full max-w-xl text-center">
-        <h1 className="text-4xl sm:text-5xl font-bold text-foreground tracking-tight mb-3 leading-tight">
+        <h1 className="text-4xl sm:text-5xl font-display font-bold text-foreground tracking-tight mb-3 leading-tight">
           Find a creator.
           <br />
           <span className="text-fan">Fund the work.</span>

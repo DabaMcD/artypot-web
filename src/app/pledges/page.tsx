@@ -78,7 +78,7 @@ export default function MyVotivesPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">What I&apos;m Backing</h1>
+          <h1 className="text-2xl font-display font-bold text-foreground">What I&apos;m Backing</h1>
           <p className="text-sm text-muted mt-0.5">
             {total} active {total !== 1 ? 'commitments' : 'commitment'}
             {totalActiveAmount !== null && totalActiveAmount > 0 && (

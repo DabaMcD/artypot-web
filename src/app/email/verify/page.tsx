@@ -64,14 +64,7 @@ function EmailVerifyContent() {
   // ── Shared footer shown on success ─────────────────────────────────────
   const successFooter = (
     <div className="mt-6 text-center">
-      <p className="text-sm text-muted">You can close this tab</p>
-      <p className="text-xs text-muted/60 my-2">or</p>
-      <Link
-        href="/dashboard"
-        className="inline-block bg-fan text-black font-semibold px-6 py-2.5 rounded-lg text-sm hover:bg-fan-dim transition-colors"
-      >
-        Continue to dashboard
-      </Link>
+      <p className="text-lg text-foreground">You can close this tab</p>
     </div>
   );
 

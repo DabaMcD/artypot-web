@@ -74,7 +74,7 @@ export default function CreatorsPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-1">Creators</h1>
+        <h1 className="text-3xl font-display font-bold text-foreground mb-1">Creators</h1>
         <p className="text-muted">Artists, musicians, and makers whose communities are calling for their best work.</p>
       </div>
 

@@ -23,7 +23,7 @@ export default function ToSPage() {
         {/* Header */}
         <div className="mb-10">
           <p className="text-xs font-mono text-muted uppercase tracking-wider mb-3">Legal</p>
-          <h1 className="text-4xl font-bold text-foreground mb-2">Terms of Service</h1>
+          <h1 className="text-4xl font-display font-bold text-foreground mb-2">Terms of Service</h1>
           <p className="text-sm text-muted">Last updated: {LAST_UPDATED}</p>
         </div>
 

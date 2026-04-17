@@ -76,7 +76,7 @@ export default function AdminPage() {
           <span className="w-1.5 h-1.5 rounded-full bg-council" />
           The Council
         </div>
-        <h1 className="text-3xl font-bold text-foreground mb-1">Admin Panel</h1>
+        <h1 className="text-3xl font-display font-bold text-foreground mb-1">Admin Panel</h1>
         <p className="text-muted">Manage the Artypot platform.</p>
       </div>
 

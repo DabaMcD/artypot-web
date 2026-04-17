@@ -75,7 +75,7 @@ function ResetPasswordForm() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-foreground mb-1">Reset your password</h1>
+      <h1 className="text-2xl font-display font-bold text-foreground mb-1">Reset your password</h1>
       <p className="text-muted text-sm mb-6">
         Enter a new password for <span className="font-mono text-foreground/80">{email}</span>.
       </p>

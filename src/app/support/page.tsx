@@ -53,7 +53,7 @@ export default function SupportPage() {
       <div className="max-w-2xl mx-auto px-4 pt-16 pb-24">
         {/* Header */}
         <div className="mb-10">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Get in touch</h1>
+          <h1 className="text-3xl font-display font-bold text-foreground mb-2">Get in touch</h1>
           <p className="text-muted">
             Questions, problems, or just want to say something. I actually read these.
           </p>

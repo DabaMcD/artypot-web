@@ -94,7 +94,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <h1 className="text-2xl font-display font-bold text-foreground">Dashboard</h1>
           <p className={`text-sm font-medium mt-0.5 ${roleColor}`}>
             {user.name.split(' ')[0]} · {roleLabel}
           </p>
@@ -232,28 +232,6 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
-
-      {/* Payment methods */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-foreground">Payment Methods</h2>
-          <Link href="/billing" className="text-sm text-muted hover:text-fan transition-colors">
-            Manage →
-          </Link>
-        </div>
-        {paymentMethods.length === 0 ? (
-          <div className="bg-surface border border-fan/30 rounded-xl p-5">
-            <p className="text-sm text-muted mb-3">
-              No payment methods saved. Add one to start backing bounties.
-            </p>
-            <PaymentMethodManager onMethodsChange={setPaymentMethods} compact />
-          </div>
-        ) : (
-          <div className="bg-surface border border-border rounded-xl p-5">
-            <PaymentMethodManager onMethodsChange={setPaymentMethods} />
-          </div>
-        )}
-      </div>
 
       {/* My Votives */}
       <div className="mb-8">

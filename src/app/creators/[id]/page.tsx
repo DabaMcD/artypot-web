@@ -371,7 +371,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 flex-wrap mb-1">
-                    <h1 className="text-2xl font-bold text-foreground">{creator.display_name}</h1>
+                    <h1 className="text-2xl font-display font-bold text-foreground">{creator.display_name}</h1>
                     <ShareButton
                       path={`/creators/${creator.id}`}
                       title={creator.display_name}

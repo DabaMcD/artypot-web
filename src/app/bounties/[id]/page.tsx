@@ -627,12 +627,12 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                       ✕ Back to current
                     </button>
                   </div>
-                  <h1 className="text-2xl font-bold text-foreground/70 leading-snug flex-1 min-w-0">
+                  <h1 className="text-2xl font-display font-bold text-foreground/70 leading-snug flex-1 min-w-0">
                     {displayedTitle}
                   </h1>
                 </div>
               ) : (
-                <h1 className="text-2xl font-bold text-foreground leading-snug flex-1 min-w-0">
+                <h1 className="text-2xl font-display font-bold text-foreground leading-snug flex-1 min-w-0">
                   {displayedTitle}
                 </h1>
               )}
