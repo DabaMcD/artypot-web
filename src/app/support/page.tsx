@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 const SUBJECTS = [
   'I have a question about a bounty',
-  'I have a question about a pledge',
+  'I have a question about backing a bounty',
   'I need help with payments or billing',
   'I want to report a problem or bug',
   'I want to report content',
@@ -46,7 +46,7 @@ export default function SupportPage() {
   };
 
   const inputClass =
-    'w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors';
+    'w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors';
 
   return (
     <div className="min-h-screen">
@@ -60,7 +60,7 @@ export default function SupportPage() {
         </div>
 
         {status === 'success' ? (
-          <div className="bg-surface border border-brand/30 rounded-xl p-8 text-center">
+          <div className="bg-surface border border-fan/30 rounded-xl p-8 text-center">
             <div className="text-3xl mb-4">✓</div>
             <h2 className="text-lg font-semibold text-foreground mb-2">Message sent</h2>
             <p className="text-muted text-sm">
@@ -74,7 +74,7 @@ export default function SupportPage() {
                 setSubject('');
                 setMessage('');
               }}
-              className="mt-6 text-sm text-brand hover:underline"
+              className="mt-6 text-sm text-fan hover:underline"
             >
               Send another message
             </button>
@@ -141,14 +141,14 @@ export default function SupportPage() {
             <button
               type="submit"
               disabled={status === 'submitting'}
-              className="w-full bg-brand text-black font-semibold py-3 rounded-lg hover:bg-brand-dim transition-colors disabled:opacity-50"
+              className="w-full bg-fan text-black font-semibold py-3 rounded-lg hover:bg-fan-dim transition-colors disabled:opacity-50"
             >
               {status === 'submitting' ? 'Sending…' : 'Send message'}
             </button>
 
             <p className="text-xs text-muted text-center">
               Or email directly:{' '}
-              <a href="mailto:baldwig@artypot.com" className="text-brand hover:underline">
+              <a href="mailto:baldwig@artypot.com" className="text-fan hover:underline">
                 baldwig@artypot.com
               </a>
             </p>

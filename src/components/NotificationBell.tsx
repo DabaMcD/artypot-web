@@ -34,7 +34,7 @@ function NotifItem({
     >
       <div className="flex items-start gap-2">
         {isUnread && (
-          <span className="mt-1.5 w-2 h-2 rounded-full bg-brand shrink-0" />
+          <span className="mt-1.5 w-2 h-2 rounded-full bg-fan shrink-0" />
         )}
         {!isUnread && <span className="mt-1.5 w-2 h-2 shrink-0" />}
         <div className="flex-1 min-w-0">
@@ -130,7 +130,7 @@ export default function NotificationBell() {
           />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-brand text-black text-[10px] font-bold px-1 leading-none">
+          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-fan text-black text-[10px] font-bold px-1 leading-none">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}

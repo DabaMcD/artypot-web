@@ -93,7 +93,7 @@ function ReviewModal({
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
               placeholder="e.g. Yo boiii glad to have u on board"
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
             />
           </div>
 

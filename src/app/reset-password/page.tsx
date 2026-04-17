@@ -65,7 +65,7 @@ function ResetPasswordForm() {
         </p>
         <Link
           href="/login"
-          className="inline-block bg-brand text-black font-semibold px-6 py-2.5 rounded-lg hover:bg-brand-dim transition-colors text-sm"
+          className="inline-block bg-fan text-black font-semibold px-6 py-2.5 rounded-lg hover:bg-fan-dim transition-colors text-sm"
         >
           Log in with new password →
         </Link>
@@ -92,7 +92,7 @@ function ResetPasswordForm() {
             autoComplete="new-password"
             autoFocus
             placeholder="At least 8 characters"
-            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
           />
         </div>
         <div>
@@ -105,7 +105,7 @@ function ResetPasswordForm() {
             minLength={8}
             autoComplete="new-password"
             placeholder="Repeat your new password"
-            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
           />
         </div>
 
@@ -118,7 +118,7 @@ function ResetPasswordForm() {
         <button
           type="submit"
           disabled={loading || !password || !passwordConfirm}
-          className="w-full bg-brand text-black font-semibold py-2.5 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50 transition-colors"
+          className="w-full bg-fan text-black font-semibold py-2.5 text-sm rounded-lg hover:bg-fan-dim disabled:opacity-50 transition-colors"
         >
           {loading ? 'Resetting…' : 'Set new password'}
         </button>
@@ -126,7 +126,7 @@ function ResetPasswordForm() {
 
       <p className="text-center text-sm text-muted mt-6">
         Remembered it?{' '}
-        <Link href="/login" className="text-brand hover:underline">
+        <Link href="/login" className="text-fan hover:underline">
           Log in
         </Link>
       </p>

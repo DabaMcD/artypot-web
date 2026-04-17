@@ -219,8 +219,8 @@ function SanctumPageContent() {
         {/* 1 — Open Votives */}
         <div className="bg-surface border border-border rounded-xl p-5">
           <div className="text-xs text-muted tracking-wider mb-2 flex items-center">
-            OPEN PLEDGES
-            <InfoTip content={`Sum total of all pledges on open bounties placed by your ${creator.fan_name_plural ?? 'fans'}`} />
+            OPEN BACKING
+            <InfoTip content={`Total amount committed to open bounties by your ${creator.fan_name_plural ?? 'fans'}`} />
           </div>
           {balanceLoading ? (
             <div className="h-7 w-28 bg-surface-2 animate-pulse rounded mb-1" />
@@ -229,14 +229,14 @@ function SanctumPageContent() {
               ${openVotives.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </div>
           )}
-          <div className="text-xs text-muted mt-1">soft pledges, perishable</div>
+          <div className="text-xs text-muted mt-1">uncommitted, can back out any time</div>
         </div>
 
         {/* 2 — Pending Verification */}
         <div className="bg-surface border border-border rounded-xl p-5">
           <div className="text-xs text-muted tracking-wider mb-2 flex items-center">
             PENDING VERIFICATION
-            <InfoTip content="Pledge total across bounties submitted for review by Council" />
+            <InfoTip content="Total committed to bounties currently under Council review" />
           </div>
           {balanceLoading ? (
             <div className="h-7 w-28 bg-surface-2 animate-pulse rounded mb-1" />
@@ -575,9 +575,9 @@ function SanctumPageContent() {
       <div className="grid sm:grid-cols-2 gap-4">
         <Link
           href="/bounties/new"
-          className="bg-surface border border-border rounded-xl p-4 hover:border-brand/40 transition-colors group"
+          className="bg-surface border border-border rounded-xl p-4 hover:border-fan/40 transition-colors group"
         >
-          <div className="text-sm font-semibold text-foreground group-hover:text-brand transition-colors mb-0.5">
+          <div className="text-sm font-semibold text-foreground group-hover:text-fan transition-colors mb-0.5">
             + New Bounty
           </div>
           <div className="text-xs text-muted">Start a new project for your fans to back</div>

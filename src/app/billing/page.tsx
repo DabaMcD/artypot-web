@@ -61,7 +61,7 @@ export default function BillingPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-foreground mb-1">Payment Methods</h1>
         <p className="text-muted text-sm">
-          Your saved cards are used to charge your votives when a pot pays out. You are only
+          Your saved cards are charged for the bounties you back when they pay out. You are only
           charged once a completed work is council-approved and the 48-hour review window closes.
         </p>
       </div>
@@ -98,13 +98,13 @@ export default function BillingPage() {
         <h2 className="text-sm font-semibold text-foreground">How billing works</h2>
         <ul className="space-y-2 text-sm text-muted">
           {[
-            'You place a votive (a fixed amount) when you back a pot. Nothing is charged at that point.',
-            'When a creator submits their work and the Council approves it, your charge is locked in immediately. You can only revoke your votive while the pot is still open.',
+            'You commit an amount when you back a bounty. Nothing is charged at that point.',
+            'When a creator submits their work and the Council approves it, your charge is locked in immediately. You can only back out while the bounty is still open.',
             'Locked charges are collected automatically on the 24th of each month, or you can pay early using the button above.',
             'Artypot takes a 5% platform fee. Stripe processing fees (2.9% + $0.30) are deducted from the creator\'s payout unless you opt to cover them.',
           ].map((item) => (
             <li key={item} className="flex items-start gap-2">
-              <span className="text-brand mt-0.5 shrink-0">✓</span>
+              <span className="text-fan mt-0.5 shrink-0">✓</span>
               {item}
             </li>
           ))}

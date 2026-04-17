@@ -108,7 +108,7 @@ function CreatorDrawer({ creator, onClose }: { creator: CreatorDetail; onClose: 
             <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">Claimed by</h3>
             <Link
               href={`/users/${creator.user.id}`}
-              className="font-medium text-foreground hover:text-brand transition-colors text-sm"
+              className="font-medium text-foreground hover:text-fan transition-colors text-sm"
             >
               {creator.user.name} →
             </Link>
@@ -262,7 +262,7 @@ export default function AdminCreatorsPage() {
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search by name…"
-            className="flex-1 bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+            className="flex-1 bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
           />
           <div className="flex gap-1 bg-surface-2 border border-border rounded-xl p-1">
             {CLAIMED_TABS.map(({ label, value }) => (

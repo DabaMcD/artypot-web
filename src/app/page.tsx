@@ -15,7 +15,7 @@ export default function HomePage() {
         <h1 className="text-4xl sm:text-5xl font-bold text-foreground tracking-tight mb-3 leading-tight">
           Find a creator.
           <br />
-          <span className="text-brand">Fund the work.</span>
+          <span className="text-fan">Fund the work.</span>
         </h1>
         <p className="text-muted text-lg mb-8 leading-relaxed">
           Search for any creator, artist, or public figure — e.g. Mr Beast
@@ -32,7 +32,7 @@ export default function HomePage() {
           {selectedCreator && (
             <button
               onClick={() => router.push(`/creators/${selectedCreator.id}`)}
-              className="mt-3 w-full bg-brand text-black font-semibold py-3 rounded-lg hover:bg-brand-dim transition-colors text-sm"
+              className="mt-3 w-full bg-fan text-black font-semibold py-3 rounded-lg hover:bg-fan-dim transition-colors text-sm"
             >
               See Pots →
             </button>

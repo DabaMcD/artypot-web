@@ -22,11 +22,11 @@ export default function CashPage() {
   useEffect(() => {
     if (loading) return;
     if (!user) { router.push('/login'); return; }
-    if (user.role === 'mob') { router.push('/billing'); return; }
+    if (user.role === 'fan') { router.push('/billing'); return; }
   }, [loading, user, router]);
 
   useEffect(() => {
-    if (!user || user.role === 'mob') return;
+    if (!user || user.role === 'fan') return;
 
     cashApi
       .creatorBalance()

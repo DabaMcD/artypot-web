@@ -529,7 +529,7 @@ export const admin = {
     }),
 
   // Users
-  listUsers: (params?: { q?: string; filter?: 'creator' | 'council' | 'mob'; page?: number }) => {
+  listUsers: (params?: { q?: string; filter?: 'creator' | 'council' | 'fan'; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null && v !== '')
       .map(([k, v]) => [k, String(v)]) as [string, string][];

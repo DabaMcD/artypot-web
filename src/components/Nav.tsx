@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useState, useEffect } from 'react';
 import NotificationBell from '@/components/NotificationBell';
 import CreatorSearchWidget from '@/components/CreatorSearchWidget';
-import { ROLE_COLORS, ROLE_TEXT_COLORS, ROLE_LABELS } from '@/lib/theme';
+import { ROLE_LABELS } from '@/lib/theme';
 import type { RoleKey } from '@/lib/theme';
 
 export default function Nav() {
@@ -29,11 +30,11 @@ export default function Nav() {
   };
 
   const isActive = (href: string) =>
-    pathname === href ? 'text-brand' : 'text-muted hover:text-foreground';
+    pathname === href ? 'text-fan' : 'text-muted hover:text-foreground';
 
-  const roleColor = user ? ROLE_COLORS[user.role as RoleKey] : ROLE_COLORS.mob;
-  const roleTextColor = user ? ROLE_TEXT_COLORS[user.role as RoleKey] : '#ffffff';
-  const roleLabel = user ? ROLE_LABELS[user.role as RoleKey] : '';
+  const roleBgVar   = `var(--color-${user?.role ?? 'fan'})`;
+  const roleTextVar = user?.role === 'council' ? 'var(--color-brand-light)' : 'var(--color-brand-dark)';
+  const roleLabel   = user ? ROLE_LABELS[user.role as RoleKey] : '';
 
   const logoHref = user ? '/dashboard' : '/';
   const isHomePage = pathname === '/';
@@ -43,8 +44,8 @@ export default function Nav() {
       <nav className={`bg-surface sticky top-0 z-50 ${isHomePage ? '' : 'border-b border-border'}`}>
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link href={logoHref} className="text-brand font-bold text-xl tracking-tight shrink-0">
-            artypot
+          <Link href={logoHref} className="shrink-0 flex items-center">
+            <Image src="/artypot-logo-transparent-dark.png" alt="Artypot" width={1024} height={269} className="h-9 w-auto" priority />
           </Link>
 
           {/* Center: links + search (desktop, non-homepage only) */}
@@ -60,7 +61,7 @@ export default function Nav() {
                 <CreatorSearchWidget
                   navigateOnSelect
                   placeholder="Search creators…"
-                  inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+                  inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
                 />
               </div>
             </div>
@@ -89,11 +90,11 @@ export default function Nav() {
                 <div className="hidden md:block relative">
                   <button
                     onClick={() => setMenuOpen((o) => !o)}
-                    className="flex items-center gap-2 text-sm text-foreground hover:text-brand transition-colors"
+                    className="flex items-center gap-2 text-sm text-foreground hover:text-fan transition-colors"
                   >
                     <span
                       className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                      style={{ background: roleColor, color: roleTextColor }}
+                      style={{ background: roleBgVar, color: roleTextVar }}
                     >
                       {user.name.charAt(0).toUpperCase()}
                     </span>
@@ -112,7 +113,7 @@ export default function Nav() {
                           <div className="flex items-center gap-2.5">
                             <span
                               className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                              style={{ background: roleColor, color: roleTextColor }}
+                              style={{ background: roleBgVar, color: roleTextVar }}
                             >
                               {user.name.charAt(0).toUpperCase()}
                             </span>
@@ -129,7 +130,7 @@ export default function Nav() {
                           className="block px-4 py-2.5 hover:bg-border transition-colors"
                         >
                           <span className="font-medium text-foreground">My Dashboard</span>
-                          <span className="block text-xs text-muted mt-0.5">Pledges, billing &amp; metrics</span>
+                          <span className="block text-xs text-muted mt-0.5">Backing, billing &amp; metrics</span>
                         </Link>
                         <Link
                           href={`/users/${user.id}`}
@@ -220,7 +221,7 @@ export default function Nav() {
                 </Link>
                 <Link
                   href="/register"
-                  className="hidden md:block text-sm bg-brand text-black font-semibold px-3 py-1.5 rounded-md hover:bg-brand-dim transition-colors"
+                  className="hidden md:block text-sm bg-fan text-black font-semibold px-3 py-1.5 rounded-md hover:bg-fan-dim transition-colors"
                 >
                   Sign up
                 </Link>
@@ -257,8 +258,8 @@ export default function Nav() {
       >
         {/* Drawer header */}
         <div className="flex items-center justify-between px-4 h-14 border-b border-border shrink-0">
-          <Link href={logoHref} onClick={() => setDrawerOpen(false)} className="text-brand font-bold text-xl tracking-tight">
-            artypot
+          <Link href={logoHref} onClick={() => setDrawerOpen(false)} className="flex items-center">
+            <Image src="/artypot-logo-transparent-dark.png" alt="Artypot" width={1024} height={269} className="h-9 w-auto" />
           </Link>
           <button
             onClick={() => setDrawerOpen(false)}
@@ -277,13 +278,13 @@ export default function Nav() {
             <div className="flex items-center gap-3">
               <span
                 className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-                style={{ background: roleColor, color: roleTextColor }}
+                style={{ background: roleBgVar, color: roleTextVar }}
               >
                 {user.name.charAt(0).toUpperCase()}
               </span>
               <div className="min-w-0">
                 <p className="font-semibold text-foreground truncate">{user.name}</p>
-                <p className="text-xs font-medium" style={{ color: roleColor }}>{roleLabel}</p>
+                <p className="text-xs font-medium" style={{ color: roleBgVar }}>{roleLabel}</p>
               </div>
             </div>
           </div>
@@ -296,7 +297,7 @@ export default function Nav() {
             <CreatorSearchWidget
               navigateOnSelect
               placeholder="Search creators…"
-              inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+              inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
             />
           </div>
           <div className="border-t border-border" />
@@ -358,7 +359,7 @@ export default function Nav() {
                 <Link
                   href="/register"
                   onClick={() => setDrawerOpen(false)}
-                  className="block text-center text-sm font-semibold bg-brand text-black py-2.5 rounded-lg hover:bg-brand-dim transition-colors"
+                  className="block text-center text-sm font-semibold bg-fan text-black py-2.5 rounded-lg hover:bg-fan-dim transition-colors"
                 >
                   Sign up
                 </Link>

@@ -5,15 +5,16 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 import { stripePromise } from '@/lib/stripe';
 import { billing } from '@/lib/api';
 
-// CardElement style tokens — mirrors the app's dark palette
+// CardElement style tokens — Stripe renders in an iframe so CSS vars don't reach here;
+// keep these in sync with globals.css manually.
 const CARD_STYLE = {
   base: {
-    color: '#f5f5f5',
+    color: '#F2EFE6',       // --color-foreground
     fontFamily: 'ui-sans-serif, system-ui, sans-serif',
     fontSize: '14px',
     fontSmoothing: 'antialiased',
-    '::placeholder': { color: '#888888' },
-    iconColor: '#888888',
+    '::placeholder': { color: '#8C7468' }, // --color-muted
+    iconColor: '#8C7468',
   },
   invalid: {
     color: '#f87171',
@@ -72,7 +73,7 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
         <button
           type="submit"
           disabled={!stripe || submitting}
-          className="flex-1 bg-brand text-black font-semibold py-2.5 text-sm rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+          className="flex-1 bg-fan text-black font-semibold py-2.5 text-sm rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           {submitting ? 'Saving…' : 'Save card'}
         </button>
@@ -114,7 +115,7 @@ export default function AddCardForm({ onSuccess, onCancel }: AddCardFormProps) {
   if (!clientSecret) {
     return (
       <div className="py-6 flex justify-center">
-        <div className="w-5 h-5 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+        <div className="w-5 h-5 border-2 border-fan border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }

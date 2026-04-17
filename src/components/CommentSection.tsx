@@ -48,7 +48,7 @@ function UserAvatar({ user, size = 8 }: { user: Comment['user']; size?: number }
       ? 'bg-council/20 text-council'
       : user.role === 'creator'
         ? 'bg-creator/20 text-creator'
-        : 'bg-brand/20 text-brand';
+        : 'bg-fan/20 text-fan';
   return (
     <div
       className={`${sizeClass} rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${roleColor}`}
@@ -168,13 +168,13 @@ function CommentRow({
               value={editingText}
               onChange={(e) => onSetEditText(e.target.value)}
               maxLength={2000}
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
             />
             <div className="flex gap-2">
               <button
                 onClick={onSubmitEdit}
                 disabled={!editingText.trim() || editingText === comment.content}
-                className="text-xs px-3 py-1.5 bg-brand text-black font-semibold rounded-lg hover:bg-brand-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="text-xs px-3 py-1.5 bg-fan text-black font-semibold rounded-lg hover:bg-fan-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Save
               </button>
@@ -258,13 +258,13 @@ function CommentRow({
               onChange={(e) => onSetReplyText(e.target.value)}
               maxLength={2000}
               placeholder="Write a reply…"
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
             />
             <div className="flex gap-2">
               <button
                 onClick={onSubmitReply}
                 disabled={!replyText.trim()}
-                className="text-xs px-3 py-1.5 bg-brand text-black font-semibold rounded-lg hover:bg-brand-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="text-xs px-3 py-1.5 bg-fan text-black font-semibold rounded-lg hover:bg-fan-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Post reply
               </button>
@@ -284,7 +284,7 @@ function CommentRow({
             {comment.reply_count > 0 && replies === undefined && (
               <button
                 onClick={onLoadReplies}
-                className="text-xs text-brand hover:text-brand-dim transition-colors"
+                className="text-xs text-fan hover:text-fan-dim transition-colors"
               >
                 {comment.reply_count} {comment.reply_count === 1 ? 'reply' : 'replies'} ↓
               </button>
@@ -601,14 +601,14 @@ export default function CommentSection({ potId, inline = false, onTotalChange }:
               onChange={(e) => setNewText(e.target.value)}
               maxLength={2000}
               placeholder="Leave a comment…"
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
             />
             <div className="flex justify-between items-center">
               <span className="text-xs text-muted">{newText.length}/2000</span>
               <button
                 onClick={submitComment}
                 disabled={!newText.trim() || submitting}
-                className="text-sm px-4 py-1.5 bg-brand text-black font-semibold rounded-lg hover:bg-brand-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="text-sm px-4 py-1.5 bg-fan text-black font-semibold rounded-lg hover:bg-fan-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 {submitting ? 'Posting…' : 'Post'}
               </button>
@@ -617,7 +617,7 @@ export default function CommentSection({ potId, inline = false, onTotalChange }:
         </div>
       ) : (
         <div className="mb-8 text-sm text-muted">
-          <Link href="/login" className="text-brand hover:underline">Log in</Link>
+          <Link href="/login" className="text-fan hover:underline">Log in</Link>
           {' '}to leave a comment.
         </div>
       )}

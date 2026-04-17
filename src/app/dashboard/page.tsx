@@ -108,7 +108,7 @@ export default function DashboardPage() {
           </Link>
           <Link
             href="/bounties/new"
-            className="bg-brand text-black font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-brand-dim transition-colors"
+            className="bg-fan text-black font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-fan-dim transition-colors"
           >
             + New Bounty
           </Link>
@@ -119,12 +119,12 @@ export default function DashboardPage() {
       <div className="grid sm:grid-cols-3 gap-4 mb-8">
         {/* Total Votives */}
         <div className="bg-surface border border-border rounded-xl p-5">
-          <div className="text-xs text-muted uppercase tracking-wider mb-2">Total Pledges</div>
+          <div className="text-xs text-muted uppercase tracking-wider mb-2">Total Committed</div>
           {votivesLoading ? (
             <div className="h-8 w-24 bg-surface-2 animate-pulse rounded" />
           ) : (
             <>
-              <div className="text-2xl font-bold text-brand">
+              <div className="text-2xl font-bold text-fan">
                 ${totalActiveVotiveAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
               <div className="text-xs text-muted mt-1">across open &amp; approved bounties</div>
@@ -181,8 +181,8 @@ export default function DashboardPage() {
           <div className="grid grid-cols-3 gap-4 pt-4 border-t border-creator/20">
             <div>
               <div className="text-xs text-muted tracking-wider mb-1 flex items-center">
-                OPEN PLEDGES
-                <InfoTip content="Total pledged by fans on your open or submitted bounties. No charge has been written yet — these convert once the Council approves." />
+                OPEN BACKING
+                <InfoTip content="Total committed by fans to your open or submitted bounties. Nothing is charged yet — it locks in once the Council approves." />
               </div>
               <div className="text-xl font-bold text-foreground">
                 ${Number(user.creator!.total_votive_sum ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
@@ -237,12 +237,12 @@ export default function DashboardPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-foreground">Payment Methods</h2>
-          <Link href="/billing" className="text-sm text-muted hover:text-brand transition-colors">
+          <Link href="/billing" className="text-sm text-muted hover:text-fan transition-colors">
             Manage →
           </Link>
         </div>
         {paymentMethods.length === 0 ? (
-          <div className="bg-surface border border-brand/30 rounded-xl p-5">
+          <div className="bg-surface border border-fan/30 rounded-xl p-5">
             <p className="text-sm text-muted mb-3">
               No payment methods saved. Add one to start backing bounties.
             </p>
@@ -258,8 +258,8 @@ export default function DashboardPage() {
       {/* My Votives */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-foreground">My Pledges</h2>
-          <Link href="/pledges" className="text-sm text-muted hover:text-brand transition-colors">
+          <h2 className="text-lg font-bold text-foreground">What I&apos;m Backing</h2>
+          <Link href="/pledges" className="text-sm text-muted hover:text-fan transition-colors">
             View all →
           </Link>
         </div>
@@ -275,9 +275,9 @@ export default function DashboardPage() {
           </div>
         ) : myVotives.length === 0 ? (
           <div className="text-center py-10 text-muted border border-dashed border-border rounded-xl">
-            No active pledges.{' '}
-            <Link href="/bounties" className="text-brand hover:underline">Browse bounties</Link>
-            {' '}to start backing projects.
+            Not backing anything yet.{' '}
+            <Link href="/bounties" className="text-fan hover:underline">Browse bounties</Link>
+            {' '}to get started.
           </div>
         ) : (
           <div className="bg-surface border border-border rounded-xl overflow-hidden">
@@ -290,7 +290,7 @@ export default function DashboardPage() {
                   {votive.pot ? (
                     <Link
                       href={`/bounties/${votive.pot_id}`}
-                      className="text-sm text-foreground hover:text-brand transition-colors font-medium truncate block"
+                      className="text-sm text-foreground hover:text-fan transition-colors font-medium truncate block"
                     >
                       {votive.pot.title}
                     </Link>
@@ -304,15 +304,15 @@ export default function DashboardPage() {
                     </p>
                   )}
                 </div>
-                <span className="text-brand font-semibold text-sm ml-4">
+                <span className="text-fan font-semibold text-sm ml-4">
                   ${Number(votive.amount).toFixed(2)}
                 </span>
               </div>
             ))}
             {myVotives.length > 5 && (
               <div className="px-5 py-3 border-t border-border">
-                <Link href="/pledges" className="text-sm text-muted hover:text-brand transition-colors">
-                  +{myVotives.length - 5} more — View all pledges →
+                <Link href="/pledges" className="text-sm text-muted hover:text-fan transition-colors">
+                  +{myVotives.length - 5} more — View all →
                 </Link>
               </div>
             )}
@@ -335,13 +335,13 @@ export default function DashboardPage() {
                   {entry.pot && (
                     <Link
                       href={`/bounties/${entry.pot.id}`}
-                      className="text-xs text-muted hover:text-brand transition-colors"
+                      className="text-xs text-muted hover:text-fan transition-colors"
                     >
                       {entry.pot.title}
                     </Link>
                   )}
                 </div>
-                <div className={`font-semibold text-sm ${Number(entry.amount) < 0 ? 'text-red-400' : 'text-brand'}`}>
+                <div className={`font-semibold text-sm ${Number(entry.amount) < 0 ? 'text-red-400' : 'text-fan'}`}>
                   {Number(entry.amount) < 0 ? '-' : '+'}${Math.abs(Number(entry.amount)).toFixed(2)}
                 </div>
               </div>
@@ -354,7 +354,7 @@ export default function DashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-foreground">Browse Bounties</h2>
-          <Link href="/bounties" className="text-sm text-muted hover:text-brand transition-colors">
+          <Link href="/bounties" className="text-sm text-muted hover:text-fan transition-colors">
             View all →
           </Link>
         </div>
@@ -368,7 +368,7 @@ export default function DashboardPage() {
         ) : !myPots || myPots.data.length === 0 ? (
           <div className="text-center py-12 text-muted border border-dashed border-border rounded-xl">
             No bounties yet.{' '}
-            <Link href="/bounties/new" className="text-brand hover:underline">Create one</Link>
+            <Link href="/bounties/new" className="text-fan hover:underline">Create one</Link>
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

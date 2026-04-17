@@ -12,7 +12,7 @@ const HOW_IT_WORKS = [
     step: '02',
     title: 'The bounty grows.',
     description:
-      'Other people who want the same thing add their pledges. The creator can see the bounty growing in real time. Sometimes that\'s all the signal they need.',
+      'Other people who want the same thing chip in. The creator can see the bounty growing in real time. Sometimes that\'s all the signal they need.',
   },
   {
     step: '03',
@@ -29,15 +29,15 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-4 pt-24 pb-20">
         <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 bg-brand/10 border border-brand/30 text-brand text-xs font-medium px-3 py-1.5 rounded-full mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
+          <div className="inline-flex items-center gap-2 bg-fan/10 border border-fan/30 text-fan text-xs font-medium px-3 py-1.5 rounded-full mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-fan animate-pulse" />
             Not a tip jar. Not a Kickstarter.
           </div>
 
           <h1 className="text-5xl sm:text-6xl font-bold tracking-tight text-foreground leading-tight mb-6">
             A comment saying &apos;please&apos;
             <br />is easy to scroll past.
-            <br /><span className="text-brand">$10,000? Not so much</span>
+            <br /><span className="text-fan">$10,000? Not so much</span>
           </h1>
 
           <p className="text-xl text-muted max-w-xl leading-relaxed mb-10">
@@ -48,7 +48,7 @@ export default function AboutPage() {
           <div className="flex flex-wrap gap-3 mb-5">
             <Link
               href="/bounties"
-              className="bg-brand text-black font-semibold px-6 py-3 rounded-lg hover:bg-brand-dim transition-colors"
+              className="bg-fan text-black font-semibold px-6 py-3 rounded-lg hover:bg-fan-dim transition-colors"
             >
               Browse Bounties
             </Link>
@@ -91,8 +91,8 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-surface border border-brand/30 rounded-xl p-8">
-              <p className="text-xs font-mono text-brand uppercase tracking-wider mb-4">
+            <div className="bg-surface border border-fan/30 rounded-xl p-8">
+              <p className="text-xs font-mono text-fan uppercase tracking-wider mb-4">
                 The way this works
               </p>
               <p className="text-foreground text-base leading-relaxed">
@@ -115,7 +115,7 @@ export default function AboutPage() {
           <div className="grid sm:grid-cols-3 gap-6">
             {HOW_IT_WORKS.map(({ step, title, description }) => (
               <div key={step} className="bg-surface border border-border rounded-xl p-6">
-                <div className="text-brand font-mono text-sm font-bold mb-4">{step}</div>
+                <div className="text-fan font-mono text-sm font-bold mb-4">{step}</div>
                 <h3 className="font-semibold text-foreground mb-2">{title}</h3>
                 <p className="text-base text-muted leading-relaxed">{description}</p>
               </div>
@@ -131,9 +131,9 @@ export default function AboutPage() {
           <p className="text-muted mb-12">Three kinds of people. You&apos;re probably one of them.</p>
 
           <div className="grid sm:grid-cols-3 gap-6">
-            <div className="rounded-xl border border-brand/30 bg-brand/5 p-6">
-              <div className="w-3 h-3 rounded-full mb-4 bg-brand" />
-              <h3 className="font-semibold text-brand mb-2">Fans</h3>
+            <div className="rounded-xl border border-fan/30 bg-fan/5 p-6">
+              <div className="w-3 h-3 rounded-full mb-4 bg-fan" />
+              <h3 className="font-semibold text-fan mb-2">Fans</h3>
               <p className="text-base text-muted leading-relaxed">
                 You. You want a specific thing made and you&apos;re willing to back it with
                 real money instead of a strongly-worded tweet.
@@ -182,7 +182,7 @@ export default function AboutPage() {
                   'Fans who funded the project get no special access — same as everyone else',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <span className="text-brand mt-0.5">✓</span>
+                    <span className="text-fan mt-0.5">✓</span>
                     {item}
                   </li>
                 ))}
@@ -194,11 +194,11 @@ export default function AboutPage() {
                 A bounty&apos;s life
               </div>
               {[
-                { label: 'Bounty opens', color: 'bg-brand' },
-                { label: 'Fans place pledges', color: 'bg-brand' },
+                { label: 'Bounty opens', color: 'bg-fan' },
+                { label: 'Fans back the bounty', color: 'bg-fan' },
                 { label: 'Creator submits work', color: 'bg-creator' },
                 { label: 'Council signs off', color: 'bg-council' },
-                { label: 'Fans get charged', color: 'bg-brand' },
+                { label: 'Fans get charged', color: 'bg-fan' },
                 { label: 'Creator gets paid', color: 'bg-creator' },
               ].map(({ label, color }, i, arr) => (
                 <div key={label} className="flex gap-3">
@@ -262,7 +262,7 @@ export default function AboutPage() {
           </p>
           <Link
             href="/bounties"
-            className="inline-block bg-brand text-black font-semibold px-8 py-3 rounded-lg hover:bg-brand-dim transition-colors"
+            className="inline-block bg-fan text-black font-semibold px-8 py-3 rounded-lg hover:bg-fan-dim transition-colors"
           >
             Browse Open Bounties
           </Link>

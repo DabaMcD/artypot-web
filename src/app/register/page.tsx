@@ -43,7 +43,7 @@ export default function RegisterPage() {
     <div className="min-h-[calc(100vh-56px)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="text-brand font-bold text-2xl mb-1">artypot</div>
+          <div className="text-fan font-bold text-2xl mb-1">artypot</div>
           <h1 className="text-xl font-semibold text-foreground">Create an account</h1>
           <p className="text-muted text-sm mt-1">Join the community</p>
         </div>
@@ -69,7 +69,7 @@ export default function RegisterPage() {
               autoComplete="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
               placeholder="Your name"
             />
           </div>
@@ -85,7 +85,7 @@ export default function RegisterPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
               placeholder="you@example.com"
             />
           </div>
@@ -101,7 +101,7 @@ export default function RegisterPage() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -117,7 +117,7 @@ export default function RegisterPage() {
               autoComplete="new-password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -125,7 +125,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-brand text-black font-semibold py-2.5 rounded-lg hover:bg-brand-dim transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-fan text-black font-semibold py-2.5 rounded-lg hover:bg-fan-dim transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating account…' : 'Create account'}
           </button>
@@ -133,7 +133,7 @@ export default function RegisterPage() {
 
         <p className="text-center text-sm text-muted mt-4">
           Already have an account?{' '}
-          <Link href="/login" className="text-brand hover:underline">
+          <Link href="/login" className="text-fan hover:underline">
             Log in
           </Link>
         </p>

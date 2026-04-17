@@ -63,15 +63,15 @@ function HeraldGateModal({
         {/* Explanation */}
         <p className="text-sm text-muted leading-relaxed mb-5">
           {creator.herald?.id ? (
-            <Link href={`/users/${creator.herald.id}`} onClick={onClose} className="text-brand font-semibold hover:underline">
+            <Link href={`/users/${creator.herald.id}`} onClick={onClose} className="text-fan font-semibold hover:underline">
               {heraldName}
             </Link>
           ) : (
-            <span className="text-brand font-semibold">{heraldName}</span>
+            <span className="text-fan font-semibold">{heraldName}</span>
           )}{' '}
-          is the current Herald for this unclaimed profile. The Herald is the top votive-maker who earns
-          the right to keep this profile up to date. To take the edit seat, your total votives
-          (24+ hours old) must exceed theirs.
+          is the current Herald for this unclaimed profile. The Herald is the top backer who earns
+          the right to keep this profile up to date. To take the edit seat, the total amount you&apos;ve
+          committed (24+ hours old) must exceed theirs.
         </p>
 
         {/* Breakdown */}
@@ -87,7 +87,7 @@ function HeraldGateModal({
                 <span className="text-sm font-medium text-foreground">{heraldName}</span>
               )}
             </div>
-            <span className="text-sm font-bold text-brand">{fmt(heraldTotal)}*</span>
+            <span className="text-sm font-bold text-fan">{fmt(heraldTotal)}*</span>
           </div>
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ function HeraldGateModal({
           <p className="text-xs text-muted text-center mb-3">
             You need{' '}
             <span className="text-foreground font-semibold">{fmt(deficit)} more</span>
-            {' '}in pledges aged over 24 hours to take the Herald seat.
+            {' '}more committed (aged over 24 hours) to take the Herald seat.
           </p>
         )}
 
@@ -117,9 +117,9 @@ function HeraldGateModal({
         <Link
           href={`/bounties?creator_id=${creator.id}`}
           onClick={onClose}
-          className="block w-full text-center bg-brand text-black font-semibold text-sm py-2.5 rounded-lg hover:opacity-90 transition-opacity"
+          className="block w-full text-center bg-fan text-black font-semibold text-sm py-2.5 rounded-lg hover:opacity-90 transition-opacity"
         >
-          View bounties to place pledges on →
+          View bounties to back →
         </Link>
       </div>
     </div>
@@ -459,7 +459,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                 )}
                 {creator.amount_earned != null && (
                   <div>
-                    <div className="text-brand font-semibold text-lg">
+                    <div className="text-fan font-semibold text-lg">
                       ${Number(creator.amount_earned).toLocaleString()}
                     </div>
                     <div className="text-muted text-xs">Total earned</div>
@@ -467,10 +467,10 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                 )}
                 {creator.total_votive_sum != null && (
                   <div>
-                    <div className="text-brand font-semibold text-lg">
+                    <div className="text-fan font-semibold text-lg">
                       ${Number(creator.total_votive_sum).toLocaleString()}
                     </div>
-                    <div className="text-muted text-xs">Active pledges</div>
+                    <div className="text-muted text-xs">Active backing</div>
                   </div>
                 )}
               </div>
@@ -503,7 +503,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                 {user && (
                   <Link
                     href={`/bounties/new?creator_id=${creator.id}`}
-                    className="text-sm bg-brand text-black font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                    className="text-sm bg-fan text-black font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                   >
                     + New Bounty
                   </Link>
@@ -514,7 +514,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                 <div className="text-center py-16 text-muted border border-border border-dashed rounded-xl">
                   No bounties yet for this creator.{' '}
                   {user && (
-                    <Link href={`/bounties/new?creator_id=${creator.id}`} className="text-brand hover:underline">
+                    <Link href={`/bounties/new?creator_id=${creator.id}`} className="text-fan hover:underline">
                       Create the first one
                     </Link>
                   )}

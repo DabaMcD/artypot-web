@@ -29,7 +29,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-[calc(100vh-56px)] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="text-brand font-bold text-2xl mb-1">artypot</div>
+          <div className="text-fan font-bold text-2xl mb-1">artypot</div>
           <h1 className="text-xl font-semibold text-foreground">Forgot your password?</h1>
           <p className="text-muted text-sm mt-1">
             {submitted
@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
             </p>
             <Link
               href="/login"
-              className="inline-block text-sm text-brand hover:underline"
+              className="inline-block text-sm text-fan hover:underline"
             >
               ← Back to login
             </Link>
@@ -74,7 +74,7 @@ export default function ForgotPasswordPage() {
                 autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
                 placeholder="you@example.com"
               />
             </div>
@@ -82,14 +82,14 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading || !email}
-              className="w-full bg-brand text-black font-semibold py-2.5 rounded-lg hover:bg-brand-dim transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-fan text-black font-semibold py-2.5 rounded-lg hover:bg-fan-dim transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Sending…' : 'Send reset link'}
             </button>
 
             <p className="text-center text-sm text-muted">
               Remembered it?{' '}
-              <Link href="/login" className="text-brand hover:underline">
+              <Link href="/login" className="text-fan hover:underline">
                 Log in
               </Link>
             </p>

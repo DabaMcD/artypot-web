@@ -61,7 +61,7 @@ export default function ChangePasswordPage() {
     return (
       <div className="max-w-md mx-auto px-4 py-20 text-center">
         <p className="text-muted text-sm mb-4">You need a verified email to change your password.</p>
-        <Link href="/settings" className="text-brand hover:underline text-sm">
+        <Link href="/settings" className="text-fan hover:underline text-sm">
           ← Back to settings
         </Link>
       </div>
@@ -93,7 +93,7 @@ export default function ChangePasswordPage() {
               onChange={(e) => setCurrentPassword(e.target.value)}
               required
               autoComplete="current-password"
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-brand transition-colors"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-fan transition-colors"
             />
           </div>
 
@@ -108,7 +108,7 @@ export default function ChangePasswordPage() {
               required
               minLength={8}
               autoComplete="new-password"
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-brand transition-colors"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-fan transition-colors"
             />
           </div>
 
@@ -123,14 +123,14 @@ export default function ChangePasswordPage() {
               required
               minLength={8}
               autoComplete="new-password"
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-brand transition-colors"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-fan transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading || !currentPassword || !newPassword || !newPasswordConfirm}
-            className="w-full bg-brand text-black font-semibold py-2.5 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50 transition-colors"
+            className="w-full bg-fan text-black font-semibold py-2.5 text-sm rounded-lg hover:bg-fan-dim disabled:opacity-50 transition-colors"
           >
             {loading ? 'Saving…' : 'Update password'}
           </button>

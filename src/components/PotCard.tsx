@@ -16,10 +16,10 @@ export default function PotCard({ pot }: { pot: Pot }) {
   const fanPlural   = pot.creator?.fan_name_plural || pot.creator?.fan_name || 'supporters';
 
   return (
-    <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-brand/50 transition-colors group">
+    <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-fan/50 transition-colors group">
       <div className="flex items-start justify-between gap-3 mb-3">
         {/* Stretched link title — ::after pseudo-element covers the whole card */}
-        <h3 className="font-semibold text-foreground group-hover:text-brand transition-colors line-clamp-2 leading-snug">
+        <h3 className="font-semibold text-foreground group-hover:text-fan transition-colors line-clamp-2 leading-snug">
           <Link
             href={`/bounties/${pot.id}`}
             className="after:absolute after:inset-0 focus:outline-none"
@@ -40,7 +40,7 @@ export default function PotCard({ pot }: { pot: Pot }) {
 
       <div className="flex items-end justify-between mt-auto pt-3 border-t border-border">
         <div>
-          <div className="text-brand font-bold text-lg">
+          <div className="text-fan font-bold text-lg">
             ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           {backerCount !== null && (

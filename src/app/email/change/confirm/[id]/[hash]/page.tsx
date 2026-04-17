@@ -48,7 +48,7 @@ function EmailChangeConfirmContent() {
 
         {state === 'loading' && (
           <>
-            <div className="w-10 h-10 rounded-full border-2 border-brand border-t-transparent animate-spin mx-auto mb-4" />
+            <div className="w-10 h-10 rounded-full border-2 border-fan border-t-transparent animate-spin mx-auto mb-4" />
             <p className="text-foreground font-medium">Confirming your new email…</p>
           </>
         )}
@@ -60,7 +60,7 @@ function EmailChangeConfirmContent() {
             <p className="text-sm text-muted mb-6">Your email has been changed successfully.</p>
             <Link
               href="/settings"
-              className="inline-block bg-brand text-black font-semibold px-6 py-2.5 rounded-lg text-sm hover:bg-brand-dim transition-colors"
+              className="inline-block bg-fan text-black font-semibold px-6 py-2.5 rounded-lg text-sm hover:bg-fan-dim transition-colors"
             >
               Go to settings
             </Link>
@@ -91,7 +91,7 @@ export default function EmailChangeConfirmPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center">
-          <div className="w-10 h-10 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+          <div className="w-10 h-10 rounded-full border-2 border-fan border-t-transparent animate-spin" />
         </div>
       }
     >

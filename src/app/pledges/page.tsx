@@ -20,7 +20,7 @@ const STATUS_COLORS: Record<string, string> = {
   open:      'bg-green-900/40 text-green-400 border border-green-800/50',
   completed: 'bg-blue-900/40 text-blue-400 border border-blue-800/50',
   approved:  'bg-creator/20 text-creator border border-creator/30',
-  paid_out:  'bg-brand/20 text-brand border border-brand/30',
+  paid_out:  'bg-fan/20 text-fan border border-fan/30',
   revoked:   'bg-red-900/40 text-red-400 border border-red-800/50',
 };
 
@@ -78,9 +78,9 @@ export default function MyVotivesPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">My Pledges</h1>
+          <h1 className="text-2xl font-bold text-foreground">What I&apos;m Backing</h1>
           <p className="text-sm text-muted mt-0.5">
-            {total} active pledge{total !== 1 ? 's' : ''}
+            {total} active {total !== 1 ? 'commitments' : 'commitment'}
             {totalActiveAmount !== null && totalActiveAmount > 0 && (
               <> · <span className="text-foreground">${totalActiveAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total</span></>
             )}
@@ -103,7 +103,7 @@ export default function MyVotivesPage() {
             onClick={() => handleSort(s)}
             className={`text-sm px-3 py-1.5 rounded-lg border transition-colors ${
               sort === s
-                ? 'bg-brand/15 border-brand/40 text-brand font-medium'
+                ? 'bg-fan/15 border-fan/40 text-fan font-medium'
                 : 'border-border text-muted hover:text-foreground hover:border-foreground/20'
             }`}
           >
@@ -127,9 +127,9 @@ export default function MyVotivesPage() {
         </div>
       ) : votives.length === 0 ? (
         <div className="text-center py-12 text-muted border border-dashed border-border rounded-xl">
-          No active pledges.{' '}
-          <Link href="/bounties" className="text-brand hover:underline">Browse bounties</Link>
-          {' '}to start backing projects.
+          Not backing anything yet.{' '}
+          <Link href="/bounties" className="text-fan hover:underline">Browse bounties</Link>
+          {' '}to get started.
         </div>
       ) : (
         <div className="bg-surface border border-border rounded-xl overflow-hidden">
@@ -145,7 +145,7 @@ export default function MyVotivesPage() {
                   {votive.pot ? (
                     <Link
                       href={`/bounties/${votive.pot_id}`}
-                      className="text-sm font-medium text-foreground hover:text-brand transition-colors block truncate"
+                      className="text-sm font-medium text-foreground hover:text-fan transition-colors block truncate"
                     >
                       {votive.pot.title}
                     </Link>
@@ -172,7 +172,7 @@ export default function MyVotivesPage() {
                 </div>
 
                 {/* Amount */}
-                <span className="text-brand font-bold text-sm shrink-0">
+                <span className="text-fan font-bold text-sm shrink-0">
                   ${Number(votive.amount).toFixed(2)}
                 </span>
               </div>

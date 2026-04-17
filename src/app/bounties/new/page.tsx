@@ -121,7 +121,7 @@ function NewPotForm() {
     }
     const amount = parseFloat(initialVotiveAmount);
     if (isNaN(amount) || amount < 1) {
-      toast('Initial pledge must be at least $1.', 'error');
+      toast('Minimum opening commitment is $1.', 'error');
       return;
     }
     setSubmitting(true);
@@ -148,7 +148,7 @@ function NewPotForm() {
     return (
       <div className="max-w-lg mx-auto px-4 py-20 text-center text-muted">
         <p className="mb-4">You need to be logged in to create a bounty.</p>
-        <Link href="/login" className="text-brand hover:underline">
+        <Link href="/login" className="text-fan hover:underline">
           Log in
         </Link>
       </div>
@@ -286,7 +286,7 @@ function NewPotForm() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Do a backflip while singing the national anthem"
-            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
           />
         </div>
 
@@ -300,14 +300,14 @@ function NewPotForm() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="What specifically must be done? Any requirements?"
-            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
+            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
           />
         </div>
 
-        {/* Initial pledge amount */}
+        {/* Initial commitment amount */}
         <div>
           <label className="block text-s font-medium text-foreground mb-1.5">
-            Your opening pledge
+            Your opening commitment
           </label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm select-none">$</span>
@@ -319,7 +319,7 @@ function NewPotForm() {
               step="0.01"
               value={initialVotiveAmount}
               onChange={(e) => setInitialVotiveAmount(e.target.value)}
-              className="w-full bg-surface-2 border border-border rounded-lg pl-7 pr-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-brand transition-colors"
+              className="w-full bg-surface-2 border border-border rounded-lg pl-7 pr-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-fan transition-colors"
             />
           </div>
           <p className="text-sm text-muted mt-1.5">
@@ -330,7 +330,7 @@ function NewPotForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-brand text-black font-semibold py-2.5 rounded-lg hover:bg-brand-dim transition-colors disabled:opacity-50"
+          className="w-full bg-fan text-black font-semibold py-2.5 rounded-lg hover:bg-fan-dim transition-colors disabled:opacity-50"
         >
           {submitting ? 'Creating…' : 'Create Bounty'}
         </button>

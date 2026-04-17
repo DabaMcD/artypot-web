@@ -1,4 +1,4 @@
-export type UserRole = 'mob' | 'creator' | 'council';
+export type UserRole = 'fan' | 'creator' | 'council';
 export type PotStatus = 'open' | 'pending' | 'completed' | 'paid_out' | 'revoked';
 export type PotType = 'direct';
 export type CreatorClaimStatus = 'pending' | 'approved' | 'rejected';

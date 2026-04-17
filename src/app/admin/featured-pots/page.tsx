@@ -151,7 +151,7 @@ export default function FeaturedPotsAdminPage() {
           {slots.map((slot, idx) => (
             <div key={idx} className="bg-surface border border-border rounded-xl p-5">
               <div className="flex items-center gap-4 mb-3">
-                <span className="text-brand font-mono text-sm font-bold w-6 shrink-0">
+                <span className="text-fan font-mono text-sm font-bold w-6 shrink-0">
                   {String(idx + 1).padStart(2, '0')}
                 </span>
                 <input
@@ -161,7 +161,7 @@ export default function FeaturedPotsAdminPage() {
                   value={slot.pot_id}
                   onChange={(e) => handleIdChange(idx, e.target.value)}
                   onBlur={(e) => previewSlot(idx, e.target.value)}
-                  className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+                  className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
                 />
                 {slot.previewing && (
                   <span className="text-xs text-muted">Loading…</span>
@@ -169,7 +169,7 @@ export default function FeaturedPotsAdminPage() {
               </div>
 
               {slot.preview && (
-                <div className="ml-10 bg-surface-2 border border-brand/20 rounded-lg px-4 py-3">
+                <div className="ml-10 bg-surface-2 border border-fan/20 rounded-lg px-4 py-3">
                   <p className="text-sm font-medium text-foreground line-clamp-1">
                     {slot.preview.title}
                   </p>
@@ -209,7 +209,7 @@ export default function FeaturedPotsAdminPage() {
         <button
           onClick={handleSave}
           disabled={saving || loading}
-          className="bg-brand text-black font-semibold px-5 py-2.5 rounded-lg hover:bg-brand-dim disabled:opacity-40 transition-colors text-sm"
+          className="bg-fan text-black font-semibold px-5 py-2.5 rounded-lg hover:bg-fan-dim disabled:opacity-40 transition-colors text-sm"
         >
           {saving ? 'Saving…' : 'Save Featured Bounties'}
         </button>

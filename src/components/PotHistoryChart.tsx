@@ -9,9 +9,9 @@ interface Props {
 }
 
 const EVENT_META: Record<string, { label: string; icon: string; colorClass: string }> = {
-  created:            { label: 'Pot initialized',        icon: '🌱', colorClass: 'text-brand' },
-  votive_added:       { label: 'Votive placed',          icon: '💰', colorClass: 'text-green-400' },
-  votive_revoked:     { label: 'Votive revoked',         icon: '↩️',  colorClass: 'text-red-400' },
+  created:            { label: 'Pot initialized',        icon: '🌱', colorClass: 'text-fan' },
+  votive_added:       { label: 'Backed',                  icon: '💰', colorClass: 'text-green-400' },
+  votive_revoked:     { label: 'Backed out',             icon: '↩️',  colorClass: 'text-red-400' },
   details_edited:     { label: 'Details edited',         icon: '✏️',  colorClass: 'text-blue-400' },
   privilege_transfer: { label: 'Ownership transferred',  icon: '👑', colorClass: 'text-council' },
   completed:          { label: 'Submitted for approval', icon: '✅', colorClass: 'text-creator' },
@@ -56,7 +56,7 @@ export default function PotHistoryChart({ events, selectedEvent, onSelect }: Pro
             className={[
               'flex items-start gap-3 px-3 py-2.5 rounded-lg transition-colors',
               clickable ? 'cursor-pointer hover:bg-surface-2' : 'cursor-default',
-              isSelected ? 'bg-brand/5 ring-1 ring-inset ring-brand/25' : '',
+              isSelected ? 'bg-fan/5 ring-1 ring-inset ring-fan/25' : '',
             ].filter(Boolean).join(' ')}
           >
             {/* Icon */}
@@ -74,7 +74,7 @@ export default function PotHistoryChart({ events, selectedEvent, onSelect }: Pro
                   <span className="text-xs text-muted">{event.user.name}</span>
                 )}
                 {event.amount != null && (
-                  <span className="text-xs text-brand font-semibold ml-auto shrink-0">
+                  <span className="text-xs text-fan font-semibold ml-auto shrink-0">
                     ${event.amount.toFixed(2)}
                   </span>
                 )}
@@ -91,7 +91,7 @@ export default function PotHistoryChart({ events, selectedEvent, onSelect }: Pro
               <div className="flex items-center justify-between gap-2 mt-0.5">
                 <p className="text-xs text-muted/50">{formatDate(event.at)}</p>
                 {clickable && (
-                  <p className={`text-xs shrink-0 ${isSelected ? 'text-brand/60' : 'text-muted/40'}`}>
+                  <p className={`text-xs shrink-0 ${isSelected ? 'text-fan/60' : 'text-muted/40'}`}>
                     {isSelected ? '● viewing' : 'click to view'}
                   </p>
                 )}

@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { users as usersApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { PublicUser } from '@/lib/types';
-import { COLORS } from '@/lib/theme';
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', {
@@ -85,7 +84,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
             ) : (
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold border border-border"
-                style={{ background: COLORS.brand, color: '#0a0a0a' }}
+                style={{ background: 'var(--color-fan)', color: 'var(--color-brand-dark)' }}
               >
                 {profile.name.charAt(0).toUpperCase()}
               </div>
@@ -137,7 +136,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
             {isOwnProfile && (
               <Link
                 href="/pledges"
-                className="text-xs text-brand hover:underline"
+                className="text-xs text-fan hover:underline"
               >
                 View all →
               </Link>
@@ -149,7 +148,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
           <p className="text-muted text-sm">This user has chosen to remain anonymous.</p>
         ) : profile.votives.length === 0 ? (
           <p className="text-muted text-sm">
-            {isOwnProfile ? "You haven't placed any votives on open projects yet." : 'No active votives.'}
+            {isOwnProfile ? "You're not backing anything yet." : 'Not backing anything.'}
           </p>
         ) : (
           <div className="space-y-2">

@@ -127,7 +127,7 @@ export default function CreatorSearchWidget({
 
   // ── Search input + dropdown ────────────────────────────────────────────────
   const defaultInputClass =
-    'w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors';
+    'w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors';
 
   return (
     <div className="relative">

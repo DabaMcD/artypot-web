@@ -142,7 +142,7 @@ const NOTIF_ROWS: {
 }[] = [
   {
     label: 'Creator Answered',
-    desc: 'A creator or entity claims their profile and your pledge activates.',
+    desc: 'A creator or entity claims their profile and your backing activates.',
     emailKey: 'creator_answered',
     smsKey: 'sms_creator_answered',
     inAppKey: 'in_app_creator_answered',
@@ -162,15 +162,15 @@ const NOTIF_ROWS: {
     inAppKey: 'in_app_pot_confirmed_completed',
   },
   {
-    label: 'Pledge Confirmation',
-    desc: 'You placed a pledge.',
+    label: 'Backing Confirmed',
+    desc: 'You backed a bounty.',
     emailKey: 'votive_confirmation',
     smsKey: 'sms_votive_confirmation',
     inAppKey: 'in_app_votive_confirmation',
   },
   {
-    label: 'Pledge Expired',
-    desc: 'A pledge of yours reached its expiry and was removed.',
+    label: 'Backing Expired',
+    desc: 'Your backing on a bounty reached its expiry and was removed.',
     emailKey: 'votive_expired',
     smsKey: 'sms_votive_expired',
     inAppKey: 'in_app_votive_expired',
@@ -411,7 +411,7 @@ export default function SettingsPage() {
     try {
       const res = await authApi.broke();
       setShowBrokeConfirm(false);
-      setDangerMsg(`Done — ${res.data.revoked_count} pledge${res.data.revoked_count === 1 ? '' : 's'} cancelled.`);
+      setDangerMsg(`Done — ${res.data.revoked_count} ${res.data.revoked_count === 1 ? 'commitment' : 'commitments'} cancelled.`);
     } catch {
       setDangerMsg('Something went wrong. Please try again.');
     } finally {
@@ -450,17 +450,17 @@ export default function SettingsPage() {
       {/* BROKE confirmation */}
       {showBrokeConfirm && (
         <ConfirmDialog
-          title="Cancel All Pledges"
+          title="Back Out of Everything"
           body={
             <>
-              <p className="mb-2">This will immediately cancel <strong className="text-foreground">all your active pledges</strong> and remove your funding from every project.</p>
+              <p className="mb-2">This will immediately <strong className="text-foreground">cancel all your active commitments</strong> and remove your backing from every project.</p>
               {votiveTotalAmount != null && votiveTotalAmount > 0 && (
-                <p className="mb-2 font-semibold text-foreground">${votiveTotalAmount.toFixed(2)} in active pledges will be cancelled.</p>
+                <p className="mb-2 font-semibold text-foreground">${votiveTotalAmount.toFixed(2)} in active commitments will be cancelled.</p>
               )}
-              <p>This cannot easily be undone. You would need to re-place your pledge individually on each project.</p>
+              <p>This cannot easily be undone. You would need to back each project individually again.</p>
             </>
           }
-          confirmLabel="Yes, Cancel All Pledges"
+          confirmLabel="Yes, Back Out of Everything"
           onConfirm={handleBroke}
           onCancel={() => setShowBrokeConfirm(false)}
           loading={dangerLoading}
@@ -473,7 +473,7 @@ export default function SettingsPage() {
           title="Delete My Account"
           body={
             <>
-              <p className="mb-2">This will <strong className="text-foreground">permanently delete your account</strong>, cancel all your active pledges, and log you out immediately.</p>
+              <p className="mb-2">This will <strong className="text-foreground">permanently delete your account</strong>, cancel all your active commitments, and log you out immediately.</p>
               <p>Your account cannot be recovered. You may re-register with the same email address.</p>
             </>
           }
@@ -525,12 +525,12 @@ export default function SettingsPage() {
                   placeholder="New email address"
                   value={emailChangeInput}
                   onChange={(e) => setEmailChangeInput(e.target.value)}
-                  className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+                  className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
                 />
                 <button
                   type="submit"
                   disabled={emailChangeLoading || !emailChangeInput.trim()}
-                  className="bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-brand/50 disabled:opacity-50 transition-colors whitespace-nowrap"
+                  className="bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-fan/50 disabled:opacity-50 transition-colors whitespace-nowrap"
                 >
                   {emailChangeLoading ? 'Sending…' : 'Change email'}
                 </button>
@@ -574,7 +574,7 @@ export default function SettingsPage() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={picUploading}
-                  className="bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-brand/50 transition-colors disabled:opacity-50"
+                  className="bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-fan/50 transition-colors disabled:opacity-50"
                 >
                   {picFile ? 'Choose different…' : 'Choose photo…'}
                 </button>
@@ -583,7 +583,7 @@ export default function SettingsPage() {
                     type="button"
                     onClick={handlePicUpload}
                     disabled={picUploading}
-                    className="bg-brand text-black text-sm font-semibold px-4 py-2 rounded-lg hover:bg-brand-dim transition-colors disabled:opacity-50"
+                    className="bg-fan text-black text-sm font-semibold px-4 py-2 rounded-lg hover:bg-fan-dim transition-colors disabled:opacity-50"
                   >
                     {picUploading ? 'Uploading…' : 'Upload'}
                   </button>
@@ -603,12 +603,12 @@ export default function SettingsPage() {
               required
               value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
-              className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+              className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
             />
             <button
               type="submit"
               disabled={nameSaving || !nameInput.trim() || nameInput.trim() === user.name}
-              className="bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-brand/50 disabled:opacity-50 transition-colors whitespace-nowrap"
+              className="bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-fan/50 disabled:opacity-50 transition-colors whitespace-nowrap"
             >
               {nameSaving ? 'Saving…' : 'Save name'}
             </button>
@@ -621,7 +621,7 @@ export default function SettingsPage() {
           <Toggle
             id="anonymous-mode"
             label="Anonymous Mode"
-            description="Hide your pledges from your public profile. Your name will appear as [anonymous] on project supporter lists."
+            description="Hide your backing from your public profile. Your name will appear as [anonymous] on project supporter lists."
             checked={isAnonymous}
             onChange={(val) => handleToggle('is_anonymous', val)}
             saving={saving}
@@ -644,7 +644,7 @@ export default function SettingsPage() {
         {/* Billing link */}
         <div className="bg-surface border border-border rounded-xl p-5 mb-6">
           <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-3">Billing</h2>
-          <p className="text-sm text-muted mb-3">Manage your saved payment methods and view your pledge history.</p>
+          <p className="text-sm text-muted mb-3">Manage your saved payment methods and see what you&apos;ve backed.</p>
           <Link
             href="/billing"
             className="inline-block bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-creator/50 transition-colors"
@@ -702,13 +702,13 @@ export default function SettingsPage() {
                   placeholder="000000"
                   value={codeInput}
                   onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, ''))}
-                  className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground tracking-widest focus:outline-none focus:border-brand transition-colors"
+                  className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground tracking-widest focus:outline-none focus:border-fan transition-colors"
                 />
                 <button
                   type="button"
                   onClick={handleVerifyCode}
                   disabled={phoneSaving || codeInput.length !== 6}
-                  className="bg-brand text-black font-semibold px-4 py-2 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50 transition-colors"
+                  className="bg-fan text-black font-semibold px-4 py-2 text-sm rounded-lg hover:bg-fan-dim disabled:opacity-50 transition-colors"
                 >
                   {phoneSaving ? 'Verifying…' : 'Verify'}
                 </button>
@@ -733,7 +733,7 @@ export default function SettingsPage() {
                 type="button"
                 onClick={handleSendCode}
                 disabled={phoneSaving || !phoneInput || !isValidPhoneNumber(phoneInput)}
-                className="bg-brand text-black font-semibold px-4 py-2 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50 transition-colors whitespace-nowrap"
+                className="bg-fan text-black font-semibold px-4 py-2 text-sm rounded-lg hover:bg-fan-dim disabled:opacity-50 transition-colors whitespace-nowrap"
               >
                 {phoneSaving ? 'Sending…' : 'Send code'}
               </button>
@@ -818,7 +818,7 @@ export default function SettingsPage() {
             </div>
             <Link
               href="/settings/password"
-              className="shrink-0 bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-brand/50 transition-colors"
+              className="shrink-0 bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-fan/50 transition-colors"
             >
               Change password →
             </Link>
@@ -836,7 +836,7 @@ export default function SettingsPage() {
                 💸 CLICK THIS BUTTON IF YOU&apos;RE BROKE!!
               </p>
               <p className="text-sm text-muted mt-0.5">
-                DO NOT GIVE AWAY CASH YOU DON&apos;T HAVE. Instantly cancels ALL your active pledges.
+                DO NOT GIVE AWAY CASH YOU DON&apos;T HAVE. Instantly backs out of everything you&apos;ve committed to.
               </p>
             </div>
             <button
@@ -853,7 +853,7 @@ export default function SettingsPage() {
             <div className="flex-1">
               <p className="font-medium text-foreground">Delete My Account</p>
               <p className="text-sm text-muted mt-0.5">
-                Permanently deletes your account and cancels all pledges. Your email can be reused to sign up again.
+                Permanently deletes your account and cancels all your commitments. Your email can be reused to sign up again.
               </p>
             </div>
             <button

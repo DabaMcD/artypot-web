@@ -53,13 +53,13 @@ function ReviewModal({
       <div className="bg-surface border border-border rounded-2xl w-full max-w-lg p-6 shadow-2xl">
         <h2 className="text-lg font-bold text-foreground mb-1">Review Completion</h2>
         <p className="text-sm text-muted mb-4">
-          <Link href={`/bounties/${completion.pot_id}`} className="text-brand hover:underline font-medium">
+          <Link href={`/bounties/${completion.pot_id}`} className="text-fan hover:underline font-medium">
             {completion.pot.title}
           </Link>
           {completion.pot.creator && (
             <span> by <Link href={`/creators/${completion.pot.creator.id}`} className="text-creator hover:underline">{completion.pot.creator.display_name}</Link></span>
           )}
-          {' '}&middot; ${completion.pot.total_pledged.toLocaleString('en-US', { minimumFractionDigits: 2 })} pledged
+          {' '}&middot; ${completion.pot.total_pledged.toLocaleString('en-US', { minimumFractionDigits: 2 })} committed
         </p>
 
         {/* Submission details */}
@@ -70,7 +70,7 @@ function ReviewModal({
               href={completion.submission_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-brand hover:underline break-all"
+              className="text-sm text-fan hover:underline break-all"
             >
               {completion.submission_url}
             </a>
@@ -125,7 +125,7 @@ function ReviewModal({
               rows={3}
               placeholder={decision === 'approved' ? 'e.g. Great work, approved!' : 'e.g. The URL is behind a paywall, please provide a public link'}
               required={decision === 'rejected'}
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
             />
           </div>
 
@@ -299,8 +299,8 @@ export default function AdminCompletionsPage() {
                         {c.pot.creator.display_name}
                       </Link>
                     )}
-                    <span className="text-brand font-medium">
-                      ${c.pot.total_pledged.toLocaleString('en-US', { minimumFractionDigits: 2 })} pledged
+                    <span className="text-fan font-medium">
+                      ${c.pot.total_pledged.toLocaleString('en-US', { minimumFractionDigits: 2 })} committed
                     </span>
                     <span>by {c.submitted_by.name}</span>
                     <span>{new Date(c.created_at).toLocaleDateString()}</span>
@@ -310,7 +310,7 @@ export default function AdminCompletionsPage() {
                     href={c.submission_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-brand hover:underline truncate block max-w-xs"
+                    className="text-xs text-fan hover:underline truncate block max-w-xs"
                   >
                     {c.submission_url}
                   </a>
@@ -327,7 +327,7 @@ export default function AdminCompletionsPage() {
                   <button
                     type="button"
                     onClick={() => setReviewing(c)}
-                    className="shrink-0 bg-brand/10 border border-brand/30 text-brand text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-brand/20 transition-colors"
+                    className="shrink-0 bg-fan/10 border border-fan/30 text-fan text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-fan/20 transition-colors"
                   >
                     Review
                   </button>

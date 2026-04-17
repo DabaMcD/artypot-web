@@ -34,7 +34,7 @@ export default function PrivacyPage() {
             <li className="flex gap-2"><span className="text-creator shrink-0 mt-0.5">✓</span><span><strong>We collect only what we need</strong> to run the platform — your name, email, and payment info.</span></li>
             <li className="flex gap-2"><span className="text-creator shrink-0 mt-0.5">✓</span><span><strong>We don&apos;t sell your data.</strong> We don&apos;t rent it. We don&apos;t use it for ads.</span></li>
             <li className="flex gap-2"><span className="text-creator shrink-0 mt-0.5">✓</span><span><strong>Stripe handles your card details.</strong> We never see or store your full card number.</span></li>
-            <li className="flex gap-2"><span className="text-creator shrink-0 mt-0.5">✓</span><span><strong>Your pledge history is private by default.</strong> You can make your profile anonymous in settings.</span></li>
+            <li className="flex gap-2"><span className="text-creator shrink-0 mt-0.5">✓</span><span><strong>Your backing history is private by default.</strong> You can make your profile anonymous in settings.</span></li>
             <li className="flex gap-2"><span className="text-creator shrink-0 mt-0.5">✓</span><span><strong>You can delete your account</strong> and we&apos;ll remove your personal data.</span></li>
             <li className="flex gap-2"><span className="text-creator shrink-0 mt-0.5">✓</span><span><strong>We use minimal cookies</strong> — just what&apos;s needed for the site to function.</span></li>
           </ul>
@@ -71,14 +71,14 @@ export default function PrivacyPage() {
           <Section id="controller" title="1. Who Controls Your Data">
             <p>
               Artypot is operated by Harry Baldwig (&quot;I,&quot; &quot;me,&quot; &quot;us&quot;). For questions about this policy, contact{' '}
-              <a href="mailto:baldwig@artypot.com" className="text-brand hover:underline">baldwig@artypot.com</a>.
+              <a href="mailto:baldwig@artypot.com" className="text-fan hover:underline">baldwig@artypot.com</a>.
             </p>
           </Section>
 
           <Section id="collected" title="2. What We Collect">
             <p><strong className="text-foreground">Account information:</strong> Your name, email address, and password (hashed — we can&apos;t read it). Optionally: a profile picture and phone number for verification purposes.</p>
             <p><strong className="text-foreground">Financial information:</strong> For backers: payment method details (processed by Stripe — see Section 5). For creators receiving payouts: bank account information (processed by Plaid / Stripe Connect), Tax ID for 1099 reporting.</p>
-            <p><strong className="text-foreground">Activity data:</strong> Bounties you&apos;ve created, pledges you&apos;ve placed, bounties you&apos;ve fulfilled, notifications you&apos;ve received.</p>
+            <p><strong className="text-foreground">Activity data:</strong> Bounties you&apos;ve created, bounties you&apos;ve backed, bounties you&apos;ve fulfilled, notifications you&apos;ve received.</p>
             <p><strong className="text-foreground">Usage data:</strong> Standard server logs — IP addresses, browser type, pages visited, timestamps. We use this to diagnose problems, not to build marketing profiles.</p>
             <p><strong className="text-foreground">Communications:</strong> If you contact us via the support form or email, we retain those messages to resolve your request.</p>
           </Section>
@@ -86,8 +86,8 @@ export default function PrivacyPage() {
           <Section id="how-used" title="3. How We Use It">
             <p>We use your data to:</p>
             <ul className="list-disc list-inside space-y-1 pl-2">
-              <li>Run the Platform — authenticate your account, process pledges, trigger payouts</li>
-              <li>Send you transactional emails (pledge confirmations, bounty updates, payment receipts)</li>
+              <li>Run the Platform — authenticate your account, process payments, trigger payouts</li>
+              <li>Send you transactional emails (payment confirmations, bounty updates, payment receipts)</li>
               <li>Comply with legal obligations — tax reporting (1099s), fraud prevention</li>
               <li>Improve the Platform — identify bugs and usage patterns in aggregate</li>
               <li>Respond to support requests</li>
@@ -110,14 +110,14 @@ export default function PrivacyPage() {
 
           <Section id="payments" title="5. Payment Data and Stripe">
             <p>All payment card data is handled directly by Stripe, Inc. When you enter your card details, that information goes to Stripe&apos;s servers — not ours. We never see or store your full card number, CVV, or expiry.</p>
-            <p>We store a Stripe customer ID and a reference to your saved payment method (e.g., last four digits, card brand) so you can manage your billing. This reference is not sufficient to initiate a charge — only Stripe can do that on our instruction.</p>
-            <p>Stripe&apos;s privacy practices are governed by the <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">Stripe Privacy Policy</a>.</p>
+            <p>We store a Stripe customer ID and a reference to your saved payment method (e.g., last four digits, card type) so you can manage your billing. This reference is not sufficient to initiate a charge — only Stripe can do that on our instruction.</p>
+            <p>Stripe&apos;s privacy practices are governed by the <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-fan hover:underline">Stripe Privacy Policy</a>.</p>
             <p>Creator bank account information is processed by Plaid and Stripe Connect. We store only a tokenised reference to the linked account — not the account number itself.</p>
           </Section>
 
           <Section id="retention" title="6. How Long We Keep It">
             <p>We retain your account data for as long as your account is active. If you delete your account, we remove your personal information from active systems within 30 days.</p>
-            <p>Financial records (pledge amounts, payout records, receipts) are retained for 7 years as required by US tax law, even after account deletion. These records are anonymised where possible.</p>
+            <p>Financial records (payment amounts, payout records, receipts) are retained for 7 years as required by US tax law, even after account deletion. These records are anonymised where possible.</p>
             <p>Server logs are retained for up to 90 days and then deleted.</p>
           </Section>
 
@@ -132,9 +132,9 @@ export default function PrivacyPage() {
             </ul>
             <p>
               To exercise these rights,{' '}
-              <Link href="/support" className="text-brand hover:underline">contact us</Link>{' '}
+              <Link href="/support" className="text-fan hover:underline">contact us</Link>{' '}
               or email{' '}
-              <a href="mailto:baldwig@artypot.com" className="text-brand hover:underline">baldwig@artypot.com</a>.
+              <a href="mailto:baldwig@artypot.com" className="text-fan hover:underline">baldwig@artypot.com</a>.
               We will respond within 30 days.
             </p>
             <p>If you are in the EU/EEA or California, you may have additional rights under GDPR or CCPA. We&apos;ll honour those requests even if you don&apos;t cite the specific regulation.</p>
@@ -165,9 +165,9 @@ export default function PrivacyPage() {
           <Section id="contact" title="12. Contact">
             <p>
               Privacy questions or requests?{' '}
-              <Link href="/support" className="text-brand hover:underline">Contact us here</Link>{' '}
+              <Link href="/support" className="text-fan hover:underline">Contact us here</Link>{' '}
               or email{' '}
-              <a href="mailto:baldwig@artypot.com" className="text-brand hover:underline">baldwig@artypot.com</a>.
+              <a href="mailto:baldwig@artypot.com" className="text-fan hover:underline">baldwig@artypot.com</a>.
             </p>
           </Section>
 

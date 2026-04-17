@@ -28,15 +28,15 @@ export default function ToSPage() {
         </div>
 
         {/* TL;DR */}
-        <div className="bg-brand/5 border border-brand/30 rounded-xl p-6 mb-12">
-          <p className="text-xs font-mono text-brand uppercase tracking-wider mb-3 font-semibold">TL;DR — plain English</p>
+        <div className="bg-fan/5 border border-fan/30 rounded-xl p-6 mb-12">
+          <p className="text-xs font-mono text-fan uppercase tracking-wider mb-3 font-semibold">TL;DR — plain English</p>
           <ul className="space-y-2 text-sm text-foreground">
-            <li className="flex gap-2"><span className="text-brand shrink-0 mt-0.5">✓</span><span><strong>No money moves when you place a pledge</strong> — not even a hold. Your card is only charged after The Council confirms a bounty complete.</span></li>
-            <li className="flex gap-2"><span className="text-brand shrink-0 mt-0.5">✓</span><span><strong>You can revoke your pledge any time</strong> before a bounty completes, for free. No questions asked.</span></li>
-            <li className="flex gap-2"><span className="text-brand shrink-0 mt-0.5">✓</span><span><strong>Artypot takes a 5% platform fee</strong> plus standard Stripe payment processing fees, both deducted from the creator&apos;s payout. Backers are charged their pledged amount in full.</span></li>
-            <li className="flex gap-2"><span className="text-brand shrink-0 mt-0.5">✓</span><span><strong>Payouts go to US-based creators only</strong> for now. Fans anywhere in the world can place pledges.</span></li>
-            <li className="flex gap-2"><span className="text-brand shrink-0 mt-0.5">✓</span><span><strong>If a bounty never completes, no money moves.</strong> Ever.</span></li>
-            <li className="flex gap-2"><span className="text-brand shrink-0 mt-0.5">✓</span><span><strong>Anything legal is allowed.</strong> I personally request you don&apos;t ask for anything depraved — but freedom matters more than trying to enforce morality.</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>No money moves when you back a bounty</strong> — not even a hold. Your card is only charged after The Council confirms a bounty complete.</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>You can back out any time</strong> before a bounty completes, for free. No questions asked.</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Artypot takes a 5% platform fee</strong> plus standard Stripe payment processing fees, both deducted from the creator&apos;s payout. Backers are charged their committed amount in full.</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Payouts go to US-based creators only</strong> for now. Fans anywhere in the world can back bounties.</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>If a bounty never completes, no money moves.</strong> Ever.</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Anything legal is allowed.</strong> I personally request you don&apos;t ask for anything depraved — but freedom matters more than trying to enforce morality.</span></li>
           </ul>
           <p className="text-xs text-muted mt-4">This TL;DR is a helpful summary, not a substitute for the full terms below.</p>
         </div>
@@ -50,7 +50,7 @@ export default function ToSPage() {
               ['description', 'What Artypot Is'],
               ['accounts', 'Accounts'],
               ['bounties', 'Bounties'],
-              ['pledges', 'Pledges and Payments'],
+              ['backing', 'Backing and Payments'],
               ['creators', 'Creator Obligations'],
               ['council', 'The Council'],
               ['fees', 'Fees'],
@@ -74,11 +74,11 @@ export default function ToSPage() {
 
           <Section id="acceptance" title="1. Acceptance of Terms">
             <p>By accessing or using Artypot (&quot;the Platform,&quot; &quot;we,&quot; &quot;us&quot;), you agree to be bound by these Terms of Service. If you do not agree, do not use the Platform.</p>
-            <p>You must be at least 18 years old to create an account or place a pledge. By using the Platform, you represent that you meet this requirement.</p>
+            <p>You must be at least 18 years old to create an account or back a bounty. By using the Platform, you represent that you meet this requirement.</p>
           </Section>
 
           <Section id="description" title="2. What Artypot Is">
-            <p>Artypot is a bounty-style crowdfunding platform. Fans (&quot;backers&quot;) pool pledges toward specific tasks from public entities (&quot;creators&quot;). Pledges are a commitment of funds, but no money moves when a pledge is placed. Charges only occur after The Council reviews and confirms a bounty as complete.</p>
+            <p>Artypot is a bounty-style crowdfunding platform. Fans (&quot;backers&quot;) pool funding toward specific tasks from public entities (&quot;creators&quot;). Backing is a commitment of funds, but no money moves when you back a bounty. Charges only occur after The Council reviews and confirms a bounty as complete.</p>
             <p>Artypot is not a tip jar, subscription service, or pre-order platform. It is a mechanism for coordinating demand signals and releasing payment only on delivery.</p>
           </Section>
 
@@ -95,13 +95,13 @@ export default function ToSPage() {
             <p>While we are committed to being reasonable, the creator a bounty is directed at may also remove that bounty at their sole discretion, for any reason or no reason.</p>
           </Section>
 
-          <Section id="pledges" title="5. Pledges and Payments">
-            <p><strong className="text-foreground">Pledge vs. charge:</strong> When you place a pledge, no money moves and no authorization hold is placed on your card. Your card is only charged after The Council confirms a bounty is complete.</p>
-            <p><strong className="text-foreground">Revoking a pledge:</strong> You may revoke your pledge at any time before a bounty is confirmed completed by Council, even during the &quot;pending review&quot; stage.</p>
-            <p><strong className="text-foreground">Failed charges:</strong> If your card cannot be charged when a bounty completes (expired card, insufficient funds, etc.), the charge will fail and you will be notified. You will not be able to place new pledges until the payment method is resolved.</p>
-            <p><strong className="text-foreground">No completed-bounty refunds:</strong> Once a bounty has been approved by The Council and charges have been processed, payments are final and non-refundable. You had the opportunity to revoke your pledge before completion.</p>
+          <Section id="backing" title="5. Backing and Payments">
+            <p><strong className="text-foreground">Backing vs. charge:</strong> When you back a bounty, no money moves and no authorization hold is placed on your card. Your card is only charged after The Council confirms a bounty is complete.</p>
+            <p><strong className="text-foreground">Backing out:</strong> You may back out at any time before a bounty is confirmed completed by Council, even during the &quot;pending review&quot; stage.</p>
+            <p><strong className="text-foreground">Failed charges:</strong> If your card cannot be charged when a bounty completes (expired card, insufficient funds, etc.), the charge will fail and you will be notified. You will not be able to back new bounties until the payment method is resolved.</p>
+            <p><strong className="text-foreground">No completed-bounty refunds:</strong> Once a bounty has been approved by The Council and charges have been processed, payments are final and non-refundable. You had the opportunity to back out before completion.</p>
             <p><strong className="text-foreground">Uncompleted bounties:</strong> If a bounty is closed or revoked before completion, no charges are made. Nothing was ever held against your card.</p>
-            <p>Payments are processed by Stripe, Inc. By placing a pledge, you also agree to <a href="https://stripe.com/legal" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">Stripe&apos;s Terms of Service</a>.</p>
+            <p>Payments are processed by Stripe, Inc. By backing a bounty, you also agree to <a href="https://stripe.com/legal" target="_blank" rel="noopener noreferrer" className="text-fan hover:underline">Stripe&apos;s Terms of Service</a>.</p>
           </Section>
 
           <Section id="creators" title="6. Creator Obligations">
@@ -122,7 +122,7 @@ export default function ToSPage() {
               <li><strong className="text-foreground">5% platform fee</strong> — Artypot&apos;s fee for running the platform.</li>
               <li><strong className="text-foreground">Payment processing fees</strong> — charged by Stripe for processing the underlying card transactions. These vary slightly by card type and are passed through at cost.</li>
             </ul>
-            <p>Backers are charged their pledged amount in full. All fees come out of the creator&apos;s side.</p>
+            <p>Backers are charged their committed amount in full. All fees come out of the creator&apos;s side.</p>
             <p>Fee rates may change with notice. Changes apply to bounties opened after the effective date of the change.</p>
           </Section>
 
@@ -138,7 +138,7 @@ export default function ToSPage() {
           </Section>
 
           <Section id="termination" title="11. Termination">
-            <p>You may delete your account at any time from your settings page. Deletion cancels all active pledges (no charges) and removes your public profile.</p>
+            <p>You may delete your account at any time from your settings page. Deletion cancels all active commitments (no charges) and removes your public profile.</p>
             <p>We may suspend or terminate your account if you violate these Terms, engage in fraud, or abuse the Platform. In cases of serious violations, we reserve the right to take action without notice.</p>
           </Section>
 
@@ -165,9 +165,9 @@ export default function ToSPage() {
           <Section id="contact" title="16. Contact">
             <p>
               Questions about these Terms?{' '}
-              <Link href="/support" className="text-brand hover:underline">Contact us here</Link>{' '}
+              <Link href="/support" className="text-fan hover:underline">Contact us here</Link>{' '}
               or email{' '}
-              <a href="mailto:baldwig@artypot.com" className="text-brand hover:underline">baldwig@artypot.com</a>.
+              <a href="mailto:baldwig@artypot.com" className="text-fan hover:underline">baldwig@artypot.com</a>.
             </p>
           </Section>
 

@@ -201,7 +201,7 @@ export default function OverlordLogsPage() {
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
                 level === l
                   ? l === 'ALL'
-                    ? 'bg-brand/20 border-brand/40 text-brand'
+                    ? 'bg-fan/20 border-fan/40 text-fan'
                     : (LEVEL_STYLES[l] ?? 'bg-surface-2 border-border text-foreground')
                   : 'bg-surface border-border text-muted hover:text-foreground'
               }`}
@@ -218,7 +218,7 @@ export default function OverlordLogsPage() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search messages…"
-            className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+            className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
           />
           <button
             type="submit"

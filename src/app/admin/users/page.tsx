@@ -11,7 +11,7 @@ import type { AdminUser, UserRole } from '@/lib/types';
 
 function RoleBadge({ role }: { role: UserRole }) {
   const styles: Record<UserRole, string> = {
-    mob:     'bg-zinc-800 border-zinc-700 text-zinc-300',
+    fan:     'bg-zinc-800 border-zinc-700 text-zinc-300',
     creator: 'bg-creator/10 border-creator/30 text-creator',
     council: 'bg-council/10 border-council/30 text-council',
   };
@@ -42,7 +42,7 @@ function UserDrawer({ user, onClose }: { user: AdminUser; onClose: () => void })
         {/* Meta badges */}
         <div className="flex flex-wrap gap-2 mb-5">
           <RoleBadge role={user.role} />
-          {/* Council (or mob) user who also owns a creator profile */}
+          {/* Council (or fan) user who also owns a creator profile */}
           {user.creator && user.role !== 'creator' && (
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-creator/10 border-creator/30 text-creator">
               creator
@@ -110,7 +110,7 @@ function UserDrawer({ user, onClose }: { user: AdminUser; onClose: () => void })
 
 // ── Main page ────────────────────────────────────────────────────────────────
 
-type UserFilter = 'all' | 'creator' | 'council' | 'mob';
+type UserFilter = 'all' | 'creator' | 'council' | 'fan';
 
 export default function AdminUsersPage() {
   const { user, loading: authLoading } = useAuth();
@@ -182,7 +182,7 @@ export default function AdminUsersPage() {
     { label: 'All',     value: 'all' },
     { label: 'Creator', value: 'creator' },
     { label: 'Council', value: 'council' },
-    { label: 'Mob',     value: 'mob' },
+    { label: 'Mob',     value: 'fan' },
   ];
 
   return (
@@ -207,7 +207,7 @@ export default function AdminUsersPage() {
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search name or email…"
-            className="flex-1 bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+            className="flex-1 bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
           />
           <div className="flex gap-1 bg-surface-2 border border-border rounded-xl p-1">
             {FILTER_TABS.map(({ label, value }) => (
@@ -245,7 +245,7 @@ export default function AdminUsersPage() {
                 onClick={() => setSelected(u)}
                 className="w-full text-left bg-surface border border-border rounded-xl px-4 py-3 flex items-center gap-3 hover:border-foreground/20 transition-colors"
               >
-                <div className="w-8 h-8 rounded-full bg-brand/20 flex items-center justify-center text-brand text-xs font-bold shrink-0">
+                <div className="w-8 h-8 rounded-full bg-fan/20 flex items-center justify-center text-fan text-xs font-bold shrink-0">
                   {u.name.charAt(0).toUpperCase()}
                 </div>
 
@@ -253,7 +253,7 @@ export default function AdminUsersPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-medium text-foreground text-sm truncate">{u.name}</span>
                     <RoleBadge role={u.role} />
-                    {/* Show a creator badge when this council/mob user also owns a creator profile */}
+                    {/* Show a creator badge when this council/fan user also owns a creator profile */}
                     {u.creator && u.role !== 'creator' && (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-creator/10 border-creator/30 text-creator">
                         creator

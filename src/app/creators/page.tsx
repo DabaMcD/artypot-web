@@ -86,7 +86,7 @@ export default function CreatorsPage() {
           value={query}
           onChange={(e) => { setQuery(e.target.value); setPage(1); }}
           placeholder="Search by name, handle, or domain…"
-          className="w-full sm:w-72 bg-surface border border-border rounded-lg px-4 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+          className="w-full sm:w-72 bg-surface border border-border rounded-lg px-4 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
         />
 
         {/* Status filter pills */}
@@ -163,7 +163,7 @@ export default function CreatorsPage() {
               <button
                 onClick={() => setPage((p) => p - 1)}
                 disabled={page === 1}
-                className="px-4 py-2 text-sm bg-surface border border-border rounded-lg disabled:opacity-30 hover:border-brand/50 transition-colors"
+                className="px-4 py-2 text-sm bg-surface border border-border rounded-lg disabled:opacity-30 hover:border-fan/50 transition-colors"
               >
                 Previous
               </button>
@@ -173,7 +173,7 @@ export default function CreatorsPage() {
               <button
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page === data.last_page}
-                className="px-4 py-2 text-sm bg-surface border border-border rounded-lg disabled:opacity-30 hover:border-brand/50 transition-colors"
+                className="px-4 py-2 text-sm bg-surface border border-border rounded-lg disabled:opacity-30 hover:border-fan/50 transition-colors"
               >
                 Next
               </button>

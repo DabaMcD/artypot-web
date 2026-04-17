@@ -68,7 +68,7 @@ function EmailVerifyContent() {
       <p className="text-xs text-muted/60 my-2">or</p>
       <Link
         href="/dashboard"
-        className="inline-block bg-brand text-black font-semibold px-6 py-2.5 rounded-lg text-sm hover:bg-brand-dim transition-colors"
+        className="inline-block bg-fan text-black font-semibold px-6 py-2.5 rounded-lg text-sm hover:bg-fan-dim transition-colors"
       >
         Continue to dashboard
       </Link>
@@ -82,7 +82,7 @@ function EmailVerifyContent() {
         {/* Loading */}
         {state === 'loading' && (
           <>
-            <div className="w-10 h-10 rounded-full border-2 border-brand border-t-transparent animate-spin mx-auto mb-4" />
+            <div className="w-10 h-10 rounded-full border-2 border-fan border-t-transparent animate-spin mx-auto mb-4" />
             <p className="text-foreground font-medium">Verifying your email…</p>
           </>
         )}
@@ -119,7 +119,7 @@ function EmailVerifyContent() {
                     type="button"
                     onClick={handleResend}
                     disabled={resending}
-                    className="bg-brand text-black font-semibold px-6 py-2.5 rounded-lg text-sm hover:bg-brand-dim disabled:opacity-50 transition-colors"
+                    className="bg-fan text-black font-semibold px-6 py-2.5 rounded-lg text-sm hover:bg-fan-dim disabled:opacity-50 transition-colors"
                   >
                     {resending ? 'Sending…' : 'Resend verification email'}
                   </button>
@@ -140,7 +140,7 @@ export default function EmailVerifyPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center">
-          <div className="w-10 h-10 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+          <div className="w-10 h-10 rounded-full border-2 border-fan border-t-transparent animate-spin" />
         </div>
       }
     >

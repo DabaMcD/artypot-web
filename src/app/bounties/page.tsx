@@ -55,7 +55,7 @@ export default function PotsPage() {
         {user && (
           <Link
             href="/bounties/new"
-            className="shrink-0 bg-brand text-black font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-brand-dim transition-colors"
+            className="shrink-0 bg-fan text-black font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-fan-dim transition-colors"
           >
             + New Bounty
           </Link>
@@ -70,8 +70,8 @@ export default function PotsPage() {
             onClick={() => handleStatusChange(value)}
             className={`text-sm px-4 py-1.5 rounded-full border transition-colors ${
               status === value
-                ? 'bg-brand text-black border-brand font-semibold'
-                : 'bg-surface border-border text-muted hover:border-brand/50 hover:text-foreground'
+                ? 'bg-fan text-black border-fan font-semibold'
+                : 'bg-surface border-border text-muted hover:border-fan/50 hover:text-foreground'
             }`}
           >
             {label}
@@ -92,7 +92,7 @@ export default function PotsPage() {
         <div className="text-center py-20 text-muted border border-dashed border-border rounded-xl">
           No bounties found.{' '}
           {user && (
-            <Link href="/bounties/new" className="text-brand hover:underline">
+            <Link href="/bounties/new" className="text-fan hover:underline">
               Create one
             </Link>
           )}
@@ -113,7 +113,7 @@ export default function PotsPage() {
               <button
                 onClick={() => setPage((p) => p - 1)}
                 disabled={page === 1}
-                className="px-4 py-2 text-sm bg-surface border border-border rounded-lg disabled:opacity-30 hover:border-brand/50 transition-colors"
+                className="px-4 py-2 text-sm bg-surface border border-border rounded-lg disabled:opacity-30 hover:border-fan/50 transition-colors"
               >
                 Previous
               </button>
@@ -123,7 +123,7 @@ export default function PotsPage() {
               <button
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page === data.last_page}
-                className="px-4 py-2 text-sm bg-surface border border-border rounded-lg disabled:opacity-30 hover:border-brand/50 transition-colors"
+                className="px-4 py-2 text-sm bg-surface border border-border rounded-lg disabled:opacity-30 hover:border-fan/50 transition-colors"
               >
                 Next
               </button>

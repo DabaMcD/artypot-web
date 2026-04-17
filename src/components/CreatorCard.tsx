@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Creator } from '@/lib/types';
-import { ROLE_COLORS, ROLE_TEXT_COLORS } from '@/lib/theme';
+
 
 export default function CreatorCard({ creator }: { creator: Creator }) {
   const isClaimed = !!creator.claimed_at;
@@ -23,7 +23,7 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
         ) : (
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-            style={{ background: ROLE_COLORS.creator, color: ROLE_TEXT_COLORS.creator }}
+            style={{ background: 'var(--color-creator)', color: 'var(--color-brand-dark)' }}
           >
             {creator.display_name.charAt(0).toUpperCase()}
           </div>
@@ -68,13 +68,13 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
           )}
           {creator.total_votive_sum != null && Number(creator.total_votive_sum) > 0 && (
             <span className="ml-auto">
-              <span className="text-brand font-semibold">
+              <span className="text-fan font-semibold">
                 ${Number(creator.total_votive_sum).toLocaleString('en-US', {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,
                 })}
               </span>{' '}
-              in active votives
+              backed
             </span>
           )}
         </div>

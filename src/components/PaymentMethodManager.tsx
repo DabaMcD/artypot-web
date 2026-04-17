@@ -16,8 +16,8 @@ const BRAND_ICONS: Record<string, string> = {
   diners: '💳 Diners',
 };
 
-function cardLabel(brand: string) {
-  return BRAND_ICONS[brand.toLowerCase()] ?? `💳 ${brand}`;
+function cardLabel(cardBrand: string) {
+  return BRAND_ICONS[cardBrand.toLowerCase()] ?? `💳 ${cardBrand}`;
 }
 
 interface Props {
@@ -77,7 +77,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
       onMethodsChange?.(updated);
       if (res.data.revoked_count > 0) {
         toast(
-          `Payment method removed — ${res.data.revoked_count} votive${res.data.revoked_count === 1 ? '' : 's'} ($${res.data.revoked_amount.toFixed(2)}) cancelled.`,
+          `Payment method removed — ${res.data.revoked_count} commitment${res.data.revoked_count === 1 ? '' : 's'} ($${res.data.revoked_amount.toFixed(2)}) cancelled.`,
           'error',
         );
       }
@@ -93,7 +93,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
   if (loading) {
     return (
       <div className="py-4 flex justify-center">
-        <div className="w-5 h-5 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+        <div className="w-5 h-5 border-2 border-fan border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -117,7 +117,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
                     This is your <strong className="text-foreground">only payment method</strong>. Removing it will
                     immediately cancel{' '}
                     <strong className="text-foreground">
-                      all ${votiveTotalAmount.toFixed(2)} of your active votives
+                      all ${votiveTotalAmount.toFixed(2)} of your active commitments
                     </strong>.
                   </p>
                   <p>You won&apos;t be charged for completed pots until you add a new payment method.</p>
@@ -193,7 +193,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
 
         {/* Add card form */}
         {showAdd ? (
-          <div className="border border-brand/30 rounded-xl p-5 bg-surface">
+          <div className="border border-fan/30 rounded-xl p-5 bg-surface">
             {!compact && (
               <p className="text-sm font-medium text-foreground mb-4">Add a card</p>
             )}
@@ -205,7 +205,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
         ) : (
           <button
             onClick={() => setShowAdd(true)}
-            className={`text-sm font-medium text-brand hover:underline ${compact ? '' : 'mt-1 block'}`}
+            className={`text-sm font-medium text-fan hover:underline ${compact ? '' : 'mt-1 block'}`}
           >
             + Add payment method
           </button>
