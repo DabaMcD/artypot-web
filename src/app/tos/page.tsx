@@ -4,7 +4,7 @@ export const metadata = {
   title: 'Terms of Service — Artypot',
 };
 
-const LAST_UPDATED = 'April 11, 2026';
+const LAST_UPDATED = 'April 17, 2026';
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
@@ -17,7 +17,7 @@ function Section({ id, title, children }: { id: string; title: string; children:
 
 export default function ToSPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen font-sans">
       <div className="max-w-3xl mx-auto px-4 pt-16 pb-24">
 
         {/* Header */}
@@ -33,7 +33,7 @@ export default function ToSPage() {
           <ul className="space-y-2 text-sm text-foreground">
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>No money moves when you back a bounty</strong> — not even a hold. Your card is only charged after The Council confirms a bounty complete.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>You can back out any time</strong> before a bounty completes, for free. No questions asked.</span></li>
-            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Artypot takes a 5% platform fee</strong> plus standard Stripe payment processing fees, both deducted from the creator&apos;s payout. Backers are charged their committed amount in full.</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Artypot takes a 15% platform fee</strong>, deducted from the creator&apos;s payout. This fee covers all transaction costs including payment processing — backers are charged their committed amount in full, creators receive 90%.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Payouts go to US-based creators only</strong> for now. Fans anywhere in the world can back bounties.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>If a bounty never completes, no money moves.</strong> Ever.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Anything legal is allowed.</strong> I personally request you don&apos;t ask for anything depraved — but freedom matters more than trying to enforce morality.</span></li>
@@ -102,6 +102,7 @@ export default function ToSPage() {
             <p><strong className="text-foreground">No completed-bounty refunds:</strong> Once a bounty has been approved by The Council and charges have been processed, payments are final and non-refundable. You had the opportunity to back out before completion.</p>
             <p><strong className="text-foreground">Uncompleted bounties:</strong> If a bounty is closed or revoked before completion, no charges are made. Nothing was ever held against your card.</p>
             <p>Payments are processed by Stripe, Inc. By backing a bounty, you also agree to <a href="https://stripe.com/legal" target="_blank" rel="noopener noreferrer" className="text-fan hover:underline">Stripe&apos;s Terms of Service</a>.</p>
+            <p>If a fan disputes a charge for your work, the disputed amount may be deducted from your earnings.</p>
           </Section>
 
           <Section id="creators" title="6. Creator Obligations">
@@ -117,12 +118,8 @@ export default function ToSPage() {
           </Section>
 
           <Section id="fees" title="8. Fees">
-            <p>When a bounty pays out, two fees are deducted from the creator&apos;s payout:</p>
-            <ul className="list-disc list-inside space-y-1 pl-2">
-              <li><strong className="text-foreground">5% platform fee</strong> — Artypot&apos;s fee for running the platform.</li>
-              <li><strong className="text-foreground">Payment processing fees</strong> — charged by Stripe for processing the underlying card transactions. These vary slightly by card type and are passed through at cost.</li>
-            </ul>
-            <p>Backers are charged their committed amount in full. All fees come out of the creator&apos;s side.</p>
+            <p>When a bounty pays out, Artypot deducts a <strong className="text-foreground">15% platform fee</strong> from the creator&apos;s payout. This single fee is all-inclusive: it covers Artypot&apos;s operating costs and all payment processing costs (including Stripe card transaction fees). Creators always receive 90% of the total amount backed.</p>
+            <p>Backers are charged their exact committed amount — no processing surcharges are ever added to a backer&apos;s charge.</p>
             <p>Fee rates may change with notice. Changes apply to bounties opened after the effective date of the change.</p>
           </Section>
 

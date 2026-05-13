@@ -213,7 +213,6 @@ export default function SettingsPage() {
   const { toast } = useToast();
 
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [coverFees, setCoverFees] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Notification settings
@@ -255,7 +254,6 @@ export default function SettingsPage() {
       return;
     }
     setIsAnonymous(user.is_anonymous ?? false);
-    setCoverFees(user.cover_processing_fees ?? false);
     setNameInput(user.name ?? '');
     notifApi.get().then(setNotifSettings).catch(() => {});
     votivesApi.list().then((res) => setVotiveTotalAmount(res.total_active_amount)).catch(() => {});
@@ -277,12 +275,11 @@ export default function SettingsPage() {
     }
   };
 
-  const handleToggle = async (field: 'is_anonymous' | 'cover_processing_fees', value: boolean) => {
+  const handleToggle = async (field: 'is_anonymous', value: boolean) => {
     if (!user) return;
     setSaving(true);
 
     if (field === 'is_anonymous') setIsAnonymous(value);
-    if (field === 'cover_processing_fees') setCoverFees(value);
 
     try {
       await usersApi.update(user.id, { [field]: value });
@@ -290,7 +287,6 @@ export default function SettingsPage() {
       toast('Settings saved.', 'success');
     } catch {
       if (field === 'is_anonymous') setIsAnonymous(!value);
-      if (field === 'cover_processing_fees') setCoverFees(!value);
       toast('Failed to save. Please try again.', 'error');
     } finally {
       setSaving(false);
@@ -442,7 +438,9 @@ export default function SettingsPage() {
 
   if (!user) return null;
 
+  const hasEmail = user.email !== null;
   const emailVerified = !!user.email_verified_at;
+  const emailChannelAvailable = hasEmail && emailVerified;
   const phoneVerified = !!user.phone_verified_at;
 
   return (
@@ -490,13 +488,42 @@ export default function SettingsPage() {
           <p className="text-sm text-muted mt-1">Manage your account preferences.</p>
         </div>
 
-        {/* Email verification warning */}
-        {!emailVerified && (
+        {/* Email Address section — three branches based on email/verification state */}
+        {!hasEmail ? (
+          /* OAuth-only user with no email — offer to add one */
+          <div className="bg-surface border border-border rounded-xl p-5 mb-6">
+            <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-2">Email Address</h2>
+            <p className="text-sm text-muted mb-4">Add an email address to enable email notifications and password-based login.</p>
+            {emailChangeSent ? (
+              <div className="flex items-center gap-2 bg-green-900/20 border border-green-700/30 rounded-lg px-3 py-2 text-xs text-green-300">
+                <span>✉️</span>
+                <span>Confirmation email sent to <strong>{emailChangeSent}</strong>. Click the link to complete the change.</span>
+              </div>
+            ) : (
+              <form onSubmit={handleRequestEmailChange} className="flex gap-2">
+                <input
+                  type="email"
+                  required
+                  placeholder="your@email.com"
+                  value={emailChangeInput}
+                  onChange={(e) => setEmailChangeInput(e.target.value)}
+                  className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={emailChangeLoading || !emailChangeInput.trim()}
+                  className="bg-surface-2 border border-border text-foreground text-sm font-medium px-4 py-2 rounded-lg hover:border-fan/50 disabled:opacity-50 transition-colors whitespace-nowrap"
+                >
+                  {emailChangeLoading ? 'Sending…' : 'Add email'}
+                </button>
+              </form>
+            )}
+          </div>
+        ) : !emailVerified ? (
+          /* Has email but not yet verified */
           <EmailVerificationBanner email={user.email} />
-        )}
-
-        {/* Email Address — change email (only for verified users) */}
-        {emailVerified && (
+        ) : (
+          /* Verified email — change email form */
           <div className="bg-surface border border-border rounded-xl p-5 mb-6">
             <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">Email Address</h2>
 
@@ -620,23 +647,10 @@ export default function SettingsPage() {
           <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-1">Privacy</h2>
           <Toggle
             id="anonymous-mode"
-            label="Anonymous Mode"
+            label="Anonymous Mode (beta)"
             description="Hide your backing from your public profile. Your name will appear as [anonymous] on project supporter lists."
             checked={isAnonymous}
             onChange={(val) => handleToggle('is_anonymous', val)}
-            saving={saving}
-          />
-        </div>
-
-        {/* Payments */}
-        <div className="bg-surface border border-border rounded-xl p-5 mb-6">
-          <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-1">Payments</h2>
-          <Toggle
-            id="cover-fees"
-            label="Cover Payment Processing Fees"
-            description="Automatically add the Stripe processing fee (~2.9% + $0.30) to your monthly payment so creators receive your full stated amount."
-            checked={coverFees}
-            onChange={(val) => handleToggle('cover_processing_fees', val)}
             saving={saving}
           />
         </div>
@@ -746,7 +760,13 @@ export default function SettingsPage() {
           <h2 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">Notifications</h2>
 
           {/* Verification banners */}
-          {!emailVerified && (
+          {!hasEmail && (
+            <div className="flex items-center gap-2 bg-amber-900/20 border border-amber-700/30 rounded-lg px-3 py-2 mb-3 text-xs text-amber-300">
+              <span>✉️</span>
+              <span>Add an email address above to enable email notifications.</span>
+            </div>
+          )}
+          {hasEmail && !emailVerified && (
             <div className="flex items-center gap-2 bg-amber-900/20 border border-amber-700/30 rounded-lg px-3 py-2 mb-3 text-xs text-amber-300">
               <span>✉️</span>
               <span>Verify your email to enable email notifications.</span>
@@ -788,7 +808,7 @@ export default function SettingsPage() {
                     onChange={(val) => handleNotifToggle(emailKey, val)}
                     saving={notifSaving.has(emailKey)}
                     label={`Email: ${label}`}
-                    disabled={!emailVerified}
+                    disabled={!emailChannelAvailable}
                   />
                   <MiniToggle
                     checked={notifSettings[smsKey] as boolean}
@@ -809,8 +829,8 @@ export default function SettingsPage() {
           )}
         </div>
 
-        {/* Change Password link — only for verified users */}
-        {emailVerified && (
+        {/* Change Password link — only for users with a verified email (OAuth-only users have no password) */}
+        {hasEmail && emailVerified && (
           <div className="bg-surface border border-border rounded-xl p-5 mb-6 flex items-center justify-between gap-4">
             <div>
               <p className="font-medium text-foreground text-sm">Password</p>

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono, Fraunces, DM_Sans } from 'next/font/google';
+import { Geist, Geist_Mono, Kalam, Architects_Daughter, DM_Sans } from 'next/font/google';
 import './globals.css';
 import Providers from '@/components/Providers';
 import Nav from '@/components/Nav';
@@ -15,10 +15,16 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-const fraunces = Fraunces({
-  variable: '--font-fraunces',
+const kalam = Kalam({
+  variable: '--font-kalam',
   subsets: ['latin'],
-  axes: ['SOFT', 'WONK', 'opsz'],
+  weight: ['400', '700'],
+});
+
+const architectsDaughter = Architects_Daughter({
+  variable: '--font-architects-daughter',
+  subsets: ['latin'],
+  weight: '400',
 });
 
 const dmSans = DM_Sans({
@@ -45,7 +51,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${dmSans.variable} antialiased min-h-screen flex flex-col`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${kalam.variable} ${architectsDaughter.variable} ${dmSans.variable} antialiased min-h-screen flex flex-col`}>
         <Providers>
           <Nav />
           <main className="flex-1">{children}</main>

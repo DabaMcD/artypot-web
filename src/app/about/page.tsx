@@ -177,7 +177,7 @@ export default function AboutPage() {
               <ul className="space-y-3 text-base text-muted">
                 {[
                   'Your credit card is not charged until the work is done',
-                  '5% platform fee — I need to eat',
+                  '15% platform fee covers everything — I need to eat, and Stripe needs to get paid',
                   'Direct bank payout to the creator',
                   'Fans who funded the project get no special access — same as everyone else',
                 ].map((item) => (

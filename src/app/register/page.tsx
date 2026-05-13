@@ -4,6 +4,18 @@ import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { auth as authApi } from '@/lib/api';
+
+const PROVIDERS = [
+  { id: 'google',   label: 'Google' },
+  { id: 'apple',    label: 'Apple' },
+  { id: 'github',   label: 'GitHub' },
+  { id: 'discord',  label: 'Discord' },
+  { id: 'twitch',   label: 'Twitch' },
+  { id: 'twitter',  label: 'Twitter / X' },
+  { id: 'facebook', label: 'Facebook' },
+  { id: 'reddit',   label: 'Reddit' },
+] as const;
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -15,6 +27,21 @@ export default function RegisterPage() {
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<string | null>(null);
+
+  const handleOAuth = async (provider: string) => {
+    setError('');
+    setOauthLoading(provider);
+    try {
+      const { url } = await authApi.oauthRedirect(provider);
+      window.location.href = url;
+    } catch {
+      setError('Failed to start sign-up. Please try again.');
+      setOauthLoading(null);
+    }
+  };
+
+  const anyLoading = loading || oauthLoading !== null;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -48,16 +75,46 @@ export default function RegisterPage() {
           <p className="text-muted text-sm mt-1">Join the community</p>
         </div>
 
+        {error && (
+          <div className="bg-red-900/20 border border-red-800/50 text-red-400 text-sm rounded-lg px-4 py-3 mb-4">
+            {error}
+          </div>
+        )}
+
+        {/* OAuth provider buttons */}
+        <div className="bg-surface border border-border rounded-xl p-4 space-y-2 mb-4">
+          <div className="grid grid-cols-2 gap-2">
+            {PROVIDERS.map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                disabled={anyLoading}
+                onClick={() => handleOAuth(id)}
+                className="flex items-center justify-center gap-1.5 bg-surface-2 border border-border text-foreground text-xs font-medium py-2 px-3 rounded-lg hover:border-fan/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {oauthLoading === id ? (
+                  <span className="inline-block w-3 h-3 rounded-full border border-current border-t-transparent animate-spin" />
+                ) : null}
+                {oauthLoading === id ? 'Redirecting…' : `Sign up with ${label}`}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="relative mb-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-background px-3 text-muted">or sign up with email</span>
+          </div>
+        </div>
+
         <form
           onSubmit={handleSubmit}
           className="bg-surface border border-border rounded-xl p-6 space-y-4"
         >
-          {error && (
-            <div className="bg-red-900/20 border border-red-800/50 text-red-400 text-sm rounded-lg px-4 py-3">
-              {error}
-            </div>
-          )}
-
           <div>
             <label className="block text-sm font-medium text-foreground mb-1.5" htmlFor="name">
               Name
@@ -124,7 +181,7 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={anyLoading}
             className="w-full bg-fan text-black font-semibold py-2.5 rounded-lg hover:bg-fan-dim transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating account…' : 'Create account'}

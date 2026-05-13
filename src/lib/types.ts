@@ -26,12 +26,31 @@ export interface FormW9StatusResponse {
   record: CreatorW9Record | null;
 }
 
+export type CreatorW8BENStatus = 'initiated' | 'completed' | 'invalid';
+
+export interface CreatorW8BENRecord {
+  id: number;
+  status: CreatorW8BENStatus;
+  qualifies: boolean;
+  w8ben_url: string | null;
+  w8ben_url_expires_at: string | null;
+  completed_at: string | null;
+}
+
+export interface FormW8BENStatusResponse {
+  tax_year: number;
+  ytd_withdrawals: number;
+  threshold: number;
+  requires_w8ben: boolean;
+  record: CreatorW8BENRecord | null;
+}
+
 export interface Withdrawal {
   id: number;
   creator_id: number;
   amount: number;
   status: WithdrawalStatus;
-  plaid_transfer_id?: string | null;
+  stripe_payout_id?: string | null;
   initiated_at?: string | null;
   created_at: string;
 }
@@ -39,7 +58,7 @@ export interface Withdrawal {
 export interface User {
   id: number;
   name: string;
-  email: string;
+  email: string | null; // null for OAuth-only users (e.g. signed up via Reddit)
   pending_email?: string | null;
   email_verified_at?: string | null;
   phone_number?: string | null;
@@ -48,7 +67,6 @@ export interface User {
   profile_picture?: string;
   total_given?: number;
   open_votives_count?: number;
-  cover_processing_fees?: boolean;
   is_anonymous?: boolean;
   is_overlord?: boolean;
   creator?: Creator;
@@ -102,6 +120,7 @@ export interface Creator {
   domain?: string;
   wikipedia_url?: string;
   country_code?: string | null;
+  state_code?: string | null;
   rating?: number;
   /** Live-computed count of open pots */
   projects_open?: number;
@@ -117,8 +136,10 @@ export interface Creator {
   can_edit?: boolean;
   /** The authenticated user's own 24h-aged votive total across all pots for this creator */
   user_aged_votive_total?: number | null;
-  /** True when the creator has a linked Plaid bank account */
+  /** True when the creator has a Stripe Connect account (may still need onboarding) */
   bank_connected?: boolean;
+  /** Server-computed: country set (+ state for US creators). Included in /me response only. */
+  location_complete?: boolean;
   claimed_at?: string;
   merged_into_creator_id?: number;
   creator_names?: CreatorName[];
@@ -369,6 +390,7 @@ export interface RemoveVotiveResult {
 }
 
 export interface Comment {
+  id: number;
   user: {
     id: number;
     name: string;

@@ -23,22 +23,34 @@
   --color-brand-dark: #1A1812;
   --color-brand-light: #F2EFE6;
 
-  --font-sans: var(--font-dm-sans);      /* body default — inherited everywhere */
-  --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-fraunces);  /* headings > 24px */
+  --font-sans: var(--font-dm-sans);      /* prose / dense UI — use font-sans to opt out of handwritten */
+  --font-mono: var(--font-geist-mono);   /* amounts, timestamps, labels, badges */
+  --font-display: var(--font-kalam), var(--font-architects-daughter), cursive;  /* explicit override; body already inherits this */
   --font-geist: var(--font-geist-sans);  /* available if needed */
 }
 
 html {
-  /* Bump base font from 16px to 17px — scales all rem-based sizes up proportionally */
-  font-size: 17px;
+  /* Kalam reads slightly larger than sans-serif; 16px keeps the scale natural */
+  font-size: 16px;
 }
 
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
-  font-family: var(--font-dm-sans), Arial, Helvetica, sans-serif;
-  font-size: 1rem; /* 17px */
+  font-family: var(--font-kalam), var(--font-architects-daughter), cursive;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+/*
+  All headings are lowercase — matches the handwritten, informal aesthetic
+  of the wireframe design. Specific elements can override with `normal-case`
+  or `uppercase` Tailwind utilities when needed (e.g. mono section labels).
+*/
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    text-transform: lowercase;
+  }
 }
 
 /* ── react-phone-number-input dark theme ────────────────────────────────── */

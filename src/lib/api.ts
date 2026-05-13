@@ -131,6 +131,9 @@ export const auth = {
   resendVerification: () =>
     request<{ message: string }>('/auth/email/resend', { method: 'POST' }),
 
+  oauthRedirect: (provider: string) =>
+    request<{ url: string }>(`/auth/oauth/${provider}/redirect`),
+
   forgotPassword: (email: string) =>
     request<{ message: string }>('/auth/password/forgot', {
       method: 'POST',
@@ -284,7 +287,7 @@ export const users = {
   get: (id: number) =>
     request<{ data: PublicUser }>(`/users/${id}`),
 
-  update: (id: number, data: Partial<Pick<User, 'name' | 'profile_picture' | 'is_anonymous' | 'cover_processing_fees'>>) =>
+  update: (id: number, data: Partial<Pick<User, 'name' | 'profile_picture' | 'is_anonymous'>>) =>
     request<{ data: User }>(`/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -433,6 +436,19 @@ export const w9 = {
     }),
 };
 
+// W-8BEN — tax compliance for non-US creators
+export const w8ben = {
+  /** Current W-8BEN status + YTD withdrawal total for the authenticated non-US creator. */
+  status: () =>
+    request<{ data: import('./types').FormW8BENStatusResponse }>('/w8ben/status'),
+
+  /** Create or retrieve the TaxBandits hosted W-8BEN form URL for the current tax year. */
+  w8benUrl: () =>
+    request<{ data: { w8ben_url: string; w8ben_url_expires_at: string; status: string } }>('/w8ben/url', {
+      method: 'POST',
+    }),
+};
+
 // Withdrawals — creator payout (creator/council only)
 export const withdrawals = {
   /** Request a payout of `amount` dollars to the linked bank account. */
@@ -443,18 +459,41 @@ export const withdrawals = {
     }),
 };
 
-// Plaid — bank account connection (creator-only)
-export const plaid = {
-  /** Get a Plaid Link token to initialise the Link flow. */
-  linkToken: () =>
-    request<{ data: { link_token: string } }>('/payout/plaid/link-token', { method: 'POST' }),
-
-  /** Exchange a public token returned by Plaid Link for stored credentials. */
-  exchange: (publicToken: string) =>
-    request<{ data: { item_id: string; account_id: string; linked: boolean } }>('/payout/plaid/exchange', {
+// Stripe Connect — bank account onboarding for creators
+export const stripeConnect = {
+  /**
+   * Create (or retrieve) the creator's Stripe Connect account and return a
+   * Stripe-hosted Account Link URL for onboarding (KYC + bank via Financial Connections).
+   * Idempotent — safe to call multiple times; always returns a fresh link URL.
+   */
+  createAccount: (returnUrl: string, refreshUrl: string) =>
+    request<{ data: { account_id: string; onboarding_url: string } }>('/payout/stripe/account', {
       method: 'POST',
-      body: JSON.stringify({ public_token: publicToken }),
+      body: JSON.stringify({ return_url: returnUrl, refresh_url: refreshUrl }),
     }),
+
+  /** Get the current Connect account status (payouts_enabled, etc.). */
+  accountStatus: () =>
+    request<{
+      data: {
+        account_id: string | null;
+        payouts_enabled: boolean;
+        charges_enabled: boolean;
+        details_submitted: boolean;
+        requirements: string[];
+      };
+    }>('/payout/stripe/account'),
+
+  /** Generate a fresh Account Link URL for a creator who needs to re-enter onboarding. */
+  onboardingLink: (returnUrl: string, refreshUrl: string) =>
+    request<{ data: { onboarding_url: string } }>('/payout/stripe/onboarding-link', {
+      method: 'POST',
+      body: JSON.stringify({ return_url: returnUrl, refresh_url: refreshUrl }),
+    }),
+
+  /** Disconnect and delete the creator's Stripe Connect account so they can re-onboard. */
+  disconnect: () =>
+    request<{ data: { disconnected: boolean } }>('/payout/stripe/account', { method: 'DELETE' }),
 };
 
 // Overlord — logs

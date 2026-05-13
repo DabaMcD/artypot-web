@@ -56,6 +56,16 @@ export default function BillingPage() {
   const hasOutstandingBalance = balance !== null && balance < 0;
   const outstandingAmount = hasOutstandingBalance ? Math.abs(balance) : 0;
 
+  // Billing timeline dates
+  const now = new Date();
+  const dayOfMonth = now.getDate();
+  const previewDate = dayOfMonth < 23
+    ? `${now.toLocaleDateString('en-US', { month: 'short' })} 23`
+    : `${new Date(now.getFullYear(), now.getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'short' })} 23`;
+  const chargeDate = dayOfMonth < 24
+    ? `${now.toLocaleDateString('en-US', { month: 'short' })} 24`
+    : `${new Date(now.getFullYear(), now.getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'short' })} 24`;
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <div className="mb-8">
@@ -89,6 +99,40 @@ export default function BillingPage() {
         </div>
       )}
 
+      {/* Charge breakdown — only when outstanding balance exists */}
+      {!balanceLoading && hasOutstandingBalance && (
+        <div className="border border-border rounded-xl p-5 mb-6">
+          <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
+            Charge Breakdown
+          </h3>
+          <table className="w-full text-sm">
+            <tbody>
+              <tr>
+                <td className="py-1.5 text-muted">Approved pledges</td>
+                <td className="py-1.5 text-right text-foreground font-mono">${outstandingAmount.toFixed(2)}</td>
+              </tr>
+              <tr className="border-t border-border">
+                <td className="py-1.5 font-semibold text-foreground">Total charged to card</td>
+                <td className="py-1.5 text-right font-bold text-foreground font-mono">${outstandingAmount.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td className="py-1.5 text-muted text-xs">− Platform fee (15%)</td>
+                <td className="py-1.5 text-right text-muted text-xs font-mono">−${(outstandingAmount * 0.15).toFixed(2)}</td>
+              </tr>
+              <tr className="border-t border-border">
+                <td className="py-1.5 text-sm text-creator font-semibold">Creators receive</td>
+                <td className="py-1.5 text-right text-creator font-bold font-mono">
+                  ${(outstandingAmount * 0.85).toFixed(2)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p className="text-xs text-muted mt-3">
+            The 15% platform fee covers all transaction costs. You are always charged your exact committed amount.
+          </p>
+        </div>
+      )}
+
       <div className="bg-surface border border-border rounded-xl p-6 mb-6">
         <PaymentMethodManager />
       </div>
@@ -101,7 +145,7 @@ export default function BillingPage() {
             'You commit an amount when you back a bounty. Nothing is charged at that point.',
             'When a creator submits their work and the Council approves it, your charge is locked in immediately. You can only back out while the bounty is still open.',
             'Locked charges are collected automatically on the 24th of each month, or you can pay early using the button above.',
-            'Artypot takes a 5% platform fee. Stripe processing fees (2.9% + $0.30) are deducted from the creator\'s payout unless you opt to cover them.',
+            'Artypot takes a 15% all-in platform fee from the creator\'s payout. This covers all processing costs — you are always charged your exact committed amount.',
           ].map((item) => (
             <li key={item} className="flex items-start gap-2">
               <span className="text-fan mt-0.5 shrink-0">✓</span>
@@ -109,6 +153,30 @@ export default function BillingPage() {
             </li>
           ))}
         </ul>
+      </div>
+
+      {/* Billing Timeline */}
+      <div className="border border-border rounded-xl p-5 mt-6">
+        <h2 className="text-sm font-semibold text-foreground mb-4">This Month&apos;s Timeline</h2>
+        <div className="space-y-3">
+          {[
+            { label: 'Now', desc: 'Approved pledges are locked in' },
+            { label: previewDate, desc: 'Billing preview sent to your inbox' },
+            { label: `${chargeDate} · 09:00 UTC`, desc: 'Your card is charged' },
+            { label: '7 days after charge', desc: 'Funds clear and creators can withdraw' },
+          ].map((item, i) => (
+            <div key={i} className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <div className={`w-2.5 h-2.5 rounded-full mt-0.5 shrink-0 ${i === 0 ? 'bg-fan' : 'bg-border'}`} />
+                {i < 3 && <div className="w-px flex-1 bg-border mt-1" />}
+              </div>
+              <div className="pb-3">
+                <div className="text-xs text-muted uppercase tracking-wider">{item.label}</div>
+                <div className="text-sm text-foreground mt-0.5">{item.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

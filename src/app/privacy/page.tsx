@@ -17,7 +17,7 @@ function Section({ id, title, children }: { id: string; title: string; children:
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen font-sans">
       <div className="max-w-3xl mx-auto px-4 pt-16 pb-24">
 
         {/* Header */}
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
 
           <Section id="collected" title="2. What We Collect">
             <p><strong className="text-foreground">Account information:</strong> Your name, email address, and password (hashed — we can&apos;t read it). Optionally: a profile picture and phone number for verification purposes.</p>
-            <p><strong className="text-foreground">Financial information:</strong> For backers: payment method details (processed by Stripe — see Section 5). For creators receiving payouts: bank account information (processed by Plaid / Stripe Connect), Tax ID for 1099 reporting.</p>
+            <p><strong className="text-foreground">Financial information:</strong> For backers: payment method details (processed by Stripe — see Section 5). For creators receiving payouts: bank account information (processed by Stripe Connect), Tax ID for 1099 reporting.</p>
             <p><strong className="text-foreground">Activity data:</strong> Bounties you&apos;ve created, bounties you&apos;ve backed, bounties you&apos;ve fulfilled, notifications you&apos;ve received.</p>
             <p><strong className="text-foreground">Usage data:</strong> Standard server logs — IP addresses, browser type, pages visited, timestamps. We use this to diagnose problems, not to build marketing profiles.</p>
             <p><strong className="text-foreground">Communications:</strong> If you contact us via the support form or email, we retain those messages to resolve your request.</p>
@@ -99,7 +99,7 @@ export default function PrivacyPage() {
             <p>We share data only with the service providers needed to operate the Platform:</p>
             <ul className="list-disc list-inside space-y-1 pl-2">
               <li><strong className="text-foreground">Stripe</strong> — payment processing and creator payouts</li>
-              <li><strong className="text-foreground">Plaid</strong> — bank account verification for creator payouts</li>
+              <li><strong className="text-foreground">Stripe Connect</strong> — bank account verification and creator payouts</li>
               <li><strong className="text-foreground">TaxBandits / similar</strong> — 1099 filing where required</li>
               <li><strong className="text-foreground">Email service provider</strong> — transactional email delivery</li>
               <li><strong className="text-foreground">Hosting / infrastructure providers</strong> — servers and databases</li>
@@ -112,7 +112,7 @@ export default function PrivacyPage() {
             <p>All payment card data is handled directly by Stripe, Inc. When you enter your card details, that information goes to Stripe&apos;s servers — not ours. We never see or store your full card number, CVV, or expiry.</p>
             <p>We store a Stripe customer ID and a reference to your saved payment method (e.g., last four digits, card type) so you can manage your billing. This reference is not sufficient to initiate a charge — only Stripe can do that on our instruction.</p>
             <p>Stripe&apos;s privacy practices are governed by the <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" className="text-fan hover:underline">Stripe Privacy Policy</a>.</p>
-            <p>Creator bank account information is processed by Plaid and Stripe Connect. We store only a tokenised reference to the linked account — not the account number itself.</p>
+            <p>Creator bank account information is processed by Stripe Connect via Stripe Financial Connections. We store only a Stripe Connect account identifier — not the bank account number itself.</p>
           </Section>
 
           <Section id="retention" title="6. How Long We Keep It">

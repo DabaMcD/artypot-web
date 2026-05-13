@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { creators as creatorsApi, pots as potsApi, creatorNames as creatorNamesApi } from '@/lib/api';
 import { countryFlag, countryName } from '@/lib/countries';
 import { useAuth } from '@/lib/auth-context';
+import { useViewMode } from '@/lib/view-mode-context';
 import type { Creator, PaginatedResponse, Pot, CreatorName } from '@/lib/types';
 import PotCard from '@/components/PotCard';
 import ShareButton from '@/components/ShareButton';
@@ -228,6 +229,8 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
   const { id } = use(params);
   const router = useRouter();
   const { user } = useAuth();
+  const { mode } = useViewMode();
+  const isCreatorMode = mode === 'creator';
 
   const [creator, setCreator] = useState<Creator | null>(null);
   const [potsData, setPotsData] = useState<PaginatedResponse<Pot> | null>(null);
@@ -408,39 +411,44 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                   )}
                 </div>
 
-                {/* Action buttons */}
-                <div className="shrink-0 flex flex-col gap-2 items-end">
-                  {/* Edit — always shown to logged-in users on unclaimed creators */}
-                  {user && !isClaimed && (
-                    <button
-                      onClick={handleEditClick}
-                      className="bg-creator text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-                    >
-                      Edit Profile
-                    </button>
-                  )}
-                  {/* Edit — claimed creators, owner only */}
-                  {user && isClaimed && creator.can_edit && (
-                    <Link
-                      href={`/creators/${id}/edit`}
-                      className="bg-creator text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-                    >
-                      Edit Profile
-                    </Link>
-                  )}
+                {/* Action buttons — only visible in creator mode */}
+                {isCreatorMode && (
+                  <div className="shrink-0 flex flex-col gap-2 items-end">
+                    {/* Edit — unclaimed profiles (any logged-in creator-mode user, Herald gate applies) */}
+                    {user && !isClaimed && (
+                      <button
+                        onClick={handleEditClick}
+                        className="bg-creator text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                      >
+                        Edit Profile
+                      </button>
+                    )}
+                    {/* Edit — claimed profiles, owner only */}
+                    {user && isClaimed && creator.can_edit && (
+                      <Link
+                        href={`/creators/${id}/edit`}
+                        className="bg-creator text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                      >
+                        Edit Profile
+                      </Link>
+                    )}
+                  </div>
+                )}
 
-                  {canClaim && !claimSuccess && (
+                {/* Claim / claim success — fan-side; users without a creator can't be in creator mode */}
+                {canClaim && !claimSuccess && (
+                  <div className="shrink-0">
                     <button
                       onClick={() => setShowClaimModal(true)}
                       className="bg-surface-2 border border-creator/40 text-creator text-sm font-semibold px-4 py-2 rounded-lg hover:border-creator transition-colors"
                     >
                       Claim this profile
                     </button>
-                  )}
-                  {claimSuccess && (
-                    <p className="text-creator text-sm">Claim submitted! The council will review it shortly.</p>
-                  )}
-                </div>
+                  </div>
+                )}
+                {claimSuccess && (
+                  <p className="text-creator text-sm shrink-0">Claim submitted! The council will review it shortly.</p>
+                )}
               </div>
 
               {/* Stats */}
@@ -544,7 +552,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                   {names.map((n) => (
                     <li key={n.id} className="flex items-center justify-between gap-2 group">
                       <span className="text-sm text-foreground truncate">{n.name}</span>
-                      {canDeleteAlias() && (
+                      {isCreatorMode && canDeleteAlias() && (
                         <button
                           onClick={() => handleDeleteAlias(n.id)}
                           title="Remove alias"

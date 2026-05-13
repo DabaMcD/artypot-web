@@ -5,7 +5,7 @@ import { auth } from '@/lib/api';
 import { useToast } from '@/lib/toast-context';
 
 interface Props {
-  email: string;
+  email: string | null;
 }
 
 export default function EmailVerificationBanner({ email }: Props) {
@@ -33,7 +33,7 @@ export default function EmailVerificationBanner({ email }: Props) {
       <div className="flex-1 min-w-0">
         <p className="text-yellow-300 text-sm font-medium">Please verify your email address</p>
         <p className="text-yellow-500/80 text-xs mt-0.5 leading-relaxed">
-          We sent a verification link to <span className="font-mono">{email}</span>. Some features may be limited until you verify.
+          We sent a verification link to <span className="font-mono">{email ?? 'your email address'}</span>. Some features may be limited until you verify.
         </p>
       </div>
       <button

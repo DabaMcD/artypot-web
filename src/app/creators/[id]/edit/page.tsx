@@ -8,7 +8,7 @@ import type { CloudinaryUploadWidgetResults } from 'next-cloudinary';
 import { creators as creatorsApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { Creator } from '@/lib/types';
-import { COUNTRIES } from '@/lib/countries';
+import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
 
 const HANDLE_FIELDS: { key: keyof Creator; label: string; placeholder: string }[] = [
   { key: 'youtube_handle',    label: 'YouTube',    placeholder: 'channelname' },
@@ -37,6 +37,7 @@ export default function EditCreatorPage({ params }: { params: Promise<{ id: stri
   const [fanName, setFanName] = useState('');
   const [fanNamePlural, setFanNamePlural] = useState('');
   const [countryCode, setCountryCode] = useState<string>('');
+  const [stateCode, setStateCode] = useState<string>('');
   const [handles, setHandles] = useState<Record<string, string>>({
     youtube_handle: '', twitter_handle: '', tiktok_handle: '', instagram_handle: '',
     domain: '', wikipedia_url: '', soundcloud_url: '', bandcamp_url: '',
@@ -67,6 +68,7 @@ export default function EditCreatorPage({ params }: { params: Promise<{ id: stri
         setFanName(s.fan_name ?? '');
         setFanNamePlural(s.fan_name_plural ?? '');
         setCountryCode(s.country_code ?? '');
+        setStateCode(s.state_code ?? '');
         setHandles({
           youtube_handle:    s.youtube_handle    ?? '',
           twitter_handle:    s.twitter_handle    ?? '',
@@ -84,6 +86,12 @@ export default function EditCreatorPage({ params }: { params: Promise<{ id: stri
         setLoading(false);
       });
   }, [id, user, authLoading, router]);
+
+  /** When country changes, clear stale state if the new country has no subdivisions. */
+  const handleCountryChange = (code: string) => {
+    setCountryCode(code);
+    if (!subdivisions(code)) setStateCode('');
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,6 +113,7 @@ export default function EditCreatorPage({ params }: { params: Promise<{ id: stri
         fan_name:        fanName.trim() || undefined,
         fan_name_plural: fanNamePlural.trim() || undefined,
         country_code:    countryCode || null,
+        state_code:      stateCode || null,
         ...handlePayload,
       } as Partial<Creator>);
       router.push(`/creators/${id}`);
@@ -259,7 +268,7 @@ export default function EditCreatorPage({ params }: { params: Promise<{ id: stri
             <label className="block text-xs text-muted mb-1">Country</label>
             <select
               value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
+              onChange={(e) => handleCountryChange(e.target.value)}
               className="w-full bg-surface-2 border border-border text-foreground text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-creator/50"
             >
               <option value="">— Not specified —</option>
@@ -270,6 +279,25 @@ export default function EditCreatorPage({ params }: { params: Promise<{ id: stri
               ))}
             </select>
           </div>
+
+          {subdivisions(countryCode) && (
+            <div>
+              <label className="block text-xs text-muted mb-1">
+                {subdivisionLabel(countryCode)}
+                {countryCode === 'US' && <span className="text-red-400 ml-1">*</span>}
+              </label>
+              <select
+                value={stateCode}
+                onChange={(e) => setStateCode(e.target.value)}
+                className="w-full bg-surface-2 border border-border text-foreground text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-creator/50"
+              >
+                <option value="">Select {subdivisionLabel(countryCode)}…</option>
+                {subdivisions(countryCode)!.map((s) => (
+                  <option key={s.code} value={s.code}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>

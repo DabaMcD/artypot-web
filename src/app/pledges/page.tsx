@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { votives as votivesApi } from '@/lib/api';
+import { votives as votivesApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { PublicUserVotive } from '@/lib/types';
+import type { PublicUserVotive, CashBalance } from '@/lib/types';
 type SortKey = 'date' | 'amount';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -36,6 +36,8 @@ export default function MyVotivesPage() {
   const [totalActiveAmount, setTotalActiveAmount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const [cashBalance, setCashBalance] = useState<CashBalance | null>(null);
+
   useEffect(() => {
     if (!authLoading && !user) router.replace('/login');
   }, [authLoading, user, router]);
@@ -59,22 +61,38 @@ export default function MyVotivesPage() {
     load(sort, page);
   }, [user, sort, page, load]);
 
+  useEffect(() => {
+    if (!user) return;
+    billing.cash().then(setCashBalance).catch(() => {});
+  }, [user]);
+
   const handleSort = (s: SortKey) => {
     if (s === sort) return;
     setSort(s);
     setPage(1);
   };
 
+  // Next billing date: the 24th of this or next month
+  const now = new Date();
+  const nextBillingDate = now.getDate() < 24
+    ? new Date(now.getFullYear(), now.getMonth(), 24)
+    : new Date(now.getFullYear(), now.getMonth() + 1, 24);
+  const billingDateStr = nextBillingDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+  const outstandingAmount = cashBalance !== null && cashBalance.balance < 0
+    ? Math.abs(cashBalance.balance)
+    : 0;
+
   if (authLoading || !user) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-10">
+      <div className="max-w-5xl mx-auto px-4 py-10">
         <div className="h-64 bg-surface border border-border rounded-xl animate-pulse" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
+    <div className="max-w-5xl mx-auto px-4 py-10">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
@@ -94,115 +112,153 @@ export default function MyVotivesPage() {
         </Link>
       </div>
 
-      {/* Sort controls */}
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-xs text-muted uppercase tracking-wider mr-1">Sort by</span>
-        {(['date', 'amount'] as SortKey[]).map((s) => (
-          <button
-            key={s}
-            onClick={() => handleSort(s)}
-            className={`text-sm px-3 py-1.5 rounded-lg border transition-colors ${
-              sort === s
-                ? 'bg-fan/15 border-fan/40 text-fan font-medium'
-                : 'border-border text-muted hover:text-foreground hover:border-foreground/20'
-            }`}
-          >
-            {s === 'date' ? 'Most Recent' : 'Highest Amount'}
-          </button>
-        ))}
-      </div>
-
-      {/* Votive list */}
-      {loading ? (
-        <div className="bg-surface border border-border rounded-xl overflow-hidden">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="flex items-center justify-between px-5 py-4 border-b border-border last:border-0">
-              <div className="space-y-1.5">
-                <div className="h-4 w-56 bg-surface-2 animate-pulse rounded" />
-                <div className="h-3 w-28 bg-surface-2 animate-pulse rounded" />
-              </div>
-              <div className="h-5 w-14 bg-surface-2 animate-pulse rounded" />
-            </div>
-          ))}
-        </div>
-      ) : votives.length === 0 ? (
-        <div className="text-center py-12 text-muted border border-dashed border-border rounded-xl">
-          Not backing anything yet.{' '}
-          <Link href="/bounties" className="text-fan hover:underline">Browse bounties</Link>
-          {' '}to get started.
-        </div>
-      ) : (
-        <div className="bg-surface border border-border rounded-xl overflow-hidden">
-          {votives.map((votive, i) => {
-            const status = votive.pot?.status;
-            return (
-              <div
-                key={votive.id}
-                className={`flex items-center gap-4 px-5 py-4 ${i < votives.length - 1 ? 'border-b border-border' : ''}`}
+      {/* Main grid */}
+      <div className="grid lg:grid-cols-[1fr_280px] gap-6 items-start">
+        {/* LEFT: contributions list */}
+        <div>
+          {/* Sort controls */}
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xs text-muted uppercase tracking-wider mr-1">Sort by</span>
+            {(['date', 'amount'] as SortKey[]).map((s) => (
+              <button
+                key={s}
+                onClick={() => handleSort(s)}
+                className={`text-sm px-3 py-1.5 rounded-lg border transition-colors ${
+                  sort === s
+                    ? 'bg-fan/15 border-fan/40 text-fan font-medium'
+                    : 'border-border text-muted hover:text-foreground hover:border-foreground/20'
+                }`}
               >
-                {/* Pot info */}
-                <div className="flex-1 min-w-0">
-                  {votive.pot ? (
-                    <Link
-                      href={`/bounties/${votive.pot_id}`}
-                      className="text-sm font-medium text-foreground hover:text-fan transition-colors block truncate"
-                    >
-                      {votive.pot.title}
-                    </Link>
-                  ) : (
-                    <span className="text-sm text-muted">Project #{votive.pot_id}</span>
-                  )}
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    {status && (
-                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${STATUS_COLORS[status] ?? ''}`}>
-                        {STATUS_LABELS[status] ?? status}
-                      </span>
-                    )}
-                    {votive.expires_at && (
-                      <span className="text-xs text-muted">
-                        Expires{' '}
-                        {new Date(votive.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                      </span>
-                    )}
-                    <span className="text-xs text-muted">
-                      Placed{' '}
-                      {new Date(votive.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                {s === 'date' ? 'Most Recent' : 'Highest Amount'}
+              </button>
+            ))}
+          </div>
+
+          {/* Votive list */}
+          {loading ? (
+            <div className="bg-surface border border-border rounded-xl overflow-hidden">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center justify-between px-5 py-4 border-b border-border last:border-0">
+                  <div className="space-y-1.5">
+                    <div className="h-4 w-56 bg-surface-2 animate-pulse rounded" />
+                    <div className="h-3 w-28 bg-surface-2 animate-pulse rounded" />
+                  </div>
+                  <div className="h-5 w-14 bg-surface-2 animate-pulse rounded" />
+                </div>
+              ))}
+            </div>
+          ) : votives.length === 0 ? (
+            <div className="text-center py-12 text-muted border border-dashed border-border rounded-xl">
+              Not backing anything yet.{' '}
+              <Link href="/bounties" className="text-fan hover:underline">Browse bounties</Link>
+              {' '}to get started.
+            </div>
+          ) : (
+            <div className="bg-surface border border-border rounded-xl overflow-hidden">
+              {votives.map((votive, i) => {
+                const status = votive.pot?.status;
+                return (
+                  <div
+                    key={votive.id}
+                    className={`flex items-center gap-4 px-5 py-4 ${i < votives.length - 1 ? 'border-b border-border' : ''}`}
+                  >
+                    {/* Pot info */}
+                    <div className="flex-1 min-w-0">
+                      {votive.pot ? (
+                        <Link
+                          href={`/bounties/${votive.pot_id}`}
+                          className="text-sm font-medium text-foreground hover:text-fan transition-colors block truncate"
+                        >
+                          {votive.pot.title}
+                        </Link>
+                      ) : (
+                        <span className="text-sm text-muted">Project #{votive.pot_id}</span>
+                      )}
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        {status && (
+                          <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${STATUS_COLORS[status] ?? ''}`}>
+                            {STATUS_LABELS[status] ?? status}
+                          </span>
+                        )}
+                        {votive.expires_at && (
+                          <span className="text-xs text-muted">
+                            Expires{' '}
+                            {new Date(votive.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                          </span>
+                        )}
+                        <span className="text-xs text-muted">
+                          Placed{' '}
+                          {new Date(votive.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Amount */}
+                    <span className="text-fan font-bold text-sm shrink-0">
+                      ${Number(votive.amount).toFixed(2)}
                     </span>
                   </div>
-                </div>
+                );
+              })}
+            </div>
+          )}
 
-                {/* Amount */}
-                <span className="text-fan font-bold text-sm shrink-0">
-                  ${Number(votive.amount).toFixed(2)}
-                </span>
+          {/* Pagination */}
+          {lastPage > 1 && (
+            <div className="flex items-center justify-between mt-6">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1 || loading}
+                className="text-sm px-4 py-2 border border-border rounded-lg text-muted hover:text-foreground hover:border-foreground/20 transition-colors disabled:opacity-30"
+              >
+                ← Previous
+              </button>
+              <span className="text-sm text-muted">
+                Page {page} of {lastPage}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
+                disabled={page === lastPage || loading}
+                className="text-sm px-4 py-2 border border-border rounded-lg text-muted hover:text-foreground hover:border-foreground/20 transition-colors disabled:opacity-30"
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT sidebar — lg only */}
+        <div className="space-y-4">
+          {/* Billing at a Glance */}
+          <div className="border border-border rounded-xl p-5">
+            <div className="text-xs text-muted uppercase tracking-wider mb-3">Billing at a Glance</div>
+            <div className="text-xs text-muted uppercase tracking-wider mb-1">Next Charge</div>
+            {cashBalance === null ? (
+              <div className="h-8 w-28 bg-surface-2 animate-pulse rounded mb-1" />
+            ) : (
+              <div className="text-2xl font-bold font-mono text-foreground">
+                ${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
-            );
-          })}
-        </div>
-      )}
+            )}
+            <div className="text-sm text-muted mt-0.5">on {billingDateStr}</div>
+            <div className="border-t border-border my-3" />
+            <div className="text-xs text-muted">
+              Fees are deducted from creator payouts — you pay exactly this amount.
+            </div>
+          </div>
 
-      {/* Pagination */}
-      {lastPage > 1 && (
-        <div className="flex items-center justify-between mt-6">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1 || loading}
-            className="text-sm px-4 py-2 border border-border rounded-lg text-muted hover:text-foreground hover:border-foreground/20 transition-colors disabled:opacity-30"
-          >
-            ← Previous
-          </button>
-          <span className="text-sm text-muted">
-            Page {page} of {lastPage}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
-            disabled={page === lastPage || loading}
-            className="text-sm px-4 py-2 border border-border rounded-lg text-muted hover:text-foreground hover:border-foreground/20 transition-colors disabled:opacity-30"
-          >
-            Next →
-          </button>
+          {/* Payment Method */}
+          <div className="border border-border rounded-xl p-5">
+            <div className="text-xs text-muted uppercase tracking-wider mb-3">Payment Method</div>
+            <Link
+              href="/billing"
+              className="text-sm text-fan hover:underline"
+            >
+              Go to Billing →
+            </Link>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

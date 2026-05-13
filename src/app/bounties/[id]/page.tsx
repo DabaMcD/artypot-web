@@ -88,7 +88,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const [showCompletion, setShowCompletion] = useState(false);
   const [submissionUrl, setSubmissionUrl] = useState('');
   const [submissionNotes, setSubmissionNotes] = useState('');
-  const [completionError, setCompletionError] = useState<{ message: string; requiresW9?: boolean } | null>(null);
+  const [completionError, setCompletionError] = useState<string | null>(null);
   const [completionLoading, setCompletionLoading] = useState(false);
 
   // Creator remove dialog
@@ -280,11 +280,8 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       setPot((prev) => (prev ? { ...prev, status: 'pending', completion: res.data } : prev));
       setShowCompletion(false);
     } catch (err: unknown) {
-      const e = err as { message?: string; requires_w9?: boolean };
-      setCompletionError({
-        message: e.message ?? 'Failed to submit.',
-        requiresW9: e.requires_w9 === true,
-      });
+      const e = err as { message?: string };
+      setCompletionError(e.message ?? 'Failed to submit.');
     } finally {
       setCompletionLoading(false);
     }
@@ -889,11 +886,11 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                 <div>
                   <label className="block text-xs text-muted mb-1">Link to the work (URL)</label>
                   <input
-                    type="url"
+                    type="text"
                     required
                     value={submissionUrl}
                     onChange={(e) => setSubmissionUrl(e.target.value)}
-                    placeholder="https://…"
+                    placeholder="example.com/proof"
                     className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors"
                   />
                 </div>
@@ -908,15 +905,8 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                   />
                 </div>
                 {completionError && (
-                  <div className="rounded-lg bg-red-500/10 border border-red-500/30 px-3 py-2.5 text-xs text-red-400 space-y-1">
-                    <p>{completionError.message}</p>
-                    {completionError.requiresW9 && (
-                      <p>
-                        <Link href="/sanctum" className="underline underline-offset-2 hover:text-red-300 font-medium">
-                          Go to your Creator Sanctum →
-                        </Link>
-                      </p>
-                    )}
+                  <div className="rounded-lg bg-red-500/10 border border-red-500/30 px-3 py-2.5 text-xs text-red-400">
+                    <p>{completionError}</p>
                   </div>
                 )}
                 <div className="flex gap-2">
