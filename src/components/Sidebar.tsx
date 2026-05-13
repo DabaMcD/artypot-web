@@ -35,7 +35,7 @@ function NavItem({ item, active }: { item: NavItem; active: boolean }) {
           : 'border-l-transparent text-muted hover:bg-surface hover:text-foreground'
       }`}
     >
-      <span className={`ap-nav-ic w-4.5 h-4.5 flex items-center justify-center text-xs ${active ? '' : 'text-muted/60'}`}>
+      <span className={`ap-nav-ic w-9 h-9 flex items-center justify-center text-2xl ${active ? '' : 'text-muted/60'}`}>
         {item.icon}
       </span>
       <span className="flex-1">{item.label}</span>
