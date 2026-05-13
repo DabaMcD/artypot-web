@@ -129,7 +129,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
             priority
           />
         </Link>
-        <span className="font-mono text-[9px] uppercase tracking-widest text-muted/40 ml-auto">v1</span>
+        <span className="font-mono text-[9px] uppercase tracking-widest text-muted/40 ml-auto">v0.2</span>
       </div>
 
       {/* Nav */}

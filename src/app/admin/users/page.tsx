@@ -236,7 +236,7 @@ export default function AdminUsersPage() {
                   className="w-full text-left px-5 py-3.5 flex items-center gap-3 hover:bg-surface-2 transition-colors"
                 >
                   <div className="w-8 h-8 rounded-full bg-fan/20 flex items-center justify-center text-fan font-mono text-xs font-bold shrink-0">
-                    {u.display_name.charAt(0).toUpperCase()}
+                    {u.display_name?.charAt(0).toUpperCase() ?? '?'}
                   </div>
 
                   <div className="flex-1 min-w-0">

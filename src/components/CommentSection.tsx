@@ -42,7 +42,7 @@ function UserAvatar({ user, size = 8 }: { user: Comment['user']; size?: number }
       />
     );
   }
-  const initial = user.display_name.charAt(0).toUpperCase();
+  const initial = user.display_name?.charAt(0).toUpperCase() ?? '?';
   const roleColor =
     user.role === 'council'
       ? 'bg-council/20 text-council'

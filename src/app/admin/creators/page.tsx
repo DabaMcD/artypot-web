@@ -310,7 +310,7 @@ export default function AdminCreatorsPage() {
                 >
                   {/* Avatar initial */}
                   <div className="w-8 h-8 rounded-full bg-creator/20 flex items-center justify-center text-creator font-mono text-xs font-bold shrink-0">
-                    {s.display_name.charAt(0).toUpperCase()}
+                    {s.display_name?.charAt(0).toUpperCase() ?? '?'}
                   </div>
 
                   <div className="flex-1 min-w-0">

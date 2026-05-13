@@ -25,7 +25,7 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
             className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
             style={{ background: 'var(--color-creator)', color: 'var(--color-brand-dark)' }}
           >
-            {creator.display_name.charAt(0).toUpperCase()}
+            {creator.display_name?.charAt(0).toUpperCase() ?? '?'}
           </div>
         )}
 

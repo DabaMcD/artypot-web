@@ -359,7 +359,7 @@ export default function SettingsPage() {
                 <Image src={picPreview ?? user.profile_picture!} alt="Profile picture" fill className="object-cover" unoptimized />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-2xl text-muted select-none font-display font-bold">
-                  {user.display_name.charAt(0).toUpperCase()}
+                  {user.display_name?.charAt(0).toUpperCase() ?? '?'}
                 </div>
               )}
             </div>
