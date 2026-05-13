@@ -58,6 +58,8 @@ export interface Withdrawal {
 export interface User {
   id: number;
   name: string;
+  /** API alias for `name` — the display name shown in the UI */
+  display_name: string;
   email: string | null; // null for OAuth-only users (e.g. signed up via Reddit)
   pending_email?: string | null;
   email_verified_at?: string | null;
@@ -75,9 +77,9 @@ export interface User {
 export interface CouncilMember {
   id: number;
   user_id: number;
-  user: { id: number; name: string; email: string };
+  user: { id: number; name: string; display_name: string; email: string };
   /** When the appointedBy relation is loaded, this is the appointing user object; otherwise null. */
-  appointed_by: { id: number; name: string; email: string } | null;
+  appointed_by: { id: number; name: string; display_name: string; email: string } | null;
   permissions: Record<string, boolean>;
   appointed_at: string;
 }
@@ -169,7 +171,7 @@ export interface PotVotive {
   id: number;
   pot_id: number;
   user_id: number;
-  user?: Pick<User, 'id' | 'name'>;
+  user?: Pick<User, 'id' | 'name' | 'display_name'>;
   amount: number;
   revoked_at?: string;
   revoke_reason?: string;
@@ -394,6 +396,7 @@ export interface Comment {
   user: {
     id: number;
     name: string;
+    display_name: string;
     profile_picture?: string;
     is_anonymous: boolean;
     role: UserRole;
@@ -424,7 +427,7 @@ export interface PotHistoryEvent {
   type: PotHistoryEventType;
   /** ISO 8601 timestamp */
   at: string;
-  user?: { id: number; name: string } | null;
+  user?: { id: number; name: string; display_name: string } | null;
   amount?: number | null;
   field?: string | null;
   old_value?: string | null;

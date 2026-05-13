@@ -132,7 +132,7 @@ export default function SettingsPage() {
     if (!user || !nameInput.trim()) return;
     setNameSaving(true);
     try {
-      await usersApi.update(user.id, { display_name: nameInput.trim() });
+      await usersApi.update(user.id, { name: nameInput.trim() });
       await refreshUser();
       toast('Name updated!', 'success');
     } catch { toast('Failed to save name.', 'error'); }

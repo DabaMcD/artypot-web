@@ -307,7 +307,7 @@ export default function AdminCompletionsPage() {
                     </a>
                     {c.reviewer && (
                       <p className="font-mono text-[10px] text-muted mt-1">
-                        reviewed by {c.reviewer.display_name}
+                        reviewed by {c.reviewer.name}
                         {c.reviewed_at && <> · {new Date(c.reviewed_at).toLocaleDateString()}</>}
                         {c.council_notes && <> — &quot;{c.council_notes}&quot;</>}
                       </p>

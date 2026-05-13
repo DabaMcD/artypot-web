@@ -186,7 +186,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         if (!prev) return prev;
         const updatedVotive: PotVotive = {
           ...res.data,
-          user: user ? { id: user.id, name: user.display_name } : undefined,
+          user: user ? { id: user.id, name: user.name, display_name: user.display_name } : undefined,
         };
         const filteredVotives = (prev.votives ?? []).filter(
           (v) => v.user_id !== user?.id || v.revoked_at,
@@ -510,7 +510,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       {/* Pending-pot revoke warning */}
       {showPendingRevokeWarning && userVotive && (
         <Modal
-          title={`Hold on, ${user?.display_name.split(' ')[0]}.`}
+          title={`Hold on, ${user?.name.split(' ')[0]}.`}
           onClose={() => setShowPendingRevokeWarning(false)}
           actions={
             <>

@@ -593,7 +593,7 @@ export default function CommentSection({ potId, inline = false, onTotalChange }:
       {/* Compose new comment */}
       {user ? (
         <div className="flex gap-3 mb-8">
-          <UserAvatar user={{ id: user.id, name: user.display_name, profile_picture: user.profile_picture, is_anonymous: user.is_anonymous ?? false, role: user.role }} />
+          <UserAvatar user={{ id: user.id, name: user.display_name, display_name: user.display_name, profile_picture: user.profile_picture, is_anonymous: user.is_anonymous ?? false, role: user.role }} />
           <div className="flex-1 space-y-2">
             <textarea
               rows={3}

@@ -107,7 +107,7 @@ function CreatorModal({ creator, onClose }: { creator: CreatorDetail; onClose: (
             href={`/users/${creator.user.id}`}
             className="font-display font-medium text-foreground hover:text-fan transition-colors text-sm"
           >
-            {creator.user.display_name} →
+            {creator.user.name} →
           </Link>
           <p className="font-mono text-[10px] text-muted mt-0.5">{creator.user.email}</p>
         </Card>
@@ -320,7 +320,7 @@ export default function AdminCreatorsPage() {
                       <W9Badge status={s.w9_status} />
                     </div>
                     {s.user && (
-                      <p className="font-mono text-[10px] text-muted truncate">{s.user.display_name} · {s.user.email}</p>
+                      <p className="font-mono text-[10px] text-muted truncate">{s.user.name} · {s.user.email}</p>
                     )}
                   </div>
 
