@@ -13,9 +13,9 @@ export default function HomePage() {
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-center px-4 -mt-7">
       <div className="w-full max-w-xl text-center">
         <h1 className="text-4xl sm:text-5xl font-display font-bold text-foreground tracking-tight mb-3 leading-tight">
-          Find a creator.
-          <br />
-          <span className="text-fan">Fund the work.</span>
+          Tell the world
+          <br/>
+          <span className="text-fan">what you want.</span>
         </h1>
         <p className="text-muted text-lg mb-8 leading-relaxed">
           Search for any creator, artist, or public figure — e.g. Mr Beast

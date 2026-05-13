@@ -90,7 +90,7 @@ export default function SettingsPage() {
     if (authLoading) return;
     if (!user) { router.replace('/login'); return; }
     setIsAnonymous(user.is_anonymous ?? false);
-    setNameInput(user.name ?? '');
+    setNameInput(user.display_name ?? '');
     notifApi.get().then(setNotifSettings).catch(() => {});
     votivesApi.list().then((res) => setVotiveTotalAmount(res.total_active_amount)).catch(() => {});
   }, [user, authLoading, router]);
@@ -132,7 +132,7 @@ export default function SettingsPage() {
     if (!user || !nameInput.trim()) return;
     setNameSaving(true);
     try {
-      await usersApi.update(user.id, { name: nameInput.trim() });
+      await usersApi.update(user.id, { display_name: nameInput.trim() });
       await refreshUser();
       toast('Name updated!', 'success');
     } catch { toast('Failed to save name.', 'error'); }
@@ -359,7 +359,7 @@ export default function SettingsPage() {
                 <Image src={picPreview ?? user.profile_picture!} alt="Profile picture" fill className="object-cover" unoptimized />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-2xl text-muted select-none font-display font-bold">
-                  {user.name.charAt(0).toUpperCase()}
+                  {user.display_name.charAt(0).toUpperCase()}
                 </div>
               )}
             </div>
@@ -385,7 +385,7 @@ export default function SettingsPage() {
           <SectionLabel className="mb-3">display name</SectionLabel>
           <form onSubmit={handleSaveName} className="flex gap-2">
             <Input type="text" required value={nameInput} onChange={(e) => setNameInput(e.target.value)} className="flex-1" />
-            <Button type="submit" variant="default" disabled={nameSaving || !nameInput.trim() || nameInput.trim() === user.name}>
+            <Button type="submit" variant="default" disabled={nameSaving || !nameInput.trim() || nameInput.trim() === user.display_name}>
               {nameSaving ? 'saving…' : 'save name'}
             </Button>
           </form>

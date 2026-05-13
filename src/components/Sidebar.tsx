@@ -188,7 +188,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
       {/* User card */}
       <div className="mx-5 mt-3 mb-4 p-2.5 bg-background border border-border rounded flex items-center gap-2.5">
         <Avatar
-          initials={user?.name?.charAt(0).toUpperCase()}
+          initials={user?.display_name?.charAt(0).toUpperCase()}
           size="sm"
           style={role === 'fan'
             ? { background: 'var(--color-fan)', color: 'var(--color-background)' }
@@ -198,7 +198,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
           }
         />
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-bold text-foreground truncate">{user?.name}</div>
+          <div className="text-sm font-bold text-foreground truncate">{user?.display_name}</div>
           <div className="font-mono text-[9px] uppercase tracking-wide text-muted/60">{role}</div>
         </div>
         <button

@@ -71,7 +71,7 @@ export default function PotHistoryChart({ events, selectedEvent, onSelect }: Pro
                   {meta.label}
                 </span>
                 {event.user && (
-                  <span className="text-xs text-muted">{event.user.name}</span>
+                  <span className="text-xs text-muted">{event.user.display_name}</span>
                 )}
                 {event.amount != null && (
                   <span className="text-xs text-fan font-semibold ml-auto shrink-0">

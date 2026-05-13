@@ -146,9 +146,9 @@ export default function Nav() {
                       className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
                       style={{ background: roleBgVar, color: roleTextVar }}
                     >
-                      {user.name.charAt(0).toUpperCase()}
+                      {user.display_name.charAt(0).toUpperCase()}
                     </span>
-                    <span className="max-w-[120px] truncate">{user.name}</span>
+                    <span className="max-w-[120px] truncate">{user.display_name}</span>
                     <svg className="w-3 h-3 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -165,10 +165,10 @@ export default function Nav() {
                               className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
                               style={{ background: roleBgVar, color: roleTextVar }}
                             >
-                              {user.name.charAt(0).toUpperCase()}
+                              {user.display_name.charAt(0).toUpperCase()}
                             </span>
                             <div className="min-w-0">
-                              <p className="font-medium text-foreground truncate">{user.name}</p>
+                              <p className="font-medium text-foreground truncate">{user.display_name}</p>
                             </div>
                           </div>
                         </div>
@@ -333,10 +333,10 @@ export default function Nav() {
                 className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
                 style={{ background: roleBgVar, color: roleTextVar }}
               >
-                {user.name.charAt(0).toUpperCase()}
+                {user.display_name.charAt(0).toUpperCase()}
               </span>
               <div className="min-w-0">
-                <p className="font-semibold text-foreground truncate">{user.name}</p>
+                <p className="font-semibold text-foreground truncate">{user.display_name}</p>
                 <p className="text-xs font-medium" style={{ color: roleBgVar }}>{roleLabel}</p>
               </div>
             </div>

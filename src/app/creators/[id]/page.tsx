@@ -36,7 +36,7 @@ function HeraldGateModal({
   userName: string;
   onClose: () => void;
 }) {
-  const heraldName    = creator.herald?.name ?? 'The current Herald';
+  const heraldName    = creator.herald?.display_name ?? 'The current Herald';
   const heraldTotal   = Number(creator.herald_total_votive ?? 0);
   const userTotal     = Number(creator.user_aged_votive_total ?? 0);
   const deficit       = Math.max(0, heraldTotal - userTotal);
@@ -337,7 +337,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
       {showHeraldModal && user && (
         <HeraldGateModal
           creator={creator}
-          userName={user.name}
+          userName={user.display_name}
           onClose={() => setShowHeraldModal(false)}
         />
       )}

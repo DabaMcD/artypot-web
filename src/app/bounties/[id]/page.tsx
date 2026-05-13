@@ -186,7 +186,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         if (!prev) return prev;
         const updatedVotive: PotVotive = {
           ...res.data,
-          user: user ? { id: user.id, name: user.name } : undefined,
+          user: user ? { id: user.id, name: user.display_name } : undefined,
         };
         const filteredVotives = (prev.votives ?? []).filter(
           (v) => v.user_id !== user?.id || v.revoked_at,
@@ -510,7 +510,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       {/* Pending-pot revoke warning */}
       {showPendingRevokeWarning && userVotive && (
         <Modal
-          title={`Hold on, ${user?.name.split(' ')[0]}.`}
+          title={`Hold on, ${user?.display_name.split(' ')[0]}.`}
           onClose={() => setShowPendingRevokeWarning(false)}
           actions={
             <>
@@ -754,7 +754,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           {pot.initiator && (
             <div>
               <span className="text-muted">Created by </span>
-              <span className="text-foreground font-medium">{pot.initiator.name}</span>
+              <span className="text-foreground font-medium">{pot.initiator.display_name}</span>
             </div>
           )}
         </div>
@@ -1035,8 +1035,8 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                 <div className="space-y-2">
                   {activeVotives.map((votive) => {
                     const isAnon = votive.user_id === 0;
-                    const displayName = isAnon ? '[anonymous]' : (votive.user?.name ?? 'Unknown');
-                    const initial = isAnon ? '?' : (votive.user?.name?.charAt(0).toUpperCase() ?? '?');
+                    const displayName = isAnon ? '[anonymous]' : (votive.user?.display_name ?? 'Unknown');
+                    const initial = isAnon ? '?' : (votive.user?.display_name?.charAt(0).toUpperCase() ?? '?');
                     const expiryDate = votive.expires_at
                       ? new Date(votive.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
                       : null;

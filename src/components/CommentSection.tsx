@@ -37,12 +37,12 @@ function UserAvatar({ user, size = 8 }: { user: Comment['user']; size?: number }
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={user.profile_picture}
-        alt={user.name}
+        alt={user.display_name}
         className={`${sizeClass} rounded-full object-cover flex-shrink-0`}
       />
     );
   }
-  const initial = user.name.charAt(0).toUpperCase();
+  const initial = user.display_name.charAt(0).toUpperCase();
   const roleColor =
     user.role === 'council'
       ? 'bg-council/20 text-council'
@@ -150,7 +150,7 @@ function CommentRow({
               href={`/users/${comment.user.id}`}
               className="text-sm font-medium text-foreground hover:underline"
             >
-              {comment.user.name}
+              {comment.user.display_name}
             </Link>
           )}
           <span className="text-xs text-muted">{timeAgo(comment.created_at)}</span>
@@ -593,7 +593,7 @@ export default function CommentSection({ potId, inline = false, onTotalChange }:
       {/* Compose new comment */}
       {user ? (
         <div className="flex gap-3 mb-8">
-          <UserAvatar user={{ id: user.id, name: user.name, profile_picture: user.profile_picture, is_anonymous: user.is_anonymous ?? false, role: user.role }} />
+          <UserAvatar user={{ id: user.id, name: user.display_name, profile_picture: user.profile_picture, is_anonymous: user.is_anonymous ?? false, role: user.role }} />
           <div className="flex-1 space-y-2">
             <textarea
               rows={3}

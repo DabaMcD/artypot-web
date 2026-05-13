@@ -115,7 +115,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <SectionLabel>fan · {user.name.split(' ')[0]}</SectionLabel>
+          <SectionLabel>fan · {user.display_name.split(' ')[0]}</SectionLabel>
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">my contributions</h1>
         </div>
         <Button variant="primary" onClick={() => router.push('/bounties/new')}>
