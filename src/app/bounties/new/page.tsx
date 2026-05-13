@@ -8,6 +8,10 @@ import { pots as potsApi, creators as creatorsApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import CreatorSearchWidget from '@/components/CreatorSearchWidget';
 import type { Creator } from '@/lib/types';
+import { Card, SectionLabel } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Input, Textarea, FieldLabel, FieldHint } from '@/components/ui/Input';
+import { Banner } from '@/components/ui/Banner';
 
 type CreatorMode = 'search' | 'create';
 
@@ -19,18 +23,15 @@ function NewPotForm() {
 
   const { toast } = useToast();
 
-  // Pot fields
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [initialVotiveAmount, setInitialVotiveAmount] = useState('1');
   const [submitting, setSubmitting] = useState(false);
 
-  // Creator selection
   const [creatorId, setCreatorId] = useState(prefillCreatorId ?? '');
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
   const [creatorMode, setCreatorMode] = useState<CreatorMode>('search');
 
-  // Inline create state
   const [newDisplayName, setNewDisplayName] = useState('');
   const [newHandles, setNewHandles] = useState({
     youtube_handle: '',
@@ -45,7 +46,6 @@ function NewPotForm() {
   const [creatingNew, setCreatingNew] = useState(false);
   const [createError, setCreateError] = useState('');
 
-  // If prefillCreatorId, load that creator
   useEffect(() => {
     if (prefillCreatorId) {
       creatorsApi.get(Number(prefillCreatorId)).then((res) => {
@@ -68,23 +68,13 @@ function NewPotForm() {
 
   const openCreateMode = (prefill?: string) => {
     setNewDisplayName(prefill ?? '');
-    setNewHandles({
-      youtube_handle: '',
-      twitter_handle: '',
-      tiktok_handle: '',
-      instagram_handle: '',
-      domain: '',
-      wikipedia_url: '',
-      soundcloud_url: '',
-      bandcamp_url: '',
-    });
+    setNewHandles({ youtube_handle: '', twitter_handle: '', tiktok_handle: '', instagram_handle: '', domain: '', wikipedia_url: '', soundcloud_url: '', bandcamp_url: '' });
     setCreateError('');
     setCreatorMode('create');
   };
 
   const hasAtLeastOneHandle = Object.values(newHandles).some((v) => v.trim().length > 0);
 
-  // Prevent Enter key inside the create section from submitting the outer bounty form
   const preventEnter = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') e.preventDefault();
   };
@@ -97,10 +87,7 @@ function NewPotForm() {
     setCreateError('');
     setCreatingNew(true);
     try {
-      // Strip empty handle fields so we don't send empty strings
-      const handles = Object.fromEntries(
-        Object.entries(newHandles).filter(([, v]) => v.trim().length > 0),
-      );
+      const handles = Object.fromEntries(Object.entries(newHandles).filter(([, v]) => v.trim().length > 0));
       const res = await creatorsApi.create({ display_name: newDisplayName, ...handles });
       selectCreator(res.data);
       setCreatorMode('search');
@@ -112,7 +99,6 @@ function NewPotForm() {
     }
   };
 
-  // Main pot submit
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!creatorId) {
@@ -146,63 +132,46 @@ function NewPotForm() {
 
   if (!user) {
     return (
-      <div className="max-w-lg mx-auto px-4 py-20 text-center text-muted">
-        <p className="mb-4">You need to be logged in to create a bounty.</p>
-        <Link href="/login" className="text-fan hover:underline">
-          Log in
-        </Link>
+      <div className="max-w-lg mx-auto py-20 text-center">
+        <p className="font-display text-muted mb-4">you need to be logged in to create a bounty.</p>
+        <Link href="/login"><Button variant="primary">sign in →</Button></Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-10">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-foreground mb-1">Create a Bounty</h1>
-        <p className="text-muted text-sm">Name the work. The community will fund it.</p>
+    <div className="max-w-[560px] space-y-7 pt-2">
+      <div>
+        <SectionLabel>fan</SectionLabel>
+        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">start a bounty</h1>
+        <p className="font-display text-sm text-muted mt-1">name the work. the community will fund it.</p>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-surface border border-border rounded-xl p-6 space-y-5"
-      >
-        {/* Creator — first so the pot is anchored before anything else */}
-        <div>
-          <label className="flex items-baseline justify-between mb-1.5">
-            <span className="text-s font-medium text-foreground">Creator</span>
-            <span className="text-sm text-muted font-normal">(Who's doing the work?)</span>
-          </label>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Creator */}
+        <Card>
+          <SectionLabel className="mb-3">who should do this?</SectionLabel>
 
-          {/* ── Search widget (controlled) or create panel ── */}
           {creatorMode !== 'create' ? (
             <CreatorSearchWidget
               selectedCreator={selectedCreator}
               onSelect={selectCreator}
               onClear={clearCreator}
               onCreateNew={openCreateMode}
-              placeholder="Search by name… e.g. The Weeknd"
+              placeholder="search by name… e.g. The Weeknd"
             />
           ) : (
-            /* ── Inline create panel ── */
-            <div className="bg-surface-2 border border-creator/30 rounded-lg p-4 space-y-3">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold text-creator uppercase tracking-wider">
-                  New creator profile
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setCreatorMode('search')}
-                  className="text-sm text-muted hover:text-foreground transition-colors"
-                >
-                  ← Back to search
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-creator">new creator profile</span>
+                <button type="button" onClick={() => setCreatorMode('search')} className="ap-inline-link font-mono text-[10px] uppercase cursor-pointer">
+                  ← back to search
                 </button>
               </div>
 
               <div>
-                <label className="block text-s text-muted mb-1">
-                  Name <span className="text-red-400">*</span>
-                </label>
-                <input
+                <FieldLabel>name <span className="text-bad">*</span></FieldLabel>
+                <Input
                   type="text"
                   maxLength={255}
                   value={newDisplayName}
@@ -210,108 +179,85 @@ function NewPotForm() {
                   onKeyDown={preventEnter}
                   placeholder="e.g. Kendrick Lamar"
                   autoFocus
-                  className="w-full bg-surface border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors"
                 />
               </div>
 
-              {/* Social handles — at least one required */}
               <div>
-                <div className="flex items-baseline justify-between mb-1.5">
-                  <label className="text-s text-muted">
-                    Socials / Website <span className="text-sm text-red-400">* (at least one)</span>
-                  </label>
-                </div>
+                <FieldLabel>socials / website <span className="text-bad">* (at least one)</span></FieldLabel>
                 <div className="grid grid-cols-2 gap-2">
-                  {(
-                    [
-                      { key: 'youtube_handle',  label: 'YouTube',     placeholder: 'handle e.g. @mrbeast' },
-                      { key: 'twitter_handle',  label: 'X / Twitter', placeholder: 'handle e.g. @elonmusk' },
-                      { key: 'tiktok_handle',   label: 'TikTok',      placeholder: 'handle e.g. @zachking' },
-                      { key: 'instagram_handle',label: 'Instagram',   placeholder: 'handle e.g. @alexathanacio' },
-                      { key: 'wikipedia_url',   label: 'Wikipedia',   placeholder: 'en.wikipedia.org/wiki/Keanu_Reeves' },
-                      { key: 'soundcloud_url',  label: 'SoundCloud',  placeholder: 'soundcloud.com/black-veil-brides-official' },
-                      { key: 'bandcamp_url',    label: 'Bandcamp',    placeholder: 'lovesolfege.bandcamp.com' },
-                      { key: 'domain',          label: 'Other URL',   placeholder: 'rumble.com/c/nickjfuentes' },
-                    ] as const
-                  ).map(({ key, label, placeholder }) => (
+                  {([
+                    { key: 'youtube_handle',   label: 'YouTube',     placeholder: '@mrbeast' },
+                    { key: 'twitter_handle',   label: 'X / Twitter', placeholder: '@elonmusk' },
+                    { key: 'tiktok_handle',    label: 'TikTok',      placeholder: '@zachking' },
+                    { key: 'instagram_handle', label: 'Instagram',   placeholder: '@alexathanacio' },
+                    { key: 'wikipedia_url',    label: 'Wikipedia',   placeholder: 'en.wikipedia.org/wiki/…' },
+                    { key: 'soundcloud_url',   label: 'SoundCloud',  placeholder: 'soundcloud.com/…' },
+                    { key: 'bandcamp_url',     label: 'Bandcamp',    placeholder: 'name.bandcamp.com' },
+                    { key: 'domain',           label: 'Other URL',   placeholder: 'rumble.com/c/…' },
+                  ] as const).map(({ key, label, placeholder }) => (
                     <div key={key}>
-                      <label className="block text-sm text-muted mb-0.5">{label}</label>
-                      <input
+                      <FieldLabel className="mb-1">{label}</FieldLabel>
+                      <Input
                         type="text"
                         value={newHandles[key]}
-                        onChange={(e) =>
-                          setNewHandles((prev) => ({ ...prev, [key]: e.target.value }))
-                        }
+                        onChange={(e) => setNewHandles((prev) => ({ ...prev, [key]: e.target.value }))}
                         onKeyDown={preventEnter}
                         placeholder={placeholder}
-                        className={`w-full bg-surface border rounded px-2.5 py-1.5 text-sm text-foreground placeholder:text-muted focus:outline-none transition-colors ${
-                          newHandles[key].trim()
-                            ? 'border-creator/60 focus:border-creator'
-                            : 'border-border focus:border-creator/60'
-                        }`}
+                        className={newHandles[key].trim() ? 'border-creator/60' : ''}
                       />
                     </div>
                   ))}
                 </div>
               </div>
 
-              {createError && (
-                <p className="text-red-400 text-xs">{createError}</p>
-              )}
+              {createError && <Banner tone="bad">{createError}</Banner>}
 
-              <button
+              <Button
                 type="button"
-                onClick={handleCreateCreator}
+                variant="primary"
+                className="w-full justify-center"
                 disabled={creatingNew || !newDisplayName.trim() || !hasAtLeastOneHandle}
-                className="w-full bg-creator text-black font-semibold py-2 text-sm rounded-md hover:opacity-90 transition-opacity disabled:opacity-40"
+                onClick={handleCreateCreator}
               >
-                {creatingNew ? 'Creating…' : 'Create & Select'}
-              </button>
+                {creatingNew ? 'creating…' : 'create & select'}
+              </Button>
 
-              <p className="text-sm text-muted">
-                They can claim control of this profile later. You can add a bio and profile
-                picture for them before they claim it.
+              <p className="font-display text-xs text-muted">
+                they can claim control of this profile later. you can add a bio and picture before they claim it.
               </p>
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Title */}
-        <div>
-          <label className="block text-s font-medium text-foreground mb-1.5">Title</label>
-          <input
+        <Card>
+          <SectionLabel className="mb-3">what should they make?</SectionLabel>
+          <FieldLabel>title</FieldLabel>
+          <Input
             type="text"
             required
             maxLength={255}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. Do a backflip while singing the national anthem"
-            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
+            placeholder="e.g. do a backflip while singing the national anthem"
           />
-        </div>
+          <div className="mt-4">
+            <FieldLabel>description <span className="text-muted font-normal">(optional)</span></FieldLabel>
+            <Textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="what specifically must be done? any requirements?"
+            />
+          </div>
+        </Card>
 
-        {/* Description */}
-        <div>
-          <label className="block text-s font-medium text-foreground mb-1.5">
-            Description
-          </label>
-          <textarea
-            rows={3}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="What specifically must be done? Any requirements?"
-            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
-          />
-        </div>
-
-        {/* Initial commitment amount */}
-        <div>
-          <label className="block text-s font-medium text-foreground mb-1.5">
-            Your opening commitment
-          </label>
+        {/* Opening commitment */}
+        <Card>
+          <SectionLabel className="mb-3">your opening commitment</SectionLabel>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm select-none">$</span>
-            <input
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-muted text-sm select-none">$</span>
+            <Input
               type="number"
               required
               min={1}
@@ -319,21 +265,20 @@ function NewPotForm() {
               step="0.01"
               value={initialVotiveAmount}
               onChange={(e) => setInitialVotiveAmount(e.target.value)}
-              className="w-full bg-surface-2 border border-border rounded-lg pl-7 pr-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-fan transition-colors"
+              className="pl-7"
             />
           </div>
-          <p className="text-sm text-muted mt-1.5">
-            Minimum $1. You are only charged if Council confirms the bounty is completed.
-          </p>
-        </div>
+          <FieldHint>minimum $1. you are only charged if council confirms the bounty is completed.</FieldHint>
+        </Card>
 
-        <button
+        <Button
           type="submit"
+          variant="primary"
+          className="w-full justify-center"
           disabled={submitting}
-          className="w-full bg-fan text-black font-semibold py-2.5 rounded-lg hover:bg-fan-dim transition-colors disabled:opacity-50"
         >
-          {submitting ? 'Creating…' : 'Create Bounty'}
-        </button>
+          {submitting ? 'creating…' : 'create bounty'}
+        </Button>
       </form>
     </div>
   );

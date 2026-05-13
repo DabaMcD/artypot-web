@@ -23,11 +23,35 @@
   --color-brand-dark: #1A1812;
   --color-brand-light: #F2EFE6;
 
+  /* Status colors (from design) */
+  --color-good: #6fd6a6;
+  --color-good-soft: #102a20;
+  --color-warn: #ffd66b;
+  --color-warn-soft: #2d2410;
+  --color-bad: #e26b50;
+  --color-bad-soft: #341610;
+  --color-info: #7a9dd1;
+  --color-info-soft: #102030;
+
+  /* Shadow tokens */
+  --shadow-hard: 3px 3px 0 #000;
+  --shadow-soft: 0 4px 16px rgba(0,0,0,0.5);
+
   --font-sans: var(--font-dm-sans);      /* prose / dense UI — use font-sans to opt out of handwritten */
   --font-mono: var(--font-geist-mono);   /* amounts, timestamps, labels, badges */
   --font-display: var(--font-kalam), var(--font-architects-daughter), cursive;  /* explicit override; body already inherits this */
   --font-geist: var(--font-geist-sans);  /* available if needed */
 }
+
+/* ── Role CSS vars — driven by data-role attribute on AppShell ───────────── */
+:root {
+  --color-role: var(--color-fan);
+  --color-role-soft: #2d2208;
+}
+[data-role="fan"]     { --color-role: var(--color-fan);     --color-role-soft: #2d2208; }
+[data-role="creator"] { --color-role: var(--color-creator); --color-role-soft: #0a2220; }
+[data-role="council"] { --color-role: var(--color-council); --color-role-soft: #0e1630; }
+[data-role="auth"]    { --color-role: var(--color-foreground); --color-role-soft: var(--color-surface); }
 
 html {
   /* Kalam reads slightly larger than sans-serif; 16px keeps the scale natural */
@@ -40,6 +64,12 @@ body {
   font-family: var(--font-kalam), var(--font-architects-daughter), cursive;
   font-size: 1rem;
   line-height: 1.4;
+  /* subtle role-gradient background (same as design) */
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(255,217,102,0.03) 0%, transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(71,223,211,0.03) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(77,106,202,0.02) 0%, transparent 50%);
+  background-attachment: fixed;
 }
 
 /*
@@ -51,6 +81,110 @@ body {
   h1, h2, h3, h4, h5, h6 {
     text-transform: lowercase;
   }
+}
+
+/* ── Role-aware base component classes ──────────────────────────────────── */
+
+/* Primary button uses role color */
+.ap-btn-primary {
+  background: var(--color-role);
+  color: var(--color-background);
+  border-color: var(--color-role);
+  font-weight: 700;
+}
+.ap-btn-primary:hover:not(:disabled) { filter: brightness(1.1); }
+
+/* Card with top role-accent bar */
+.ap-card-role-accent {
+  border-color: var(--color-role);
+}
+.ap-card-role-accent::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--color-role);
+  border-radius: 6px 6px 0 0;
+}
+
+/* Section label role bar */
+.ap-section-label-bar::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1.5px;
+  background: var(--color-role);
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+/* Toggle on state */
+.ap-toggle-track-on {
+  background: var(--color-role-soft) !important;
+  border-color: var(--color-role) !important;
+}
+.ap-toggle-thumb-on {
+  background: var(--color-role) !important;
+  transform: translateX(21px);
+}
+
+/* Inline link role color */
+.ap-inline-link {
+  color: var(--color-role);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.ap-inline-link:hover { filter: brightness(1.2); }
+
+/* Sketch underline effect */
+.ap-sketch-u {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 2px;
+  color: var(--color-role);
+}
+.ap-sketch-u::after {
+  content: "";
+  position: absolute;
+  left: -2px; right: -2px; bottom: -2px;
+  height: 4px;
+  background: var(--color-role);
+  opacity: 0.3;
+  border-radius: 3px;
+  transform: rotate(-0.5deg);
+}
+
+/* Nav item active */
+.ap-nav-active {
+  color: var(--color-role) !important;
+  border-left-color: var(--color-role) !important;
+  font-weight: 700;
+}
+.ap-nav-active .ap-nav-count {
+  background: var(--color-role-soft) !important;
+  color: var(--color-role) !important;
+  border-color: var(--color-role) !important;
+}
+.ap-nav-active .ap-nav-ic {
+  color: var(--color-role) !important;
+}
+
+/* Role switch active tab */
+.ap-role-active {
+  color: var(--color-role) !important;
+  background: var(--color-role-soft) !important;
+}
+
+/* Pipeline stage colors */
+.ap-pipe-pending  { border-top: 2px solid var(--color-warn); }
+.ap-pipe-clearing { border-top: 2px solid var(--color-info); }
+.ap-pipe-available{ border-top: 2px solid var(--color-good); }
+
+/* Bounty card hover */
+.ap-bounty-card:hover {
+  transform: translate(-1px, -1px);
+  border-color: var(--color-role);
 }
 
 /* ── react-phone-number-input dark theme ────────────────────────────────── */

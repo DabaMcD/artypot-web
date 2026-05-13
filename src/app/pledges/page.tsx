@@ -6,22 +6,19 @@ import { useRouter } from 'next/navigation';
 import { votives as votivesApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { PublicUserVotive, CashBalance } from '@/lib/types';
+import { Card, SectionLabel } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Empty } from '@/components/ui/Empty';
+
 type SortKey = 'date' | 'amount';
 
-const STATUS_LABELS: Record<string, string> = {
-  open: 'Open',
-  completed: 'Submitted',
-  approved: 'Approved',
-  paid_out: 'Paid Out',
-  revoked: 'Revoked',
-};
-
-const STATUS_COLORS: Record<string, string> = {
-  open:      'bg-green-900/40 text-green-400 border border-green-800/50',
-  completed: 'bg-blue-900/40 text-blue-400 border border-blue-800/50',
-  approved:  'bg-creator/20 text-creator border border-creator/30',
-  paid_out:  'bg-fan/20 text-fan border border-fan/30',
-  revoked:   'bg-red-900/40 text-red-400 border border-red-800/50',
+const STATUS_BADGE: Record<string, { label: string; tone: 'default' | 'info' | 'good' | 'warn' | 'bad' }> = {
+  open:      { label: 'open',      tone: 'default' },
+  pending:   { label: 'approved',  tone: 'warn' },
+  completed: { label: 'submitted', tone: 'info' },
+  paid_out:  { label: 'paid out',  tone: 'good' },
+  revoked:   { label: 'revoked',   tone: 'bad' },
 };
 
 export default function MyVotivesPage() {
@@ -35,7 +32,6 @@ export default function MyVotivesPage() {
   const [total, setTotal] = useState(0);
   const [totalActiveAmount, setTotalActiveAmount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
-
   const [cashBalance, setCashBalance] = useState<CashBalance | null>(null);
 
   useEffect(() => {
@@ -72,7 +68,6 @@ export default function MyVotivesPage() {
     setPage(1);
   };
 
-  // Next billing date: the 24th of this or next month
   const now = new Date();
   const nextBillingDate = now.getDate() < 24
     ? new Date(now.getFullYear(), now.getMonth(), 24)
@@ -85,178 +80,141 @@ export default function MyVotivesPage() {
 
   if (authLoading || !user) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-10">
-        <div className="h-64 bg-surface border border-border rounded-xl animate-pulse" />
+      <div className="space-y-4 pt-2">
+        <div className="h-8 w-48 bg-surface animate-pulse rounded" />
+        <div className="h-64 bg-surface animate-pulse rounded" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-6">
+    <div className="space-y-7 pt-2">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">What I&apos;m Backing</h1>
-          <p className="text-sm text-muted mt-0.5">
-            {total} active {total !== 1 ? 'commitments' : 'commitment'}
+          <SectionLabel>fan · history</SectionLabel>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">history & receipts</h1>
+          <p className="font-display text-sm text-muted mt-1">
+            {total} {total !== 1 ? 'commitments' : 'commitment'}
             {totalActiveAmount !== null && totalActiveAmount > 0 && (
-              <> · <span className="text-foreground">${totalActiveAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total</span></>
+              <> · <span className="text-foreground">${totalActiveAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} active</span></>
             )}
           </p>
         </div>
-        <Link
-          href="/dashboard"
-          className="shrink-0 text-sm text-muted hover:text-foreground transition-colors"
-        >
-          ← Dashboard
+        <Link href="/dashboard">
+          <Button variant="ghost" size="sm">← dashboard</Button>
         </Link>
       </div>
 
-      {/* Main grid */}
-      <div className="grid lg:grid-cols-[1fr_280px] gap-6 items-start">
-        {/* LEFT: contributions list */}
-        <div>
+      <div className="grid lg:grid-cols-[1fr_260px] gap-6 items-start">
+        {/* Left: list */}
+        <div className="space-y-4">
           {/* Sort controls */}
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xs text-muted uppercase tracking-wider mr-1">Sort by</span>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted mr-2">sort by</span>
             {(['date', 'amount'] as SortKey[]).map((s) => (
               <button
                 key={s}
                 onClick={() => handleSort(s)}
-                className={`text-sm px-3 py-1.5 rounded-lg border transition-colors ${
+                className={`font-mono text-[10px] uppercase tracking-wider px-3 py-1.5 rounded border transition-colors cursor-pointer ${
                   sort === s
-                    ? 'bg-fan/15 border-fan/40 text-fan font-medium'
-                    : 'border-border text-muted hover:text-foreground hover:border-foreground/20'
+                    ? 'bg-[var(--color-role-soft)] border-[var(--color-role)] text-[var(--color-role)]'
+                    : 'border-border text-muted hover:text-foreground'
                 }`}
               >
-                {s === 'date' ? 'Most Recent' : 'Highest Amount'}
+                {s === 'date' ? 'most recent' : 'highest amount'}
               </button>
             ))}
           </div>
 
-          {/* Votive list */}
           {loading ? (
-            <div className="bg-surface border border-border rounded-xl overflow-hidden">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex items-center justify-between px-5 py-4 border-b border-border last:border-0">
-                  <div className="space-y-1.5">
-                    <div className="h-4 w-56 bg-surface-2 animate-pulse rounded" />
-                    <div className="h-3 w-28 bg-surface-2 animate-pulse rounded" />
-                  </div>
-                  <div className="h-5 w-14 bg-surface-2 animate-pulse rounded" />
-                </div>
-              ))}
-            </div>
+            <Card>
+              <div className="space-y-3">
+                {[1,2,3,4,5].map(i => <div key={i} className="h-10 bg-surface-2 animate-pulse rounded" />)}
+              </div>
+            </Card>
           ) : votives.length === 0 ? (
-            <div className="text-center py-12 text-muted border border-dashed border-border rounded-xl">
-              Not backing anything yet.{' '}
-              <Link href="/bounties" className="text-fan hover:underline">Browse bounties</Link>
-              {' '}to get started.
-            </div>
+            <Empty icon="◇" message="no pledges yet">
+              <Link href="/creators"><Button variant="default" size="sm">find creators →</Button></Link>
+            </Empty>
           ) : (
-            <div className="bg-surface border border-border rounded-xl overflow-hidden">
-              {votives.map((votive, i) => {
-                const status = votive.pot?.status;
-                return (
-                  <div
-                    key={votive.id}
-                    className={`flex items-center gap-4 px-5 py-4 ${i < votives.length - 1 ? 'border-b border-border' : ''}`}
-                  >
-                    {/* Pot info */}
-                    <div className="flex-1 min-w-0">
-                      {votive.pot ? (
-                        <Link
-                          href={`/bounties/${votive.pot_id}`}
-                          className="text-sm font-medium text-foreground hover:text-fan transition-colors block truncate"
-                        >
-                          {votive.pot.title}
-                        </Link>
-                      ) : (
-                        <span className="text-sm text-muted">Project #{votive.pot_id}</span>
-                      )}
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        {status && (
-                          <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${STATUS_COLORS[status] ?? ''}`}>
-                            {STATUS_LABELS[status] ?? status}
-                          </span>
+            <Card>
+              <div className="divide-y divide-border -mx-5 -my-4">
+                {votives.map((votive) => {
+                  const status = votive.pot?.status ?? 'open';
+                  const badge = STATUS_BADGE[status] ?? { label: status, tone: 'default' as const };
+                  return (
+                    <div key={votive.id} className="flex items-center gap-3 px-5 py-3.5">
+                      <div className="flex-1 min-w-0">
+                        {votive.pot ? (
+                          <Link
+                            href={`/bounties/${votive.pot_id}`}
+                            className="font-display text-sm text-foreground hover:text-fan transition-colors block truncate"
+                          >
+                            {votive.pot.title}
+                          </Link>
+                        ) : (
+                          <span className="font-display text-sm text-muted">bounty #{votive.pot_id}</span>
                         )}
-                        {votive.expires_at && (
-                          <span className="text-xs text-muted">
-                            Expires{' '}
-                            {new Date(votive.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                          </span>
-                        )}
-                        <span className="text-xs text-muted">
-                          Placed{' '}
+                        <div className="font-mono text-[10px] text-muted mt-0.5">
                           {new Date(votive.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </span>
+                          {votive.expires_at && (
+                            <> · expires {new Date(votive.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</>
+                          )}
+                        </div>
                       </div>
+                      <Badge tone={badge.tone}>{badge.label}</Badge>
+                      <span className="font-mono text-sm font-medium text-fan tabular-nums shrink-0">
+                        ${Number(votive.amount).toFixed(2)}
+                      </span>
                     </div>
-
-                    {/* Amount */}
-                    <span className="text-fan font-bold text-sm shrink-0">
-                      ${Number(votive.amount).toFixed(2)}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            </Card>
           )}
 
           {/* Pagination */}
           {lastPage > 1 && (
-            <div className="flex items-center justify-between mt-6">
-              <button
+            <div className="flex items-center justify-between">
+              <Button
+                variant="default"
+                size="sm"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1 || loading}
-                className="text-sm px-4 py-2 border border-border rounded-lg text-muted hover:text-foreground hover:border-foreground/20 transition-colors disabled:opacity-30"
               >
-                ← Previous
-              </button>
-              <span className="text-sm text-muted">
-                Page {page} of {lastPage}
+                ← prev
+              </Button>
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                {page} / {lastPage}
               </span>
-              <button
+              <Button
+                variant="default"
+                size="sm"
                 onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
                 disabled={page === lastPage || loading}
-                className="text-sm px-4 py-2 border border-border rounded-lg text-muted hover:text-foreground hover:border-foreground/20 transition-colors disabled:opacity-30"
               >
-                Next →
-              </button>
+                next →
+              </Button>
             </div>
           )}
         </div>
 
-        {/* RIGHT sidebar — lg only */}
+        {/* Right: sidebar */}
         <div className="space-y-4">
-          {/* Billing at a Glance */}
-          <div className="border border-border rounded-xl p-5">
-            <div className="text-xs text-muted uppercase tracking-wider mb-3">Billing at a Glance</div>
-            <div className="text-xs text-muted uppercase tracking-wider mb-1">Next Charge</div>
-            {cashBalance === null ? (
-              <div className="h-8 w-28 bg-surface-2 animate-pulse rounded mb-1" />
-            ) : (
-              <div className="text-2xl font-bold font-mono text-foreground">
-                ${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-              </div>
-            )}
-            <div className="text-sm text-muted mt-0.5">on {billingDateStr}</div>
-            <div className="border-t border-border my-3" />
-            <div className="text-xs text-muted">
-              Fees are deducted from creator payouts — you pay exactly this amount.
+          <Card>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">next charge</div>
+            <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
+              ${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </div>
-          </div>
-
-          {/* Payment Method */}
-          <div className="border border-border rounded-xl p-5">
-            <div className="text-xs text-muted uppercase tracking-wider mb-3">Payment Method</div>
-            <Link
-              href="/billing"
-              className="text-sm text-fan hover:underline"
-            >
-              Go to Billing →
-            </Link>
-          </div>
+            <div className="font-mono text-[10px] text-muted mt-0.5">on {billingDateStr}</div>
+            <div className="border-t border-border mt-3 pt-3">
+              <p className="font-display text-xs text-muted">fees are deducted from creator payouts — you pay exactly this amount.</p>
+            </div>
+          </Card>
+          <Card>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">payment method</div>
+            <Link href="/billing" className="ap-inline-link font-display text-sm">manage billing →</Link>
+          </Card>
         </div>
       </div>
     </div>

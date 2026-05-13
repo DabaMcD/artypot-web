@@ -8,7 +8,12 @@ import { useToast } from '@/lib/toast-context';
 import { cash as cashApi, stripeConnect as stripeConnectApi, withdrawals as withdrawalsApi, w9 as w9Api, w8ben as w8benApi } from '@/lib/api';
 import type { CreatorBalance, FormW9StatusResponse, FormW8BENStatusResponse } from '@/lib/types';
 import { countryName } from '@/lib/countries';
-import EarningsPipeline from '@/components/EarningsPipeline';
+import { Card, SectionLabel } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Banner } from '@/components/ui/Banner';
+import { BalancePipeline } from '@/components/ui/Pipeline';
+import { Input } from '@/components/ui/Input';
 
 type StripeAccountStatus = {
   account_id: string | null;
@@ -18,19 +23,6 @@ type StripeAccountStatus = {
   requirements: string[];
 };
 
-function InfoTip({ content }: { content: string }) {
-  return (
-    <span className="relative group cursor-default ml-1 inline-flex items-center">
-      <span className="italic font-serif text-muted text-xs w-3.5 h-3.5 rounded-full border border-muted/40 inline-flex items-center justify-center leading-none select-none hover:border-foreground/40 hover:text-foreground transition-colors">
-        i
-      </span>
-      <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-surface-2 border border-border rounded-xl p-3 shadow-xl text-xs text-muted leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-20 text-left">
-        {content}
-      </div>
-    </span>
-  );
-}
-
 function SanctumPageContent() {
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -39,23 +31,14 @@ function SanctumPageContent() {
 
   const [balance, setBalance] = useState<CreatorBalance | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
-
-  // Stripe Connect state
   const [stripeStatus, setStripeStatus] = useState<StripeAccountStatus | null>(null);
   const [stripeLoading, setStripeLoading] = useState(false);
-  // Track disconnect locally so UI reflects it before /me refetches
   const [bankConnectedOverride, setBankConnectedOverride] = useState<boolean | null>(null);
-
-  // Withdrawal state
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [withdrawConfirm, setWithdrawConfirm] = useState(false);
-
-  // W-9 state (US creators only)
   const [w9Status, setW9Status] = useState<FormW9StatusResponse | null>(null);
   const [w9UrlLoading, setW9UrlLoading] = useState(false);
-
-  // W-8BEN state (non-US creators only)
   const [w8benStatus, setW8benStatus] = useState<FormW8BENStatusResponse | null>(null);
   const [w8benUrlLoading, setW8benUrlLoading] = useState(false);
 
@@ -66,68 +49,36 @@ function SanctumPageContent() {
 
   useEffect(() => {
     if (!user?.creator) return;
-
-    cashApi
-      .creatorBalance()
-      .then(setBalance)
-      .catch(() => {});
-
-    // Load the appropriate tax form status depending on creator location
+    cashApi.creatorBalance().then(setBalance).catch(() => {});
     const isUS = user.creator.country_code === 'US';
     if (isUS) {
-      w9Api
-        .status()
-        .then((res) => setW9Status(res.data))
-        .catch(() => {})
-        .finally(() => setBalanceLoading(false));
+      w9Api.status().then((res) => setW9Status(res.data)).catch(() => {}).finally(() => setBalanceLoading(false));
     } else if (user.creator.country_code) {
-      // Non-US creator with a country set — load W-8BEN status
-      w8benApi
-        .status()
-        .then((res) => setW8benStatus(res.data))
-        .catch(() => {})
-        .finally(() => setBalanceLoading(false));
+      w8benApi.status().then((res) => setW8benStatus(res.data)).catch(() => {}).finally(() => setBalanceLoading(false));
     } else {
-      // No country set — skip tax form fetch
       setBalanceLoading(false);
     }
-
-    // Fetch live Stripe Connect status (payouts_enabled etc.) if an account exists
     if (user.creator.bank_connected) {
-      stripeConnectApi
-        .accountStatus()
-        .then((res) => setStripeStatus(res.data))
-        .catch(() => {});
+      stripeConnectApi.accountStatus().then((res) => setStripeStatus(res.data)).catch(() => {});
     }
   }, [user]);
 
-  // Handle return from Stripe Account Link onboarding
   useEffect(() => {
     const stripeParam = searchParams.get('stripe');
     if (!stripeParam) return;
-
-    // Clean the query param from the URL without adding a history entry
     router.replace('/sanctum', { scroll: false });
-
     if (stripeParam === 'complete') {
       toast('Bank setup complete! Verifying your account status…', 'success');
-      // Re-fetch live status so payouts_enabled updates immediately
-      stripeConnectApi
-        .accountStatus()
-        .then((res) => setStripeStatus(res.data))
-        .catch(() => {});
+      stripeConnectApi.accountStatus().then((res) => setStripeStatus(res.data)).catch(() => {});
     } else if (stripeParam === 'refresh') {
       toast('Onboarding link expired — click "Continue setup" to try again.', 'error');
     }
   }, [searchParams, router, toast]);
 
-  // Handle return from TaxBandits W-9 form
   useEffect(() => {
     const w9Param = searchParams.get('w9');
     if (!w9Param) return;
-
     router.replace('/sanctum', { scroll: false });
-
     if (w9Param === 'complete') {
       toast('W-9 submitted! We\'ll notify you once your SSN/TIN has been verified.', 'success');
       w9Api.status().then((res) => setW9Status(res.data)).catch(() => {});
@@ -136,13 +87,10 @@ function SanctumPageContent() {
     }
   }, [searchParams, router, toast]);
 
-  // Handle return from TaxBandits W-8BEN form
   useEffect(() => {
     const w8benParam = searchParams.get('w8ben');
     if (!w8benParam) return;
-
     router.replace('/sanctum', { scroll: false });
-
     if (w8benParam === 'complete') {
       toast('W-8BEN submitted! We\'ll review and confirm shortly.', 'success');
       w8benApi.status().then((res) => setW8benStatus(res.data)).catch(() => {});
@@ -151,9 +99,6 @@ function SanctumPageContent() {
     }
   }, [searchParams, router, toast]);
 
-  // ── Bank connection handlers ────────────────────────────────────────────────
-
-  /** Start Stripe Connect onboarding for a new account. */
   const handleConnectBank = useCallback(async () => {
     if (stripeLoading) return;
     setStripeLoading(true);
@@ -161,7 +106,6 @@ function SanctumPageContent() {
       const returnUrl  = `${window.location.origin}/sanctum?stripe=complete`;
       const refreshUrl = `${window.location.origin}/sanctum?stripe=refresh`;
       const res = await stripeConnectApi.createAccount(returnUrl, refreshUrl);
-      // Navigate to Stripe-hosted onboarding — don't reset stripeLoading, we're leaving
       window.location.href = res.data.onboarding_url;
     } catch {
       toast('Failed to start bank connection. Please try again.', 'error');
@@ -169,7 +113,6 @@ function SanctumPageContent() {
     }
   }, [stripeLoading, toast]);
 
-  /** Resume onboarding for an account that exists but isn't fully set up yet. */
   const handleContinueOnboarding = useCallback(async () => {
     if (stripeLoading) return;
     setStripeLoading(true);
@@ -184,7 +127,6 @@ function SanctumPageContent() {
     }
   }, [stripeLoading, toast]);
 
-  /** Disconnect (delete) the Stripe Connect account so the creator can re-onboard. */
   const handleDisconnect = useCallback(async () => {
     if (stripeLoading) return;
     if (!window.confirm('Disconnect your bank account? You will need to re-link to withdraw funds.')) return;
@@ -201,14 +143,9 @@ function SanctumPageContent() {
     }
   }, [stripeLoading, toast]);
 
-  // ── Withdrawal handler ──────────────────────────────────────────────────────
-
   const handleWithdraw = useCallback(async () => {
     const amount = parseFloat(withdrawAmount);
-    if (isNaN(amount) || amount < 1) {
-      toast('Minimum withdrawal is $1.00', 'error');
-      return;
-    }
+    if (isNaN(amount) || amount < 1) { toast('Minimum withdrawal is $1.00', 'error'); return; }
     setWithdrawLoading(true);
     setWithdrawConfirm(false);
     try {
@@ -223,10 +160,10 @@ function SanctumPageContent() {
         toast('Please set your location on your profile before withdrawing.', 'error');
       } else if (e.requires_w8ben) {
         w8benApi.status().then((res) => setW8benStatus(res.data)).catch(() => {});
-        toast('A W-8BEN is required before this withdrawal — see the Tax Compliance section below.', 'error');
+        toast('A W-8BEN is required before this withdrawal.', 'error');
       } else if (e.requires_w9) {
         w9Api.status().then((res) => setW9Status(res.data)).catch(() => {});
-        toast('A W-9 is required before this withdrawal — see the Tax Compliance section below.', 'error');
+        toast('A W-9 is required before this withdrawal.', 'error');
       } else {
         toast(e.message ?? 'Payout failed. Please try again.', 'error');
       }
@@ -234,8 +171,6 @@ function SanctumPageContent() {
       setWithdrawLoading(false);
     }
   }, [withdrawAmount, toast]);
-
-  // ── W-9 handler ─────────────────────────────────────────────────────────────
 
   const handleGetW9Url = useCallback(async () => {
     setW9UrlLoading(true);
@@ -251,8 +186,6 @@ function SanctumPageContent() {
     }
   }, [toast]);
 
-  // ── W-8BEN handler ──────────────────────────────────────────────────────────
-
   const handleGetW8BENUrl = useCallback(async () => {
     setW8benUrlLoading(true);
     try {
@@ -267,533 +200,279 @@ function SanctumPageContent() {
     }
   }, [toast]);
 
-  // ── Render ──────────────────────────────────────────────────────────────────
-
   if (authLoading || !user || !user.creator) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-10 space-y-4">
-        <div className="h-24 bg-surface border border-border rounded-xl animate-pulse" />
+      <div className="space-y-6 pt-2">
+        <div className="h-8 w-48 bg-surface animate-pulse rounded" />
+        <div className="h-24 bg-surface animate-pulse rounded" />
       </div>
     );
   }
 
   const creator = user.creator;
-
-  // `bank_connected` from /me = connect account ID exists (not necessarily fully onboarded)
-  // `payoutsEnabled` = onboarding complete + bank verified
   const bankConnected  = bankConnectedOverride ?? (creator.bank_connected ?? false);
   const payoutsEnabled = stripeStatus?.payouts_enabled === true;
   const canWithdraw    = payoutsEnabled;
+  const isUS           = creator.country_code === 'US';
+  const needsLocation  = !creator.location_complete;
 
-  const isUS          = creator.country_code === 'US';
-  const needsLocation = !creator.location_complete;
-
-  const openVotives         = balance?.open_votives ?? 0;
-  const pendingVerification = balance?.pending_verification ?? 0;
-  const pendingPayment      = balance?.pending_payment ?? 0;
-  const clearing            = balance?.clearing ?? 0;
-  const availableBalance    = balance?.available_balance ?? 0;
-  const paidOut             = balance?.paid_out ?? 0;
-  const recentTransactions  = balance?.available?.data?.slice(0, 5) ?? [];
+  const openVotives        = balance?.open_votives ?? 0;
+  const pendingPayment     = balance?.pending_payment ?? 0;
+  const clearing           = balance?.clearing ?? 0;
+  const availableBalance   = balance?.available_balance ?? 0;
+  const paidOut            = balance?.paid_out ?? 0;
+  const recentTransactions = balance?.available?.data?.slice(0, 5) ?? [];
 
   const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
-  const pipelineStages = [
-    { label: 'Open Backing',         amount: fmt(openVotives),         sub: 'soft pledges, no charge locked' },
-    { label: 'Pending Verification', amount: fmt(pendingVerification), sub: 'Council reviewing' },
-    { label: 'Pending Payment',      amount: fmt(pendingPayment),      sub: 'billing next 24th' },
-    { label: 'Clearing',             amount: fmt(clearing),            sub: '7-day hold' },
-    { label: 'Available',            amount: fmt(availableBalance),    sub: 'ready to withdraw', isActive: true },
-    { label: 'Paid Out',             amount: fmt(paidOut),             sub: 'lifetime' },
-  ];
-
   const needsW9    = isUS && !!(w9Status?.requires_w9 && !w9Status?.record?.tin_matched);
   const needsW8BEN = !isUS && !!(w8benStatus?.requires_w8ben && !w8benStatus?.record?.qualifies);
-  const needsBank  = needsLocation || !canWithdraw;
-
-  // For the setup checklist — "on file" means the form qualifies (not just submitted)
-  const taxFormOnFile  = isUS ? !!w9Status?.record?.tin_matched : !!w8benStatus?.record?.qualifies;
+  const taxFormOnFile   = isUS ? !!w9Status?.record?.tin_matched : !!w8benStatus?.record?.qualifies;
   const taxFormRequired = needsW9 || needsW8BEN;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
+    <div className="space-y-7 pt-2">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-6">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs text-creator/70 uppercase tracking-widest font-medium mb-1">Creator Sanctum</p>
-          <h1 className="text-2xl font-display font-bold text-foreground">{creator.display_name}</h1>
+          <SectionLabel>creator · sanctum</SectionLabel>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{creator.display_name}</h1>
         </div>
-        <Link
-          href={`/creators/${creator.id}`}
-          className="shrink-0 text-sm text-creator border border-creator/30 px-4 py-2 rounded-lg hover:bg-creator/10 transition-colors"
-        >
-          Public Profile →
+        <Link href={`/creators/${creator.id}`}>
+          <Button variant="default" size="sm">public profile →</Button>
         </Link>
       </div>
 
-      {/* Withdrawal setup checklist — visible until every step is complete */}
+      {/* Setup checklist */}
       {(needsLocation || !canWithdraw || taxFormRequired) && (
-        <div className="border border-border bg-surface rounded-xl p-5 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-bold text-foreground">Before you can withdraw</h2>
-            {(needsLocation || taxFormRequired) && (
-              <span className="text-[11px] font-semibold text-amber-400 bg-amber-900/20 border border-amber-700/30 px-2.5 py-0.5 rounded-full">
-                Action required
-              </span>
-            )}
+        <Banner tone="warn">
+          <div>
+            <strong>before you can withdraw</strong>
+            <ul className="mt-2 space-y-1 font-display text-sm">
+              <li className={`flex items-center gap-2 ${!needsLocation ? 'line-through text-muted' : ''}`}>
+                <span>{!needsLocation ? '✓' : '1.'}</span>
+                set your location
+                {needsLocation && <Link href={`/creators/${creator.id}/edit`} className="ap-inline-link ml-1">edit profile →</Link>}
+              </li>
+              <li className={`flex items-center gap-2 ${canWithdraw ? 'line-through text-muted' : ''}`}>
+                <span>{canWithdraw ? '✓' : '2.'}</span>
+                connect a bank account
+              </li>
+              <li className={`flex items-center gap-2 ${taxFormOnFile ? 'line-through text-muted' : ''}`}>
+                <span>{taxFormOnFile ? '✓' : '3.'}</span>
+                submit your {isUS ? 'W-9' : 'W-8BEN'}
+              </li>
+            </ul>
           </div>
-          <ol className="space-y-3">
-
-            {/* 1 — Location */}
-            <li className="flex items-start gap-3">
-              <span className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                !needsLocation
-                  ? 'bg-creator/20 border-creator text-creator'
-                  : 'bg-amber-900/20 border-amber-600 text-amber-400'
-              }`}>
-                {!needsLocation ? '✓' : '1'}
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm leading-snug ${!needsLocation ? 'text-muted line-through' : 'text-foreground font-medium'}`}>
-                  Set your location
-                </p>
-                {needsLocation && (
-                  <p className="text-xs text-muted mt-0.5">
-                    Required to determine which tax form applies.{' '}
-                    <Link href={`/creators/${creator.id}/edit`} className="text-creator hover:underline underline-offset-2">
-                      Edit profile →
-                    </Link>
-                  </p>
-                )}
-              </div>
-            </li>
-
-            {/* 2 — Bank account */}
-            <li className="flex items-start gap-3">
-              <span className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                canWithdraw
-                  ? 'bg-creator/20 border-creator text-creator'
-                  : needsLocation
-                    ? 'border-border text-muted/40'
-                    : 'bg-amber-900/20 border-amber-600 text-amber-400'
-              }`}>
-                {canWithdraw ? '✓' : '2'}
-              </span>
-              <p className={`mt-0.5 text-sm leading-snug ${
-                canWithdraw ? 'text-muted line-through' : needsLocation ? 'text-muted/40' : 'text-foreground font-medium'
-              }`}>
-                Connect a bank account
-                {!canWithdraw && !needsLocation && (
-                  <span className="font-normal text-muted">
-                    {bankConnected ? ' — complete Stripe setup below' : ' — see Bank Account section below'}
-                  </span>
-                )}
-              </p>
-            </li>
-
-            {/* 3 — Tax form */}
-            <li className="flex items-start gap-3">
-              <span className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                taxFormOnFile
-                  ? 'bg-creator/20 border-creator text-creator'
-                  : taxFormRequired
-                    ? 'bg-amber-900/20 border-amber-600 text-amber-400'
-                    : 'border-border text-muted/40'
-              }`}>
-                {taxFormOnFile ? '✓' : '3'}
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm leading-snug ${
-                  taxFormOnFile ? 'text-muted line-through' : taxFormRequired ? 'text-foreground font-medium' : 'text-muted/40'
-                }`}>
-                  Submit your {isUS ? 'W-9' : 'W-8BEN'}
-                  {taxFormRequired && <span className="font-normal text-muted"> — see Tax Compliance section below</span>}
-                </p>
-                {!taxFormRequired && !taxFormOnFile && (
-                  <p className="text-xs text-muted/60 mt-0.5">Required once annual payouts exceed $100.</p>
-                )}
-              </div>
-            </li>
-
-          </ol>
-        </div>
+        </Banner>
       )}
 
-      {/* Earnings pipeline strip */}
-      <div className="mb-8">
-        <EarningsPipeline stages={pipelineStages} loading={balanceLoading} />
+      {/* Balance pipeline */}
+      <div>
+        <SectionLabel className="mb-3">earnings pipeline</SectionLabel>
+        <BalancePipeline balances={{ pending: pendingPayment, clearing, available: availableBalance }} />
+        <p className="font-display text-xs text-muted mt-2">
+          contributions flow left → right. council approval moves funds to pending. the 24th moves them into clearing. 7 days later they&apos;re available.
+        </p>
       </div>
 
-      {/* Two-column grid */}
-      <div className="grid lg:grid-cols-[1fr_320px] gap-6">
-        {/* LEFT column */}
+      <div className="grid lg:grid-cols-[1fr_300px] gap-6">
+        {/* LEFT */}
         <div className="space-y-6">
 
-          {/* Recent Transactions */}
-          <div className="border border-border rounded-xl p-5">
+          {/* Open backing + paid out stats */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card>
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">open backing</div>
+              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{fmt(openVotives)}</div>
+              <div className="font-mono text-[10px] text-muted mt-0.5">soft pledges, not yet charged</div>
+            </Card>
+            <Card>
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">lifetime paid out</div>
+              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{fmt(paidOut)}</div>
+              <div className="font-mono text-[10px] text-muted mt-0.5">total withdrawn to bank</div>
+            </Card>
+          </div>
+
+          {/* Recent transactions */}
+          <Card>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-bold text-foreground">Recent Transactions</h2>
-              <Link href="/cash" className="text-sm text-creator/70 hover:text-creator transition-colors">
-                Full ledger →
+              <SectionLabel>recent transactions</SectionLabel>
+              <Link href="/cash" className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors">
+                full ledger →
               </Link>
             </div>
             {balanceLoading ? (
               <div className="space-y-2">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-5 bg-surface-2 animate-pulse rounded" />
-                ))}
+                {[1,2,3].map(i => <div key={i} className="h-5 bg-surface-2 animate-pulse rounded" />)}
               </div>
             ) : recentTransactions.length === 0 ? (
-              <p className="text-sm text-muted">No transactions yet.</p>
+              <p className="font-display text-sm text-muted">no transactions yet.</p>
             ) : (
-              <div className="space-y-1">
+              <div className="divide-y divide-border -mx-5 -my-4">
                 {recentTransactions.map((entry) => (
-                  <div key={entry.id} className="flex items-center justify-between text-sm">
-                    <span className="text-muted truncate mr-4">{entry.description}</span>
-                    <span className={`font-semibold shrink-0 ${Number(entry.amount) < 0 ? 'text-red-400' : 'text-creator'}`}>
+                  <div key={entry.id} className="flex items-center justify-between px-5 py-3">
+                    <span className="font-display text-sm text-muted truncate mr-4">{entry.description}</span>
+                    <span className={`font-mono text-sm font-medium shrink-0 ${Number(entry.amount) < 0 ? 'text-bad' : 'text-creator'}`}>
                       {Number(entry.amount) < 0 ? '-' : '+'}${Math.abs(Number(entry.amount)).toFixed(2)}
                     </span>
                   </div>
                 ))}
               </div>
             )}
-          </div>
+          </Card>
 
-          {/* Bank Account */}
-          <div className="border border-border rounded-xl p-5">
-            <div className="flex items-start justify-between gap-4">
+          {/* Bank account */}
+          <Card>
+            <div className="flex items-start justify-between mb-3">
+              <SectionLabel>bank account</SectionLabel>
+              {canWithdraw && <Badge tone="good">connected</Badge>}
+            </div>
+            <p className="font-display text-sm text-muted leading-relaxed mb-4">
+              artypot uses stripe for secure, direct bank verification — your credentials are never stored by us.
+            </p>
+            {needsLocation ? (
               <div>
-                <h2 className="text-base font-bold text-foreground mb-1">Bank Account</h2>
-                <p className="text-sm text-muted leading-relaxed">
-                  Connect a bank account to receive withdrawals. Artypot uses Stripe for secure,
-                  direct bank verification — your credentials are never stored by us.
-                </p>
+                <p className="font-display text-sm text-muted mb-3">set your location before connecting a bank account.</p>
+                <Link href={`/creators/${creator.id}/edit`}>
+                  <Button variant="primary">set location →</Button>
+                </Link>
               </div>
-              {canWithdraw && (
-                <span className="shrink-0 text-xs font-semibold text-creator bg-creator/10 border border-creator/30 px-2.5 py-1 rounded-full">
-                  Connected
-                </span>
-              )}
-            </div>
-
-            <div className="mt-4 flex gap-2 flex-wrap items-center">
-              {needsLocation ? (
-                // Location not set — must set country (+ state for US) before Stripe Connect
-                <div>
-                  <p className="text-sm text-muted mb-3">
-                    Set your location on your profile before connecting a bank account.
-                  </p>
-                  <Link
-                    href={`/creators/${creator.id}/edit`}
-                    className="bg-creator text-black font-semibold text-sm px-4 py-2.5 rounded-lg hover:opacity-90 transition-opacity inline-block"
-                  >
-                    Set location →
-                  </Link>
-                </div>
-              ) : !bankConnected ? (
-                // No account at all — start fresh
-                <button
-                  onClick={handleConnectBank}
-                  disabled={stripeLoading}
-                  className="bg-creator text-black font-semibold text-sm px-4 py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-                >
-                  {stripeLoading ? 'Starting setup…' : 'Connect bank account'}
-                </button>
-              ) : !canWithdraw ? (
-                // Has account but onboarding not complete
-                <button
-                  onClick={handleContinueOnboarding}
-                  disabled={stripeLoading}
-                  className="bg-creator text-black font-semibold text-sm px-4 py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-                >
-                  {stripeLoading ? 'Loading…' : 'Continue setup →'}
-                </button>
-              ) : (
-                // Fully onboarded — offer disconnect
-                <button
-                  onClick={handleDisconnect}
-                  disabled={stripeLoading}
-                  className="text-sm text-muted border border-border px-4 py-2 rounded-lg hover:border-red-500/40 hover:text-red-400 transition-colors disabled:opacity-50"
-                >
-                  {stripeLoading ? 'Disconnecting…' : 'Disconnect bank'}
-                </button>
-              )}
-            </div>
-
-            {/* Pending onboarding hint */}
-            {bankConnected && !canWithdraw && (
-              <p className="text-xs text-amber-400 mt-3 leading-relaxed">
-                Your bank connection is pending — complete the Stripe setup above to enable withdrawals.
-              </p>
+            ) : !bankConnected ? (
+              <Button variant="primary" disabled={stripeLoading} onClick={handleConnectBank}>
+                {stripeLoading ? 'starting setup…' : 'connect bank account'}
+              </Button>
+            ) : !canWithdraw ? (
+              <div>
+                <Button variant="primary" disabled={stripeLoading} onClick={handleContinueOnboarding}>
+                  {stripeLoading ? 'loading…' : 'continue setup →'}
+                </Button>
+                <p className="font-display text-xs text-warn mt-2">bank connection pending — complete stripe setup to enable withdrawals.</p>
+              </div>
+            ) : (
+              <Button variant="ghost" size="sm" disabled={stripeLoading} onClick={handleDisconnect}>
+                {stripeLoading ? 'disconnecting…' : 'disconnect bank'}
+              </Button>
             )}
-          </div>
+          </Card>
 
-          {/* Tax Compliance — W-9 (US creators) */}
+          {/* Tax — W-9 */}
           {isUS && w9Status && (
-            <div className={`border rounded-xl p-5 ${
-              w9Status.record?.tin_matched
-                ? 'bg-creator/5 border-creator/30'
-                : w9Status.record?.qualifies
-                  ? 'bg-surface border-border'
-                  : w9Status.requires_w9
-                    ? 'bg-amber-900/10 border-amber-700/40'
-                    : 'bg-surface border-border'
-            }`}>
-              {/* Header row */}
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div>
-                  <h2 className="text-base font-bold text-foreground mb-1">Tax Compliance — W-9</h2>
-                  <p className="text-sm text-muted leading-relaxed">
-                    {w9Status.record?.tin_matched
-                      ? `Your W-9 is complete and your SSN/TIN has been verified. You're all set to withdraw.`
-                      : w9Status.record?.status === 'completed'
-                        ? `Your W-9 has been received. SSN/TIN verification is in progress — withdrawals are unlocked while we wait.`
-                        : w9Status.record?.status === 'tin_failed'
-                          ? `SSN/TIN verification failed. Please re-submit your W-9 with corrected information.`
-                          : w9Status.requires_w9
-                            ? `Your ${w9Status.tax_year} payouts have reached $${w9Status.ytd_withdrawals.toFixed(2)}. Artypot requires a W-9 on file once annual payouts hit $${w9Status.threshold.toFixed(0)} — please complete yours before withdrawing.`
-                            : `You've earned $${w9Status.ytd_withdrawals.toFixed(2)} this year. Artypot requires a W-9 on file once you hit $${w9Status.threshold.toFixed(0)} in annual payouts — getting ahead of it now means no interruption to withdrawals later.`
-                    }
-                  </p>
-                </div>
-                {/* Overall status badge */}
+            <Card className={w9Status.record?.tin_matched ? 'border-good/30' : w9Status.requires_w9 ? 'border-warn/30' : ''}>
+              <div className="flex items-start justify-between mb-3">
+                <SectionLabel>tax compliance — W-9</SectionLabel>
                 {w9Status.record && (
-                  <span className={`shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full border ${
-                    w9Status.record.status === 'tin_matched' ? 'text-creator bg-creator/10 border-creator/30' :
-                    w9Status.record.status === 'completed'   ? 'text-blue-400 bg-blue-900/20 border-blue-700/40' :
-                    w9Status.record.status === 'tin_failed'  ? 'text-red-400 bg-red-900/20 border-red-700/40' :
-                    'text-amber-400 bg-amber-900/20 border-amber-700/40'
-                  }`}>
-                    {w9Status.record.status === 'tin_matched' ? 'SSN Verified' :
-                     w9Status.record.status === 'completed'   ? 'Submitted' :
-                     w9Status.record.status === 'tin_failed'  ? 'SSN Mismatch' :
-                     'Pending'}
-                  </span>
+                  <Badge tone={
+                    w9Status.record.status === 'tin_matched' ? 'good' :
+                    w9Status.record.status === 'completed'   ? 'info' :
+                    w9Status.record.status === 'tin_failed'  ? 'bad' : 'warn'
+                  }>
+                    {w9Status.record.status === 'tin_matched' ? 'SSN verified' :
+                     w9Status.record.status === 'completed'   ? 'submitted' :
+                     w9Status.record.status === 'tin_failed'  ? 'SSN mismatch' : 'pending'}
+                  </Badge>
                 )}
               </div>
-
-              {/* Progress steps */}
-              {w9Status.record && (
-                <div className="flex items-center gap-2 mb-4 text-xs">
-                  {/* Step 1: Form submitted */}
-                  <div className={`flex items-center gap-1.5 ${
-                    w9Status.record.completed_at ? 'text-creator' : 'text-muted'
-                  }`}>
-                    <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] font-bold ${
-                      w9Status.record.completed_at
-                        ? 'bg-creator/20 border-creator text-creator'
-                        : 'border-border text-muted'
-                    }`}>
-                      {w9Status.record.completed_at ? '✓' : '1'}
-                    </span>
-                    W-9 Submitted
-                  </div>
-                  <div className="flex-1 h-px bg-border" />
-                  {/* Step 2: SSN/TIN matched */}
-                  <div className={`flex items-center gap-1.5 ${
-                    w9Status.record.tin_matched
-                      ? 'text-creator'
-                      : w9Status.record.tin_failed
-                        ? 'text-red-400'
-                        : 'text-muted'
-                  }`}>
-                    <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] font-bold ${
-                      w9Status.record.tin_matched
-                        ? 'bg-creator/20 border-creator text-creator'
-                        : w9Status.record.tin_failed
-                          ? 'bg-red-900/20 border-red-500 text-red-400'
-                          : 'border-border text-muted'
-                    }`}>
-                      {w9Status.record.tin_matched ? '✓' : w9Status.record.tin_failed ? '✕' : '2'}
-                    </span>
-                    SSN / TIN Match
-                  </div>
-                </div>
-              )}
-
-              {/* Action button — show unless fully verified */}
+              <p className="font-display text-sm text-muted leading-relaxed mb-4">
+                {w9Status.record?.tin_matched
+                  ? `your W-9 is complete and your SSN/TIN has been verified.`
+                  : w9Status.requires_w9
+                    ? `your ${w9Status.tax_year} payouts have reached $${w9Status.ytd_withdrawals.toFixed(2)}. a W-9 is required before withdrawing.`
+                    : `you've earned $${w9Status.ytd_withdrawals.toFixed(2)} this year. artypot requires a W-9 once you hit $${w9Status.threshold.toFixed(0)}.`}
+              </p>
               {!w9Status.record?.tin_matched && (
-                <div>
+                <>
                   {w9Status.record?.status === 'tin_failed' && (
-                    <p className="text-sm text-red-400 mb-3">
-                      The SSN/TIN you provided could not be matched. Please re-submit your W-9 with corrected details.
-                    </p>
+                    <Banner tone="bad" className="mb-3">SSN/TIN verification failed. please re-submit with corrected information.</Banner>
                   )}
-                  <button
-                    onClick={handleGetW9Url}
+                  <Button
+                    variant={w9Status.requires_w9 || w9Status.record?.status === 'tin_failed' ? 'primary' : 'default'}
                     disabled={w9UrlLoading}
-                    className={`font-semibold text-sm px-4 py-2.5 rounded-lg disabled:opacity-50 transition-colors ${
-                      w9Status.requires_w9 || w9Status.record?.status === 'tin_failed'
-                        ? 'bg-amber-500 hover:bg-amber-400 text-black'
-                        : 'bg-surface-2 hover:bg-surface border border-border text-foreground'
-                    }`}
+                    onClick={handleGetW9Url}
                   >
-                    {w9UrlLoading
-                      ? 'Loading…'
-                      : w9Status.record?.status === 'tin_failed'
-                        ? 'Re-submit W-9 →'
-                        : w9Status.record
-                          ? 'Continue W-9 →'
-                          : 'Complete W-9 with TaxBandits →'
-                    }
-                  </button>
-                  <p className="text-xs text-muted mt-2">
-                    Opens TaxBandits in a new tab. Your SSN is collected and verified by TaxBandits — Artypot never sees it.
-                  </p>
-                </div>
+                    {w9UrlLoading ? 'loading…' :
+                     w9Status.record?.status === 'tin_failed' ? 're-submit W-9 →' :
+                     w9Status.record ? 'continue W-9 →' : 'complete W-9 with taxbandits →'}
+                  </Button>
+                  <p className="font-display text-xs text-muted mt-2">opens taxbandits in a new tab. artypot never sees your SSN.</p>
+                </>
               )}
-            </div>
+            </Card>
           )}
 
-          {/* Tax Compliance — W-8BEN (non-US creators) */}
+          {/* Tax — W-8BEN */}
           {!isUS && w8benStatus && (
-            <div className={`border rounded-xl p-5 ${
-              w8benStatus.record?.qualifies
-                ? 'bg-creator/5 border-creator/30'
-                : w8benStatus.requires_w8ben
-                  ? 'bg-amber-900/10 border-amber-700/40'
-                  : 'bg-surface border-border'
-            }`}>
-              {/* Header row */}
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div>
-                  <h2 className="text-base font-bold text-foreground mb-1">Tax Compliance — W-8BEN</h2>
-                  <p className="text-sm text-muted leading-relaxed">
-                    {w8benStatus.record?.status === 'completed'
-                      ? `Your W-8BEN has been submitted and confirmed. You're all set to withdraw.`
-                      : w8benStatus.record?.status === 'invalid'
-                        ? `Your W-8BEN was flagged as invalid. Please re-submit with corrected information.`
-                        : w8benStatus.requires_w8ben
-                          ? `Your ${w8benStatus.tax_year} payouts have reached $${w8benStatus.ytd_withdrawals.toFixed(2)}. Artypot requires a W-8BEN on file once annual payouts hit $${w8benStatus.threshold.toFixed(0)} — please complete yours before withdrawing.`
-                          : `You've earned $${w8benStatus.ytd_withdrawals.toFixed(2)} this year. Artypot requires a W-8BEN on file once you hit $${w8benStatus.threshold.toFixed(0)} in annual payouts — getting ahead of it now means no interruption to withdrawals later.`
-                    }
-                  </p>
-                </div>
-                {/* Status badge */}
+            <Card className={w8benStatus.record?.qualifies ? 'border-good/30' : w8benStatus.requires_w8ben ? 'border-warn/30' : ''}>
+              <div className="flex items-start justify-between mb-3">
+                <SectionLabel>tax compliance — W-8BEN</SectionLabel>
                 {w8benStatus.record && (
-                  <span className={`shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full border ${
-                    w8benStatus.record.status === 'completed' ? 'text-creator bg-creator/10 border-creator/30' :
-                    w8benStatus.record.status === 'invalid'   ? 'text-red-400 bg-red-900/20 border-red-700/40' :
-                    'text-amber-400 bg-amber-900/20 border-amber-700/40'
-                  }`}>
-                    {w8benStatus.record.status === 'completed' ? 'Submitted' :
-                     w8benStatus.record.status === 'invalid'   ? 'Invalid' :
-                     'Pending'}
-                  </span>
+                  <Badge tone={w8benStatus.record.status === 'completed' ? 'good' : w8benStatus.record.status === 'invalid' ? 'bad' : 'warn'}>
+                    {w8benStatus.record.status === 'completed' ? 'submitted' : w8benStatus.record.status === 'invalid' ? 'invalid' : 'pending'}
+                  </Badge>
                 )}
               </div>
-
-              {/* Single progress step — W-8BEN has no TIN matching */}
-              {w8benStatus.record && (
-                <div className="flex items-center gap-2 mb-4 text-xs">
-                  <div className={`flex items-center gap-1.5 ${
-                    w8benStatus.record.completed_at ? 'text-creator' : 'text-muted'
-                  }`}>
-                    <span className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] font-bold ${
-                      w8benStatus.record.completed_at
-                        ? 'bg-creator/20 border-creator text-creator'
-                        : 'border-border text-muted'
-                    }`}>
-                      {w8benStatus.record.completed_at ? '✓' : '1'}
-                    </span>
-                    W-8BEN Submitted
-                  </div>
-                </div>
-              )}
-
-              {/* Action button — show unless completed */}
+              <p className="font-display text-sm text-muted leading-relaxed mb-4">
+                {w8benStatus.record?.status === 'completed'
+                  ? `your W-8BEN has been submitted and confirmed.`
+                  : w8benStatus.requires_w8ben
+                    ? `your ${w8benStatus.tax_year} payouts have reached $${w8benStatus.ytd_withdrawals.toFixed(2)}. a W-8BEN is required before withdrawing.`
+                    : `you've earned $${w8benStatus.ytd_withdrawals.toFixed(2)} this year. artypot requires a W-8BEN once you hit $${w8benStatus.threshold.toFixed(0)}.`}
+              </p>
               {!w8benStatus.record?.qualifies && (
-                <div>
+                <>
                   {w8benStatus.record?.status === 'invalid' && (
-                    <p className="text-sm text-red-400 mb-3">
-                      Your W-8BEN was flagged as invalid. Please re-submit with corrected details.
-                    </p>
+                    <Banner tone="bad" className="mb-3">your W-8BEN was flagged as invalid. please re-submit with corrected information.</Banner>
                   )}
-                  <button
-                    onClick={handleGetW8BENUrl}
+                  <Button
+                    variant={w8benStatus.requires_w8ben || w8benStatus.record?.status === 'invalid' ? 'primary' : 'default'}
                     disabled={w8benUrlLoading}
-                    className={`font-semibold text-sm px-4 py-2.5 rounded-lg disabled:opacity-50 transition-colors ${
-                      w8benStatus.requires_w8ben || w8benStatus.record?.status === 'invalid'
-                        ? 'bg-amber-500 hover:bg-amber-400 text-black'
-                        : 'bg-surface-2 hover:bg-surface border border-border text-foreground'
-                    }`}
+                    onClick={handleGetW8BENUrl}
                   >
-                    {w8benUrlLoading
-                      ? 'Loading…'
-                      : w8benStatus.record?.status === 'invalid'
-                        ? 'Re-submit W-8BEN →'
-                        : w8benStatus.record
-                          ? 'Continue W-8BEN →'
-                          : 'Complete W-8BEN with TaxBandits →'
-                    }
-                  </button>
-                  <p className="text-xs text-muted mt-2">
-                    Opens TaxBandits in a new tab. Your information is collected and verified by TaxBandits — Artypot never sees your personal tax details.
-                  </p>
-                </div>
+                    {w8benUrlLoading ? 'loading…' :
+                     w8benStatus.record?.status === 'invalid' ? 're-submit W-8BEN →' :
+                     w8benStatus.record ? 'continue W-8BEN →' : 'complete W-8BEN with taxbandits →'}
+                  </Button>
+                  <p className="font-display text-xs text-muted mt-2">opens taxbandits in a new tab. artypot never sees your personal tax details.</p>
+                </>
               )}
-            </div>
+            </Card>
           )}
         </div>
 
         {/* RIGHT sidebar */}
         <div className="space-y-4">
-
-          {/* Available to Withdraw */}
-          <div className="bg-creator/5 border border-creator/30 rounded-xl p-5">
-            <div className="text-xs text-muted uppercase tracking-wider mb-1 flex items-center">
-              AVAILABLE
-              <InfoTip content="Take it already! There's actually no point in waiting. No extra fees or anything" />
+          {/* Withdraw */}
+          <Card className="border-[var(--color-role)]/30">
+            <SectionLabel className="mb-1">available</SectionLabel>
+            <div className="font-mono text-[32px] font-medium tabular-nums text-creator mb-3">
+              {balanceLoading ? <span className="text-muted/40">—</span> : fmt(availableBalance)}
             </div>
-            {balanceLoading ? (
-              <div className="h-8 w-32 bg-surface-2 animate-pulse rounded mb-3" />
-            ) : (
-              <div className="text-3xl font-bold text-creator font-mono mb-3">
-                {fmt(availableBalance)}
-              </div>
-            )}
 
             {!canWithdraw ? (
-              <p className="text-sm text-muted">
-                {bankConnected
-                  ? 'Complete bank setup to withdraw your balance.'
-                  : 'Connect a bank account to withdraw your balance.'}
+              <p className="font-display text-sm text-muted">
+                {bankConnected ? 'complete bank setup to withdraw.' : 'connect a bank account to withdraw.'}
               </p>
             ) : availableBalance <= 0 ? (
-              <p className="text-sm text-muted">
-                Nothing to withdraw yet.
-              </p>
+              <p className="font-display text-sm text-muted">nothing to withdraw yet.</p>
             ) : withdrawConfirm ? (
               <div className="space-y-3">
-                <p className="text-sm text-foreground">
-                  Send{' '}
-                  <span className="font-bold text-creator">
-                    ${parseFloat(withdrawAmount || '0').toFixed(2)}
-                  </span>{' '}
-                  to your linked bank account?
+                <p className="font-display text-sm text-foreground">
+                  send <strong className="text-creator">${parseFloat(withdrawAmount || '0').toFixed(2)}</strong> to your linked bank?
                 </p>
                 <div className="flex gap-2">
-                  <button
-                    onClick={handleWithdraw}
-                    disabled={withdrawLoading}
-                    className="bg-creator text-black font-semibold text-sm px-4 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
-                  >
-                    {withdrawLoading ? 'Sending…' : 'Yes, send it'}
-                  </button>
-                  <button
-                    onClick={() => setWithdrawConfirm(false)}
-                    disabled={withdrawLoading}
-                    className="text-sm text-muted border border-border px-4 py-2 rounded-lg hover:text-foreground transition-colors"
-                  >
-                    Cancel
-                  </button>
+                  <Button variant="primary" disabled={withdrawLoading} onClick={handleWithdraw}>
+                    {withdrawLoading ? 'sending…' : 'yes, send it'}
+                  </Button>
+                  <Button variant="ghost" disabled={withdrawLoading} onClick={() => setWithdrawConfirm(false)}>
+                    cancel
+                  </Button>
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">$</span>
-                  <input
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-muted text-sm">$</span>
+                  <Input
                     type="number"
                     min="1"
                     step="0.01"
@@ -801,124 +480,69 @@ function SanctumPageContent() {
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
                     placeholder={availableBalance.toFixed(2)}
-                    className="bg-surface border border-border rounded-lg pl-7 pr-3 py-2 text-sm text-foreground placeholder:text-muted/50 focus:outline-none focus:border-creator/60 transition-colors w-32"
+                    className="pl-7"
                   />
                 </div>
-                <button
+                <Button
+                  variant="primary"
+                  disabled={withdrawLoading}
                   onClick={() => {
                     if (!withdrawAmount) setWithdrawAmount(availableBalance.toFixed(2));
                     setWithdrawConfirm(true);
                   }}
-                  disabled={withdrawLoading}
-                  className="bg-creator text-black font-semibold text-sm px-4 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
                 >
-                  Withdraw
-                </button>
-                <button
-                  onClick={() => setWithdrawAmount(availableBalance.toFixed(2))}
-                  className="text-xs text-creator/70 hover:text-creator transition-colors"
-                >
-                  Max
-                </button>
+                  withdraw
+                </Button>
               </div>
             )}
-          </div>
+          </Card>
 
-          {/* Clearing */}
-          <div className="border border-border rounded-xl p-5">
-            <div className="text-xs text-muted uppercase tracking-wider mb-1 flex items-center">
-              CLEARING
-              <InfoTip content="For logistical reasons I have to wait 7 days before giving you money, chill bro. Lmk if your rent is due or something, I gotchu" />
-            </div>
-            {balanceLoading ? (
-              <div className="h-7 w-24 bg-surface-2 animate-pulse rounded mb-1" />
-            ) : (
-              <div className="text-xl font-bold text-foreground font-mono">{fmt(clearing)}</div>
-            )}
-            <div className="text-xs text-muted mt-1">7-day hold</div>
-            <p className="text-xs text-muted mt-2 leading-relaxed">
-              Held to cover potential chargebacks. Releases automatically after 7 days.
-            </p>
-          </div>
-
-          {/* Upcoming / Status */}
-          <div className="border border-border rounded-xl p-5">
-            <h3 className="text-xs text-muted uppercase tracking-wider mb-3">Upcoming</h3>
-            <div className="space-y-2 text-sm">
-              {/* Location row */}
+          {/* Status summary */}
+          <Card>
+            <SectionLabel className="mb-3">status</SectionLabel>
+            <div className="space-y-2 font-display text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted">Location</span>
-                <span className={creator.location_complete ? 'text-creator font-medium' : 'text-amber-400 font-medium'}>
+                <span className="text-muted">location</span>
+                <span className={creator.location_complete ? 'text-good' : 'text-warn'}>
                   {creator.location_complete
-                    ? (isUS
-                        ? `${creator.state_code}, US`
-                        : countryName(creator.country_code ?? ''))
-                    : 'Not set'}
+                    ? (isUS ? `${creator.state_code}, US` : countryName(creator.country_code ?? ''))
+                    : 'not set'}
                 </span>
               </div>
-              {/* Tax form status row — conditional on US vs non-US */}
               <div className="flex items-center justify-between">
-                <span className="text-muted">{isUS ? 'W-9 status' : 'W-8BEN status'}</span>
+                <span className="text-muted">{isUS ? 'W-9' : 'W-8BEN'}</span>
                 <span className={
                   isUS
-                    ? (w9Status?.record?.tin_matched ? 'text-creator font-medium' :
-                       w9Status?.requires_w9 ? 'text-amber-400 font-medium' : 'text-muted')
-                    : (w8benStatus?.record?.qualifies ? 'text-creator font-medium' :
-                       w8benStatus?.requires_w8ben ? 'text-amber-400 font-medium' : 'text-muted')
+                    ? (w9Status?.record?.tin_matched ? 'text-good' : w9Status?.requires_w9 ? 'text-warn' : 'text-muted')
+                    : (w8benStatus?.record?.qualifies ? 'text-good' : w8benStatus?.requires_w8ben ? 'text-warn' : 'text-muted')
                 }>
                   {isUS
-                    ? (w9Status?.record?.tin_matched ? 'Verified' :
-                       w9Status?.record ? 'Submitted' :
-                       w9Status?.requires_w9 ? 'Required' :
-                       'Not needed yet')
-                    : (w8benStatus?.record?.qualifies ? 'Submitted' :
-                       w8benStatus?.requires_w8ben ? 'Required' :
-                       'Not needed yet')}
+                    ? (w9Status?.record?.tin_matched ? 'verified' : w9Status?.record ? 'submitted' : w9Status?.requires_w9 ? 'required' : 'not needed yet')
+                    : (w8benStatus?.record?.qualifies ? 'submitted' : w8benStatus?.requires_w8ben ? 'required' : 'not needed yet')}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted">Bank account</span>
-                <span className={
-                  canWithdraw
-                    ? 'text-creator font-medium'
-                    : bankConnected
-                      ? 'text-amber-400 font-medium'
-                      : 'text-amber-400 font-medium'
-                }>
-                  {canWithdraw ? 'Connected' : bankConnected ? 'Setup incomplete' : 'Not connected'}
+                <span className="text-muted">bank account</span>
+                <span className={canWithdraw ? 'text-good' : bankConnected ? 'text-warn' : 'text-warn'}>
+                  {canWithdraw ? 'connected' : bankConnected ? 'setup incomplete' : 'not connected'}
                 </span>
               </div>
             </div>
-            <Link
-              href={`/creators/${creator.id}/edit`}
-              className="text-xs text-creator/70 hover:text-creator transition-colors mt-3 inline-block"
-            >
-              Manage profile →
-            </Link>
-          </div>
-        </div>
-      </div>
+            <div className="border-t border-border mt-3 pt-3">
+              <Link href={`/creators/${creator.id}/edit`} className="ap-inline-link font-display text-xs">manage profile →</Link>
+            </div>
+          </Card>
 
-      {/* Quick links */}
-      <div className="grid sm:grid-cols-2 gap-4 mt-8">
-        <Link
-          href="/bounties/new"
-          className="bg-surface border border-border rounded-xl p-4 hover:border-fan/40 transition-colors group"
-        >
-          <div className="text-sm font-semibold text-foreground group-hover:text-fan transition-colors mb-0.5">
-            + New Bounty
-          </div>
-          <div className="text-xs text-muted">Start a new project for your fans to back</div>
-        </Link>
-        <Link
-          href={`/creators/${creator.id}`}
-          className="bg-surface border border-border rounded-xl p-4 hover:border-creator/40 transition-colors group"
-        >
-          <div className="text-sm font-semibold text-foreground group-hover:text-creator transition-colors mb-0.5">
-            View Public Profile
-          </div>
-          <div className="text-xs text-muted">See your creator page as fans see it</div>
-        </Link>
+          {/* Quick links */}
+          <Card dashed>
+            <Link href="/bounties/new" className="block font-display text-sm text-foreground hover:text-fan transition-colors mb-2">
+              + start a new bounty
+            </Link>
+            <Link href={`/creators/${creator.id}`} className="block font-display text-sm text-foreground hover:text-creator transition-colors">
+              view public profile
+            </Link>
+          </Card>
+        </div>
       </div>
     </div>
   );

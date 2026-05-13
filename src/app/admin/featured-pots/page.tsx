@@ -6,6 +6,10 @@ import { useRouter } from 'next/navigation';
 import { admin, pots as potsApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { Pot } from '@/lib/types';
+import { Card, SectionLabel } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Banner } from '@/components/ui/Banner';
 
 interface Slot {
   pot_id: string;
@@ -127,99 +131,112 @@ export default function FeaturedPotsAdminPage() {
   if (authLoading || !user || user.role !== 'council') return null;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
+    <div className="space-y-6 pt-2 max-w-3xl">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-1">
-        <Link href="/admin" className="text-sm text-muted hover:text-foreground transition-colors">
-          ← Admin
+      <div>
+        <SectionLabel className="mb-2">council · admin</SectionLabel>
+        <Link href="/admin">
+          <Button variant="ghost" size="sm">← admin</Button>
         </Link>
+        <h1 className="font-display font-bold text-[28px] mt-2">Featured Bounties</h1>
+        <p className="font-display text-sm text-muted mt-1">
+          These 3 bounties appear on the landing page for logged-out visitors.
+          Enter a bounty ID in each slot, preview it, then save.
+        </p>
       </div>
-      <h1 className="text-2xl font-display font-bold text-foreground mb-1">Featured Bounties</h1>
-      <p className="text-sm text-muted mb-8">
-        These 3 bounties appear on the landing page for logged-out visitors.
-        Enter a bounty ID in each slot, preview it, then save.
-      </p>
 
+      {/* Slot cards */}
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-surface border border-border rounded-xl animate-pulse" />
+            <Card key={i}>
+              <div className="h-14 bg-surface-2 animate-pulse rounded" />
+            </Card>
           ))}
         </div>
       ) : (
-        <div className="space-y-4 mb-6">
+        <div className="space-y-4">
           {slots.map((slot, idx) => (
-            <div key={idx} className="bg-surface border border-border rounded-xl p-5">
-              <div className="flex items-center gap-4 mb-3">
-                <span className="text-fan font-mono text-sm font-bold w-6 shrink-0">
+            <Card key={idx}>
+              <div className="flex items-center gap-4">
+                <span className="font-mono text-sm font-bold text-fan w-6 shrink-0">
                   {String(idx + 1).padStart(2, '0')}
                 </span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="Bounty ID"
-                  value={slot.pot_id}
-                  onChange={(e) => handleIdChange(idx, e.target.value)}
-                  onBlur={(e) => previewSlot(idx, e.target.value)}
-                  className="flex-1 bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
-                />
+                <div className="flex-1">
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="Bounty ID"
+                    value={slot.pot_id}
+                    onChange={(e) => handleIdChange(idx, e.target.value)}
+                    onBlur={(e) => previewSlot(idx, e.target.value)}
+                    mono
+                  />
+                </div>
                 {slot.previewing && (
-                  <span className="text-xs text-muted">Loading…</span>
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted">Loading…</span>
                 )}
               </div>
 
               {slot.preview && (
-                <div className="ml-10 bg-surface-2 border border-fan/20 rounded-lg px-4 py-3">
-                  <p className="text-sm font-medium text-foreground line-clamp-1">
+                <div className="ml-10 mt-3 bg-surface-2 border border-fan/20 rounded px-4 py-3">
+                  <p className="font-display text-sm font-medium text-foreground line-clamp-1">
                     {slot.preview.title}
                   </p>
-                  <p className="text-xs text-muted mt-0.5">
+                  <p className="font-mono text-[10px] text-muted mt-0.5">
                     {slot.preview.creator?.display_name ?? '—'}
                     {' · '}
                     <span className="capitalize">{String(slot.preview.status).replace('_', ' ')}</span>
                     {' · '}
-                    ${Number(slot.preview.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    <span className="tabular-nums">${Number(slot.preview.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </p>
                 </div>
               )}
 
               {slot.previewError && (
-                <p className="ml-10 text-xs text-red-400 mt-1">{slot.previewError}</p>
+                <p className="ml-10 mt-2 font-mono text-[10px] uppercase tracking-widest text-bad">
+                  {slot.previewError}
+                </p>
               )}
 
               {!slot.pot_id && !slot.previewError && (
-                <p className="ml-10 text-xs text-muted">Empty — leave blank to feature fewer than 3 pots.</p>
+                <p className="ml-10 mt-2 font-mono text-[10px] uppercase tracking-widest text-muted">
+                  Empty — leave blank to feature fewer than 3 pots.
+                </p>
               )}
-            </div>
+            </Card>
           ))}
         </div>
       )}
 
+      {/* Error / success banners */}
       {error && (
-        <p className="text-sm text-red-400 mb-4">{error}</p>
+        <Banner tone="bad">{error}</Banner>
       )}
 
       {savedAt && !error && (
-        <p className="text-sm text-creator mb-4">
-          Saved at {savedAt.toLocaleTimeString()}
-        </p>
+        <Banner tone="good">
+          Saved at <span className="font-mono">{savedAt.toLocaleTimeString()}</span>
+        </Banner>
       )}
 
+      {/* Actions */}
       <div className="flex items-center gap-3">
-        <button
+        <Button
+          variant="primary"
           onClick={handleSave}
           disabled={saving || loading}
-          className="bg-fan text-black font-semibold px-5 py-2.5 rounded-lg hover:bg-fan-dim disabled:opacity-40 transition-colors text-sm"
         >
           {saving ? 'Saving…' : 'Save Featured Bounties'}
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={load}
           disabled={loading || saving}
-          className="text-sm text-muted hover:text-foreground transition-colors disabled:opacity-40"
         >
           Reset
-        </button>
+        </Button>
       </div>
     </div>
   );

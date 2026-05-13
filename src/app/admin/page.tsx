@@ -4,57 +4,16 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
+import { Card, SectionLabel } from '@/components/ui/Card';
 
 const ADMIN_SECTIONS = [
-  {
-    title: 'Creator Claims',
-    description: 'Review and approve creator identity claims.',
-    href: '/admin/claims',
-    color: 'border-creator/30 hover:border-creator/60',
-    badge: 'creator',
-  },
-  {
-    title: 'Pot Completions',
-    description: 'Approve or reject submitted work before payout.',
-    href: '/admin/completions',
-    color: 'border-fan/30 hover:border-fan/60',
-    badge: 'fan',
-  },
-  {
-    title: 'Billing Runs',
-    description: 'Monitor and trigger monthly billing cycles.',
-    href: '/admin/billing',
-    color: 'border-council/30 hover:border-council/60',
-    badge: 'council',
-  },
-  {
-    title: 'Council Members',
-    description: 'Manage admin access and council permissions.',
-    href: '/admin/council',
-    color: 'border-council/30 hover:border-council/60',
-    badge: 'council',
-  },
-  {
-    title: 'Featured Pots',
-    description: 'Choose the 3 pots shown on the landing page.',
-    href: '/admin/featured-pots',
-    color: 'border-fan/30 hover:border-fan/60',
-    badge: 'fan',
-  },
-  {
-    title: 'Users',
-    description: 'Search and inspect user accounts.',
-    href: '/admin/users',
-    color: 'border-fan/30 hover:border-fan/60',
-    badge: 'fan',
-  },
-  {
-    title: 'Creators',
-    description: 'Browse creator profiles with claimed and W-9 status.',
-    href: '/admin/creators',
-    color: 'border-creator/30 hover:border-creator/60',
-    badge: 'creator',
-  },
+  { title: 'completion review',    description: 'approve or reject submitted work before payout.',     href: '/admin/completions' },
+  { title: 'handle verification',  description: 'review and approve creator identity claims.',          href: '/admin/claims' },
+  { title: 'billing runs',         description: 'monitor and trigger monthly billing cycles.',          href: '/admin/billing' },
+  { title: 'council members',      description: 'manage admin access and council permissions.',         href: '/admin/council' },
+  { title: 'featured pots',        description: 'choose the 3 pots shown on the landing page.',        href: '/admin/featured-pots' },
+  { title: 'users',                description: 'search and inspect user accounts.',                    href: '/admin/users' },
+  { title: 'creators',             description: 'browse creator profiles with claimed and W-9 status.', href: '/admin/creators' },
 ];
 
 export default function AdminPage() {
@@ -70,29 +29,22 @@ export default function AdminPage() {
   if (loading || !user || user.role !== 'council') return null;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <div className="inline-flex items-center gap-2 bg-council/10 border border-council/30 text-council text-xs font-medium px-3 py-1.5 rounded-full mb-4">
-          <span className="w-1.5 h-1.5 rounded-full bg-council" />
-          The Council
-        </div>
-        <h1 className="text-3xl font-display font-bold text-foreground mb-1">Admin Panel</h1>
-        <p className="text-muted">Manage the Artypot platform.</p>
+    <div className="space-y-7 pt-2">
+      <div>
+        <SectionLabel>council</SectionLabel>
+        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">admin panel</h1>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
-        {ADMIN_SECTIONS.map(({ title, description, href, color }) => (
-          <Link
-            key={href}
-            href={href}
-            className={`block bg-surface border rounded-xl p-6 transition-colors ${color}`}
-          >
-            <h2 className="font-semibold text-foreground mb-1">{title}</h2>
-            <p className="text-sm text-muted">{description}</p>
+        {ADMIN_SECTIONS.map(({ title, description, href }) => (
+          <Link key={href} href={href}>
+            <Card className="hover:border-[var(--color-role)] transition-colors cursor-pointer h-full">
+              <h2 className="font-display font-bold text-foreground mb-1">{title}</h2>
+              <p className="font-display text-sm text-muted">{description}</p>
+            </Card>
           </Link>
         ))}
       </div>
-
     </div>
   );
 }

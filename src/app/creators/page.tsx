@@ -4,20 +4,24 @@ import { useState, useEffect, useCallback } from 'react';
 import { creators as creatorsApi } from '@/lib/api';
 import type { Creator, PaginatedResponse } from '@/lib/types';
 import CreatorCard from '@/components/CreatorCard';
+import { SectionLabel } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Empty } from '@/components/ui/Empty';
 
 type StatusFilter = 'all' | 'answered' | 'unanswered';
 type SortOption = 'newest' | 'most_pledged' | 'most_completed';
 
 const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
-  { value: 'all',        label: 'All' },
-  { value: 'answered',   label: 'Answered' },
-  { value: 'unanswered', label: 'Unanswered' },
+  { value: 'all',        label: 'all' },
+  { value: 'answered',   label: 'answered' },
+  { value: 'unanswered', label: 'unanswered' },
 ];
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: 'newest',         label: 'Newly Added' },
-  { value: 'most_pledged',   label: 'Most Bounties' },
-  { value: 'most_completed', label: 'Most Completed' },
+  { value: 'newest',         label: 'newest' },
+  { value: 'most_pledged',   label: 'most bounties' },
+  { value: 'most_completed', label: 'most completed' },
 ];
 
 export default function CreatorsPage() {
@@ -30,7 +34,6 @@ export default function CreatorsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Debounce search
   useEffect(() => {
     const t = setTimeout(() => {
       setDebouncedQuery(query);
@@ -57,47 +60,38 @@ export default function CreatorsPage() {
     }
   }, [debouncedQuery, statusFilter, sort, page]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useEffect(() => { load(); }, [load]);
 
-  const handleStatusChange = (val: StatusFilter) => {
-    setStatusFilter(val);
-    setPage(1);
-  };
-
-  const handleSortChange = (val: SortOption) => {
-    setSort(val);
-    setPage(1);
-  };
+  const handleStatusChange = (val: StatusFilter) => { setStatusFilter(val); setPage(1); };
+  const handleSortChange = (val: SortOption) => { setSort(val); setPage(1); };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold text-foreground mb-1">Creators</h1>
-        <p className="text-muted">Artists, musicians, and makers whose communities are calling for their best work.</p>
+    <div className="space-y-6 pt-2">
+      <div>
+        <SectionLabel>fan</SectionLabel>
+        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">search creators</h1>
+        <p className="font-display text-sm text-muted mt-1">artists, musicians, and makers whose communities are calling for their best work.</p>
       </div>
 
-      {/* Controls row */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
-        {/* Search */}
-        <input
+      {/* Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <Input
           type="text"
           value={query}
           onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-          placeholder="Search by name, handle, or domain…"
-          className="w-full sm:w-72 bg-surface border border-border rounded-lg px-4 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
+          placeholder="search by name, handle, or domain…"
+          className="sm:w-72"
         />
 
-        {/* Status filter pills */}
-        <div className="flex items-center gap-1.5 bg-surface border border-border rounded-lg p-1 shrink-0">
+        {/* Status filter */}
+        <div className="flex items-center gap-1 border border-border rounded p-1 bg-surface shrink-0">
           {STATUS_OPTIONS.map(({ value, label }) => (
             <button
               key={value}
               onClick={() => handleStatusChange(value)}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+              className={`px-3 py-1 font-mono text-[10px] uppercase tracking-wider rounded transition-colors cursor-pointer ${
                 statusFilter === value
-                  ? 'bg-creator text-black'
+                  ? 'bg-[var(--color-role-soft)] text-[var(--color-role)]'
                   : 'text-muted hover:text-foreground'
               }`}
             >
@@ -106,48 +100,44 @@ export default function CreatorsPage() {
           ))}
         </div>
 
-        {/* Sort selector */}
-        <div className="flex items-center gap-2 shrink-0 ml-auto">
-          <span className="text-xs text-muted hidden sm:inline">Sort:</span>
-          <div className="flex items-center gap-1 bg-surface border border-border rounded-lg p-1">
-            {SORT_OPTIONS.map(({ value, label }) => (
-              <button
-                key={value}
-                onClick={() => handleSortChange(value)}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                  sort === value
-                    ? 'bg-surface-2 text-foreground'
-                    : 'text-muted hover:text-foreground'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+        {/* Sort */}
+        <div className="flex items-center gap-1 border border-border rounded p-1 bg-surface shrink-0 ml-auto">
+          {SORT_OPTIONS.map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => handleSortChange(value)}
+              className={`px-3 py-1 font-mono text-[10px] uppercase tracking-wider rounded transition-colors cursor-pointer ${
+                sort === value
+                  ? 'bg-surface-2 text-foreground'
+                  : 'text-muted hover:text-foreground'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Results */}
       {error ? (
-        <div className="text-red-400 text-sm">{error}</div>
+        <p className="font-display text-sm text-bad">{error}</p>
       ) : loading ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-36 bg-surface border border-border rounded-xl animate-pulse" />
+            <div key={i} className="h-36 bg-surface animate-pulse rounded" />
           ))}
         </div>
       ) : !data || data.data.length === 0 ? (
-        <div className="text-center py-20 text-muted">
-          {debouncedQuery
-            ? `No results for "${debouncedQuery}".`
+        <Empty
+          message={debouncedQuery
+            ? `no results for "${debouncedQuery}"`
             : statusFilter !== 'all'
-              ? `No ${statusFilter} creators yet.`
-              : 'No creators yet.'}
-        </div>
+              ? `no ${statusFilter} creators yet`
+              : 'no creators yet'}
+        />
       ) : (
         <>
-          {/* Result count */}
-          <p className="text-xs text-muted mb-4">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted">
             {data.total} {data.total === 1 ? 'result' : 'results'}
           </p>
 
@@ -159,24 +149,26 @@ export default function CreatorsPage() {
 
           {/* Pagination */}
           {data.last_page > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-8">
-              <button
+            <div className="flex items-center justify-center gap-3 mt-2">
+              <Button
+                variant="default"
+                size="sm"
                 onClick={() => setPage((p) => p - 1)}
                 disabled={page === 1}
-                className="px-4 py-2 text-sm bg-surface border border-border rounded-lg disabled:opacity-30 hover:border-fan/50 transition-colors"
               >
-                Previous
-              </button>
-              <span className="text-sm text-muted">
-                Page {data.current_page} of {data.last_page}
+                ← prev
+              </Button>
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                {data.current_page} / {data.last_page}
               </span>
-              <button
+              <Button
+                variant="default"
+                size="sm"
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page === data.last_page}
-                className="px-4 py-2 text-sm bg-surface border border-border rounded-lg disabled:opacity-30 hover:border-fan/50 transition-colors"
               >
-                Next
-              </button>
+                next →
+              </Button>
             </div>
           )}
         </>

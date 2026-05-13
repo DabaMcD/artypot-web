@@ -7,8 +7,26 @@ import { admin as adminApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import type { AdminPotCompletion, PotCompletionStatus } from '@/lib/types';
+import { Card, SectionLabel } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Modal } from '@/components/ui/Modal';
+import { Textarea, FieldLabel } from '@/components/ui/Input';
+import { Empty } from '@/components/ui/Empty';
 
 type StatusFilter = 'pending_review' | 'approved' | 'rejected' | 'all';
+
+const COMPLETION_TONES: Record<PotCompletionStatus, 'warn' | 'good' | 'bad'> = {
+  pending_review: 'warn',
+  approved:       'good',
+  rejected:       'bad',
+};
+
+const COMPLETION_LABELS: Record<PotCompletionStatus, string> = {
+  pending_review: 'pending review',
+  approved:       'approved',
+  rejected:       'rejected',
+};
 
 // ── Review modal ────────────────────────────────────────────────────────────
 function ReviewModal({
@@ -46,132 +64,113 @@ function ReviewModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    <Modal
+      title="review completion"
+      onClose={onClose}
+      lg
+      actions={
+        <>
+          <Button variant="ghost" onClick={onClose} disabled={loading}>cancel</Button>
+          <Button
+            variant={decision === 'approved' ? 'primary' : 'danger'}
+            onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
+            disabled={loading || (decision === 'rejected' && !notes.trim())}
+          >
+            {loading ? 'submitting…' : decision === 'approved' ? 'approve pot' : 'reject submission'}
+          </Button>
+        </>
+      }
     >
-      <div className="bg-surface border border-border rounded-2xl w-full max-w-lg p-6 shadow-2xl">
-        <h2 className="text-lg font-bold text-foreground mb-1">Review Completion</h2>
-        <p className="text-sm text-muted mb-4">
-          <Link href={`/bounties/${completion.pot_id}`} className="text-fan hover:underline font-medium">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <p className="font-display text-sm text-muted">
+          <Link href={`/bounties/${completion.pot_id}`} className="text-fan hover:underline">
             {completion.pot.title}
           </Link>
           {completion.pot.creator && (
-            <span> by <Link href={`/creators/${completion.pot.creator.id}`} className="text-creator hover:underline">{completion.pot.creator.display_name}</Link></span>
+            <> by{' '}
+              <Link href={`/creators/${completion.pot.creator.id}`} className="text-creator hover:underline">
+                {completion.pot.creator.display_name}
+              </Link>
+            </>
           )}
-          {' '}&middot; ${completion.pot.total_pledged.toLocaleString('en-US', { minimumFractionDigits: 2 })} committed
+          {' '}·{' '}
+          <span className="text-foreground font-mono tabular-nums">
+            ${Number(completion.pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          </span>{' '}
+          committed
         </p>
 
-        {/* Submission details */}
-        <div className="bg-surface-2 border border-border rounded-lg p-3 mb-4 space-y-2">
-          <div>
-            <p className="text-xs text-muted uppercase tracking-wider font-semibold mb-1">Submission URL</p>
-            <a
-              href={completion.submission_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-fan hover:underline break-all"
-            >
-              {completion.submission_url}
-            </a>
-          </div>
-          {completion.submission_notes && (
+        <Card>
+          <div className="space-y-3">
             <div>
-              <p className="text-xs text-muted uppercase tracking-wider font-semibold mb-1">Creator notes</p>
-              <p className="text-sm text-foreground whitespace-pre-wrap">{completion.submission_notes}</p>
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">submission url</div>
+              <a
+                href={completion.submission_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-display text-sm text-fan hover:underline break-all"
+              >
+                {completion.submission_url}
+              </a>
             </div>
-          )}
-          <p className="text-xs text-muted">
-            Submitted by <span className="text-foreground">{completion.submitted_by.name}</span>
-            {' '}&middot; {new Date(completion.created_at).toLocaleDateString()}
-          </p>
+            {completion.submission_notes && (
+              <div>
+                <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">creator notes</div>
+                <p className="font-display text-sm text-foreground whitespace-pre-wrap">{completion.submission_notes}</p>
+              </div>
+            )}
+            <p className="font-mono text-[10px] text-muted">
+              submitted by {completion.submitted_by.name} · {new Date(completion.created_at).toLocaleDateString()}
+            </p>
+          </div>
+        </Card>
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setDecision('approved')}
+            className={`flex-1 py-2 rounded font-mono text-[10px] uppercase tracking-wider border transition-colors cursor-pointer ${
+              decision === 'approved'
+                ? 'bg-good/10 border-good/40 text-good'
+                : 'bg-surface border-border text-muted hover:border-good/30'
+            }`}
+          >
+            ✓ approve
+          </button>
+          <button
+            type="button"
+            onClick={() => setDecision('rejected')}
+            className={`flex-1 py-2 rounded font-mono text-[10px] uppercase tracking-wider border transition-colors cursor-pointer ${
+              decision === 'rejected'
+                ? 'bg-bad/10 border-bad/40 text-bad'
+                : 'bg-surface border-border text-muted hover:border-bad/30'
+            }`}
+          >
+            ✕ reject
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Decision */}
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setDecision('approved')}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
-                decision === 'approved'
-                  ? 'bg-green-900/40 border-green-600/60 text-green-300'
-                  : 'bg-surface-2 border-border text-muted hover:border-green-700/40'
-              }`}
-            >
-              ✓ Approve
-            </button>
-            <button
-              type="button"
-              onClick={() => setDecision('rejected')}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
-                decision === 'rejected'
-                  ? 'bg-red-900/40 border-red-600/60 text-red-300'
-                  : 'bg-surface-2 border-border text-muted hover:border-red-700/40'
-              }`}
-            >
-              ✕ Reject
-            </button>
-          </div>
-
-          {/* Council notes */}
-          <div>
-            <label className="text-xs text-muted font-medium mb-1.5 block">
-              Council notes {decision === 'rejected' ? '(required — tell the creator what to fix)' : '(optional)'}
-            </label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-              placeholder={decision === 'approved' ? 'e.g. Great work, approved!' : 'e.g. The URL is behind a paywall, please provide a public link'}
-              required={decision === 'rejected'}
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
-            />
-          </div>
-
-          <div className="flex gap-3 pt-1">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="flex-1 border border-border text-foreground text-sm font-medium py-2.5 rounded-lg hover:border-foreground/30 transition-colors disabled:opacity-40"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading || (decision === 'rejected' && !notes.trim())}
-              className={`flex-1 text-sm font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-40 ${
-                decision === 'approved'
-                  ? 'bg-green-700 hover:bg-green-600 text-white'
-                  : 'bg-red-700 hover:bg-red-600 text-white'
-              }`}
-            >
-              {loading ? 'Submitting…' : decision === 'approved' ? 'Approve Pot' : 'Reject Submission'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-// ── Status badge ────────────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: PotCompletionStatus }) {
-  const styles: Record<PotCompletionStatus, string> = {
-    pending_review: 'bg-amber-900/30 border-amber-700/40 text-amber-300',
-    approved:       'bg-green-900/30 border-green-700/40 text-green-300',
-    rejected:       'bg-red-900/30 border-red-700/40 text-red-300',
-  };
-  const labels: Record<PotCompletionStatus, string> = {
-    pending_review: 'pending review',
-    approved:       'approved',
-    rejected:       'rejected',
-  };
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${styles[status]}`}>
-      {labels[status]}
-    </span>
+        <div>
+          <FieldLabel>
+            council notes{' '}
+            <span className="text-muted/50 font-normal normal-case tracking-normal">
+              {decision === 'rejected' ? '(required — tell the creator what to fix)' : '(optional)'}
+            </span>
+          </FieldLabel>
+          <Textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={3}
+            required={decision === 'rejected'}
+            placeholder={
+              decision === 'approved'
+                ? 'e.g. Great work, approved!'
+                : 'e.g. The URL is behind a paywall, please provide a public link'
+            }
+          />
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -219,10 +218,10 @@ export default function AdminCompletionsPage() {
   if (authLoading || !user || user.role !== 'council') return null;
 
   const STATUS_TABS: { label: string; value: StatusFilter }[] = [
-    { label: 'Pending Review', value: 'pending_review' },
-    { label: 'Approved', value: 'approved' },
-    { label: 'Rejected', value: 'rejected' },
-    { label: 'All', value: 'all' },
+    { label: 'pending review', value: 'pending_review' },
+    { label: 'approved', value: 'approved' },
+    { label: 'rejected', value: 'rejected' },
+    { label: 'all', value: 'all' },
   ];
 
   return (
@@ -238,27 +237,25 @@ export default function AdminCompletionsPage() {
         />
       )}
 
-      <div className="max-w-5xl mx-auto px-4 py-10">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <Link href="/admin" className="text-muted hover:text-foreground transition-colors text-sm">
-            ← Admin
-          </Link>
-          <span className="text-border">/</span>
-          <h1 className="text-xl font-bold text-foreground">Bounty Completions</h1>
-          <span className="ml-auto text-sm text-muted">{total} total</span>
+      <div className="space-y-6 pt-2 max-w-3xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <SectionLabel>council · admin</SectionLabel>
+            <h1 className="font-display font-bold text-[28px] text-foreground mt-1">bounty completions</h1>
+            <p className="font-display text-sm text-muted mt-1">{total} {total === 1 ? 'submission' : 'submissions'}</p>
+          </div>
+          <Link href="/admin"><Button variant="ghost" size="sm">← admin</Button></Link>
         </div>
 
-        {/* Status tabs */}
-        <div className="flex gap-1 bg-surface-2 border border-border rounded-xl p-1 mb-6 w-fit">
+        {/* Status filter tabs */}
+        <div className="flex items-center gap-1 border border-border rounded p-1 bg-surface w-fit">
           {STATUS_TABS.map(({ label, value }) => (
             <button
               key={value}
-              type="button"
               onClick={() => setStatusFilter(value)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1 font-mono text-[10px] uppercase tracking-wider rounded transition-colors cursor-pointer ${
                 statusFilter === value
-                  ? 'bg-surface text-foreground shadow-sm'
+                  ? 'bg-[var(--color-role-soft)] text-[var(--color-role)]'
                   : 'text-muted hover:text-foreground'
               }`}
             >
@@ -269,94 +266,87 @@ export default function AdminCompletionsPage() {
 
         {/* Completions list */}
         {loading ? (
-          <div className="space-y-3">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-24 bg-surface border border-border rounded-xl animate-pulse" />
-            ))}
-          </div>
+          <Card>
+            <div className="space-y-3">
+              {[1,2,3,4,5].map(i => <div key={i} className="h-16 bg-surface-2 animate-pulse rounded" />)}
+            </div>
+          </Card>
         ) : completions.length === 0 ? (
-          <div className="text-center py-16 text-muted text-sm">
-            No completions found.
-          </div>
+          <Empty message="no completions found" />
         ) : (
-          <div className="space-y-3">
-            {completions.map((c) => (
-              <div
-                key={c.id}
-                className="bg-surface border border-border rounded-xl p-4 flex items-start gap-4"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <Link href={`/bounties/${c.pot_id}`} className="font-medium text-foreground text-sm hover:underline">
-                      {c.pot.title}
-                    </Link>
-                    <StatusBadge status={c.status} />
-                  </div>
-
-                  <div className="flex items-center gap-3 text-xs text-muted mb-2 flex-wrap">
-                    {c.pot.creator && (
-                      <Link href={`/creators/${c.pot.creator.id}`} className="text-creator hover:underline">
-                        {c.pot.creator.display_name}
+          <Card>
+            <div className="divide-y divide-border -mx-5 -my-4">
+              {completions.map((c) => (
+                <div key={c.id} className="flex items-start gap-3 px-5 py-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                      <Link href={`/bounties/${c.pot_id}`} className="font-display text-sm text-foreground hover:underline">
+                        {c.pot.title}
                       </Link>
+                      <Badge tone={COMPLETION_TONES[c.status]}>{COMPLETION_LABELS[c.status]}</Badge>
+                    </div>
+                    <div className="flex items-center gap-3 font-mono text-[10px] text-muted mb-1 flex-wrap">
+                      {c.pot.creator && (
+                        <Link href={`/creators/${c.pot.creator.id}`} className="text-creator hover:underline">
+                          {c.pot.creator.display_name}
+                        </Link>
+                      )}
+                      <span className="text-fan tabular-nums">
+                        ${Number(c.pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })} committed
+                      </span>
+                      <span>by {c.submitted_by.name}</span>
+                      <span>{new Date(c.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <a
+                      href={c.submission_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-[10px] text-fan hover:underline truncate block"
+                    >
+                      {c.submission_url}
+                    </a>
+                    {c.reviewer && (
+                      <p className="font-mono text-[10px] text-muted mt-1">
+                        reviewed by {c.reviewer.name}
+                        {c.reviewed_at && <> · {new Date(c.reviewed_at).toLocaleDateString()}</>}
+                        {c.council_notes && <> — &quot;{c.council_notes}&quot;</>}
+                      </p>
                     )}
-                    <span className="text-fan font-medium">
-                      ${c.pot.total_pledged.toLocaleString('en-US', { minimumFractionDigits: 2 })} committed
-                    </span>
-                    <span>by {c.submitted_by.name}</span>
-                    <span>{new Date(c.created_at).toLocaleDateString()}</span>
                   </div>
 
-                  <a
-                    href={c.submission_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-fan hover:underline truncate block max-w-xs"
-                  >
-                    {c.submission_url}
-                  </a>
-
-                  {c.reviewer && (
-                    <p className="text-xs text-muted mt-1.5">
-                      Reviewed by {c.reviewer.name} · {c.reviewed_at ? new Date(c.reviewed_at).toLocaleDateString() : ''}
-                      {c.council_notes && <span className="ml-1 text-muted/70">— &quot;{c.council_notes}&quot;</span>}
-                    </p>
+                  {c.status === 'pending_review' && (
+                    <Button variant="default" size="sm" onClick={() => setReviewing(c)}>
+                      review →
+                    </Button>
                   )}
                 </div>
-
-                {c.status === 'pending_review' && (
-                  <button
-                    type="button"
-                    onClick={() => setReviewing(c)}
-                    className="shrink-0 bg-fan/10 border border-fan/30 text-fan text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-fan/20 transition-colors"
-                  >
-                    Review
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </Card>
         )}
 
         {/* Pagination */}
         {lastPage > 1 && (
-          <div className="flex items-center justify-center gap-3 mt-6">
-            <button
-              type="button"
+          <div className="flex items-center justify-between">
+            <Button
+              variant="default"
+              size="sm"
               disabled={currentPage === 1 || loading}
               onClick={() => { const p = currentPage - 1; setCurrentPage(p); fetchCompletions(statusFilter, p); }}
-              className="px-4 py-2 text-sm border border-border rounded-lg text-foreground disabled:opacity-40 hover:border-foreground/30 transition-colors"
             >
-              ← Prev
-            </button>
-            <span className="text-sm text-muted">Page {currentPage} of {lastPage}</span>
-            <button
-              type="button"
+              ← prev
+            </Button>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
+              {currentPage} / {lastPage}
+            </span>
+            <Button
+              variant="default"
+              size="sm"
               disabled={currentPage === lastPage || loading}
               onClick={() => { const p = currentPage + 1; setCurrentPage(p); fetchCompletions(statusFilter, p); }}
-              className="px-4 py-2 text-sm border border-border rounded-lg text-foreground disabled:opacity-40 hover:border-foreground/30 transition-colors"
             >
-              Next →
-            </button>
+              next →
+            </Button>
           </div>
         )}
       </div>

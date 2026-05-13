@@ -2,7 +2,10 @@
 
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { auth as authApi } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
+import { Input, FieldLabel } from '@/components/ui/Input';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -26,72 +29,69 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-56px)] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="text-fan font-display font-bold text-2xl mb-1">artypot</div>
-          <h1 className="text-xl font-semibold text-foreground">Forgot your password?</h1>
-          <p className="text-muted text-sm mt-1">
-            {submitted
-              ? "Check your inbox for the reset link."
-              : "Enter your email and we'll send you a reset link."}
-          </p>
-        </div>
+    <div data-role="auth" className="min-h-screen flex flex-col items-center justify-center px-6 py-16 bg-background">
+      <div className="w-full max-w-[420px]">
+        <Link href="/" className="block mb-10">
+          <Image
+            src="/artypot-logo-transparent-dark.png"
+            alt="Artypot"
+            width={1024}
+            height={269}
+            className="h-8 w-auto"
+          />
+        </Link>
+
+        <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">password reset</div>
+        <h1 className="font-display font-bold text-[30px] text-foreground mb-2">forgot your password?</h1>
+        <p className="font-display text-sm text-muted mb-8 leading-relaxed">
+          {submitted
+            ? 'check your inbox — a reset link is on its way.'
+            : "enter your email and we'll send a reset link. it expires in 60 minutes."}
+        </p>
 
         {submitted ? (
-          <div className="bg-surface border border-border rounded-xl p-6 text-center space-y-4">
-            <div className="text-4xl">📬</div>
-            <p className="text-sm text-muted leading-relaxed">
-              If <span className="font-mono text-foreground/80">{email}</span> is registered, a password reset link has been sent. It expires in 60 minutes.
+          <div className="bg-surface border border-border rounded p-6 space-y-4">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-good mb-1">sent</div>
+            <p className="font-display text-sm text-muted leading-relaxed">
+              if <span className="font-mono text-foreground">{email}</span> is registered, you&apos;ll receive the link shortly.
             </p>
-            <Link
-              href="/login"
-              className="inline-block text-sm text-fan hover:underline"
-            >
-              ← Back to login
+            <Link href="/login" className="ap-inline-link font-display text-sm">
+              ← back to sign in
             </Link>
           </div>
         ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="bg-surface border border-border rounded-xl p-6 space-y-4"
-          >
+          <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-900/20 border border-red-800/50 text-red-400 text-sm rounded-lg px-4 py-3">
+              <div className="bg-bad-soft border border-bad text-bad text-sm rounded px-4 py-3 font-display">
                 {error}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1.5" htmlFor="email">
-                Email address
-              </label>
-              <input
-                id="email"
+              <FieldLabel>email address</FieldLabel>
+              <Input
                 type="email"
                 required
                 autoComplete="email"
                 autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
                 placeholder="you@example.com"
               />
             </div>
 
-            <button
+            <Button
               type="submit"
+              variant="primary"
+              className="w-full justify-center"
               disabled={loading || !email}
-              className="w-full bg-fan text-black font-semibold py-2.5 rounded-lg hover:bg-fan-dim transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Sending…' : 'Send reset link'}
-            </button>
+              {loading ? 'sending…' : 'send reset link'}
+            </Button>
 
-            <p className="text-center text-sm text-muted">
-              Remembered it?{' '}
-              <Link href="/login" className="text-fan hover:underline">
-                Log in
-              </Link>
+            <p className="font-display text-sm text-muted text-center pt-1">
+              remembered it?{' '}
+              <Link href="/login" className="ap-inline-link">sign in →</Link>
             </p>
           </form>
         )}

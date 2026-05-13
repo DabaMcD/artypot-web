@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Kalam, Architects_Daughter, DM_Sans } from 'next/font/google';
 import './globals.css';
 import Providers from '@/components/Providers';
-import Nav from '@/components/Nav';
-import Footer from '@/components/Footer';
+import { AppShell } from '@/components/AppShell';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -51,11 +50,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} ${kalam.variable} ${architectsDaughter.variable} ${dmSans.variable} antialiased min-h-screen flex flex-col`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${kalam.variable} ${architectsDaughter.variable} ${dmSans.variable} antialiased min-h-screen`}
+      >
         <Providers>
-          <Nav />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <AppShell>
+            {children}
+          </AppShell>
         </Providers>
       </body>
     </html>

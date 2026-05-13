@@ -6,105 +6,88 @@ import Link from 'next/link';
 import { admin as adminApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { AdminUser, UserRole } from '@/lib/types';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, SectionLabel } from '@/components/ui/Card';
+import { Modal } from '@/components/ui/Modal';
+import { Input } from '@/components/ui/Input';
+import { Empty } from '@/components/ui/Empty';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function RoleBadge({ role }: { role: UserRole }) {
-  const styles: Record<UserRole, string> = {
-    fan:     'bg-zinc-800 border-zinc-700 text-zinc-300',
-    creator: 'bg-creator/10 border-creator/30 text-creator',
-    council: 'bg-council/10 border-council/30 text-council',
+  const tones: Record<UserRole, 'default' | 'creator' | 'council'> = {
+    fan:     'default',
+    creator: 'creator',
+    council: 'council',
   };
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${styles[role]}`}>
-      {role}
-    </span>
-  );
+  return <Badge tone={tones[role]}>{role}</Badge>;
 }
 
-// ── User detail drawer ───────────────────────────────────────────────────────
+// ── User detail modal ─────────────────────────────────────────────────────────
 
-function UserDrawer({ user, onClose }: { user: AdminUser; onClose: () => void }) {
+function UserModal({ user, onClose }: { user: AdminUser; onClose: () => void }) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-sm"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div className="bg-surface border border-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg p-6 shadow-2xl max-h-[85vh] overflow-y-auto">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-bold text-foreground">{user.name}</h2>
-            <p className="text-sm text-muted">{user.email}</p>
-          </div>
-          <button onClick={onClose} className="text-muted hover:text-foreground transition-colors text-xl leading-none ml-4">×</button>
-        </div>
+    <Modal title={user.name} onClose={onClose} lg>
+      {/* Email */}
+      <p className="font-mono text-[10px] uppercase tracking-widest text-muted mb-4">{user.email}</p>
 
-        {/* Meta badges */}
-        <div className="flex flex-wrap gap-2 mb-5">
-          <RoleBadge role={user.role} />
-          {/* Council (or fan) user who also owns a creator profile */}
-          {user.creator && user.role !== 'creator' && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-creator/10 border-creator/30 text-creator">
-              creator
-            </span>
-          )}
-          {user.deleted_at && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-red-900/30 border-red-700/40 text-red-300">
-              deleted
-            </span>
-          )}
-          {!user.email_verified_at && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-amber-900/30 border-amber-700/40 text-amber-300">
-              email unverified
-            </span>
-          )}
-          {user.is_anonymous && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-zinc-800 border-zinc-700 text-zinc-400">
-              anonymous
-            </span>
-          )}
-        </div>
+      {/* Meta badges */}
+      <div className="flex flex-wrap gap-2 mb-5">
+        <RoleBadge role={user.role} />
+        {/* Council (or fan) user who also owns a creator profile */}
+        {user.creator && user.role !== 'creator' && (
+          <Badge tone="creator">creator</Badge>
+        )}
+        {user.deleted_at && (
+          <Badge tone="bad">deleted</Badge>
+        )}
+        {!user.email_verified_at && (
+          <Badge tone="warn">email unverified</Badge>
+        )}
+        {user.is_anonymous && (
+          <Badge tone="default">anonymous</Badge>
+        )}
+      </div>
 
-        <dl className="space-y-2 text-sm mb-5">
+      {/* Stats */}
+      <Card accent className="mb-4">
+        <dl className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <dt className="text-muted">User ID</dt>
-            <dd className="text-foreground font-mono">#{user.id}</dd>
+            <dt className="text-muted font-display">User ID</dt>
+            <dd className="font-mono tabular-nums text-foreground">#{user.id}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted">Joined</dt>
-            <dd className="text-foreground">{new Date(user.created_at).toLocaleDateString()}</dd>
+            <dt className="text-muted font-display">Joined</dt>
+            <dd className="font-mono tabular-nums text-foreground">{new Date(user.created_at).toLocaleDateString()}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted">Phone</dt>
-            <dd className="text-foreground">
+            <dt className="text-muted font-display">Phone</dt>
+            <dd className="font-mono tabular-nums text-foreground">
               {user.phone_number ?? '—'}
               {user.phone_verified_at ? ' ✓' : user.phone_number ? ' (unverified)' : ''}
             </dd>
           </div>
         </dl>
+      </Card>
 
-        {/* Creator profile — name + claimed status + link only */}
-        {user.creator ? (
-          <div className="border border-border rounded-xl p-4 bg-surface-2">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-semibold text-foreground">Creator</h3>
-              <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${
-                user.creator.claimed
-                  ? 'bg-green-900/30 border-green-700/40 text-green-300'
-                  : 'bg-zinc-800 border-zinc-700 text-zinc-400'
-              }`}>
-                {user.creator.claimed ? 'claimed' : 'unclaimed'}
-              </span>
-            </div>
-            <Link href={`/creators/${user.creator.id}`} className="font-medium text-creator hover:underline text-sm">
-              {user.creator.display_name} →
-            </Link>
+      {/* Creator profile — name + claimed status + link only */}
+      {user.creator ? (
+        <Card accent>
+          <div className="flex items-center justify-between mb-2">
+            <SectionLabel>Creator</SectionLabel>
+            <Badge tone={user.creator.claimed ? 'good' : 'default'}>
+              {user.creator.claimed ? 'claimed' : 'unclaimed'}
+            </Badge>
           </div>
-        ) : (
-          <p className="text-sm text-muted italic">No creator profile.</p>
-        )}
-      </div>
-    </div>
+          <Link href={`/creators/${user.creator.id}`} className="font-display font-medium text-creator hover:underline text-sm">
+            {user.creator.display_name} →
+          </Link>
+        </Card>
+      ) : (
+        <Empty message="No creator profile." />
+      )}
+    </Modal>
   );
 }
 
@@ -187,37 +170,41 @@ export default function AdminUsersPage() {
 
   return (
     <>
-      {selected && <UserDrawer user={selected} onClose={() => setSelected(null)} />}
+      {selected && <UserModal user={selected} onClose={() => setSelected(null)} />}
 
-      <div className="max-w-5xl mx-auto px-4 py-10">
+      <div className="space-y-6 pt-2 max-w-3xl">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <Link href="/admin" className="text-muted hover:text-foreground transition-colors text-sm">
-            ← Admin
-          </Link>
-          <span className="text-border">/</span>
-          <h1 className="text-xl font-bold text-foreground">Users</h1>
-          <span className="ml-auto text-sm text-muted">{total} total</span>
+        <div>
+          <SectionLabel className="mb-1">council · admin</SectionLabel>
+          <div className="flex items-end justify-between gap-3">
+            <h1 className="font-display font-bold text-[28px]">Users</h1>
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted tabular-nums">{total} total</span>
+              <Link href="/admin">
+                <Button variant="ghost" size="sm">← admin</Button>
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* Controls */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-5">
-          <input
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Input
             type="search"
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search name or email…"
-            className="flex-1 bg-surface-2 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
+            className="flex-1"
           />
-          <div className="flex gap-1 bg-surface-2 border border-border rounded-xl p-1">
+          <div className="flex items-center gap-1 border border-border rounded p-1 bg-surface w-fit">
             {FILTER_TABS.map(({ label, value }) => (
               <button
                 key={value}
                 type="button"
                 onClick={() => handleFilterChange(value)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 py-1 rounded font-mono text-[10px] uppercase tracking-wider transition-colors ${
                   filter === value
-                    ? 'bg-surface text-foreground shadow-sm'
+                    ? 'bg-[var(--color-role-soft)] text-[var(--color-role)]'
                     : 'text-muted hover:text-foreground'
                 }`}
               >
@@ -229,74 +216,78 @@ export default function AdminUsersPage() {
 
         {/* List */}
         {loading ? (
-          <div className="space-y-3">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-16 bg-surface border border-border rounded-xl animate-pulse" />
-            ))}
-          </div>
+          <Card>
+            <div className="divide-y divide-border -mx-5 -my-4">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-14 bg-surface-2 animate-pulse rounded" />
+              ))}
+            </div>
+          </Card>
         ) : users.length === 0 ? (
-          <div className="text-center py-16 text-muted text-sm">No users found.</div>
+          <Empty message="No users found." />
         ) : (
-          <div className="space-y-2">
-            {users.map((u) => (
-              <button
-                key={u.id}
-                type="button"
-                onClick={() => setSelected(u)}
-                className="w-full text-left bg-surface border border-border rounded-xl px-4 py-3 flex items-center gap-3 hover:border-foreground/20 transition-colors"
-              >
-                <div className="w-8 h-8 rounded-full bg-fan/20 flex items-center justify-center text-fan text-xs font-bold shrink-0">
-                  {u.name.charAt(0).toUpperCase()}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-foreground text-sm truncate">{u.name}</span>
-                    <RoleBadge role={u.role} />
-                    {/* Show a creator badge when this council/fan user also owns a creator profile */}
-                    {u.creator && u.role !== 'creator' && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border bg-creator/10 border-creator/30 text-creator">
-                        creator
-                      </span>
-                    )}
-                    {u.deleted_at && (
-                      <span className="text-xs text-red-400 border border-red-700/40 bg-red-900/20 px-1.5 rounded-full">deleted</span>
-                    )}
+          <Card>
+            <div className="divide-y divide-border -mx-5 -my-4">
+              {users.map((u) => (
+                <button
+                  key={u.id}
+                  type="button"
+                  onClick={() => setSelected(u)}
+                  className="w-full text-left px-5 py-3.5 flex items-center gap-3 hover:bg-surface-2 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-full bg-fan/20 flex items-center justify-center text-fan font-mono text-xs font-bold shrink-0">
+                    {u.name.charAt(0).toUpperCase()}
                   </div>
-                  <p className="text-xs text-muted truncate">{u.email}</p>
-                </div>
 
-                <div className="shrink-0 text-right hidden sm:block">
-                  {u.creator && (
-                    <p className="text-xs text-creator">{u.creator.display_name}</p>
-                  )}
-                  <p className="text-xs text-muted">{new Date(u.created_at).toLocaleDateString()}</p>
-                </div>
-              </button>
-            ))}
-          </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-display font-medium text-foreground text-sm truncate">{u.name}</span>
+                      <RoleBadge role={u.role} />
+                      {/* Show a creator badge when this council/fan user also owns a creator profile */}
+                      {u.creator && u.role !== 'creator' && (
+                        <Badge tone="creator">creator</Badge>
+                      )}
+                      {u.deleted_at && (
+                        <Badge tone="bad">deleted</Badge>
+                      )}
+                    </div>
+                    <p className="font-mono text-[10px] text-muted truncate">{u.email}</p>
+                  </div>
+
+                  <div className="shrink-0 text-right hidden sm:block">
+                    {u.creator && (
+                      <p className="font-mono text-[10px] text-creator">{u.creator.display_name}</p>
+                    )}
+                    <p className="font-mono text-[10px] text-muted">{new Date(u.created_at).toLocaleDateString()}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </Card>
         )}
 
         {/* Pagination */}
         {lastPage > 1 && (
-          <div className="flex items-center justify-center gap-3 mt-6">
-            <button
-              type="button"
+          <div className="flex items-center justify-center gap-3">
+            <Button
+              variant="default"
+              size="sm"
               disabled={page === 1 || loading}
               onClick={() => { const p = page - 1; fetchUsers(search, filter, p); }}
-              className="px-4 py-2 text-sm border border-border rounded-lg text-foreground disabled:opacity-40 hover:border-foreground/30 transition-colors"
             >
               ← Prev
-            </button>
-            <span className="text-sm text-muted">Page {page} of {lastPage}</span>
-            <button
-              type="button"
+            </Button>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted tabular-nums">
+              Page {page} of {lastPage}
+            </span>
+            <Button
+              variant="default"
+              size="sm"
               disabled={page === lastPage || loading}
               onClick={() => { const p = page + 1; fetchUsers(search, filter, p); }}
-              className="px-4 py-2 text-sm border border-border rounded-lg text-foreground disabled:opacity-40 hover:border-foreground/30 transition-colors"
             >
               Next →
-            </button>
+            </Button>
           </div>
         )}
       </div>

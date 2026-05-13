@@ -24,6 +24,12 @@ import AddCardForm from '@/components/AddCardForm';
 import ShareButton from '@/components/ShareButton';
 import PotHistoryChart from '@/components/PotHistoryChart';
 import CommentSection from '@/components/CommentSection';
+import { Button } from '@/components/ui/Button';
+import { Card, SectionLabel } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Input, Textarea, Select, FieldLabel, FieldHint } from '@/components/ui/Input';
+import { Modal } from '@/components/ui/Modal';
+import { Banner } from '@/components/ui/Banner';
 
 const STATUS_LABELS: Record<string, string> = {
   open:      'Open',
@@ -33,12 +39,14 @@ const STATUS_LABELS: Record<string, string> = {
   revoked:   'Revoked',
 };
 
-const STATUS_COLORS: Record<string, string> = {
-  open:      'bg-green-900/40 text-green-400 border-green-800/50',
-  pending:   'bg-blue-900/40 text-blue-400 border-blue-800/50',
-  completed: 'bg-creator/10 text-creator border-creator/30',
-  paid_out:  'bg-council/10 text-council border-council/30',
-  revoked:   'bg-red-900/40 text-red-400 border-red-800/50',
+type BadgeTone = 'default' | 'info' | 'warn' | 'good' | 'bad';
+
+const STATUS_TONES: Record<string, BadgeTone> = {
+  open:      'default',
+  pending:   'info',
+  completed: 'warn',
+  paid_out:  'good',
+  revoked:   'bad',
 };
 
 function formatHoverDate(iso: string): string {
@@ -291,20 +299,21 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   // Must be declared before any early returns to satisfy Rules of Hooks.
   const renderExpirePicker = useCallback(() => (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-muted shrink-0">Expires in</span>
-      <input
+      <span className="font-mono text-[10px] uppercase tracking-widest text-muted shrink-0">Expires in</span>
+      <Input
         type="number"
         min="1"
         max="999"
         step="1"
+        mono
         value={expireValue}
         onChange={(e) => setExpireValue(e.target.value)}
-        className="w-16 bg-surface-2 border border-border rounded px-2 py-1.5 text-sm text-foreground focus:outline-none focus:border-fan transition-colors text-center"
+        className="w-16 text-center"
       />
-      <select
+      <Select
         value={expireUnit}
         onChange={(e) => setExpireUnit(e.target.value as ExpireUnit)}
-        className="flex-1 bg-surface-2 border border-border rounded px-2 py-1.5 text-sm text-foreground focus:outline-none focus:border-fan transition-colors"
+        className="flex-1"
       >
         <option value="years">year(s)</option>
         <option value="months">month(s)</option>
@@ -312,23 +321,25 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         <option value="days">day(s)</option>
         <option value="hours">hour(s)</option>
         <option value="minutes">minute(s)</option>
-      </select>
+      </Select>
     </div>
   ), [expireValue, expireUnit]);
 
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-10 space-y-4">
-        <div className="h-48 bg-surface border border-border rounded-xl animate-pulse" />
-        <div className="h-32 bg-surface border border-border rounded-xl animate-pulse" />
+        <div className="h-48 bg-surface border border-border rounded-md animate-pulse" />
+        <div className="h-32 bg-surface border border-border rounded-md animate-pulse" />
       </div>
     );
   }
 
   if (error || !pot) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-10 text-red-400">
-        {error || 'Bounty not found.'}
+      <div className="max-w-4xl mx-auto px-4 py-10">
+        <p className="bg-bad-soft border border-bad text-bad rounded-md px-4 py-3 font-display">
+          {error || 'Bounty not found.'}
+        </p>
       </div>
     );
   }
@@ -349,64 +360,60 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
     // Still checking for payment methods
     if (pmLoading || paymentMethods === null) {
       return (
-        <div className="bg-surface border border-border rounded-xl p-5">
+        <Card>
           <div className="h-4 w-32 bg-surface-2 animate-pulse rounded mb-4" />
-          <div className="h-10 bg-surface-2 animate-pulse rounded-lg mb-3" />
-          <div className="h-10 bg-surface-2 animate-pulse rounded-lg" />
-        </div>
+          <div className="h-10 bg-surface-2 animate-pulse rounded mb-3" />
+          <div className="h-10 bg-surface-2 animate-pulse rounded" />
+        </Card>
       );
     }
 
     // No payment method saved — show gate
     if (!hasPaymentMethod) {
       return (
-        <div className="bg-surface border border-fan/40 rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-fan text-lg">💳</span>
-            <h2 className="font-semibold text-foreground text-sm">Add a card to back this bounty</h2>
-          </div>
-          <p className="text-xs text-muted mb-4 leading-relaxed">
+        <Card accent>
+          <SectionLabel className="mb-3">Add a card to back this bounty</SectionLabel>
+          <p className="font-display text-sm text-muted mb-4 leading-relaxed">
             Your card is only charged if and when a bounty pays out — nothing happens when you back something. Save a card now so you&apos;re ready.
           </p>
           <AddCardForm
             onSuccess={() => {
-              // Refresh payment methods after successful card add
               billing.paymentMethods().then((res) => setPaymentMethods(res.data));
             }}
           />
-        </div>
+        </Card>
       );
     }
 
     // Has payment method — show normal votive form
     return (
-      <div className="bg-surface border border-border rounded-xl p-5">
+      <Card>
         <div className="flex items-center gap-2 mb-4">
-          <h2 className="font-semibold text-foreground">Back this bounty</h2>
+          <SectionLabel>Back this bounty</SectionLabel>
           <span className="relative group cursor-default">
-            <span className="text-muted text-xs w-4 h-4 rounded-full border border-muted/40 inline-flex items-center justify-center leading-none select-none hover:border-foreground/40 hover:text-foreground transition-colors">
+            <span className="font-mono text-[10px] text-muted w-4 h-4 rounded-full border border-muted/40 inline-flex items-center justify-center leading-none select-none hover:border-foreground/40 hover:text-foreground transition-colors cursor-pointer">
               i
             </span>
-            <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-surface-2 border border-border rounded-xl p-3 shadow-xl text-xs text-muted leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-20">
-              <p className="text-foreground font-semibold mb-1.5">How does backing work?</p>
-              <p className="mb-2">You&apos;re committing to pay <strong className="text-foreground">only if this bounty gets completed</strong> and approved by The Council.</p>
-              <p className="mb-2">Nothing happens to your card right now. Charges are billed monthly for approved completions.</p>
-              <p>Most bounties are never completed, so most commitments are never charged. You can back out at any time.</p>
+            <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-surface-2 border border-border rounded-md p-3 shadow-xl text-xs text-muted leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-20">
+              <p className="font-display text-foreground font-semibold mb-1.5">How does backing work?</p>
+              <p className="font-display mb-2">You&apos;re committing to pay <strong className="text-foreground">only if this bounty gets completed</strong> and approved by The Council.</p>
+              <p className="font-display mb-2">Nothing happens to your card right now. Charges are billed monthly for approved completions.</p>
+              <p className="font-display">Most bounties are never completed, so most commitments are never charged. You can back out at any time.</p>
             </div>
           </span>
         </div>
 
         {userVotive ? (
           <div className="space-y-3">
-            <div className="bg-fan/10 border border-fan/30 rounded-lg px-4 py-3 text-sm">
+            <div className="bg-fan/10 border border-fan/30 rounded px-4 py-3 text-sm font-display">
               <div>
                 You&apos;re in for{' '}
-                <span className="text-fan font-semibold">
+                <span className="text-fan font-mono font-semibold tabular-nums">
                   ${Number(userVotive.amount).toFixed(2)}
                 </span>
               </div>
               {userVotive.expires_at && (
-                <div className="text-xs text-muted mt-0.5">
+                <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5">
                   Expires{' '}
                   {new Date(userVotive.expires_at).toLocaleDateString('en-US', {
                     month: 'short',
@@ -416,35 +423,39 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                 </div>
               )}
             </div>
-            <p className="text-xs text-muted">
+            <p className="font-display text-xs text-muted">
               Change how much you&apos;re in for by entering a new amount and expiry.
             </p>
             <form onSubmit={handleVotive} className="space-y-2">
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">
-                  $
-                </span>
-                <input
-                  type="number"
-                  min="1"
-                  max="999999.99"
-                  step="0.01"
-                  value={votiveAmount}
-                  onChange={(e) => setVotiveAmount(e.target.value)}
-                  placeholder="New amount"
-                  className="w-full bg-surface-2 border border-border rounded-lg pl-7 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
-                />
+              <div className="flex items-stretch border border-border rounded bg-background">
+                <span className="flex items-center px-2.5 bg-surface-2 font-mono text-xs text-muted border-r border-border flex-shrink-0">$</span>
+                <div className="flex-1">
+                  <Input
+                    type="number"
+                    min="1"
+                    max="999999.99"
+                    step="0.01"
+                    mono
+                    value={votiveAmount}
+                    onChange={(e) => setVotiveAmount(e.target.value)}
+                    placeholder="New amount"
+                    className="border-0 rounded-none rounded-r focus:border-0"
+                  />
+                </div>
               </div>
               {renderExpirePicker()}
-              <button
+              <Button
                 type="submit"
+                variant="primary"
                 disabled={votiveLoading}
-                className="w-full bg-fan text-black font-semibold py-2 text-sm rounded-lg hover:bg-fan-dim disabled:opacity-50"
+                className="w-full justify-center"
               >
                 Update
-              </button>
+              </Button>
             </form>
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 if (pot?.status === 'pending') {
                   setShowPendingRevokeWarning(true);
@@ -455,66 +466,56 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                 }
               }}
               disabled={votiveLoading}
-              className="w-full text-sm text-muted hover:text-red-400 transition-colors py-1"
+              className="w-full justify-center text-muted hover:text-bad cursor-pointer"
             >
               Back out
-            </button>
+            </Button>
           </div>
         ) : (
           <form onSubmit={handleVotive} className="space-y-3">
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">
-                $
-              </span>
-              <input
-                type="number"
-                min="1"
-                max="999999.99"
-                step="0.01"
-                value={votiveAmount}
-                onChange={(e) => setVotiveAmount(e.target.value)}
-                placeholder="Amount"
-                className="w-full bg-surface-2 border border-border rounded-lg pl-7 pr-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
-              />
+            <div className="flex items-stretch border border-border rounded bg-background">
+              <span className="flex items-center px-2.5 bg-surface-2 font-mono text-xs text-muted border-r border-border flex-shrink-0">$</span>
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  min="1"
+                  max="999999.99"
+                  step="0.01"
+                  mono
+                  value={votiveAmount}
+                  onChange={(e) => setVotiveAmount(e.target.value)}
+                  placeholder="Amount"
+                  className="border-0 rounded-none rounded-r focus:border-0"
+                />
+              </div>
             </div>
             {renderExpirePicker()}
-            <button
+            <Button
               type="submit"
+              variant="primary"
               disabled={votiveLoading}
-              className="w-full bg-fan text-black font-semibold py-2.5 text-sm rounded-lg hover:bg-fan-dim disabled:opacity-50"
+              className="w-full justify-center"
             >
               {votiveLoading ? 'Backing…' : 'Back This Bounty'}
-            </button>
+            </Button>
           </form>
         )}
-      </div>
+      </Card>
     );
   };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
+
       {/* Pending-pot revoke warning */}
       {showPendingRevokeWarning && userVotive && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-surface border border-border rounded-xl p-6 max-w-sm w-full shadow-2xl">
-            <div className="text-2xl mb-3">⚠️</div>
-            <h3 className="font-bold text-foreground text-lg mb-3">Hold on, {user?.name.split(' ')[0]}.</h3>
-            <p className="text-muted text-sm leading-relaxed mb-2">
-              <span className="text-foreground font-semibold">{pot?.creator?.display_name ?? 'The creator'}</span> has
-              already submitted their work. The Council is reviewing it.
-            </p>
-            <p className="text-muted text-sm leading-relaxed mb-1">
-              Pulling your{' '}
-              <span className="text-foreground font-semibold">
-                ${Number(userVotive.amount).toFixed(2)}
-              </span>{' '}
-              backing out now would be a d*** move. Just saying.
-            </p>
-            <p className="text-xs text-muted/60 mb-6 mt-2">
-              (You can still do it. We&apos;re just saying.)
-            </p>
-            <div className="flex gap-3">
-              <button
+        <Modal
+          title={`Hold on, ${user?.name.split(' ')[0]}.`}
+          onClose={() => setShowPendingRevokeWarning(false)}
+          actions={
+            <>
+              <Button
+                variant="danger"
                 onClick={() => {
                   setShowPendingRevokeWarning(false);
                   if (activeVotives.length === 1) {
@@ -524,89 +525,113 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                   }
                 }}
                 disabled={votiveLoading}
-                className="flex-1 bg-red-900/40 hover:bg-red-900/60 border border-red-800/50 text-red-400 font-semibold py-2 text-sm rounded-lg disabled:opacity-50 transition-colors"
+                className="cursor-pointer"
               >
                 Proceed anyway
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="default"
                 onClick={() => setShowPendingRevokeWarning(false)}
                 disabled={votiveLoading}
-                className="flex-1 bg-surface-2 border border-border text-foreground hover:border-fan/40 font-semibold py-2 text-sm rounded-lg transition-colors"
+                className="cursor-pointer"
               >
                 Never mind
-              </button>
-            </div>
-          </div>
-        </div>
+              </Button>
+            </>
+          }
+        >
+          <p className="font-display text-muted text-sm leading-relaxed mb-2">
+            <span className="text-foreground font-semibold">{pot?.creator?.display_name ?? 'The creator'}</span> has
+            already submitted their work. The Council is reviewing it.
+          </p>
+          <p className="font-display text-muted text-sm leading-relaxed mb-1">
+            Pulling your{' '}
+            <span className="text-foreground font-mono font-semibold tabular-nums">
+              ${Number(userVotive.amount).toFixed(2)}
+            </span>{' '}
+            backing out now would be a d*** move. Just saying.
+          </p>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted/60 mt-2">
+            (You can still do it. We&apos;re just saying.)
+          </p>
+        </Modal>
       )}
 
       {/* Creator remove dialog */}
       {showRemoveDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-surface border border-border rounded-xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="font-bold text-foreground text-lg mb-2">Remove this bounty</h3>
-            <p className="text-muted text-sm leading-relaxed mb-4">
-              All active backers will be notified by email and their commitments will be cancelled. Please provide a reason.
-            </p>
-            <textarea
-              value={removeReason}
-              onChange={(e) => setRemoveReason(e.target.value)}
-              rows={4}
-              placeholder="Why are you removing this bounty?…"
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-red-500/60 transition-colors resize-none mb-1"
-              maxLength={1000}
-            />
-            <p className="text-xs text-muted mb-5">{removeReason.length} / 1000</p>
-            <div className="flex gap-3">
-              <button
+        <Modal
+          title="Remove this bounty"
+          onClose={() => { setShowRemoveDialog(false); setRemoveReason(''); }}
+          actions={
+            <>
+              <Button
+                variant="danger"
                 onClick={handleCreatorRemove}
                 disabled={removeLoading || removeReason.trim().length < 10}
-                className="flex-1 bg-red-600 hover:bg-red-500 text-white font-semibold py-2 text-sm rounded-lg disabled:opacity-50 transition-colors"
+                className="cursor-pointer"
               >
                 {removeLoading ? 'Removing…' : 'Remove bounty'}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="default"
                 onClick={() => { setShowRemoveDialog(false); setRemoveReason(''); }}
                 disabled={removeLoading}
-                className="flex-1 bg-surface-2 border border-border text-muted hover:text-foreground font-medium py-2 text-sm rounded-lg transition-colors"
+                className="cursor-pointer"
               >
                 Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+              </Button>
+            </>
+          }
+        >
+          <p className="font-display text-muted text-sm leading-relaxed mb-4">
+            All active backers will be notified by email and their commitments will be cancelled. Please provide a reason.
+          </p>
+          <Textarea
+            value={removeReason}
+            onChange={(e) => setRemoveReason(e.target.value)}
+            rows={4}
+            placeholder="Why are you removing this bounty?…"
+            maxLength={1000}
+            className="mb-1"
+          />
+          <FieldHint>{removeReason.length} / 1000</FieldHint>
+        </Modal>
       )}
 
       {/* Last-votive confirm dialog */}
       {showLastVotiveConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-surface border border-border rounded-xl p-6 max-w-sm w-full shadow-2xl">
-            <h3 className="font-bold text-foreground text-lg mb-2">Back out completely?</h3>
-            <p className="text-muted text-sm leading-relaxed mb-6">
-              You&apos;re the only {pot?.creator?.fan_name ?? 'supporter'} of this bounty. Backing out will leave it empty — it will be cleared automatically.
-            </p>
-            <div className="flex gap-3">
-              <button
+        <Modal
+          title="Back out completely?"
+          onClose={() => setShowLastVotiveConfirm(false)}
+          actions={
+            <>
+              <Button
+                variant="danger"
                 onClick={handleRevokeVotive}
                 disabled={votiveLoading}
-                className="flex-1 bg-red-600 hover:bg-red-500 text-white font-semibold py-2 text-sm rounded-lg disabled:opacity-50 transition-colors"
+                className="cursor-pointer"
               >
                 {votiveLoading ? 'Removing…' : 'Yes, back out'}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="default"
                 onClick={() => setShowLastVotiveConfirm(false)}
                 disabled={votiveLoading}
-                className="flex-1 bg-surface-2 border border-border text-muted hover:text-foreground font-medium py-2 text-sm rounded-lg transition-colors"
+                className="cursor-pointer"
               >
                 Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+              </Button>
+            </>
+          }
+        >
+          <p className="font-display text-muted text-sm leading-relaxed">
+            You&apos;re the only {pot?.creator?.fan_name ?? 'supporter'} of this bounty. Backing out will leave it empty — it will be cleared automatically.
+          </p>
+        </Modal>
       )}
 
       {/* Pot header */}
-      <div className="bg-surface border border-border rounded-xl p-6 mb-6">
+      <Card className="mb-6">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-start gap-3">
@@ -614,12 +639,10 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               {snapshotView !== null ? (
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-xs text-blue-400 bg-blue-400/10 border border-blue-400/20 rounded-full px-2 py-0.5">
-                      Historical view
-                    </span>
+                    <Badge tone="info">Historical view</Badge>
                     <button
                       onClick={() => { setSnapshotView(null); setSelectedEvent(null); }}
-                      className="text-xs text-muted hover:text-foreground transition-colors"
+                      className="font-display text-xs text-muted hover:text-foreground transition-colors cursor-pointer"
                     >
                       ✕ Back to current
                     </button>
@@ -634,16 +657,18 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                 </h1>
               )}
               {isOwner && pot.status === 'open' && !showEditForm && (
-                <button
+                <Button
+                  variant="default"
+                  size="xs"
                   onClick={() => {
                     setEditTitle(pot.title);
                     setEditDescription(pot.description ?? '');
                     setShowEditForm(true);
                   }}
-                  className="shrink-0 text-xs text-muted hover:text-foreground transition-colors mt-1 px-2 py-1 rounded border border-border hover:border-foreground/30"
+                  className="shrink-0 mt-1 cursor-pointer"
                 >
                   Edit
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -654,58 +679,53 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               text={`Back "${pot.title}" on artypot!`}
               size="sm"
             />
-            <span
-              className={`text-sm font-medium px-3 py-1 rounded-full border ${STATUS_COLORS[pot.status]}`}
-            >
+            <Badge tone={STATUS_TONES[pot.status] ?? 'default'} lg>
               {STATUS_LABELS[pot.status]}
-            </span>
+            </Badge>
           </div>
         </div>
 
         {/* Inline edit form */}
         {showEditForm && isOwner && pot.status === 'open' && (
           <form onSubmit={handleEditSubmit} className="mb-4 space-y-3">
-            {/* Edit policy warning */}
-            <div className="bg-amber-900/20 border border-amber-700/40 rounded-lg px-3 py-2.5 text-xs text-amber-300/90 leading-relaxed">
-              <strong className="text-amber-300">Heads up:</strong> Edits may only clarify details
-              — you cannot change the core nature or purpose of this bounty. The Council reviews the
-              full edit history before approving any bounty.
-            </div>
+            <Banner tone="warn">
+              <strong>Heads up:</strong> Edits may only clarify details — you cannot change the core nature or purpose of this bounty. The Council reviews the full edit history before approving any bounty.
+            </Banner>
             <div>
-              <label className="block text-xs text-muted mb-1">Title</label>
-              <input
+              <FieldLabel>Title</FieldLabel>
+              <Input
                 type="text"
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
                 maxLength={255}
                 required
-                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-fan transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs text-muted mb-1">Description</label>
-              <textarea
+              <FieldLabel>Description</FieldLabel>
+              <Textarea
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
                 rows={3}
-                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
               />
             </div>
             <div className="flex gap-2">
-              <button
+              <Button
                 type="submit"
+                variant="primary"
                 disabled={editLoading}
-                className="bg-fan text-black font-semibold px-4 py-2 text-sm rounded-lg hover:bg-fan-dim disabled:opacity-50 transition-colors"
+                className="cursor-pointer"
               >
                 {editLoading ? 'Saving…' : 'Save changes'}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => setShowEditForm(false)}
-                className="px-4 py-2 text-sm text-muted hover:text-foreground transition-colors"
+                className="cursor-pointer"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </form>
         )}
@@ -713,19 +733,19 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         {/* Description — show historical if in snapshot view */}
         {!showEditForm && (
           displayedDescription ? (
-            <p className={`leading-relaxed mb-5 ${snapshotView !== null ? 'text-muted/60' : 'text-muted'}`}>
+            <p className={`font-display leading-relaxed mb-5 ${snapshotView !== null ? 'text-muted/60' : 'text-muted'}`}>
               {displayedDescription}
             </p>
           ) : null
         )}
 
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 font-display text-sm">
           {pot.creator && (
             <div>
               <span className="text-muted">For </span>
               <Link
                 href={`/creators/${pot.creator.id}`}
-                className="text-creator hover:underline font-medium"
+                className="text-creator hover:underline font-medium cursor-pointer"
               >
                 {pot.creator.display_name}
               </Link>
@@ -741,31 +761,33 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
 
         {/* Total pledged + history toggle */}
         <div className="mt-5 pt-5 border-t border-border">
-          <div className="text-fan font-bold text-3xl">
+          <div className="text-fan font-mono font-bold tabular-nums text-3xl">
             ${displayedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
           <div className="flex items-center justify-between gap-2 mt-0.5">
             <div>
-              <div className="text-muted text-sm">
+              <div className="font-display text-muted text-sm">
                 supported by {activeVotives.length} {activeVotives.length === 1 ? (pot.creator?.fan_name ?? 'supporter') : (pot.creator?.fan_name_plural ?? pot.creator?.fan_name ?? 'supporters')}
               </div>
               {(pot.status === 'completed' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (
-                <div className="text-xs text-muted mt-0.5">
+                <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5 tabular-nums">
                   ${pot.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2 })} of ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })} cleared
                 </div>
               )}
               {selectedEvent && (
-                <p className="text-xs text-muted/60 italic mt-0.5">
+                <p className="font-mono text-[10px] uppercase tracking-widest text-muted/60 italic mt-0.5">
                   *Total backed on {formatHoverDate(selectedEvent.at)}
                 </p>
               )}
             </div>
-            <button
+            <Button
+              variant="default"
+              size="xs"
               onClick={() => setShowHistory((v) => !v)}
-              className="text-xs text-muted hover:text-foreground transition-colors px-2 py-1 rounded border border-border hover:border-foreground/30 shrink-0"
+              className="shrink-0 cursor-pointer"
             >
               {showHistory ? 'Hide history' : 'Show history'}
-            </button>
+            </Button>
           </div>
 
           {/* History chart panel */}
@@ -774,7 +796,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               {historyLoading ? (
                 <div className="space-y-2">
                   {[...Array(4)].map((_, i) => (
-                    <div key={i} className="h-12 bg-surface-2 animate-pulse rounded-lg" />
+                    <div key={i} className="h-12 bg-surface-2 animate-pulse rounded" />
                   ))}
                 </div>
               ) : (
@@ -794,7 +816,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             </div>
           )}
         </div>
-      </div>
+      </Card>
 
       <div className="grid sm:grid-cols-3 gap-6">
         {/* Action panel */}
@@ -804,129 +826,128 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
 
           {/* Not logged in */}
           {!user && pot.status === 'open' && (
-            <div className="bg-surface border border-border rounded-xl p-5 text-center">
-              <p className="text-muted text-sm mb-3">Log in to back this bounty</p>
+            <Card className="text-center">
+              <p className="font-display text-muted text-sm mb-3">Log in to back this bounty</p>
               <Link
                 href="/login"
-                className="block w-full bg-fan text-black font-semibold py-2.5 text-sm rounded-lg hover:bg-fan-dim transition-colors"
+                className="block w-full cursor-pointer"
               >
-                Log in
+                <Button variant="primary" className="w-full justify-center">
+                  Log in
+                </Button>
               </Link>
-            </div>
+            </Card>
           )}
 
           {/* Closed-pot notice — shown for every non-open status */}
           {pot.status !== 'open' && (() => {
             const creatorName = pot.creator?.display_name ?? 'The creator';
-            const notices: Record<string, { icon: string; heading: string; body: string; style: string }> = {
+            const notices: Record<string, { heading: string; body: string; tone: 'default' | 'warn' | 'bad' | 'good' }> = {
               pending: {
-                icon: '📋',
                 heading: 'Awaiting Council review',
                 body: `${creatorName} has submitted this bounty for review. Existing commitments are locked while the Council considers the completion.`,
-                style: 'border-blue-800/40 bg-blue-900/10',
+                tone: 'default',
               },
               completed: {
-                icon: '✅',
                 heading: 'Completed — payout pending',
                 body: 'The Council has approved this bounty. Commitments are now locked — your card will be charged in the next billing cycle.',
-                style: 'border-creator/30 bg-creator/5',
+                tone: 'warn',
               },
               paid_out: {
-                icon: '💸',
                 heading: 'Paid out',
                 body: `This bounty has been paid out. ${creatorName} has been compensated for their work.`,
-                style: 'border-council/30 bg-council/5',
+                tone: 'good',
               },
               revoked: {
-                icon: '🚫',
                 heading: 'Bounty revoked',
                 body: 'This bounty has been revoked and is no longer active.',
-                style: 'border-red-800/40 bg-red-900/10',
+                tone: 'bad',
               },
             };
             const notice = notices[pot.status];
             if (!notice) return null;
 
             return (
-              <div className={`border rounded-xl p-5 ${notice.style}`}>
-                <div className="flex items-center gap-2 mb-2">
-                  <span>{notice.icon}</span>
-                  <h3 className="font-semibold text-foreground text-sm">{notice.heading}</h3>
+              <Banner tone={notice.tone}>
+                <div>
+                  <div className="font-display font-semibold text-foreground text-sm mb-1">{notice.heading}</div>
+                  <div className="font-display text-muted text-sm leading-relaxed">{notice.body}</div>
                 </div>
-                <p className="text-muted text-sm leading-relaxed">{notice.body}</p>
-              </div>
+              </Banner>
             );
           })()}
 
           {/* Creator: submit completion */}
           {canSubmitCompletion && !showCompletion && (
-            <button
+            <Button
+              variant="default"
               onClick={() => setShowCompletion(true)}
-              className="w-full bg-creator/10 border border-creator/30 text-creator text-sm font-semibold py-2.5 rounded-xl hover:bg-creator/20 transition-colors"
+              className="w-full justify-center cursor-pointer"
             >
               Submit Completion
-            </button>
+            </Button>
           )}
 
           {/* Creator: remove bounty */}
           {canCreatorRemove && !showCompletion && (
-            <button
+            <Button
+              variant="danger"
+              size="sm"
               onClick={() => setShowRemoveDialog(true)}
-              className="w-full border border-red-800/40 text-red-400 text-sm font-medium py-2 rounded-xl hover:bg-red-900/20 transition-colors"
+              className="w-full justify-center cursor-pointer"
             >
               Remove this bounty
-            </button>
+            </Button>
           )}
 
-
           {showCompletion && (
-            <div className="bg-surface border border-creator/30 rounded-xl p-5">
-              <h3 className="font-semibold text-foreground mb-4">Submit Completed Work</h3>
+            <Card accent>
+              <SectionLabel className="mb-4">Submit Completed Work</SectionLabel>
               <form onSubmit={handleSubmitCompletion} className="space-y-3">
                 <div>
-                  <label className="block text-xs text-muted mb-1">Link to the work (URL)</label>
-                  <input
+                  <FieldLabel>Link to the work (URL)</FieldLabel>
+                  <Input
                     type="text"
                     required
                     value={submissionUrl}
                     onChange={(e) => setSubmissionUrl(e.target.value)}
                     placeholder="example.com/proof"
-                    className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-muted mb-1">Notes (optional)</label>
-                  <textarea
+                  <FieldLabel>Notes (optional)</FieldLabel>
+                  <Textarea
                     rows={2}
                     value={submissionNotes}
                     onChange={(e) => setSubmissionNotes(e.target.value)}
                     placeholder="Anything the council should know…"
-                    className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors resize-none"
                   />
                 </div>
                 {completionError && (
-                  <div className="rounded-lg bg-red-500/10 border border-red-500/30 px-3 py-2.5 text-xs text-red-400">
-                    <p>{completionError}</p>
+                  <div className="rounded bg-bad-soft border border-bad text-bad px-3 py-2.5">
+                    <p className="font-display text-xs">{completionError}</p>
                   </div>
                 )}
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     type="submit"
+                    variant="primary"
                     disabled={completionLoading}
-                    className="flex-1 bg-creator text-black font-semibold py-2 text-sm rounded-lg hover:opacity-90 disabled:opacity-50"
+                    className="flex-1 justify-center cursor-pointer"
                   >
                     {completionLoading ? 'Submitting…' : 'Submit'}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => setShowCompletion(false)}
-                    className="px-4 py-2 text-sm text-muted hover:text-foreground"
+                    className="cursor-pointer"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </form>
-            </div>
+            </Card>
           )}
 
         </div>
@@ -935,60 +956,52 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         <div className="sm:col-span-2 space-y-6">
           {/* Completion info */}
           {pot.completion && (
-            <div
-              className={`border rounded-xl p-5 ${
-                pot.completion.status === 'approved'
-                  ? 'bg-creator/5 border-creator/30'
-                  : pot.completion.status === 'rejected'
-                    ? 'bg-red-900/10 border-red-800/30'
-                    : 'bg-blue-900/10 border-blue-800/30'
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-foreground">Submitted Work</h3>
-                <span
-                  className={`text-xs font-medium px-2 py-0.5 rounded-full border ${
+            <Card>
+              <div className="flex items-center justify-between mb-3">
+                <SectionLabel>Submitted Work</SectionLabel>
+                <Badge
+                  tone={
                     pot.completion.status === 'approved'
-                      ? 'bg-creator/10 text-creator border-creator/30'
+                      ? 'good'
                       : pot.completion.status === 'rejected'
-                        ? 'bg-red-900/30 text-red-400 border-red-800/50'
-                        : 'bg-blue-900/30 text-blue-400 border-blue-800/50'
-                  }`}
+                        ? 'bad'
+                        : 'info'
+                  }
                 >
                   {pot.completion.status === 'pending_review'
                     ? 'Pending Review'
                     : pot.completion.status}
-                </span>
+                </Badge>
               </div>
               <a
                 href={pot.completion.submission_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-fan hover:underline text-sm break-all"
+                className="font-display text-fan hover:underline text-sm break-all cursor-pointer"
               >
                 {pot.completion.submission_url}
               </a>
               {pot.completion.submission_notes && (
-                <p className="text-muted text-sm mt-2">{pot.completion.submission_notes}</p>
+                <p className="font-display text-muted text-sm mt-2">{pot.completion.submission_notes}</p>
               )}
               {pot.completion.council_notes && (
-                <div className="mt-3 pt-3 border-t border-current/20">
-                  <p className="text-xs text-muted">
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-muted">
                     Council notes: {pot.completion.council_notes}
                   </p>
                 </div>
               )}
-            </div>
+            </Card>
           )}
 
           {/* Backers / Comments tabbed card */}
-          <div className="bg-surface border border-border rounded-xl overflow-hidden">
+          <Card className="overflow-hidden !p-0">
 
             {/* Tab bar */}
             <div className="flex border-b border-border">
               <button
                 onClick={() => setActiveTab('votives')}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 py-3 font-mono text-[10px] uppercase tracking-widest transition-colors cursor-pointer ${
                   activeTab === 'votives'
                     ? 'text-foreground border-b-2 border-fan -mb-px bg-transparent'
                     : 'text-muted hover:text-foreground'
@@ -1001,7 +1014,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               </button>
               <button
                 onClick={() => setActiveTab('comments')}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                className={`flex-1 py-3 font-mono text-[10px] uppercase tracking-widest transition-colors cursor-pointer ${
                   activeTab === 'comments'
                     ? 'text-foreground border-b-2 border-fan -mb-px bg-transparent'
                     : 'text-muted hover:text-foreground'
@@ -1017,7 +1030,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             {/* Votives panel */}
             <div className={`p-5 ${activeTab !== 'votives' ? 'hidden' : ''}`}>
               {activeVotives.length === 0 ? (
-                <p className="text-muted text-sm">No {pot.creator?.fan_name_plural ?? pot.creator?.fan_name ?? 'supporters'} yet. Be the first!</p>
+                <p className="font-display text-muted text-sm">No {pot.creator?.fan_name_plural ?? pot.creator?.fan_name ?? 'supporters'} yet. Be the first!</p>
               ) : (
                 <div className="space-y-2">
                   {activeVotives.map((votive) => {
@@ -1034,31 +1047,31 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                       >
                         <div className="flex items-center gap-2">
                           <div
-                            className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                            className="w-6 h-6 rounded-full flex items-center justify-center font-mono text-xs font-bold shrink-0"
                             style={{ background: '#F5A623', color: '#0a0a0a' }}
                           >
                             {initial}
                           </div>
                           <div>
                             {isAnon ? (
-                              <span className="text-sm text-muted">{displayName}</span>
+                              <span className="font-display text-sm text-muted">{displayName}</span>
                             ) : (
                               <Link
                                 href={`/users/${votive.user_id}`}
-                                className="text-sm text-foreground hover:underline"
+                                className="font-display text-sm text-foreground hover:underline cursor-pointer"
                               >
                                 {displayName}
                               </Link>
                             )}
                             {user && votive.user_id === user.id && (
-                              <span className="text-muted text-xs ml-1">(you)</span>
+                              <span className="font-mono text-[10px] uppercase tracking-widest text-muted ml-1">(you)</span>
                             )}
                             {expiryDate && (
-                              <p className="text-xs text-muted">Expires {expiryDate}</p>
+                              <p className="font-mono text-[10px] uppercase tracking-widest text-muted">Expires {expiryDate}</p>
                             )}
                           </div>
                         </div>
-                        <span className="text-fan text-sm font-semibold">
+                        <span className="text-fan font-mono text-sm font-semibold tabular-nums">
                           ${Number(votive.amount).toFixed(2)}
                         </span>
                       </div>
@@ -1073,7 +1086,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               <CommentSection potId={pot.id} inline onTotalChange={setCommentCount} />
             </div>
 
-          </div>
+          </Card>
         </div>
 
       </div>
