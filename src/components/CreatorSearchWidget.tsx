@@ -21,7 +21,7 @@ export function CreatorAvatar({ creator, size = 'sm' }: { creator: Creator; size
       className={`${dim} rounded-full flex items-center justify-center font-bold shrink-0`}
       style={{ background: '#47DFD3', color: '#0a0a0a' }}
     >
-      {creator.display_name.charAt(0).toUpperCase()}
+      {creator.display_name?.charAt(0).toUpperCase() ?? '?'}
     </span>
   );
 }
