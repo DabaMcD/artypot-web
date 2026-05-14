@@ -50,10 +50,10 @@ function SanctumPageContent() {
   useEffect(() => {
     if (!user?.creator) return;
     cashApi.creatorBalance().then(setBalance).catch(() => {});
-    const isUS = user.creator.country_code === 'US';
+    const isUS = user.country_code === 'US';
     if (isUS) {
       w9Api.status().then((res) => setW9Status(res.data)).catch(() => {}).finally(() => setBalanceLoading(false));
-    } else if (user.creator.country_code) {
+    } else if (user.country_code) {
       w8benApi.status().then((res) => setW8benStatus(res.data)).catch(() => {}).finally(() => setBalanceLoading(false));
     } else {
       setBalanceLoading(false);
@@ -213,8 +213,8 @@ function SanctumPageContent() {
   const bankConnected  = bankConnectedOverride ?? (creator.bank_connected ?? false);
   const payoutsEnabled = stripeStatus?.payouts_enabled === true;
   const canWithdraw    = payoutsEnabled;
-  const isUS           = creator.country_code === 'US';
-  const needsLocation  = !creator.location_complete;
+  const isUS           = user.country_code === 'US';
+  const needsLocation  = !user.location_complete;
 
   const openVotives        = balance?.open_votives ?? 0;
   const pendingPayment     = balance?.pending_payment ?? 0;
@@ -503,9 +503,9 @@ function SanctumPageContent() {
             <div className="space-y-2 font-display text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted">location</span>
-                <span className={creator.location_complete ? 'text-good' : 'text-warn'}>
-                  {creator.location_complete
-                    ? (isUS ? `${creator.state_code}, US` : countryName(creator.country_code ?? ''))
+                <span className={user.location_complete ? 'text-good' : 'text-warn'}>
+                  {user.location_complete
+                    ? (isUS ? `${user.state_code}, US` : countryName(user.country_code ?? ''))
                     : 'not set'}
                 </span>
               </div>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Pot, PotStatus } from '@/lib/types';
+import { AvatarOrUnknown } from './ui/AvatarOrUnknown';
 
 const STATUS_STYLES: Record<PotStatus, { label: string; className: string }> = {
   open:      { label: 'Open',           className: 'bg-green-900/40 text-green-400 border-green-800/50' },
@@ -54,11 +55,17 @@ export default function PotCard({ pot }: { pot: Pot }) {
             </div>
           )}
         </div>
-        {pot.creator && (
-          <div className="text-right">
-            <div className="text-xs text-muted">for</div>
-            <div className="text-sm text-creator font-medium truncate max-w-[120px]">
-              {pot.creator.display_name}
+        {(pot.avatar_url !== undefined || pot.creator) && (
+          <div className="flex items-center gap-2">
+            <AvatarOrUnknown
+              avatarUrl={pot.avatar_url ?? pot.creator?.profile_picture ?? null}
+              size="sm"
+            />
+            <div className="text-right">
+              <div className="text-xs text-muted">for</div>
+              <div className="text-sm text-creator font-medium truncate max-w-[100px]">
+                {pot.target_display_name ?? pot.creator?.display_name}
+              </div>
             </div>
           </div>
         )}

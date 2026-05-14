@@ -13,3 +13,4 @@ export { BalancePipeline } from './Pipeline';
 export { GateCard } from './GateCard';
 export { BountyCard } from './BountyCard';
 export { Empty } from './Empty';
+export { AvatarOrUnknown } from './AvatarOrUnknown';

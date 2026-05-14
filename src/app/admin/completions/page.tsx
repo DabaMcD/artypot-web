@@ -120,7 +120,7 @@ function ReviewModal({
               </div>
             )}
             <p className="font-mono text-[10px] text-muted">
-              submitted by {completion.submitted_by.name} · {new Date(completion.created_at).toLocaleDateString()}
+              submitted by {completion.submitted_by.display_name} · {new Date(completion.created_at).toLocaleDateString()}
             </p>
           </div>
         </Card>
@@ -294,7 +294,7 @@ export default function AdminCompletionsPage() {
                       <span className="text-fan tabular-nums">
                         ${Number(c.pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })} committed
                       </span>
-                      <span>by {c.submitted_by.name}</span>
+                      <span>by {c.submitted_by.display_name}</span>
                       <span>{new Date(c.created_at).toLocaleDateString()}</span>
                     </div>
                     <a
@@ -307,7 +307,7 @@ export default function AdminCompletionsPage() {
                     </a>
                     {c.reviewer && (
                       <p className="font-mono text-[10px] text-muted mt-1">
-                        reviewed by {c.reviewer.name}
+                        reviewed by {c.reviewer.display_name}
                         {c.reviewed_at && <> · {new Date(c.reviewed_at).toLocaleDateString()}</>}
                         {c.council_notes && <> — &quot;{c.council_notes}&quot;</>}
                       </p>

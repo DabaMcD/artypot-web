@@ -1,4 +1,47 @@
 export type UserRole = 'fan' | 'creator' | 'council';
+export type HandlePlatform = 'twitter' | 'youtube' | 'instagram' | 'tiktok' | 'twitch' | 'bluesky';
+export type HandleStatus = 'unverified' | 'verified' | 'disputed' | 'retired';
+
+export interface UserHandle {
+  id: number;
+  platform: HandlePlatform;
+  username: string;
+  status: HandleStatus;
+  verified_at: string | null;
+  /** Verification code to post in profile/bio. Present after requesting verification. */
+  verification_code?: string | null;
+  created_at: string;
+}
+/** Shape returned by GET /auth/handles */
+export interface HandleClaim {
+  claim_id: number;
+  status: 'unverified' | 'verified';
+  verification_method: string | null;
+  verification_code: string | null;
+  verified_at: string | null;
+  handle: {
+    id: number;
+    platform: HandlePlatform;
+    username: string;
+    status: string;
+  };
+  created_at: string;
+}
+
+/** Shape returned by GET /handles/search */
+export interface HandleSearchResult {
+  type: 'user' | 'handle';
+  display_name: string;
+  platform: HandlePlatform;
+  username: string;
+  /** Always null when verified = false. */
+  avatar_url: string | null;
+  user_id: number | null;
+  handle_id: number;
+  verified: boolean;
+  pending_bounty_count: number;
+}
+
 export type PotStatus = 'open' | 'pending' | 'completed' | 'paid_out' | 'revoked';
 export type PotType = 'direct';
 export type CreatorClaimStatus = 'pending' | 'approved' | 'rejected';
@@ -70,7 +113,15 @@ export interface User {
   total_given?: number;
   open_votives_count?: number;
   is_anonymous?: boolean;
+  /** ISO-3166-1 alpha-2 country code, e.g. "US". Nullable. */
+  country_code?: string | null;
+  /** State/province code (required when country_code = "US"). Nullable. */
+  state_code?: string | null;
   is_overlord?: boolean;
+  /** Server-computed: country set (+ state for US). Included in /me response only. */
+  location_complete?: boolean;
+  /** Server-computed: user has at least one council-verified handle. Included in /me response only. */
+  has_verified_handle?: boolean;
   creator?: Creator;
 }
 
@@ -103,9 +154,9 @@ export interface CreatorName {
 export interface Creator {
   id: number;
   user_id?: number;
-  user?: { id: number; name: string };
+  user?: { id: number; display_name: string };
   /** Herald of an unclaimed creator (has editing rights) */
-  herald?: { id: number; name: string };
+  herald?: { id: number; display_name: string };
   herald_user_id?: number;
   herald_total_votive?: number;
   display_name: string;
@@ -140,8 +191,8 @@ export interface Creator {
   user_aged_votive_total?: number | null;
   /** True when the creator has a Stripe Connect account (may still need onboarding) */
   bank_connected?: boolean;
-  /** Server-computed: country set (+ state for US creators). Included in /me response only. */
-  location_complete?: boolean;
+  /** Timestamp of TOS agreement, stamped when the user activates creator mode. */
+  creator_tos_agreed_at?: string | null;
   claimed_at?: string;
   merged_into_creator_id?: number;
   creator_names?: CreatorName[];
@@ -158,6 +209,15 @@ export interface Pot {
   creator_id: number;
   creator?: Creator;
   total_pledged: number;
+  /** New targeting fields */
+  target_handle_id?: number | null;
+  target_user_id?: number | null;
+  owner_user_id?: number | null;
+  /** Backend-appended. Null when target is unverified. */
+  avatar_url?: string | null;
+  target_display_name?: string | null;
+  target_platform?: string | null;
+  target_username?: string | null;
   completed_at?: string;
   approved_at?: string;
   paid_out_at?: string;
@@ -248,14 +308,14 @@ export interface PaginatedResponse<T> {
 export interface AdminCreatorClaim {
   id: number;
   user_id: number;
-  user: { id: number; name: string; email: string };
+  user: { id: number; display_name: string; email: string };
   creator_id: number;
   creator: { id: number; display_name: string };
   contact_info: string;
   status: CreatorClaimStatus;
   council_notes?: string | null;
   reviewed_by?: number | null;
-  reviewer?: { id: number; name: string } | null;
+  reviewer?: { id: number; display_name: string } | null;
   reviewed_at?: string | null;
   created_at: string;
 }
@@ -272,13 +332,13 @@ export interface AdminPotCompletion {
     creator?: { id: number; display_name: string } | null;
   };
   submitted_by_user_id: number;
-  submitted_by: { id: number; name: string };
+  submitted_by: { id: number; display_name: string };
   submission_url: string;
   submission_notes?: string | null;
   status: PotCompletionStatus;
   council_notes?: string | null;
   reviewed_by?: number | null;
-  reviewer?: { id: number; name: string } | null;
+  reviewer?: { id: number; display_name: string } | null;
   reviewed_at?: string | null;
   verified_at?: string | null;
   created_at: string;
@@ -427,7 +487,7 @@ export interface PotHistoryEvent {
   type: PotHistoryEventType;
   /** ISO 8601 timestamp */
   at: string;
-  user?: { id: number; name: string; display_name: string } | null;
+  user?: { id: number; display_name: string } | null;
   amount?: number | null;
   field?: string | null;
   old_value?: string | null;
@@ -477,7 +537,7 @@ export interface AdminCreator {
   display_name: string;
   claimed: boolean;
   claimed_at: string | null;
-  user: { id: number; name: string; email: string } | null;
+  user: { id: number; display_name: string; email: string } | null;
   w9_status: CreatorW9Status | null;
   amount_earned: number;
   projects_open: number;

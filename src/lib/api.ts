@@ -25,6 +25,10 @@ import type {
   CreatorEarning,
   CreatorBalance,
   Comment,
+  UserHandle,
+  HandlePlatform,
+  HandleClaim,
+  HandleSearchResult,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -117,6 +121,23 @@ export const auth = {
   logout: () => request('/auth/logout', { method: 'POST' }),
 
   me: () => request<{ data: User }>('/auth/me'),
+
+  /**
+   * POST /auth/become-creator
+   * Re-verifies all three gates server-side and creates the Creator record.
+   * Gate status is derived from the /me response — no separate status fetch needed.
+   */
+  becomeCreator: () =>
+    request<{ message: string; creator_id: number }>('/auth/become-creator', {
+      method: 'POST',
+      body: JSON.stringify({ agreed_to_tos: true }),
+    }),
+
+  /**
+   * GET /auth/handles
+   * Returns the authenticated user's handle requests (pending + verified).
+   */
+  myHandles: () => request<{ data: HandleClaim[] }>('/auth/handles'),
 
   broke: () =>
     request<{ data: { revoked_count: number } }>('/auth/broke', { method: 'POST' }),
@@ -251,7 +272,16 @@ export const pots = {
 
   get: (id: number) => request<{ data: Pot }>(`/pots/${id}`),
 
-  create: (data: { title: string; description?: string; creator_id: number; initial_votive_amount?: number }) =>
+  create: (data: {
+    title: string;
+    description?: string;
+    initial_votive_amount?: number;
+    target_user_id?: number;
+    target_handle_id?: number;
+    platform?: string;
+    username?: string;
+    display_name?: string;
+  }) =>
     request<{ data: Pot }>('/pots', { method: 'POST', body: JSON.stringify(data) }),
 
   update: (id: number, data: { title?: string; description?: string }) =>
@@ -287,7 +317,7 @@ export const users = {
   get: (id: number) =>
     request<{ data: PublicUser }>(`/users/${id}`),
 
-  update: (id: number, data: Partial<Pick<User, 'name' | 'profile_picture' | 'is_anonymous'>>) =>
+  update: (id: number, data: Partial<Pick<User, 'display_name' | 'profile_picture' | 'is_anonymous' | 'country_code' | 'state_code'>>) =>
     request<{ data: User }>(`/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -497,6 +527,36 @@ export const stripeConnect = {
 };
 
 // Overlord — logs
+export const handles = {
+  /** GET /handles/search?q=... — unified handle search for bounty targeting */
+  search: (q: string) =>
+    request<{ data: HandleSearchResult }>(
+      `/handles/search?q=${encodeURIComponent(q)}`
+    ),
+
+  /** POST /handles — find-or-create a handle and create an unverified claim */
+  store: (platform: HandlePlatform, username: string) =>
+    request<{ data: HandleClaim }>('/handles', {
+      method: 'POST',
+      body: JSON.stringify({ platform, username }),
+    }),
+
+  /** DELETE /handles/{claimId} — remove the authenticated user's handle claim */
+  destroy: (claimId: number) =>
+    request<void>(`/handles/${claimId}`, { method: 'DELETE' }),
+
+  /** POST /handles/{handleId}/verify-request — request verification, returns code */
+  requestVerification: (handleId: number) =>
+    request<{ message: string; verification_code: string }>(
+      `/handles/${handleId}/verify-request`,
+      { method: 'POST' },
+    ),
+
+  /** POST /handles/{claimId}/verify — trigger a verification check */
+  verify: (claimId: number) =>
+    request<{ message: string }>(`/handles/${claimId}/verify`, { method: 'POST' }),
+};
+
 export const logs = {
   list: (params?: { page?: number; level?: string; search?: string }) => {
     const entries = Object.entries(params ?? {})

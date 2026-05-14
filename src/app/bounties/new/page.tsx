@@ -1,128 +1,521 @@
 'use client';
 
-import { useState, FormEvent, useEffect, Suspense } from 'react';
-import { useToast } from '@/lib/toast-context';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useCallback, useRef, useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { pots as potsApi, creators as creatorsApi } from '@/lib/api';
+import { handles as handlesApi, pots as potsApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import CreatorSearchWidget from '@/components/CreatorSearchWidget';
-import type { Creator } from '@/lib/types';
-import { Card, SectionLabel } from '@/components/ui/Card';
+import { useToast } from '@/lib/toast-context';
+import type { HandleSearchResult, HandlePlatform } from '@/lib/types';
+import { AvatarOrUnknown } from '@/components/ui/AvatarOrUnknown';
+import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Input, Textarea, FieldLabel, FieldHint } from '@/components/ui/Input';
+import { Card, SectionLabel } from '@/components/ui/Card';
+import { Input, Textarea, Select, FieldLabel, FieldHint } from '@/components/ui/Input';
 import { Banner } from '@/components/ui/Banner';
+import { Stepper } from '@/components/ui/Stepper';
 
-type CreatorMode = 'search' | 'create';
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const PLATFORMS: { value: HandlePlatform; label: string }[] = [
+  { value: 'youtube',   label: 'YouTube' },
+  { value: 'twitter',   label: 'X / Twitter' },
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'tiktok',    label: 'TikTok' },
+  { value: 'twitch',    label: 'Twitch' },
+  { value: 'bluesky',   label: 'Bluesky' },
+];
+
+const PLATFORM_LABELS: Record<HandlePlatform, string> = Object.fromEntries(
+  PLATFORMS.map(({ value, label }) => [value, label])
+) as Record<HandlePlatform, string>;
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+type TargetSelection =
+  | { kind: 'user';   userId: number; handleId: number; displayName: string; avatarUrl: string | null; platform: HandlePlatform; username: string }
+  | { kind: 'handle'; handleId: number; displayName: string; avatarUrl: null; platform: HandlePlatform; username: string }
+  | { kind: 'new';    platform: HandlePlatform; username: string; displayName: string; avatarUrl: null };
+
+// ── URL parsing ───────────────────────────────────────────────────────────────
+
+function extractHandleFromUrl(input: string): { platform: HandlePlatform; username: string; label: string } | null {
+  const ytMatch = input.match(/youtube\.com\/@([\w-]+)/i);
+  if (ytMatch) return { platform: 'youtube', username: `@${ytMatch[1]}`, label: 'YouTube' };
+
+  const ytChannel = input.match(/youtube\.com\/channel\/([\w-]+)/i);
+  if (ytChannel) return { platform: 'youtube', username: ytChannel[1], label: 'YouTube' };
+
+  const twMatch = input.match(/(?:twitter|x)\.com\/([\w]+)/i);
+  if (twMatch && !['home','explore','i','settings','notifications','messages'].includes(twMatch[1].toLowerCase()))
+    return { platform: 'twitter', username: twMatch[1], label: 'X / Twitter' };
+
+  const ttMatch = input.match(/tiktok\.com\/@([\w.]+)/i);
+  if (ttMatch) return { platform: 'tiktok', username: `@${ttMatch[1]}`, label: 'TikTok' };
+
+  const igMatch = input.match(/instagram\.com\/([\w.]+)/i);
+  if (igMatch && igMatch[1] !== 'p' && igMatch[1] !== 'reel')
+    return { platform: 'instagram', username: igMatch[1], label: 'Instagram' };
+
+  const twchMatch = input.match(/twitch\.tv\/([\w]+)/i);
+  if (twchMatch) return { platform: 'twitch', username: twchMatch[1], label: 'Twitch' };
+
+  return null;
+}
+
+function looksLikeUrl(s: string) {
+  return /^https?:\/\/|^www\./i.test(s.trim());
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function TargetingCard({ target }: { target: TargetSelection }) {
+  return (
+    <div className="flex items-center gap-3 p-3 bg-surface-2 rounded-lg border border-border">
+      <AvatarOrUnknown avatarUrl={target.avatarUrl ?? null} size="md" />
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-medium text-foreground truncate">{target.displayName}</div>
+        <div className="text-xs text-muted font-mono">
+          {PLATFORM_LABELS[target.platform]} · @{target.username}
+        </div>
+      </div>
+      {target.kind === 'user' ? (
+        <Badge tone="good">verified on artypot</Badge>
+      ) : (
+        <Badge tone="default">not yet on artypot</Badge>
+      )}
+    </div>
+  );
+}
+
+// ── Step 1: Target search ─────────────────────────────────────────────────────
+
+interface Step1Props {
+  onSelect: (target: TargetSelection) => void;
+}
+
+function Step1({ onSelect }: Step1Props) {
+  const { toast } = useToast();
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<HandleSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showAddNew, setShowAddNew] = useState(false);
+  const [newPlatform, setNewPlatform] = useState<HandlePlatform>('youtube');
+  const [newUsername, setNewUsername] = useState('');
+  const [newDisplayName, setNewDisplayName] = useState('');
+  const [addError, setAddError] = useState('');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const runSearch = useCallback(async (q: string) => {
+    if (!q.trim()) { setResults([]); setShowDropdown(false); return; }
+    setSearching(true);
+    try {
+      const res = await handlesApi.search(q);
+      setResults((res.data as unknown) as HandleSearchResult[]);
+      setShowDropdown(true);
+    } catch {
+      // silently ignore search errors
+    } finally {
+      setSearching(false);
+    }
+  }, []);
+
+  const handleChange = (value: string) => {
+    setQuery(value);
+    setShowAddNew(false);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => runSearch(value), 250);
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData('text');
+    if (!looksLikeUrl(pasted)) return;
+    const parsed = extractHandleFromUrl(pasted);
+    if (parsed) {
+      e.preventDefault();
+      toast(`Detected ${parsed.label} handle from URL`, 'success');
+      const handle = parsed.username;
+      setQuery(handle);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      runSearch(handle);
+    }
+  };
+
+  const selectResult = (r: HandleSearchResult) => {
+    setShowDropdown(false);
+    if (r.type === 'user' && r.user_id !== null) {
+      onSelect({ kind: 'user', userId: r.user_id, handleId: r.handle_id, displayName: r.display_name, avatarUrl: r.avatar_url, platform: r.platform, username: r.username });
+    } else {
+      onSelect({ kind: 'handle', handleId: r.handle_id, displayName: r.display_name, avatarUrl: null, platform: r.platform, username: r.username });
+    }
+  };
+
+  const confirmAddNew = () => {
+    if (!newUsername.trim()) { setAddError('Handle is required.'); return; }
+    if (!newDisplayName.trim()) { setAddError('Display name is required.'); return; }
+    setAddError('');
+    onSelect({ kind: 'new', platform: newPlatform, username: newUsername.trim(), displayName: newDisplayName.trim(), avatarUrl: null });
+  };
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <SectionLabel>fan</SectionLabel>
+        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">start a bounty</h1>
+        <p className="font-display text-sm text-muted mt-1">name a creator. the community funds the work.</p>
+      </div>
+
+      <Card>
+        <SectionLabel className="mb-3">who should do this?</SectionLabel>
+        <FieldLabel>creator handle or name</FieldLabel>
+        <div className="relative" ref={dropdownRef}>
+          <Input
+            type="text"
+            value={query}
+            onChange={(e) => handleChange(e.target.value)}
+            onPaste={handlePaste}
+            onFocus={() => { if (results.length) setShowDropdown(true); }}
+            placeholder="e.g. @tomscott on YouTube"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+          />
+          {searching && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted">searching…</span>
+          )}
+
+          {showDropdown && results.length > 0 && (
+            <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface border border-border rounded-lg overflow-hidden shadow-lg">
+              {results.map((r) => (
+                <button
+                  key={r.handle_id}
+                  type="button"
+                  onMouseDown={() => selectResult(r)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-surface-2 transition-colors text-left border-b border-border last:border-0"
+                >
+                  <AvatarOrUnknown avatarUrl={r.avatar_url} size="sm" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground truncate">{r.display_name}</div>
+                    <div className="text-xs text-muted font-mono">
+                      {PLATFORM_LABELS[r.platform]} · @{r.username}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-0.5 shrink-0">
+                    {r.verified ? (
+                      <Badge tone="good">verified on artypot</Badge>
+                    ) : (
+                      <>
+                        <Badge tone="default">not yet on artypot</Badge>
+                        {r.pending_bounty_count > 0 && (
+                          <span className="text-[10px] font-mono text-muted">
+                            {r.pending_bounty_count} {r.pending_bounty_count === 1 ? 'bounty' : 'bounties'} waiting
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {showDropdown && results.length === 0 && !searching && query.trim() && (
+            <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface border border-border rounded-lg shadow-lg">
+              <div className="px-3 py-3">
+                <p className="text-sm text-muted font-display mb-2">no results for &ldquo;{query}&rdquo;</p>
+                <button
+                  type="button"
+                  onMouseDown={() => { setShowDropdown(false); setShowAddNew(true); setNewDisplayName(query); }}
+                  className="text-sm text-creator hover:underline cursor-pointer"
+                >
+                  + add new handle
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {!showAddNew && results.length === 0 && !searching && (
+          <button
+            type="button"
+            onClick={() => setShowAddNew(true)}
+            className="mt-2 text-xs text-creator hover:underline cursor-pointer font-mono"
+          >
+            + add new handle manually
+          </button>
+        )}
+
+        {showAddNew && (
+          <div className="mt-4 space-y-3 border-t border-border pt-4">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-creator">add new handle</span>
+              <button type="button" onClick={() => setShowAddNew(false)} className="text-[10px] font-mono text-muted hover:text-foreground cursor-pointer">✕</button>
+            </div>
+
+            <div>
+              <FieldLabel>platform</FieldLabel>
+              <Select value={newPlatform} onChange={(e) => setNewPlatform(e.target.value as HandlePlatform)}>
+                {PLATFORMS.map(({ value, label }) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </Select>
+            </div>
+
+            <div>
+              <FieldLabel>handle <span className="text-bad">*</span></FieldLabel>
+              <Input
+                type="text"
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                placeholder={newPlatform === 'youtube' ? '@yourchannel' : '@handle'}
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
+                inputMode="text"
+              />
+              {newPlatform === 'youtube' && (
+                <FieldHint>YouTube handles start with @. Find yours on your channel page. Don&apos;t paste the full URL.</FieldHint>
+              )}
+            </div>
+
+            <div>
+              <FieldLabel>display name <span className="text-bad">*</span></FieldLabel>
+              <Input
+                type="text"
+                value={newDisplayName}
+                onChange={(e) => setNewDisplayName(e.target.value)}
+                placeholder="e.g. Tom Scott"
+              />
+            </div>
+
+            {addError && <Banner tone="bad">{addError}</Banner>}
+
+            <Button
+              type="button"
+              variant="primary"
+              className="w-full justify-center"
+              onClick={confirmAddNew}
+            >
+              use this handle →
+            </Button>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+// ── Step 2: Bounty details ────────────────────────────────────────────────────
+
+interface Step2Props {
+  target: TargetSelection;
+  onBack: () => void;
+  onNext: (title: string, description: string, amount: string) => void;
+}
+
+function Step2({ target, onBack, onNext }: Step2Props) {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [amount, setAmount] = useState('1');
+
+  const handleNext = () => {
+    if (!title.trim()) return;
+    const amt = parseFloat(amount);
+    if (isNaN(amt) || amt < 1) return;
+    onNext(title.trim(), description.trim(), amount);
+  };
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h1 className="font-display font-bold text-[28px] text-foreground">bounty details</h1>
+      </div>
+
+      <TargetingCard target={target} />
+
+      <Card>
+        <SectionLabel className="mb-3">what should they make?</SectionLabel>
+        <FieldLabel>title <span className="text-bad">*</span></FieldLabel>
+        <Input
+          type="text"
+          required
+          maxLength={255}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="e.g. do a backflip while singing the national anthem"
+          autoFocus
+        />
+        <div className="mt-4">
+          <FieldLabel>description <span className="text-muted font-normal">(optional)</span></FieldLabel>
+          <Textarea
+            rows={3}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="what specifically must be done? any requirements?"
+          />
+        </div>
+      </Card>
+
+      <Card>
+        <SectionLabel className="mb-3">your opening commitment</SectionLabel>
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-muted text-sm select-none">$</span>
+          <Input
+            type="number"
+            required
+            min={1}
+            max={999999.99}
+            step="0.01"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="pl-7"
+          />
+        </div>
+        <FieldHint>minimum $1. you are only charged if council confirms the bounty is completed.</FieldHint>
+      </Card>
+
+      <div className="flex gap-3">
+        <Button type="button" variant="ghost" onClick={onBack}>← back</Button>
+        <Button
+          type="button"
+          variant="primary"
+          className="flex-1 justify-center"
+          disabled={!title.trim() || parseFloat(amount) < 1}
+          onClick={handleNext}
+        >
+          review →
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ── Step 3: Review & submit ───────────────────────────────────────────────────
+
+interface Step3Props {
+  target: TargetSelection;
+  title: string;
+  description: string;
+  amount: string;
+  onBack: () => void;
+  onSubmit: () => void;
+  submitting: boolean;
+  error: string;
+}
+
+function Step3({ target, title, description, amount, onBack, onSubmit, submitting, error }: Step3Props) {
+  return (
+    <div className="space-y-5">
+      <div>
+        <h1 className="font-display font-bold text-[28px] text-foreground">review &amp; submit</h1>
+      </div>
+
+      <TargetingCard target={target} />
+
+      <Card>
+        <div className="space-y-3">
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">title</div>
+            <div className="text-sm text-foreground font-medium">{title}</div>
+          </div>
+          {description && (
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">description</div>
+              <div className="text-sm text-foreground whitespace-pre-wrap">{description}</div>
+            </div>
+          )}
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">your commitment</div>
+            <div className="text-fan font-bold text-lg">${parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+          </div>
+        </div>
+      </Card>
+
+      {error && <Banner tone="bad">{error}</Banner>}
+
+      <div className="flex gap-3">
+        <Button type="button" variant="ghost" onClick={onBack} disabled={submitting}>← back</Button>
+        <Button
+          type="button"
+          variant="primary"
+          className="flex-1 justify-center"
+          onClick={onSubmit}
+          disabled={submitting}
+        >
+          {submitting ? 'creating…' : 'create bounty'}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 function NewPotForm() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const prefillCreatorId = searchParams.get('creator_id');
-
   const { toast } = useToast();
 
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [target, setTarget] = useState<TargetSelection | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [initialVotiveAmount, setInitialVotiveAmount] = useState('1');
+  const [amount, setAmount] = useState('1');
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
-  const [creatorId, setCreatorId] = useState(prefillCreatorId ?? '');
-  const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
-  const [creatorMode, setCreatorMode] = useState<CreatorMode>('search');
-
-  const [newDisplayName, setNewDisplayName] = useState('');
-  const [newHandles, setNewHandles] = useState({
-    youtube_handle: '',
-    twitter_handle: '',
-    tiktok_handle: '',
-    instagram_handle: '',
-    domain: '',
-    wikipedia_url: '',
-    soundcloud_url: '',
-    bandcamp_url: '',
-  });
-  const [creatingNew, setCreatingNew] = useState(false);
-  const [createError, setCreateError] = useState('');
-
-  useEffect(() => {
-    if (prefillCreatorId) {
-      creatorsApi.get(Number(prefillCreatorId)).then((res) => {
-        setSelectedCreator(res.data);
-        setCreatorId(String(res.data.id));
-      });
-    }
-  }, [prefillCreatorId]);
-
-  const selectCreator = (s: Creator) => {
-    setSelectedCreator(s);
-    setCreatorId(String(s.id));
+  const handleSelectTarget = (t: TargetSelection) => {
+    setTarget(t);
+    setStep(2);
   };
 
-  const clearCreator = () => {
-    setSelectedCreator(null);
-    setCreatorId('');
-    setCreatorMode('search');
+  const handleStep2Next = (t: string, d: string, a: string) => {
+    setTitle(t);
+    setDescription(d);
+    setAmount(a);
+    setStep(3);
   };
 
-  const openCreateMode = (prefill?: string) => {
-    setNewDisplayName(prefill ?? '');
-    setNewHandles({ youtube_handle: '', twitter_handle: '', tiktok_handle: '', instagram_handle: '', domain: '', wikipedia_url: '', soundcloud_url: '', bandcamp_url: '' });
-    setCreateError('');
-    setCreatorMode('create');
-  };
-
-  const hasAtLeastOneHandle = Object.values(newHandles).some((v) => v.trim().length > 0);
-
-  const preventEnter = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') e.preventDefault();
-  };
-
-  const handleCreateCreator = async () => {
-    if (!hasAtLeastOneHandle) {
-      setCreateError('Please fill in at least one social handle or website.');
-      return;
-    }
-    setCreateError('');
-    setCreatingNew(true);
-    try {
-      const handles = Object.fromEntries(Object.entries(newHandles).filter(([, v]) => v.trim().length > 0));
-      const res = await creatorsApi.create({ display_name: newDisplayName, ...handles });
-      selectCreator(res.data);
-      setCreatorMode('search');
-    } catch (err: unknown) {
-      const e = err as { message?: string };
-      setCreateError(e.message ?? 'Failed to create creator profile.');
-    } finally {
-      setCreatingNew(false);
-    }
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!creatorId) {
-      toast('Please select or create a creator for this bounty.', 'error');
-      return;
-    }
-    const amount = parseFloat(initialVotiveAmount);
-    if (isNaN(amount) || amount < 1) {
-      toast('Minimum opening commitment is $1.', 'error');
-      return;
-    }
+  const handleSubmit = async () => {
+    if (!target) return;
     setSubmitting(true);
+    setSubmitError('');
     try {
-      const res = await potsApi.create({
+      const payload: Parameters<typeof potsApi.create>[0] = {
         title,
         description: description || undefined,
-        creator_id: Number(creatorId),
-        initial_votive_amount: amount,
-      });
+        initial_votive_amount: parseFloat(amount),
+      };
+
+      if (target.kind === 'user') {
+        payload.target_user_id = target.userId;
+      } else if (target.kind === 'handle') {
+        payload.target_handle_id = target.handleId;
+      } else {
+        payload.platform = target.platform;
+        payload.username = target.username;
+        payload.display_name = target.displayName;
+      }
+
+      const res = await potsApi.create(payload);
       toast('Bounty created!', 'success');
       setTimeout(() => router.push(`/bounties/${res.data.id}`), 700);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Failed to create bounty.', 'error');
+      setSubmitError(e.message ?? 'Failed to create bounty.');
     } finally {
       setSubmitting(false);
     }
@@ -141,145 +534,31 @@ function NewPotForm() {
 
   return (
     <div className="max-w-[560px] space-y-7 pt-2">
-      <div>
-        <SectionLabel>fan</SectionLabel>
-        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">start a bounty</h1>
-        <p className="font-display text-sm text-muted mt-1">name the work. the community will fund it.</p>
-      </div>
+      <Stepper
+        steps={['target', 'details', 'review']}
+        current={step - 1}
+      />
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Creator */}
-        <Card>
-          <SectionLabel className="mb-3">who should do this?</SectionLabel>
-
-          {creatorMode !== 'create' ? (
-            <CreatorSearchWidget
-              selectedCreator={selectedCreator}
-              onSelect={selectCreator}
-              onClear={clearCreator}
-              onCreateNew={openCreateMode}
-              placeholder="search by name… e.g. The Weeknd"
-            />
-          ) : (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-creator">new creator profile</span>
-                <button type="button" onClick={() => setCreatorMode('search')} className="ap-inline-link font-mono text-[10px] uppercase cursor-pointer">
-                  ← back to search
-                </button>
-              </div>
-
-              <div>
-                <FieldLabel>name <span className="text-bad">*</span></FieldLabel>
-                <Input
-                  type="text"
-                  maxLength={255}
-                  value={newDisplayName}
-                  onChange={(e) => setNewDisplayName(e.target.value)}
-                  onKeyDown={preventEnter}
-                  placeholder="e.g. Kendrick Lamar"
-                  autoFocus
-                />
-              </div>
-
-              <div>
-                <FieldLabel>socials / website <span className="text-bad">* (at least one)</span></FieldLabel>
-                <div className="grid grid-cols-2 gap-2">
-                  {([
-                    { key: 'youtube_handle',   label: 'YouTube',     placeholder: '@mrbeast' },
-                    { key: 'twitter_handle',   label: 'X / Twitter', placeholder: '@elonmusk' },
-                    { key: 'tiktok_handle',    label: 'TikTok',      placeholder: '@zachking' },
-                    { key: 'instagram_handle', label: 'Instagram',   placeholder: '@alexathanacio' },
-                    { key: 'wikipedia_url',    label: 'Wikipedia',   placeholder: 'en.wikipedia.org/wiki/…' },
-                    { key: 'soundcloud_url',   label: 'SoundCloud',  placeholder: 'soundcloud.com/…' },
-                    { key: 'bandcamp_url',     label: 'Bandcamp',    placeholder: 'name.bandcamp.com' },
-                    { key: 'domain',           label: 'Other URL',   placeholder: 'rumble.com/c/…' },
-                  ] as const).map(({ key, label, placeholder }) => (
-                    <div key={key}>
-                      <FieldLabel className="mb-1">{label}</FieldLabel>
-                      <Input
-                        type="text"
-                        value={newHandles[key]}
-                        onChange={(e) => setNewHandles((prev) => ({ ...prev, [key]: e.target.value }))}
-                        onKeyDown={preventEnter}
-                        placeholder={placeholder}
-                        className={newHandles[key].trim() ? 'border-creator/60' : ''}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {createError && <Banner tone="bad">{createError}</Banner>}
-
-              <Button
-                type="button"
-                variant="primary"
-                className="w-full justify-center"
-                disabled={creatingNew || !newDisplayName.trim() || !hasAtLeastOneHandle}
-                onClick={handleCreateCreator}
-              >
-                {creatingNew ? 'creating…' : 'create & select'}
-              </Button>
-
-              <p className="font-display text-xs text-muted">
-                they can claim control of this profile later. you can add a bio and picture before they claim it.
-              </p>
-            </div>
-          )}
-        </Card>
-
-        {/* Title */}
-        <Card>
-          <SectionLabel className="mb-3">what should they make?</SectionLabel>
-          <FieldLabel>title</FieldLabel>
-          <Input
-            type="text"
-            required
-            maxLength={255}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. do a backflip while singing the national anthem"
-          />
-          <div className="mt-4">
-            <FieldLabel>description <span className="text-muted font-normal">(optional)</span></FieldLabel>
-            <Textarea
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="what specifically must be done? any requirements?"
-            />
-          </div>
-        </Card>
-
-        {/* Opening commitment */}
-        <Card>
-          <SectionLabel className="mb-3">your opening commitment</SectionLabel>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-muted text-sm select-none">$</span>
-            <Input
-              type="number"
-              required
-              min={1}
-              max={999999.99}
-              step="0.01"
-              value={initialVotiveAmount}
-              onChange={(e) => setInitialVotiveAmount(e.target.value)}
-              className="pl-7"
-            />
-          </div>
-          <FieldHint>minimum $1. you are only charged if council confirms the bounty is completed.</FieldHint>
-        </Card>
-
-        <Button
-          type="submit"
-          variant="primary"
-          className="w-full justify-center"
-          disabled={submitting}
-        >
-          {submitting ? 'creating…' : 'create bounty'}
-        </Button>
-      </form>
+      {step === 1 && <Step1 onSelect={handleSelectTarget} />}
+      {step === 2 && target && (
+        <Step2
+          target={target}
+          onBack={() => setStep(1)}
+          onNext={handleStep2Next}
+        />
+      )}
+      {step === 3 && target && (
+        <Step3
+          target={target}
+          title={title}
+          description={description}
+          amount={amount}
+          onBack={() => setStep(2)}
+          onSubmit={handleSubmit}
+          submitting={submitting}
+          error={submitError}
+        />
+      )}
     </div>
   );
 }

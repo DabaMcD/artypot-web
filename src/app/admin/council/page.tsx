@@ -91,7 +91,7 @@ export default function AdminCouncilPage() {
               <div key={member.id} className="grid grid-cols-[1fr_auto_auto] gap-4 items-center px-5 py-4">
                 {/* Member info */}
                 <div>
-                  <p className="font-display text-sm font-medium text-foreground">{member.user.name}</p>
+                  <p className="font-display text-sm font-medium text-foreground">{member.user.display_name}</p>
                   <p className="font-mono text-[10px] text-muted">{member.user.email}</p>
                 </div>
 
@@ -99,7 +99,7 @@ export default function AdminCouncilPage() {
                 <div className="text-right">
                   {member.appointed_by ? (
                     <>
-                      <p className="font-display text-xs text-foreground">{member.appointed_by.name}</p>
+                      <p className="font-display text-xs text-foreground">{member.appointed_by.display_name}</p>
                       <p className="font-mono text-[10px] text-muted">{member.appointed_by.email}</p>
                     </>
                   ) : (

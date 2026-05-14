@@ -71,7 +71,7 @@ function ReviewModal({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <p className="font-display text-sm text-muted">
-          <span className="text-foreground">{claim.user.name}</span>{' '}
+          <span className="text-foreground">{claim.user.display_name}</span>{' '}
           <span className="text-muted/70">({claim.user.email})</span> claims{' '}
           <span className="text-creator">{claim.creator.display_name}</span>
         </p>
@@ -226,7 +226,7 @@ export default function AdminClaimsPage() {
                 <div key={claim.id} className="flex items-start gap-3 px-5 py-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                      <span className="font-display text-sm text-foreground">{claim.user.name}</span>
+                      <span className="font-display text-sm text-foreground">{claim.user.display_name}</span>
                       <span className="font-mono text-[10px] text-muted">{claim.user.email}</span>
                       <Badge tone={CLAIM_TONES[claim.status]}>{claim.status}</Badge>
                     </div>
@@ -241,7 +241,7 @@ export default function AdminClaimsPage() {
                     </p>
                     {claim.reviewer && (
                       <p className="font-mono text-[10px] text-muted mt-1">
-                        reviewed by {claim.reviewer.name}
+                        reviewed by {claim.reviewer.display_name}
                         {claim.reviewed_at && <> · {new Date(claim.reviewed_at).toLocaleDateString()}</>}
                         {claim.council_notes && <> — &quot;{claim.council_notes}&quot;</>}
                       </p>
