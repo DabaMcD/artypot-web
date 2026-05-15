@@ -172,14 +172,14 @@ export default function RegisterPage() {
 
           <FieldGrid2>
             <div>
-              <FieldLabel>username</FieldLabel>
+              <FieldLabel>Public name</FieldLabel>
               <Input
                 type="text"
                 required
                 autoComplete="username"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="yourname"
+                placeholder="Harry Baldwig"
               />
             </div>
             <div>
@@ -211,9 +211,9 @@ export default function RegisterPage() {
             <Toggle on={tos} onChange={setTos} label="" />
             <p className="font-display text-sm text-muted leading-snug pt-0.5">
               i agree to the{' '}
-              <Link href="/terms" className="ap-inline-link">terms of service</Link>
+              <Link href="/tos" target="_blank" className="ap-inline-link">terms of service</Link>
               {' '}and{' '}
-              <Link href="/privacy" className="ap-inline-link">privacy policy</Link>
+              <Link href="/privacy" target="_blank" className="ap-inline-link">privacy policy</Link>
             </p>
           </div>
 

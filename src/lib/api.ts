@@ -109,7 +109,7 @@ export const auth = {
   register: (name: string, email: string, password: string, password_confirmation: string) =>
     request<{ token: string }>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ name, email, password, password_confirmation }),
+      body: JSON.stringify({ display_name: name, email, password, password_confirmation }),
     }),
 
   login: (email: string, password: string) =>

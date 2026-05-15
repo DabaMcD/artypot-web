@@ -14,3 +14,4 @@ export { GateCard } from './GateCard';
 export { BountyCard } from './BountyCard';
 export { Empty } from './Empty';
 export { AvatarOrUnknown } from './AvatarOrUnknown';
+export { PlatformHandleInput, PLATFORM_HANDLE_CONFIG, formatPlatformHandle } from './PlatformHandleInput';

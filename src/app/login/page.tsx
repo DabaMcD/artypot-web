@@ -76,8 +76,8 @@ export default function LoginPage() {
         </Link>
 
         <h1 className="font-display font-bold text-[54px] leading-[1.05] tracking-tight text-foreground mb-5">
-          a place to put money where your{' '}
-          <span className="ap-sketch-u text-fan">request</span> is.
+          put your money where your{' '}
+          <span className="ap-sketch-u text-fan">mouth</span> is.
         </h1>
         <p className="font-display text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
           start a bounty for a creator to make a public, free piece of work.
@@ -196,7 +196,7 @@ export default function LoginPage() {
           className="w-full justify-center"
           onClick={() => router.push('/register')}
         >
-          create a fan account
+          create an account
         </Button>
 
         <p className="font-display text-sm text-muted mt-5 pl-5 relative before:content-['→'] before:absolute before:left-0 before:text-fan">

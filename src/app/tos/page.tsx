@@ -4,7 +4,7 @@ export const metadata = {
   title: 'Terms of Service — Artypot',
 };
 
-const LAST_UPDATED = 'April 17, 2026';
+const LAST_UPDATED = 'May 15, 2026';
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (

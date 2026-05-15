@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface StepperProps {
   steps: string[];
   current: number;
@@ -7,9 +9,8 @@ export function Stepper({ steps, current }: StepperProps) {
   return (
     <div className="flex items-center mb-7">
       {steps.map((step, i) => (
-        <>
+        <React.Fragment key={i}>
           <div
-            key={`step-${i}`}
             className={`flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-wide ${
               i === current ? 'text-foreground' : 'text-muted/60'
             }`}
@@ -28,9 +29,9 @@ export function Stepper({ steps, current }: StepperProps) {
             <span className="hidden sm:inline">{step}</span>
           </div>
           {i < steps.length - 1 && (
-            <div key={`line-${i}`} className="w-7 h-px bg-border mx-3" />
+            <div className="w-7 h-px bg-border mx-3" />
           )}
-        </>
+        </React.Fragment>
       ))}
     </div>
   );

@@ -51,7 +51,7 @@
 [data-role="fan"]     { --color-role: var(--color-fan);     --color-role-soft: #2d2208; }
 [data-role="creator"] { --color-role: var(--color-creator); --color-role-soft: #0a2220; }
 [data-role="council"] { --color-role: var(--color-council); --color-role-soft: #0e1630; }
-[data-role="auth"]    { --color-role: var(--color-foreground); --color-role-soft: var(--color-surface); }
+[data-role="auth"]    { --color-role: var(--color-fan); --color-role-soft: #2d2208; }
 
 html {
   /* Kalam reads slightly larger than sans-serif; 16px keeps the scale natural */

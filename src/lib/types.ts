@@ -127,12 +127,11 @@ export interface User {
 
 export interface CouncilMember {
   id: number;
-  user_id: number;
-  user: { id: number; name: string; display_name: string; email: string };
-  /** When the appointedBy relation is loaded, this is the appointing user object; otherwise null. */
-  appointed_by: { id: number; name: string; display_name: string; email: string } | null;
-  permissions: Record<string, boolean>;
-  appointed_at: string;
+  display_name: string;
+  email: string;
+  council_permissions: Record<string, boolean>;
+  council_appointed_at: string;
+  appointedBy: { id: number; display_name: string; email: string } | null;
 }
 
 export interface CouncilPage {

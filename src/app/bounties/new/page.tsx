@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Input, Textarea, Select, FieldLabel, FieldHint } from '@/components/ui/Input';
+import { PlatformHandleInput, formatPlatformHandle } from '@/components/ui/PlatformHandleInput';
 import { Banner } from '@/components/ui/Banner';
 import { Stepper } from '@/components/ui/Stepper';
 
@@ -76,7 +77,7 @@ function TargetingCard({ target }: { target: TargetSelection }) {
       <div className="min-w-0 flex-1">
         <div className="text-sm font-medium text-foreground truncate">{target.displayName}</div>
         <div className="text-xs text-muted font-mono">
-          {PLATFORM_LABELS[target.platform]} · @{target.username}
+          {PLATFORM_LABELS[target.platform]} · {formatPlatformHandle(target.platform, target.username)}
         </div>
       </div>
       {target.kind === 'user' ? (
@@ -101,7 +102,7 @@ function Step1({ onSelect }: Step1Props) {
   const [searching, setSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showAddNew, setShowAddNew] = useState(false);
-  const [newPlatform, setNewPlatform] = useState<HandlePlatform>('youtube');
+  const [newPlatform, setNewPlatform] = useState<HandlePlatform | ''>('');
   const [newUsername, setNewUsername] = useState('');
   const [newDisplayName, setNewDisplayName] = useState('');
   const [addError, setAddError] = useState('');
@@ -153,8 +154,9 @@ function Step1({ onSelect }: Step1Props) {
   };
 
   const confirmAddNew = () => {
+    if (!newDisplayName.trim()) { setAddError('Creator name is required.'); return; }
+    if (!newPlatform) { setAddError('Please select a platform.'); return; }
     if (!newUsername.trim()) { setAddError('Handle is required.'); return; }
-    if (!newDisplayName.trim()) { setAddError('Display name is required.'); return; }
     setAddError('');
     onSelect({ kind: 'new', platform: newPlatform, username: newUsername.trim(), displayName: newDisplayName.trim(), avatarUrl: null });
   };
@@ -180,138 +182,139 @@ function Step1({ onSelect }: Step1Props) {
 
       <Card>
         <SectionLabel className="mb-3">who should do this?</SectionLabel>
-        <FieldLabel>creator handle or name</FieldLabel>
-        <div className="relative" ref={dropdownRef}>
-          <Input
-            type="text"
-            value={query}
-            onChange={(e) => handleChange(e.target.value)}
-            onPaste={handlePaste}
-            onFocus={() => { if (results.length) setShowDropdown(true); }}
-            placeholder="e.g. @tomscott on YouTube"
-            autoComplete="off"
-            autoCorrect="off"
-            spellCheck={false}
-          />
-          {searching && (
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted">searching…</span>
-          )}
 
-          {showDropdown && results.length > 0 && (
-            <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface border border-border rounded-lg overflow-hidden shadow-lg">
-              {results.map((r) => (
-                <button
-                  key={r.handle_id}
-                  type="button"
-                  onMouseDown={() => selectResult(r)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-surface-2 transition-colors text-left border-b border-border last:border-0"
-                >
-                  <AvatarOrUnknown avatarUrl={r.avatar_url} size="sm" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground truncate">{r.display_name}</div>
-                    <div className="text-xs text-muted font-mono">
-                      {PLATFORM_LABELS[r.platform]} · @{r.username}
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-0.5 shrink-0">
-                    {r.verified ? (
-                      <Badge tone="good">verified on artypot</Badge>
-                    ) : (
-                      <>
-                        <Badge tone="default">not yet on artypot</Badge>
-                        {r.pending_bounty_count > 0 && (
-                          <span className="text-[10px] font-mono text-muted">
-                            {r.pending_bounty_count} {r.pending_bounty_count === 1 ? 'bounty' : 'bounties'} waiting
-                          </span>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
+        {showAddNew ? (
+          <>
+            <button
+              type="button"
+              onClick={() => setShowAddNew(false)}
+              className="text-xs font-mono text-muted hover:text-foreground cursor-pointer transition-colors mb-4"
+            >
+              ← back to creator search
+            </button>
 
-          {showDropdown && results.length === 0 && !searching && query.trim() && (
-            <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface border border-border rounded-lg shadow-lg">
-              <div className="px-3 py-3">
-                <p className="text-sm text-muted font-display mb-2">no results for &ldquo;{query}&rdquo;</p>
-                <button
-                  type="button"
-                  onMouseDown={() => { setShowDropdown(false); setShowAddNew(true); setNewDisplayName(query); }}
-                  className="text-sm text-creator hover:underline cursor-pointer"
-                >
-                  + add new handle
-                </button>
+            <div className="space-y-3 border-t border-border pt-4">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-creator">add new creator</span>
+
+              <div>
+                <FieldLabel>creator name <span className="text-bad">*</span></FieldLabel>
+                <Input
+                  type="text"
+                  value={newDisplayName}
+                  onChange={(e) => setNewDisplayName(e.target.value)}
+                  placeholder="e.g. Tom Scott"
+                  autoFocus
+                />
               </div>
+
+              <div>
+                <FieldLabel>platform</FieldLabel>
+                <Select value={newPlatform} onChange={(e) => { setNewPlatform(e.target.value as HandlePlatform | ''); setNewUsername(''); }}>
+                  <option value="" disabled>— select a platform —</option>
+                  {PLATFORMS.map(({ value, label }) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </Select>
+              </div>
+
+              <PlatformHandleInput
+                platform={newPlatform}
+                value={newUsername}
+                onChange={setNewUsername}
+              />
+
+              {addError && <Banner tone="bad">{addError}</Banner>}
+
+              <Button
+                type="button"
+                variant="primary"
+                className="w-full justify-center"
+                onClick={confirmAddNew}
+              >
+                use this creator →
+              </Button>
             </div>
-          )}
-        </div>
-
-        {!showAddNew && results.length === 0 && !searching && (
-          <button
-            type="button"
-            onClick={() => setShowAddNew(true)}
-            className="mt-2 text-xs text-creator hover:underline cursor-pointer font-mono"
-          >
-            + add new handle manually
-          </button>
-        )}
-
-        {showAddNew && (
-          <div className="mt-4 space-y-3 border-t border-border pt-4">
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-creator">add new handle</span>
-              <button type="button" onClick={() => setShowAddNew(false)} className="text-[10px] font-mono text-muted hover:text-foreground cursor-pointer">✕</button>
-            </div>
-
-            <div>
-              <FieldLabel>platform</FieldLabel>
-              <Select value={newPlatform} onChange={(e) => setNewPlatform(e.target.value as HandlePlatform)}>
-                {PLATFORMS.map(({ value, label }) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </Select>
-            </div>
-
-            <div>
-              <FieldLabel>handle <span className="text-bad">*</span></FieldLabel>
+          </>
+        ) : (
+          <>
+            <FieldLabel>creator handle or name</FieldLabel>
+            <div className="relative" ref={dropdownRef}>
               <Input
                 type="text"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                placeholder={newPlatform === 'youtube' ? '@yourchannel' : '@handle'}
-                autoCapitalize="off"
+                value={query}
+                onChange={(e) => handleChange(e.target.value)}
+                onPaste={handlePaste}
+                onFocus={() => { if (results.length) setShowDropdown(true); }}
+                placeholder="e.g. @tomscott on YouTube"
+                autoComplete="off"
                 autoCorrect="off"
                 spellCheck={false}
-                inputMode="text"
               />
-              {newPlatform === 'youtube' && (
-                <FieldHint>YouTube handles start with @. Find yours on your channel page. Don&apos;t paste the full URL.</FieldHint>
+              {searching && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted">searching…</span>
+              )}
+
+              {showDropdown && results.length > 0 && (
+                <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface border border-border rounded-lg overflow-hidden shadow-lg">
+                  {results.map((r) => (
+                    <button
+                      key={r.handle_id}
+                      type="button"
+                      onMouseDown={() => selectResult(r)}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-surface-2 transition-colors text-left border-b border-border last:border-0"
+                    >
+                      <AvatarOrUnknown avatarUrl={r.avatar_url} size="sm" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-foreground truncate">{r.display_name}</div>
+                        <div className="text-xs text-muted font-mono">
+                          {PLATFORM_LABELS[r.platform]} · {formatPlatformHandle(r.platform, r.username)}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-0.5 shrink-0">
+                        {r.verified ? (
+                          <Badge tone="good">verified on artypot</Badge>
+                        ) : (
+                          <>
+                            <Badge tone="default">not yet on artypot</Badge>
+                            {r.pending_bounty_count > 0 && (
+                              <span className="text-[10px] font-mono text-muted">
+                                {r.pending_bounty_count} {r.pending_bounty_count === 1 ? 'bounty' : 'bounties'} waiting
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {showDropdown && results.length === 0 && !searching && query.trim() && (
+                <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface border border-border rounded-lg shadow-lg">
+                  <div className="px-3 py-3">
+                    <p className="text-sm text-muted font-display mb-2">no results for &ldquo;{query}&rdquo;</p>
+                    <button
+                      type="button"
+                      onMouseDown={() => { setShowDropdown(false); setShowAddNew(true); setNewDisplayName(query); }}
+                      className="text-sm text-creator hover:underline cursor-pointer"
+                    >
+                      + add new creator
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
 
-            <div>
-              <FieldLabel>display name <span className="text-bad">*</span></FieldLabel>
-              <Input
-                type="text"
-                value={newDisplayName}
-                onChange={(e) => setNewDisplayName(e.target.value)}
-                placeholder="e.g. Tom Scott"
-              />
-            </div>
-
-            {addError && <Banner tone="bad">{addError}</Banner>}
-
-            <Button
-              type="button"
-              variant="primary"
-              className="w-full justify-center"
-              onClick={confirmAddNew}
-            >
-              use this handle →
-            </Button>
-          </div>
+            {results.length === 0 && !searching && (
+              <button
+                type="button"
+                onClick={() => setShowAddNew(true)}
+                className="mt-2 text-xs text-creator hover:underline cursor-pointer font-mono"
+              >
+                + add new creator manually
+              </button>
+            )}
+          </>
         )}
       </Card>
     </div>
