@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { billing } from '@/lib/api';
+import { BILLING_DAY } from '@/lib/config';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
@@ -62,12 +63,13 @@ export default function BillingPage() {
 
   const now = new Date();
   const dayOfMonth = now.getDate();
-  const previewDate = dayOfMonth < 23
-    ? `${now.toLocaleDateString('en-US', { month: 'short' })} 23`
-    : `${new Date(now.getFullYear(), now.getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'short' })} 23`;
-  const chargeDate = dayOfMonth < 24
-    ? `${now.toLocaleDateString('en-US', { month: 'short' })} 24`
-    : `${new Date(now.getFullYear(), now.getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'short' })} 24`;
+  const previewDay = BILLING_DAY - 1;
+  const previewDate = dayOfMonth < previewDay
+    ? `${now.toLocaleDateString('en-US', { month: 'short' })} ${previewDay}`
+    : `${new Date(now.getFullYear(), now.getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'short' })} ${previewDay}`;
+  const chargeDate = dayOfMonth < BILLING_DAY
+    ? `${now.toLocaleDateString('en-US', { month: 'short' })} ${BILLING_DAY}`
+    : `${new Date(now.getFullYear(), now.getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'short' })} ${BILLING_DAY}`;
 
   return (
     <div className="space-y-7 pt-2 max-w-[680px]">
@@ -85,7 +87,7 @@ export default function BillingPage() {
                 ${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} outstanding
               </div>
               <div className="font-display text-sm text-muted mt-0.5">
-                charged automatically on the 24th — pay now to avoid the batch.
+                charged automatically on the {BILLING_DAY}th — pay now to avoid the batch.
               </div>
             </div>
             <Button variant="primary" disabled={paying} onClick={handlePayNow}>
@@ -138,7 +140,7 @@ export default function BillingPage() {
           {[
             'you commit an amount when you back a bounty. nothing is charged at that point.',
             'when a creator submits their work and the council approves it, your charge is locked in. you can only back out while the bounty is still open.',
-            'locked charges are collected automatically on the 24th of each month, or you can pay early.',
+            `locked charges are collected automatically on the ${BILLING_DAY}th of each month, or you can pay early.`,
             'artypot takes a 15% all-in platform fee from the creator\'s payout. you always pay your exact committed amount.',
           ].map((item, i) => (
             <li key={i} className="flex items-start gap-2">

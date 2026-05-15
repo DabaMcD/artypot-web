@@ -190,6 +190,10 @@ export interface Creator {
   user_aged_votive_total?: number | null;
   /** True when the creator has a Stripe Connect account (may still need onboarding) */
   bank_connected?: boolean;
+  /** True when Stripe has placed a hold on payouts requiring additional KYC. */
+  payout_hold?: boolean;
+  /** List of Stripe requirement field names causing the hold. */
+  payout_hold_reason?: string[] | null;
   /** Timestamp of TOS agreement, stamped when the user activates creator mode. */
   creator_tos_agreed_at?: string | null;
   claimed_at?: string;
@@ -443,6 +447,14 @@ export interface NotificationPage {
   last_page: number;
   total: number;
   per_page: number;
+}
+
+export interface Nudge {
+  type: string;
+  title: string;
+  body: string;
+  link: string | null;
+  dismissable: boolean;
 }
 
 export interface RemoveVotiveResult {

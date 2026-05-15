@@ -1,3 +1,5 @@
+import { BILLING_DAY } from '@/lib/config';
+
 interface PipelineStage {
   label: string;
   amount: string;
@@ -37,7 +39,7 @@ export default function EarningsPipeline({ stages, loading }: EarningsPipelinePr
         </div>
       </div>
       <p className="text-xs text-muted mt-2">
-        Contributions flow left &rarr; right. Council approval moves funds to Pending Payment. The 24th moves them into Clearing. 7 days later they&apos;re available to withdraw.
+        Contributions flow left &rarr; right. Council approval moves funds to Pending Payment. The {BILLING_DAY}th moves them into Clearing. 7 days later they&apos;re available to withdraw.
       </p>
     </div>
   );

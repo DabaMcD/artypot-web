@@ -10,6 +10,7 @@ import { Card, SectionLabel } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Empty } from '@/components/ui/Empty';
+import { BILLING_DAY } from '@/lib/config';
 
 type SortKey = 'date' | 'amount';
 
@@ -69,9 +70,9 @@ export default function MyVotivesPage() {
   };
 
   const now = new Date();
-  const nextBillingDate = now.getDate() < 24
-    ? new Date(now.getFullYear(), now.getMonth(), 24)
-    : new Date(now.getFullYear(), now.getMonth() + 1, 24);
+  const nextBillingDate = now.getDate() < BILLING_DAY
+    ? new Date(now.getFullYear(), now.getMonth(), BILLING_DAY)
+    : new Date(now.getFullYear(), now.getMonth() + 1, BILLING_DAY);
   const billingDateStr = nextBillingDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   const outstandingAmount = cashBalance !== null && cashBalance.balance < 0

@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge } from './Badge';
+import { BILLING_DAY } from '@/lib/config';
 
 type BountyState = 'collecting' | 'creator-claimed' | 'submitted' | 'verified' | 'settled';
 
@@ -25,7 +26,7 @@ const stateMap: Record<BountyState, { tone: 'default' | 'info' | 'warn' | 'pendi
   'collecting':      { tone: 'default',  label: 'collecting' },
   'creator-claimed': { tone: 'info',     label: 'creator claimed' },
   'submitted':       { tone: 'warn',     label: 'submitted · council reviewing' },
-  'verified':        { tone: 'pending',  label: 'verified · bills on the 24th' },
+  'verified':        { tone: 'pending',  label: `verified · bills on the ${BILLING_DAY}th` },
   'settled':         { tone: 'good',     label: 'settled' },
 };
 

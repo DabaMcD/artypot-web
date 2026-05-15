@@ -1,0 +1,3 @@
+export const BILLING_DAY = Number(process.env.NEXT_PUBLIC_BILLING_DAY ?? 24);
+export const PAYOUT_MINIMUM_AUTOMATED = Number(process.env.NEXT_PUBLIC_PAYOUT_MINIMUM_AUTOMATED ?? 1);
+export const PAYOUT_MINIMUM_MANUAL = Number(process.env.NEXT_PUBLIC_PAYOUT_MINIMUM_MANUAL ?? 50);

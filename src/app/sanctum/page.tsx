@@ -8,12 +8,14 @@ import { useToast } from '@/lib/toast-context';
 import { cash as cashApi, stripeConnect as stripeConnectApi, withdrawals as withdrawalsApi, w9 as w9Api, w8ben as w8benApi } from '@/lib/api';
 import type { CreatorBalance, FormW9StatusResponse, FormW8BENStatusResponse } from '@/lib/types';
 import { countryName } from '@/lib/countries';
+import { BILLING_DAY } from '@/lib/config';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Banner } from '@/components/ui/Banner';
 import { BalancePipeline } from '@/components/ui/Pipeline';
 import { Input } from '@/components/ui/Input';
+import PayoutReadinessChecklist from '@/components/PayoutReadinessChecklist';
 
 type StripeAccountStatus = {
   account_id: string | null;
@@ -212,7 +214,8 @@ function SanctumPageContent() {
   const creator = user.creator;
   const bankConnected  = bankConnectedOverride ?? (creator.bank_connected ?? false);
   const payoutsEnabled = stripeStatus?.payouts_enabled === true;
-  const canWithdraw    = payoutsEnabled;
+  const payoutHold     = creator.payout_hold === true;
+  const canWithdraw    = payoutsEnabled && !payoutHold;
   const isUS           = user.country_code === 'US';
   const needsLocation  = !user.location_complete;
 
@@ -243,6 +246,20 @@ function SanctumPageContent() {
         </Link>
       </div>
 
+      {/* Payout hold warning */}
+      {payoutHold && (
+        <Banner tone="bad" action={
+          <Link href="/sanctum">
+            <Button variant="primary" size="sm">Complete verification →</Button>
+          </Link>
+        }>
+          <div>
+            <strong>Your payouts are currently on hold.</strong>
+            {' '}Stripe needs additional verification before funds can be released.
+          </div>
+        </Banner>
+      )}
+
       {/* Setup checklist */}
       {(needsLocation || !canWithdraw || taxFormRequired) && (
         <Banner tone="warn">
@@ -272,7 +289,7 @@ function SanctumPageContent() {
         <SectionLabel className="mb-3">earnings pipeline</SectionLabel>
         <BalancePipeline balances={{ pending: pendingPayment, clearing, available: availableBalance }} />
         <p className="font-display text-xs text-muted mt-2">
-          contributions flow left → right. council approval moves funds to pending. the 24th moves them into clearing. 7 days later they&apos;re available.
+          contributions flow left → right. council approval moves funds to pending. the {BILLING_DAY}th moves them into clearing. 7 days later they&apos;re available.
         </p>
       </div>
 
@@ -448,7 +465,12 @@ function SanctumPageContent() {
               {balanceLoading ? <span className="text-muted/40">—</span> : fmt(availableBalance)}
             </div>
 
-            {!canWithdraw ? (
+            {payoutHold ? (
+              <p className="font-display text-sm text-bad">
+                payouts are on hold — complete stripe verification to withdraw.{' '}
+                <Link href="/sanctum" className="underline underline-offset-2 hover:opacity-80">resolve now →</Link>
+              </p>
+            ) : !canWithdraw ? (
               <p className="font-display text-sm text-muted">
                 {bankConnected ? 'complete bank setup to withdraw.' : 'connect a bank account to withdraw.'}
               </p>
@@ -531,6 +553,12 @@ function SanctumPageContent() {
             <div className="border-t border-border mt-3 pt-3">
               <Link href={`/creators/${creator.id}/edit`} className="ap-inline-link font-display text-xs">manage profile →</Link>
             </div>
+          </Card>
+
+          {/* Payout readiness checklist */}
+          <Card>
+            <SectionLabel className="mb-3">payout readiness</SectionLabel>
+            <PayoutReadinessChecklist />
           </Card>
 
           {/* Quick links */}

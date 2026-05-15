@@ -6,6 +6,7 @@ import type {
   NotificationSettings,
   UserNotification,
   NotificationPage,
+  Nudge,
   Pot,
   PotVotive,
   PotCompletion,
@@ -400,6 +401,14 @@ export const notificationSettings = {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
+};
+
+// Nudges
+export const nudges = {
+  get: () =>
+    request<{ nudge: Nudge | null }>('/auth/nudge'),
+  dismiss: (type: string) =>
+    request<{ message: string }>(`/auth/nudge/${type}/dismiss`, { method: 'POST' }),
 };
 
 // In-app notifications

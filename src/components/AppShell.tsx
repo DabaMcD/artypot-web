@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { useViewMode } from '@/lib/view-mode-context';
 import { Sidebar } from './Sidebar';
 import CreatorSearchWidget from './CreatorSearchWidget';
+import { NudgeBar } from '@/components/NudgeBar';
 
 const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password'];
 const AUTH_PREFIXES = ['/email/', '/oauth/'];
@@ -64,6 +65,7 @@ export function AppShell({ children }: AppShellProps) {
           </div>
         )}
         <main className="flex-1 px-7 py-7 pb-28 max-w-[1400px] w-full">
+          <NudgeBar />
           {children}
         </main>
       </div>

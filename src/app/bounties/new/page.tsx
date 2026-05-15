@@ -93,18 +93,31 @@ function TargetingCard({ target }: { target: TargetSelection }) {
 
 interface Step1Props {
   onSelect: (target: TargetSelection) => void;
+  // Lifted state — preserved across back-navigation
+  query: string;
+  onQuery: (v: string) => void;
+  showAddNew: boolean;
+  onShowAddNew: (v: boolean) => void;
+  newDisplayName: string;
+  onNewDisplayName: (v: string) => void;
+  newPlatform: HandlePlatform | '';
+  onNewPlatform: (v: HandlePlatform | '') => void;
+  newUsername: string;
+  onNewUsername: (v: string) => void;
 }
 
-function Step1({ onSelect }: Step1Props) {
+function Step1({
+  onSelect,
+  query, onQuery,
+  showAddNew, onShowAddNew,
+  newDisplayName, onNewDisplayName,
+  newPlatform, onNewPlatform,
+  newUsername, onNewUsername,
+}: Step1Props) {
   const { toast } = useToast();
-  const [query, setQuery] = useState('');
   const [results, setResults] = useState<HandleSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [showAddNew, setShowAddNew] = useState(false);
-  const [newPlatform, setNewPlatform] = useState<HandlePlatform | ''>('');
-  const [newUsername, setNewUsername] = useState('');
-  const [newDisplayName, setNewDisplayName] = useState('');
   const [addError, setAddError] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -124,8 +137,8 @@ function Step1({ onSelect }: Step1Props) {
   }, []);
 
   const handleChange = (value: string) => {
-    setQuery(value);
-    setShowAddNew(false);
+    onQuery(value);
+    onShowAddNew(false);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => runSearch(value), 250);
   };
@@ -138,7 +151,7 @@ function Step1({ onSelect }: Step1Props) {
       e.preventDefault();
       toast(`Detected ${parsed.label} handle from URL`, 'success');
       const handle = parsed.username;
-      setQuery(handle);
+      onQuery(handle);
       if (debounceRef.current) clearTimeout(debounceRef.current);
       runSearch(handle);
     }
@@ -187,7 +200,7 @@ function Step1({ onSelect }: Step1Props) {
           <>
             <button
               type="button"
-              onClick={() => setShowAddNew(false)}
+              onClick={() => onShowAddNew(false)}
               className="text-xs font-mono text-muted hover:text-foreground cursor-pointer transition-colors mb-4"
             >
               ← back to creator search
@@ -201,7 +214,7 @@ function Step1({ onSelect }: Step1Props) {
                 <Input
                   type="text"
                   value={newDisplayName}
-                  onChange={(e) => setNewDisplayName(e.target.value)}
+                  onChange={(e) => onNewDisplayName(e.target.value)}
                   placeholder="e.g. Tom Scott"
                   autoFocus
                 />
@@ -209,7 +222,7 @@ function Step1({ onSelect }: Step1Props) {
 
               <div>
                 <FieldLabel>platform</FieldLabel>
-                <Select value={newPlatform} onChange={(e) => { setNewPlatform(e.target.value as HandlePlatform | ''); setNewUsername(''); }}>
+                <Select value={newPlatform} onChange={(e) => { onNewPlatform(e.target.value as HandlePlatform | ''); onNewUsername(''); }}>
                   <option value="" disabled>— select a platform —</option>
                   {PLATFORMS.map(({ value, label }) => (
                     <option key={value} value={value}>{label}</option>
@@ -220,7 +233,7 @@ function Step1({ onSelect }: Step1Props) {
               <PlatformHandleInput
                 platform={newPlatform}
                 value={newUsername}
-                onChange={setNewUsername}
+                onChange={onNewUsername}
               />
 
               {addError && <Banner tone="bad">{addError}</Banner>}
@@ -295,7 +308,7 @@ function Step1({ onSelect }: Step1Props) {
                     <p className="text-sm text-muted font-display mb-2">no results for &ldquo;{query}&rdquo;</p>
                     <button
                       type="button"
-                      onMouseDown={() => { setShowDropdown(false); setShowAddNew(true); setNewDisplayName(query); }}
+                      onMouseDown={() => { setShowDropdown(false); onShowAddNew(true); onNewDisplayName(query); }}
                       className="text-sm text-creator hover:underline cursor-pointer"
                     >
                       + add new creator
@@ -308,7 +321,7 @@ function Step1({ onSelect }: Step1Props) {
             {results.length === 0 && !searching && (
               <button
                 type="button"
-                onClick={() => setShowAddNew(true)}
+                onClick={() => onShowAddNew(true)}
                 className="mt-2 text-xs text-creator hover:underline cursor-pointer font-mono"
               >
                 + add new creator manually
@@ -327,12 +340,15 @@ interface Step2Props {
   target: TargetSelection;
   onBack: () => void;
   onNext: (title: string, description: string, amount: string) => void;
+  initialTitle: string;
+  initialDescription: string;
+  initialAmount: string;
 }
 
-function Step2({ target, onBack, onNext }: Step2Props) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('1');
+function Step2({ target, onBack, onNext, initialTitle, initialDescription, initialAmount }: Step2Props) {
+  const [title, setTitle] = useState(initialTitle);
+  const [description, setDescription] = useState(initialDescription);
+  const [amount, setAmount] = useState(initialAmount);
 
   const handleNext = () => {
     if (!title.trim()) return;
@@ -480,6 +496,13 @@ function NewPotForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
+  // Step 1 state lifted here so it survives back-navigation
+  const [s1Query, setS1Query] = useState('');
+  const [s1ShowAddNew, setS1ShowAddNew] = useState(false);
+  const [s1NewDisplayName, setS1NewDisplayName] = useState('');
+  const [s1NewPlatform, setS1NewPlatform] = useState<HandlePlatform | ''>('');
+  const [s1NewUsername, setS1NewUsername] = useState('');
+
   const handleSelectTarget = (t: TargetSelection) => {
     setTarget(t);
     setStep(2);
@@ -542,12 +565,29 @@ function NewPotForm() {
         current={step - 1}
       />
 
-      {step === 1 && <Step1 onSelect={handleSelectTarget} />}
+      {step === 1 && (
+        <Step1
+          onSelect={handleSelectTarget}
+          query={s1Query}
+          onQuery={setS1Query}
+          showAddNew={s1ShowAddNew}
+          onShowAddNew={setS1ShowAddNew}
+          newDisplayName={s1NewDisplayName}
+          onNewDisplayName={setS1NewDisplayName}
+          newPlatform={s1NewPlatform}
+          onNewPlatform={setS1NewPlatform}
+          newUsername={s1NewUsername}
+          onNewUsername={setS1NewUsername}
+        />
+      )}
       {step === 2 && target && (
         <Step2
           target={target}
           onBack={() => setStep(1)}
           onNext={handleStep2Next}
+          initialTitle={title}
+          initialDescription={description}
+          initialAmount={amount}
         />
       )}
       {step === 3 && target && (

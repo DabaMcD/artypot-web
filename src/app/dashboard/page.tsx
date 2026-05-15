@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { pots as potsApi, billing, votives as votivesApi } from '@/lib/api';
+import { BILLING_DAY } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
 import type { Pot, CashBalance, PaginatedResponse, PublicUserVotive } from '@/lib/types';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
@@ -101,7 +102,7 @@ export default function DashboardPage() {
   const outstandingAmount = balanceIsNegative ? Math.abs(balance) : 0;
 
   const now = new Date();
-  const nextBilling = new Date(now.getFullYear(), now.getMonth() + (now.getDate() >= 24 ? 1 : 0), 24);
+  const nextBilling = new Date(now.getFullYear(), now.getMonth() + (now.getDate() >= BILLING_DAY ? 1 : 0), BILLING_DAY);
   const nextBillingStr = nextBilling.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
   const activeVotives = myVotives.filter((v) => v.pot?.status !== 'revoked' && v.pot?.status !== 'paid_out');

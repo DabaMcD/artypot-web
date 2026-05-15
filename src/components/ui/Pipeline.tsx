@@ -1,3 +1,5 @@
+import { BILLING_DAY } from '@/lib/config';
+
 interface Balances {
   pending: number;
   clearing: number;
@@ -20,7 +22,7 @@ export function BalancePipeline({ balances }: BalancePipelineProps) {
         <div className="font-mono font-medium text-xl text-foreground tabular-nums">
           ${balances.pending.toLocaleString()}
         </div>
-        <div className="font-display text-sm text-muted mt-1">verified · bills on the 24th</div>
+        <div className="font-display text-sm text-muted mt-1">verified · bills on the {BILLING_DAY}th</div>
       </div>
 
       {/* Clearing */}
