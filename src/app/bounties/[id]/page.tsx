@@ -159,7 +159,9 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const hasPaymentMethod = paymentMethods !== null && paymentMethods.length > 0;
 
   // ── Derived display values ────────────────────────────────────────────────
-  const displayedTotal = selectedEvent ? selectedEvent.running_total : Number(pot?.total_pledged ?? 0);
+  const displayedTotal = selectedEvent
+    ? selectedEvent.running_total
+    : (pot?.solid_total ?? Number(pot?.total_pledged ?? 0));
   const displayedTitle = snapshotView?.title ?? pot?.title ?? '';
   const displayedDescription = snapshotView !== null ? snapshotView.description : pot?.description;
 
@@ -764,6 +766,11 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           <div className="text-fan font-mono font-bold tabular-nums text-3xl">
             ${displayedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
+          {!selectedEvent && pot?.solid_total !== undefined && (Number(pot.total_pledged) - pot.solid_total) > 0.005 && (
+            <div className="font-mono text-[10px] text-muted tabular-nums mt-0.5">
+              + ${(Number(pot.total_pledged) - pot.solid_total).toLocaleString('en-US', { minimumFractionDigits: 2 })} in soft pledges
+            </div>
+          )}
           <div className="flex items-center justify-between gap-2 mt-0.5">
             <div>
               <div className="font-display text-muted text-sm">

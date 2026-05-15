@@ -212,6 +212,8 @@ export interface Pot {
   creator_id: number;
   creator?: Creator;
   total_pledged: number;
+  /** Sum of votives from fans with an active payment method. Appended by the backend on show(). */
+  solid_total?: number;
   /** New targeting fields */
   target_handle_id?: number | null;
   target_user_id?: number | null;
@@ -369,11 +371,17 @@ export interface PaymentMethod {
   last4: string;
   exp_month: number;
   exp_year: number;
+  /** True if the card has been used, added, or confirmed within the active window. */
+  is_active: boolean;
+  /** ISO timestamp of the most recent activity (added, charged, or confirmed). */
+  last_active_at: string | null;
 }
 
 export interface CreatorBalance {
-  /** Soft pledges on open pots — no charge locked yet */
+  /** All pledges on open pots — no charge locked yet (solid + soft) */
   open_votives: number;
+  /** Subset of open_votives from fans with an active payment method */
+  solid_open_votives: number;
   /** Pledges on pots awaiting Council approval */
   pending_verification: number;
   /** Gross fan obligations locked on approved pots, not yet billed */

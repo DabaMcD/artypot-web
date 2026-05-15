@@ -220,6 +220,8 @@ function SanctumPageContent() {
   const needsLocation  = !user.location_complete;
 
   const openVotives        = balance?.open_votives ?? 0;
+  const solidOpenVotives   = balance?.solid_open_votives ?? openVotives;
+  const softOpenVotives    = openVotives - solidOpenVotives;
   const pendingPayment     = balance?.pending_payment ?? 0;
   const clearing           = balance?.clearing ?? 0;
   const availableBalance   = balance?.available_balance ?? 0;
@@ -301,8 +303,11 @@ function SanctumPageContent() {
           <div className="grid grid-cols-2 gap-4">
             <Card>
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">open backing</div>
-              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{fmt(openVotives)}</div>
-              <div className="font-mono text-[10px] text-muted mt-0.5">soft pledges, not yet charged</div>
+              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{fmt(solidOpenVotives)}</div>
+              <div className="font-mono text-[10px] text-muted mt-0.5">solid pledges (active payment method)</div>
+              {softOpenVotives > 0.005 && (
+                <div className="font-mono text-[10px] text-muted/60 mt-0.5">+ {fmt(softOpenVotives)} soft (no payment method)</div>
+              )}
             </Card>
             <Card>
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">lifetime paid out</div>
