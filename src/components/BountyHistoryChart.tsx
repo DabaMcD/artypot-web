@@ -9,7 +9,7 @@ interface Props {
 }
 
 const EVENT_META: Record<string, { label: string; icon: string; colorClass: string }> = {
-  created:            { label: 'Pot initialized',        icon: '🌱', colorClass: 'text-fan' },
+  created:            { label: 'Bounty initialized',        icon: '🌱', colorClass: 'text-fan' },
   pledge_added:       { label: 'Backed',                  icon: '💰', colorClass: 'text-green-400' },
   pledge_revoked:     { label: 'Backed out',             icon: '↩️',  colorClass: 'text-red-400' },
   details_edited:     { label: 'Details edited',         icon: '✏️',  colorClass: 'text-blue-400' },

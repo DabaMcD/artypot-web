@@ -7,22 +7,22 @@ import type {
   UserNotification,
   NotificationPage,
   Nudge,
-  Pot,
+  Bounty,
   BountyPledge,
-  PotCompletion,
-  PotHistory,
+  BountyCompletion,
+  BountyHistory,
   CreatorClaim,
   PaginatedResponse,
   PledgePage,
   CashBalance,
   PaymentMethod,
-  PotStatus,
+  BountyStatus,
   RemovePledgeResult,
   DeletePaymentMethodResult,
   CouncilMember,
   CouncilPage,
   AdminCreatorClaim,
-  AdminPotCompletion,
+  AdminBountyCompletion,
   ExternalPayout,
   CreatorSearchResult,
   CreatorEarning,
@@ -269,17 +269,17 @@ export const creatorNames = {
     request<void>(`/creators/${creatorId}/names/${nameId}`, { method: 'DELETE' }),
 };
 
-// Pots
-export const pots = {
-  list: (params?: { creator_id?: number; status?: PotStatus; page?: number }) => {
+// Bounties
+export const bounties = {
+  list: (params?: { creator_id?: number; status?: BountyStatus; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
     const qs = new URLSearchParams(entries).toString();
-    return request<PaginatedResponse<Pot>>(`/pots${qs ? `?${qs}` : ''}`);
+    return request<PaginatedResponse<Bounty>>(`/bounties${qs ? `?${qs}` : ''}`);
   },
 
-  get: (id: number) => request<{ data: Pot }>(`/pots/${id}`),
+  get: (id: number) => request<{ data: Bounty }>(`/bounties/${id}`),
 
   create: (data: {
     title: string;
@@ -291,31 +291,31 @@ export const pots = {
     username?: string;
     display_name?: string;
   }) =>
-    request<{ data: Pot }>('/pots', { method: 'POST', body: JSON.stringify(data) }),
+    request<{ data: Bounty }>('/bounties', { method: 'POST', body: JSON.stringify(data) }),
 
   update: (id: number, data: { title?: string; description?: string }) =>
-    request<{ data: Pot }>(`/pots/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    request<{ data: Bounty }>(`/bounties/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
-  pledge: (potId: number, amount: number, expires_at?: string) =>
-    request<{ data: BountyPledge & { pot: { total_pledged: number } } }>(`/pots/${potId}/pledges`, {
+  pledge: (bountyId: number, amount: number, expires_at?: string) =>
+    request<{ data: BountyPledge & { bounty: { total_pledged: number } } }>(`/bounties/${bountyId}/pledges`, {
       method: 'POST',
       body: JSON.stringify({ amount, ...(expires_at ? { expires_at } : {}) }),
     }),
 
-  removePledge: (potId: number, pledgeId: number) =>
-    request<RemovePledgeResult>(`/pots/${potId}/pledges/${pledgeId}`, { method: 'DELETE' }),
+  removePledge: (bountyId: number, pledgeId: number) =>
+    request<RemovePledgeResult>(`/bounties/${bountyId}/pledges/${pledgeId}`, { method: 'DELETE' }),
 
-  submitCompletion: (potId: number, submission_url: string, submission_notes?: string) =>
-    request<{ data: PotCompletion }>(`/pots/${potId}/completion`, {
+  submitCompletion: (bountyId: number, submission_url: string, submission_notes?: string) =>
+    request<{ data: BountyCompletion }>(`/bounties/${bountyId}/completion`, {
       method: 'POST',
       body: JSON.stringify({ submission_url, submission_notes }),
     }),
 
-  history: (potId: number) =>
-    request<PotHistory>(`/pots/${potId}/history`),
+  history: (bountyId: number) =>
+    request<BountyHistory>(`/bounties/${bountyId}/history`),
 
-  creatorRemove: (potId: number, reason: string) =>
-    request<{ message: string }>(`/pots/${potId}/creator-remove`, {
+  creatorRemove: (bountyId: number, reason: string) =>
+    request<{ message: string }>(`/bounties/${bountyId}/creator-remove`, {
       method: 'DELETE',
       body: JSON.stringify({ reason }),
     }),
@@ -341,17 +341,17 @@ export const users = {
 
 // Comments
 export const comments = {
-  /** Paginated top-level comments for a pot. */
-  list: (potId: number, page = 1) =>
-    request<PaginatedResponse<Comment>>(`/pots/${potId}/comments?page=${page}`),
+  /** Paginated top-level comments for a bounty. */
+  list: (bountyId: number, page = 1) =>
+    request<PaginatedResponse<Comment>>(`/bounties/${bountyId}/comments?page=${page}`),
 
   /** All direct replies to a top-level comment (not paginated). */
   replies: (commentId: number) =>
     request<{ data: Comment[] }>(`/comments/${commentId}/replies`),
 
-  /** Post a new top-level comment on a pot. */
-  create: (potId: number, content: string) =>
-    request<{ data: Comment }>(`/pots/${potId}/comments`, {
+  /** Post a new top-level comment on a bounty. */
+  create: (bountyId: number, content: string) =>
+    request<{ data: Comment }>(`/bounties/${bountyId}/comments`, {
       method: 'POST',
       body: JSON.stringify({ content }),
     }),
@@ -469,7 +469,7 @@ export const cash = {
   creatorBalance: () =>
     request<CreatorBalance>('/cash/creator-balance'),
 
-  /** Per-pot earnings breakdown for the authenticated creator. */
+  /** Per-bounty earnings breakdown for the authenticated creator. */
   creatorEarnings: () =>
     request<{ data: CreatorEarning[] }>('/cash/creator-earnings'),
 };
@@ -624,12 +624,12 @@ export const admin = {
       body: JSON.stringify(data),
     }),
 
-  // Pot Completions
+  // Bounty Completions
   listCompletions: (status: 'pending_review' | 'approved' | 'rejected' | 'all' = 'pending_review', page = 1) =>
-    request<PaginatedResponse<AdminPotCompletion>>(`/admin/pot-completions?status=${status}&page=${page}`),
+    request<PaginatedResponse<AdminBountyCompletion>>(`/admin/bounty-completions?status=${status}&page=${page}`),
 
-  reviewCompletion: (potId: number, data: { status: 'approved' | 'rejected'; council_notes?: string }) =>
-    request<{ data: Pot }>(`/admin/pots/${potId}/completion`, {
+  reviewCompletion: (bountyId: number, data: { status: 'approved' | 'rejected'; council_notes?: string }) =>
+    request<{ data: Bounty }>(`/admin/bounties/${bountyId}/completion`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
@@ -638,12 +638,12 @@ export const admin = {
   listCouncil: (page = 1) =>
     request<PaginatedResponse<CouncilMember>>(`/admin/council?page=${page}`),
 
-  // Featured Pots
-  getFeaturedPots: () =>
-    request<{ data: Array<{ position: number; pot: Pot | null; added_by: { id: number; name: string } | null; updated_at: string }> }>('/admin/featured-bounties'),
+  // Featured Bounties
+  getFeaturedBounties: () =>
+    request<{ data: Array<{ position: number; bounty: Bounty | null; added_by: { id: number; name: string } | null; updated_at: string }> }>('/admin/featured-bounties'),
 
-  setFeaturedPots: (slots: Array<{ pot_id: number }>) =>
-    request<{ data: Array<{ position: number; pot: Pot | null; added_by: { id: number; name: string } | null; updated_at: string }> }>('/admin/featured-bounties', {
+  setFeaturedBounties: (slots: Array<{ bounty_id: number }>) =>
+    request<{ data: Array<{ position: number; bounty: Bounty | null; added_by: { id: number; name: string } | null; updated_at: string }> }>('/admin/featured-bounties', {
       method: 'PUT',
       body: JSON.stringify({ slots }),
     }),

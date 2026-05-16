@@ -89,11 +89,11 @@ function CreatorModal({ creator, onClose }: { creator: CreatorDetail; onClose: (
             <dd className="font-mono tabular-nums text-foreground">${Number(creator.amount_earned ?? 0).toFixed(2)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Open pots</dt>
+            <dt className="text-muted font-display">Open bounties</dt>
             <dd className="font-mono tabular-nums text-foreground">{creator.projects_open ?? 0}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Finished pots</dt>
+            <dt className="text-muted font-display">Finished bounties</dt>
             <dd className="font-mono tabular-nums text-foreground">{creator.projects_finished ?? 0}</dd>
           </div>
         </dl>

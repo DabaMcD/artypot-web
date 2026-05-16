@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { admin as adminApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
-import type { AdminPotCompletion, PotCompletionStatus } from '@/lib/types';
+import type { AdminBountyCompletion, BountyCompletionStatus } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -16,13 +16,13 @@ import { Empty } from '@/components/ui/Empty';
 
 type StatusFilter = 'pending_review' | 'approved' | 'rejected' | 'all';
 
-const COMPLETION_TONES: Record<PotCompletionStatus, 'warn' | 'good' | 'bad'> = {
+const COMPLETION_TONES: Record<BountyCompletionStatus, 'warn' | 'good' | 'bad'> = {
   pending_review: 'warn',
   approved:       'good',
   rejected:       'bad',
 };
 
-const COMPLETION_LABELS: Record<PotCompletionStatus, string> = {
+const COMPLETION_LABELS: Record<BountyCompletionStatus, string> = {
   pending_review: 'pending review',
   approved:       'approved',
   rejected:       'rejected',
@@ -34,7 +34,7 @@ function ReviewModal({
   onClose,
   onDone,
 }: {
-  completion: AdminPotCompletion;
+  completion: AdminBountyCompletion;
   onClose: () => void;
   onDone: () => void;
 }) {
@@ -47,10 +47,10 @@ function ReviewModal({
     e.preventDefault();
     setLoading(true);
     try {
-      await adminApi.reviewCompletion(completion.pot_id, { status: decision, council_notes: notes || undefined });
+      await adminApi.reviewCompletion(completion.bounty_id, { status: decision, council_notes: notes || undefined });
       toast(
         decision === 'approved'
-          ? 'Pot approved — fans will be notified!'
+          ? 'Bounty approved — fans will be notified!'
           : 'Submission rejected — creator can resubmit.',
         decision === 'approved' ? 'success' : 'error',
       );
@@ -76,26 +76,26 @@ function ReviewModal({
             onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
             disabled={loading || (decision === 'rejected' && !notes.trim())}
           >
-            {loading ? 'submitting…' : decision === 'approved' ? 'approve pot' : 'reject submission'}
+            {loading ? 'submitting…' : decision === 'approved' ? 'approve bounty' : 'reject submission'}
           </Button>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <p className="font-display text-sm text-muted">
-          <Link href={`/bounties/${completion.pot_id}`} className="text-fan hover:underline">
-            {completion.pot.title}
+          <Link href={`/bounties/${completion.bounty_id}`} className="text-fan hover:underline">
+            {completion.bounty.title}
           </Link>
-          {completion.pot.creator && (
+          {completion.bounty.creator && (
             <> by{' '}
-              <Link href={`/creators/${completion.pot.creator.id}`} className="text-creator hover:underline">
-                {completion.pot.creator.display_name}
+              <Link href={`/creators/${completion.bounty.creator.id}`} className="text-creator hover:underline">
+                {completion.bounty.creator.display_name}
               </Link>
             </>
           )}
           {' '}·{' '}
           <span className="text-foreground font-mono tabular-nums">
-            ${Number(completion.pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            ${Number(completion.bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </span>{' '}
           committed
         </p>
@@ -180,12 +180,12 @@ export default function AdminCompletionsPage() {
   const router = useRouter();
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('pending_review');
-  const [completions, setCompletions] = useState<AdminPotCompletion[]>([]);
+  const [completions, setCompletions] = useState<AdminBountyCompletion[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [reviewing, setReviewing] = useState<AdminPotCompletion | null>(null);
+  const [reviewing, setReviewing] = useState<AdminBountyCompletion | null>(null);
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'council')) {
@@ -280,19 +280,19 @@ export default function AdminCompletionsPage() {
                 <div key={c.id} className="flex items-start gap-3 px-5 py-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                      <Link href={`/bounties/${c.pot_id}`} className="font-display text-sm text-foreground hover:underline">
-                        {c.pot.title}
+                      <Link href={`/bounties/${c.bounty_id}`} className="font-display text-sm text-foreground hover:underline">
+                        {c.bounty.title}
                       </Link>
                       <Badge tone={COMPLETION_TONES[c.status]}>{COMPLETION_LABELS[c.status]}</Badge>
                     </div>
                     <div className="flex items-center gap-3 font-mono text-[10px] text-muted mb-1 flex-wrap">
-                      {c.pot.creator && (
-                        <Link href={`/creators/${c.pot.creator.id}`} className="text-creator hover:underline">
-                          {c.pot.creator.display_name}
+                      {c.bounty.creator && (
+                        <Link href={`/creators/${c.bounty.creator.id}`} className="text-creator hover:underline">
+                          {c.bounty.creator.display_name}
                         </Link>
                       )}
                       <span className="text-fan tabular-nums">
-                        ${Number(c.pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })} committed
+                        ${Number(c.bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })} committed
                       </span>
                       <span>by {c.submitted_by.display_name}</span>
                       <span>{new Date(c.created_at).toLocaleDateString()}</span>

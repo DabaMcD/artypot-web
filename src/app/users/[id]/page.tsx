@@ -158,15 +158,15 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
                 className="flex items-center justify-between py-3 border-b border-border last:border-0"
               >
                 <div className="flex-1 min-w-0">
-                  {pledge.pot ? (
+                  {pledge.bounty ? (
                     <Link
-                      href={`/bounties/${pledge.pot_id}`}
+                      href={`/bounties/${pledge.bounty_id}`}
                       className="text-sm font-medium text-foreground hover:underline truncate block"
                     >
-                      {pledge.pot.title}
+                      {pledge.bounty.title}
                     </Link>
                   ) : (
-                    <span className="text-sm text-muted">Project #{pledge.pot_id}</span>
+                    <span className="text-sm text-muted">Project #{pledge.bounty_id}</span>
                   )}
                   {pledge.expires_at && (
                     <p className="text-xs text-muted mt-0.5">

@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { pots as potsApi } from '@/lib/api';
+import { bounties as bountiesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { Pot, PaginatedResponse, PotStatus } from '@/lib/types';
+import type { Bounty, PaginatedResponse, BountyStatus } from '@/lib/types';
 import BountyCard from '@/components/BountyCard';
 
-const STATUS_FILTERS: { value: PotStatus | ''; label: string }[] = [
+const STATUS_FILTERS: { value: BountyStatus | ''; label: string }[] = [
   { value: '',          label: 'All' },
   { value: 'open',      label: 'Open' },
   { value: 'pending',   label: 'Pending Review' },
@@ -15,10 +15,10 @@ const STATUS_FILTERS: { value: PotStatus | ''; label: string }[] = [
   { value: 'paid_out',  label: 'Paid Out' },
 ];
 
-export default function PotsPage() {
+export default function BountiesPage() {
   const { user } = useAuth();
-  const [data, setData] = useState<PaginatedResponse<Pot> | null>(null);
-  const [status, setStatus] = useState<PotStatus | ''>('open');
+  const [data, setData] = useState<PaginatedResponse<Bounty> | null>(null);
+  const [status, setStatus] = useState<BountyStatus | ''>('open');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,10 +27,10 @@ export default function PotsPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await potsApi.list({ status: status || undefined, page });
+      const res = await bountiesApi.list({ status: status || undefined, page });
       setData(res);
     } catch {
-      setError('Failed to load pots.');
+      setError('Failed to load bounties.');
     } finally {
       setLoading(false);
     }
@@ -40,7 +40,7 @@ export default function PotsPage() {
     load();
   }, [load]);
 
-  const handleStatusChange = (val: PotStatus | '') => {
+  const handleStatusChange = (val: BountyStatus | '') => {
     setStatus(val);
     setPage(1);
   };
@@ -103,8 +103,8 @@ export default function PotsPage() {
             {data.total} {data.total !== 1 ? 'bounties' : 'bounty'}
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.data.map((pot) => (
-              <BountyCard key={pot.id} pot={pot} />
+            {data.data.map((bounty) => (
+              <BountyCard key={bounty.id} bounty={bounty} />
             ))}
           </div>
 

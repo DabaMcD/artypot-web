@@ -107,7 +107,7 @@ export default function CashPage() {
         </div>
       )}
 
-      {/* ── Per-pot breakdown ────────────────────────────────────────────── */}
+      {/* ── Per-bounty breakdown ────────────────────────────────────────────── */}
       <p className="text-xs text-muted font-semibold uppercase tracking-widest mb-3">By Project</p>
 
       {earningsLoading ? (
@@ -120,16 +120,16 @@ export default function CashPage() {
         <div className="space-y-4">
           {earnings.map((earning) => {
             const earnedPct = earning.total > 0 ? (earning.earned / earning.total) * 100 : 0;
-            const statusLabel = earning.pot.status.replace('_', ' ');
+            const statusLabel = earning.bounty.status.replace('_', ' ');
 
             return (
-              <div key={earning.pot.id} className="bg-surface border border-border rounded-xl p-5">
+              <div key={earning.bounty.id} className="bg-surface border border-border rounded-xl p-5">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <Link
-                    href={`/bounties/${earning.pot.id}`}
+                    href={`/bounties/${earning.bounty.id}`}
                     className="text-creator font-semibold hover:underline leading-snug"
                   >
-                    {earning.pot.title}
+                    {earning.bounty.title}
                   </Link>
                   <span className="text-xs text-muted shrink-0 capitalize">{statusLabel}</span>
                 </div>
@@ -147,7 +147,7 @@ export default function CashPage() {
                       ${earning.earned.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </p>
                     <p className="text-xs text-muted">
-                      of ${earning.total.toLocaleString('en-US', { minimumFractionDigits: 2 })} potential
+                      of ${earning.total.toLocaleString('en-US', { minimumFractionDigits: 2 })} bountyential
                     </p>
                   </div>
                   {earning.incoming > 0 && (

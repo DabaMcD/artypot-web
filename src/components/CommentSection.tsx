@@ -328,18 +328,18 @@ function CommentRow({
 // ── Main section ──────────────────────────────────────────────────────────────
 
 interface CommentSectionProps {
-  potId: number;
+  bountyId: number;
   /**
    * When true, strips the outer border/margin wrapper and the "Comments" h2
    * heading — use when embedding inside a parent card that provides its own
-   * container and heading (e.g. the tabbed backers/comments card on the pot page).
+   * container and heading (e.g. the tabbed backers/comments card on the bounty page).
    */
   inline?: boolean;
   /** Called whenever the total comment count changes (useful for tab labels). */
   onTotalChange?: (total: number) => void;
 }
 
-export default function CommentSection({ potId, inline = false, onTotalChange }: CommentSectionProps) {
+export default function CommentSection({ bountyId, inline = false, onTotalChange }: CommentSectionProps) {
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -366,7 +366,7 @@ export default function CommentSection({ potId, inline = false, onTotalChange }:
 
   const loadComments = useCallback(async (pageNum: number, append = false) => {
     try {
-      const res = await commentsApi.list(potId, pageNum);
+      const res = await commentsApi.list(bountyId, pageNum);
       setCommentList((prev) => (append ? [...prev, ...res.data] : res.data));
       setPage(res.current_page);
       setLastPage(res.last_page);
@@ -378,7 +378,7 @@ export default function CommentSection({ potId, inline = false, onTotalChange }:
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [potId, toast, onTotalChange]);
+  }, [bountyId, toast, onTotalChange]);
 
   useEffect(() => {
     loadComments(1);
@@ -411,7 +411,7 @@ export default function CommentSection({ potId, inline = false, onTotalChange }:
     if (!newText.trim() || submitting) return;
     setSubmitting(true);
     try {
-      const res = await commentsApi.create(potId, newText.trim());
+      const res = await commentsApi.create(bountyId, newText.trim());
       setCommentList((prev) => [res.data, ...prev]);
       setTotal((t) => t + 1);
       setNewText('');

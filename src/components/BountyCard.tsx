@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import type { Pot, PotStatus } from '@/lib/types';
+import type { Bounty, BountyStatus } from '@/lib/types';
 import { AvatarOrUnknown } from './ui/AvatarOrUnknown';
 
-const STATUS_STYLES: Record<PotStatus, { label: string; className: string }> = {
+const STATUS_STYLES: Record<BountyStatus, { label: string; className: string }> = {
   open:      { label: 'Open',           className: 'bg-green-900/40 text-green-400 border-green-800/50' },
   pending:   { label: 'Pending Review', className: 'bg-blue-900/40 text-blue-400 border-blue-800/50' },
   completed: { label: 'Completed',      className: 'bg-creator/10 text-creator border-creator/30' },
@@ -10,11 +10,11 @@ const STATUS_STYLES: Record<PotStatus, { label: string; className: string }> = {
   revoked:   { label: 'Revoked',        className: 'bg-red-900/40 text-red-400 border-red-800/50' },
 };
 
-export default function BountyCard({ pot }: { pot: Pot }) {
-  const status = STATUS_STYLES[pot.status];
-  const backerCount = pot.pledges?.filter((v) => !v.revoked_at).length ?? null;
-  const fanSingular = pot.creator?.fan_name || 'supporter';
-  const fanPlural   = pot.creator?.fan_name_plural || pot.creator?.fan_name || 'supporters';
+export default function BountyCard({ bounty }: { bounty: Bounty }) {
+  const status = STATUS_STYLES[bounty.status];
+  const backerCount = bounty.pledges?.filter((v) => !v.revoked_at).length ?? null;
+  const fanSingular = bounty.creator?.fan_name || 'supporter';
+  const fanPlural   = bounty.creator?.fan_name_plural || bounty.creator?.fan_name || 'supporters';
 
   return (
     <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-fan/50 transition-colors group">
@@ -22,10 +22,10 @@ export default function BountyCard({ pot }: { pot: Pot }) {
         {/* Stretched link title — ::after pseudo-element covers the whole card */}
         <h3 className="font-semibold text-foreground group-hover:text-fan transition-colors line-clamp-2 leading-snug">
           <Link
-            href={`/bounties/${pot.id}`}
+            href={`/bounties/${bounty.id}`}
             className="after:absolute after:inset-0 focus:outline-none"
           >
-            {pot.title}
+            {bounty.title}
           </Link>
         </h3>
         <span
@@ -35,36 +35,36 @@ export default function BountyCard({ pot }: { pot: Pot }) {
         </span>
       </div>
 
-      {pot.description && (
-        <p className="text-sm text-muted line-clamp-2 mb-4">{pot.description}</p>
+      {bounty.description && (
+        <p className="text-sm text-muted line-clamp-2 mb-4">{bounty.description}</p>
       )}
 
       <div className="flex items-end justify-between mt-auto pt-3 border-t border-border">
         <div>
           <div className="text-fan font-bold text-lg">
-            ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ${Number(bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           {backerCount !== null && (
             <div className="text-xs text-muted mt-0.5">
               {backerCount} {backerCount === 1 ? fanSingular : fanPlural}
             </div>
           )}
-          {(pot.status === 'completed' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (
+          {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
             <div className="text-xs text-muted mt-0.5">
-              ${pot.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cleared
+              ${bounty.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of ${Number(bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cleared
             </div>
           )}
         </div>
-        {(pot.avatar_url !== undefined || pot.creator) && (
+        {(bounty.avatar_url !== undefined || bounty.creator) && (
           <div className="flex items-center gap-2">
             <AvatarOrUnknown
-              avatarUrl={pot.avatar_url ?? pot.creator?.profile_picture ?? null}
+              avatarUrl={bounty.avatar_url ?? bounty.creator?.profile_picture ?? null}
               size="sm"
             />
             <div className="text-right">
               <div className="text-xs text-muted">for</div>
               <div className="text-sm text-creator font-medium truncate max-w-[100px]">
-                {pot.target_display_name ?? pot.creator?.display_name}
+                {bounty.target_display_name ?? bounty.creator?.display_name}
               </div>
             </div>
           </div>

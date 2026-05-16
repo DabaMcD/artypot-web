@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 interface ShareButtonProps {
-  /** Relative path, e.g. /pots/42 — will be prefixed with the site origin */
+  /** Relative path, e.g. /bounties/42 — will be prefixed with the site origin */
   path: string;
   /** Title for the share dialog / email subject */
   title: string;

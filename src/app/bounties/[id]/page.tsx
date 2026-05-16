@@ -17,9 +17,9 @@ function computeExpiresAt(value: number, unit: ExpireUnit): string {
 }
 import { useToast } from '@/lib/toast-context';
 import Link from 'next/link';
-import { pots as potsApi, billing } from '@/lib/api';
+import { bounties as bountiesApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { Pot, BountyPledge, PaymentMethod, BountyHistoryEvent } from '@/lib/types';
+import type { Bounty, BountyPledge, PaymentMethod, BountyHistoryEvent } from '@/lib/types';
 import AddCardForm from '@/components/AddCardForm';
 import ShareButton from '@/components/ShareButton';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
@@ -60,13 +60,13 @@ function formatHoverDate(iso: string): string {
   });
 }
 
-export default function PotDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default function BountyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
-  const [pot, setPot] = useState<Pot | null>(null);
+  const [bounty, setBounty] = useState<Bounty | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -84,7 +84,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   // Last-pledge confirm dialog
   const [showLastPledgeConfirm, setShowLastPledgeConfirm] = useState(false);
 
-  // Pending-pot revoke warning (shown when pot.status === 'pending')
+  // Pending-bounty revoke warning (shown when bounty.status === 'pending')
   const [showPendingRevokeWarning, setShowPendingRevokeWarning] = useState(false);
 
   // Edit form
@@ -121,31 +121,31 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   /** When set, the header shows the historical title/description for this snapshot */
   const [snapshotView, setSnapshotView] = useState<{ title: string; description: string | null } | null>(null);
 
-  // Load pot
+  // Load bounty
   useEffect(() => {
-    potsApi
+    bountiesApi
       .get(Number(id))
-      .then((res) => setPot(res.data))
+      .then((res) => setBounty(res.data))
       .catch(() => setError('Failed to load bounty.'))
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Load payment methods when the pot is open and user is logged in
+  // Load payment methods when the bounty is open and user is logged in
   useEffect(() => {
-    if (!user || !pot || pot.status !== 'open') return;
+    if (!user || !bounty || bounty.status !== 'open') return;
     setPmLoading(true);
     billing
       .paymentMethods()
       .then((res) => setPaymentMethods(res.data))
       .catch(() => setPaymentMethods([]))
       .finally(() => setPmLoading(false));
-  }, [user, pot?.status]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user, bounty?.status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch history the first time the panel is opened
   useEffect(() => {
     if (!showHistory || historyLoaded) return;
     setHistoryLoading(true);
-    potsApi
+    bountiesApi
       .history(Number(id))
       .then((res) => {
         setHistoryEvents(res.events);
@@ -155,16 +155,16 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       .finally(() => setHistoryLoading(false));
   }, [showHistory]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const activePledges = pot?.pledges?.filter((v) => !v.revoked_at) ?? [];
+  const activePledges = bounty?.pledges?.filter((v) => !v.revoked_at) ?? [];
   const userPledge = user ? activePledges.find((v) => v.user_id === user.id) : null;
   const hasPaymentMethod = paymentMethods !== null && paymentMethods.length > 0;
 
   // ── Derived display values ────────────────────────────────────────────────
   const displayedTotal = selectedEvent
     ? selectedEvent.running_total
-    : (pot?.solid_total ?? Number(pot?.total_pledged ?? 0));
-  const displayedTitle = snapshotView?.title ?? pot?.title ?? '';
-  const displayedDescription = snapshotView !== null ? snapshotView.description : pot?.description;
+    : (bounty?.solid_total ?? Number(bounty?.total_pledged ?? 0));
+  const displayedTitle = snapshotView?.title ?? bounty?.title ?? '';
+  const displayedDescription = snapshotView !== null ? snapshotView.description : bounty?.description;
 
   const handlePledge = async (e: FormEvent) => {
     e.preventDefault();
@@ -183,10 +183,10 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
     setPledgeLoading(true);
     setPledgeError(null);
     try {
-      const res = await potsApi.pledge(Number(id), amount, expiresAt);
+      const res = await bountiesApi.pledge(Number(id), amount, expiresAt);
       toast(isUpdate ? 'Updated!' : `You're in for $${amount.toFixed(2)}!`, 'success');
       setPledgeAmount('');
-      setPot((prev) => {
+      setBounty((prev) => {
         if (!prev) return prev;
         const updatedPledge: BountyPledge = {
           ...res.data,
@@ -197,7 +197,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         );
         return {
           ...prev,
-          total_pledged: res.data.pot?.total_pledged ?? prev.total_pledged,
+          total_pledged: res.data.bounty?.total_pledged ?? prev.total_pledged,
           pledges: [...filteredPledges, updatedPledge],
         };
       });
@@ -244,15 +244,15 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
     setPledgeLoading(true);
     setShowLastPledgeConfirm(false);
     try {
-      const result = await potsApi.removePledge(Number(id), userPledge.id);
-      if (result.pot_deleted) {
+      const result = await bountiesApi.removePledge(Number(id), userPledge.id);
+      if (result.bounty_deleted) {
         toast('You backed out — the bounty was deleted.', 'success');
         router.push('/bounties');
         return;
       }
-      setPot((prev) => {
+      setBounty((prev) => {
         if (!prev) return prev;
-        const updated: Pot = {
+        const updated: Bounty = {
           ...prev,
           total_pledged: prev.total_pledged - userPledge.amount,
           pledges: (prev.pledges ?? []).map((v) =>
@@ -277,11 +277,11 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
     e.preventDefault();
     setEditLoading(true);
     try {
-      const res = await potsApi.update(Number(id), {
+      const res = await bountiesApi.update(Number(id), {
         title: editTitle,
         description: editDescription || undefined,
       });
-      setPot((prev) => (prev ? { ...prev, title: res.data.title, description: res.data.description } : prev));
+      setBounty((prev) => (prev ? { ...prev, title: res.data.title, description: res.data.description } : prev));
       toast('Bounty updated!', 'success');
       setShowEditForm(false);
       // Invalidate history cache so next open reflects the new edit
@@ -289,7 +289,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       setHistoryEvents([]);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Failed to update pot.', 'error');
+      toast(e.message ?? 'Failed to update bounty.', 'error');
     } finally {
       setEditLoading(false);
     }
@@ -299,7 +299,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
     if (!removeReason.trim()) return;
     setRemoveLoading(true);
     try {
-      await potsApi.creatorRemove(Number(id), removeReason.trim());
+      await bountiesApi.creatorRemove(Number(id), removeReason.trim());
       toast('Bounty removed.', 'success');
       router.push('/bounties');
     } catch (err: unknown) {
@@ -314,12 +314,12 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
     setCompletionError(null);
     setCompletionLoading(true);
     try {
-      const res = await potsApi.submitCompletion(
+      const res = await bountiesApi.submitCompletion(
         Number(id),
         submissionUrl,
         submissionNotes || undefined,
       );
-      setPot((prev) => (prev ? { ...prev, status: 'pending', completion: res.data } : prev));
+      setBounty((prev) => (prev ? { ...prev, status: 'pending', completion: res.data } : prev));
       setShowCompletion(false);
     } catch (err: unknown) {
       const e = err as { message?: string };
@@ -368,7 +368,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
     );
   }
 
-  if (error || !pot) {
+  if (error || !bounty) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-10">
         <p className="bg-bad-soft border border-bad text-bad rounded-md px-4 py-3 font-display">
@@ -378,14 +378,14 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
     );
   }
 
-  const isOwner = user && pot.initiator_user_id === user.id;
+  const isOwner = user && bounty.initiator_user_id === user.id;
   const isCreator =
     user &&
-    pot.creator?.user_id === user.id &&
+    bounty.creator?.user_id === user.id &&
     (user.role === 'creator' || user.role === 'council');
-  const canVote = user && pot.status === 'open';
-  const canSubmitCompletion = isCreator && pot.status === 'open';
-  const canCreatorRemove = isCreator && pot.status === 'open';
+  const canVote = user && bounty.status === 'open';
+  const canSubmitCompletion = isCreator && bounty.status === 'open';
+  const canCreatorRemove = isCreator && bounty.status === 'open';
 
   // ── Pledge panel content ────────────────────────────────────────────────────
   const renderPledgePanel = () => {
@@ -496,7 +496,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               variant="ghost"
               size="sm"
               onClick={() => {
-                if (pot?.status === 'pending') {
+                if (bounty?.status === 'pending') {
                   setShowPendingRevokeWarning(true);
                 } else if (activePledges.length === 1) {
                   setShowLastPledgeConfirm(true);
@@ -551,7 +551,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
 
-      {/* Pending-pot revoke warning */}
+      {/* Pending-bounty revoke warning */}
       {showPendingRevokeWarning && userPledge && (
         <Modal
           title={`Hold on, ${user?.name.split(' ')[0]}.`}
@@ -585,7 +585,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           }
         >
           <p className="font-display text-muted text-sm leading-relaxed mb-2">
-            <span className="text-foreground font-semibold">{pot?.creator?.display_name ?? 'The creator'}</span> has
+            <span className="text-foreground font-semibold">{bounty?.creator?.display_name ?? 'The creator'}</span> has
             already submitted their work. The Council is reviewing it.
           </p>
           <p className="font-display text-muted text-sm leading-relaxed mb-1">
@@ -669,12 +669,12 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           }
         >
           <p className="font-display text-muted text-sm leading-relaxed">
-            You&apos;re the only {pot?.creator?.fan_name ?? 'supporter'} of this bounty. Backing out will leave it empty — it will be cleared automatically.
+            You&apos;re the only {bounty?.creator?.fan_name ?? 'supporter'} of this bounty. Backing out will leave it empty — it will be cleared automatically.
           </p>
         </Modal>
       )}
 
-      {/* Pot header */}
+      {/* Bounty header */}
       <Card className="mb-6">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex-1 min-w-0">
@@ -700,13 +700,13 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                   {displayedTitle}
                 </h1>
               )}
-              {isOwner && pot.status === 'open' && !showEditForm && (
+              {isOwner && bounty.status === 'open' && !showEditForm && (
                 <Button
                   variant="default"
                   size="xs"
                   onClick={() => {
-                    setEditTitle(pot.title);
-                    setEditDescription(pot.description ?? '');
+                    setEditTitle(bounty.title);
+                    setEditDescription(bounty.description ?? '');
                     setShowEditForm(true);
                   }}
                   className="shrink-0 mt-1 cursor-pointer"
@@ -718,19 +718,19 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <ShareButton
-              path={`/bounties/${pot.id}`}
-              title={pot.title}
-              text={`Back "${pot.title}" on artypot!`}
+              path={`/bounties/${bounty.id}`}
+              title={bounty.title}
+              text={`Back "${bounty.title}" on artypot!`}
               size="sm"
             />
-            <Badge tone={STATUS_TONES[pot.status] ?? 'default'} lg>
-              {STATUS_LABELS[pot.status]}
+            <Badge tone={STATUS_TONES[bounty.status] ?? 'default'} lg>
+              {STATUS_LABELS[bounty.status]}
             </Badge>
           </div>
         </div>
 
         {/* Inline edit form */}
-        {showEditForm && isOwner && pot.status === 'open' && (
+        {showEditForm && isOwner && bounty.status === 'open' && (
           <form onSubmit={handleEditSubmit} className="mb-4 space-y-3">
             <Banner tone="warn">
               <strong>Heads up:</strong> Edits may only clarify details — you cannot change the core nature or purpose of this bounty. The Council reviews the full edit history before approving any bounty.
@@ -784,21 +784,21 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         )}
 
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 font-display text-sm">
-          {pot.creator && (
+          {bounty.creator && (
             <div>
               <span className="text-muted">For </span>
               <Link
-                href={`/creators/${pot.creator.id}`}
+                href={`/creators/${bounty.creator.id}`}
                 className="text-creator hover:underline font-medium cursor-pointer"
               >
-                {pot.creator.display_name}
+                {bounty.creator.display_name}
               </Link>
             </div>
           )}
-          {pot.initiator && (
+          {bounty.initiator && (
             <div>
               <span className="text-muted">Created by </span>
-              <span className="text-foreground font-medium">{pot.initiator.display_name}</span>
+              <span className="text-foreground font-medium">{bounty.initiator.display_name}</span>
             </div>
           )}
         </div>
@@ -808,19 +808,19 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           <div className="text-fan font-mono font-bold tabular-nums text-3xl">
             ${displayedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
-          {!selectedEvent && pot?.solid_total !== undefined && (Number(pot.total_pledged) - pot.solid_total) > 0.005 && (
+          {!selectedEvent && bounty?.solid_total !== undefined && (Number(bounty.total_pledged) - bounty.solid_total) > 0.005 && (
             <div className="font-mono text-[10px] text-muted tabular-nums mt-0.5">
-              + ${(Number(pot.total_pledged) - pot.solid_total).toLocaleString('en-US', { minimumFractionDigits: 2 })} in soft pledges
+              + ${(Number(bounty.total_pledged) - bounty.solid_total).toLocaleString('en-US', { minimumFractionDigits: 2 })} in soft pledges
             </div>
           )}
           <div className="flex items-center justify-between gap-2 mt-0.5">
             <div>
               <div className="font-display text-muted text-sm">
-                supported by {activePledges.length} {activePledges.length === 1 ? (pot.creator?.fan_name ?? 'supporter') : (pot.creator?.fan_name_plural ?? pot.creator?.fan_name ?? 'supporters')}
+                supported by {activePledges.length} {activePledges.length === 1 ? (bounty.creator?.fan_name ?? 'supporter') : (bounty.creator?.fan_name_plural ?? bounty.creator?.fan_name ?? 'supporters')}
               </div>
-              {(pot.status === 'completed' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (
+              {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5 tabular-nums">
-                  ${pot.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2 })} of ${Number(pot.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })} cleared
+                  ${bounty.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2 })} of ${Number(bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })} cleared
                 </div>
               )}
               {selectedEvent && (
@@ -874,7 +874,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           {renderPledgePanel()}
 
           {/* Not logged in */}
-          {!user && pot.status === 'open' && (
+          {!user && bounty.status === 'open' && (
             <Card className="text-center">
               <p className="font-display text-muted text-sm mb-3">Log in to back this bounty</p>
               <Link
@@ -888,9 +888,9 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             </Card>
           )}
 
-          {/* Closed-pot notice — shown for every non-open status */}
-          {pot.status !== 'open' && (() => {
-            const creatorName = pot.creator?.display_name ?? 'The creator';
+          {/* Closed-bounty notice — shown for every non-open status */}
+          {bounty.status !== 'open' && (() => {
+            const creatorName = bounty.creator?.display_name ?? 'The creator';
             const notices: Record<string, { heading: string; body: string; tone: 'default' | 'warn' | 'bad' | 'good' }> = {
               pending: {
                 heading: 'Awaiting Council review',
@@ -913,7 +913,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                 tone: 'bad',
               },
             };
-            const notice = notices[pot.status];
+            const notice = notices[bounty.status];
             if (!notice) return null;
 
             return (
@@ -1004,39 +1004,39 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         {/* Backers + completion */}
         <div className="sm:col-span-2 space-y-6">
           {/* Completion info */}
-          {pot.completion && (
+          {bounty.completion && (
             <Card>
               <div className="flex items-center justify-between mb-3">
                 <SectionLabel>Submitted Work</SectionLabel>
                 <Badge
                   tone={
-                    pot.completion.status === 'approved'
+                    bounty.completion.status === 'approved'
                       ? 'good'
-                      : pot.completion.status === 'rejected'
+                      : bounty.completion.status === 'rejected'
                         ? 'bad'
                         : 'info'
                   }
                 >
-                  {pot.completion.status === 'pending_review'
+                  {bounty.completion.status === 'pending_review'
                     ? 'Pending Review'
-                    : pot.completion.status}
+                    : bounty.completion.status}
                 </Badge>
               </div>
               <a
-                href={pot.completion.submission_url}
+                href={bounty.completion.submission_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-display text-fan hover:underline text-sm break-all cursor-pointer"
               >
-                {pot.completion.submission_url}
+                {bounty.completion.submission_url}
               </a>
-              {pot.completion.submission_notes && (
-                <p className="font-display text-muted text-sm mt-2">{pot.completion.submission_notes}</p>
+              {bounty.completion.submission_notes && (
+                <p className="font-display text-muted text-sm mt-2">{bounty.completion.submission_notes}</p>
               )}
-              {pot.completion.council_notes && (
+              {bounty.completion.council_notes && (
                 <div className="mt-3 pt-3 border-t border-border">
                   <p className="font-mono text-[10px] uppercase tracking-widest text-muted">
-                    Council notes: {pot.completion.council_notes}
+                    Council notes: {bounty.completion.council_notes}
                   </p>
                 </div>
               )}
@@ -1079,7 +1079,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             {/* Pledges panel */}
             <div className={`p-5 ${activeTab !== 'pledges' ? 'hidden' : ''}`}>
               {activePledges.length === 0 ? (
-                <p className="font-display text-muted text-sm">No {pot.creator?.fan_name_plural ?? pot.creator?.fan_name ?? 'supporters'} yet. Be the first!</p>
+                <p className="font-display text-muted text-sm">No {bounty.creator?.fan_name_plural ?? bounty.creator?.fan_name ?? 'supporters'} yet. Be the first!</p>
               ) : (
                 <div className="space-y-2">
                   {activePledges.map((pledge) => {
@@ -1132,7 +1132,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
 
             {/* Comments panel — always mounted so it silently fetches the count */}
             <div className={`p-5 ${activeTab !== 'comments' ? 'hidden' : ''}`}>
-              <CommentSection potId={pot.id} inline onTotalChange={setCommentCount} />
+              <CommentSection bountyId={bounty.id} inline onTotalChange={setCommentCount} />
             </div>
 
           </Card>

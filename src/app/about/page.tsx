@@ -246,7 +246,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Featured Pots */}
+      {/* Featured Bounties */}
       <FeaturedBountiesSection />
 
       {/* CTA */}

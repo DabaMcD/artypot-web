@@ -3,11 +3,11 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { creators as creatorsApi, pots as potsApi, creatorNames as creatorNamesApi } from '@/lib/api';
+import { creators as creatorsApi, bounties as bountiesApi, creatorNames as creatorNamesApi } from '@/lib/api';
 import { countryFlag, countryName } from '@/lib/countries';
 import { useAuth } from '@/lib/auth-context';
 import { useViewMode } from '@/lib/view-mode-context';
-import type { Creator, PaginatedResponse, Pot, CreatorName } from '@/lib/types';
+import type { Creator, PaginatedResponse, Bounty, CreatorName } from '@/lib/types';
 import BountyCard from '@/components/BountyCard';
 import ShareButton from '@/components/ShareButton';
 
@@ -233,7 +233,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
   const isCreatorMode = mode === 'creator';
 
   const [creator, setCreator] = useState<Creator | null>(null);
-  const [potsData, setPotsData] = useState<PaginatedResponse<Pot> | null>(null);
+  const [bountiesData, setBountiesData] = useState<PaginatedResponse<Bounty> | null>(null);
   const [names, setNames] = useState<CreatorName[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -254,12 +254,12 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
   useEffect(() => {
     Promise.all([
       creatorsApi.get(Number(id)),
-      potsApi.list({ creator_id: Number(id) }),
+      bountiesApi.list({ creator_id: Number(id) }),
       creatorNamesApi.list(Number(id)),
     ])
-      .then(([creatorRes, potsRes, namesRes]) => {
+      .then(([creatorRes, bountiesRes, namesRes]) => {
         setCreator(creatorRes.data);
-        setPotsData(potsRes);
+        setBountiesData(bountiesRes);
         setNames(namesRes.data);
       })
       .catch(() => setError('Failed to load creator profile.'))
@@ -504,7 +504,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
               )}
             </div>
 
-            {/* Pots */}
+            {/* Bounties */}
             <div>
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-xl font-bold text-foreground">Bounties for {creator.display_name}</h2>
@@ -518,7 +518,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                 )}
               </div>
 
-              {!potsData || potsData.data.length === 0 ? (
+              {!bountiesData || bountiesData.data.length === 0 ? (
                 <div className="text-center py-16 text-muted border border-border border-dashed rounded-xl">
                   No bounties yet for this creator.{' '}
                   {user && (
@@ -529,8 +529,8 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {potsData.data.map((pot) => (
-                    <BountyCard key={pot.id} pot={pot} />
+                  {bountiesData.data.map((bounty) => (
+                    <BountyCard key={bounty.id} bounty={bounty} />
                   ))}
                 </div>
               )}

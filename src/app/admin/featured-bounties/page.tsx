@@ -3,24 +3,24 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { admin, pots as potsApi } from '@/lib/api';
+import { admin, bounties as bountiesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { Pot } from '@/lib/types';
+import type { Bounty } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Banner } from '@/components/ui/Banner';
 
 interface Slot {
-  pot_id: string;
-  preview: Pot | null;
+  bounty_id: string;
+  preview: Bounty | null;
   previewError: string;
   previewing: boolean;
 }
 
-const EMPTY_SLOT: Slot = { pot_id: '', preview: null, previewError: '', previewing: false };
+const EMPTY_SLOT: Slot = { bounty_id: '', preview: null, previewError: '', previewing: false };
 
-export default function FeaturedPotsAdminPage() {
+export default function FeaturedBountiesAdminPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -41,17 +41,17 @@ export default function FeaturedPotsAdminPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await admin.getFeaturedPots();
+      const res = await admin.getFeaturedBounties();
       const next: [Slot, Slot, Slot] = [{ ...EMPTY_SLOT }, { ...EMPTY_SLOT }, { ...EMPTY_SLOT }];
-      res.data.forEach(({ position, pot }) => {
+      res.data.forEach(({ position, bounty }) => {
         const idx = position - 1;
-        if (idx >= 0 && idx < 3 && pot) {
-          next[idx] = { pot_id: String(pot.id), preview: pot, previewError: '', previewing: false };
+        if (idx >= 0 && idx < 3 && bounty) {
+          next[idx] = { bounty_id: String(bounty.id), preview: bounty, previewError: '', previewing: false };
         }
       });
       setSlots(next);
     } catch {
-      setError('Failed to load current featured pots.');
+      setError('Failed to load current featured bounties.');
     } finally {
       setLoading(false);
     }
@@ -79,7 +79,7 @@ export default function FeaturedPotsAdminPage() {
     });
 
     try {
-      const res = await potsApi.get(Number(trimmed));
+      const res = await bountiesApi.get(Number(trimmed));
       setSlots((prev) => {
         const next = [...prev] as [Slot, Slot, Slot];
         next[idx] = { ...next[idx], previewing: false, preview: res.data, previewError: '' };
@@ -88,7 +88,7 @@ export default function FeaturedPotsAdminPage() {
     } catch {
       setSlots((prev) => {
         const next = [...prev] as [Slot, Slot, Slot];
-        next[idx] = { ...next[idx], previewing: false, preview: null, previewError: `Pot #${trimmed} not found.` };
+        next[idx] = { ...next[idx], previewing: false, preview: null, previewError: `Bounty #${trimmed} not found.` };
         return next;
       });
     }
@@ -97,27 +97,27 @@ export default function FeaturedPotsAdminPage() {
   const handleIdChange = (idx: number, value: string) => {
     setSlots((prev) => {
       const next = [...prev] as [Slot, Slot, Slot];
-      next[idx] = { ...next[idx], pot_id: value, preview: null, previewError: '' };
+      next[idx] = { ...next[idx], bounty_id: value, preview: null, previewError: '' };
       return next;
     });
   };
 
   const handleSave = async () => {
     setError('');
-    const filled = slots.filter((s) => s.pot_id.trim());
+    const filled = slots.filter((s) => s.bounty_id.trim());
     if (filled.length === 0) {
       setError('Add at least one bounty ID.');
       return;
     }
     if (filled.some((s) => !s.preview)) {
-      setError('Preview each pot before saving (click outside the input or press Tab).');
+      setError('Preview each bounty before saving (click outside the input or press Tab).');
       return;
     }
 
     setSaving(true);
     try {
-      await admin.setFeaturedPots(
-        filled.map((s) => ({ pot_id: Number(s.pot_id.trim()) }))
+      await admin.setFeaturedBounties(
+        filled.map((s) => ({ bounty_id: Number(s.bounty_id.trim()) }))
       );
       setSavedAt(new Date());
       await load();
@@ -167,7 +167,7 @@ export default function FeaturedPotsAdminPage() {
                     type="text"
                     inputMode="numeric"
                     placeholder="Bounty ID"
-                    value={slot.pot_id}
+                    value={slot.bounty_id}
                     onChange={(e) => handleIdChange(idx, e.target.value)}
                     onBlur={(e) => previewSlot(idx, e.target.value)}
                     mono
@@ -199,9 +199,9 @@ export default function FeaturedPotsAdminPage() {
                 </p>
               )}
 
-              {!slot.pot_id && !slot.previewError && (
+              {!slot.bounty_id && !slot.previewError && (
                 <p className="ml-10 mt-2 font-mono text-[10px] uppercase tracking-widest text-muted">
-                  Empty — leave blank to feature fewer than 3 pots.
+                  Empty — leave blank to feature fewer than 3 bounties.
                 </p>
               )}
             </Card>

@@ -141,20 +141,20 @@ export default function MyPledgesPage() {
             <Card>
               <div className="divide-y divide-border -mx-5 -my-4">
                 {pledges.map((pledge) => {
-                  const status = pledge.pot?.status ?? 'open';
+                  const status = pledge.bounty?.status ?? 'open';
                   const badge = STATUS_BADGE[status] ?? { label: status, tone: 'default' as const };
                   return (
                     <div key={pledge.id} className="flex items-center gap-3 px-5 py-3.5">
                       <div className="flex-1 min-w-0">
-                        {pledge.pot ? (
+                        {pledge.bounty ? (
                           <Link
-                            href={`/bounties/${pledge.pot_id}`}
+                            href={`/bounties/${pledge.bounty_id}`}
                             className="font-display text-sm text-foreground hover:text-fan transition-colors block truncate"
                           >
-                            {pledge.pot.title}
+                            {pledge.bounty.title}
                           </Link>
                         ) : (
-                          <span className="font-display text-sm text-muted">bounty #{pledge.pot_id}</span>
+                          <span className="font-display text-sm text-muted">bounty #{pledge.bounty_id}</span>
                         )}
                         <div className="font-mono text-[10px] text-muted mt-0.5">
                           {new Date(pledge.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}

@@ -23,7 +23,7 @@ function cardLabel(cardBrand: string) {
 interface Props {
   /** Called whenever the list of payment methods changes (useful for parent gating). */
   onMethodsChange?: (methods: PaymentMethod[]) => void;
-  /** If true renders more compactly (e.g. inline on pot page). */
+  /** If true renders more compactly (e.g. inline on bounty page). */
   compact?: boolean;
 }
 
@@ -120,7 +120,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
                       all ${pledgeTotalAmount.toFixed(2)} of your active commitments
                     </strong>.
                   </p>
-                  <p>You won&apos;t be charged for completed pots until you add a new payment method.</p>
+                  <p>You won&apos;t be charged for completed bounties until you add a new payment method.</p>
                 </>
               ) : isLastCard ? (
                 <p>This is your only saved payment method. Remove it?</p>

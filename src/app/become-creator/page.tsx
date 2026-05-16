@@ -21,7 +21,7 @@ These Creator Terms of Service ("Creator Terms") govern your participation as a 
 
 1. CREATOR'S COMMITMENTS
 
-1.1 Deliver commissioned work. When a bounty pot reaches completion and is approved by the Artypot Council, you commit to delivering the work described in good faith within a reasonable timeframe.
+1.1 Deliver commissioned work. When a bounty reaches completion and is approved by the Artypot Council, you commit to delivering the work described in good faith within a reasonable timeframe.
 
 1.2 Maintain accurate handle information. The social handles and websites you verify through Artypot must genuinely represent your identity. You must not impersonate another person or misrepresent your affiliation with any platform account.
 
@@ -53,7 +53,7 @@ These Creator Terms of Service ("Creator Terms") govern your participation as a 
 
 4. REFUNDS AND REVOCATIONS
 
-4.1 Fan revocations. Fans may revoke open pledges at any time before a pot is marked complete. You are not entitled to compensation for revoked pledges.
+4.1 Fan revocations. Fans may revoke open pledges at any time before a bounty is marked complete. You are not entitled to compensation for revoked pledges.
 
 4.2 Council rejection. If the Council rejects a submission, no funds are collected. You may resubmit after addressing the Council's feedback.
 
@@ -71,7 +71,7 @@ These Creator Terms of Service ("Creator Terms") govern your participation as a 
 
 6.1 Artypot may suspend or terminate your creator status if you breach these terms, engage in fraud, fail to deliver work after funds are collected, or violate applicable law.
 
-6.2 Upon termination, open pots are closed, pledges are returned to fans, and any available creator balance will be disbursed to you subject to outstanding disputes and tax documentation requirements.
+6.2 Upon termination, open bounties are closed, pledges are returned to fans, and any available creator balance will be disbursed to you subject to outstanding disputes and tax documentation requirements.
 
 7. GOVERNING LAW
 

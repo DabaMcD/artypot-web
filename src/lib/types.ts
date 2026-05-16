@@ -42,10 +42,10 @@ export interface HandleSearchResult {
   pending_bounty_count: number;
 }
 
-export type PotStatus = 'open' | 'pending' | 'completed' | 'paid_out' | 'revoked';
-export type PotType = 'direct';
+export type BountyStatus = 'open' | 'pending' | 'completed' | 'paid_out' | 'revoked';
+export type BountyType = 'direct';
 export type CreatorClaimStatus = 'pending' | 'approved' | 'rejected';
-export type PotCompletionStatus = 'pending_review' | 'approved' | 'rejected';
+export type BountyCompletionStatus = 'pending_review' | 'approved' | 'rejected';
 export type WithdrawalStatus = 'pending' | 'processing' | 'paid' | 'failed';
 export type CreatorW9Status = 'initiated' | 'completed' | 'tin_matched' | 'tin_failed';
 
@@ -178,19 +178,19 @@ export interface Creator {
   country_code?: string | null;
   state_code?: string | null;
   rating?: number;
-  /** Live-computed count of open pots */
+  /** Live-computed count of open bounties */
   projects_open?: number;
-  /** Live-computed count of paid-out pots */
+  /** Live-computed count of paid-out bounties */
   projects_finished?: number;
   /** Confirmed earnings: sum of creator credits where Stripe has collected */
   amount_earned?: number;
-  /** Gross pledges on open/pending pots (no charge written yet) */
+  /** Gross pledges on open/pending bounties (no charge written yet) */
   total_pledge_sum?: number;
-  /** Gross pledge amounts locked on completed pots, not yet charged via Stripe */
+  /** Gross pledge amounts locked on completed bounties, not yet charged via Stripe */
   pending_pledge_total?: number;
   /** Whether the currently authenticated user can edit this creator */
   can_edit?: boolean;
-  /** The authenticated user's own 24h-aged pledge total across all pots for this creator */
+  /** The authenticated user's own 24h-aged pledge total across all bounties for this creator */
   user_aged_pledge_total?: number | null;
   /** True when the creator has a Stripe Connect account (may still need onboarding) */
   bank_connected?: boolean;
@@ -205,12 +205,12 @@ export interface Creator {
   creator_names?: CreatorName[];
 }
 
-export interface Pot {
+export interface Bounty {
   id: number;
   title: string;
   description?: string;
-  type: PotType;
-  status: PotStatus;
+  type: BountyType;
+  status: BountyStatus;
   initiator_user_id: number;
   initiator?: User;
   creator_id: number;
@@ -230,15 +230,15 @@ export interface Pot {
   completed_at?: string;
   approved_at?: string;
   paid_out_at?: string;
-  /** Sum of fan charges already collected via billing for this pot. */
+  /** Sum of fan charges already collected via billing for this bounty. */
   cleared_amount?: number;
   pledges?: BountyPledge[];
-  completion?: PotCompletion;
+  completion?: BountyCompletion;
 }
 
 export interface BountyPledge {
   id: number;
-  pot_id: number;
+  bounty_id: number;
   user_id: number;
   user?: Pick<User, 'id' | 'name' | 'display_name'>;
   amount: number;
@@ -249,8 +249,8 @@ export interface BountyPledge {
 
 export interface PublicUserPledge {
   id: number;
-  pot_id: number;
-  pot?: Pick<Pot, 'id' | 'title' | 'status'>;
+  bounty_id: number;
+  bounty?: Pick<Bounty, 'id' | 'title' | 'status'>;
   amount: number;
   expires_at?: string;
   created_at: string;
@@ -283,12 +283,12 @@ export interface PublicUser {
   total_pledge_amount?: number;
 }
 
-export interface PotCompletion {
+export interface BountyCompletion {
   id: number;
-  pot_id: number;
+  bounty_id: number;
   submission_url: string;
   submission_notes?: string;
-  status: PotCompletionStatus;
+  status: BountyCompletionStatus;
   council_notes?: string;
   verified_at?: string;
 }
@@ -329,22 +329,22 @@ export interface AdminCreatorClaim {
   created_at: string;
 }
 
-export interface AdminPotCompletion {
+export interface AdminBountyCompletion {
   id: number;
-  pot_id: number;
-  pot: {
+  bounty_id: number;
+  bounty: {
     id: number;
     title: string;
     total_pledged: number;
     creator_id: number;
-    status: PotStatus;
+    status: BountyStatus;
     creator?: { id: number; display_name: string } | null;
   };
   submitted_by_user_id: number;
   submitted_by: { id: number; display_name: string };
   submission_url: string;
   submission_notes?: string | null;
-  status: PotCompletionStatus;
+  status: BountyCompletionStatus;
   council_notes?: string | null;
   reviewed_by?: number | null;
   reviewer?: { id: number; display_name: string } | null;
@@ -366,7 +366,7 @@ export interface CashLedgerEntry {
   running_balance: number;
   available_after: string | null;
   description: string;
-  pot?: Pick<Pot, 'id' | 'title'>;
+  bounty?: Pick<Bounty, 'id' | 'title'>;
   fan_payment_id?: number | null;
   creator_withdrawal_id?: number | null;
   external_payout_id?: number | null;
@@ -423,13 +423,13 @@ export interface PaymentMethod {
 }
 
 export interface CreatorBalance {
-  /** All pledges on open pots — no charge locked yet (solid + soft) */
+  /** All pledges on open bounties — no charge locked yet (solid + soft) */
   open_pledges: number;
   /** Subset of open_pledges from fans with an active payment method */
   solid_open_pledges: number;
-  /** Pledges on pots awaiting Council approval */
+  /** Pledges on bounties awaiting Council approval */
   pending_verification: number;
-  /** Gross fan obligations locked on approved pots, not yet billed */
+  /** Gross fan obligations locked on approved bounties, not yet billed */
   pending_payment: number;
   /** Stripe-collected funds within the 7-day hold period */
   clearing: number;
@@ -441,7 +441,7 @@ export interface CreatorBalance {
 }
 
 export interface CreatorEarning {
-  pot: Pick<Pot, 'id' | 'title'> & { status: PotStatus };
+  bounty: Pick<Bounty, 'id' | 'title'> & { status: BountyStatus };
   /** Confirmed available_cash credits already received (net of fees) */
   earned: number;
   /** Gross fan amounts not yet billed — actual credit will be lower after fees */
@@ -511,7 +511,7 @@ export interface Nudge {
 }
 
 export interface RemovePledgeResult {
-  pot_deleted: boolean;
+  bounty_deleted: boolean;
   new_initiator_id: number | null;
 }
 
@@ -561,7 +561,7 @@ export interface BountyHistoryEvent {
   snapshot: { title: string; description: string | null };
 }
 
-export interface PotHistory {
+export interface BountyHistory {
   events: BountyHistoryEvent[];
   current: { title: string; description: string | null; total_pledged: number };
 }

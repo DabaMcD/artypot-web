@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { handles as handlesApi, pots as potsApi } from '@/lib/api';
+import { handles as handlesApi, bounties as bountiesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import type { HandleSearchResult, HandlePlatform } from '@/lib/types';
@@ -483,7 +483,7 @@ function Step3({ target, title, description, amount, onBack, onSubmit, submittin
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-function NewPotForm() {
+function NewBountyForm() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -520,7 +520,7 @@ function NewPotForm() {
     setSubmitting(true);
     setSubmitError('');
     try {
-      const payload: Parameters<typeof potsApi.create>[0] = {
+      const payload: Parameters<typeof bountiesApi.create>[0] = {
         title,
         description: description || undefined,
         initial_pledge_amount: parseFloat(amount),
@@ -536,7 +536,7 @@ function NewPotForm() {
         payload.display_name = target.displayName;
       }
 
-      const res = await potsApi.create(payload);
+      const res = await bountiesApi.create(payload);
       toast('Bounty created!', 'success');
       setTimeout(() => router.push(`/bounties/${res.data.id}`), 700);
     } catch (err: unknown) {
@@ -606,10 +606,10 @@ function NewPotForm() {
   );
 }
 
-export default function NewPotPage() {
+export default function NewBountyPage() {
   return (
     <Suspense>
-      <NewPotForm />
+      <NewBountyForm />
     </Suspense>
   );
 }

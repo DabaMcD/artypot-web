@@ -3,10 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { pots as potsApi, billing, pledges as pledgesApi } from '@/lib/api';
+import { bounties as bountiesApi, billing, pledges as pledgesApi } from '@/lib/api';
 import { BILLING_DAY } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
-import type { Pot, CashBalance, PaginatedResponse, PublicUserPledge } from '@/lib/types';
+import type { Bounty, CashBalance, PaginatedResponse, PublicUserPledge } from '@/lib/types';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
@@ -27,13 +27,13 @@ export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [myPots, setMyPots] = useState<PaginatedResponse<Pot> | null>(null);
+  const [myBounties, setMyBounties] = useState<PaginatedResponse<Bounty> | null>(null);
   const [cash, setCash] = useState<CashBalance | null>(null);
   const [myPledges, setMyPledges] = useState<PublicUserPledge[]>([]);
   const [totalActivePledgeAmount, setTotalActivePledgeAmount] = useState<number>(0);
   const [revoking, setRevoking] = useState<Set<number>>(new Set());
 
-  const [potsLoading, setPotsLoading] = useState(true);
+  const [bountiesLoading, setBountiesLoading] = useState(true);
   const [cashLoading, setCashLoading] = useState(true);
   const [pledgesLoading, setPledgesLoading] = useState(true);
 
@@ -56,11 +56,11 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user) return;
 
-    potsApi
+    bountiesApi
       .list({ page: 1 })
-      .then(setMyPots)
+      .then(setMyBounties)
       .catch(() => {})
-      .finally(() => setPotsLoading(false));
+      .finally(() => setBountiesLoading(false));
 
     billing
       .cash()
@@ -75,7 +75,7 @@ export default function DashboardPage() {
     if (revoking.has(pledge.id)) return;
     setRevoking((prev) => new Set(prev).add(pledge.id));
     try {
-      await potsApi.removePledge(pledge.pot_id, pledge.id);
+      await bountiesApi.removePledge(pledge.bounty_id, pledge.id);
       loadPledges();
       billing.cash().then(setCash).catch(() => {});
     } catch {
@@ -105,9 +105,9 @@ export default function DashboardPage() {
   const nextBilling = new Date(now.getFullYear(), now.getMonth() + (now.getDate() >= BILLING_DAY ? 1 : 0), BILLING_DAY);
   const nextBillingStr = nextBilling.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
-  const activePledges = myPledges.filter((v) => v.pot?.status !== 'revoked' && v.pot?.status !== 'paid_out');
-  const awaitingBilling = myPledges.filter((v) => v.pot?.status === 'pending');
-  const awaitingCreator = myPledges.filter((v) => v.pot?.status === 'completed');
+  const activePledges = myPledges.filter((v) => v.bounty?.status !== 'revoked' && v.bounty?.status !== 'paid_out');
+  const awaitingBilling = myPledges.filter((v) => v.bounty?.status === 'pending');
+  const awaitingCreator = myPledges.filter((v) => v.bounty?.status === 'completed');
 
   return (
     <div className="space-y-7 pt-2">
@@ -197,21 +197,21 @@ export default function DashboardPage() {
           <Card>
             <div className="divide-y divide-border -mx-5 -my-4">
               {activePledges.slice(0, 10).map((pledge) => {
-                const status = pledge.pot?.status ?? 'open';
+                const status = pledge.bounty?.status ?? 'open';
                 const badge = STATUS_BADGE[status] ?? { label: status, tone: 'default' as const };
                 const canRevoke = status === 'open';
                 return (
                   <div key={pledge.id} className="flex items-center gap-3 px-5 py-3">
                     <div className="flex-1 min-w-0">
-                      {pledge.pot ? (
+                      {pledge.bounty ? (
                         <Link
-                          href={`/bounties/${pledge.pot_id}`}
+                          href={`/bounties/${pledge.bounty_id}`}
                           className="font-display text-sm text-foreground hover:text-fan transition-colors truncate block"
                         >
-                          {pledge.pot.title}
+                          {pledge.bounty.title}
                         </Link>
                       ) : (
-                        <span className="font-display text-sm text-muted">bounty #{pledge.pot_id}</span>
+                        <span className="font-display text-sm text-muted">bounty #{pledge.bounty_id}</span>
                       )}
                     </div>
                     <Badge tone={badge.tone}>{badge.label}</Badge>
@@ -251,17 +251,17 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {potsLoading ? (
+        {bountiesLoading ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1,2,3].map(i => <div key={i} className="h-44 bg-surface animate-pulse rounded" />)}
           </div>
-        ) : !myPots || myPots.data.length === 0 ? (
+        ) : !myBounties || myBounties.data.length === 0 ? (
           <Empty icon="◇" message="no bounties yet">
             <Button variant="primary" onClick={() => router.push('/bounties/new')}>create the first one</Button>
           </Empty>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {myPots.data.slice(0, 6).map((pot) => {
+            {myBounties.data.slice(0, 6).map((bounty) => {
               const stateMap: Record<string, 'collecting' | 'creator-claimed' | 'submitted' | 'verified' | 'settled'> = {
                 open: 'collecting',
                 completed: 'submitted',
@@ -269,19 +269,19 @@ export default function DashboardPage() {
                 paid_out: 'settled',
                 revoked: 'settled',
               };
-              const creator = (pot as unknown as { creator?: { display_name: string } }).creator;
+              const creator = (bounty as unknown as { creator?: { display_name: string } }).creator;
               return (
                 <BountyCard
-                  key={pot.id}
+                  key={bounty.id}
                   b={{
-                    id: String(pot.id),
-                    title: pot.title,
-                    state: stateMap[pot.status] ?? 'collecting',
-                    fundedTotal: Number(pot.total_pledged ?? 0),
-                    contributors: pot.pledges?.length ?? 0,
+                    id: String(bounty.id),
+                    title: bounty.title,
+                    state: stateMap[bounty.status] ?? 'collecting',
+                    fundedTotal: Number(bounty.total_pledged ?? 0),
+                    contributors: bounty.pledges?.length ?? 0,
                     targetHandle: creator ? { platform: '@', username: creator.display_name } : undefined,
                   }}
-                  onClick={() => router.push(`/bounties/${pot.id}`)}
+                  onClick={() => router.push(`/bounties/${bounty.id}`)}
                 />
               );
             })}

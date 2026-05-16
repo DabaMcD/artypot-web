@@ -10,7 +10,7 @@ export default function GuidePage() {
 
       <div className="space-y-4">
 
-        {/* The Pot */}
+        {/* The Bounty */}
         <div className="bg-surface border border-fan/30 rounded-xl p-6">
           <div className="flex items-start gap-4">
             <span className="text-2xl">🪴</span>
