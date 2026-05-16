@@ -37,7 +37,7 @@ These Creator Terms of Service ("Creator Terms") govern your participation as a 
 
 2.2 Payment intermediary. Artypot collects fan pledges, holds them per its billing and refund policies, and disburses net proceeds to creators after platform fees.
 
-2.3 No guarantee of earnings. Artypot does not guarantee that any pot will reach its threshold, that fans will fulfill pledges, or that any particular level of earnings will result.
+2.3 No guarantee of earnings. Artypot does not guarantee that any bounty will reach any amount, that fans will fulfill pledges, or that any particular level of earnings will result.
 
 2.4 Council review. Bounty completion submissions are reviewed by the Artypot Council. Council decisions are final subject to the appeal process in the General Terms.
 
