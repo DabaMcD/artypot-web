@@ -118,7 +118,7 @@ export const auth = {
   register: (name: string, email: string, password: string, password_confirmation: string) =>
     request<{ token: string }>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ display_name: name, email, password, password_confirmation }),
+      body: JSON.stringify({ display_name: name, email, password, password_confirmation, agreed_to_terms: true }),
     }),
 
   login: (email: string, password: string) =>
@@ -139,7 +139,7 @@ export const auth = {
   becomeCreator: () =>
     request<{ message: string; creator_id: number }>('/auth/become-creator', {
       method: 'POST',
-      body: JSON.stringify({ agreed_to_tos: true }),
+      body: JSON.stringify({ agreed_to_creator_terms: true }),
     }),
 
   /**

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import CreatorSearchWidget from '@/components/CreatorSearchWidget';
 import { featuredBounties } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 import type { Creator, Bounty } from '@/lib/types';
 
 // ── Inline logo ────────────────────────────────────────────────────────────────
@@ -92,6 +93,7 @@ function TrendingBountyCard({ bounty }: { bounty: Bounty }) {
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
   const [trendingBounties, setTrendingBounties] = useState<Bounty[]>([]);
   const [bountiesLoading, setBountiesLoading] = useState(true);
@@ -107,36 +109,38 @@ export default function HomePage() {
   return (
     <>
       {/* ── STICKY NAV ──────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 bg-surface/95 backdrop-blur border-b border-border/60">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          {/* Logo */}
-          <Link href="/" className="shrink-0">
-            <ArtypotLogo />
-          </Link>
+      {!user && (
+        <header className="sticky top-0 z-50 bg-surface/95 backdrop-blur border-b border-border/60">
+          <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+            {/* Logo */}
+            <Link href="/" className="shrink-0">
+              <ArtypotLogo />
+            </Link>
 
-          {/* Right side */}
-          <nav className="flex items-center gap-1 sm:gap-4">
-            <a
-              href="#how-it-works"
-              className="hidden sm:block text-sm text-muted hover:text-foreground transition-colors"
-            >
-              How it works
-            </a>
-            <Link
-              href="/login"
-              className="text-sm text-muted hover:text-foreground transition-colors px-2 py-1"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/register"
-              className="text-sm bg-creator text-brand-dark font-semibold px-3 py-1.5 rounded-md hover:brightness-110 transition-all"
-            >
-              Sign up
-            </Link>
-          </nav>
-        </div>
-      </header>
+            {/* Right side */}
+            <nav className="flex items-center gap-1 sm:gap-4">
+              <a
+                href="#how-it-works"
+                className="hidden sm:block text-sm text-muted hover:text-foreground transition-colors"
+              >
+                How it works
+              </a>
+              <Link
+                href="/login"
+                className="text-sm text-muted hover:text-foreground transition-colors px-2 py-1"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/register"
+                className="text-sm bg-creator text-brand-dark font-semibold px-3 py-1.5 rounded-md hover:brightness-110 transition-all"
+              >
+                Sign up
+              </Link>
+            </nav>
+          </div>
+        </header>
+      )}
 
       {/* ── HERO ────────────────────────────────────────────────────────────── */}
       <section className="pt-20 pb-16 px-4">
@@ -211,7 +215,9 @@ export default function HomePage() {
       {/* ── HOW IT WORKS ────────────────────────────────────────────────────── */}
       <section
         id="how-it-works"
-        className="py-20 px-4 bg-surface border-y border-border"
+        className={user
+          ? 'py-12 px-4 border-t border-border'
+          : 'py-20 px-4 bg-surface border-y border-border'}
       >
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground mb-12">
@@ -262,25 +268,27 @@ export default function HomePage() {
       </section>
 
       {/* ── FOOTER ──────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-border px-4 py-6">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-muted text-sm font-sans">© 2026 Artypot LLC</p>
-          <nav className="flex flex-wrap items-center justify-center gap-4 sm:gap-5">
-            <Link href="/about" className="text-sm text-muted hover:text-foreground transition-colors font-sans">
-              About
-            </Link>
-            <Link href="/terms" className="text-sm text-muted hover:text-foreground transition-colors font-sans">
-              Terms
-            </Link>
-            <Link href="/privacy" className="text-sm text-muted hover:text-foreground transition-colors font-sans">
-              Privacy
-            </Link>
-            <Link href="/contact" className="text-sm text-muted hover:text-foreground transition-colors font-sans">
-              Contact
-            </Link>
-          </nav>
-        </div>
-      </footer>
+      {!user && (
+        <footer className="border-t border-border px-4 py-6">
+          <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-muted text-sm font-sans">© 2026 Artypot LLC</p>
+            <nav className="flex flex-wrap items-center justify-center gap-4 sm:gap-5">
+              <Link href="/about" className="text-sm text-muted hover:text-foreground transition-colors font-sans">
+                About
+              </Link>
+              <Link href="/terms" className="text-sm text-muted hover:text-foreground transition-colors font-sans">
+                Terms
+              </Link>
+              <Link href="/privacy" className="text-sm text-muted hover:text-foreground transition-colors font-sans">
+                Privacy
+              </Link>
+              <Link href="/contact" className="text-sm text-muted hover:text-foreground transition-colors font-sans">
+                Contact
+              </Link>
+            </nav>
+          </div>
+        </footer>
+      )}
     </>
   );
 }

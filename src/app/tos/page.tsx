@@ -4,7 +4,7 @@ export const metadata = {
   title: 'Terms of Service — Artypot',
 };
 
-const LAST_UPDATED = 'May 15, 2026';
+const LAST_UPDATED = 'May 16, 2026';
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
@@ -36,7 +36,7 @@ export default function ToSPage() {
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Artypot takes a 15% platform fee</strong>, deducted from the creator&apos;s payout. This fee covers all transaction costs including payment processing — backers are charged their committed amount in full, creators receive 90%.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Payouts go to US-based creators only</strong> for now. Fans anywhere in the world can back bounties.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>If a bounty never completes, no money moves.</strong> Ever.</span></li>
-            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Anything legal is allowed.</strong> I personally request you don&apos;t ask for anything depraved — but freedom matters more than trying to enforce morality.</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>No NSFW requests.</strong> Artypot is an all-ages platform. You may not use bounties to commission sexually explicit, graphic, or adult-only content. This applies equally to bounty descriptions, submissions, comments, and profiles.</span></li>
           </ul>
           <p className="text-xs text-muted mt-4">This TL;DR is a helpful summary, not a substitute for the full terms below.</p>
         </div>
@@ -89,7 +89,7 @@ export default function ToSPage() {
           </Section>
 
           <Section id="bounties" title="4. Bounties">
-            <p>Any registered user may open a bounty for any task a named creator could verifiably complete. There is no restriction on subject matter beyond legality and the Content Policy (Section 9). If it can be done and confirmed, it can be a bounty.</p>
+            <p>Any registered user may open a bounty for any task a named creator could verifiably complete, subject to the Content Policy (Section 9). If it can be done, confirmed, and doesn&apos;t violate the Content Policy, it can be a bounty.</p>
             <p>Opening a bounty does not guarantee the named creator will fulfil it. The creator is under no contractual obligation to Artypot or to backers. A bounty is an expression of collective demand, not a contract with the creator.</p>
             <p>We reserve the right to remove any bounty at our sole discretion, including but not limited to bounties that are too vague, too difficult to verify completion, harmful, or illegal. We are not obligated to explain every removal, though we will attempt to provide a reason when possible.</p>
             <p>While we are committed to being reasonable, the creator a bounty is directed at may also remove that bounty at their sole discretion, for any reason or no reason.</p>
@@ -124,8 +124,15 @@ export default function ToSPage() {
           </Section>
 
           <Section id="content" title="9. Content Policy">
-            <p>You may not use Artypot to request, fund, or distribute content that is illegal under US federal or state law.</p>
-            <p>We reserve the right to remove content and suspend accounts at our discretion, but we do not have a general content moderation policy beyond what is listed here.</p>
+            <p>Artypot is an all-ages platform. You may not use Artypot to <strong className="text-foreground">request</strong> NSFW or adult content. The following is prohibited in bounty descriptions, completion submissions, comments, profile text, and any other content you post to the Platform:</p>
+            <ul className="list-disc list-inside space-y-1 pl-2">
+              <li>Sexually explicit material, nudity, or pornography of any kind</li>
+              <li>Graphic violence, gore, or content designed to shock or disturb</li>
+              <li>Content that sexualises, exploits, or endangers minors in any way</li>
+              <li>Content that is illegal under US federal or state law</li>
+              <li>Harassment, credible threats, or targeted hate speech</li>
+            </ul>
+            <p>We reserve the right to remove any content and suspend or terminate any account that violates this policy, at our sole discretion and without prior notice.</p>
           </Section>
 
           <Section id="ip" title="10. Intellectual Property">

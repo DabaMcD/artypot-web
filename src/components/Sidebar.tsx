@@ -187,7 +187,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
       </div>
 
       {/* User card */}
-      <div className="mx-5 mt-3 mb-4 p-2.5 bg-background border border-border rounded flex items-center gap-2.5">
+      <div className="mx-5 mt-3 mb-3 p-2.5 bg-background border border-border rounded flex items-center gap-2.5">
         <Avatar
           initials={user?.display_name?.charAt(0).toUpperCase()}
           size="sm"
@@ -208,6 +208,24 @@ export function Sidebar({ role, pathname }: SidebarProps) {
         >
           out
         </button>
+      </div>
+
+      {/* Legal links */}
+      <div className="px-5 pb-4 flex flex-wrap gap-x-3 gap-y-1">
+        {([
+          { href: '/about',   label: 'About' },
+          { href: '/tos',     label: 'Terms' },
+          { href: '/privacy', label: 'Privacy' },
+          { href: '/support', label: 'Contact' },
+        ] as const).map(({ href, label }) => (
+          <Link
+            key={href}
+            href={href}
+            className="font-mono text-[9px] uppercase tracking-wide text-muted/40 hover:text-muted transition-colors"
+          >
+            {label}
+          </Link>
+        ))}
       </div>
     </aside>
   );
