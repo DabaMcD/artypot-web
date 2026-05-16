@@ -19,7 +19,7 @@ import { useToast } from '@/lib/toast-context';
 import Link from 'next/link';
 import { pots as potsApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { Pot, PotVotive, PaymentMethod, PotHistoryEvent } from '@/lib/types';
+import type { Pot, PotPledge, PaymentMethod, PotHistoryEvent } from '@/lib/types';
 import AddCardForm from '@/components/AddCardForm';
 import ShareButton from '@/components/ShareButton';
 import PotHistoryChart from '@/components/PotHistoryChart';
@@ -74,14 +74,15 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[] | null>(null);
   const [pmLoading, setPmLoading] = useState(false);
 
-  // Votive form
-  const [votiveAmount, setVotiveAmount] = useState('');
+  // Pledge form
+  const [pledgeAmount, setPledgeAmount] = useState('');
   const [expireValue, setExpireValue] = useState('10');
   const [expireUnit, setExpireUnit] = useState<ExpireUnit>('years');
-  const [votiveLoading, setVotiveLoading] = useState(false);
+  const [pledgeLoading, setPledgeLoading] = useState(false);
+  const [pledgeError, setPledgeError] = useState<React.ReactNode | null>(null);
 
-  // Last-votive confirm dialog
-  const [showLastVotiveConfirm, setShowLastVotiveConfirm] = useState(false);
+  // Last-pledge confirm dialog
+  const [showLastPledgeConfirm, setShowLastPledgeConfirm] = useState(false);
 
   // Pending-pot revoke warning (shown when pot.status === 'pending')
   const [showPendingRevokeWarning, setShowPendingRevokeWarning] = useState(false);
@@ -105,7 +106,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const [removeLoading, setRemoveLoading]       = useState(false);
 
   // Backers / Comments tab
-  const [activeTab, setActiveTab]       = useState<'votives' | 'comments'>('votives');
+  const [activeTab, setActiveTab]       = useState<'pledges' | 'comments'>('pledges');
   const [commentCount, setCommentCount] = useState<number | null>(null);
 
   // ── History ──────────────────────────────────────────────────────────────────
@@ -154,8 +155,8 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       .finally(() => setHistoryLoading(false));
   }, [showHistory]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const activeVotives = pot?.votives?.filter((v) => !v.revoked_at) ?? [];
-  const userVotive = user ? activeVotives.find((v) => v.user_id === user.id) : null;
+  const activePledges = pot?.pledges?.filter((v) => !v.revoked_at) ?? [];
+  const userPledge = user ? activePledges.find((v) => v.user_id === user.id) : null;
   const hasPaymentMethod = paymentMethods !== null && paymentMethods.length > 0;
 
   // ── Derived display values ────────────────────────────────────────────────
@@ -165,9 +166,9 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const displayedTitle = snapshotView?.title ?? pot?.title ?? '';
   const displayedDescription = snapshotView !== null ? snapshotView.description : pot?.description;
 
-  const handleVotive = async (e: FormEvent) => {
+  const handlePledge = async (e: FormEvent) => {
     e.preventDefault();
-    const amount = parseFloat(votiveAmount);
+    const amount = parseFloat(pledgeAmount);
     if (isNaN(amount) || amount < 1) {
       toast('Minimum is $1.00', 'error');
       return;
@@ -178,41 +179,72 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       return;
     }
     const expiresAt = computeExpiresAt(expVal, expireUnit);
-    const isUpdate = !!userVotive;
-    setVotiveLoading(true);
+    const isUpdate = !!userPledge;
+    setPledgeLoading(true);
+    setPledgeError(null);
     try {
-      const res = await potsApi.votive(Number(id), amount, expiresAt);
+      const res = await potsApi.pledge(Number(id), amount, expiresAt);
       toast(isUpdate ? 'Updated!' : `You're in for $${amount.toFixed(2)}!`, 'success');
-      setVotiveAmount('');
+      setPledgeAmount('');
       setPot((prev) => {
         if (!prev) return prev;
-        const updatedVotive: PotVotive = {
+        const updatedPledge: PotPledge = {
           ...res.data,
           user: user ? { id: user.id, name: user.name, display_name: user.display_name } : undefined,
         };
-        const filteredVotives = (prev.votives ?? []).filter(
+        const filteredPledges = (prev.pledges ?? []).filter(
           (v) => v.user_id !== user?.id || v.revoked_at,
         );
         return {
           ...prev,
           total_pledged: res.data.pot?.total_pledged ?? prev.total_pledged,
-          votives: [...filteredVotives, updatedVotive],
+          pledges: [...filteredPledges, updatedPledge],
         };
       });
     } catch (err: unknown) {
-      const e = err as { message?: string };
-      toast(e.message ?? 'Failed to submit.', 'error');
+      const e = err as {
+        message?: string;
+        status?: number;
+        reason?: string;
+        data?: { cap?: number; current_total?: number; requested?: number; grace_expires_at?: string };
+      };
+      if (e.status === 422 && e.reason === 'pledge_cap_exceeded') {
+        const cap = e.data?.cap ?? 0;
+        const current = e.data?.current_total ?? 0;
+        setPledgeError(
+          <>
+            You can pledge up to <strong>${cap.toFixed(2)}</strong>. You currently have{' '}
+            <strong>${current.toFixed(2)}</strong> pledged.{' '}
+            <Link href="/billing" className="underline underline-offset-2 font-semibold">
+              Add a payment method
+            </Link>{' '}
+            to remove this limit.
+          </>,
+        );
+      } else if (e.status === 422 && e.reason === 'payment_grace_period') {
+        setPledgeError(
+          <>
+            New pledges are paused while you resolve a failed payment.{' '}
+            <Link href="/billing" className="underline underline-offset-2 font-semibold">
+              Update your card
+            </Link>{' '}
+            to continue.
+          </>,
+        );
+      } else {
+        toast(e.message ?? 'Failed to submit.', 'error');
+      }
     } finally {
-      setVotiveLoading(false);
+      setPledgeLoading(false);
     }
   };
 
-  const handleRevokeVotive = async () => {
-    if (!userVotive) return;
-    setVotiveLoading(true);
-    setShowLastVotiveConfirm(false);
+  const handleRevokePledge = async () => {
+    if (!userPledge) return;
+    setPledgeLoading(true);
+    setShowLastPledgeConfirm(false);
     try {
-      const result = await potsApi.removeVotive(Number(id), userVotive.id);
+      const result = await potsApi.removePledge(Number(id), userPledge.id);
       if (result.pot_deleted) {
         toast('You backed out — the bounty was deleted.', 'success');
         router.push('/bounties');
@@ -222,9 +254,9 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         if (!prev) return prev;
         const updated: Pot = {
           ...prev,
-          total_pledged: prev.total_pledged - userVotive.amount,
-          votives: (prev.votives ?? []).map((v) =>
-            v.id === userVotive.id ? { ...v, revoked_at: new Date().toISOString() } : v,
+          total_pledged: prev.total_pledged - userPledge.amount,
+          pledges: (prev.pledges ?? []).map((v) =>
+            v.id === userPledge.id ? { ...v, revoked_at: new Date().toISOString() } : v,
           ),
         };
         if (result.new_initiator_id !== null) {
@@ -237,7 +269,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       const e = err as { message?: string };
       toast(e.message ?? 'Failed to back out.', 'error');
     } finally {
-      setVotiveLoading(false);
+      setPledgeLoading(false);
     }
   };
 
@@ -355,8 +387,8 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
   const canSubmitCompletion = isCreator && pot.status === 'open';
   const canCreatorRemove = isCreator && pot.status === 'open';
 
-  // ── Votive panel content ────────────────────────────────────────────────────
-  const renderVotivePanel = () => {
+  // ── Pledge panel content ────────────────────────────────────────────────────
+  const renderPledgePanel = () => {
     if (!canVote) return null;
 
     // Still checking for payment methods
@@ -387,7 +419,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       );
     }
 
-    // Has payment method — show normal votive form
+    // Has payment method — show normal pledge form
     return (
       <Card>
         <div className="flex items-center gap-2 mb-4">
@@ -405,19 +437,19 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           </span>
         </div>
 
-        {userVotive ? (
+        {userPledge ? (
           <div className="space-y-3">
             <div className="bg-fan/10 border border-fan/30 rounded px-4 py-3 text-sm font-display">
               <div>
                 You&apos;re in for{' '}
                 <span className="text-fan font-mono font-semibold tabular-nums">
-                  ${Number(userVotive.amount).toFixed(2)}
+                  ${Number(userPledge.amount).toFixed(2)}
                 </span>
               </div>
-              {userVotive.expires_at && (
+              {userPledge.expires_at && (
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5">
                   Expires{' '}
-                  {new Date(userVotive.expires_at).toLocaleDateString('en-US', {
+                  {new Date(userPledge.expires_at).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric',
@@ -428,7 +460,12 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             <p className="font-display text-xs text-muted">
               Change how much you&apos;re in for by entering a new amount and expiry.
             </p>
-            <form onSubmit={handleVotive} className="space-y-2">
+            <form onSubmit={handlePledge} className="space-y-2">
+              {pledgeError && (
+                <div className="bg-bad-soft border border-bad text-foreground rounded px-3 py-2 text-sm">
+                  {pledgeError}
+                </div>
+              )}
               <div className="flex items-stretch border border-border rounded bg-background">
                 <span className="flex items-center px-2.5 bg-surface-2 font-mono text-xs text-muted border-r border-border flex-shrink-0">$</span>
                 <div className="flex-1">
@@ -438,8 +475,8 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                     max="999999.99"
                     step="0.01"
                     mono
-                    value={votiveAmount}
-                    onChange={(e) => setVotiveAmount(e.target.value)}
+                    value={pledgeAmount}
+                    onChange={(e) => setPledgeAmount(e.target.value)}
                     placeholder="New amount"
                     className="border-0 rounded-none rounded-r focus:border-0"
                   />
@@ -449,7 +486,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               <Button
                 type="submit"
                 variant="primary"
-                disabled={votiveLoading}
+                disabled={pledgeLoading}
                 className="w-full justify-center"
               >
                 Update
@@ -461,20 +498,25 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               onClick={() => {
                 if (pot?.status === 'pending') {
                   setShowPendingRevokeWarning(true);
-                } else if (activeVotives.length === 1) {
-                  setShowLastVotiveConfirm(true);
+                } else if (activePledges.length === 1) {
+                  setShowLastPledgeConfirm(true);
                 } else {
-                  handleRevokeVotive();
+                  handleRevokePledge();
                 }
               }}
-              disabled={votiveLoading}
+              disabled={pledgeLoading}
               className="w-full justify-center text-muted hover:text-bad cursor-pointer"
             >
               Back out
             </Button>
           </div>
         ) : (
-          <form onSubmit={handleVotive} className="space-y-3">
+          <form onSubmit={handlePledge} className="space-y-3">
+            {pledgeError && (
+              <div className="bg-bad-soft border border-bad text-foreground rounded px-3 py-2 text-sm">
+                {pledgeError}
+              </div>
+            )}
             <div className="flex items-stretch border border-border rounded bg-background">
               <span className="flex items-center px-2.5 bg-surface-2 font-mono text-xs text-muted border-r border-border flex-shrink-0">$</span>
               <div className="flex-1">
@@ -484,8 +526,8 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                   max="999999.99"
                   step="0.01"
                   mono
-                  value={votiveAmount}
-                  onChange={(e) => setVotiveAmount(e.target.value)}
+                  value={pledgeAmount}
+                  onChange={(e) => setPledgeAmount(e.target.value)}
                   placeholder="Amount"
                   className="border-0 rounded-none rounded-r focus:border-0"
                 />
@@ -495,10 +537,10 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             <Button
               type="submit"
               variant="primary"
-              disabled={votiveLoading}
+              disabled={pledgeLoading}
               className="w-full justify-center"
             >
-              {votiveLoading ? 'Backing…' : 'Back This Bounty'}
+              {pledgeLoading ? 'Backing…' : 'Back This Bounty'}
             </Button>
           </form>
         )}
@@ -510,7 +552,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
     <div className="max-w-4xl mx-auto px-4 py-10">
 
       {/* Pending-pot revoke warning */}
-      {showPendingRevokeWarning && userVotive && (
+      {showPendingRevokeWarning && userPledge && (
         <Modal
           title={`Hold on, ${user?.name.split(' ')[0]}.`}
           onClose={() => setShowPendingRevokeWarning(false)}
@@ -520,13 +562,13 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                 variant="danger"
                 onClick={() => {
                   setShowPendingRevokeWarning(false);
-                  if (activeVotives.length === 1) {
-                    setShowLastVotiveConfirm(true);
+                  if (activePledges.length === 1) {
+                    setShowLastPledgeConfirm(true);
                   } else {
-                    handleRevokeVotive();
+                    handleRevokePledge();
                   }
                 }}
-                disabled={votiveLoading}
+                disabled={pledgeLoading}
                 className="cursor-pointer"
               >
                 Proceed anyway
@@ -534,7 +576,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               <Button
                 variant="default"
                 onClick={() => setShowPendingRevokeWarning(false)}
-                disabled={votiveLoading}
+                disabled={pledgeLoading}
                 className="cursor-pointer"
               >
                 Never mind
@@ -549,7 +591,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           <p className="font-display text-muted text-sm leading-relaxed mb-1">
             Pulling your{' '}
             <span className="text-foreground font-mono font-semibold tabular-nums">
-              ${Number(userVotive.amount).toFixed(2)}
+              ${Number(userPledge.amount).toFixed(2)}
             </span>{' '}
             backing out now would be a d*** move. Just saying.
           </p>
@@ -600,25 +642,25 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
         </Modal>
       )}
 
-      {/* Last-votive confirm dialog */}
-      {showLastVotiveConfirm && (
+      {/* Last-pledge confirm dialog */}
+      {showLastPledgeConfirm && (
         <Modal
           title="Back out completely?"
-          onClose={() => setShowLastVotiveConfirm(false)}
+          onClose={() => setShowLastPledgeConfirm(false)}
           actions={
             <>
               <Button
                 variant="danger"
-                onClick={handleRevokeVotive}
-                disabled={votiveLoading}
+                onClick={handleRevokePledge}
+                disabled={pledgeLoading}
                 className="cursor-pointer"
               >
-                {votiveLoading ? 'Removing…' : 'Yes, back out'}
+                {pledgeLoading ? 'Removing…' : 'Yes, back out'}
               </Button>
               <Button
                 variant="default"
-                onClick={() => setShowLastVotiveConfirm(false)}
-                disabled={votiveLoading}
+                onClick={() => setShowLastPledgeConfirm(false)}
+                disabled={pledgeLoading}
                 className="cursor-pointer"
               >
                 Cancel
@@ -774,7 +816,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
           <div className="flex items-center justify-between gap-2 mt-0.5">
             <div>
               <div className="font-display text-muted text-sm">
-                supported by {activeVotives.length} {activeVotives.length === 1 ? (pot.creator?.fan_name ?? 'supporter') : (pot.creator?.fan_name_plural ?? pot.creator?.fan_name ?? 'supporters')}
+                supported by {activePledges.length} {activePledges.length === 1 ? (pot.creator?.fan_name ?? 'supporter') : (pot.creator?.fan_name_plural ?? pot.creator?.fan_name ?? 'supporters')}
               </div>
               {(pot.status === 'completed' || pot.status === 'paid_out') && pot.cleared_amount !== undefined && (
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5 tabular-nums">
@@ -828,8 +870,8 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       <div className="grid sm:grid-cols-3 gap-6">
         {/* Action panel */}
         <div className="sm:col-span-1 space-y-4">
-          {/* Payment-gated votive panel */}
-          {renderVotivePanel()}
+          {/* Payment-gated pledge panel */}
+          {renderPledgePanel()}
 
           {/* Not logged in */}
           {!user && pot.status === 'open' && (
@@ -1007,16 +1049,16 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
             {/* Tab bar */}
             <div className="flex border-b border-border">
               <button
-                onClick={() => setActiveTab('votives')}
+                onClick={() => setActiveTab('pledges')}
                 className={`flex-1 py-3 font-mono text-[10px] uppercase tracking-widest transition-colors cursor-pointer ${
-                  activeTab === 'votives'
+                  activeTab === 'pledges'
                     ? 'text-foreground border-b-2 border-fan -mb-px bg-transparent'
                     : 'text-muted hover:text-foreground'
                 }`}
               >
                 Backers{' '}
-                <span className={activeTab === 'votives' ? 'text-muted font-normal' : ''}>
-                  ({activeVotives.length})
+                <span className={activeTab === 'pledges' ? 'text-muted font-normal' : ''}>
+                  ({activePledges.length})
                 </span>
               </button>
               <button
@@ -1034,22 +1076,22 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
               </button>
             </div>
 
-            {/* Votives panel */}
-            <div className={`p-5 ${activeTab !== 'votives' ? 'hidden' : ''}`}>
-              {activeVotives.length === 0 ? (
+            {/* Pledges panel */}
+            <div className={`p-5 ${activeTab !== 'pledges' ? 'hidden' : ''}`}>
+              {activePledges.length === 0 ? (
                 <p className="font-display text-muted text-sm">No {pot.creator?.fan_name_plural ?? pot.creator?.fan_name ?? 'supporters'} yet. Be the first!</p>
               ) : (
                 <div className="space-y-2">
-                  {activeVotives.map((votive) => {
-                    const isAnon = votive.user_id === 0;
-                    const displayName = isAnon ? '[anonymous]' : (votive.user?.display_name ?? 'Unknown');
-                    const initial = isAnon ? '?' : (votive.user?.display_name?.charAt(0).toUpperCase() ?? '?');
-                    const expiryDate = votive.expires_at
-                      ? new Date(votive.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                  {activePledges.map((pledge) => {
+                    const isAnon = pledge.user_id === 0;
+                    const displayName = isAnon ? '[anonymous]' : (pledge.user?.display_name ?? 'Unknown');
+                    const initial = isAnon ? '?' : (pledge.user?.display_name?.charAt(0).toUpperCase() ?? '?');
+                    const expiryDate = pledge.expires_at
+                      ? new Date(pledge.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
                       : null;
                     return (
                       <div
-                        key={votive.id}
+                        key={pledge.id}
                         className="flex items-center justify-between py-2 border-b border-border last:border-0"
                       >
                         <div className="flex items-center gap-2">
@@ -1064,13 +1106,13 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                               <span className="font-display text-sm text-muted">{displayName}</span>
                             ) : (
                               <Link
-                                href={`/users/${votive.user_id}`}
+                                href={`/users/${pledge.user_id}`}
                                 className="font-display text-sm text-foreground hover:underline cursor-pointer"
                               >
                                 {displayName}
                               </Link>
                             )}
-                            {user && votive.user_id === user.id && (
+                            {user && pledge.user_id === user.id && (
                               <span className="font-mono text-[10px] uppercase tracking-widest text-muted ml-1">(you)</span>
                             )}
                             {expiryDate && (
@@ -1079,7 +1121,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                           </div>
                         </div>
                         <span className="text-fan font-mono text-sm font-semibold tabular-nums">
-                          ${Number(votive.amount).toFixed(2)}
+                          ${Number(pledge.amount).toFixed(2)}
                         </span>
                       </div>
                     );

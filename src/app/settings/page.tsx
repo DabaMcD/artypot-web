@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi, votives as votivesApi, handles as handlesApi } from '@/lib/api';
+import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi, pledges as pledgesApi, handles as handlesApi } from '@/lib/api';
 import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
 import type { HandleClaim, HandlePlatform } from '@/lib/types';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
@@ -52,11 +52,11 @@ const NOTIF_ROWS: {
   { label: 'creator answered',       desc: 'a creator claims their profile and your backing activates.',       emailKey: 'creator_answered',          smsKey: 'sms_creator_answered',          inAppKey: 'in_app_creator_answered' },
   { label: 'bounty pending review',  desc: 'a creator submits a bounty for council review.',                  emailKey: 'pot_pending_completion',    smsKey: 'sms_pot_pending_completion',    inAppKey: 'in_app_pot_pending_completion' },
   { label: 'bounty confirmed',       desc: 'council approves a bounty and payment is queued.',               emailKey: 'pot_confirmed_completed',   smsKey: 'sms_pot_confirmed_completed',   inAppKey: 'in_app_pot_confirmed_completed' },
-  { label: 'backing confirmed',      desc: 'you backed a bounty.',                                           emailKey: 'votive_confirmation',        smsKey: 'sms_votive_confirmation',        inAppKey: 'in_app_votive_confirmation' },
-  { label: 'backing expired',        desc: 'your backing on a bounty reached its expiry and was removed.',   emailKey: 'votive_expired',             smsKey: 'sms_votive_expired',             inAppKey: 'in_app_votive_expired' },
+  { label: 'backing confirmed',      desc: 'you backed a bounty.',                                           emailKey: 'pledge_confirmation',        smsKey: 'sms_pledge_confirmation',        inAppKey: 'in_app_pledge_confirmation' },
+  { label: 'backing expired',        desc: 'your backing on a bounty reached its expiry and was removed.',   emailKey: 'pledge_expired',             smsKey: 'sms_pledge_expired',             inAppKey: 'in_app_pledge_expired' },
   { label: 'bounty updated',         desc: 'an initiator changes the title or description of a bounty you back.', emailKey: 'pot_updated',           smsKey: 'sms_pot_updated',                inAppKey: 'in_app_pot_updated' },
-  { label: 'billing preview',        desc: 'heads-up before your payment method is charged.',                emailKey: 'monthly_votive_preview',    smsKey: 'sms_monthly_votive_preview',    inAppKey: 'in_app_monthly_votive_preview' },
-  { label: 'monthly receipt',        desc: 'breakdown after your monthly payment is processed.',             emailKey: 'monthly_votive_receipt',    smsKey: 'sms_monthly_votive_receipt',    inAppKey: 'in_app_monthly_votive_receipt' },
+  { label: 'billing preview',        desc: 'heads-up before your payment method is charged.',                emailKey: 'monthly_pledge_preview',    smsKey: 'sms_monthly_pledge_preview',    inAppKey: 'in_app_monthly_pledge_preview' },
+  { label: 'monthly receipt',        desc: 'breakdown after your monthly payment is processed.',             emailKey: 'monthly_pledge_receipt',    smsKey: 'sms_monthly_pledge_receipt',    inAppKey: 'in_app_monthly_pledge_receipt' },
   { label: 'herald status lost',     desc: 'another fan outbids you and edits a profile you were heralding.', emailKey: 'herald_status_lost',       smsKey: 'sms_herald_status_lost',        inAppKey: 'in_app_herald_status_lost' },
 ];
 
@@ -86,7 +86,7 @@ export default function SettingsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [dangerLoading, setDangerLoading] = useState(false);
   const [dangerMsg, setDangerMsg] = useState('');
-  const [votiveTotalAmount, setVotiveTotalAmount] = useState<number | null>(null);
+  const [pledgeTotalAmount, setPledgeTotalAmount] = useState<number | null>(null);
 
   // Location
   const [countryCode, setCountryCode] = useState('');
@@ -108,7 +108,7 @@ export default function SettingsPage() {
     setCountryCode(user.country_code ?? '');
     setStateCode(user.state_code ?? '');
     notifApi.get().then(setNotifSettings).catch(() => {});
-    votivesApi.list().then((res) => setVotiveTotalAmount(res.total_active_amount)).catch(() => {});
+    pledgesApi.list().then((res) => setPledgeTotalAmount(res.total_active_amount)).catch(() => {});
     authApi.myHandles().then((res) => setMyHandles(res.data)).catch(() => {});
   }, [user, authLoading, router]);
 
@@ -327,8 +327,8 @@ export default function SettingsPage() {
           <p className="font-display text-sm text-muted leading-relaxed mb-2">
             this will immediately <strong className="text-foreground">cancel all your active commitments</strong> and remove your backing from every project.
           </p>
-          {votiveTotalAmount != null && votiveTotalAmount > 0 && (
-            <p className="font-mono text-sm text-bad mb-2">${votiveTotalAmount.toFixed(2)} in active commitments will be cancelled.</p>
+          {pledgeTotalAmount != null && pledgeTotalAmount > 0 && (
+            <p className="font-mono text-sm text-bad mb-2">${pledgeTotalAmount.toFixed(2)} in active commitments will be cancelled.</p>
           )}
           <p className="font-display text-sm text-muted">this cannot easily be undone. you would need to back each project individually again.</p>
         </Modal>

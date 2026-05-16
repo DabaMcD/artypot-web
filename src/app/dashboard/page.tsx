@@ -3,10 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { pots as potsApi, billing, votives as votivesApi } from '@/lib/api';
+import { pots as potsApi, billing, pledges as pledgesApi } from '@/lib/api';
 import { BILLING_DAY } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
-import type { Pot, CashBalance, PaginatedResponse, PublicUserVotive } from '@/lib/types';
+import type { Pot, CashBalance, PaginatedResponse, PublicUserPledge } from '@/lib/types';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
@@ -29,28 +29,28 @@ export default function DashboardPage() {
 
   const [myPots, setMyPots] = useState<PaginatedResponse<Pot> | null>(null);
   const [cash, setCash] = useState<CashBalance | null>(null);
-  const [myVotives, setMyVotives] = useState<PublicUserVotive[]>([]);
-  const [totalActiveVotiveAmount, setTotalActiveVotiveAmount] = useState<number>(0);
+  const [myPledges, setMyPledges] = useState<PublicUserPledge[]>([]);
+  const [totalActivePledgeAmount, setTotalActivePledgeAmount] = useState<number>(0);
   const [revoking, setRevoking] = useState<Set<number>>(new Set());
 
   const [potsLoading, setPotsLoading] = useState(true);
   const [cashLoading, setCashLoading] = useState(true);
-  const [votivesLoading, setVotivesLoading] = useState(true);
+  const [pledgesLoading, setPledgesLoading] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/login');
   }, [authLoading, user, router]);
 
-  const loadVotives = useCallback(() => {
-    setVotivesLoading(true);
-    votivesApi
+  const loadPledges = useCallback(() => {
+    setPledgesLoading(true);
+    pledgesApi
       .list({ sort: 'date', page: 1 })
       .then((res) => {
-        setMyVotives(res.data);
-        setTotalActiveVotiveAmount(res.total_active_amount ?? 0);
+        setMyPledges(res.data);
+        setTotalActivePledgeAmount(res.total_active_amount ?? 0);
       })
       .catch(() => {})
-      .finally(() => setVotivesLoading(false));
+      .finally(() => setPledgesLoading(false));
   }, []);
 
   useEffect(() => {
@@ -68,22 +68,22 @@ export default function DashboardPage() {
       .catch(() => {})
       .finally(() => setCashLoading(false));
 
-    loadVotives();
-  }, [user, loadVotives]);
+    loadPledges();
+  }, [user, loadPledges]);
 
-  const handleRevoke = useCallback(async (votive: PublicUserVotive) => {
-    if (revoking.has(votive.id)) return;
-    setRevoking((prev) => new Set(prev).add(votive.id));
+  const handleRevoke = useCallback(async (pledge: PublicUserPledge) => {
+    if (revoking.has(pledge.id)) return;
+    setRevoking((prev) => new Set(prev).add(pledge.id));
     try {
-      await potsApi.removeVotive(votive.pot_id, votive.id);
-      loadVotives();
+      await potsApi.removePledge(pledge.pot_id, pledge.id);
+      loadPledges();
       billing.cash().then(setCash).catch(() => {});
     } catch {
       // ignore
     } finally {
-      setRevoking((prev) => { const s = new Set(prev); s.delete(votive.id); return s; });
+      setRevoking((prev) => { const s = new Set(prev); s.delete(pledge.id); return s; });
     }
-  }, [revoking, loadVotives]);
+  }, [revoking, loadPledges]);
 
   if (authLoading || !user) {
     return (
@@ -105,9 +105,9 @@ export default function DashboardPage() {
   const nextBilling = new Date(now.getFullYear(), now.getMonth() + (now.getDate() >= BILLING_DAY ? 1 : 0), BILLING_DAY);
   const nextBillingStr = nextBilling.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
-  const activeVotives = myVotives.filter((v) => v.pot?.status !== 'revoked' && v.pot?.status !== 'paid_out');
-  const awaitingBilling = myVotives.filter((v) => v.pot?.status === 'pending');
-  const awaitingCreator = myVotives.filter((v) => v.pot?.status === 'completed');
+  const activePledges = myPledges.filter((v) => v.pot?.status !== 'revoked' && v.pot?.status !== 'paid_out');
+  const awaitingBilling = myPledges.filter((v) => v.pot?.status === 'pending');
+  const awaitingCreator = myPledges.filter((v) => v.pot?.status === 'completed');
 
   return (
     <div className="space-y-7 pt-2">
@@ -145,23 +145,23 @@ export default function DashboardPage() {
         <Card>
           <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">active pledges</div>
           <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
-            {votivesLoading ? '—' : activeVotives.length}
+            {pledgesLoading ? '—' : activePledges.length}
           </div>
           <div className="font-mono text-[10px] text-fan mt-0.5">
-            {votivesLoading ? '' : `$${totalActiveVotiveAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} committed`}
+            {pledgesLoading ? '' : `$${totalActivePledgeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} committed`}
           </div>
         </Card>
         <Card>
           <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">awaiting billing</div>
           <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
-            {votivesLoading ? '—' : awaitingBilling.length}
+            {pledgesLoading ? '—' : awaitingBilling.length}
           </div>
           <div className="font-mono text-[10px] text-warn mt-0.5">next charge {nextBillingStr}</div>
         </Card>
         <Card>
           <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">awaiting creator</div>
           <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
-            {votivesLoading ? '—' : awaitingCreator.length}
+            {pledgesLoading ? '—' : awaitingCreator.length}
           </div>
           <div className="font-mono text-[10px] text-muted mt-0.5">submitted, under review</div>
         </Card>
@@ -183,57 +183,57 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {votivesLoading ? (
+        {pledgesLoading ? (
           <Card>
             <div className="space-y-3">
               {[1,2,3].map(i => <div key={i} className="h-10 bg-surface-2 animate-pulse rounded" />)}
             </div>
           </Card>
-        ) : activeVotives.length === 0 ? (
+        ) : activePledges.length === 0 ? (
           <Empty icon="◇" message="not backing anything yet">
             <Link href="/creators"><Button variant="default" size="sm">find creators →</Button></Link>
           </Empty>
         ) : (
           <Card>
             <div className="divide-y divide-border -mx-5 -my-4">
-              {activeVotives.slice(0, 10).map((votive) => {
-                const status = votive.pot?.status ?? 'open';
+              {activePledges.slice(0, 10).map((pledge) => {
+                const status = pledge.pot?.status ?? 'open';
                 const badge = STATUS_BADGE[status] ?? { label: status, tone: 'default' as const };
                 const canRevoke = status === 'open';
                 return (
-                  <div key={votive.id} className="flex items-center gap-3 px-5 py-3">
+                  <div key={pledge.id} className="flex items-center gap-3 px-5 py-3">
                     <div className="flex-1 min-w-0">
-                      {votive.pot ? (
+                      {pledge.pot ? (
                         <Link
-                          href={`/bounties/${votive.pot_id}`}
+                          href={`/bounties/${pledge.pot_id}`}
                           className="font-display text-sm text-foreground hover:text-fan transition-colors truncate block"
                         >
-                          {votive.pot.title}
+                          {pledge.pot.title}
                         </Link>
                       ) : (
-                        <span className="font-display text-sm text-muted">bounty #{votive.pot_id}</span>
+                        <span className="font-display text-sm text-muted">bounty #{pledge.pot_id}</span>
                       )}
                     </div>
                     <Badge tone={badge.tone}>{badge.label}</Badge>
                     <span className="font-mono text-sm font-medium text-fan tabular-nums shrink-0">
-                      ${Number(votive.amount).toFixed(2)}
+                      ${Number(pledge.amount).toFixed(2)}
                     </span>
                     {canRevoke && (
                       <button
-                        onClick={() => handleRevoke(votive)}
-                        disabled={revoking.has(votive.id)}
+                        onClick={() => handleRevoke(pledge)}
+                        disabled={revoking.has(pledge.id)}
                         className="font-mono text-[10px] uppercase text-muted/50 hover:text-bad transition-colors disabled:opacity-40 shrink-0"
                       >
-                        {revoking.has(votive.id) ? '…' : 'revoke'}
+                        {revoking.has(pledge.id) ? '…' : 'revoke'}
                       </button>
                     )}
                   </div>
                 );
               })}
-              {activeVotives.length > 10 && (
+              {activePledges.length > 10 && (
                 <div className="px-5 py-3">
                   <Link href="/pledges" className="font-mono text-[10px] uppercase text-muted hover:text-foreground transition-colors">
-                    +{activeVotives.length - 10} more →
+                    +{activePledges.length - 10} more →
                   </Link>
                 </div>
               )}
@@ -278,7 +278,7 @@ export default function DashboardPage() {
                     title: pot.title,
                     state: stateMap[pot.status] ?? 'collecting',
                     fundedTotal: Number(pot.total_pledged ?? 0),
-                    contributors: pot.votives?.length ?? 0,
+                    contributors: pot.pledges?.length ?? 0,
                     targetHandle: creator ? { platform: '@', username: creator.display_name } : undefined,
                   }}
                   onClick={() => router.push(`/bounties/${pot.id}`)}

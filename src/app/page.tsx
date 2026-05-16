@@ -42,7 +42,7 @@ function CreatorAvatar({ creator, size = 'sm' }: { creator: Pick<Creator, 'displ
 
 // ── Trending pot card ──────────────────────────────────────────────────────────
 function TrendingPotCard({ pot }: { pot: Pot }) {
-  const backerCount = pot.votives?.filter((v) => !v.revoked_at).length ?? 0;
+  const backerCount = pot.pledges?.filter((v) => !v.revoked_at).length ?? 0;
   const pledged = Number(pot.total_pledged);
   // Rough goal proxy — show progress vs. a soft milestone (or just fill bar)
   const barWidth = Math.min(100, pledged > 0 ? Math.min(100, (pledged / 500) * 100) : 0);

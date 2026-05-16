@@ -8,7 +8,7 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
   const hasStats =
     creator.projects_finished != null ||
     creator.projects_open != null ||
-    creator.total_votive_sum != null;
+    creator.total_pledge_sum != null;
 
   return (
     <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-creator/50 transition-colors group">
@@ -66,10 +66,10 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
               open
             </span>
           )}
-          {creator.total_votive_sum != null && Number(creator.total_votive_sum) > 0 && (
+          {creator.total_pledge_sum != null && Number(creator.total_pledge_sum) > 0 && (
             <span className="ml-auto">
               <span className="text-fan font-semibold">
-                ${Number(creator.total_votive_sum).toLocaleString('en-US', {
+                ${Number(creator.total_pledge_sum).toLocaleString('en-US', {
                   minimumFractionDigits: 0,
                   maximumFractionDigits: 0,
                 })}

@@ -219,9 +219,9 @@ function SanctumPageContent() {
   const isUS           = user.country_code === 'US';
   const needsLocation  = !user.location_complete;
 
-  const openVotives        = balance?.open_votives ?? 0;
-  const solidOpenVotives   = balance?.solid_open_votives ?? openVotives;
-  const softOpenVotives    = openVotives - solidOpenVotives;
+  const openPledges        = balance?.open_pledges ?? 0;
+  const solidOpenPledges   = balance?.solid_open_pledges ?? openPledges;
+  const softOpenPledges    = openPledges - solidOpenPledges;
   const pendingPayment     = balance?.pending_payment ?? 0;
   const clearing           = balance?.clearing ?? 0;
   const availableBalance   = balance?.available_balance ?? 0;
@@ -303,10 +303,10 @@ function SanctumPageContent() {
           <div className="grid grid-cols-2 gap-4">
             <Card>
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">open backing</div>
-              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{fmt(solidOpenVotives)}</div>
+              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{fmt(solidOpenPledges)}</div>
               <div className="font-mono text-[10px] text-muted mt-0.5">solid pledges (active payment method)</div>
-              {softOpenVotives > 0.005 && (
-                <div className="font-mono text-[10px] text-muted/60 mt-0.5">+ {fmt(softOpenVotives)} soft (no payment method)</div>
+              {softOpenPledges > 0.005 && (
+                <div className="font-mono text-[10px] text-muted/60 mt-0.5">+ {fmt(softOpenPledges)} soft (no payment method)</div>
               )}
             </Card>
             <Card>
@@ -332,14 +332,38 @@ function SanctumPageContent() {
               <p className="font-display text-sm text-muted">no transactions yet.</p>
             ) : (
               <div className="divide-y divide-border -mx-5 -my-4">
-                {recentTransactions.map((entry) => (
-                  <div key={entry.id} className="flex items-center justify-between px-5 py-3">
-                    <span className="font-display text-sm text-muted truncate mr-4">{entry.description}</span>
-                    <span className={`font-mono text-sm font-medium shrink-0 ${Number(entry.amount) < 0 ? 'text-bad' : 'text-creator'}`}>
-                      {Number(entry.amount) < 0 ? '-' : '+'}${Math.abs(Number(entry.amount)).toFixed(2)}
-                    </span>
-                  </div>
-                ))}
+                {recentTransactions.map((entry) => {
+                  const amt = Number(entry.amount);
+                  let methodBadge: { label: string; tone: 'info' | 'good' | 'creator' | 'default' } | null = null;
+                  let refTitle: string | undefined;
+                  if (entry.external_payout_id && entry.external_payout) {
+                    const method = entry.external_payout.method;
+                    const toneMap: Record<typeof method, 'info' | 'good' | 'creator' | 'default'> = {
+                      wise:   'creator',
+                      paypal: 'info',
+                      wire:   'good',
+                      check:  'default',
+                      other:  'default',
+                    };
+                    methodBadge = { label: method, tone: toneMap[method] };
+                    refTitle = entry.external_payout.external_reference_id ?? undefined;
+                  } else if (entry.creator_withdrawal_id && amt < 0) {
+                    methodBadge = { label: 'stripe', tone: 'info' };
+                  } else if (entry.fan_payment_id && amt > 0) {
+                    methodBadge = { label: 'earning', tone: 'creator' };
+                  }
+                  return (
+                    <div key={entry.id} className="flex items-center justify-between px-5 py-3 gap-3">
+                      <span className="font-display text-sm text-muted truncate flex-1">{entry.description}</span>
+                      <span className="shrink-0" title={refTitle}>
+                        {methodBadge && <Badge tone={methodBadge.tone}>{methodBadge.label}</Badge>}
+                      </span>
+                      <span className={`font-mono text-sm font-medium shrink-0 ${amt < 0 ? 'text-bad' : 'text-creator'}`}>
+                        {amt < 0 ? '-' : '+'}${Math.abs(amt).toFixed(2)}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </Card>

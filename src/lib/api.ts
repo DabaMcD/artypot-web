@@ -8,21 +8,23 @@ import type {
   NotificationPage,
   Nudge,
   Pot,
-  PotVotive,
+  PotPledge,
   PotCompletion,
   PotHistory,
   CreatorClaim,
   PaginatedResponse,
-  VotivePage,
+  PledgePage,
   CashBalance,
   PaymentMethod,
   PotStatus,
-  RemoveVotiveResult,
+  RemovePledgeResult,
   DeletePaymentMethodResult,
   CouncilMember,
   CouncilPage,
   AdminCreatorClaim,
   AdminPotCompletion,
+  ExternalPayout,
+  CreatorSearchResult,
   CreatorEarning,
   CreatorBalance,
   Comment,
@@ -51,6 +53,10 @@ interface ApiError {
   status: number;
   message: string;
   requires_w9?: boolean;
+  /** 422 body reason code, e.g. 'pledge_cap_exceeded' | 'payment_grace_period' */
+  reason?: string;
+  /** Free-form body payload for 422 responses (cap, current_total, requested, grace_expires_at, etc.) */
+  data?: Record<string, unknown>;
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -75,6 +81,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       status: res.status,
       message,
       ...(body.requires_w9 ? { requires_w9: true } : {}),
+      ...(body.reason ? { reason: body.reason as string } : {}),
+      data: body as Record<string, unknown>,
     };
     throw error;
   }
@@ -276,7 +284,7 @@ export const pots = {
   create: (data: {
     title: string;
     description?: string;
-    initial_votive_amount?: number;
+    initial_pledge_amount?: number;
     target_user_id?: number;
     target_handle_id?: number;
     platform?: string;
@@ -288,14 +296,14 @@ export const pots = {
   update: (id: number, data: { title?: string; description?: string }) =>
     request<{ data: Pot }>(`/pots/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
-  votive: (potId: number, amount: number, expires_at?: string) =>
-    request<{ data: PotVotive & { pot: { total_pledged: number } } }>(`/pots/${potId}/votives`, {
+  pledge: (potId: number, amount: number, expires_at?: string) =>
+    request<{ data: PotPledge & { pot: { total_pledged: number } } }>(`/pots/${potId}/pledges`, {
       method: 'POST',
       body: JSON.stringify({ amount, ...(expires_at ? { expires_at } : {}) }),
     }),
 
-  removeVotive: (potId: number, votiveId: number) =>
-    request<RemoveVotiveResult>(`/pots/${potId}/votives/${votiveId}`, { method: 'DELETE' }),
+  removePledge: (potId: number, pledgeId: number) =>
+    request<RemovePledgeResult>(`/pots/${potId}/pledges/${pledgeId}`, { method: 'DELETE' }),
 
   submitCompletion: (potId: number, submission_url: string, submission_notes?: string) =>
     request<{ data: PotCompletion }>(`/pots/${potId}/completion`, {
@@ -382,14 +390,14 @@ export const featuredPots = {
   list: () => request<{ data: Pot[] }>('/featured-pots'),
 };
 
-// Votives (authenticated user's own)
-export const votives = {
+// Pledges (authenticated user's own)
+export const pledges = {
   list: (params?: { sort?: 'date' | 'amount'; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
     const qs = new URLSearchParams(entries).toString();
-    return request<VotivePage>(`/auth/votives${qs ? `?${qs}` : ''}`);
+    return request<PledgePage>(`/auth/pledges${qs ? `?${qs}` : ''}`);
   },
 };
 
@@ -676,4 +684,33 @@ export const admin = {
         created_at: string;
       }>;
     } }>(`/admin/creators/${id}`),
+
+  // External Payouts (off-Stripe payouts: Wise, PayPal, wire, check, etc.)
+  externalPayouts: {
+    list: (params?: { creator_id?: number; include_reversed?: boolean; page?: number }) => {
+      const entries = Object.entries(params ?? {})
+        .filter(([, v]) => v != null)
+        .map(([k, v]) => [k, String(v)]) as [string, string][];
+      const qs = new URLSearchParams(entries).toString();
+      return request<PaginatedResponse<ExternalPayout>>(`/admin/external-payouts${qs ? `?${qs}` : ''}`);
+    },
+
+    get: (id: number) =>
+      request<{ data: ExternalPayout }>(`/admin/external-payouts/${id}`),
+
+    /** multipart/form-data — caller builds the FormData with creator_id, amount, method, etc. */
+    create: (form: FormData) =>
+      requestMultipart<{ data: ExternalPayout }>('/admin/external-payouts', form),
+
+    reverse: (id: number, reason: string) =>
+      request<{ data: ExternalPayout }>(`/admin/external-payouts/${id}/reverse`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      }),
+
+    searchCreators: (q: string) =>
+      request<{ data: CreatorSearchResult[] }>(
+        `/admin/external-payouts/creators?q=${encodeURIComponent(q)}`
+      ),
+  },
 };

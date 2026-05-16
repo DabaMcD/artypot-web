@@ -102,6 +102,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
     { id: 'council-ofac',        label: 'OFAC review',         icon: '!', href: '/admin/ofac' },
     { sec: 'operations' },
     { id: 'council-billing',     label: 'Billing runs',        icon: '$', href: '/admin' },
+    { id: 'council-payouts',     label: 'External payouts',    icon: '↗', href: '/admin/external-payouts' },
     { id: 'council-tiers',       label: 'Country tiers',       icon: '◉', href: '/admin/tiers' },
     { id: 'council-audit',       label: 'Audit log',           icon: '◫', href: '/admin/logs' },
   ];

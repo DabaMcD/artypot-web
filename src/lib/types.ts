@@ -111,7 +111,7 @@ export interface User {
   role: UserRole;
   profile_picture?: string;
   total_given?: number;
-  open_votives_count?: number;
+  open_pledges_count?: number;
   is_anonymous?: boolean;
   /** ISO-3166-1 alpha-2 country code, e.g. "US". Nullable. */
   country_code?: string | null;
@@ -122,6 +122,10 @@ export interface User {
   location_complete?: boolean;
   /** Server-computed: user has at least one council-verified handle. Included in /me response only. */
   has_verified_handle?: boolean;
+  /** ISO timestamp of last failed billing charge. Null when no recent failure. */
+  payment_failed_at?: string | null;
+  /** ISO timestamp of when the post-failure grace period expires. Computed by backend. */
+  payment_grace_expires_at?: string | null;
   creator?: Creator;
 }
 
@@ -157,7 +161,7 @@ export interface Creator {
   /** Herald of an unclaimed creator (has editing rights) */
   herald?: { id: number; display_name: string };
   herald_user_id?: number;
-  herald_total_votive?: number;
+  herald_total_pledge?: number;
   display_name: string;
   description?: string;
   profile_picture?: string;
@@ -181,13 +185,13 @@ export interface Creator {
   /** Confirmed earnings: sum of creator credits where Stripe has collected */
   amount_earned?: number;
   /** Gross pledges on open/pending pots (no charge written yet) */
-  total_votive_sum?: number;
-  /** Gross votive amounts locked on completed pots, not yet charged via Stripe */
-  pending_votive_total?: number;
+  total_pledge_sum?: number;
+  /** Gross pledge amounts locked on completed pots, not yet charged via Stripe */
+  pending_pledge_total?: number;
   /** Whether the currently authenticated user can edit this creator */
   can_edit?: boolean;
-  /** The authenticated user's own 24h-aged votive total across all pots for this creator */
-  user_aged_votive_total?: number | null;
+  /** The authenticated user's own 24h-aged pledge total across all pots for this creator */
+  user_aged_pledge_total?: number | null;
   /** True when the creator has a Stripe Connect account (may still need onboarding) */
   bank_connected?: boolean;
   /** True when Stripe has placed a hold on payouts requiring additional KYC. */
@@ -212,7 +216,7 @@ export interface Pot {
   creator_id: number;
   creator?: Creator;
   total_pledged: number;
-  /** Sum of votives from fans with an active payment method. Appended by the backend on show(). */
+  /** Sum of pledges from fans with an active payment method. Appended by the backend on show(). */
   solid_total?: number;
   /** New targeting fields */
   target_handle_id?: number | null;
@@ -228,11 +232,11 @@ export interface Pot {
   paid_out_at?: string;
   /** Sum of fan charges already collected via billing for this pot. */
   cleared_amount?: number;
-  votives?: PotVotive[];
+  pledges?: PotPledge[];
   completion?: PotCompletion;
 }
 
-export interface PotVotive {
+export interface PotPledge {
   id: number;
   pot_id: number;
   user_id: number;
@@ -243,7 +247,7 @@ export interface PotVotive {
   expires_at?: string;
 }
 
-export interface PublicUserVotive {
+export interface PublicUserPledge {
   id: number;
   pot_id: number;
   pot?: Pick<Pot, 'id' | 'title' | 'status'>;
@@ -252,8 +256,8 @@ export interface PublicUserVotive {
   created_at: string;
 }
 
-export interface VotivePage {
-  data: PublicUserVotive[];
+export interface PledgePage {
+  data: PublicUserPledge[];
   current_page: number;
   last_page: number;
   total: number;
@@ -274,9 +278,9 @@ export interface PublicUser {
   profile_picture?: string;
   is_anonymous: boolean;
   created_at: string;
-  votives: PublicUserVotive[];
-  /** Server-computed sum of all active (unrevoked) votives. Null for anonymous users viewed by others. */
-  total_votive_amount?: number;
+  pledges: PublicUserPledge[];
+  /** Server-computed sum of all active (unrevoked) pledges. Null for anonymous users viewed by others. */
+  total_pledge_amount?: number;
 }
 
 export interface PotCompletion {
@@ -363,6 +367,47 @@ export interface CashLedgerEntry {
   available_after: string | null;
   description: string;
   pot?: Pick<Pot, 'id' | 'title'>;
+  fan_payment_id?: number | null;
+  creator_withdrawal_id?: number | null;
+  external_payout_id?: number | null;
+  external_payout?: {
+    id: number;
+    method: ExternalPayoutMethod;
+    external_reference_id: string | null;
+    sent_at: string;
+  } | null;
+}
+
+// ── External Payouts (admin) ────────────────────────────────────────────────
+
+export type ExternalPayoutMethod = 'wise' | 'paypal' | 'wire' | 'check' | 'other';
+
+export interface ExternalPayout {
+  id: number;
+  creator_id: number;
+  creator?: { id: number; display_name: string; email?: string };
+  amount: number;
+  method: ExternalPayoutMethod;
+  external_reference_id: string | null;
+  sent_at: string;          // YYYY-MM-DD
+  notes: string | null;
+  receipt_path: string | null;
+  recorded_by_admin_id: number;
+  recorded_by?: { id: number; display_name: string };
+  reversed_at: string | null;
+  reversed_by_admin_id: number | null;
+  reversed_by?: { id: number; display_name: string };
+  reversal_reason: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreatorSearchResult {
+  id: number;
+  display_name: string;
+  email: string | null;
+  country_code: string | null;
+  available_balance: number;
 }
 
 export interface PaymentMethod {
@@ -379,9 +424,9 @@ export interface PaymentMethod {
 
 export interface CreatorBalance {
   /** All pledges on open pots — no charge locked yet (solid + soft) */
-  open_votives: number;
-  /** Subset of open_votives from fans with an active payment method */
-  solid_open_votives: number;
+  open_pledges: number;
+  /** Subset of open_pledges from fans with an active payment method */
+  solid_open_pledges: number;
   /** Pledges on pots awaiting Council approval */
   pending_verification: number;
   /** Gross fan obligations locked on approved pots, not yet billed */
@@ -410,31 +455,31 @@ export interface NotificationSettings {
   creator_answered: boolean;
   pot_pending_completion: boolean;
   pot_confirmed_completed: boolean;
-  votive_confirmation: boolean;
-  votive_expired: boolean;
+  pledge_confirmation: boolean;
+  pledge_expired: boolean;
   pot_updated: boolean;
-  monthly_votive_preview: boolean;
-  monthly_votive_receipt: boolean;
+  monthly_pledge_preview: boolean;
+  monthly_pledge_receipt: boolean;
   herald_status_lost: boolean;
   // In-app preferences
   in_app_creator_answered: boolean;
   in_app_pot_pending_completion: boolean;
   in_app_pot_confirmed_completed: boolean;
-  in_app_votive_confirmation: boolean;
-  in_app_votive_expired: boolean;
+  in_app_pledge_confirmation: boolean;
+  in_app_pledge_expired: boolean;
   in_app_pot_updated: boolean;
-  in_app_monthly_votive_preview: boolean;
-  in_app_monthly_votive_receipt: boolean;
+  in_app_monthly_pledge_preview: boolean;
+  in_app_monthly_pledge_receipt: boolean;
   in_app_herald_status_lost: boolean;
   // SMS preferences
   sms_creator_answered: boolean;
   sms_pot_pending_completion: boolean;
   sms_pot_confirmed_completed: boolean;
-  sms_votive_confirmation: boolean;
-  sms_votive_expired: boolean;
+  sms_pledge_confirmation: boolean;
+  sms_pledge_expired: boolean;
   sms_pot_updated: boolean;
-  sms_monthly_votive_preview: boolean;
-  sms_monthly_votive_receipt: boolean;
+  sms_monthly_pledge_preview: boolean;
+  sms_monthly_pledge_receipt: boolean;
   sms_herald_status_lost: boolean;
 }
 
@@ -465,7 +510,7 @@ export interface Nudge {
   dismissable: boolean;
 }
 
-export interface RemoveVotiveResult {
+export interface RemovePledgeResult {
   pot_deleted: boolean;
   new_initiator_id: number | null;
 }
@@ -495,8 +540,8 @@ export interface Comment {
 
 export type PotHistoryEventType =
   | 'created'
-  | 'votive_added'
-  | 'votive_revoked'
+  | 'pledge_added'
+  | 'pledge_revoked'
   | 'details_edited'
   | 'privilege_transfer'
   | 'pending'
@@ -511,7 +556,7 @@ export interface PotHistoryEvent {
   field?: string | null;
   old_value?: string | null;
   meta?: Record<string, unknown> | null;
-  votive_id?: number | null;
+  pledge_id?: number | null;
   running_total: number;
   snapshot: { title: string; description: string | null };
 }

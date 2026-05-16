@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { votives as votivesApi, billing } from '@/lib/api';
+import { pledges as pledgesApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { PublicUserVotive, CashBalance } from '@/lib/types';
+import type { PublicUserPledge, CashBalance } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -22,11 +22,11 @@ const STATUS_BADGE: Record<string, { label: string; tone: 'default' | 'info' | '
   revoked:   { label: 'revoked',   tone: 'bad' },
 };
 
-export default function MyVotivesPage() {
+export default function MyPledgesPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
-  const [votives, setVotives] = useState<PublicUserVotive[]>([]);
+  const [pledges, setPledges] = useState<PublicUserPledge[]>([]);
   const [sort, setSort] = useState<SortKey>('date');
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -41,10 +41,10 @@ export default function MyVotivesPage() {
 
   const load = useCallback((s: SortKey, p: number) => {
     setLoading(true);
-    votivesApi
+    pledgesApi
       .list({ sort: s, page: p })
       .then((res) => {
-        setVotives(res.data);
+        setPledges(res.data);
         setLastPage(res.last_page);
         setTotal(res.total);
         setTotalActiveAmount(res.total_active_amount);
@@ -133,39 +133,39 @@ export default function MyVotivesPage() {
                 {[1,2,3,4,5].map(i => <div key={i} className="h-10 bg-surface-2 animate-pulse rounded" />)}
               </div>
             </Card>
-          ) : votives.length === 0 ? (
+          ) : pledges.length === 0 ? (
             <Empty icon="◇" message="no pledges yet">
               <Link href="/creators"><Button variant="default" size="sm">find creators →</Button></Link>
             </Empty>
           ) : (
             <Card>
               <div className="divide-y divide-border -mx-5 -my-4">
-                {votives.map((votive) => {
-                  const status = votive.pot?.status ?? 'open';
+                {pledges.map((pledge) => {
+                  const status = pledge.pot?.status ?? 'open';
                   const badge = STATUS_BADGE[status] ?? { label: status, tone: 'default' as const };
                   return (
-                    <div key={votive.id} className="flex items-center gap-3 px-5 py-3.5">
+                    <div key={pledge.id} className="flex items-center gap-3 px-5 py-3.5">
                       <div className="flex-1 min-w-0">
-                        {votive.pot ? (
+                        {pledge.pot ? (
                           <Link
-                            href={`/bounties/${votive.pot_id}`}
+                            href={`/bounties/${pledge.pot_id}`}
                             className="font-display text-sm text-foreground hover:text-fan transition-colors block truncate"
                           >
-                            {votive.pot.title}
+                            {pledge.pot.title}
                           </Link>
                         ) : (
-                          <span className="font-display text-sm text-muted">bounty #{votive.pot_id}</span>
+                          <span className="font-display text-sm text-muted">bounty #{pledge.pot_id}</span>
                         )}
                         <div className="font-mono text-[10px] text-muted mt-0.5">
-                          {new Date(votive.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                          {votive.expires_at && (
-                            <> · expires {new Date(votive.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</>
+                          {new Date(pledge.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {pledge.expires_at && (
+                            <> · expires {new Date(pledge.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</>
                           )}
                         </div>
                       </div>
                       <Badge tone={badge.tone}>{badge.label}</Badge>
                       <span className="font-mono text-sm font-medium text-fan tabular-nums shrink-0">
-                        ${Number(votive.amount).toFixed(2)}
+                        ${Number(pledge.amount).toFixed(2)}
                       </span>
                     </div>
                   );

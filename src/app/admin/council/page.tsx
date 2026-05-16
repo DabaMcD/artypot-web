@@ -91,16 +91,16 @@ export default function AdminCouncilPage() {
               <div key={member.id} className="grid grid-cols-[1fr_auto_auto] gap-4 items-center px-5 py-4">
                 {/* Member info */}
                 <div>
-                  <p className="font-display text-sm font-medium text-foreground">{member.user.display_name}</p>
-                  <p className="font-mono text-[10px] text-muted">{member.user.email}</p>
+                  <p className="font-display text-sm font-medium text-foreground">{member.display_name}</p>
+                  <p className="font-mono text-[10px] text-muted">{member.email}</p>
                 </div>
 
                 {/* Appointed by */}
                 <div className="text-right">
-                  {member.appointed_by ? (
+                  {member.appointedBy ? (
                     <>
-                      <p className="font-display text-xs text-foreground">{member.appointed_by.display_name}</p>
-                      <p className="font-mono text-[10px] text-muted">{member.appointed_by.email}</p>
+                      <p className="font-display text-xs text-foreground">{member.appointedBy.display_name}</p>
+                      <p className="font-mono text-[10px] text-muted">{member.appointedBy.email}</p>
                     </>
                   ) : (
                     <span className="font-mono text-[10px] text-muted italic">—</span>
@@ -110,7 +110,7 @@ export default function AdminCouncilPage() {
                 {/* Date */}
                 <div className="text-right">
                   <p className="font-mono text-[10px] text-muted whitespace-nowrap">
-                    {new Date(member.appointed_at).toLocaleDateString('en-US', {
+                    {new Date(member.council_appointed_at).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'short',
                       day: 'numeric',

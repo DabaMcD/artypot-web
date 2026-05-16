@@ -12,7 +12,7 @@ const STATUS_STYLES: Record<PotStatus, { label: string; className: string }> = {
 
 export default function PotCard({ pot }: { pot: Pot }) {
   const status = STATUS_STYLES[pot.status];
-  const backerCount = pot.votives?.filter((v) => !v.revoked_at).length ?? null;
+  const backerCount = pot.pledges?.filter((v) => !v.revoked_at).length ?? null;
   const fanSingular = pot.creator?.fan_name || 'supporter';
   const fanPlural   = pot.creator?.fan_name_plural || pot.creator?.fan_name || 'supporters';
 

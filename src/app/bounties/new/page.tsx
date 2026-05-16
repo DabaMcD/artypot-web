@@ -523,7 +523,7 @@ function NewPotForm() {
       const payload: Parameters<typeof potsApi.create>[0] = {
         title,
         description: description || undefined,
-        initial_votive_amount: parseFloat(amount),
+        initial_pledge_amount: parseFloat(amount),
       };
 
       if (target.kind === 'user') {

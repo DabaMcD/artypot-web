@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { billing, votives as votivesApi } from '@/lib/api';
+import { billing, pledges as pledgesApi } from '@/lib/api';
 import type { PaymentMethod } from '@/lib/types';
 import { useToast } from '@/lib/toast-context';
 import AddCardForm from './AddCardForm';
@@ -39,8 +39,8 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
   // For the confirm dialog
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
 
-  // Total active votive amount — fetched once on mount for last-card warning
-  const [votiveTotalAmount, setVotiveTotalAmount] = useState(0);
+  // Total active pledge amount — fetched once on mount for last-card warning
+  const [pledgeTotalAmount, setPledgeTotalAmount] = useState(0);
 
   const fetchMethods = useCallback(async () => {
     setLoading(true);
@@ -57,7 +57,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
 
   useEffect(() => {
     fetchMethods();
-    votivesApi.list().then((res) => setVotiveTotalAmount(res.total_active_amount)).catch(() => {});
+    pledgesApi.list().then((res) => setPledgeTotalAmount(res.total_active_amount)).catch(() => {});
   }, [fetchMethods]);
 
   const handleAdded = async () => {
@@ -111,13 +111,13 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
               {isLastCard ? 'Remove last payment method' : 'Remove payment method'}
             </h2>
             <div className="text-sm text-muted leading-relaxed mb-6">
-              {isLastCard && votiveTotalAmount > 0 ? (
+              {isLastCard && pledgeTotalAmount > 0 ? (
                 <>
                   <p className="mb-2">
                     This is your <strong className="text-foreground">only payment method</strong>. Removing it will
                     immediately cancel{' '}
                     <strong className="text-foreground">
-                      all ${votiveTotalAmount.toFixed(2)} of your active commitments
+                      all ${pledgeTotalAmount.toFixed(2)} of your active commitments
                     </strong>.
                   </p>
                   <p>You won&apos;t be charged for completed pots until you add a new payment method.</p>

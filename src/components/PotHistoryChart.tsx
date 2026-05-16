@@ -10,8 +10,8 @@ interface Props {
 
 const EVENT_META: Record<string, { label: string; icon: string; colorClass: string }> = {
   created:            { label: 'Pot initialized',        icon: '🌱', colorClass: 'text-fan' },
-  votive_added:       { label: 'Backed',                  icon: '💰', colorClass: 'text-green-400' },
-  votive_revoked:     { label: 'Backed out',             icon: '↩️',  colorClass: 'text-red-400' },
+  pledge_added:       { label: 'Backed',                  icon: '💰', colorClass: 'text-green-400' },
+  pledge_revoked:     { label: 'Backed out',             icon: '↩️',  colorClass: 'text-red-400' },
   details_edited:     { label: 'Details edited',         icon: '✏️',  colorClass: 'text-blue-400' },
   privilege_transfer: { label: 'Ownership transferred',  icon: '👑', colorClass: 'text-council' },
   completed:          { label: 'Submitted for approval', icon: '✅', colorClass: 'text-creator' },
