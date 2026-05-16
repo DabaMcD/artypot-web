@@ -1,24 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { featuredPots as featuredPotsApi } from '@/lib/api';
-import PotCard from '@/components/PotCard';
-import type { Pot } from '@/lib/types';
+import { featuredBounties as featuredBountiesApi } from '@/lib/api';
+import BountyCard from '@/components/BountyCard';
+import type { Bounty } from '@/lib/types';
 
-export default function FeaturedPotsSection() {
-  const [pots, setPots] = useState<Pot[]>([]);
+export default function FeaturedBountiesSection() {
+  const [bounties, setBounties] = useState<Bounty[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    featuredPotsApi
+    featuredBountiesApi
       .list()
-      .then((res) => setPots(res.data))
+      .then((res) => setBounties(res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  // Render nothing once loaded if there are no featured pots
-  if (!loading && pots.length === 0) return null;
+  // Render nothing once loaded if there are no featured bounties
+  if (!loading && bounties.length === 0) return null;
 
   return (
     <section className="border-t border-border">
@@ -34,7 +34,7 @@ export default function FeaturedPotsSection() {
                   className="h-44 bg-surface border border-border rounded-xl animate-pulse"
                 />
               ))
-            : pots.map((pot) => <PotCard key={pot.id} pot={pot} />)}
+            : bounties.map((bounty) => <BountyCard key={bounty.id} bounty={bounty} />)}
         </div>
       </div>
     </section>

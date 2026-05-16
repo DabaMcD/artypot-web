@@ -34,7 +34,7 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: 'Artypot — Fund the work. Then it gets made.',
   description:
-    'Artypot is a crowdfund-commissioning platform where communities pool money into pots that pay out directly to creators once they complete a specified public creative work.',
+    'Artypot is a crowdfund-commissioning platform where communities pool money into bounties that pay out directly to creators once they complete a specified public creative work.',
   icons: {
     icon: [
       { url: '/artypot-favicon-16.png',  sizes: '16x16',   type: 'image/png' },

@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import CreatorSearchWidget from '@/components/CreatorSearchWidget';
-import { featuredPots } from '@/lib/api';
-import type { Creator, Pot } from '@/lib/types';
+import { featuredBounties } from '@/lib/api';
+import type { Creator, Bounty } from '@/lib/types';
 
 // ── Inline logo ────────────────────────────────────────────────────────────────
 function ArtypotLogo() {
@@ -40,29 +40,29 @@ function CreatorAvatar({ creator, size = 'sm' }: { creator: Pick<Creator, 'displ
   );
 }
 
-// ── Trending pot card ──────────────────────────────────────────────────────────
-function TrendingPotCard({ pot }: { pot: Pot }) {
-  const backerCount = pot.pledges?.filter((v) => !v.revoked_at).length ?? 0;
-  const pledged = Number(pot.total_pledged);
+// ── Trending bounty card ───────────────────────────────────────────────────────
+function TrendingBountyCard({ bounty }: { bounty: Bounty }) {
+  const backerCount = bounty.pledges?.filter((v) => !v.revoked_at).length ?? 0;
+  const pledged = Number(bounty.total_pledged);
   // Rough goal proxy — show progress vs. a soft milestone (or just fill bar)
   const barWidth = Math.min(100, pledged > 0 ? Math.min(100, (pledged / 500) * 100) : 0);
 
   return (
     <Link
-      href={`/bounties/${pot.id}`}
+      href={`/bounties/${bounty.id}`}
       className="block group bg-surface border border-border rounded-xl p-5 hover:border-creator/50 transition-all hover:translate-y-[-2px] hover:shadow-[0_8px_24px_rgba(71,223,211,0.08)]"
     >
       {/* Creator header */}
-      {pot.creator && (
+      {bounty.creator && (
         <div className="flex items-center gap-2 mb-3">
-          <CreatorAvatar creator={pot.creator} />
-          <span className="text-sm text-creator font-medium truncate">{pot.creator.display_name}</span>
+          <CreatorAvatar creator={bounty.creator} />
+          <span className="text-sm text-creator font-medium truncate">{bounty.creator.display_name}</span>
         </div>
       )}
 
       {/* Title */}
       <h3 className="font-semibold text-foreground group-hover:text-creator transition-colors line-clamp-2 leading-snug mb-4 text-base">
-        {pot.title}
+        {bounty.title}
       </h3>
 
       {/* Progress bar */}
@@ -93,15 +93,15 @@ function TrendingPotCard({ pot }: { pot: Pot }) {
 export default function HomePage() {
   const router = useRouter();
   const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
-  const [trendingPots, setTrendingPots] = useState<Pot[]>([]);
-  const [potsLoading, setPotsLoading] = useState(true);
+  const [trendingBounties, setTrendingBounties] = useState<Bounty[]>([]);
+  const [bountiesLoading, setBountiesLoading] = useState(true);
 
   useEffect(() => {
-    featuredPots
+    featuredBounties
       .list()
-      .then((res) => setTrendingPots(res.data.slice(0, 3)))
+      .then((res) => setTrendingBounties(res.data.slice(0, 3)))
       .catch(() => {/* silently skip */})
-      .finally(() => setPotsLoading(false));
+      .finally(() => setBountiesLoading(false));
   }, []);
 
   return (
@@ -147,7 +147,7 @@ export default function HomePage() {
             <span className="text-creator">what you want.</span>
           </h1>
           <p className="text-muted text-lg mb-8 leading-relaxed font-sans">
-            Search for any creator, artist, or public figure — start a pot and let the community fund it.
+            Search for any creator, artist, or public figure — start a bounty and let the community fund it.
           </p>
 
           <div className="w-full">
@@ -163,19 +163,19 @@ export default function HomePage() {
                 onClick={() => router.push(`/creators/${selectedCreator.id}`)}
                 className="mt-3 w-full bg-creator text-brand-dark font-semibold py-3 rounded-lg hover:brightness-110 transition-all text-sm"
               >
-                See Pots →
+                See Bounties →
               </button>
             )}
           </div>
         </div>
       </section>
 
-      {/* ── TRENDING POTS ───────────────────────────────────────────────────── */}
+      {/* ── TRENDING BOUNTIES ───────────────────────────────────────────────── */}
       <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground">
-              trending pots
+              trending bounties
             </h2>
             <Link
               href="/bounties"
@@ -185,23 +185,23 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {potsLoading ? (
+          {bountiesLoading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="h-48 bg-surface border border-border rounded-xl animate-pulse" />
               ))}
             </div>
-          ) : trendingPots.length === 0 ? (
+          ) : trendingBounties.length === 0 ? (
             <div className="text-center py-16 text-muted border border-dashed border-border rounded-xl">
-              No featured pots yet.{' '}
+              No featured bounties yet.{' '}
               <Link href="/bounties" className="text-creator hover:underline">
                 Browse all bounties
               </Link>
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {trendingPots.map((pot) => (
-                <TrendingPotCard key={pot.id} pot={pot} />
+              {trendingBounties.map((bounty) => (
+                <TrendingBountyCard key={bounty.id} bounty={bounty} />
               ))}
             </div>
           )}
@@ -228,7 +228,7 @@ export default function HomePage() {
                 1
               </div>
               <p className="text-foreground font-medium text-base leading-snug font-sans">
-                Find a creator and start a pot
+                Find a creator and start a bounty
               </p>
             </div>
 

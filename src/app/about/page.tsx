@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import FeaturedPotsSection from '@/components/FeaturedPotsSection';
+import FeaturedBountiesSection from '@/components/FeaturedBountiesSection';
 
 const HOW_IT_WORKS = [
   {
@@ -247,7 +247,7 @@ export default function AboutPage() {
       </section>
 
       {/* Featured Pots */}
-      <FeaturedPotsSection />
+      <FeaturedBountiesSection />
 
       {/* CTA */}
       <section className="border-t border-border">

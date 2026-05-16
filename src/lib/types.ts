@@ -232,11 +232,11 @@ export interface Pot {
   paid_out_at?: string;
   /** Sum of fan charges already collected via billing for this pot. */
   cleared_amount?: number;
-  pledges?: PotPledge[];
+  pledges?: BountyPledge[];
   completion?: PotCompletion;
 }
 
-export interface PotPledge {
+export interface BountyPledge {
   id: number;
   pot_id: number;
   user_id: number;
@@ -453,31 +453,31 @@ export interface CreatorEarning {
 export interface NotificationSettings {
   // Email preferences
   creator_answered: boolean;
-  pot_pending_completion: boolean;
-  pot_confirmed_completed: boolean;
+  bounty_pending_completion: boolean;
+  bounty_confirmed_completed: boolean;
   pledge_confirmation: boolean;
   pledge_expired: boolean;
-  pot_updated: boolean;
+  bounty_updated: boolean;
   monthly_pledge_preview: boolean;
   monthly_pledge_receipt: boolean;
   herald_status_lost: boolean;
   // In-app preferences
   in_app_creator_answered: boolean;
-  in_app_pot_pending_completion: boolean;
-  in_app_pot_confirmed_completed: boolean;
+  in_app_bounty_pending_completion: boolean;
+  in_app_bounty_confirmed_completed: boolean;
   in_app_pledge_confirmation: boolean;
   in_app_pledge_expired: boolean;
-  in_app_pot_updated: boolean;
+  in_app_bounty_updated: boolean;
   in_app_monthly_pledge_preview: boolean;
   in_app_monthly_pledge_receipt: boolean;
   in_app_herald_status_lost: boolean;
   // SMS preferences
   sms_creator_answered: boolean;
-  sms_pot_pending_completion: boolean;
-  sms_pot_confirmed_completed: boolean;
+  sms_bounty_pending_completion: boolean;
+  sms_bounty_confirmed_completed: boolean;
   sms_pledge_confirmation: boolean;
   sms_pledge_expired: boolean;
-  sms_pot_updated: boolean;
+  sms_bounty_updated: boolean;
   sms_monthly_pledge_preview: boolean;
   sms_monthly_pledge_receipt: boolean;
   sms_herald_status_lost: boolean;
@@ -538,7 +538,7 @@ export interface Comment {
   updated_at: string;
 }
 
-export type PotHistoryEventType =
+export type BountyHistoryEventType =
   | 'created'
   | 'pledge_added'
   | 'pledge_revoked'
@@ -547,8 +547,8 @@ export type PotHistoryEventType =
   | 'pending'
   | 'completed';
 
-export interface PotHistoryEvent {
-  type: PotHistoryEventType;
+export interface BountyHistoryEvent {
+  type: BountyHistoryEventType;
   /** ISO 8601 timestamp */
   at: string;
   user?: { id: number; display_name: string } | null;
@@ -562,7 +562,7 @@ export interface PotHistoryEvent {
 }
 
 export interface PotHistory {
-  events: PotHistoryEvent[];
+  events: BountyHistoryEvent[];
   current: { title: string; description: string | null; total_pledged: number };
 }
 

@@ -8,7 +8,7 @@ import { countryFlag, countryName } from '@/lib/countries';
 import { useAuth } from '@/lib/auth-context';
 import { useViewMode } from '@/lib/view-mode-context';
 import type { Creator, PaginatedResponse, Pot, CreatorName } from '@/lib/types';
-import PotCard from '@/components/PotCard';
+import BountyCard from '@/components/BountyCard';
 import ShareButton from '@/components/ShareButton';
 
 const SOCIAL_LINKS: { key: keyof Creator; label: string; prefix: string }[] = [
@@ -530,7 +530,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
               ) : (
                 <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
                   {potsData.data.map((pot) => (
-                    <PotCard key={pot.id} pot={pot} />
+                    <BountyCard key={pot.id} pot={pot} />
                   ))}
                 </div>
               )}

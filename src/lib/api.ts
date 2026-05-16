@@ -8,7 +8,7 @@ import type {
   NotificationPage,
   Nudge,
   Pot,
-  PotPledge,
+  BountyPledge,
   PotCompletion,
   PotHistory,
   CreatorClaim,
@@ -297,7 +297,7 @@ export const pots = {
     request<{ data: Pot }>(`/pots/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
   pledge: (potId: number, amount: number, expires_at?: string) =>
-    request<{ data: PotPledge & { pot: { total_pledged: number } } }>(`/pots/${potId}/pledges`, {
+    request<{ data: BountyPledge & { pot: { total_pledged: number } } }>(`/pots/${potId}/pledges`, {
       method: 'POST',
       body: JSON.stringify({ amount, ...(expires_at ? { expires_at } : {}) }),
     }),
@@ -385,9 +385,9 @@ export const comments = {
     ),
 };
 
-// Featured pots (public)
-export const featuredPots = {
-  list: () => request<{ data: Pot[] }>('/featured-pots'),
+// Featured bounties (public)
+export const featuredBounties = {
+  list: () => request<{ data: Bounty[] }>('/featured-bounties'),
 };
 
 // Pledges (authenticated user's own)
@@ -640,10 +640,10 @@ export const admin = {
 
   // Featured Pots
   getFeaturedPots: () =>
-    request<{ data: Array<{ position: number; pot: Pot | null; added_by: { id: number; name: string } | null; updated_at: string }> }>('/admin/featured-pots'),
+    request<{ data: Array<{ position: number; pot: Pot | null; added_by: { id: number; name: string } | null; updated_at: string }> }>('/admin/featured-bounties'),
 
   setFeaturedPots: (slots: Array<{ pot_id: number }>) =>
-    request<{ data: Array<{ position: number; pot: Pot | null; added_by: { id: number; name: string } | null; updated_at: string }> }>('/admin/featured-pots', {
+    request<{ data: Array<{ position: number; pot: Pot | null; added_by: { id: number; name: string } | null; updated_at: string }> }>('/admin/featured-bounties', {
       method: 'PUT',
       body: JSON.stringify({ slots }),
     }),

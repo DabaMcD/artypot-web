@@ -50,11 +50,11 @@ const NOTIF_ROWS: {
   inAppKey: keyof NotificationSettings;
 }[] = [
   { label: 'creator answered',       desc: 'a creator claims their profile and your backing activates.',       emailKey: 'creator_answered',          smsKey: 'sms_creator_answered',          inAppKey: 'in_app_creator_answered' },
-  { label: 'bounty pending review',  desc: 'a creator submits a bounty for council review.',                  emailKey: 'pot_pending_completion',    smsKey: 'sms_pot_pending_completion',    inAppKey: 'in_app_pot_pending_completion' },
-  { label: 'bounty confirmed',       desc: 'council approves a bounty and payment is queued.',               emailKey: 'pot_confirmed_completed',   smsKey: 'sms_pot_confirmed_completed',   inAppKey: 'in_app_pot_confirmed_completed' },
+  { label: 'bounty pending review',  desc: 'a creator submits a bounty for council review.',                  emailKey: 'bounty_pending_completion',    smsKey: 'sms_bounty_pending_completion',    inAppKey: 'in_app_bounty_pending_completion' },
+  { label: 'bounty confirmed',       desc: 'council approves a bounty and payment is queued.',               emailKey: 'bounty_confirmed_completed',   smsKey: 'sms_bounty_confirmed_completed',   inAppKey: 'in_app_bounty_confirmed_completed' },
   { label: 'backing confirmed',      desc: 'you backed a bounty.',                                           emailKey: 'pledge_confirmation',        smsKey: 'sms_pledge_confirmation',        inAppKey: 'in_app_pledge_confirmation' },
   { label: 'backing expired',        desc: 'your backing on a bounty reached its expiry and was removed.',   emailKey: 'pledge_expired',             smsKey: 'sms_pledge_expired',             inAppKey: 'in_app_pledge_expired' },
-  { label: 'bounty updated',         desc: 'an initiator changes the title or description of a bounty you back.', emailKey: 'pot_updated',           smsKey: 'sms_pot_updated',                inAppKey: 'in_app_pot_updated' },
+  { label: 'bounty updated',         desc: 'an initiator changes the title or description of a bounty you back.', emailKey: 'bounty_updated',           smsKey: 'sms_bounty_updated',                inAppKey: 'in_app_bounty_updated' },
   { label: 'billing preview',        desc: 'heads-up before your payment method is charged.',                emailKey: 'monthly_pledge_preview',    smsKey: 'sms_monthly_pledge_preview',    inAppKey: 'in_app_monthly_pledge_preview' },
   { label: 'monthly receipt',        desc: 'breakdown after your monthly payment is processed.',             emailKey: 'monthly_pledge_receipt',    smsKey: 'sms_monthly_pledge_receipt',    inAppKey: 'in_app_monthly_pledge_receipt' },
   { label: 'herald status lost',     desc: 'another fan outbids you and edits a profile you were heralding.', emailKey: 'herald_status_lost',       smsKey: 'sms_herald_status_lost',        inAppKey: 'in_app_herald_status_lost' },

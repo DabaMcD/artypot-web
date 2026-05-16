@@ -12,7 +12,7 @@ const ADMIN_SECTIONS = [
   { title: 'billing runs',         description: 'monitor and trigger monthly billing cycles.',          href: '/admin/billing' },
   { title: 'external payouts',     description: 'record off-Stripe payouts (Wise, PayPal, wire, check).', href: '/admin/external-payouts' },
   { title: 'council members',      description: 'manage admin access and council permissions.',         href: '/admin/council' },
-  { title: 'featured pots',        description: 'choose the 3 pots shown on the landing page.',        href: '/admin/featured-pots' },
+  { title: 'featured pots',        description: 'choose the 3 pots shown on the landing page.',        href: '/admin/featured-bounties' },
   { title: 'users',                description: 'search and inspect user accounts.',                    href: '/admin/users' },
   { title: 'creators',             description: 'browse creator profiles with claimed and W-9 status.', href: '/admin/creators' },
 ];

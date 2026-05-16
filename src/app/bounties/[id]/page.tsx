@@ -19,10 +19,10 @@ import { useToast } from '@/lib/toast-context';
 import Link from 'next/link';
 import { pots as potsApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { Pot, PotPledge, PaymentMethod, PotHistoryEvent } from '@/lib/types';
+import type { Pot, BountyPledge, PaymentMethod, BountyHistoryEvent } from '@/lib/types';
 import AddCardForm from '@/components/AddCardForm';
 import ShareButton from '@/components/ShareButton';
-import PotHistoryChart from '@/components/PotHistoryChart';
+import BountyHistoryChart from '@/components/BountyHistoryChart';
 import CommentSection from '@/components/CommentSection';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
@@ -111,12 +111,12 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
 
   // ── History ──────────────────────────────────────────────────────────────────
   const [showHistory, setShowHistory] = useState(false);
-  const [historyEvents, setHistoryEvents] = useState<PotHistoryEvent[]>([]);
+  const [historyEvents, setHistoryEvents] = useState<BountyHistoryEvent[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
 
   /** Event the user has selected in the history list */
-  const [selectedEvent, setSelectedEvent] = useState<PotHistoryEvent | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<BountyHistoryEvent | null>(null);
 
   /** When set, the header shows the historical title/description for this snapshot */
   const [snapshotView, setSnapshotView] = useState<{ title: string; description: string | null } | null>(null);
@@ -188,7 +188,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
       setPledgeAmount('');
       setPot((prev) => {
         if (!prev) return prev;
-        const updatedPledge: PotPledge = {
+        const updatedPledge: BountyPledge = {
           ...res.data,
           user: user ? { id: user.id, name: user.name, display_name: user.display_name } : undefined,
         };
@@ -849,7 +849,7 @@ export default function PotDetailPage({ params }: { params: Promise<{ id: string
                   ))}
                 </div>
               ) : (
-                <PotHistoryChart
+                <BountyHistoryChart
                   events={historyEvents}
                   selectedEvent={selectedEvent}
                   onSelect={(event) => {

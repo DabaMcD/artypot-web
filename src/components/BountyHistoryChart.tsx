@@ -1,11 +1,11 @@
 'use client';
 
-import type { PotHistoryEvent } from '@/lib/types';
+import type { BountyHistoryEvent } from '@/lib/types';
 
 interface Props {
-  events: PotHistoryEvent[];
-  selectedEvent: PotHistoryEvent | null;
-  onSelect: (event: PotHistoryEvent | null) => void;
+  events: BountyHistoryEvent[];
+  selectedEvent: BountyHistoryEvent | null;
+  onSelect: (event: BountyHistoryEvent | null) => void;
 }
 
 const EVENT_META: Record<string, { label: string; icon: string; colorClass: string }> = {
@@ -32,7 +32,7 @@ function formatDate(iso: string): string {
   });
 }
 
-export default function PotHistoryChart({ events, selectedEvent, onSelect }: Props) {
+export default function BountyHistoryChart({ events, selectedEvent, onSelect }: Props) {
   if (events.length === 0) {
     return <p className="text-muted text-sm">No history yet.</p>;
   }

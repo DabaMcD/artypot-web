@@ -10,7 +10,7 @@ const STATUS_STYLES: Record<PotStatus, { label: string; className: string }> = {
   revoked:   { label: 'Revoked',        className: 'bg-red-900/40 text-red-400 border-red-800/50' },
 };
 
-export default function PotCard({ pot }: { pot: Pot }) {
+export default function BountyCard({ pot }: { pot: Pot }) {
   const status = STATUS_STYLES[pot.status];
   const backerCount = pot.pledges?.filter((v) => !v.revoked_at).length ?? null;
   const fanSingular = pot.creator?.fan_name || 'supporter';

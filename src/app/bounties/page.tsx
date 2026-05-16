@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { pots as potsApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { Pot, PaginatedResponse, PotStatus } from '@/lib/types';
-import PotCard from '@/components/PotCard';
+import BountyCard from '@/components/BountyCard';
 
 const STATUS_FILTERS: { value: PotStatus | ''; label: string }[] = [
   { value: '',          label: 'All' },
@@ -104,7 +104,7 @@ export default function PotsPage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.data.map((pot) => (
-              <PotCard key={pot.id} pot={pot} />
+              <BountyCard key={pot.id} pot={pot} />
             ))}
           </div>
 
