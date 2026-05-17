@@ -97,10 +97,10 @@ export default function AdminCouncilPage() {
 
                 {/* Appointed by */}
                 <div className="text-right">
-                  {member.appointedBy ? (
+                  {member.appointed_by ? (
                     <>
-                      <p className="font-display text-xs text-foreground">{member.appointedBy.display_name}</p>
-                      <p className="font-mono text-[10px] text-muted">{member.appointedBy.email}</p>
+                      <p className="font-display text-xs text-foreground">{member.appointed_by.display_name}</p>
+                      <p className="font-mono text-[10px] text-muted">{member.appointed_by.email}</p>
                     </>
                   ) : (
                     <span className="font-mono text-[10px] text-muted italic">—</span>

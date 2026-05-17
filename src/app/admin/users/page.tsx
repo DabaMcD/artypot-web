@@ -28,7 +28,7 @@ function RoleBadge({ role }: { role: UserRole }) {
 
 function UserModal({ user, onClose }: { user: AdminUser; onClose: () => void }) {
   return (
-    <Modal title={user.name} onClose={onClose} lg>
+    <Modal title={user.display_name} onClose={onClose} lg>
       {/* Email */}
       <p className="font-mono text-[10px] uppercase tracking-widest text-muted mb-4">{user.email}</p>
 
@@ -236,12 +236,12 @@ export default function AdminUsersPage() {
                   className="w-full text-left px-5 py-3.5 flex items-center gap-3 hover:bg-surface-2 transition-colors"
                 >
                   <div className="w-8 h-8 rounded-full bg-fan/20 flex items-center justify-center text-fan font-mono text-xs font-bold shrink-0">
-                    {u.name?.charAt(0).toUpperCase() ?? '?'}
+                    {u.display_name?.charAt(0).toUpperCase() ?? '?'}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-display font-medium text-foreground text-sm truncate">{u.name}</span>
+                      <span className="font-display font-medium text-foreground text-sm truncate">{u.display_name}</span>
                       <RoleBadge role={u.role} />
                       {/* Show a creator badge when this council/fan user also owns a creator profile */}
                       {u.creator && u.role !== 'creator' && (

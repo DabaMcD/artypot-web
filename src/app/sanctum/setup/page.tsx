@@ -35,7 +35,7 @@ export default function SanctumSetupPage() {
             detail: 'verify at least one social handle or website to prove you\'re the real deal.',
             status: creator && (creator.youtube_handle || creator.twitter_handle || creator.tiktok_handle || creator.instagram_handle || creator.soundcloud_url || creator.bandcamp_url || creator.domain) ? 'done' : 'todo',
           }}
-          action={<Link href="/sanctum/handles"><Button variant="default" size="sm">manage handles →</Button></Link>}
+          action={<Link href="/settings#handles"><Button variant="default" size="sm">manage handles →</Button></Link>}
         />
         <GateCard
           gate={{

@@ -68,7 +68,7 @@ export default function PayoutReadinessChecklist() {
     {
       label: 'Handle claimed and approved',
       done: user.has_verified_handle === true,
-      href: '/sanctum/handles',
+      href: '/settings#handles',
     },
     ...(creator.bank_connected !== undefined && !isManualPayoutRegion
       ? [

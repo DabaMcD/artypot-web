@@ -23,6 +23,7 @@ import type {
   CouncilPage,
   AdminCreatorClaim,
   AdminBountyCompletion,
+  AdminHandleReview,
   ExternalPayout,
   CreatorSearchResult,
   CreatorEarning,
@@ -136,11 +137,33 @@ export const auth = {
    * Re-verifies all three gates server-side and creates the Creator record.
    * Gate status is derived from the /me response — no separate status fetch needed.
    */
-  becomeCreator: () =>
-    request<{ message: string; creator_id: number }>('/auth/become-creator', {
+  /**
+   * POST /auth/become-creator
+   * Activates creator mode after all four gates pass.
+   * `slug` becomes the creator's permanent artypot.com/{slug} URL.
+   */
+  becomeCreator: (slug: string) =>
+    request<{ message: string; slug: string }>('/auth/become-creator', {
       method: 'POST',
-      body: JSON.stringify({ agreed_to_creator_terms: true }),
+      body: JSON.stringify({ agreed_to_creator_terms: true, slug }),
     }),
+
+  /** GET /auth/slug — current slug + cooldown availability. */
+  getSlug: () =>
+    request<{ slug: string | null; slug_changed_at: string | null; cooldown_until: string | null; cooldown_days: number }>('/auth/slug'),
+
+  /** PATCH /auth/slug — change the creator's slug. Subject to the 30-day cooldown. */
+  updateSlug: (slug: string) =>
+    request<{ message: string; slug: string }>('/auth/slug', {
+      method: 'PATCH',
+      body: JSON.stringify({ slug }),
+    }),
+
+  /** GET /auth/slug/check?slug=… — lightweight availability check for the picker UI. */
+  checkSlug: (slug: string) =>
+    request<{ available: boolean; error: string | null }>(
+      `/auth/slug/check?slug=${encodeURIComponent(slug)}`
+    ),
 
   /**
    * GET /auth/handles
@@ -240,6 +263,29 @@ export const creators = {
   },
 
   get: (id: number) => request<{ data: Creator }>(`/creators/${id}`),
+
+  /**
+   * GET /creators/by-slug/{slug}
+   * Resolves a public creator URL slug to its current owner.
+   *  - match === 'current'  → live slug, returns user
+   *  - match === 'redirect' → historical slug, returns current_slug to redirect to
+   */
+  bySlug: (slug: string) =>
+    request<
+      | { match: 'current';  user: { id: number; display_name: string; slug: string; profile_picture: string | null; bio: string | null } }
+      | { match: 'redirect'; current_slug: string }
+    >(`/creators/by-slug/${encodeURIComponent(slug)}`),
+
+  /**
+   * GET /platform/{platform}/{handle}
+   *  - match === 'claimed'   → handle is verified by a creator; redirect client to /{user.slug}
+   *  - match === 'unclaimed' → no claim; returns bounties for share/recruitment UI
+   */
+  byPlatformHandle: (platform: string, handle: string) =>
+    request<
+      | { match: 'claimed';   user: { id: number; display_name: string; slug: string; profile_picture: string | null } }
+      | { match: 'unclaimed'; handle: { id: number | null; platform: string; username: string }; bounties: Array<{ id: number; title: string; status: string; total_pledged: string; created_at: string }> }
+    >(`/platform/${encodeURIComponent(platform)}/${encodeURIComponent(handle)}`),
 
   create: (data: Partial<Creator>) =>
     request<{ data: Creator }>('/creators', { method: 'POST', body: JSON.stringify(data) }),
@@ -566,16 +612,15 @@ export const handles = {
   destroy: (claimId: number) =>
     request<void>(`/handles/${claimId}`, { method: 'DELETE' }),
 
-  /** POST /handles/{handleId}/verify-request — request verification, returns code */
-  requestVerification: (handleId: number) =>
-    request<{ message: string; verification_code: string }>(
-      `/handles/${handleId}/verify-request`,
-      { method: 'POST' },
-    ),
-
-  /** POST /handles/{claimId}/verify — trigger a verification check */
-  verify: (claimId: number) =>
-    request<{ message: string }>(`/handles/${claimId}/verify`, { method: 'POST' }),
+  /**
+   * POST /handles/{claimId}/request-review
+   * Submit a claim for admin review. contactMessage tells admins how to verify ownership.
+   */
+  requestReview: (claimId: number, contactMessage: string) =>
+    request<{ message: string; data: HandleClaim }>(`/handles/${claimId}/request-review`, {
+      method: 'POST',
+      body: JSON.stringify({ contact_message: contactMessage }),
+    }),
 };
 
 export const logs = {
@@ -614,6 +659,16 @@ export const overlord = {
 
 // Admin (Council only)
 export const admin = {
+  // Handle Verification
+  listHandleReviews: (page = 1) =>
+    request<PaginatedResponse<AdminHandleReview>>(`/admin/handles?page=${page}`),
+
+  approveHandle: (handleId: number) =>
+    request<{ data: unknown }>(`/admin/handles/${handleId}/approve`, { method: 'POST' }),
+
+  rejectHandle: (handleId: number) =>
+    request<{ data: unknown }>(`/admin/handles/${handleId}/reject`, { method: 'POST' }),
+
   // Creator Claims
   listClaims: (status: 'pending' | 'approved' | 'rejected' | 'all' = 'pending', page = 1) =>
     request<PaginatedResponse<AdminCreatorClaim>>(`/admin/creator-claims?status=${status}&page=${page}`),

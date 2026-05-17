@@ -90,7 +90,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
     { id: 'creator-withdraw',   label: 'Withdraw',           icon: '↓', href: '/sanctum/withdraw' },
     { id: 'creator-ledger',     label: 'Ledger',             icon: '⌗', href: '/sanctum/ledger' },
     { sec: 'admin' },
-    { id: 'creator-handles',    label: 'Handles',            icon: '@', href: '/sanctum/handles' },
+    { id: 'creator-handles',    label: 'Handles',            icon: '@', href: '/settings#handles' },
     { id: 'creator-tax',        label: 'Tax & compliance',   icon: '⚖', href: '/sanctum/tax' },
     { id: 'creator-settings',   label: 'Settings',           icon: '⚙', href: '/sanctum/settings' },
   ];
@@ -98,7 +98,7 @@ export function Sidebar({ role, pathname }: SidebarProps) {
   const councilItems: NavItem[] = [
     { sec: 'queues' },
     { id: 'council-completions', label: 'Completion review',   icon: '✓', href: '/admin/completions' },
-    { id: 'council-handles',     label: 'Handle verification', icon: '@', href: '/admin/claims' },
+    { id: 'council-handles',     label: 'Handle verification', icon: '@', href: '/admin/handles' },
     { id: 'council-ofac',        label: 'OFAC review',         icon: '!', href: '/admin/ofac' },
     { sec: 'operations' },
     { id: 'council-billing',     label: 'Billing runs',        icon: '$', href: '/admin' },

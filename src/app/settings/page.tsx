@@ -4,9 +4,10 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi, pledges as pledgesApi, handles as handlesApi } from '@/lib/api';
+import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi, pledges as pledgesApi } from '@/lib/api';
 import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
-import type { HandleClaim, HandlePlatform } from '@/lib/types';
+import HandlesSection from '@/components/HandlesSection';
+import CreatorSlugSection from '@/components/CreatorSlugSection';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 import { useToast } from '@/lib/toast-context';
@@ -93,13 +94,6 @@ export default function SettingsPage() {
   const [stateCode, setStateCode] = useState('');
   const [locationSaving, setLocationSaving] = useState(false);
 
-  // Handles
-  const [myHandles, setMyHandles] = useState<HandleClaim[]>([]);
-  const [handlePlatform, setHandlePlatform] = useState<HandlePlatform>('twitter');
-  const [handleUsername, setHandleUsername] = useState('');
-  const [handleSubmitting, setHandleSubmitting] = useState(false);
-  const [pendingCode, setPendingCode] = useState<{ handleId: number; code: string; platform: string; username: string } | null>(null);
-
   useEffect(() => {
     if (authLoading) return;
     if (!user) { router.replace('/login'); return; }
@@ -109,7 +103,6 @@ export default function SettingsPage() {
     setStateCode(user.state_code ?? '');
     notifApi.get().then(setNotifSettings).catch(() => {});
     pledgesApi.list().then((res) => setPledgeTotalAmount(res.total_active_amount)).catch(() => {});
-    authApi.myHandles().then((res) => setMyHandles(res.data)).catch(() => {});
   }, [user, authLoading, router]);
 
   const handleNotifToggle = async (key: keyof NotificationSettings, value: boolean) => {
@@ -169,26 +162,6 @@ export default function SettingsPage() {
       toast('Location saved.', 'success');
     } catch { toast('Failed to save location.', 'error'); }
     finally { setLocationSaving(false); }
-  };
-
-  const handleRequestVerification = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!handleUsername.trim()) return;
-    setHandleSubmitting(true);
-    setPendingCode(null);
-    try {
-      const { data: claim } = await handlesApi.store(handlePlatform, handleUsername.trim());
-      const { verification_code } = await handlesApi.requestVerification(claim.handle.id);
-      const handle = { id: claim.claim_id };
-      setPendingCode({ handleId: handle.id, code: verification_code, platform: handlePlatform, username: handleUsername.trim() });
-      setHandleUsername('');
-      // Refresh handle list
-      authApi.myHandles().then((res) => setMyHandles(res.data)).catch(() => {});
-      toast('Verification request submitted! Post the code in your profile/bio.', 'success');
-    } catch (err: unknown) {
-      const e = err as { message?: string };
-      toast(e.message ?? 'Failed to request verification.', 'error');
-    } finally { setHandleSubmitting(false); }
   };
 
   const handleSendCode = async () => {
@@ -617,79 +590,11 @@ export default function SettingsPage() {
         </Card>
         </div>
 
+        {/* Creator slug (creators only) */}
+        <CreatorSlugSection />
+
         {/* Handles */}
-        <div id="handles">
-        <Card>
-          <SectionLabel className="mb-3">handles</SectionLabel>
-          <p className="font-display text-sm text-muted mb-4">
-            link a social account so fans know you&apos;re the real deal. council reviews your ownership claim and verifies it.
-          </p>
-
-          {/* Existing handle requests */}
-          {myHandles.length > 0 && (
-            <div className="divide-y divide-border -mx-5 mb-4 border-y border-border">
-              {myHandles.map((h) => (
-                <div key={h.claim_id} className="flex items-center gap-3 px-5 py-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-mono text-xs text-foreground">
-                      <span className="text-muted">{h.handle.platform}/</span>{h.handle.username}
-                    </p>
-                  </div>
-                  <span className={`font-mono text-[10px] uppercase tracking-widest ${
-                    h.status === 'verified' ? 'text-good' : 'text-warn'
-                  }`}>{h.status}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Show pending code after a new request */}
-          {pendingCode && (
-            <div className="mb-4 p-3 border border-warn/40 rounded bg-warn/5">
-              <p className="font-mono text-[10px] uppercase tracking-widest text-warn mb-1">verification code</p>
-              <p className="font-display text-sm text-foreground mb-1">
-                post this code somewhere visible on your <span className="font-bold">{pendingCode.platform}/{pendingCode.username}</span> profile or bio:
-              </p>
-              <p className="font-mono text-base font-bold text-foreground tracking-widest select-all bg-surface-2 px-3 py-2 rounded">
-                {pendingCode.code}
-              </p>
-              <p className="font-display text-xs text-muted mt-2">once it&apos;s there, council will verify ownership and update your status.</p>
-            </div>
-          )}
-
-          {/* Request form */}
-          <form onSubmit={handleRequestVerification} className="space-y-3">
-            <div className="flex gap-2">
-              <select
-                value={handlePlatform}
-                onChange={(e) => setHandlePlatform(e.target.value as HandlePlatform)}
-                className="bg-surface border border-border rounded px-3 py-2 font-mono text-xs text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
-              >
-                <option value="twitter">twitter / x</option>
-                <option value="youtube">youtube</option>
-                <option value="instagram">instagram</option>
-                <option value="tiktok">tiktok</option>
-                <option value="twitch">twitch</option>
-              </select>
-              <input
-                type="text"
-                value={handleUsername}
-                onChange={(e) => setHandleUsername(e.target.value)}
-                placeholder="username"
-                className="flex-1 bg-surface border border-border rounded px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-[var(--color-role)] transition-colors"
-              />
-            </div>
-            <Button
-              type="submit"
-              variant="default"
-              size="sm"
-              disabled={handleSubmitting || !handleUsername.trim()}
-            >
-              {handleSubmitting ? 'requesting…' : 'request verification →'}
-            </Button>
-          </form>
-        </Card>
-        </div>
+        <HandlesSection />
 
         {/* Danger zone */}
         <Card className="border-bad/30">

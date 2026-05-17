@@ -27,16 +27,16 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(true);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && user) router.replace('/dashboard');
   }, [authLoading, user, router]);
 
   if (authLoading || user) return null;
-  const [remember, setRemember] = useState(true);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

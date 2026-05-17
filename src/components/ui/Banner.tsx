@@ -19,7 +19,7 @@ const toneClasses: Record<BannerTone, string> = {
 export function Banner({ tone = 'default', children, action, className = '' }: BannerProps) {
   return (
     <div
-      className={`flex items-center justify-between gap-4 border border-l-[3px] rounded-md px-4 py-3 mb-5 ${toneClasses[tone]} ${className}`}
+      className={`flex items-center justify-between gap-4 border rounded-md px-4 py-3 mb-5 ${toneClasses[tone]} ${className}`}
     >
       <div className="flex-1 font-display text-base text-foreground">{children}</div>
       {action}

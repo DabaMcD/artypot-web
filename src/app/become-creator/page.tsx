@@ -8,6 +8,9 @@ import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Banner } from '@/components/ui/Banner';
+import { FieldLabel } from '@/components/ui/Input';
+import SlugInput from '@/components/SlugInput';
 
 // ── Creator TOS text ─────────────────────────────────────────────────────────
 // Authoritative source: artypot-api/storage/legal/creator-tos.md
@@ -79,19 +82,23 @@ These Creator Terms are governed by the laws of the State of Florida. Disputes s
 
 Artypot LLC · Florida, USA · legal@artypot.com`;
 
-// ── TOS + activation form ─────────────────────────────────────────────────────
+// ── TOS + slug + activation form ──────────────────────────────────────────────
 
 function TosGate({ onActivated }: { onActivated: () => void }) {
   const { toast } = useToast();
   const [agreed, setAgreed] = useState(false);
+  const [slug, setSlug] = useState('');
+  const [slugError, setSlugError] = useState<string | null>('Slug is required.');
   const [submitting, setSubmitting] = useState(false);
+
+  const canSubmit = agreed && slug.length > 0 && slugError === null && !submitting;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!agreed) return;
+    if (!canSubmit) return;
     setSubmitting(true);
     try {
-      await authApi.becomeCreator();
+      await authApi.becomeCreator(slug);
       toast('Creator mode activated — welcome!', 'success');
       onActivated();
     } catch (err: unknown) {
@@ -103,12 +110,23 @@ function TosGate({ onActivated }: { onActivated: () => void }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+    <form onSubmit={handleSubmit} className="mt-4 space-y-5">
+      {/* Slug picker */}
+      <SlugInput
+        value={slug}
+        onChange={setSlug}
+        label="choose your creator URL"
+        onValidityChange={setSlugError}
+      />
+
       {/* Scrollable TOS */}
-      <div className="border border-border rounded-md bg-surface-2 h-48 overflow-y-auto p-4">
-        <pre className="font-mono text-[10px] leading-relaxed text-muted whitespace-pre-wrap break-words">
-          {CREATOR_TOS}
-        </pre>
+      <div>
+        <FieldLabel>creator terms of service</FieldLabel>
+        <div className="border border-border rounded-md bg-surface-2 h-48 overflow-y-auto p-4">
+          <pre className="font-mono text-[10px] leading-relaxed text-muted whitespace-pre-wrap break-words">
+            {CREATOR_TOS}
+          </pre>
+        </div>
       </div>
 
       <label className="flex items-start gap-3 cursor-pointer group">
@@ -123,10 +141,54 @@ function TosGate({ onActivated }: { onActivated: () => void }) {
         </span>
       </label>
 
-      <Button type="submit" variant="primary" disabled={!agreed || submitting} className="w-full">
+      <Button type="submit" variant="primary" disabled={!canSubmit} className="w-full">
         {submitting ? 'activating…' : 'enable creator mode →'}
       </Button>
     </form>
+  );
+}
+
+// ── Email verification gate ───────────────────────────────────────────────────
+
+function EmailVerificationGate({ hasEmail }: { hasEmail: boolean }) {
+  const { toast } = useToast();
+  const [sending, setSending] = useState(false);
+
+  if (!hasEmail) {
+    return (
+      <div className="mt-3">
+        <Banner tone="default">
+          no email on your account.{' '}
+          <Link href="/settings" className="underline">add one in settings</Link>{' '}
+          to receive a verification link.
+        </Banner>
+      </div>
+    );
+  }
+
+  const handleResend = async () => {
+    setSending(true);
+    try {
+      await authApi.resendVerification();
+      toast('Verification email sent — check your inbox.', 'success');
+    } catch {
+      toast('Could not send verification email. Please try again.', 'error');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="mt-3 flex flex-col gap-2">
+      <Banner tone="default">
+        a verification link was sent to your email address. check your inbox (and spam folder).
+      </Banner>
+      <div>
+        <Button variant="ghost" size="sm" onClick={handleResend} disabled={sending}>
+          {sending ? 'sending…' : 'resend verification email'}
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -139,6 +201,7 @@ function GateRow({
   title,
   description,
   status,
+  lockText = 'complete previous steps to unlock',
   actionSlot,
   children,
 }: {
@@ -146,6 +209,7 @@ function GateRow({
   title: string;
   description: string;
   status: GateStatus;
+  lockText?: string;
   actionSlot?: React.ReactNode;
   children?: React.ReactNode;
 }) {
@@ -172,7 +236,7 @@ function GateRow({
             )}
             {status === 'locked' && (
               <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
-                complete steps 1 and 2 to unlock
+                {lockText}
               </span>
             )}
           </div>
@@ -230,9 +294,10 @@ export default function BecomeCreatorPage() {
     );
   }
 
-  const gate1Complete = user.location_complete ?? false;
-  const gate2Complete = user.has_verified_handle ?? false;
-  const gate3Unlocked = gate1Complete && gate2Complete;
+  const gate1Complete = !!user.email_verified_at;
+  const gate2Complete = user.location_complete ?? false;
+  const gate3Complete = user.has_verified_handle ?? false;
+  const gate4Unlocked = gate1Complete && gate2Complete && gate3Complete;
 
   return (
     <div className="space-y-7 pt-2 max-w-[600px]">
@@ -245,40 +310,51 @@ export default function BecomeCreatorPage() {
       </div>
 
       <div className="space-y-3">
-        {/* Gate 1 — location */}
+        {/* Gate 1 — email verification */}
         <GateRow
           step={1}
+          title="verify your email address"
+          description="a verified email is required to receive creator notifications and tax communications"
+          status={gate1Complete ? 'complete' : 'active'}
+        >
+          {!gate1Complete && (
+            <EmailVerificationGate hasEmail={!!user.email} />
+          )}
+        </GateRow>
+
+        {/* Gate 2 — location */}
+        <GateRow
+          step={2}
           title="add your location of residence"
           description="we use this to know where to report your earnings later"
-          status={gate1Complete ? 'complete' : 'active'}
+          status={gate2Complete ? 'complete' : 'active'}
           actionSlot={
-            gate1Complete
+            gate2Complete
               ? <Link href="/settings#location"><Button variant="ghost" size="sm">edit</Button></Link>
               : <Link href="/settings#location"><Button variant="default" size="sm">add location →</Button></Link>
           }
         />
 
-        {/* Gate 2 — verified handle */}
-        <GateRow
-          step={2}
-          title="verify a handle"
-          description="link a social account so fans know you're the real deal"
-          status={gate2Complete ? 'complete' : 'active'}
-          actionSlot={
-            !gate2Complete && (
-              <Link href="/settings#handles"><Button variant="default" size="sm">verify a handle →</Button></Link>
-            )
-          }
-        />
-
-        {/* Gate 3 — TOS */}
+        {/* Gate 3 — verified handle */}
         <GateRow
           step={3}
-          title="agree to the creator terms of service"
-          description="read and accept the creator terms to activate your account"
-          status={!gate3Unlocked ? 'locked' : 'active'}
+          title="verify a handle"
+          description="link a social account so fans know you're the real deal"
+          status={gate3Complete ? 'complete' : 'active'}
+          actionSlot={!gate3Complete ? (
+            <Link href="/settings#handles"><Button variant="default" size="sm">verify a handle →</Button></Link>
+          ) : undefined}
+        />
+
+        {/* Gate 4 — TOS + slug */}
+        <GateRow
+          step={4}
+          title="agree to creator TOS and choose your primary handle"
+          description="accept the creator terms and lock in your artypot.com/[slug] URL"
+          status={!gate4Unlocked ? 'locked' : 'active'}
+          lockText="complete steps 1–3 to unlock"
         >
-          {gate3Unlocked && <TosGate onActivated={handleActivated} />}
+          {gate4Unlocked && <TosGate onActivated={handleActivated} />}
         </GateRow>
       </div>
 

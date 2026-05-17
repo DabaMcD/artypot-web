@@ -8,16 +8,17 @@ export interface UserHandle {
   username: string;
   status: HandleStatus;
   verified_at: string | null;
-  /** Verification code to post in profile/bio. Present after requesting verification. */
-  verification_code?: string | null;
   created_at: string;
 }
-/** Shape returned by GET /auth/handles */
+
+/** Shape returned by GET /auth/handles and POST /handles */
 export interface HandleClaim {
   claim_id: number;
   status: 'unverified' | 'verified';
-  verification_method: string | null;
-  verification_code: string | null;
+  /** 'oauth' = verified via OAuth; 'admin' = submitted for admin review or admin-approved; null = not yet submitted */
+  verification_method: 'oauth' | 'admin' | null;
+  /** Message the creator left for admins when requesting review. */
+  contact_message: string | null;
   verified_at: string | null;
   handle: {
     id: number;
@@ -103,6 +104,10 @@ export interface User {
   name: string;
   /** API alias for `name` — the display name shown in the UI */
   display_name: string;
+  /** Creator URL slug — `artypot.com/{slug}`. Null until creator mode is enabled. */
+  slug?: string | null;
+  /** ISO timestamp of the most recent slug change. Null if slug has never been set. */
+  slug_changed_at?: string | null;
   email: string | null; // null for OAuth-only users (e.g. signed up via Reddit)
   pending_email?: string | null;
   email_verified_at?: string | null;
@@ -135,7 +140,7 @@ export interface CouncilMember {
   email: string;
   council_permissions: Record<string, boolean>;
   council_appointed_at: string;
-  appointedBy: { id: number; display_name: string; email: string } | null;
+  appointed_by: { id: number; display_name: string; email: string } | null;
 }
 
 export interface CouncilPage {
@@ -313,6 +318,20 @@ export interface PaginatedResponse<T> {
 }
 
 // ── Admin types ─────────────────────────────────────────────────────────────
+
+export interface AdminHandleReview {
+  id: number;
+  platform: HandlePlatform;
+  username: string;
+  status: HandleStatus;
+  claims: Array<{
+    id: number;
+    user: { id: number; display_name: string; email: string };
+    verification_method: string | null;
+    contact_message: string | null;
+    created_at: string;
+  }>;
+}
 
 export interface AdminCreatorClaim {
   id: number;
@@ -570,7 +589,7 @@ export interface BountyHistory {
 
 export interface AdminUser {
   id: number;
-  name: string;
+  display_name: string;
   email: string;
   role: UserRole;
   is_anonymous: boolean;

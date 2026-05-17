@@ -8,7 +8,7 @@ import { Card, SectionLabel } from '@/components/ui/Card';
 
 const ADMIN_SECTIONS = [
   { title: 'completion review',    description: 'approve or reject submitted work before payout.',     href: '/admin/completions' },
-  { title: 'handle verification',  description: 'review and approve creator identity claims.',          href: '/admin/claims' },
+  { title: 'handle verification',  description: 'review and approve creator identity claims.',          href: '/admin/handles' },
   { title: 'billing runs',         description: 'monitor and trigger monthly billing cycles.',          href: '/admin/billing' },
   { title: 'external payouts',     description: 'record off-Stripe payouts (Wise, PayPal, wire, check).', href: '/admin/external-payouts' },
   { title: 'council members',      description: 'manage admin access and council permissions.',         href: '/admin/council' },

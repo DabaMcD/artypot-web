@@ -4,6 +4,7 @@ export interface Country {
 }
 
 export const COUNTRIES: Country[] = [
+  { code: 'US', name: 'United States' },
   { code: 'AF', name: 'Afghanistan' },
   { code: 'AL', name: 'Albania' },
   { code: 'DZ', name: 'Algeria' },
@@ -188,7 +189,6 @@ export const COUNTRIES: Country[] = [
   { code: 'UA', name: 'Ukraine' },
   { code: 'AE', name: 'United Arab Emirates' },
   { code: 'GB', name: 'United Kingdom' },
-  { code: 'US', name: 'United States' },
   { code: 'UY', name: 'Uruguay' },
   { code: 'UZ', name: 'Uzbekistan' },
   { code: 'VU', name: 'Vanuatu' },
