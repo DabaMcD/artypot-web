@@ -110,12 +110,12 @@ export default function PayoutReadinessChecklist() {
         <div className="flex items-start gap-3 py-2 px-3 rounded-md bg-bad-soft border border-bad/30">
           <CheckIcon done={false} error />
           <div className="flex-1 min-w-0">
-            <span className="font-display text-sm text-bad font-medium">
+            <span className="text-sm text-bad font-medium">
               Identity verification required by Stripe
             </span>
             <Link
               href="/sanctum"
-              className="ml-2 font-display text-xs text-bad underline underline-offset-2 hover:opacity-80 transition-opacity"
+              className="ml-2 text-xs text-bad underline underline-offset-2 hover:opacity-80 transition-opacity"
             >
               Complete now →
             </Link>
@@ -137,7 +137,7 @@ export default function PayoutReadinessChecklist() {
             <CheckIcon done={item.done} />
             <div className="flex-1 min-w-0">
               <span
-                className={`font-display text-sm ${
+                className={`text-sm ${
                   item.done
                     ? 'text-muted line-through'
                     : isFirstIncomplete
@@ -150,7 +150,7 @@ export default function PayoutReadinessChecklist() {
               {isFirstIncomplete && item.href && (
                 <Link
                   href={item.href}
-                  className="ml-2 font-display text-xs text-fan underline underline-offset-2 hover:opacity-80 transition-opacity"
+                  className="ml-2 text-xs text-fan underline underline-offset-2 hover:opacity-80 transition-opacity"
                 >
                   Set up now →
                 </Link>

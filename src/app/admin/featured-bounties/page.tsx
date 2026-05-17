@@ -136,10 +136,10 @@ export default function FeaturedBountiesAdminPage() {
       <div>
         <SectionLabel className="mb-2">council · admin</SectionLabel>
         <Link href="/admin">
-          <Button variant="ghost" size="sm">← admin</Button>
+          <Button variant="ghost" size="sm">← Admin</Button>
         </Link>
         <h1 className="font-display font-bold text-[28px] mt-2">Featured Bounties</h1>
-        <p className="font-display text-sm text-muted mt-1">
+        <p className="text-sm text-muted mt-1">
           These 3 bounties appear on the landing page for logged-out visitors.
           Enter a bounty ID in each slot, preview it, then save.
         </p>
@@ -180,7 +180,7 @@ export default function FeaturedBountiesAdminPage() {
 
               {slot.preview && (
                 <div className="ml-10 mt-3 bg-surface-2 border border-fan/20 rounded px-4 py-3">
-                  <p className="font-display text-sm font-medium text-foreground line-clamp-1">
+                  <p className="text-sm font-medium text-foreground line-clamp-1">
                     {slot.preview.title}
                   </p>
                   <p className="font-mono text-[10px] text-muted mt-0.5">

@@ -9,14 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Empty } from '@/components/ui/Empty';
 
-type StatusFilter = 'all' | 'answered' | 'unanswered';
 type SortOption = 'newest' | 'most_pledged' | 'most_completed';
-
-const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
-  { value: 'all',        label: 'all' },
-  { value: 'answered',   label: 'answered' },
-  { value: 'unanswered', label: 'unanswered' },
-];
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'newest',         label: 'newest' },
@@ -28,7 +21,6 @@ export default function CreatorsPage() {
   const [data, setData] = useState<PaginatedResponse<Creator> | null>(null);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [sort, setSort] = useState<SortOption>('newest');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -48,7 +40,6 @@ export default function CreatorsPage() {
     try {
       const res = await creatorsApi.list({
         q: debouncedQuery || undefined,
-        status: statusFilter === 'all' ? undefined : statusFilter,
         sort,
         page,
       });
@@ -58,11 +49,10 @@ export default function CreatorsPage() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedQuery, statusFilter, sort, page]);
+  }, [debouncedQuery, sort, page]);
 
   useEffect(() => { load(); }, [load]);
 
-  const handleStatusChange = (val: StatusFilter) => { setStatusFilter(val); setPage(1); };
   const handleSortChange = (val: SortOption) => { setSort(val); setPage(1); };
 
   return (
@@ -70,7 +60,7 @@ export default function CreatorsPage() {
       <div>
         <SectionLabel>fan</SectionLabel>
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">search creators</h1>
-        <p className="font-display text-sm text-muted mt-1">artists, musicians, and makers whose communities are calling for their best work.</p>
+        <p className="text-sm text-muted mt-1">artists, musicians, and makers whose communities are calling for their best work.</p>
       </div>
 
       {/* Controls */}
@@ -82,23 +72,6 @@ export default function CreatorsPage() {
           placeholder="search by name, handle, or domain…"
           className="sm:w-72"
         />
-
-        {/* Status filter */}
-        <div className="flex items-center gap-1 border border-border rounded p-1 bg-surface shrink-0">
-          {STATUS_OPTIONS.map(({ value, label }) => (
-            <button
-              key={value}
-              onClick={() => handleStatusChange(value)}
-              className={`px-3 py-1 font-mono text-[10px] uppercase tracking-wider rounded transition-colors cursor-pointer ${
-                statusFilter === value
-                  ? 'bg-[var(--color-role-soft)] text-[var(--color-role)]'
-                  : 'text-muted hover:text-foreground'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
 
         {/* Sort */}
         <div className="flex items-center gap-1 border border-border rounded p-1 bg-surface shrink-0 ml-auto">
@@ -120,7 +93,7 @@ export default function CreatorsPage() {
 
       {/* Results */}
       {error ? (
-        <p className="font-display text-sm text-bad">{error}</p>
+        <p className="text-sm text-bad">{error}</p>
       ) : loading ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -131,9 +104,7 @@ export default function CreatorsPage() {
         <Empty
           message={debouncedQuery
             ? `no results for "${debouncedQuery}"`
-            : statusFilter !== 'all'
-              ? `no ${statusFilter} creators yet`
-              : 'no creators yet'}
+            : 'no verified creators yet'}
         />
       ) : (
         <>

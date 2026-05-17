@@ -85,7 +85,7 @@ export default function LoginPage() {
           put your money where your{' '}
           <span className="ap-sketch-u text-fan">mouth</span> is.
         </h1>
-        <p className="font-display text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
+        <p className="text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
           start a bounty for a creator to make a public, free piece of work.
           others can chip in. when the work is delivered, the creator gets paid.
         </p>
@@ -123,7 +123,7 @@ export default function LoginPage() {
         </Link>
 
         <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">sign in</div>
-        <h2 className="font-display font-bold text-[30px] text-foreground mb-6">welcome back</h2>
+        <h2 className="font-display font-bold text-[30px] text-foreground mb-6">Welcome Back</h2>
 
         {/* OAuth */}
         <div className="grid grid-cols-2 gap-2 mb-5">
@@ -151,7 +151,7 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="bg-bad-soft border border-bad text-bad text-sm rounded px-4 py-3 mb-4 font-display">
+          <div className="bg-bad-soft border border-bad text-bad text-sm rounded px-4 py-3 mb-4">
             {error}
           </div>
         )}
@@ -191,7 +191,7 @@ export default function LoginPage() {
             className="w-full justify-center mt-2"
             disabled={anyLoading}
           >
-            {loading ? 'signing in…' : 'sign in'}
+            {loading ? 'Signing in…' : 'Sign In'}
           </Button>
         </form>
 
@@ -202,10 +202,10 @@ export default function LoginPage() {
           className="w-full justify-center"
           onClick={() => router.push('/register')}
         >
-          create an account
+          Create an Account
         </Button>
 
-        <p className="font-display text-sm text-muted mt-5 pl-5 relative before:content-['→'] before:absolute before:left-0 before:text-fan">
+        <p className="text-sm text-muted mt-5 pl-5 relative before:content-['→'] before:absolute before:left-0 before:text-fan">
           becoming a creator is a separate flow — first sign up, then verify a handle and complete tax + bank gates.
         </p>
       </div>

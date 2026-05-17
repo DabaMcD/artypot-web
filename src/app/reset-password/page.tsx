@@ -61,16 +61,16 @@ function ResetPasswordForm() {
     return (
       <div className="text-center space-y-4">
         <div className="font-mono text-[10px] uppercase tracking-widest text-good">done</div>
-        <h2 className="font-display font-bold text-[24px] text-foreground">password updated</h2>
-        <p className="font-display text-sm text-muted leading-relaxed">
-          your password has been changed. all other sessions have been signed out.
+        <h2 className="font-display font-bold text-[24px] text-foreground">Password Updated</h2>
+        <p className="text-sm text-muted leading-relaxed">
+          Your password has been changed. All other sessions have been signed out.
         </p>
         <Button
           variant="primary"
           className="justify-center"
           onClick={() => router.push('/login')}
         >
-          sign in with new password →
+          Sign In with New Password →
         </Button>
       </div>
     );
@@ -79,14 +79,14 @@ function ResetPasswordForm() {
   return (
     <>
       <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">password reset</div>
-      <h1 className="font-display font-bold text-[30px] text-foreground mb-2">set a new password</h1>
-      <p className="font-display text-sm text-muted mb-8 leading-relaxed">
-        for <span className="font-mono text-foreground">{email}</span>
+      <h1 className="font-display font-bold text-[30px] text-foreground mb-2">Set a New Password</h1>
+      <p className="text-sm text-muted mb-8 leading-relaxed">
+        For <span className="font-mono text-foreground">{email}</span>
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="bg-bad-soft border border-bad text-bad text-sm rounded px-4 py-3 font-display">
+          <div className="bg-bad-soft border border-bad text-bad text-sm rounded px-4 py-3">
             {error}
           </div>
         )}
@@ -124,13 +124,13 @@ function ResetPasswordForm() {
           className="w-full justify-center"
           disabled={loading || !password || !passwordConfirm}
         >
-          {loading ? 'resetting…' : 'set new password'}
+          {loading ? 'Resetting…' : 'Set New Password'}
         </Button>
       </form>
 
-      <p className="font-display text-sm text-muted text-center mt-6">
-        remembered it?{' '}
-        <Link href="/login" className="ap-inline-link">sign in →</Link>
+      <p className="text-sm text-muted text-center mt-6">
+        Remembered it?{' '}
+        <Link href="/login" className="ap-inline-link">Sign In →</Link>
       </p>
     </>
   );

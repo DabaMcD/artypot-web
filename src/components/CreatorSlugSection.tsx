@@ -82,8 +82,8 @@ export default function CreatorSlugSection() {
     <div id="slug">
       <Card>
         <SectionLabel className="mb-3">creator URL</SectionLabel>
-        <p className="font-display text-sm text-muted mb-4">
-          your public creator page lives at this URL. you can change it once every {info.cooldown_days} days,
+        <p className="text-sm text-muted mb-4">
+          Your public creator page lives at this URL. You can change it once every {info.cooldown_days} days,
           and old URLs will keep redirecting here.
         </p>
 
@@ -103,7 +103,7 @@ export default function CreatorSlugSection() {
             </div>
             {onCooldown && (
               <Banner tone="default">
-                you changed your slug recently. you&apos;ll be able to change it again on{' '}
+                You changed your slug recently. You&apos;ll be able to change it again on{' '}
                 <span className="text-foreground">{cooldownUntil!.toLocaleDateString()}</span>.
               </Banner>
             )}
@@ -118,14 +118,14 @@ export default function CreatorSlugSection() {
             />
 
             <Banner tone="warn">
-              changing your slug starts a {info.cooldown_days}-day cooldown.
-              the previous URL <span className="font-mono">/{info.slug}</span> will redirect here forever.
+              Changing your slug starts a {info.cooldown_days}-day cooldown.
+              The previous URL <span className="font-mono">/{info.slug}</span> will redirect here forever.
             </Banner>
 
             <div className="flex gap-3">
-              <Button variant="ghost" onClick={cancelEditing} disabled={saving}>cancel</Button>
+              <Button variant="ghost" onClick={cancelEditing} disabled={saving}>Cancel</Button>
               <Button variant="primary" onClick={handleSave} disabled={saving || slugError !== null || newSlug === info.slug}>
-                {saving ? 'saving…' : 'save new URL'}
+                {saving ? 'Saving…' : 'Save New URL'}
               </Button>
             </div>
           </div>

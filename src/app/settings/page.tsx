@@ -50,7 +50,7 @@ const NOTIF_ROWS: {
   smsKey: keyof NotificationSettings;
   inAppKey: keyof NotificationSettings;
 }[] = [
-  { label: 'creator answered',       desc: 'a creator claims their profile and your backing activates.',       emailKey: 'creator_answered',          smsKey: 'sms_creator_answered',          inAppKey: 'in_app_creator_answered' },
+  { label: 'creator verified',       desc: 'a creator joins Artypot and your backing activates.',              emailKey: 'creator_answered',          smsKey: 'sms_creator_answered',          inAppKey: 'in_app_creator_answered' },
   { label: 'bounty pending review',  desc: 'a creator submits a bounty for council review.',                  emailKey: 'bounty_pending_completion',    smsKey: 'sms_bounty_pending_completion',    inAppKey: 'in_app_bounty_pending_completion' },
   { label: 'bounty confirmed',       desc: 'council approves a bounty and payment is queued.',               emailKey: 'bounty_confirmed_completed',   smsKey: 'sms_bounty_confirmed_completed',   inAppKey: 'in_app_bounty_confirmed_completed' },
   { label: 'backing confirmed',      desc: 'you backed a bounty.',                                           emailKey: 'pledge_confirmation',        smsKey: 'sms_pledge_confirmation',        inAppKey: 'in_app_pledge_confirmation' },
@@ -286,45 +286,45 @@ export default function SettingsPage() {
       {/* Broke confirm */}
       {showBrokeConfirm && (
         <Modal
-          title="back out of everything"
+          title="Back Out of Everything"
           onClose={() => setShowBrokeConfirm(false)}
           actions={
             <>
-              <Button variant="ghost" onClick={() => setShowBrokeConfirm(false)} disabled={dangerLoading}>cancel</Button>
+              <Button variant="ghost" onClick={() => setShowBrokeConfirm(false)} disabled={dangerLoading}>Cancel</Button>
               <Button variant="danger" onClick={handleBroke} disabled={dangerLoading}>
-                {dangerLoading ? 'working…' : 'yes, back out of everything'}
+                {dangerLoading ? 'Working…' : 'Yes, Back Out of Everything'}
               </Button>
             </>
           }
         >
-          <p className="font-display text-sm text-muted leading-relaxed mb-2">
-            this will immediately <strong className="text-foreground">cancel all your active commitments</strong> and remove your backing from every project.
+          <p className="text-sm text-muted leading-relaxed mb-2">
+            This will immediately <strong className="text-foreground">cancel all your active commitments</strong> and remove your backing from every project.
           </p>
           {pledgeTotalAmount != null && pledgeTotalAmount > 0 && (
             <p className="font-mono text-sm text-bad mb-2">${pledgeTotalAmount.toFixed(2)} in active commitments will be cancelled.</p>
           )}
-          <p className="font-display text-sm text-muted">this cannot easily be undone. you would need to back each project individually again.</p>
+          <p className="text-sm text-muted">This cannot easily be undone. You would need to back each project individually again.</p>
         </Modal>
       )}
 
       {/* Delete confirm */}
       {showDeleteConfirm && (
         <Modal
-          title="delete my account"
+          title="Delete My Account"
           onClose={() => setShowDeleteConfirm(false)}
           actions={
             <>
-              <Button variant="ghost" onClick={() => setShowDeleteConfirm(false)} disabled={dangerLoading}>cancel</Button>
+              <Button variant="ghost" onClick={() => setShowDeleteConfirm(false)} disabled={dangerLoading}>Cancel</Button>
               <Button variant="danger" onClick={handleDeleteAccount} disabled={dangerLoading}>
-                {dangerLoading ? 'deleting…' : 'yes, delete my account'}
+                {dangerLoading ? 'Deleting…' : 'Yes, Delete My Account'}
               </Button>
             </>
           }
         >
-          <p className="font-display text-sm text-muted leading-relaxed mb-2">
-            this will <strong className="text-foreground">permanently delete your account</strong>, cancel all your active commitments, and log you out immediately.
+          <p className="text-sm text-muted leading-relaxed mb-2">
+            This will <strong className="text-foreground">permanently delete your account</strong>, cancel all your active commitments, and log you out immediately.
           </p>
-          <p className="font-display text-sm text-muted">your account cannot be recovered. you may re-register with the same email address.</p>
+          <p className="text-sm text-muted">Your account cannot be recovered. You may re-register with the same email address.</p>
         </Modal>
       )}
 
@@ -338,14 +338,14 @@ export default function SettingsPage() {
         {!hasEmail ? (
           <Card>
             <SectionLabel className="mb-3">email address</SectionLabel>
-            <p className="font-display text-sm text-muted mb-4">add an email address to enable email notifications and password-based login.</p>
+            <p className="text-sm text-muted mb-4">Add an email address to enable email notifications and password-based login.</p>
             {emailChangeSent ? (
-              <Banner tone="good">confirmation email sent to <strong>{emailChangeSent}</strong>. click the link to complete.</Banner>
+              <Banner tone="good">Confirmation email sent to <strong>{emailChangeSent}</strong>. Click the link to complete.</Banner>
             ) : (
               <form onSubmit={handleRequestEmailChange} className="flex gap-2">
                 <Input type="email" required placeholder="your@email.com" value={emailChangeInput} onChange={(e) => setEmailChangeInput(e.target.value)} className="flex-1" />
                 <Button type="submit" variant="default" disabled={emailChangeLoading || !emailChangeInput.trim()}>
-                  {emailChangeLoading ? 'sending…' : 'add email'}
+                  {emailChangeLoading ? 'Sending…' : 'Add Email'}
                 </Button>
               </form>
             )}
@@ -356,19 +356,19 @@ export default function SettingsPage() {
           <Card>
             <SectionLabel className="mb-3">email address</SectionLabel>
             <div className="flex items-center gap-2 mb-4">
-              <span className="font-display text-sm text-foreground">{user.email}</span>
+              <span className="text-sm text-foreground">{user.email}</span>
               <span className="font-mono text-[10px] uppercase text-good">✓ verified</span>
             </div>
             {user.pending_email && !emailChangeSent && (
-              <Banner tone="warn" className="mb-3">pending change to <strong>{user.pending_email}</strong> — check that inbox.</Banner>
+              <Banner tone="warn" className="mb-3">Pending change to <strong>{user.pending_email}</strong> — check that inbox.</Banner>
             )}
             {emailChangeSent ? (
-              <Banner tone="good">confirmation sent to <strong>{emailChangeSent}</strong>. click the link to complete.</Banner>
+              <Banner tone="good">Confirmation sent to <strong>{emailChangeSent}</strong>. Click the link to complete.</Banner>
             ) : (
               <form onSubmit={handleRequestEmailChange} className="flex gap-2">
                 <Input type="email" required placeholder="new email address" value={emailChangeInput} onChange={(e) => setEmailChangeInput(e.target.value)} className="flex-1" />
                 <Button type="submit" variant="default" disabled={emailChangeLoading || !emailChangeInput.trim()}>
-                  {emailChangeLoading ? 'sending…' : 'change email'}
+                  {emailChangeLoading ? 'Sending…' : 'Change Email'}
                 </Button>
               </form>
             )}
@@ -383,7 +383,7 @@ export default function SettingsPage() {
               {(picPreview || user.profile_picture) ? (
                 <Image src={picPreview ?? user.profile_picture!} alt="Profile picture" fill className="object-cover" unoptimized />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-2xl text-muted select-none font-display font-bold">
+                <div className="w-full h-full flex items-center justify-center text-2xl text-muted select-none font-bold">
                   {user.display_name?.charAt(0).toUpperCase() ?? '?'}
                 </div>
               )}
@@ -400,7 +400,7 @@ export default function SettingsPage() {
                   </Button>
                 )}
               </div>
-              <p className="font-display text-xs text-muted mt-2">JPEG, PNG, GIF or WebP — max 2 MB.</p>
+              <p className="text-xs text-muted mt-2">JPEG, PNG, GIF or WebP — max 2 MB.</p>
             </div>
           </div>
         </Card>
@@ -411,7 +411,7 @@ export default function SettingsPage() {
           <form onSubmit={handleSaveName} className="flex gap-2">
             <Input type="text" required value={nameInput} onChange={(e) => setNameInput(e.target.value)} className="flex-1" />
             <Button type="submit" variant="default" disabled={nameSaving || !nameInput.trim() || nameInput.trim() === user.display_name}>
-              {nameSaving ? 'saving…' : 'save name'}
+              {nameSaving ? 'Saving…' : 'Save Name'}
             </Button>
           </form>
         </Card>
@@ -421,8 +421,8 @@ export default function SettingsPage() {
           <SectionLabel className="mb-4">privacy</SectionLabel>
           <div className="flex items-start justify-between gap-6">
             <div className="flex-1">
-              <div className="font-display text-sm font-medium text-foreground mb-0.5">anonymous mode <span className="font-mono text-[9px] uppercase text-muted">(beta)</span></div>
-              <p className="font-display text-xs text-muted">hide your backing from your public profile. your name appears as [anonymous] on supporter lists.</p>
+              <div className="text-sm font-medium text-foreground mb-0.5">Anonymous mode <span className="font-mono text-[9px] uppercase text-muted">(beta)</span></div>
+              <p className="text-xs text-muted">Hide your backing from your public profile. Your name appears as [anonymous] on supporter lists.</p>
             </div>
             <ToggleUI on={isAnonymous} onChange={(val) => handleToggle('is_anonymous', val)} label="" />
           </div>
@@ -433,9 +433,9 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between">
             <div>
               <SectionLabel className="mb-1">billing</SectionLabel>
-              <p className="font-display text-sm text-muted">manage saved payment methods and see what you&apos;ve backed.</p>
+              <p className="text-sm text-muted">Manage saved payment methods and see what you&apos;ve backed.</p>
             </div>
-            <Link href="/billing"><Button variant="default" size="sm">go to billing →</Button></Link>
+            <Link href="/billing"><Button variant="default" size="sm">Go to Billing →</Button></Link>
           </div>
         </Card>
 
@@ -445,9 +445,9 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <SectionLabel className="mb-1">creator profile</SectionLabel>
-                <p className="font-display text-sm text-muted">edit your public creator page — display name, bio, handles.</p>
+                <p className="text-sm text-muted">Edit your public creator page — display name, bio, handles.</p>
               </div>
-              <Link href={`/creators/${user.creator.id}/edit`}><Button variant="default" size="sm">edit profile →</Button></Link>
+              <Link href={`/${user.slug}/edit`}><Button variant="default" size="sm">Edit Profile →</Button></Link>
             </div>
           </Card>
         )}
@@ -455,10 +455,10 @@ export default function SettingsPage() {
         {/* Phone number */}
         <Card>
           <SectionLabel className="mb-2">phone number</SectionLabel>
-          <p className="font-display text-sm text-muted mb-4">add a verified phone number to receive SMS notifications.</p>
+          <p className="text-sm text-muted mb-4">Add a verified phone number to receive SMS notifications.</p>
           {phoneVerified ? (
             <div className="flex items-center gap-3">
-              <span className="font-display text-sm text-foreground">{user.phone_number}</span>
+              <span className="text-sm text-foreground">{user.phone_number}</span>
               <span className="font-mono text-[10px] uppercase text-good">✓ verified</span>
               <button type="button" onClick={handleRemovePhone} disabled={phoneSaving} className="font-mono text-[10px] uppercase text-muted hover:text-bad transition-colors disabled:opacity-40 ml-auto cursor-pointer">
                 {phoneSaving ? 'removing…' : 'remove'}
@@ -466,22 +466,22 @@ export default function SettingsPage() {
             </div>
           ) : phoneStep === 'awaiting_code' ? (
             <div className="space-y-3">
-              <p className="font-display text-xs text-muted">a 6-digit code was sent to <span className="text-foreground font-medium">{phoneInput}</span>.</p>
+              <p className="text-xs text-muted">A 6-digit code was sent to <span className="text-foreground font-medium">{phoneInput}</span>.</p>
               <div className="flex gap-2">
                 <Input type="text" inputMode="numeric" maxLength={6} placeholder="000000" value={codeInput} onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, ''))} className="flex-1 tracking-widest" />
                 <Button variant="primary" disabled={phoneSaving || codeInput.length !== 6} onClick={handleVerifyCode}>
-                  {phoneSaving ? 'verifying…' : 'verify'}
+                  {phoneSaving ? 'Verifying…' : 'Verify'}
                 </Button>
               </div>
-              <button type="button" onClick={() => { setPhoneStep('idle'); setPhoneInput(undefined); setCodeInput(''); }} className="ap-inline-link font-display text-xs">
-                ← use a different number
+              <button type="button" onClick={() => { setPhoneStep('idle'); setPhoneInput(undefined); setCodeInput(''); }} className="ap-inline-link text-xs">
+                ← Use a Different Number
               </button>
             </div>
           ) : (
             <div className="flex gap-2">
               <PhoneNumberInput value={phoneInput} onChange={setPhoneInput} disabled={phoneSaving} />
               <Button variant="primary" disabled={phoneSaving || !phoneInput || !isValidPhoneNumber(phoneInput!)} onClick={handleSendCode}>
-                {phoneSaving ? 'sending…' : 'send code'}
+                {phoneSaving ? 'Sending…' : 'Send Code'}
               </Button>
             </div>
           )}
@@ -490,11 +490,11 @@ export default function SettingsPage() {
         {/* Notifications */}
         <Card>
           <SectionLabel className="mb-4">notifications</SectionLabel>
-          {!hasEmail && <Banner tone="warn" className="mb-3">add an email address above to enable email notifications.</Banner>}
-          {hasEmail && !emailVerified && <Banner tone="warn" className="mb-3">verify your email to enable email notifications.</Banner>}
+          {!hasEmail && <Banner tone="warn" className="mb-3">Add an email address above to enable email notifications.</Banner>}
+          {hasEmail && !emailVerified && <Banner tone="warn" className="mb-3">Verify your email to enable email notifications.</Banner>}
           {!phoneVerified && (
             <Banner tone="warn" className="mb-3">
-              {user.phone_number ? 'verify your phone number to enable SMS notifications.' : 'add and verify your phone number to enable SMS notifications.'}
+              {user.phone_number ? 'Verify your phone number to enable SMS notifications.' : 'Add and verify your phone number to enable SMS notifications.'}
             </Banner>
           )}
           {!notifSettings ? (
@@ -510,8 +510,8 @@ export default function SettingsPage() {
               {NOTIF_ROWS.map(({ label, desc, emailKey, smsKey, inAppKey }) => (
                 <div key={emailKey} className="grid gap-x-4 items-center py-2.5 border-b border-border last:border-0" style={{ gridTemplateColumns: '1fr auto auto auto' }}>
                   <div>
-                    <p className="font-display text-sm text-foreground">{label}</p>
-                    <p className="font-display text-xs text-muted mt-0.5">{desc}</p>
+                    <p className="text-sm text-foreground">{label}</p>
+                    <p className="text-xs text-muted mt-0.5">{desc}</p>
                   </div>
                   <MiniToggle checked={notifSettings[emailKey] as boolean} onChange={(val) => handleNotifToggle(emailKey, val)} saving={notifSaving.has(emailKey)} label={`email: ${label}`} disabled={!emailChannelAvailable} />
                   <MiniToggle checked={notifSettings[smsKey] as boolean} onChange={(val) => handleNotifToggle(smsKey, val)} saving={notifSaving.has(smsKey)} label={`sms: ${label}`} disabled={!phoneVerified} />
@@ -528,9 +528,9 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <SectionLabel className="mb-1">password</SectionLabel>
-                <p className="font-display text-sm text-muted">update your login password.</p>
+                <p className="text-sm text-muted">Update your login password.</p>
               </div>
-              <Link href="/settings/password"><Button variant="default" size="sm">change password →</Button></Link>
+              <Link href="/settings/password"><Button variant="default" size="sm">Change Password →</Button></Link>
             </div>
           </Card>
         )}
@@ -539,8 +539,8 @@ export default function SettingsPage() {
         <div id="location">
         <Card>
           <SectionLabel className="mb-3">location of residence</SectionLabel>
-          <p className="font-display text-sm text-muted mb-4">
-            used for earnings reporting if you enable creator mode. required to become a creator.
+          <p className="text-sm text-muted mb-4">
+            Used for earnings reporting if you enable creator mode. Required to become a creator.
           </p>
           <form onSubmit={handleSaveLocation} className="space-y-3">
             {/* Country */}
@@ -549,7 +549,7 @@ export default function SettingsPage() {
               <select
                 value={countryCode}
                 onChange={(e) => { setCountryCode(e.target.value); setStateCode(''); }}
-                className="w-full bg-surface border border-border rounded px-3 py-2 font-display text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
+                className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
               >
                 <option value="">— select country —</option>
                 {COUNTRIES.map((c) => (
@@ -567,7 +567,7 @@ export default function SettingsPage() {
                 <select
                   value={stateCode}
                   onChange={(e) => setStateCode(e.target.value)}
-                  className="w-full bg-surface border border-border rounded px-3 py-2 font-display text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
+                  className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
                   required
                 >
                   <option value="">— select {subdivisionLabel(countryCode).toLowerCase()} —</option>
@@ -584,7 +584,7 @@ export default function SettingsPage() {
               size="sm"
               disabled={locationSaving || !countryCode || (!!subdivisions(countryCode) && !stateCode)}
             >
-              {locationSaving ? 'saving…' : 'save location'}
+              {locationSaving ? 'Saving…' : 'Save Location'}
             </Button>
           </form>
         </Card>
@@ -602,21 +602,21 @@ export default function SettingsPage() {
 
           <div className="flex items-start justify-between gap-6 py-4 border-b border-border">
             <div className="flex-1">
-              <p className="font-display font-bold text-foreground mb-0.5">💸 click this if you&apos;re broke!!</p>
-              <p className="font-display text-sm text-muted">do not give away cash you don&apos;t have. instantly backs out of everything you&apos;ve committed to.</p>
+              <p className="font-bold text-foreground mb-0.5">💸 Click This If You&apos;re Broke!!</p>
+              <p className="text-sm text-muted">Do not give away cash you don&apos;t have. Instantly backs out of everything you&apos;ve committed to.</p>
             </div>
-            <Button variant="danger" onClick={() => { setDangerMsg(''); setShowBrokeConfirm(true); }}>i&apos;m broke</Button>
+            <Button variant="danger" onClick={() => { setDangerMsg(''); setShowBrokeConfirm(true); }}>I&apos;m Broke</Button>
           </div>
 
           <div className="flex items-start justify-between gap-6 pt-4">
             <div className="flex-1">
-              <p className="font-display font-bold text-foreground mb-0.5">delete my account</p>
-              <p className="font-display text-sm text-muted">permanently deletes your account and cancels all your commitments. your email can be reused.</p>
+              <p className="font-bold text-foreground mb-0.5">Delete My Account</p>
+              <p className="text-sm text-muted">Permanently deletes your account and cancels all your commitments. Your email can be reused.</p>
             </div>
-            <Button variant="danger" onClick={() => { setDangerMsg(''); setShowDeleteConfirm(true); }}>delete account</Button>
+            <Button variant="danger" onClick={() => { setDangerMsg(''); setShowDeleteConfirm(true); }}>Delete Account</Button>
           </div>
 
-          {dangerMsg && <p className="font-display text-sm text-bad mt-3">{dangerMsg}</p>}
+          {dangerMsg && <p className="text-sm text-bad mt-3">{dangerMsg}</p>}
         </Card>
       </div>
     </>

@@ -21,7 +21,7 @@ export function Banner({ tone = 'default', children, action, className = '' }: B
     <div
       className={`flex items-center justify-between gap-4 border rounded-md px-4 py-3 mb-5 ${toneClasses[tone]} ${className}`}
     >
-      <div className="flex-1 font-display text-base text-foreground">{children}</div>
+      <div className="flex-1 text-base text-foreground">{children}</div>
       {action}
     </div>
   );

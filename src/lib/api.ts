@@ -23,7 +23,8 @@ import type {
   CouncilPage,
   AdminCreatorClaim,
   AdminBountyCompletion,
-  AdminHandleReview,
+  HandleVerificationApplicationRow,
+  HandleVerificationApplicationStatus,
   ExternalPayout,
   CreatorSearchResult,
   CreatorEarning,
@@ -252,7 +253,6 @@ export const creators = {
   list: (params?: {
     q?: string;
     page?: number;
-    status?: 'answered' | 'unanswered';
     sort?: 'newest' | 'most_pledged' | 'most_completed';
   }) => {
     const entries = Object.entries(params ?? {})
@@ -660,14 +660,41 @@ export const overlord = {
 // Admin (Council only)
 export const admin = {
   // Handle Verification
+  /** Pending applications queue (the active admin review work list). */
   listHandleReviews: (page = 1) =>
-    request<PaginatedResponse<AdminHandleReview>>(`/admin/handles?page=${page}`),
+    request<PaginatedResponse<HandleVerificationApplicationRow>>(`/admin/handles?page=${page}`),
 
-  approveHandle: (handleId: number) =>
-    request<{ data: unknown }>(`/admin/handles/${handleId}/approve`, { method: 'POST' }),
+  /**
+   * Decided / retracted application history with optional filters.
+   * `reviewer_q` matches admin display_name or email.
+   * `creator_q`  matches claimant display_name, email, OR handle username.
+   */
+  listHandleHistory: (params: {
+    status?: HandleVerificationApplicationStatus | 'all';
+    reviewer_q?: string;
+    creator_q?: string;
+    page?: number;
+  } = {}) => {
+    const entries = Object.entries(params)
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<PaginatedResponse<HandleVerificationApplicationRow>>(
+      `/admin/handles/history${qs ? `?${qs}` : ''}`
+    );
+  },
 
-  rejectHandle: (handleId: number) =>
-    request<{ data: unknown }>(`/admin/handles/${handleId}/reject`, { method: 'POST' }),
+  approveHandle: (handleId: number, decisionNotes?: string) =>
+    request<{ data: unknown }>(`/admin/handles/${handleId}/approve`, {
+      method: 'POST',
+      body: JSON.stringify(decisionNotes ? { decision_notes: decisionNotes } : {}),
+    }),
+
+  rejectHandle: (handleId: number, decisionNotes?: string) =>
+    request<{ data: unknown }>(`/admin/handles/${handleId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify(decisionNotes ? { decision_notes: decisionNotes } : {}),
+    }),
 
   // Creator Claims
   listClaims: (status: 'pending' | 'approved' | 'rejected' | 'all' = 'pending', page = 1) =>

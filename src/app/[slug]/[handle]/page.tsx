@@ -87,12 +87,12 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
     return (
       <div className="space-y-6 pt-2 max-w-xl">
         <h1 className="font-display font-bold text-[28px] text-foreground">page not found</h1>
-        <p className="font-display text-sm text-muted">
-          we don&apos;t recognize this URL. browse creators or head home.
+        <p className="text-sm text-muted">
+          We don&apos;t recognize this URL. Browse creators or head home.
         </p>
         <div className="flex gap-3">
-          <Link href="/creators"><Button variant="primary">browse creators</Button></Link>
-          <Link href="/"><Button variant="ghost">← home</Button></Link>
+          <Link href="/creators"><Button variant="primary">Browse Creators</Button></Link>
+          <Link href="/"><Button variant="ghost">← Home</Button></Link>
         </div>
       </div>
     );
@@ -101,7 +101,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   if (state.kind === 'error') {
     return (
       <div className="pt-2">
-        <Banner tone="bad">something went wrong looking that up. try again in a moment.</Banner>
+        <Banner tone="bad">Something went wrong looking that up. Try again in a moment.</Banner>
       </div>
     );
   }
@@ -142,7 +142,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
 
       {/* Not-joined banner with share CTA */}
       <Card>
-        <p className="font-display text-base text-foreground leading-relaxed">
+        <p className="text-base text-foreground leading-relaxed">
           <span className="font-mono text-creator">{fullHandle}</span> doesn&apos;t appear to have joined Artypot yet.
           That can change with your help! Tag them on social media to let them know there are fans queueing bounties.
         </p>
@@ -158,7 +158,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
         </h2>
         {state.bounties.length === 0 ? (
           <Card>
-            <Empty>no bounties queued for this handle yet — be the first to start one!</Empty>
+            <Empty>No bounties queued for this handle yet — be the first to start one!</Empty>
             <div className="mt-3">
               <Link href={`/bounties/new?platform=${encodeURIComponent(platform)}&handle=${encodeURIComponent(state.handle.username)}`}>
                 <Button variant="default" size="sm">+ start a bounty</Button>
@@ -171,7 +171,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
               {state.bounties.map((b) => (
                 <li key={b.id} className="px-5 py-3.5 flex items-start gap-3">
                   <div className="flex-1 min-w-0">
-                    <Link href={`/bounties/${b.id}`} className="font-display font-medium text-foreground hover:underline">
+                    <Link href={`/bounties/${b.id}`} className="font-medium text-foreground hover:underline">
                       {b.title}
                     </Link>
                     <div className="flex items-center gap-2 mt-1">

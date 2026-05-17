@@ -164,7 +164,7 @@ export default function HomePage() {
 
             {selectedCreator && (
               <button
-                onClick={() => router.push(`/creators/${selectedCreator.id}`)}
+                onClick={() => router.push(selectedCreator.slug ? `/${selectedCreator.slug}` : `/creators/${selectedCreator.id}`)}
                 className="mt-3 w-full bg-creator text-brand-dark font-semibold py-3 rounded-lg hover:brightness-110 transition-all text-sm"
               >
                 See Bounties →

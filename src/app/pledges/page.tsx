@@ -94,7 +94,7 @@ export default function MyPledgesPage() {
         <div>
           <SectionLabel>fan · history</SectionLabel>
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">history & receipts</h1>
-          <p className="font-display text-sm text-muted mt-1">
+          <p className="text-sm text-muted mt-1">
             {total} {total !== 1 ? 'commitments' : 'commitment'}
             {totalActiveAmount !== null && totalActiveAmount > 0 && (
               <> · <span className="text-foreground">${totalActiveAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} active</span></>
@@ -134,8 +134,8 @@ export default function MyPledgesPage() {
               </div>
             </Card>
           ) : pledges.length === 0 ? (
-            <Empty icon="◇" message="no pledges yet">
-              <Link href="/creators"><Button variant="default" size="sm">find creators →</Button></Link>
+            <Empty icon="◇" message="No pledges yet">
+              <Link href="/creators"><Button variant="default" size="sm">Find Creators →</Button></Link>
             </Empty>
           ) : (
             <Card>
@@ -149,12 +149,12 @@ export default function MyPledgesPage() {
                         {pledge.bounty ? (
                           <Link
                             href={`/bounties/${pledge.bounty_id}`}
-                            className="font-display text-sm text-foreground hover:text-fan transition-colors block truncate"
+                            className="text-sm text-foreground hover:text-fan transition-colors block truncate"
                           >
                             {pledge.bounty.title}
                           </Link>
                         ) : (
-                          <span className="font-display text-sm text-muted">bounty #{pledge.bounty_id}</span>
+                          <span className="text-sm text-muted">bounty #{pledge.bounty_id}</span>
                         )}
                         <div className="font-mono text-[10px] text-muted mt-0.5">
                           {new Date(pledge.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -209,12 +209,12 @@ export default function MyPledgesPage() {
             </div>
             <div className="font-mono text-[10px] text-muted mt-0.5">on {billingDateStr}</div>
             <div className="border-t border-border mt-3 pt-3">
-              <p className="font-display text-xs text-muted">fees are deducted from creator payouts — you pay exactly this amount.</p>
+              <p className="text-xs text-muted">fees are deducted from creator payouts — you pay exactly this amount.</p>
             </div>
           </Card>
           <Card>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">payment method</div>
-            <Link href="/billing" className="ap-inline-link font-display text-sm">manage billing →</Link>
+            <Link href="/billing" className="ap-inline-link text-sm">manage billing →</Link>
           </Card>
         </div>
       </div>

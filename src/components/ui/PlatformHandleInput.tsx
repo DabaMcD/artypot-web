@@ -38,7 +38,7 @@ export function PlatformHandleInput({ platform, value, onChange, disabled }: Pla
       <FieldLabel>
         {config.label} <span className="text-bad">*</span>
       </FieldLabel>
-      <div className="flex items-center w-full px-3 py-2.5 bg-background border border-border rounded focus-within:border-[var(--color-role)] transition-colors font-display text-base">
+      <div className="flex items-center w-full px-3 py-2.5 bg-background border border-border rounded focus-within:border-[var(--color-role)] transition-colors text-base">
         <span className="text-foreground select-none shrink-0 pointer-events-none">{config.prefix}</span>
         <input
           type="text"

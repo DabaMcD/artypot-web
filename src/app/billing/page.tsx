@@ -83,15 +83,15 @@ export default function BillingPage() {
         <Banner tone="warn">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <div className="font-display font-bold text-foreground">
+              <div className="font-bold text-foreground">
                 ${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} outstanding
               </div>
-              <div className="font-display text-sm text-muted mt-0.5">
-                charged automatically on the {BILLING_DAY}th — pay now to avoid the batch.
+              <div className="text-sm text-muted mt-0.5">
+                Charged automatically on the {BILLING_DAY}th — pay now to avoid the batch.
               </div>
             </div>
             <Button variant="primary" disabled={paying} onClick={handlePayNow}>
-              {paying ? 'processing…' : `pay $${outstandingAmount.toFixed(2)} now`}
+              {paying ? 'Processing…' : `Pay $${outstandingAmount.toFixed(2)} Now`}
             </Button>
           </div>
         </Banner>
@@ -104,25 +104,25 @@ export default function BillingPage() {
           <table className="w-full font-mono text-sm">
             <tbody>
               <tr>
-                <td className="py-1.5 font-display text-muted">approved pledges</td>
+                <td className="py-1.5 text-muted">approved pledges</td>
                 <td className="py-1.5 text-right tabular-nums">${outstandingAmount.toFixed(2)}</td>
               </tr>
               <tr className="border-t border-border">
-                <td className="py-1.5 font-display font-bold text-foreground">total charged to card</td>
+                <td className="py-1.5 font-bold text-foreground">total charged to card</td>
                 <td className="py-1.5 text-right font-bold tabular-nums">${outstandingAmount.toFixed(2)}</td>
               </tr>
               <tr>
-                <td className="py-1 font-display text-[11px] text-muted">− platform fee (15%)</td>
+                <td className="py-1 text-[11px] text-muted">− platform fee (15%)</td>
                 <td className="py-1 text-right text-[11px] text-muted tabular-nums">−${(outstandingAmount * 0.15).toFixed(2)}</td>
               </tr>
               <tr className="border-t border-border">
-                <td className="py-1.5 font-display text-creator font-bold">creators receive</td>
+                <td className="py-1.5 text-creator font-bold">creators receive</td>
                 <td className="py-1.5 text-right text-creator font-bold tabular-nums">${(outstandingAmount * 0.85).toFixed(2)}</td>
               </tr>
             </tbody>
           </table>
-          <p className="font-display text-xs text-muted mt-3 pt-3 border-t border-dashed border-border">
-            the 15% platform fee covers all transaction costs. you are always charged your exact committed amount.
+          <p className="text-xs text-muted mt-3 pt-3 border-t border-dashed border-border">
+            The 15% platform fee covers all transaction costs. You are always charged your exact committed amount.
           </p>
         </Card>
       )}
@@ -136,12 +136,12 @@ export default function BillingPage() {
       {/* How billing works */}
       <Card dashed>
         <SectionLabel className="mb-4">how billing works</SectionLabel>
-        <ul className="space-y-2 font-display text-sm text-muted">
+        <ul className="space-y-2 text-sm text-muted">
           {[
-            'you commit an amount when you back a bounty. nothing is charged at that point.',
-            'when a creator submits their work and the council approves it, your charge is locked in. you can only back out while the bounty is still open.',
-            `locked charges are collected automatically on the ${BILLING_DAY}th of each month, or you can pay early.`,
-            'artypot takes a 15% all-in platform fee from the creator\'s payout. you always pay your exact committed amount.',
+            'You commit an amount when you back a bounty. Nothing is charged at that point.',
+            'When a creator submits their work and the council approves it, your charge is locked in. You can only back out while the bounty is still open.',
+            `Locked charges are collected automatically on the ${BILLING_DAY}th of each month, or you can pay early.`,
+            'Artypot takes a 15% all-in platform fee from the creator\'s payout. You always pay your exact committed amount.',
           ].map((item, i) => (
             <li key={i} className="flex items-start gap-2">
               <span className="text-fan mt-0.5 shrink-0">✓</span>

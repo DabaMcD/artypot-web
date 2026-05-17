@@ -12,7 +12,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const base =
-  'inline-flex items-center gap-1.5 border border-border rounded cursor-pointer transition-[transform,box-shadow,background,filter] duration-75 font-display select-none';
+  'inline-flex items-center gap-1.5 border border-border rounded cursor-pointer transition-[transform,box-shadow,background,filter] duration-75 select-none';
 
 const variantClasses: Record<Variant, string> = {
   default: 'bg-surface-2 text-foreground hover:bg-surface-2/80 hover:-translate-x-px hover:-translate-y-px hover:shadow-[4px_4px_0_#000] active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0_#000] shadow-hard',

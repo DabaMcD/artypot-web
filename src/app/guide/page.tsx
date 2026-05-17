@@ -30,7 +30,7 @@ export default function GuidePage() {
             <div>
               <h2 className="text-lg font-bold text-creator mb-1">The Creator</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                A creator or entity who has claimed their Artypot profile. Once answered, they can receive payouts from bounties dedicated to their work, communicate directly with fans, and confirm or reject completed projects.
+                A creator or entity who has joined Artypot and been verified. Once verified, they can receive payouts from bounties dedicated to their work, communicate directly with fans, and confirm or reject completed projects.
               </p>
             </div>
           </div>

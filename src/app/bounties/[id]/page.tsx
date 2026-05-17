@@ -371,7 +371,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   if (error || !bounty) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-10">
-        <p className="bg-bad-soft border border-bad text-bad rounded-md px-4 py-3 font-display">
+        <p className="bg-bad-soft border border-bad text-bad rounded-md px-4 py-3">
           {error || 'Bounty not found.'}
         </p>
       </div>
@@ -407,7 +407,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       return (
         <Card accent>
           <SectionLabel className="mb-3">Add a card to back this bounty</SectionLabel>
-          <p className="font-display text-sm text-muted mb-4 leading-relaxed">
+          <p className="text-sm text-muted mb-4 leading-relaxed">
             Your card is only charged if and when a bounty pays out — nothing happens when you back something. Save a card now so you&apos;re ready.
           </p>
           <AddCardForm
@@ -429,17 +429,17 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               i
             </span>
             <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-surface-2 border border-border rounded-md p-3 shadow-xl text-xs text-muted leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-20">
-              <p className="font-display text-foreground font-semibold mb-1.5">How does backing work?</p>
-              <p className="font-display mb-2">You&apos;re committing to pay <strong className="text-foreground">only if this bounty gets completed</strong> and approved by The Council.</p>
-              <p className="font-display mb-2">Nothing happens to your card right now. Charges are billed monthly for approved completions.</p>
-              <p className="font-display">Most bounties are never completed, so most commitments are never charged. You can back out at any time.</p>
+              <p className="text-foreground font-semibold mb-1.5">How does backing work?</p>
+              <p className="mb-2">You&apos;re committing to pay <strong className="text-foreground">only if this bounty gets completed</strong> and approved by The Council.</p>
+              <p className="mb-2">Nothing happens to your card right now. Charges are billed monthly for approved completions.</p>
+              <p>Most bounties are never completed, so most commitments are never charged. You can back out at any time.</p>
             </div>
           </span>
         </div>
 
         {userPledge ? (
           <div className="space-y-3">
-            <div className="bg-fan/10 border border-fan/30 rounded px-4 py-3 text-sm font-display">
+            <div className="bg-fan/10 border border-fan/30 rounded px-4 py-3 text-sm">
               <div>
                 You&apos;re in for{' '}
                 <span className="text-fan font-mono font-semibold tabular-nums">
@@ -457,7 +457,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 </div>
               )}
             </div>
-            <p className="font-display text-xs text-muted">
+            <p className="text-xs text-muted">
               Change how much you&apos;re in for by entering a new amount and expiry.
             </p>
             <form onSubmit={handlePledge} className="space-y-2">
@@ -584,11 +584,11 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             </>
           }
         >
-          <p className="font-display text-muted text-sm leading-relaxed mb-2">
+          <p className="text-muted text-sm leading-relaxed mb-2">
             <span className="text-foreground font-semibold">{bounty?.creator?.display_name ?? 'The creator'}</span> has
             already submitted their work. The Council is reviewing it.
           </p>
-          <p className="font-display text-muted text-sm leading-relaxed mb-1">
+          <p className="text-muted text-sm leading-relaxed mb-1">
             Pulling your{' '}
             <span className="text-foreground font-mono font-semibold tabular-nums">
               ${Number(userPledge.amount).toFixed(2)}
@@ -627,7 +627,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             </>
           }
         >
-          <p className="font-display text-muted text-sm leading-relaxed mb-4">
+          <p className="text-muted text-sm leading-relaxed mb-4">
             All active backers will be notified by email and their commitments will be cancelled. Please provide a reason.
           </p>
           <Textarea
@@ -668,7 +668,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             </>
           }
         >
-          <p className="font-display text-muted text-sm leading-relaxed">
+          <p className="text-muted text-sm leading-relaxed">
             You&apos;re the only {bounty?.creator?.fan_name ?? 'supporter'} of this bounty. Backing out will leave it empty — it will be cleared automatically.
           </p>
         </Modal>
@@ -686,7 +686,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     <Badge tone="info">Historical view</Badge>
                     <button
                       onClick={() => { setSnapshotView(null); setSelectedEvent(null); }}
-                      className="font-display text-xs text-muted hover:text-foreground transition-colors cursor-pointer"
+                      className="text-xs text-muted hover:text-foreground transition-colors cursor-pointer"
                     >
                       ✕ Back to current
                     </button>
@@ -777,18 +777,18 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         {/* Description — show historical if in snapshot view */}
         {!showEditForm && (
           displayedDescription ? (
-            <p className={`font-display leading-relaxed mb-5 ${snapshotView !== null ? 'text-muted/60' : 'text-muted'}`}>
+            <p className={`leading-relaxed mb-5 ${snapshotView !== null ? 'text-muted/60' : 'text-muted'}`}>
               {displayedDescription}
             </p>
           ) : null
         )}
 
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 font-display text-sm">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
           {bounty.creator && (
             <div>
               <span className="text-muted">For </span>
               <Link
-                href={`/creators/${bounty.creator.id}`}
+                href={bounty.creator.slug ? `/${bounty.creator.slug}` : `/creators/${bounty.creator.id}`}
                 className="text-creator hover:underline font-medium cursor-pointer"
               >
                 {bounty.creator.display_name}
@@ -815,7 +815,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           )}
           <div className="flex items-center justify-between gap-2 mt-0.5">
             <div>
-              <div className="font-display text-muted text-sm">
+              <div className="text-muted text-sm">
                 supported by {activePledges.length} {activePledges.length === 1 ? (bounty.creator?.fan_name ?? 'supporter') : (bounty.creator?.fan_name_plural ?? bounty.creator?.fan_name ?? 'supporters')}
               </div>
               {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
@@ -876,7 +876,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           {/* Not logged in */}
           {!user && bounty.status === 'open' && (
             <Card className="text-center">
-              <p className="font-display text-muted text-sm mb-3">Log in to back this bounty</p>
+              <p className="text-muted text-sm mb-3">Log in to back this bounty</p>
               <Link
                 href="/login"
                 className="block w-full cursor-pointer"
@@ -919,8 +919,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             return (
               <Banner tone={notice.tone}>
                 <div>
-                  <div className="font-display font-semibold text-foreground text-sm mb-1">{notice.heading}</div>
-                  <div className="font-display text-muted text-sm leading-relaxed">{notice.body}</div>
+                  <div className="font-semibold text-foreground text-sm mb-1">{notice.heading}</div>
+                  <div className="text-muted text-sm leading-relaxed">{notice.body}</div>
                 </div>
               </Banner>
             );
@@ -974,7 +974,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 </div>
                 {completionError && (
                   <div className="rounded bg-bad-soft border border-bad text-bad px-3 py-2.5">
-                    <p className="font-display text-xs">{completionError}</p>
+                    <p className="text-xs">{completionError}</p>
                   </div>
                 )}
                 <div className="flex gap-2">
@@ -1026,12 +1026,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 href={bounty.completion.submission_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-display text-fan hover:underline text-sm break-all cursor-pointer"
+                className="text-fan hover:underline text-sm break-all cursor-pointer"
               >
                 {bounty.completion.submission_url}
               </a>
               {bounty.completion.submission_notes && (
-                <p className="font-display text-muted text-sm mt-2">{bounty.completion.submission_notes}</p>
+                <p className="text-muted text-sm mt-2">{bounty.completion.submission_notes}</p>
               )}
               {bounty.completion.council_notes && (
                 <div className="mt-3 pt-3 border-t border-border">
@@ -1079,7 +1079,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             {/* Pledges panel */}
             <div className={`p-5 ${activeTab !== 'pledges' ? 'hidden' : ''}`}>
               {activePledges.length === 0 ? (
-                <p className="font-display text-muted text-sm">No {bounty.creator?.fan_name_plural ?? bounty.creator?.fan_name ?? 'supporters'} yet. Be the first!</p>
+                <p className="text-muted text-sm">No {bounty.creator?.fan_name_plural ?? bounty.creator?.fan_name ?? 'supporters'} yet. Be the first!</p>
               ) : (
                 <div className="space-y-2">
                   {activePledges.map((pledge) => {
@@ -1103,11 +1103,11 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                           </div>
                           <div>
                             {isAnon ? (
-                              <span className="font-display text-sm text-muted">{displayName}</span>
+                              <span className="text-sm text-muted">{displayName}</span>
                             ) : (
                               <Link
                                 href={`/users/${pledge.user_id}`}
-                                className="font-display text-sm text-foreground hover:underline cursor-pointer"
+                                className="text-sm text-foreground hover:underline cursor-pointer"
                               >
                                 {displayName}
                               </Link>

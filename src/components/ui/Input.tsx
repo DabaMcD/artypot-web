@@ -25,7 +25,7 @@ export function FieldHint({ children, className = '' }: { children: ReactNode; c
 // ── Input (text field) ────────────────────────────────────────────────────────
 
 const fieldBase =
-  'w-full px-3 py-2.5 bg-background text-foreground border border-border rounded focus:outline-none focus:border-[var(--color-role)] transition-colors font-display text-base';
+  'w-full px-3 py-2.5 bg-background text-foreground border border-border rounded focus:outline-none focus:border-[var(--color-role)] transition-colors font-sans text-base';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   mono?: boolean;

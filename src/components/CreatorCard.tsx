@@ -3,8 +3,6 @@ import type { Creator } from '@/lib/types';
 
 
 export default function CreatorCard({ creator }: { creator: Creator }) {
-  const isClaimed = !!creator.claimed_at;
-
   const hasStats =
     creator.projects_finished != null ||
     creator.projects_open != null ||
@@ -33,17 +31,13 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
           {/* Stretched link title */}
           <div className="font-semibold text-foreground group-hover:text-creator transition-colors truncate">
             <Link
-              href={`/creators/${creator.id}`}
+              href={creator.slug ? `/${creator.slug}` : `/creators/${creator.id}`}
               className="after:absolute after:inset-0 focus:outline-none"
             >
               {creator.display_name}
             </Link>
           </div>
-          {isClaimed ? (
-            <div className="text-xs text-creator">Answered ✓</div>
-          ) : (
-            <div className="text-xs text-muted">Unanswered</div>
-          )}
+          <div className="text-xs text-creator">Verified ✓</div>
         </div>
 
       </div>

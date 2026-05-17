@@ -161,6 +161,8 @@ export interface CreatorName {
 
 export interface Creator {
   id: number;
+  /** Public URL slug — `artypot.com/{slug}`. Present on full Creator objects; may be absent on embedded/minimal selects. */
+  slug?: string | null;
   user_id?: number;
   user?: { id: number; display_name: string };
   /** Herald of an unclaimed creator (has editing rights) */
@@ -319,18 +321,32 @@ export interface PaginatedResponse<T> {
 
 // ── Admin types ─────────────────────────────────────────────────────────────
 
-export interface AdminHandleReview {
+export type HandleVerificationApplicationStatus = 'pending' | 'approved' | 'denied' | 'retracted';
+
+/**
+ * Shape returned by GET /admin/handles (pending queue) and /admin/handles/history (decided).
+ * Each row is one submission for review — full audit trail.
+ */
+export interface HandleVerificationApplicationRow {
   id: number;
-  platform: HandlePlatform;
-  username: string;
-  status: HandleStatus;
-  claims: Array<{
+  handle_claim_id: number;
+  status: HandleVerificationApplicationStatus;
+  contact_message: string;
+  /** Admin who approved/denied this application; null while still pending. */
+  reviewed_by: number | null;
+  reviewed_at: string | null;
+  decision_notes: string | null;
+  created_at: string;
+  /** The creator who submitted the application. */
+  user: { id: number; display_name: string; email: string };
+  /** The admin who decided; null while pending. */
+  reviewer?: { id: number; display_name: string; email: string } | null;
+  /** The handle this application is for, plus its current claim status. */
+  claim: {
     id: number;
-    user: { id: number; display_name: string; email: string };
-    verification_method: string | null;
-    contact_message: string | null;
-    created_at: string;
-  }>;
+    status: string;
+    handle: { id: number; platform: HandlePlatform; username: string; status: HandleStatus };
+  };
 }
 
 export interface AdminCreatorClaim {
@@ -338,7 +354,7 @@ export interface AdminCreatorClaim {
   user_id: number;
   user: { id: number; display_name: string; email: string };
   creator_id: number;
-  creator: { id: number; display_name: string };
+  creator: { id: number; display_name: string; slug?: string | null };
   contact_info: string;
   status: CreatorClaimStatus;
   council_notes?: string | null;
@@ -357,7 +373,7 @@ export interface AdminBountyCompletion {
     total_pledged: number;
     creator_id: number;
     status: BountyStatus;
-    creator?: { id: number; display_name: string } | null;
+    creator?: { id: number; display_name: string; slug?: string | null } | null;
   };
   submitted_by_user_id: number;
   submitted_by: { id: number; display_name: string };
@@ -591,6 +607,7 @@ export interface AdminUser {
   id: number;
   display_name: string;
   email: string;
+  slug?: string | null;
   role: UserRole;
   is_anonymous: boolean;
   email_verified_at: string | null;
@@ -618,6 +635,8 @@ export interface AdminUser {
 export interface AdminCreator {
   id: number;
   display_name: string;
+  /** Public URL slug (artypot.com/{slug}); null if creator has not picked one yet. */
+  slug?: string | null;
   claimed: boolean;
   claimed_at: string | null;
   user: { id: number; display_name: string; email: string } | null;

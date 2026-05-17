@@ -243,8 +243,8 @@ function SanctumPageContent() {
           <SectionLabel>creator · sanctum</SectionLabel>
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{creator.display_name}</h1>
         </div>
-        <Link href={`/creators/${creator.id}`}>
-          <Button variant="default" size="sm">public profile →</Button>
+        <Link href={`/${user.slug}`}>
+          <Button variant="default" size="sm">Public Profile →</Button>
         </Link>
       </div>
 
@@ -266,20 +266,20 @@ function SanctumPageContent() {
       {(needsLocation || !canWithdraw || taxFormRequired) && (
         <Banner tone="warn">
           <div>
-            <strong>before you can withdraw</strong>
-            <ul className="mt-2 space-y-1 font-display text-sm">
+            <strong>Before You Can Withdraw</strong>
+            <ul className="mt-2 space-y-1 text-sm">
               <li className={`flex items-center gap-2 ${!needsLocation ? 'line-through text-muted' : ''}`}>
                 <span>{!needsLocation ? '✓' : '1.'}</span>
-                set your location
-                {needsLocation && <Link href={`/creators/${creator.id}/edit`} className="ap-inline-link ml-1">edit profile →</Link>}
+                Set your location
+                {needsLocation && <Link href={`/${user.slug}/edit`} className="ap-inline-link ml-1">edit profile →</Link>}
               </li>
               <li className={`flex items-center gap-2 ${canWithdraw ? 'line-through text-muted' : ''}`}>
                 <span>{canWithdraw ? '✓' : '2.'}</span>
-                connect a bank account
+                Connect a bank account
               </li>
               <li className={`flex items-center gap-2 ${taxFormOnFile ? 'line-through text-muted' : ''}`}>
                 <span>{taxFormOnFile ? '✓' : '3.'}</span>
-                submit your {isUS ? 'W-9' : 'W-8BEN'}
+                Submit your {isUS ? 'W-9' : 'W-8BEN'}
               </li>
             </ul>
           </div>
@@ -290,7 +290,7 @@ function SanctumPageContent() {
       <div>
         <SectionLabel className="mb-3">earnings pipeline</SectionLabel>
         <BalancePipeline balances={{ pending: pendingPayment, clearing, available: availableBalance }} />
-        <p className="font-display text-xs text-muted mt-2">
+        <p className="text-xs text-muted mt-2">
           contributions flow left → right. council approval moves funds to pending. the {BILLING_DAY}th moves them into clearing. 7 days later they&apos;re available.
         </p>
       </div>
@@ -329,7 +329,7 @@ function SanctumPageContent() {
                 {[1,2,3].map(i => <div key={i} className="h-5 bg-surface-2 animate-pulse rounded" />)}
               </div>
             ) : recentTransactions.length === 0 ? (
-              <p className="font-display text-sm text-muted">no transactions yet.</p>
+              <p className="text-sm text-muted">no transactions yet.</p>
             ) : (
               <div className="divide-y divide-border -mx-5 -my-4">
                 {recentTransactions.map((entry) => {
@@ -354,7 +354,7 @@ function SanctumPageContent() {
                   }
                   return (
                     <div key={entry.id} className="flex items-center justify-between px-5 py-3 gap-3">
-                      <span className="font-display text-sm text-muted truncate flex-1">{entry.description}</span>
+                      <span className="text-sm text-muted truncate flex-1">{entry.description}</span>
                       <span className="shrink-0" title={refTitle}>
                         {methodBadge && <Badge tone={methodBadge.tone}>{methodBadge.label}</Badge>}
                       </span>
@@ -374,30 +374,30 @@ function SanctumPageContent() {
               <SectionLabel>bank account</SectionLabel>
               {canWithdraw && <Badge tone="good">connected</Badge>}
             </div>
-            <p className="font-display text-sm text-muted leading-relaxed mb-4">
-              artypot uses stripe for secure, direct bank verification — your credentials are never stored by us.
+            <p className="text-sm text-muted leading-relaxed mb-4">
+              Artypot uses Stripe for secure, direct bank verification — your credentials are never stored by us.
             </p>
             {needsLocation ? (
               <div>
-                <p className="font-display text-sm text-muted mb-3">set your location before connecting a bank account.</p>
-                <Link href={`/creators/${creator.id}/edit`}>
-                  <Button variant="primary">set location →</Button>
+                <p className="text-sm text-muted mb-3">Set your location before connecting a bank account.</p>
+                <Link href={`/${user.slug}/edit`}>
+                  <Button variant="primary">Set Location →</Button>
                 </Link>
               </div>
             ) : !bankConnected ? (
               <Button variant="primary" disabled={stripeLoading} onClick={handleConnectBank}>
-                {stripeLoading ? 'starting setup…' : 'connect bank account'}
+                {stripeLoading ? 'Starting setup…' : 'Connect Bank Account'}
               </Button>
             ) : !canWithdraw ? (
               <div>
                 <Button variant="primary" disabled={stripeLoading} onClick={handleContinueOnboarding}>
-                  {stripeLoading ? 'loading…' : 'continue setup →'}
+                  {stripeLoading ? 'Loading…' : 'Continue Setup →'}
                 </Button>
-                <p className="font-display text-xs text-warn mt-2">bank connection pending — complete stripe setup to enable withdrawals.</p>
+                <p className="text-xs text-warn mt-2">Bank connection pending — complete Stripe setup to enable withdrawals.</p>
               </div>
             ) : (
               <Button variant="ghost" size="sm" disabled={stripeLoading} onClick={handleDisconnect}>
-                {stripeLoading ? 'disconnecting…' : 'disconnect bank'}
+                {stripeLoading ? 'Disconnecting…' : 'Disconnect Bank'}
               </Button>
             )}
           </Card>
@@ -419,28 +419,28 @@ function SanctumPageContent() {
                   </Badge>
                 )}
               </div>
-              <p className="font-display text-sm text-muted leading-relaxed mb-4">
+              <p className="text-sm text-muted leading-relaxed mb-4">
                 {w9Status.record?.tin_matched
-                  ? `your W-9 is complete and your SSN/TIN has been verified.`
+                  ? `Your W-9 is complete and your SSN/TIN has been verified.`
                   : w9Status.requires_w9
-                    ? `your ${w9Status.tax_year} payouts have reached $${w9Status.ytd_withdrawals.toFixed(2)}. a W-9 is required before withdrawing.`
-                    : `you've earned $${w9Status.ytd_withdrawals.toFixed(2)} this year. artypot requires a W-9 once you hit $${w9Status.threshold.toFixed(0)}.`}
+                    ? `Your ${w9Status.tax_year} payouts have reached $${w9Status.ytd_withdrawals.toFixed(2)}. A W-9 is required before withdrawing.`
+                    : `You've earned $${w9Status.ytd_withdrawals.toFixed(2)} this year. Artypot requires a W-9 once you hit $${w9Status.threshold.toFixed(0)}.`}
               </p>
               {!w9Status.record?.tin_matched && (
                 <>
                   {w9Status.record?.status === 'tin_failed' && (
-                    <Banner tone="bad" className="mb-3">SSN/TIN verification failed. please re-submit with corrected information.</Banner>
+                    <Banner tone="bad" className="mb-3">SSN/TIN verification failed. Please re-submit with corrected information.</Banner>
                   )}
                   <Button
                     variant={w9Status.requires_w9 || w9Status.record?.status === 'tin_failed' ? 'primary' : 'default'}
                     disabled={w9UrlLoading}
                     onClick={handleGetW9Url}
                   >
-                    {w9UrlLoading ? 'loading…' :
-                     w9Status.record?.status === 'tin_failed' ? 're-submit W-9 →' :
-                     w9Status.record ? 'continue W-9 →' : 'complete W-9 with taxbandits →'}
+                    {w9UrlLoading ? 'Loading…' :
+                     w9Status.record?.status === 'tin_failed' ? 'Re-submit W-9 →' :
+                     w9Status.record ? 'Continue W-9 →' : 'Complete W-9 with TaxBandits →'}
                   </Button>
-                  <p className="font-display text-xs text-muted mt-2">opens taxbandits in a new tab. artypot never sees your SSN.</p>
+                  <p className="text-xs text-muted mt-2">Opens TaxBandits in a new tab. Artypot never sees your SSN.</p>
                 </>
               )}
             </Card>
@@ -457,28 +457,28 @@ function SanctumPageContent() {
                   </Badge>
                 )}
               </div>
-              <p className="font-display text-sm text-muted leading-relaxed mb-4">
+              <p className="text-sm text-muted leading-relaxed mb-4">
                 {w8benStatus.record?.status === 'completed'
-                  ? `your W-8BEN has been submitted and confirmed.`
+                  ? `Your W-8BEN has been submitted and confirmed.`
                   : w8benStatus.requires_w8ben
-                    ? `your ${w8benStatus.tax_year} payouts have reached $${w8benStatus.ytd_withdrawals.toFixed(2)}. a W-8BEN is required before withdrawing.`
-                    : `you've earned $${w8benStatus.ytd_withdrawals.toFixed(2)} this year. artypot requires a W-8BEN once you hit $${w8benStatus.threshold.toFixed(0)}.`}
+                    ? `Your ${w8benStatus.tax_year} payouts have reached $${w8benStatus.ytd_withdrawals.toFixed(2)}. A W-8BEN is required before withdrawing.`
+                    : `You've earned $${w8benStatus.ytd_withdrawals.toFixed(2)} this year. Artypot requires a W-8BEN once you hit $${w8benStatus.threshold.toFixed(0)}.`}
               </p>
               {!w8benStatus.record?.qualifies && (
                 <>
                   {w8benStatus.record?.status === 'invalid' && (
-                    <Banner tone="bad" className="mb-3">your W-8BEN was flagged as invalid. please re-submit with corrected information.</Banner>
+                    <Banner tone="bad" className="mb-3">Your W-8BEN was flagged as invalid. Please re-submit with corrected information.</Banner>
                   )}
                   <Button
                     variant={w8benStatus.requires_w8ben || w8benStatus.record?.status === 'invalid' ? 'primary' : 'default'}
                     disabled={w8benUrlLoading}
                     onClick={handleGetW8BENUrl}
                   >
-                    {w8benUrlLoading ? 'loading…' :
-                     w8benStatus.record?.status === 'invalid' ? 're-submit W-8BEN →' :
-                     w8benStatus.record ? 'continue W-8BEN →' : 'complete W-8BEN with taxbandits →'}
+                    {w8benUrlLoading ? 'Loading…' :
+                     w8benStatus.record?.status === 'invalid' ? 'Re-submit W-8BEN →' :
+                     w8benStatus.record ? 'Continue W-8BEN →' : 'Complete W-8BEN with TaxBandits →'}
                   </Button>
-                  <p className="font-display text-xs text-muted mt-2">opens taxbandits in a new tab. artypot never sees your personal tax details.</p>
+                  <p className="text-xs text-muted mt-2">Opens TaxBandits in a new tab. Artypot never sees your personal tax details.</p>
                 </>
               )}
             </Card>
@@ -495,27 +495,27 @@ function SanctumPageContent() {
             </div>
 
             {payoutHold ? (
-              <p className="font-display text-sm text-bad">
-                payouts are on hold — complete stripe verification to withdraw.{' '}
-                <Link href="/sanctum" className="underline underline-offset-2 hover:opacity-80">resolve now →</Link>
+              <p className="text-sm text-bad">
+                Payouts are on hold — complete Stripe verification to withdraw.{' '}
+                <Link href="/sanctum" className="underline underline-offset-2 hover:opacity-80">Resolve now →</Link>
               </p>
             ) : !canWithdraw ? (
-              <p className="font-display text-sm text-muted">
-                {bankConnected ? 'complete bank setup to withdraw.' : 'connect a bank account to withdraw.'}
+              <p className="text-sm text-muted">
+                {bankConnected ? 'Complete bank setup to withdraw.' : 'Connect a bank account to withdraw.'}
               </p>
             ) : availableBalance <= 0 ? (
-              <p className="font-display text-sm text-muted">nothing to withdraw yet.</p>
+              <p className="text-sm text-muted">Nothing to withdraw yet.</p>
             ) : withdrawConfirm ? (
               <div className="space-y-3">
-                <p className="font-display text-sm text-foreground">
-                  send <strong className="text-creator">${parseFloat(withdrawAmount || '0').toFixed(2)}</strong> to your linked bank?
+                <p className="text-sm text-foreground">
+                  Send <strong className="text-creator">${parseFloat(withdrawAmount || '0').toFixed(2)}</strong> to your linked bank?
                 </p>
                 <div className="flex gap-2">
                   <Button variant="primary" disabled={withdrawLoading} onClick={handleWithdraw}>
-                    {withdrawLoading ? 'sending…' : 'yes, send it'}
+                    {withdrawLoading ? 'Sending…' : 'Yes, Send It'}
                   </Button>
                   <Button variant="ghost" disabled={withdrawLoading} onClick={() => setWithdrawConfirm(false)}>
-                    cancel
+                    Cancel
                   </Button>
                 </div>
               </div>
@@ -542,7 +542,7 @@ function SanctumPageContent() {
                     setWithdrawConfirm(true);
                   }}
                 >
-                  withdraw
+                  Withdraw
                 </Button>
               </div>
             )}
@@ -551,7 +551,7 @@ function SanctumPageContent() {
           {/* Status summary */}
           <Card>
             <SectionLabel className="mb-3">status</SectionLabel>
-            <div className="space-y-2 font-display text-sm">
+            <div className="space-y-2 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted">location</span>
                 <span className={user.location_complete ? 'text-good' : 'text-warn'}>
@@ -580,7 +580,7 @@ function SanctumPageContent() {
               </div>
             </div>
             <div className="border-t border-border mt-3 pt-3">
-              <Link href={`/creators/${creator.id}/edit`} className="ap-inline-link font-display text-xs">manage profile →</Link>
+              <Link href={`/${user.slug}/edit`} className="ap-inline-link text-xs">Manage Profile →</Link>
             </div>
           </Card>
 
@@ -592,11 +592,11 @@ function SanctumPageContent() {
 
           {/* Quick links */}
           <Card dashed>
-            <Link href="/bounties/new" className="block font-display text-sm text-foreground hover:text-fan transition-colors mb-2">
-              + start a new bounty
+            <Link href="/bounties/new" className="block text-sm text-foreground hover:text-fan transition-colors mb-2">
+              + Start a New Bounty
             </Link>
-            <Link href={`/creators/${creator.id}`} className="block font-display text-sm text-foreground hover:text-creator transition-colors">
-              view public profile
+            <Link href={`/${user.slug}`} className="block text-sm text-foreground hover:text-creator transition-colors">
+              View Public Profile
             </Link>
           </Card>
         </div>

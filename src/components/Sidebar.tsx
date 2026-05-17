@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useViewMode } from '@/lib/view-mode-context';
@@ -29,7 +28,7 @@ function NavItem({ item, active }: { item: NavItem; active: boolean }) {
   return (
     <Link
       href={item.href}
-      className={`flex items-center gap-2.5 px-5 py-[7px] font-display text-sm border-l-[3px] transition-colors ${
+      className={`flex items-center gap-2.5 px-5 py-[7px] text-sm border-l-[3px] transition-colors ${
         active
           ? 'ap-nav-active bg-surface-2 text-foreground border-l-[var(--color-role)]'
           : 'border-l-transparent text-muted hover:bg-surface hover:text-foreground'
@@ -57,12 +56,30 @@ function NavItem({ item, active }: { item: NavItem; active: boolean }) {
 interface SidebarProps {
   role: 'fan' | 'creator' | 'council';
   pathname: string;
+  /** Whether the mobile drawer is open. Has no effect on desktop. */
+  open?: boolean;
+  /** Called when the mobile backdrop is tapped to close the drawer. */
+  onClose?: () => void;
 }
 
-export function Sidebar({ role, pathname }: SidebarProps) {
+export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps) {
   const { user, logout } = useAuth();
   const { mode, canSwitch, switchTo } = useViewMode();
   const router = useRouter();
+
+  // Which role buttons should appear in the bottom widget?
+  // Fan is always available; the others appear only when the user can actually access them.
+  // If only one option exists, the widget is hidden entirely.
+  const availableRoles: Array<'fan' | 'creator' | 'council'> = ['fan'];
+  if (canSwitch) availableRoles.push('creator');
+  if (user?.role === 'council') availableRoles.push('council');
+  const showRoleSwitcher = availableRoles.length >= 2;
+
+  const switchHandlers: Record<'fan' | 'creator' | 'council', () => void> = {
+    fan:     () => { switchTo('fan');     router.push('/dashboard'); },
+    creator: () => { switchTo('creator'); router.push('/sanctum'); },
+    council: () => { router.push('/admin'); },
+  };
 
   const fanItems: NavItem[] = [
     { sec: 'discover' },
@@ -97,14 +114,19 @@ export function Sidebar({ role, pathname }: SidebarProps) {
 
   const councilItems: NavItem[] = [
     { sec: 'queues' },
-    { id: 'council-completions', label: 'Completion review',   icon: '✓', href: '/admin/completions' },
-    { id: 'council-handles',     label: 'Handle verification', icon: '@', href: '/admin/handles' },
-    { id: 'council-ofac',        label: 'OFAC review',         icon: '!', href: '/admin/ofac' },
+    { id: 'council-completions',      label: 'Completion review',   icon: '✓', href: '/admin/completions' },
+    { id: 'council-handles',          label: 'Handle verification', icon: '@', href: '/admin/handles' },
+    { id: 'council-ofac',             label: 'OFAC review',         icon: '!', href: '/admin/ofac' },
+    { sec: 'catalog' },
+    { id: 'council-users',            label: 'Users',               icon: '◍', href: '/admin/users' },
+    { id: 'council-creators',         label: 'Creators',            icon: '◐', href: '/admin/creators' },
+    { id: 'council-featured-bounties', label: 'Featured bounties',  icon: '★', href: '/admin/featured-bounties' },
     { sec: 'operations' },
-    { id: 'council-billing',     label: 'Billing runs',        icon: '$', href: '/admin' },
-    { id: 'council-payouts',     label: 'External payouts',    icon: '↗', href: '/admin/external-payouts' },
-    { id: 'council-tiers',       label: 'Country tiers',       icon: '◉', href: '/admin/tiers' },
-    { id: 'council-audit',       label: 'Audit log',           icon: '◫', href: '/admin/logs' },
+    { id: 'council-billing',          label: 'Billing runs',        icon: '$', href: '/admin/billing' },
+    { id: 'council-payouts',          label: 'External payouts',    icon: '↗', href: '/admin/external-payouts' },
+    { id: 'council-members',          label: 'Council members',     icon: '◇', href: '/admin/council' },
+    { id: 'council-tiers',            label: 'Country tiers',       icon: '◉', href: '/admin/tiers' },
+    { id: 'council-audit',            label: 'Audit log',           icon: '◫', href: '/admin/logs' },
   ];
 
   const items = role === 'council' ? councilItems : role === 'creator' ? creatorItems : fanItems;
@@ -115,26 +137,31 @@ export function Sidebar({ role, pathname }: SidebarProps) {
   };
 
   return (
-    <aside
-      className="hidden md:flex flex-col w-[240px] flex-shrink-0 bg-surface border-r border-border sticky top-0 h-screen overflow-y-auto"
-    >
-      {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 pb-4 pt-5 border-b border-border">
-        <Link href="/dashboard">
-          <Image
-            src="/artypot-logo-transparent-dark.png"
-            alt="Artypot"
-            width={1024}
-            height={269}
-            className="h-7 w-auto"
-            priority
-          />
-        </Link>
-        <span className="font-mono text-[9px] uppercase tracking-widest text-muted/40 ml-auto">v0.2</span>
-      </div>
+    <>
+      {/* Mobile backdrop — shown behind the drawer, closes it on tap */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
 
-      {/* Nav */}
-      <nav className="flex-1 py-1">
+      <aside
+        className={[
+          // Shared
+          'flex flex-col w-[240px] flex-shrink-0 bg-surface border-r border-border',
+          // Mobile: slides in as a fixed drawer from the left
+          'fixed top-0 bottom-0 left-0 z-50',
+          'transition-transform duration-200 ease-in-out',
+          open ? 'translate-x-0' : '-translate-x-full',
+          // Desktop: always-visible sticky column below the top bar
+          'md:sticky md:top-12 md:bottom-auto md:left-auto md:z-auto',
+          'md:translate-x-0 md:h-[calc(100vh-3rem)]',
+        ].join(' ')}
+      >
+      {/* Nav — internally scrollable so the role widget + user card stay pinned to the bottom */}
+      <nav className="flex-1 py-1 overflow-y-auto min-h-0">
         {items.map((item, i) =>
           item.sec ? (
             <NavSection key={`s-${i}`} title={item.sec} />
@@ -142,49 +169,50 @@ export function Sidebar({ role, pathname }: SidebarProps) {
             <NavItem
               key={item.id}
               item={item}
-              active={item.href ? (item.href === '/sanctum' ? pathname === '/sanctum' : pathname.startsWith(item.href) && item.href !== '/dashboard' ? pathname === item.href || pathname.startsWith(item.href + '/') : pathname === item.href) : false}
+              active={(() => {
+                if (!item.href) return false;
+                // Section landing pages (e.g. /sanctum, /admin) must match exactly —
+                // otherwise they'd light up for every sub-route below them.
+                const EXACT_MATCH_ROUTES = new Set(['/sanctum', '/admin', '/dashboard']);
+                if (EXACT_MATCH_ROUTES.has(item.href)) return pathname === item.href;
+                // Sub-routes: active when on the exact page OR a deeper page beneath it.
+                return pathname === item.href || pathname.startsWith(item.href + '/');
+              })()}
             />
           )
         )}
       </nav>
 
-      {/* Divider */}
-      <div className="h-px bg-border" />
+      {/* Role switcher — only renders when at least 2 roles are available, and only the
+          available roles are listed. */}
+      {showRoleSwitcher && (
+        <>
+          {/* Divider */}
+          <div className="h-px bg-border" />
 
-      {/* Role section label */}
-      <div className="px-5 pt-3 pb-1.5 font-mono text-[10px] tracking-[1.5px] uppercase text-muted/60">
-        role
-      </div>
+          {/* Role section label */}
+          <div className="px-5 pt-3 pb-1.5 font-mono text-[10px] tracking-[1.5px] uppercase text-muted/60">
+            role
+          </div>
 
-      {/* Role switcher */}
-      <div className="flex mx-5 border border-border rounded overflow-hidden bg-background text-[9px]">
-        <button
-          className={`flex-1 py-[7px] font-mono text-[9px] uppercase tracking-wider transition-colors cursor-pointer ${
-            role === 'fan' ? 'ap-role-active' : 'text-muted hover:bg-surface hover:text-foreground'
-          }`}
-          onClick={() => { switchTo('fan'); router.push('/dashboard'); }}
-        >
-          fan
-        </button>
-        <button
-          className={`flex-1 py-[7px] font-mono text-[9px] uppercase tracking-wider border-l border-r border-border transition-colors ${
-            role === 'creator' ? 'ap-role-active' : canSwitch ? 'text-muted hover:bg-surface hover:text-foreground cursor-pointer' : 'text-muted/30 cursor-not-allowed'
-          }`}
-          onClick={() => { if (canSwitch) { switchTo('creator'); router.push('/sanctum'); } }}
-          disabled={!canSwitch}
-        >
-          creator
-        </button>
-        <button
-          className={`flex-1 py-[7px] font-mono text-[9px] uppercase tracking-wider transition-colors ${
-            role === 'council' ? 'ap-role-active' : user?.role === 'council' ? 'text-muted hover:bg-surface hover:text-foreground cursor-pointer' : 'text-muted/30 cursor-not-allowed'
-          }`}
-          onClick={() => { if (user?.role === 'council') router.push('/admin'); }}
-          disabled={user?.role !== 'council'}
-        >
-          council
-        </button>
-      </div>
+          {/* Buttons */}
+          <div className="flex mx-5 border border-border rounded overflow-hidden bg-background text-[9px]">
+            {availableRoles.map((option, idx) => (
+              <button
+                key={option}
+                className={`flex-1 py-[7px] font-mono text-[9px] uppercase tracking-wider transition-colors cursor-pointer ${
+                  idx > 0 ? 'border-l border-border' : ''
+                } ${
+                  role === option ? 'ap-role-active' : 'text-muted hover:bg-surface hover:text-foreground'
+                }`}
+                onClick={switchHandlers[option]}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* User card */}
       <div className="mx-5 mt-3 mb-3 p-2.5 bg-background border border-border rounded flex items-center gap-2.5">
@@ -210,8 +238,8 @@ export function Sidebar({ role, pathname }: SidebarProps) {
         </button>
       </div>
 
-      {/* Legal links */}
-      <div className="px-5 pb-4 flex flex-wrap gap-x-3 gap-y-1">
+      {/* Legal links — distributed evenly across the sidebar width */}
+      <div className="px-5 pb-4 flex items-center justify-between">
         {([
           { href: '/about',   label: 'About' },
           { href: '/tos',     label: 'Terms' },
@@ -228,5 +256,6 @@ export function Sidebar({ role, pathname }: SidebarProps) {
         ))}
       </div>
     </aside>
+    </>
   );
 }

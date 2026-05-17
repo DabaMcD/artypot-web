@@ -54,14 +54,13 @@
 [data-role="auth"]    { --color-role: var(--color-fan); --color-role-soft: #2d2208; }
 
 html {
-  /* Kalam reads slightly larger than sans-serif; 16px keeps the scale natural */
   font-size: 16px;
 }
 
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
-  font-family: var(--font-kalam), var(--font-architects-daughter), cursive;
+  font-family: var(--font-dm-sans), sans-serif;
   font-size: 1rem;
   line-height: 1.4;
   /* subtle role-gradient background (same as design) */
@@ -73,12 +72,13 @@ body {
 }
 
 /*
-  All headings are lowercase — matches the handwritten, informal aesthetic
-  of the wireframe design. Specific elements can override with `normal-case`
-  or `uppercase` Tailwind utilities when needed (e.g. mono section labels).
+  Kalam (font-display) text is forced lowercase — matches the handwritten,
+  informal aesthetic. DM Sans text uses natural casing. Override with
+  `normal-case` when a font-display element must preserve its original case
+  (e.g. a creator's saved display name).
 */
 @layer base {
-  h1, h2, h3, h4, h5, h6 {
+  .font-display:not(.normal-case) {
     text-transform: lowercase;
   }
 }

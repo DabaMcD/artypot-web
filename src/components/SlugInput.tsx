@@ -107,7 +107,7 @@ export default function SlugInput({
   return (
     <div>
       <FieldLabel>{label} <span className="text-bad">*</span></FieldLabel>
-      <div className={`flex items-center w-full px-3 py-2.5 bg-background border rounded transition-colors font-display text-base ${
+      <div className={`flex items-center w-full px-3 py-2.5 bg-background border rounded transition-colors text-base ${
         error
           ? 'border-bad/60 focus-within:border-bad'
           : available
@@ -137,7 +137,7 @@ export default function SlugInput({
       </div>
 
       {error ? (
-        <p className="font-display text-xs text-bad mt-1">{error}</p>
+        <p className="text-xs text-bad mt-1">{error}</p>
       ) : (
         <FieldHint>
           3–30 characters · lowercase letters, numbers, <code>_</code>, <code>-</code> · no leading or trailing separator

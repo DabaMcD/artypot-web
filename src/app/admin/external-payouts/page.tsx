@@ -71,7 +71,7 @@ function CreatorAutocomplete({ value, onChange }: CreatorAutocompleteProps) {
     return (
       <div className="flex items-center justify-between gap-3 px-3 py-2 border border-border rounded bg-background">
         <div className="min-w-0">
-          <div className="font-display text-sm text-foreground truncate">{value.display_name}</div>
+          <div className="text-sm text-foreground truncate">{value.display_name}</div>
           <div className="font-mono text-[10px] text-muted truncate">
             #{value.id} · available {fmtMoney(value.available_balance)}
             {value.country_code ? ` · ${value.country_code}` : ''}
@@ -107,7 +107,7 @@ function CreatorAutocomplete({ value, onChange }: CreatorAutocompleteProps) {
                 onClick={() => { onChange(r); setOpen(false); setQ(''); }}
                 className="w-full text-left px-3 py-2 hover:bg-surface-2 transition-colors border-b border-border last:border-b-0"
               >
-                <div className="font-display text-sm text-foreground">{r.display_name}</div>
+                <div className="text-sm text-foreground">{r.display_name}</div>
                 <div className="font-mono text-[10px] text-muted">
                   #{r.id} · {r.email ?? '—'} · available {fmtMoney(r.available_balance)}
                 </div>
@@ -298,7 +298,7 @@ function ReverseModal({
   return (
     <Modal title={`Reverse payout #${payout.id}`} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <p className="font-display text-sm text-foreground">
+        <p className="text-sm text-foreground">
           Reverse external payout <span className="font-mono">#{payout.id}</span> to{' '}
           <strong>{payout.creator?.display_name ?? `creator #${payout.creator_id}`}</strong> for{' '}
           <strong className="text-creator">{fmtMoney(payout.amount)}</strong>?
@@ -338,29 +338,29 @@ function DetailModal({ payout, onClose }: { payout: ExternalPayout; onClose: () 
       <Card accent className="mb-4">
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Creator</dt>
+            <dt className="text-muted">Creator</dt>
             <dd className="font-mono text-foreground">
               {payout.creator?.display_name ?? '—'} <span className="text-muted">#{payout.creator_id}</span>
             </dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Amount</dt>
+            <dt className="text-muted">Amount</dt>
             <dd className="font-mono tabular-nums text-foreground">{fmtMoney(payout.amount)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Reference</dt>
+            <dt className="text-muted">Reference</dt>
             <dd className="font-mono text-foreground">{payout.external_reference_id ?? '—'}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Sent</dt>
+            <dt className="text-muted">Sent</dt>
             <dd className="font-mono text-foreground">{payout.sent_at}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Recorded by</dt>
+            <dt className="text-muted">Recorded by</dt>
             <dd className="font-mono text-foreground">{payout.recorded_by?.display_name ?? `#${payout.recorded_by_admin_id}`}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Created</dt>
+            <dt className="text-muted">Created</dt>
             <dd className="font-mono text-foreground">{new Date(payout.created_at).toLocaleString()}</dd>
           </div>
         </dl>
@@ -369,7 +369,7 @@ function DetailModal({ payout, onClose }: { payout: ExternalPayout; onClose: () 
       {payout.notes && (
         <Card accent className="mb-4">
           <SectionLabel className="mb-2">Notes</SectionLabel>
-          <p className="font-display text-sm text-foreground whitespace-pre-wrap">{payout.notes}</p>
+          <p className="text-sm text-foreground whitespace-pre-wrap">{payout.notes}</p>
         </Card>
       )}
 
@@ -381,7 +381,7 @@ function DetailModal({ payout, onClose }: { payout: ExternalPayout; onClose: () 
             {new Date(payout.reversed_at).toLocaleString()}
           </p>
           {payout.reversal_reason && (
-            <p className="font-display text-sm text-foreground mt-2 whitespace-pre-wrap">{payout.reversal_reason}</p>
+            <p className="text-sm text-foreground mt-2 whitespace-pre-wrap">{payout.reversal_reason}</p>
           )}
         </Card>
       )}
@@ -472,7 +472,7 @@ export default function AdminExternalPayoutsPage() {
                 {total} total · YTD {fmtMoney(ytdTotal)}
               </span>
               <Link href="/admin">
-                <Button variant="ghost" size="sm">← admin</Button>
+                <Button variant="ghost" size="sm">← Admin</Button>
               </Link>
             </div>
           </div>
@@ -522,7 +522,7 @@ export default function AdminExternalPayoutsPage() {
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-display font-medium text-foreground text-sm truncate">
+                        <span className="font-medium text-foreground text-sm truncate">
                           {p.creator?.display_name ?? `creator #${p.creator_id}`}
                         </span>
                         <span className="font-mono text-[10px] text-muted">#{p.creator_id}</span>

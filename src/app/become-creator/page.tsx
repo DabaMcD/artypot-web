@@ -136,13 +136,13 @@ function TosGate({ onActivated }: { onActivated: () => void }) {
           onChange={(e) => setAgreed(e.target.checked)}
           className="mt-0.5 flex-shrink-0 w-4 h-4 accent-[var(--color-role)] cursor-pointer"
         />
-        <span className="font-display text-sm text-foreground leading-snug">
+        <span className="text-sm text-foreground leading-snug">
           I have read and agree to the Artypot Creator Terms of Service
         </span>
       </label>
 
       <Button type="submit" variant="primary" disabled={!canSubmit} className="w-full">
-        {submitting ? 'activating…' : 'enable creator mode →'}
+        {submitting ? 'Activating…' : 'Enable Creator Mode →'}
       </Button>
     </form>
   );
@@ -158,8 +158,8 @@ function EmailVerificationGate({ hasEmail }: { hasEmail: boolean }) {
     return (
       <div className="mt-3">
         <Banner tone="default">
-          no email on your account.{' '}
-          <Link href="/settings" className="underline">add one in settings</Link>{' '}
+          No email on your account.{' '}
+          <Link href="/settings" className="underline">Add one in Settings</Link>{' '}
           to receive a verification link.
         </Banner>
       </div>
@@ -181,11 +181,11 @@ function EmailVerificationGate({ hasEmail }: { hasEmail: boolean }) {
   return (
     <div className="mt-3 flex flex-col gap-2">
       <Banner tone="default">
-        a verification link was sent to your email address. check your inbox (and spam folder).
+        A verification link was sent to your email address. Check your inbox (and spam folder).
       </Banner>
       <div>
         <Button variant="ghost" size="sm" onClick={handleResend} disabled={sending}>
-          {sending ? 'sending…' : 'resend verification email'}
+          {sending ? 'Sending…' : 'Resend Verification Email'}
         </Button>
       </div>
     </div>
@@ -230,7 +230,7 @@ function GateRow({
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <h3 className="font-display font-bold text-foreground">{title}</h3>
+            <h3 className="font-bold text-foreground">{title}</h3>
             {status === 'complete' && (
               <span className="font-mono text-[10px] uppercase tracking-widest text-good">complete</span>
             )}
@@ -240,7 +240,7 @@ function GateRow({
               </span>
             )}
           </div>
-          <p className="font-display text-sm text-muted mt-0.5">{description}</p>
+          <p className="text-sm text-muted mt-0.5">{description}</p>
           {children}
         </div>
 
@@ -281,13 +281,13 @@ export default function BecomeCreatorPage() {
         <Card>
           <div className="flex items-center gap-3 mb-3">
             <span className="text-xl">✓</span>
-            <h2 className="font-display font-bold text-lg text-good">you&apos;re already a creator</h2>
+            <h2 className="font-bold text-lg text-good">you&apos;re already a creator</h2>
           </div>
-          <p className="font-display text-sm text-muted mb-4">
-            your creator account is active. head to your sanctum to manage bounties, track earnings, and more.
+          <p className="text-sm text-muted mb-4">
+            Your creator account is active. Head to your sanctum to manage bounties, track earnings, and more.
           </p>
           <Link href="/sanctum">
-            <Button variant="primary">go to sanctum →</Button>
+            <Button variant="primary">Go to Sanctum →</Button>
           </Link>
         </Card>
       </div>
@@ -304,8 +304,8 @@ export default function BecomeCreatorPage() {
       <div>
         <SectionLabel>fan</SectionLabel>
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">become a creator</h1>
-        <p className="font-display text-sm text-muted mt-1">
-          unlock the creator view to accept bounties and get paid for your work.
+        <p className="text-sm text-muted mt-1">
+          Unlock the creator view to accept bounties and get paid for your work.
         </p>
       </div>
 
@@ -313,8 +313,8 @@ export default function BecomeCreatorPage() {
         {/* Gate 1 — email verification */}
         <GateRow
           step={1}
-          title="verify your email address"
-          description="a verified email is required to receive creator notifications and tax communications"
+          title="Verify Your Email Address"
+          description="A verified email is required to receive creator notifications and tax communications"
           status={gate1Complete ? 'complete' : 'active'}
         >
           {!gate1Complete && (
@@ -325,41 +325,41 @@ export default function BecomeCreatorPage() {
         {/* Gate 2 — location */}
         <GateRow
           step={2}
-          title="add your location of residence"
-          description="we use this to know where to report your earnings later"
+          title="Add Your Location of Residence"
+          description="We use this to know where to report your earnings later"
           status={gate2Complete ? 'complete' : 'active'}
           actionSlot={
             gate2Complete
-              ? <Link href="/settings#location"><Button variant="ghost" size="sm">edit</Button></Link>
-              : <Link href="/settings#location"><Button variant="default" size="sm">add location →</Button></Link>
+              ? <Link href="/settings#location"><Button variant="ghost" size="sm">Edit</Button></Link>
+              : <Link href="/settings#location"><Button variant="default" size="sm">Add Location →</Button></Link>
           }
         />
 
         {/* Gate 3 — verified handle */}
         <GateRow
           step={3}
-          title="verify a handle"
-          description="link a social account so fans know you're the real deal"
+          title="Verify a Handle"
+          description="Link a social account so fans know you're the real deal"
           status={gate3Complete ? 'complete' : 'active'}
           actionSlot={!gate3Complete ? (
-            <Link href="/settings#handles"><Button variant="default" size="sm">verify a handle →</Button></Link>
+            <Link href="/settings#handles"><Button variant="default" size="sm">Verify a Handle →</Button></Link>
           ) : undefined}
         />
 
         {/* Gate 4 — TOS + slug */}
         <GateRow
           step={4}
-          title="agree to creator TOS and choose your primary handle"
-          description="accept the creator terms and lock in your artypot.com/[slug] URL"
+          title="Agree to Creator TOS and Choose Your Primary Handle"
+          description="Accept the creator terms and lock in your artypot.com/[slug] URL"
           status={!gate4Unlocked ? 'locked' : 'active'}
-          lockText="complete steps 1–3 to unlock"
+          lockText="Complete steps 1–3 to unlock"
         >
           {gate4Unlocked && <TosGate onActivated={handleActivated} />}
         </GateRow>
       </div>
 
       <Link href="/dashboard">
-        <Button variant="ghost" size="sm">← back to dashboard</Button>
+        <Button variant="ghost" size="sm">← Back to Dashboard</Button>
       </Link>
     </div>
   );

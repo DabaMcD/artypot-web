@@ -21,7 +21,7 @@ export function Avatar({ initials, src, size = 'md', style, className = '' }: Av
   const { wrapper, text } = sizeClasses[size];
   return (
     <div
-      className={`${wrapper} rounded-full border border-border bg-surface-2 flex items-center justify-center font-display font-bold flex-shrink-0 overflow-hidden ${text} ${className}`}
+      className={`${wrapper} rounded-full border border-border bg-surface-2 flex items-center justify-center font-bold flex-shrink-0 overflow-hidden ${text} ${className}`}
       style={style}
     >
       {src ? (

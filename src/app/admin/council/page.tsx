@@ -57,7 +57,7 @@ export default function AdminCouncilPage() {
         <SectionLabel className="mb-2">council · admin</SectionLabel>
         <div className="flex items-center gap-3">
           <Link href="/admin">
-            <Button variant="ghost" size="sm">← admin</Button>
+            <Button variant="ghost" size="sm">← Admin</Button>
           </Link>
           <h1 className="font-display font-bold text-[28px]">Council Members</h1>
           <span className="ml-auto font-mono text-[10px] uppercase tracking-widest text-muted">
@@ -91,7 +91,7 @@ export default function AdminCouncilPage() {
               <div key={member.id} className="grid grid-cols-[1fr_auto_auto] gap-4 items-center px-5 py-4">
                 {/* Member info */}
                 <div>
-                  <p className="font-display text-sm font-medium text-foreground">{member.display_name}</p>
+                  <p className="text-sm font-medium text-foreground">{member.display_name}</p>
                   <p className="font-mono text-[10px] text-muted">{member.email}</p>
                 </div>
 
@@ -99,7 +99,7 @@ export default function AdminCouncilPage() {
                 <div className="text-right">
                   {member.appointed_by ? (
                     <>
-                      <p className="font-display text-xs text-foreground">{member.appointed_by.display_name}</p>
+                      <p className="text-xs text-foreground">{member.appointed_by.display_name}</p>
                       <p className="font-mono text-[10px] text-muted">{member.appointed_by.email}</p>
                     </>
                   ) : (

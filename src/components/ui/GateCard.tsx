@@ -27,7 +27,7 @@ export function GateCard({ gate, action }: GateCardProps) {
         {iconMap[gate.status]}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="font-display font-bold text-foreground">{gate.label}</div>
+        <div className="font-bold text-foreground">{gate.label}</div>
         {gate.detail && <div className="text-sm text-muted mt-0.5">{gate.detail}</div>}
       </div>
       {action}

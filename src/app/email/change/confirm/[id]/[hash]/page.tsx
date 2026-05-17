@@ -62,7 +62,7 @@ function EmailChangeConfirmContent() {
               href="/settings"
               className="inline-block bg-fan text-black font-semibold px-6 py-2.5 rounded-lg text-sm hover:bg-fan-dim transition-colors"
             >
-              Go to settings
+              Go to Settings
             </Link>
           </>
         )}
@@ -76,7 +76,7 @@ function EmailChangeConfirmContent() {
               href="/settings"
               className="inline-block bg-surface-2 border border-border text-foreground font-medium px-6 py-2.5 rounded-lg text-sm hover:border-foreground/30 transition-colors"
             >
-              Back to settings
+              Back to Settings
             </Link>
           </>
         )}

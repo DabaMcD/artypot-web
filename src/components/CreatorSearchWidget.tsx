@@ -79,7 +79,7 @@ export default function CreatorSearchWidget({
 
   const handleSelect = (s: Creator) => {
     if (navigateOnSelect) {
-      router.push(`/creators/${s.id}`);
+      router.push(s.slug ? `/${s.slug}` : `/creators/${s.id}`);
       setSearch('');
       setResults([]);
       setFocused(false);
@@ -103,16 +103,13 @@ export default function CreatorSearchWidget({
         <div className="flex items-center gap-2">
           <CreatorAvatar creator={selectedCreator} />
           <a
-            href={`/creators/${selectedCreator.id}`}
+            href={selectedCreator.slug ? `/${selectedCreator.slug}` : `/creators/${selectedCreator.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-creator font-medium hover:underline"
           >
             {selectedCreator.display_name}
           </a>
-          {!selectedCreator.claimed_at && (
-            <span className="text-xs text-muted">(unclaimed)</span>
-          )}
         </div>
         <button
           type="button"
@@ -172,12 +169,9 @@ export default function CreatorSearchWidget({
               >
                 <CreatorAvatar creator={s} />
                 <span className="text-foreground truncate">{s.display_name}</span>
-                {!s.claimed_at && (
-                  <span className="text-muted text-xs shrink-0">(unclaimed)</span>
-                )}
               </button>
               <a
-                href={`/creators/${s.id}`}
+                href={s.slug ? `/${s.slug}` : `/creators/${s.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden lg:block shrink-0 pr-3 text-xs text-muted hover:text-creator transition-colors opacity-0 group-hover:opacity-100"

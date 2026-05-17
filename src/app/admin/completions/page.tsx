@@ -65,30 +65,30 @@ function ReviewModal({
 
   return (
     <Modal
-      title="review completion"
+      title="Review Completion"
       onClose={onClose}
       lg
       actions={
         <>
-          <Button variant="ghost" onClick={onClose} disabled={loading}>cancel</Button>
+          <Button variant="ghost" onClick={onClose} disabled={loading}>Cancel</Button>
           <Button
             variant={decision === 'approved' ? 'primary' : 'danger'}
             onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
             disabled={loading || (decision === 'rejected' && !notes.trim())}
           >
-            {loading ? 'submitting…' : decision === 'approved' ? 'approve bounty' : 'reject submission'}
+            {loading ? 'Submitting…' : decision === 'approved' ? 'Approve Bounty' : 'Reject Submission'}
           </Button>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <p className="font-display text-sm text-muted">
+        <p className="text-sm text-muted">
           <Link href={`/bounties/${completion.bounty_id}`} className="text-fan hover:underline">
             {completion.bounty.title}
           </Link>
           {completion.bounty.creator && (
             <> by{' '}
-              <Link href={`/creators/${completion.bounty.creator.id}`} className="text-creator hover:underline">
+              <Link href={completion.bounty.creator.slug ? `/${completion.bounty.creator.slug}` : `/creators/${completion.bounty.creator.id}`} className="text-creator hover:underline">
                 {completion.bounty.creator.display_name}
               </Link>
             </>
@@ -108,7 +108,7 @@ function ReviewModal({
                 href={completion.submission_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-display text-sm text-fan hover:underline break-all"
+                className="text-sm text-fan hover:underline break-all"
               >
                 {completion.submission_url}
               </a>
@@ -116,7 +116,7 @@ function ReviewModal({
             {completion.submission_notes && (
               <div>
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">creator notes</div>
-                <p className="font-display text-sm text-foreground whitespace-pre-wrap">{completion.submission_notes}</p>
+                <p className="text-sm text-foreground whitespace-pre-wrap">{completion.submission_notes}</p>
               </div>
             )}
             <p className="font-mono text-[10px] text-muted">
@@ -242,9 +242,9 @@ export default function AdminCompletionsPage() {
           <div>
             <SectionLabel>council · admin</SectionLabel>
             <h1 className="font-display font-bold text-[28px] text-foreground mt-1">bounty completions</h1>
-            <p className="font-display text-sm text-muted mt-1">{total} {total === 1 ? 'submission' : 'submissions'}</p>
+            <p className="text-sm text-muted mt-1">{total} {total === 1 ? 'submission' : 'submissions'}</p>
           </div>
-          <Link href="/admin"><Button variant="ghost" size="sm">← admin</Button></Link>
+          <Link href="/admin"><Button variant="ghost" size="sm">← Admin</Button></Link>
         </div>
 
         {/* Status filter tabs */}
@@ -272,7 +272,7 @@ export default function AdminCompletionsPage() {
             </div>
           </Card>
         ) : completions.length === 0 ? (
-          <Empty message="no completions found" />
+          <Empty message="No completions found" />
         ) : (
           <Card>
             <div className="divide-y divide-border -mx-5 -my-4">
@@ -280,14 +280,14 @@ export default function AdminCompletionsPage() {
                 <div key={c.id} className="flex items-start gap-3 px-5 py-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                      <Link href={`/bounties/${c.bounty_id}`} className="font-display text-sm text-foreground hover:underline">
+                      <Link href={`/bounties/${c.bounty_id}`} className="text-sm text-foreground hover:underline">
                         {c.bounty.title}
                       </Link>
                       <Badge tone={COMPLETION_TONES[c.status]}>{COMPLETION_LABELS[c.status]}</Badge>
                     </div>
                     <div className="flex items-center gap-3 font-mono text-[10px] text-muted mb-1 flex-wrap">
                       {c.bounty.creator && (
-                        <Link href={`/creators/${c.bounty.creator.id}`} className="text-creator hover:underline">
+                        <Link href={c.bounty.creator.slug ? `/${c.bounty.creator.slug}` : `/creators/${c.bounty.creator.id}`} className="text-creator hover:underline">
                           {c.bounty.creator.display_name}
                         </Link>
                       )}

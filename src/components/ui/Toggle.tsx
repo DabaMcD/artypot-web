@@ -12,7 +12,7 @@ export function Toggle({ on, onChange, label, className = '' }: ToggleProps) {
     <div
       role="switch"
       aria-checked={on}
-      className={`inline-flex items-center gap-2.5 cursor-pointer font-display text-sm text-foreground select-none ${className}`}
+      className={`inline-flex items-center gap-2.5 cursor-pointer text-sm text-foreground select-none ${className}`}
       onClick={() => onChange(!on)}
     >
       {/* Track */}

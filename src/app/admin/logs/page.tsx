@@ -20,7 +20,7 @@ export default function LogsPage() {
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">audit log</h1>
       </div>
       <Card>
-        <p className="font-display text-sm text-muted">coming soon.</p>
+        <p className="text-sm text-muted">coming soon.</p>
       </Card>
     </div>
   );

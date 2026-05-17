@@ -71,29 +71,29 @@ function CreatorModal({ creator, onClose }: { creator: CreatorDetail; onClose: (
       <Card accent className="mb-4">
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Creator ID</dt>
+            <dt className="text-muted">Creator ID</dt>
             <dd className="font-mono tabular-nums text-foreground">#{creator.id}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Created</dt>
+            <dt className="text-muted">Created</dt>
             <dd className="font-mono tabular-nums text-foreground">{new Date(creator.created_at).toLocaleDateString()}</dd>
           </div>
           {creator.claimed_at && (
             <div className="flex justify-between">
-              <dt className="text-muted font-display">Claimed</dt>
+              <dt className="text-muted">Claimed</dt>
               <dd className="font-mono tabular-nums text-foreground">{new Date(creator.claimed_at).toLocaleDateString()}</dd>
             </div>
           )}
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Total earned</dt>
+            <dt className="text-muted">Total earned</dt>
             <dd className="font-mono tabular-nums text-foreground">${Number(creator.amount_earned ?? 0).toFixed(2)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Open bounties</dt>
+            <dt className="text-muted">Open bounties</dt>
             <dd className="font-mono tabular-nums text-foreground">{creator.projects_open ?? 0}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Finished bounties</dt>
+            <dt className="text-muted">Finished bounties</dt>
             <dd className="font-mono tabular-nums text-foreground">{creator.projects_finished ?? 0}</dd>
           </div>
         </dl>
@@ -105,7 +105,7 @@ function CreatorModal({ creator, onClose }: { creator: CreatorDetail; onClose: (
           <SectionLabel className="mb-2">Claimed by</SectionLabel>
           <Link
             href={`/users/${creator.user.id}`}
-            className="font-display font-medium text-foreground hover:text-fan transition-colors text-sm"
+            className="font-medium text-foreground hover:text-fan transition-colors text-sm"
           >
             {creator.user.display_name} →
           </Link>
@@ -142,7 +142,7 @@ function CreatorModal({ creator, onClose }: { creator: CreatorDetail; onClose: (
 
       <div className="mt-5">
         <Link
-          href={`/creators/${creator.id}`}
+          href={creator.slug ? `/${creator.slug}` : `/creators/${creator.id}`}
           target="_blank"
           className="font-mono text-[10px] uppercase tracking-widest text-creator hover:underline"
         >
@@ -253,7 +253,7 @@ export default function AdminCreatorsPage() {
             <div className="flex items-center gap-3">
               <span className="font-mono text-[10px] uppercase tracking-widest text-muted tabular-nums">{total} total</span>
               <Link href="/admin">
-                <Button variant="ghost" size="sm">← admin</Button>
+                <Button variant="ghost" size="sm">← Admin</Button>
               </Link>
             </div>
           </div>
@@ -315,7 +315,7 @@ export default function AdminCreatorsPage() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-display font-medium text-foreground text-sm truncate">{s.display_name}</span>
+                      <span className="font-medium text-foreground text-sm truncate">{s.display_name}</span>
                       <ClaimedBadge claimed={s.claimed} />
                       <W9Badge status={s.w9_status} />
                     </div>

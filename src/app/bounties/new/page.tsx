@@ -190,7 +190,7 @@ function Step1({
       <div>
         <SectionLabel>fan</SectionLabel>
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">start a bounty</h1>
-        <p className="font-display text-sm text-muted mt-1">name a creator. the community funds the work.</p>
+        <p className="text-sm text-muted mt-1">Name a creator. The community funds the work.</p>
       </div>
 
       <Card>
@@ -203,7 +203,7 @@ function Step1({
               onClick={() => onShowAddNew(false)}
               className="text-xs font-mono text-muted hover:text-foreground cursor-pointer transition-colors mb-4"
             >
-              ← back to creator search
+              ← Back to Creator Search
             </button>
 
             <div className="space-y-3 border-t border-border pt-4">
@@ -244,7 +244,7 @@ function Step1({
                 className="w-full justify-center"
                 onClick={confirmAddNew}
               >
-                use this creator →
+                Use This Creator →
               </Button>
             </div>
           </>
@@ -305,7 +305,7 @@ function Step1({
               {showDropdown && results.length === 0 && !searching && query.trim() && (
                 <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface border border-border rounded-lg shadow-lg">
                   <div className="px-3 py-3">
-                    <p className="text-sm text-muted font-display mb-2">no results for &ldquo;{query}&rdquo;</p>
+                    <p className="text-sm text-muted mb-2">no results for &ldquo;{query}&rdquo;</p>
                     <button
                       type="button"
                       onMouseDown={() => { setShowDropdown(false); onShowAddNew(true); onNewDisplayName(query); }}
@@ -407,7 +407,7 @@ function Step2({ target, onBack, onNext, initialTitle, initialDescription, initi
       </Card>
 
       <div className="flex gap-3">
-        <Button type="button" variant="ghost" onClick={onBack}>← back</Button>
+        <Button type="button" variant="ghost" onClick={onBack}>← Back</Button>
         <Button
           type="button"
           variant="primary"
@@ -415,7 +415,7 @@ function Step2({ target, onBack, onNext, initialTitle, initialDescription, initi
           disabled={!title.trim() || parseFloat(amount) < 1}
           onClick={handleNext}
         >
-          review →
+          Review →
         </Button>
       </div>
     </div>
@@ -466,7 +466,7 @@ function Step3({ target, title, description, amount, onBack, onSubmit, submittin
       {error && <Banner tone="bad">{error}</Banner>}
 
       <div className="flex gap-3">
-        <Button type="button" variant="ghost" onClick={onBack} disabled={submitting}>← back</Button>
+        <Button type="button" variant="ghost" onClick={onBack} disabled={submitting}>← Back</Button>
         <Button
           type="button"
           variant="primary"
@@ -474,7 +474,7 @@ function Step3({ target, title, description, amount, onBack, onSubmit, submittin
           onClick={onSubmit}
           disabled={submitting}
         >
-          {submitting ? 'creating…' : 'create bounty'}
+          {submitting ? 'Creating…' : 'Create Bounty'}
         </Button>
       </div>
     </div>
@@ -552,8 +552,8 @@ function NewBountyForm() {
   if (!user) {
     return (
       <div className="max-w-lg mx-auto py-20 text-center">
-        <p className="font-display text-muted mb-4">you need to be logged in to create a bounty.</p>
-        <Link href="/login"><Button variant="primary">sign in →</Button></Link>
+        <p className="text-muted mb-4">You need to be logged in to create a bounty.</p>
+        <Link href="/login"><Button variant="primary">Sign In →</Button></Link>
       </div>
     );
   }

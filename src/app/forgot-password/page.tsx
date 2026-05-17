@@ -42,27 +42,27 @@ export default function ForgotPasswordPage() {
         </Link>
 
         <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">password reset</div>
-        <h1 className="font-display font-bold text-[30px] text-foreground mb-2">forgot your password?</h1>
-        <p className="font-display text-sm text-muted mb-8 leading-relaxed">
+        <h1 className="font-display font-bold text-[30px] text-foreground mb-2">Forgot Your Password?</h1>
+        <p className="text-sm text-muted mb-8 leading-relaxed">
           {submitted
-            ? 'check your inbox — a reset link is on its way.'
-            : "enter your email and we'll send a reset link. it expires in 60 minutes."}
+            ? 'Check your inbox — a reset link is on its way.'
+            : "Enter your email and we'll send a reset link. It expires in 60 minutes."}
         </p>
 
         {submitted ? (
           <div className="bg-surface border border-border rounded p-6 space-y-4">
             <div className="font-mono text-[10px] uppercase tracking-widest text-good mb-1">sent</div>
-            <p className="font-display text-sm text-muted leading-relaxed">
-              if <span className="font-mono text-foreground">{email}</span> is registered, you&apos;ll receive the link shortly.
+            <p className="text-sm text-muted leading-relaxed">
+              If <span className="font-mono text-foreground">{email}</span> is registered, you&apos;ll receive the link shortly.
             </p>
-            <Link href="/login" className="ap-inline-link font-display text-sm">
-              ← back to sign in
+            <Link href="/login" className="ap-inline-link text-sm">
+              ← Back to Sign In
             </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-bad-soft border border-bad text-bad text-sm rounded px-4 py-3 font-display">
+              <div className="bg-bad-soft border border-bad text-bad text-sm rounded px-4 py-3">
                 {error}
               </div>
             )}
@@ -86,12 +86,12 @@ export default function ForgotPasswordPage() {
               className="w-full justify-center"
               disabled={loading || !email}
             >
-              {loading ? 'sending…' : 'send reset link'}
+              {loading ? 'Sending…' : 'Send Reset Link'}
             </Button>
 
-            <p className="font-display text-sm text-muted text-center pt-1">
-              remembered it?{' '}
-              <Link href="/login" className="ap-inline-link">sign in →</Link>
+            <p className="text-sm text-muted text-center pt-1">
+              Remembered it?{' '}
+              <Link href="/login" className="ap-inline-link">Sign In →</Link>
             </p>
           </form>
         )}

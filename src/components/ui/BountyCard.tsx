@@ -44,7 +44,7 @@ export function BountyCard({ b, onClick, hideTarget }: BountyCardProps) {
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2 mb-1">
-          <h4 className="font-display font-bold text-[17px] text-foreground truncate">{b.title}</h4>
+          <h4 className="font-bold text-[17px] text-foreground truncate">{b.title}</h4>
           <Badge tone={st.tone} className="flex-shrink-0">{st.label}</Badge>
         </div>
 

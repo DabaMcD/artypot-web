@@ -54,23 +54,23 @@ function ReviewModal({
 
   return (
     <Modal
-      title="review claim"
+      title="Review Claim"
       onClose={onClose}
       actions={
         <>
-          <Button variant="ghost" onClick={onClose} disabled={loading}>cancel</Button>
+          <Button variant="ghost" onClick={onClose} disabled={loading}>Cancel</Button>
           <Button
             variant={decision === 'approved' ? 'primary' : 'danger'}
             onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
             disabled={loading}
           >
-            {loading ? 'submitting…' : decision === 'approved' ? 'approve claim' : 'reject claim'}
+            {loading ? 'Submitting…' : decision === 'approved' ? 'Approve Claim' : 'Reject Claim'}
           </Button>
         </>
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <p className="font-display text-sm text-muted">
+        <p className="text-sm text-muted">
           <span className="text-foreground">{claim.user.display_name}</span>{' '}
           <span className="text-muted/70">({claim.user.email})</span> claims{' '}
           <span className="text-creator">{claim.creator.display_name}</span>
@@ -78,7 +78,7 @@ function ReviewModal({
 
         <Card>
           <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-2">contact info / proof</div>
-          <p className="font-display text-sm text-foreground whitespace-pre-wrap break-words">{claim.contact_info}</p>
+          <p className="text-sm text-foreground whitespace-pre-wrap break-words">{claim.contact_info}</p>
         </Card>
 
         <div className="flex gap-2">
@@ -188,9 +188,9 @@ export default function AdminClaimsPage() {
           <div>
             <SectionLabel>council · admin</SectionLabel>
             <h1 className="font-display font-bold text-[28px] text-foreground mt-1">creator claims</h1>
-            <p className="font-display text-sm text-muted mt-1">{total} {total === 1 ? 'claim' : 'claims'}</p>
+            <p className="text-sm text-muted mt-1">{total} {total === 1 ? 'claim' : 'claims'}</p>
           </div>
-          <Link href="/admin"><Button variant="ghost" size="sm">← admin</Button></Link>
+          <Link href="/admin"><Button variant="ghost" size="sm">← Admin</Button></Link>
         </div>
 
         {/* Status filter tabs */}
@@ -218,7 +218,7 @@ export default function AdminClaimsPage() {
             </div>
           </Card>
         ) : claims.length === 0 ? (
-          <Empty message={`no ${statusFilter === 'all' ? '' : statusFilter + ' '}claims`} />
+          <Empty message={`No ${statusFilter === 'all' ? '' : statusFilter + ' '}claims`} />
         ) : (
           <Card>
             <div className="divide-y divide-border -mx-5 -my-4">
@@ -226,11 +226,11 @@ export default function AdminClaimsPage() {
                 <div key={claim.id} className="flex items-start gap-3 px-5 py-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                      <span className="font-display text-sm text-foreground">{claim.user.display_name}</span>
+                      <span className="text-sm text-foreground">{claim.user.display_name}</span>
                       <span className="font-mono text-[10px] text-muted">{claim.user.email}</span>
                       <Badge tone={CLAIM_TONES[claim.status]}>{claim.status}</Badge>
                     </div>
-                    <p className="font-display text-sm text-muted mb-0.5">
+                    <p className="text-sm text-muted mb-0.5">
                       claims{' '}
                       <Link href={`/creators/${claim.creator.id}`} className="text-creator hover:underline">
                         {claim.creator.display_name}

@@ -54,15 +54,15 @@ function UserModal({ user, onClose }: { user: AdminUser; onClose: () => void }) 
       <Card accent className="mb-4">
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <dt className="text-muted font-display">User ID</dt>
+            <dt className="text-muted">User ID</dt>
             <dd className="font-mono tabular-nums text-foreground">#{user.id}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Joined</dt>
+            <dt className="text-muted">Joined</dt>
             <dd className="font-mono tabular-nums text-foreground">{new Date(user.created_at).toLocaleDateString()}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-muted font-display">Phone</dt>
+            <dt className="text-muted">Phone</dt>
             <dd className="font-mono tabular-nums text-foreground">
               {user.phone_number ?? '—'}
               {user.phone_verified_at ? ' ✓' : user.phone_number ? ' (unverified)' : ''}
@@ -80,7 +80,7 @@ function UserModal({ user, onClose }: { user: AdminUser; onClose: () => void }) 
               {user.creator.claimed ? 'claimed' : 'unclaimed'}
             </Badge>
           </div>
-          <Link href={`/creators/${user.creator.id}`} className="font-display font-medium text-creator hover:underline text-sm">
+          <Link href={user.slug ? `/${user.slug}` : `/creators/${user.creator.id}`} className="font-medium text-creator hover:underline text-sm">
             {user.creator.display_name} →
           </Link>
         </Card>
@@ -181,7 +181,7 @@ export default function AdminUsersPage() {
             <div className="flex items-center gap-3">
               <span className="font-mono text-[10px] uppercase tracking-widest text-muted tabular-nums">{total} total</span>
               <Link href="/admin">
-                <Button variant="ghost" size="sm">← admin</Button>
+                <Button variant="ghost" size="sm">← Admin</Button>
               </Link>
             </div>
           </div>
@@ -241,7 +241,7 @@ export default function AdminUsersPage() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-display font-medium text-foreground text-sm truncate">{u.display_name}</span>
+                      <span className="font-medium text-foreground text-sm truncate">{u.display_name}</span>
                       <RoleBadge role={u.role} />
                       {/* Show a creator badge when this council/fan user also owns a creator profile */}
                       {u.creator && u.role !== 'creator' && (

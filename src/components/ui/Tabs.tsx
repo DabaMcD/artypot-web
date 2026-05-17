@@ -19,7 +19,7 @@ export function TabsInline({ tabs, active, setActive, className = '' }: TabsInli
         <button
           key={tab.id}
           onClick={() => setActive(tab.id)}
-          className={`px-3 py-1.5 rounded font-display text-sm transition-colors cursor-pointer ${
+          className={`px-3 py-1.5 rounded text-sm transition-colors cursor-pointer ${
             active === tab.id
               ? 'bg-surface-2 text-foreground'
               : 'text-muted hover:text-foreground/80'

@@ -43,7 +43,7 @@ export function Timeline({ items }: TimelineProps) {
           {/* Content */}
           <div className={`pl-4 ${i < items.length - 1 ? 'pb-5' : ''}`}>
             <div className="font-mono text-[10px] tracking-widest uppercase text-muted">{item.when}</div>
-            <div className="font-display text-base text-foreground mt-0.5">{item.what}</div>
+            <div className="text-base text-foreground mt-0.5">{item.what}</div>
             {item.amount && <div className="font-mono text-sm text-muted/80 mt-0.5">{item.amount}</div>}
             {item.hint && <div className="font-mono text-[10px] uppercase tracking-wider text-muted/60 mt-1">{item.hint}</div>}
           </div>

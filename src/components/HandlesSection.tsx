@@ -74,7 +74,7 @@ function RequestReviewModal({
   return (
     <Modal title={`verify @${claim.handle.username}`} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <p className="font-display text-sm text-muted">
+        <p className="text-sm text-muted">
           Leave a message telling admins how they can confirm you own this{' '}
           <span className="text-foreground">{platformLabel}</span> account.
           For example, an email address, a DM handle on another platform, or a link to a post you can make.
@@ -94,16 +94,16 @@ function RequestReviewModal({
 
         {alreadySubmitted && (
           <Banner tone="default">
-            you already submitted this for review. updating your message will resubmit it.
+            You already submitted this for review. Updating your message will resubmit it.
           </Banner>
         )}
 
         {error && <Banner tone="bad">{error}</Banner>}
 
         <div className="flex gap-3 justify-end">
-          <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>cancel</Button>
+          <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>Cancel</Button>
           <Button type="submit" variant="primary" disabled={submitting || message.trim().length < 10}>
-            {submitting ? 'submitting…' : alreadySubmitted ? 'resubmit for review' : 'submit for review'}
+            {submitting ? 'Submitting…' : alreadySubmitted ? 'Resubmit for Review' : 'Submit for Review'}
           </Button>
         </div>
       </form>
@@ -140,17 +140,17 @@ function OAuthConnectModal({
   return (
     <Modal title={`connect ${platformLabel}`} onClose={onClose}>
       <div className="space-y-4">
-        <p className="font-display text-sm text-muted">
+        <p className="text-sm text-muted">
           Connect your <span className="text-foreground">{platformLabel}</span> account via OAuth for instant verification.
           You&apos;ll be redirected to {platformLabel} to authorize the connection, then brought back here.
         </p>
         <Banner tone="default">
-          make sure you&apos;re logged in to <span className="text-foreground">@{claim.handle.username}</span> on {platformLabel} before continuing.
+          Make sure you&apos;re logged in to <span className="text-foreground">@{claim.handle.username}</span> on {platformLabel} before continuing.
         </Banner>
         <div className="flex gap-3 justify-end">
-          <Button variant="ghost" onClick={onClose} disabled={loading}>cancel</Button>
+          <Button variant="ghost" onClick={onClose} disabled={loading}>Cancel</Button>
           <Button variant="primary" onClick={handleConnect} disabled={loading}>
-            {loading ? 'redirecting…' : `connect ${platformLabel} →`}
+            {loading ? 'Redirecting…' : `Connect ${platformLabel} →`}
           </Button>
         </div>
       </div>
@@ -240,8 +240,8 @@ export default function HandlesSection() {
     <div id="handles">
       <Card>
         <SectionLabel className="mb-3">handles</SectionLabel>
-        <p className="font-display text-sm text-muted mb-4">
-          connect your social accounts to verify your identity as a creator.
+        <p className="text-sm text-muted mb-4">
+          Connect your social accounts to verify your identity as a creator.
         </p>
 
         {/* Existing handle list */}
@@ -284,7 +284,7 @@ export default function HandlesSection() {
                       onClick={() => setRemoveTarget(claim)}
                       disabled={removingClaimId === claim.claim_id}
                     >
-                      {removingClaimId === claim.claim_id ? '…' : 'remove'}
+                      {removingClaimId === claim.claim_id ? '…' : 'Remove'}
                     </Button>
                   </div>
 
@@ -293,11 +293,11 @@ export default function HandlesSection() {
                     <div className="mt-3 flex flex-wrap gap-2">
                       {supportsOAuth && (
                         <Button size="sm" variant="primary" onClick={() => setOauthClaim(claim)}>
-                          connect via {platformLabel} →
+                          Connect via {platformLabel} →
                         </Button>
                       )}
                       <Button size="sm" variant="default" onClick={() => setReviewingClaim(claim)}>
-                        {pendingReview ? 'update review request' : 'request admin review'}
+                        {pendingReview ? 'Update Review Request' : 'Request Admin Review'}
                       </Button>
                     </div>
                   )}
@@ -331,7 +331,7 @@ export default function HandlesSection() {
             size="sm"
             disabled={adding || !addUsername.trim()}
           >
-            {adding ? 'adding…' : 'add handle →'}
+            {adding ? 'Adding…' : 'Add Handle →'}
           </Button>
         </form>
       </Card>
@@ -355,21 +355,21 @@ export default function HandlesSection() {
 
       {/* Remove confirmation modal */}
       {removeTarget && (
-        <Modal title="remove handle?" onClose={() => setRemoveTarget(null)}>
+        <Modal title="Remove Handle?" onClose={() => setRemoveTarget(null)}>
           <div className="space-y-4">
             {removeTarget.status === 'verified' && (
               <Banner tone="warn">
-                removing a verified handle will disconnect it from your account. pending bounties will not be affected.
+                Removing a verified handle will disconnect it from your account. Pending bounties will not be affected.
               </Banner>
             )}
-            <p className="font-display text-sm text-muted">
+            <p className="text-sm text-muted">
               Remove <span className="font-mono text-foreground">@{removeTarget.handle.username}</span>{' '}
               on {PLATFORM_LABELS[removeTarget.handle.platform as HandlePlatform] ?? removeTarget.handle.platform}?
             </p>
             <div className="flex gap-3 justify-end">
-              <Button variant="ghost" onClick={() => setRemoveTarget(null)}>cancel</Button>
+              <Button variant="ghost" onClick={() => setRemoveTarget(null)}>Cancel</Button>
               <Button variant="danger" onClick={handleRemove} disabled={removingClaimId !== null}>
-                {removingClaimId !== null ? 'removing…' : 'remove handle'}
+                {removingClaimId !== null ? 'Removing…' : 'Remove Handle'}
               </Button>
             </div>
           </div>

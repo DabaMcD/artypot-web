@@ -120,7 +120,7 @@ export default function DashboardPage() {
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">my contributions</h1>
         </div>
         <Button variant="primary" onClick={() => router.push('/bounties/new')}>
-          + start a bounty
+          + Start a Bounty
         </Button>
       </div>
 
@@ -134,7 +134,7 @@ export default function DashboardPage() {
               across approved bounties.
             </span>
             <Link href="/billing">
-              <Button variant="default" size="sm">pay now →</Button>
+              <Button variant="default" size="sm">Pay Now →</Button>
             </Link>
           </div>
         </Banner>
@@ -190,8 +190,8 @@ export default function DashboardPage() {
             </div>
           </Card>
         ) : activePledges.length === 0 ? (
-          <Empty icon="◇" message="not backing anything yet">
-            <Link href="/creators"><Button variant="default" size="sm">find creators →</Button></Link>
+          <Empty icon="◇" message="Not backing anything yet">
+            <Link href="/creators"><Button variant="default" size="sm">Find Creators →</Button></Link>
           </Empty>
         ) : (
           <Card>
@@ -206,12 +206,12 @@ export default function DashboardPage() {
                       {pledge.bounty ? (
                         <Link
                           href={`/bounties/${pledge.bounty_id}`}
-                          className="font-display text-sm text-foreground hover:text-fan transition-colors truncate block"
+                          className="text-sm text-foreground hover:text-fan transition-colors truncate block"
                         >
                           {pledge.bounty.title}
                         </Link>
                       ) : (
-                        <span className="font-display text-sm text-muted">bounty #{pledge.bounty_id}</span>
+                        <span className="text-sm text-muted">bounty #{pledge.bounty_id}</span>
                       )}
                     </div>
                     <Badge tone={badge.tone}>{badge.label}</Badge>
@@ -256,8 +256,8 @@ export default function DashboardPage() {
             {[1,2,3].map(i => <div key={i} className="h-44 bg-surface animate-pulse rounded" />)}
           </div>
         ) : !myBounties || myBounties.data.length === 0 ? (
-          <Empty icon="◇" message="no bounties yet">
-            <Button variant="primary" onClick={() => router.push('/bounties/new')}>create the first one</Button>
+          <Empty icon="◇" message="No bounties yet">
+            <Button variant="primary" onClick={() => router.push('/bounties/new')}>Create the First One</Button>
           </Empty>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -22,7 +22,7 @@ export function BalancePipeline({ balances }: BalancePipelineProps) {
         <div className="font-mono font-medium text-xl text-foreground tabular-nums">
           ${balances.pending.toLocaleString()}
         </div>
-        <div className="font-display text-sm text-muted mt-1">verified · bills on the {BILLING_DAY}th</div>
+        <div className="text-sm text-muted mt-1">verified · bills on the {BILLING_DAY}th</div>
       </div>
 
       {/* Clearing */}
@@ -34,7 +34,7 @@ export function BalancePipeline({ balances }: BalancePipelineProps) {
         <div className="font-mono font-medium text-xl text-foreground tabular-nums">
           ${balances.clearing.toLocaleString()}
         </div>
-        <div className="font-display text-sm text-muted mt-1">billed · 7-day complaint window</div>
+        <div className="text-sm text-muted mt-1">billed · 7-day complaint window</div>
       </div>
 
       {/* Available */}
@@ -46,7 +46,7 @@ export function BalancePipeline({ balances }: BalancePipelineProps) {
         <div className="font-mono font-medium text-xl text-foreground tabular-nums">
           ${balances.available.toLocaleString()}
         </div>
-        <div className="font-display text-sm text-muted mt-1">withdraw to your bank</div>
+        <div className="text-sm text-muted mt-1">withdraw to your bank</div>
       </div>
     </div>
   );

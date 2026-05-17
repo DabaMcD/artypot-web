@@ -101,16 +101,16 @@ export default function RegisterPage() {
           <span className="ap-sketch-u text-fan">fan</span>{' '}
           account.
         </h1>
-        <p className="font-display text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
+        <p className="text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
           every artypot user starts as a fan — you can pledge to bounties, start new ones, and chip in on anything you want to see made.
         </p>
 
         <Card dashed className="max-w-[420px]">
           <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-2">why this order?</div>
-          <p className="font-display text-sm text-foreground leading-relaxed mb-3">
+          <p className="text-sm text-foreground leading-relaxed mb-3">
             artypot uses a <strong className="text-fan">no-claim</strong> model — bounties are posted for public work, so there&apos;s nothing to claim in advance.
           </p>
-          <p className="font-display text-sm text-muted leading-relaxed">
+          <p className="text-sm text-muted leading-relaxed">
             once you&apos;re in as a fan, you can verify a creator handle and complete the tax + payout gates to unlock the creator view.
           </p>
         </Card>
@@ -130,7 +130,7 @@ export default function RegisterPage() {
         </Link>
 
         <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">create account</div>
-        <h2 className="font-display font-bold text-[30px] text-foreground mb-6">join artypot</h2>
+        <h2 className="font-display font-bold text-[30px] text-foreground mb-6">Join Artypot</h2>
 
         {/* OAuth */}
         <div className="grid grid-cols-2 gap-2 mb-5">
@@ -158,7 +158,7 @@ export default function RegisterPage() {
         </div>
 
         {error && (
-          <div className="bg-bad-soft border border-bad text-bad text-sm rounded px-4 py-3 mb-4 font-display">
+          <div className="bg-bad-soft border border-bad text-bad text-sm rounded px-4 py-3 mb-4">
             {error}
           </div>
         )}
@@ -215,8 +215,8 @@ export default function RegisterPage() {
 
           <div className="flex items-start gap-3 pt-1">
             <Toggle on={tos} onChange={setTos} label="" />
-            <p className="font-display text-sm text-muted leading-snug pt-0.5">
-              i agree to the{' '}
+            <p className="text-sm text-muted leading-snug pt-0.5">
+              I agree to the{' '}
               <Link href="/tos" target="_blank" className="ap-inline-link">terms of service</Link>
               {' '}and{' '}
               <Link href="/privacy" target="_blank" className="ap-inline-link">privacy policy</Link>
@@ -229,14 +229,14 @@ export default function RegisterPage() {
             className="w-full justify-center mt-2"
             disabled={anyLoading}
           >
-            {loading ? 'creating account…' : 'create my account'}
+            {loading ? 'Creating account…' : 'Create My Account'}
           </Button>
         </form>
 
         <div className="border-t border-dashed border-border my-5" />
-        <p className="font-display text-sm text-muted text-center">
-          already have one?{' '}
-          <Link href="/login" className="ap-inline-link">sign in →</Link>
+        <p className="text-sm text-muted text-center">
+          Already have one?{' '}
+          <Link href="/login" className="ap-inline-link">Sign In →</Link>
         </p>
       </div>
     </div>
