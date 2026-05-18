@@ -11,26 +11,32 @@ import { Modal } from '@/components/ui/Modal';
 import { FieldLabel, FieldHint, Textarea, Select } from '@/components/ui/Input';
 import { Banner } from '@/components/ui/Banner';
 import { PlatformHandleInput, PLATFORM_HANDLE_CONFIG } from '@/components/ui/PlatformHandleInput';
-
-const PLATFORMS: { value: HandlePlatform; label: string }[] = [
-  { value: 'youtube',   label: 'YouTube' },
-  { value: 'twitter',   label: 'X / Twitter' },
-  { value: 'instagram', label: 'Instagram' },
-  { value: 'tiktok',    label: 'TikTok' },
-  { value: 'twitch',    label: 'Twitch' },
-  { value: 'bluesky',   label: 'Bluesky' },
-];
-
-const PLATFORM_LABELS: Record<HandlePlatform, string> = Object.fromEntries(
-  PLATFORMS.map(({ value, label }) => [value, label])
-) as Record<HandlePlatform, string>;
+import {
+  ALL_PLATFORMS,
+  CURATED_PLATFORMS,
+  OAUTH_PLATFORMS,
+  OTHER_SLUG,
+  platformLabel,
+} from '@/lib/platforms';
 
 /**
- * Platforms that expose an OAuth-based instant verification path.
- * Currently every handle platform supports OAuth — providers that aren't
- * yet wired up on the backend will surface a clear error on redirect.
+ * Add-handle dropdown options — every curated platform plus 'Other'. Sourced
+ * from the catalogue in @/lib/platforms so adding a new platform there shows
+ * up here automatically.
  */
-const OAUTH_PLATFORMS: HandlePlatform[] = ['twitter', 'twitch', 'youtube', 'instagram', 'tiktok', 'bluesky'];
+const PLATFORMS: { value: HandlePlatform; label: string }[] = ALL_PLATFORMS.map((slug) => ({
+  value: slug,
+  label: platformLabel(slug),
+}));
+
+const PLATFORM_LABELS: Record<string, string> = Object.fromEntries(
+  PLATFORMS.map(({ value, label }) => [value, label])
+);
+
+// Avoid "imported but unused" warnings in static lints — these symbols are
+// referenced via the imports themselves but we want explicit re-exports for
+// any consumer that does `import { OAUTH_PLATFORMS } from './HandlesSection'`.
+export { OAUTH_PLATFORMS, OTHER_SLUG, CURATED_PLATFORMS };
 
 // ── Review request modal ──────────────────────────────────────────────────────
 
@@ -178,6 +184,10 @@ export default function HandlesSection() {
   // Remove confirmation
   const [removingClaimId, setRemovingClaimId] = useState<number | null>(null);
   const [removeTarget, setRemoveTarget] = useState<HandleClaim | null>(null);
+  // When the backend blocks removal because the handle is still referenced by
+  // active bounties, we swap the remove modal into a "contact support" view
+  // instead of dismissing with a toast — this is unrecoverable from the UI.
+  const [removeBlocked, setRemoveBlocked] = useState<{ bountyCount: number } | null>(null);
 
   const fetchClaims = useCallback(async () => {
     setLoading(true);
@@ -222,13 +232,26 @@ export default function HandlesSection() {
       await handlesApi.destroy(removeTarget.claim_id);
       toast('Handle removed.', 'success');
       setClaims((prev) => prev.filter((c) => c.claim_id !== removeTarget.claim_id));
+      setRemoveTarget(null);
     } catch (err: unknown) {
-      const e = err as { message?: string };
-      toast(e.message ?? 'Failed to remove handle.', 'error');
+      const e = err as { status?: number; reason?: string; message?: string; data?: Record<string, unknown> };
+      // Verified handle still referenced by bounties — keep the modal open
+      // and swap to the "contact admins" view instead of just toasting.
+      if (e.status === 422 && e.reason === 'handle_in_use') {
+        const count = Number(e.data?.bounty_count ?? 0);
+        setRemoveBlocked({ bountyCount: count });
+      } else {
+        toast(e.message ?? 'Failed to remove handle.', 'error');
+        setRemoveTarget(null);
+      }
     } finally {
       setRemovingClaimId(null);
-      setRemoveTarget(null);
     }
+  };
+
+  const closeRemoveModals = () => {
+    setRemoveTarget(null);
+    setRemoveBlocked(null);
   };
 
   const handleReviewSubmitted = (updated: HandleClaim) => {
@@ -354,12 +377,13 @@ export default function HandlesSection() {
       )}
 
       {/* Remove confirmation modal */}
-      {removeTarget && (
-        <Modal title="Remove Handle?" onClose={() => setRemoveTarget(null)}>
+      {removeTarget && !removeBlocked && (
+        <Modal title="Remove Handle?" onClose={closeRemoveModals}>
           <div className="space-y-4">
             {removeTarget.status === 'verified' && (
               <Banner tone="warn">
-                Removing a verified handle will disconnect it from your account. Pending bounties will not be affected.
+                Removing a verified handle will disconnect it from your account. If any bounty
+                currently targets this handle, removal requires admin assistance.
               </Banner>
             )}
             <p className="text-sm text-muted">
@@ -367,10 +391,42 @@ export default function HandlesSection() {
               on {PLATFORM_LABELS[removeTarget.handle.platform as HandlePlatform] ?? removeTarget.handle.platform}?
             </p>
             <div className="flex gap-3 justify-end">
-              <Button variant="ghost" onClick={() => setRemoveTarget(null)}>Cancel</Button>
+              <Button variant="ghost" onClick={closeRemoveModals}>Cancel</Button>
               <Button variant="danger" onClick={handleRemove} disabled={removingClaimId !== null}>
                 {removingClaimId !== null ? 'Removing…' : 'Remove Handle'}
               </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Contact-admins modal — appears when the backend blocks removal because
+          the verified handle is still referenced by active bounties. */}
+      {removeTarget && removeBlocked && (
+        <Modal title="Contact admins to remove" onClose={closeRemoveModals}>
+          <div className="space-y-4">
+            <Banner tone="bad">
+              <span className="font-mono">@{removeTarget.handle.username}</span>{' '}
+              on {PLATFORM_LABELS[removeTarget.handle.platform as HandlePlatform] ?? removeTarget.handle.platform}{' '}
+              is currently referenced by{' '}
+              <strong className="text-foreground">
+                {removeBlocked.bountyCount} {removeBlocked.bountyCount === 1 ? 'bounty' : 'bounties'}
+              </strong>.
+            </Banner>
+            <p className="text-sm text-muted">
+              Verified handles tied to live bounties can&apos;t be removed from your account
+              automatically — doing so would orphan those bounties from their verified owner.
+              Please reach out to the Artypot team and they&apos;ll handle removal for you.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button variant="ghost" onClick={closeRemoveModals}>Close</Button>
+              <a
+                href="/support"
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold bg-fan text-black rounded-lg hover:opacity-90 transition-opacity"
+                onClick={closeRemoveModals}
+              >
+                Contact support →
+              </a>
             </div>
           </div>
         </Modal>

@@ -18,15 +18,14 @@ import { Modal } from '@/components/ui/Modal';
 import { Banner } from '@/components/ui/Banner';
 import { Empty } from '@/components/ui/Empty';
 import { Input, Textarea, FieldLabel } from '@/components/ui/Input';
+import { ALL_PLATFORMS, platformLabel as catalogueLabel } from '@/lib/platforms';
 
-const PLATFORM_LABELS: Record<HandlePlatform, string> = {
-  youtube:   'YouTube',
-  twitter:   'X / Twitter',
-  instagram: 'Instagram',
-  tiktok:    'TikTok',
-  twitch:    'Twitch',
-  bluesky:   'Bluesky',
-};
+// Catalogue-driven. Includes 'other' so admin queue rows display "Other"
+// when reviewing pasted-URL handles (curated platforms map to their proper
+// label like "X / Twitter").
+const PLATFORM_LABELS: Record<string, string> = Object.fromEntries(
+  ALL_PLATFORMS.map((slug) => [slug, catalogueLabel(slug)]),
+);
 
 const STATUS_TONES: Record<HandleVerificationApplicationStatus, 'warn' | 'good' | 'bad' | 'default'> = {
   pending:   'warn',

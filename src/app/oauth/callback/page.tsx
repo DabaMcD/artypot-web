@@ -21,6 +21,23 @@ function OAuthCallbackContent() {
       refreshUser()
         .then(() => router.replace('/dashboard'))
         .catch(() => setError('Failed to load your account. Please try logging in again.'));
+    } else if (err === 'provider_not_configured') {
+      // Backend dropped us back because credentials for this provider aren't
+      // set up yet. Build a friendly message that names the platform.
+      const PLATFORM_LABELS: Record<string, string> = {
+        google:    'Google',
+        github:    'GitHub',
+        facebook:  'Facebook',
+        discord:   'Discord',
+        instagram: 'Instagram',
+        kick:      'Kick',
+        tiktok:    'TikTok',
+        twitter:   'X / Twitter',
+        twitch:    'Twitch',
+      };
+      const slug  = searchParams.get('provider') ?? '';
+      const label = PLATFORM_LABELS[slug] ?? (slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : 'that provider');
+      setError(`Sign-in with ${label} isn't available right now — we're still setting it up. Sorry for the inconvenience!`);
     } else {
       const messages: Record<string, string> = {
         invalid_state:        'The sign-in request expired or was tampered with. Please try again.',

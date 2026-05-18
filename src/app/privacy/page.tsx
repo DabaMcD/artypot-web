@@ -126,7 +126,7 @@ export default function PrivacyPage() {
             <ul className="list-disc list-inside space-y-1 pl-2">
               <li><strong className="text-foreground">Access</strong> — request a copy of the personal data we hold about you</li>
               <li><strong className="text-foreground">Correct</strong> — update inaccurate information via your settings page</li>
-              <li><strong className="text-foreground">Delete</strong> — delete your account and personal data (subject to legal retention requirements)</li>
+              <li><strong className="text-foreground">Delete</strong> — delete your account and personal data (subject to legal retention requirements) — <Link href="/privacy/delete-account" className="text-fan hover:underline">step-by-step instructions</Link></li>
               <li><strong className="text-foreground">Portability</strong> — request your data in a machine-readable format</li>
               <li><strong className="text-foreground">Object</strong> — object to processing where we rely on legitimate interests</li>
             </ul>

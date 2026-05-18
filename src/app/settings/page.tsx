@@ -59,6 +59,7 @@ const NOTIF_ROWS: {
   { label: 'billing preview',        desc: 'heads-up before your payment method is charged.',                emailKey: 'monthly_pledge_preview',    smsKey: 'sms_monthly_pledge_preview',    inAppKey: 'in_app_monthly_pledge_preview' },
   { label: 'monthly receipt',        desc: 'breakdown after your monthly payment is processed.',             emailKey: 'monthly_pledge_receipt',    smsKey: 'sms_monthly_pledge_receipt',    inAppKey: 'in_app_monthly_pledge_receipt' },
   { label: 'herald status lost',     desc: 'another fan outbids you and edits a profile you were heralding.', emailKey: 'herald_status_lost',       smsKey: 'sms_herald_status_lost',        inAppKey: 'in_app_herald_status_lost' },
+  { label: 'payment authentication', desc: 'your bank needs you to confirm a charge (3D Secure).',           emailKey: 'payment_action_required',   smsKey: 'sms_payment_action_required',   inAppKey: 'in_app_payment_action_required' },
 ];
 
 export default function SettingsPage() {

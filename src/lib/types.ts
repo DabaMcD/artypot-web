@@ -1,5 +1,19 @@
 export type UserRole = 'fan' | 'creator' | 'council';
-export type HandlePlatform = 'twitter' | 'youtube' | 'instagram' | 'tiktok' | 'twitch' | 'bluesky';
+
+/**
+ * A handle platform slug. Open string union — every entry in the backend's
+ * config/platforms.php catalogue (mirrored in src/lib/platforms.ts) is valid,
+ * plus the special `'other'` for free-form URLs. Codepaths that need an
+ * exhaustive list (icons, default labels, etc.) should import
+ * `CURATED_PLATFORMS` / `KNOWN_PLATFORMS` from `@/lib/platforms` rather
+ * than narrow this type.
+ */
+export type HandlePlatform = string;
+
+/** Curated slugs that have first-class UI support — useful for narrow type guards. */
+export type KnownHandlePlatform =
+  | 'twitter' | 'youtube' | 'instagram' | 'tiktok' | 'twitch' | 'bluesky' | 'kick' | 'other';
+
 export type HandleStatus = 'unverified' | 'verified' | 'disputed' | 'retired';
 
 export interface UserHandle {
@@ -24,6 +38,9 @@ export interface HandleClaim {
     id: number;
     platform: HandlePlatform;
     username: string;
+    /** Canonical profile URL — built from the platform template, or the
+     *  pasted URL itself for 'other' handles. Null for legacy rows. */
+    profile_url?: string | null;
     status: string;
   };
   created_at: string;
@@ -37,6 +54,8 @@ export interface HandleSearchResult {
   username: string;
   /** Always null when verified = false. */
   avatar_url: string | null;
+  /** Outbound profile link — null when the handle row has none stored. */
+  profile_url: string | null;
   user_id: number | null;
   handle_id: number;
   verified: boolean;
@@ -516,6 +535,10 @@ export interface NotificationSettings {
   sms_monthly_pledge_preview: boolean;
   sms_monthly_pledge_receipt: boolean;
   sms_herald_status_lost: boolean;
+  // Payment-action-required (3DS / SCA)
+  payment_action_required: boolean;
+  in_app_payment_action_required: boolean;
+  sms_payment_action_required: boolean;
 }
 
 export interface UserNotification {

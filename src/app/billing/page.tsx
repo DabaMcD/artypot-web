@@ -7,6 +7,7 @@ import { useToast } from '@/lib/toast-context';
 import { billing } from '@/lib/api';
 import { BILLING_DAY } from '@/lib/config';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
+import { ConfirmPaymentModal } from '@/components/ConfirmPaymentModal';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Banner } from '@/components/ui/Banner';
@@ -20,6 +21,10 @@ export default function BillingPage() {
   const [balance, setBalance] = useState<number | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
   const [paying, setPaying] = useState(false);
+  // 3DS / SCA modal — opens when payNow returns requires_action OR when the
+  // PaymentAuthBanner triggers a deep link. We keep modal state local to the
+  // page so the same Pay Now button can drive it inline without a page reload.
+  const [authModal, setAuthModal] = useState<{ clientSecret: string; amountCents?: number } | null>(null);
 
   useEffect(() => {
     if (!loading && !user) router.push('/login');
@@ -39,6 +44,14 @@ export default function BillingPage() {
     setPaying(true);
     try {
       const res = await billing.payNow();
+
+      // 3DS / SCA — surface Stripe's challenge modal in-place.
+      if (res.requires_action && res.client_secret) {
+        const cents = balance != null ? Math.round(Math.abs(balance) * 100) : undefined;
+        setAuthModal({ clientSecret: res.client_secret, amountCents: cents });
+        return;
+      }
+
       toast(res.message, 'success');
       setBalance(0);
     } catch (err: unknown) {
@@ -73,6 +86,19 @@ export default function BillingPage() {
 
   return (
     <div className="space-y-7 pt-2 max-w-[680px]">
+      {authModal && (
+        <ConfirmPaymentModal
+          clientSecret={authModal.clientSecret}
+          amountCents={authModal.amountCents}
+          onSuccess={() => {
+            setAuthModal(null);
+            setBalance(0);
+            toast('Payment authorized.', 'success');
+          }}
+          onClose={() => setAuthModal(null)}
+        />
+      )}
+
       <div>
         <SectionLabel>fan · billing</SectionLabel>
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">upcoming charge</h1>

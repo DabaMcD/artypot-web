@@ -15,21 +15,23 @@ import { Input, Textarea, Select, FieldLabel, FieldHint } from '@/components/ui/
 import { PlatformHandleInput, formatPlatformHandle } from '@/components/ui/PlatformHandleInput';
 import { Banner } from '@/components/ui/Banner';
 import { Stepper } from '@/components/ui/Stepper';
+import { ALL_PLATFORMS, OTHER_SLUG, platformLabel } from '@/lib/platforms';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const PLATFORMS: { value: HandlePlatform; label: string }[] = [
-  { value: 'youtube',   label: 'YouTube' },
-  { value: 'twitter',   label: 'X / Twitter' },
-  { value: 'instagram', label: 'Instagram' },
-  { value: 'tiktok',    label: 'TikTok' },
-  { value: 'twitch',    label: 'Twitch' },
-  { value: 'bluesky',   label: 'Bluesky' },
-];
+/**
+ * Platform options for the bounty-creation form. Sourced from the catalogue
+ * in @/lib/platforms so new platforms appear here automatically when added
+ * to config/platforms.php + platforms.ts.
+ */
+const PLATFORMS: { value: HandlePlatform; label: string }[] = ALL_PLATFORMS.map((slug) => ({
+  value: slug,
+  label: platformLabel(slug),
+}));
 
-const PLATFORM_LABELS: Record<HandlePlatform, string> = Object.fromEntries(
-  PLATFORMS.map(({ value, label }) => [value, label])
-) as Record<HandlePlatform, string>;
+const PLATFORM_LABELS: Record<string, string> = Object.fromEntries(
+  PLATFORMS.map(({ value, label }) => [value, label]),
+);
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -60,6 +62,23 @@ function extractHandleFromUrl(input: string): { platform: HandlePlatform; userna
 
   const twchMatch = input.match(/twitch\.tv\/([\w]+)/i);
   if (twchMatch) return { platform: 'twitch', username: twchMatch[1], label: 'Twitch' };
+
+  const kickMatch = input.match(/kick\.com\/([\w-]+)/i);
+  if (kickMatch) return { platform: 'kick', username: kickMatch[1], label: 'Kick' };
+
+  // No curated platform matched — fall through to 'other' for any valid http(s)
+  // URL so creators can bounty-target someone on a platform we don't list.
+  try {
+    const parsed = new URL(input.trim());
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      let host = parsed.host.toLowerCase();
+      if (host.startsWith('www.')) host = host.slice(4);
+      const path = parsed.pathname.replace(/\/+$/, '');
+      return { platform: OTHER_SLUG, username: `${host}${path}`, label: 'Other' };
+    }
+  } catch {
+    // not a URL — fall through to null
+  }
 
   return null;
 }

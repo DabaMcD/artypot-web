@@ -504,9 +504,40 @@ export const billing = {
   confirmPaymentMethod: (id: string) =>
     request<{ data: PaymentMethod }>(`/billing/payment-methods/${id}/confirm`, { method: 'POST' }),
 
-  /** Immediately charge the authenticated user's full negative available_cash balance. */
+  /**
+   * Immediately charge the authenticated user's full negative available_cash balance.
+   *
+   * Response shape varies:
+   *   - Happy path:        { message, charged }
+   *   - 3DS / SCA needed:  { message, requires_action: true, client_secret, fan_payment_id }
+   *
+   * Callers MUST check `requires_action` before treating the response as success
+   * and open the ConfirmPaymentModal with the returned `client_secret`.
+   */
   payNow: () =>
-    request<{ message: string; charged: number }>('/billing/pay-now', { method: 'POST' }),
+    request<{
+      message: string;
+      charged?: number;
+      requires_action?: boolean;
+      client_secret?: string;
+      fan_payment_id?: number;
+    }>('/billing/pay-now', { method: 'POST' }),
+
+  /**
+   * Returns the user's outstanding 3DS / SCA challenge, if any.
+   *
+   * Polled on app load (and after billing-page mounts) to decide whether to
+   * render PaymentAuthBanner / Complete Authentication CTA.
+   */
+  pendingAction: () =>
+    request<{
+      pending: boolean;
+      fan_payment_id?: number;
+      client_secret?: string;
+      amount_cents?: number;
+      requires_action_at?: string;
+      expires_at?: string;
+    }>('/billing/pending-action'),
 };
 
 // Cash (creator-specific endpoints)
@@ -601,12 +632,23 @@ export const handles = {
       `/handles/search?q=${encodeURIComponent(q)}`
     ),
 
-  /** POST /handles — find-or-create a handle and create an unverified claim */
-  store: (platform: HandlePlatform, username: string) =>
-    request<{ data: HandleClaim }>('/handles', {
+  /**
+   * POST /handles — find-or-create a handle and create an unverified claim.
+   *
+   * - Curated platform: pass `{ platform: 'twitter', value: 'zachking' }`. The
+   *   `value` becomes the username and is canonicalised server-side.
+   * - 'other' platform: pass `{ platform: 'other', value: 'https://…' }`. The
+   *   `value` is treated as a URL and canonicalised into a host+path key.
+   */
+  store: (platform: HandlePlatform, value: string) => {
+    const body = platform === 'other'
+      ? { platform, url: value }
+      : { platform, username: value };
+    return request<{ data: HandleClaim }>('/handles', {
       method: 'POST',
-      body: JSON.stringify({ platform, username }),
-    }),
+      body: JSON.stringify(body),
+    });
+  },
 
   /** DELETE /handles/{claimId} — remove the authenticated user's handle claim */
   destroy: (claimId: number) =>

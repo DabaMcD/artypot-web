@@ -12,6 +12,7 @@ import NotificationBell from './NotificationBell';
 import { NudgeBar } from '@/components/NudgeBar';
 import { StaleCardBar } from '@/components/StaleCardBar';
 import { PaymentGraceBanner } from '@/components/PaymentGraceBanner';
+import { PaymentAuthBanner } from '@/components/PaymentAuthBanner';
 
 const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password'];
 const AUTH_PREFIXES = ['/email/', '/oauth/'];
@@ -117,6 +118,7 @@ export function AppShell({ children }: AppShellProps) {
           )}
           <main className="flex-1 px-7 py-7 pb-28 max-w-[1400px] w-full">
             <NudgeBar />
+            <PaymentAuthBanner />
             <PaymentGraceBanner />
             <StaleCardBar />
             {children}

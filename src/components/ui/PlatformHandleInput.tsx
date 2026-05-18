@@ -1,25 +1,54 @@
 import type { HandlePlatform } from '@/lib/types';
-import { FieldLabel } from './Input';
+import { FieldLabel, FieldHint } from './Input';
+import {
+  OTHER_SLUG,
+  PLATFORM_CATALOGUE,
+  platformLabel,
+  platformPrefix,
+  isValidOtherUrl,
+  formatPlatformHandle as catalogueFormatPlatformHandle,
+} from '@/lib/platforms';
 
-interface PlatformConfig {
+/**
+ * Form-specific copy overrides per platform — used only for the input label
+ * and placeholder in this component. The canonical platform metadata (prefix,
+ * URL template, OAuth flag, etc.) lives in @/lib/platforms.ts. Adding a new
+ * platform doesn't require touching this file unless you want a custom label.
+ */
+interface PlatformFormConfig {
   label: string;
-  prefix: string;
   placeholder: string;
 }
 
-export const PLATFORM_HANDLE_CONFIG: Record<HandlePlatform, PlatformConfig> = {
-  youtube:   { label: 'Channel Handle', prefix: '@',          placeholder: 'zachking' },
-  instagram: { label: 'IG Handle',      prefix: '@',          placeholder: 'zachking' },
-  twitter:   { label: 'Handle',         prefix: '@',          placeholder: 'zachking' },
-  tiktok:    { label: 'Username',       prefix: '@',          placeholder: 'zachking' },
-  twitch:    { label: 'Channel Name',   prefix: 'twitch.tv/', placeholder: 'pokimane' },
-  bluesky:   { label: 'Handle',         prefix: '@',          placeholder: 'zachking.bsky.social' },
+const PLATFORM_FORM_OVERRIDES: Record<string, PlatformFormConfig> = {
+  youtube:   { label: 'Channel Handle', placeholder: 'zachking' },
+  instagram: { label: 'IG Handle',      placeholder: 'zachking' },
+  twitter:   { label: 'Handle',         placeholder: 'zachking' },
+  tiktok:    { label: 'Username',       placeholder: 'zachking' },
+  twitch:    { label: 'Channel Name',   placeholder: 'pokimane' },
+  bluesky:   { label: 'Handle',         placeholder: 'zachking.bsky.social' },
+  kick:      { label: 'Channel Name',   placeholder: 'pokimane' },
 };
 
-/** Format a stored bare username for display, with the correct platform prefix. */
-export function formatPlatformHandle(platform: HandlePlatform, username: string): string {
-  return `${PLATFORM_HANDLE_CONFIG[platform].prefix}${username}`;
-}
+/**
+ * Backwards-compat re-export. Consumers that imported `PLATFORM_HANDLE_CONFIG`
+ * (label + prefix + placeholder) still work; the source of truth is the
+ * catalogue + the override map above.
+ */
+export const PLATFORM_HANDLE_CONFIG: Record<string, { label: string; prefix: string; placeholder: string }> =
+  Object.fromEntries(
+    Object.keys(PLATFORM_CATALOGUE).map((slug) => [
+      slug,
+      {
+        label:       PLATFORM_FORM_OVERRIDES[slug]?.label       ?? platformLabel(slug),
+        prefix:      platformPrefix(slug),
+        placeholder: PLATFORM_FORM_OVERRIDES[slug]?.placeholder ?? 'zachking',
+      },
+    ]),
+  );
+
+/** Backwards-compat re-export — delegates to the catalogue formatter. */
+export const formatPlatformHandle = catalogueFormatPlatformHandle;
 
 interface PlatformHandleInputProps {
   platform: HandlePlatform | '';
@@ -31,20 +60,59 @@ interface PlatformHandleInputProps {
 export function PlatformHandleInput({ platform, value, onChange, disabled }: PlatformHandleInputProps) {
   if (!platform) return null;
 
-  const config = PLATFORM_HANDLE_CONFIG[platform];
+  // ── 'Other' mode — full-URL input, no prefix span ──────────────────────────
+  if (platform === OTHER_SLUG) {
+    const trimmed = value.trim();
+    const showError = trimmed.length > 0 && !isValidOtherUrl(trimmed);
+
+    return (
+      <div>
+        <FieldLabel>
+          Profile URL <span className="text-bad">*</span>
+        </FieldLabel>
+        <div className={`flex items-center w-full px-3 py-2.5 bg-background border rounded transition-colors text-base ${
+          showError ? 'border-bad/60' : 'border-border focus-within:border-[var(--color-role)]'
+        }`}>
+          <input
+            type="url"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="https://linkedin.com/in/zachking"
+            disabled={disabled}
+            autoCapitalize="off"
+            autoCorrect="off"
+            spellCheck={false}
+            className="flex-1 bg-transparent outline-none min-w-0 text-foreground placeholder:text-muted/50 disabled:opacity-50"
+          />
+        </div>
+        {showError ? (
+          <p className="text-xs text-bad mt-1">Please enter a valid http(s) URL.</p>
+        ) : (
+          <FieldHint>Paste the full URL to the creator&apos;s profile on any platform we don&apos;t list above.</FieldHint>
+        )}
+      </div>
+    );
+  }
+
+  // ── Curated platform — prefix + bare username ──────────────────────────────
+  const cfg = PLATFORM_HANDLE_CONFIG[platform] ?? {
+    label:       platformLabel(platform),
+    prefix:      platformPrefix(platform),
+    placeholder: 'zachking',
+  };
 
   return (
     <div>
       <FieldLabel>
-        {config.label} <span className="text-bad">*</span>
+        {cfg.label} <span className="text-bad">*</span>
       </FieldLabel>
       <div className="flex items-center w-full px-3 py-2.5 bg-background border border-border rounded focus-within:border-[var(--color-role)] transition-colors text-base">
-        <span className="text-foreground select-none shrink-0 pointer-events-none">{config.prefix}</span>
+        <span className="text-foreground select-none shrink-0 pointer-events-none">{cfg.prefix}</span>
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value.replace('@', ''))}
-          placeholder={config.placeholder}
+          placeholder={cfg.placeholder}
           disabled={disabled}
           autoCapitalize="off"
           autoCorrect="off"

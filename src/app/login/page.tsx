@@ -11,16 +11,31 @@ import { Input, FieldLabel } from '@/components/ui/Input';
 import { Toggle } from '@/components/ui/Toggle';
 import { Timeline } from '@/components/ui/Timeline';
 
-const PROVIDERS = [
-  { id: 'google',   label: 'Google' },
-  { id: 'apple',    label: 'Apple' },
-  { id: 'github',   label: 'GitHub' },
-  { id: 'discord',  label: 'Discord' },
-  { id: 'twitch',   label: 'Twitch' },
-  { id: 'twitter',  label: 'Twitter / X' },
-  { id: 'facebook', label: 'Facebook' },
-  { id: 'reddit',   label: 'Reddit' },
+/** All OAuth providers the backend supports, in preferred display order. */
+const ALL_PROVIDERS = [
+  { id: 'google',    label: 'Google' },
+  { id: 'github',    label: 'GitHub' },
+  { id: 'discord',   label: 'Discord' },
+  { id: 'instagram', label: 'Instagram' },
+  { id: 'tiktok',    label: 'TikTok' },
+  { id: 'kick',      label: 'Kick' },
+  { id: 'twitch',    label: 'Twitch' },
+  { id: 'twitter',   label: 'Twitter / X' },
+  { id: 'facebook',  label: 'Facebook' },
 ] as const;
+
+/**
+ * NEXT_PUBLIC_OAUTH_PROVIDERS — comma-separated list of provider IDs to show
+ * (e.g. "google,github,discord"). When unset, all providers are shown.
+ * Set this in your .env to hide providers that aren't configured yet.
+ */
+const _enabledSet = process.env.NEXT_PUBLIC_OAUTH_PROVIDERS
+  ? new Set(process.env.NEXT_PUBLIC_OAUTH_PROVIDERS.split(',').map((s) => s.trim()).filter(Boolean))
+  : null;
+
+const PROVIDERS = _enabledSet
+  ? ALL_PROVIDERS.filter((p) => _enabledSet.has(p.id))
+  : ALL_PROVIDERS;
 
 export default function LoginPage() {
   const { user, loading: authLoading, login } = useAuth();
@@ -59,8 +74,11 @@ export default function LoginPage() {
     try {
       const { url } = await authApi.oauthRedirect(provider);
       window.location.href = url;
-    } catch {
-      setError('Failed to start sign-in. Please try again.');
+    } catch (err: unknown) {
+      // Surface the backend's message verbatim — it already names the platform
+      // ("Sign-in with Reddit isn't available right now…") for unconfigured providers.
+      const e = err as { message?: string };
+      setError(e.message ?? 'Failed to start sign-in. Please try again.');
       setOauthLoading(null);
     }
   };

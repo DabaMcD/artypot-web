@@ -22,16 +22,18 @@ import { PLATFORM_HANDLE_CONFIG } from '@/components/ui/PlatformHandleInput';
  * so there is no ambiguity between this route and /{creator-slug}.
  */
 
-const PLATFORM_LABELS: Record<HandlePlatform, string> = {
-  twitter:   'X / Twitter',
-  youtube:   'YouTube',
-  instagram: 'Instagram',
-  tiktok:    'TikTok',
-  twitch:    'Twitch',
-  bluesky:   'Bluesky',
-};
+// Catalogue-driven — new platforms appear here automatically when added to
+// @/lib/platforms.ts. Note: 'other' is intentionally NOT in KNOWN_PLATFORMS
+// because /{platform}/{handle} routing requires a clean slug; 'other' handles
+// have no canonical short identifier (their key is a URL) and are reached
+// only via search or a creator's profile.
+import { CURATED_PLATFORMS, platformLabel as catalogueLabel } from '@/lib/platforms';
 
-const KNOWN_PLATFORMS = new Set<string>(['twitter', 'youtube', 'instagram', 'tiktok', 'twitch', 'bluesky']);
+const PLATFORM_LABELS: Record<string, string> = Object.fromEntries(
+  CURATED_PLATFORMS.map((slug) => [slug, catalogueLabel(slug)]),
+);
+
+const KNOWN_PLATFORMS = new Set<string>(CURATED_PLATFORMS);
 
 type ResolveResult =
   | { kind: 'loading' }
