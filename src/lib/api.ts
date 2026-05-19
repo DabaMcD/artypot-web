@@ -377,12 +377,6 @@ export const users = {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
-
-  uploadProfilePicture: (id: number, file: File) => {
-    const form = new FormData();
-    form.append('profile_picture', file);
-    return requestMultipart<{ data: { profile_picture: string } }>(`/users/${id}/profile-picture`, form);
-  },
 };
 
 // Comments

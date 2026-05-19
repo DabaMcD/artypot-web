@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { users as usersApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { PublicUser } from '@/lib/types';
@@ -23,6 +24,7 @@ function formatExpiry(dateStr: string) {
 export default function UserProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { user: authUser } = useAuth();
+  const router = useRouter();
 
   const [profile, setProfile] = useState<PublicUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,6 +38,12 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
     usersApi
       .get(userId)
       .then((res) => {
+        // Creators have a public vanity URL — redirect there and keep the
+        // skeleton up so the user page never flashes.
+        if (res.data.slug) {
+          router.replace(`/${res.data.slug}`);
+          return;
+        }
         setProfile(res.data);
         setLoading(false);
       })
@@ -78,7 +86,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
             {profile.profile_picture ? (
               <img
                 src={profile.profile_picture}
-                alt={profile.name}
+                alt={profile.display_name}
                 className="w-16 h-16 rounded-full object-cover border border-border"
               />
             ) : (
@@ -86,7 +94,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
                 className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold border border-border"
                 style={{ background: 'var(--color-fan)', color: 'var(--color-brand-dark)' }}
               >
-                {profile.name.charAt(0).toUpperCase()}
+                {profile.display_name.charAt(0).toUpperCase()}
               </div>
             )}
           </div>
@@ -94,7 +102,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl font-bold text-foreground">{profile.name}</h1>
+              <h1 className="text-xl font-bold text-foreground">{profile.display_name}</h1>
               {isOwnProfile && (
                 <span className="text-xs bg-creator/20 text-creator px-2 py-0.5 rounded-full font-medium">
                   You

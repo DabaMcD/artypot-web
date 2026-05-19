@@ -120,8 +120,6 @@ export interface Withdrawal {
 
 export interface User {
   id: number;
-  name: string;
-  /** API alias for `name` — the display name shown in the UI */
   display_name: string;
   /** Creator URL slug — `artypot.com/{slug}`. Null until creator mode is enabled. */
   slug?: string | null;
@@ -266,7 +264,7 @@ export interface BountyPledge {
   id: number;
   bounty_id: number;
   user_id: number;
-  user?: Pick<User, 'id' | 'name' | 'display_name'>;
+  user?: Pick<User, 'id' | 'display_name' | 'profile_picture'>;
   amount: number;
   revoked_at?: string;
   revoke_reason?: string;
@@ -300,7 +298,9 @@ export interface DeletePaymentMethodResult {
 
 export interface PublicUser {
   id: number;
-  name: string;
+  display_name: string;
+  /** Creator URL slug — present when the user has creator mode enabled. */
+  slug?: string | null;
   profile_picture?: string;
   is_anonymous: boolean;
   created_at: string;

@@ -1,9 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { CldUploadWidget } from 'next-cloudinary';
+import type { CloudinaryUploadWidgetResults } from 'next-cloudinary';
+import { normalizeAvatarUrl, AVATAR_UPLOAD_OPTIONS } from '@/lib/cloudinary';
 import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi, pledges as pledgesApi } from '@/lib/api';
 import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
 import HandlesSection from '@/components/HandlesSection';
@@ -80,10 +83,9 @@ export default function SettingsPage() {
   const [emailChangeSent, setEmailChangeSent] = useState<string | null>(null);
   const [nameInput, setNameInput] = useState('');
   const [nameSaving, setNameSaving] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [picPreview, setPicPreview] = useState<string | null>(null);
-  const [picFile, setPicFile] = useState<File | null>(null);
-  const [picUploading, setPicUploading] = useState(false);
+  const [picSaving, setPicSaving] = useState(false);
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? 'artypot_profiles';
   const [showBrokeConfirm, setShowBrokeConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [dangerLoading, setDangerLoading] = useState(false);
@@ -221,27 +223,23 @@ export default function SettingsPage() {
     } finally { setEmailChangeLoading(false); }
   };
 
-  const handlePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setPicFile(file);
-    setPicPreview(URL.createObjectURL(file));
-  };
-
-  const handlePicUpload = async () => {
-    if (!user || !picFile) return;
-    setPicUploading(true);
+  // Profile pictures upload straight to Cloudinary (unsigned preset) via
+  // CldUploadWidget. We persist a *normalized* delivery URL (512² q_auto
+  // f_auto) so nobody ever downloads a 5 MB original.
+  const handlePicUploaded = async (secureUrl: string) => {
+    if (!user) return;
+    const normalized = normalizeAvatarUrl(secureUrl);
+    if (!normalized) return;
+    setPicSaving(true);
     try {
-      await usersApi.uploadProfilePicture(user.id, picFile);
+      await usersApi.update(user.id, { profile_picture: normalized });
       await refreshUser();
-      setPicFile(null); setPicPreview(null);
       toast('Profile picture updated!', 'success');
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Failed to upload picture.', 'error');
+      toast(e.message ?? 'Failed to save picture.', 'error');
     } finally {
-      setPicUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      setPicSaving(false);
     }
   };
 
@@ -381,8 +379,8 @@ export default function SettingsPage() {
           <SectionLabel className="mb-4">profile picture</SectionLabel>
           <div className="flex items-center gap-4">
             <div className="relative w-16 h-16 rounded-full overflow-hidden bg-surface-2 border border-border shrink-0">
-              {(picPreview || user.profile_picture) ? (
-                <Image src={picPreview ?? user.profile_picture!} alt="Profile picture" fill className="object-cover" unoptimized />
+              {user.profile_picture ? (
+                <Image src={user.profile_picture} alt="Profile picture" fill className="object-cover" unoptimized />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-2xl text-muted select-none font-bold">
                   {user.display_name?.charAt(0).toUpperCase() ?? '?'}
@@ -390,18 +388,31 @@ export default function SettingsPage() {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" onChange={handlePicChange} />
-              <div className="flex flex-wrap gap-2">
-                <Button variant="default" size="sm" disabled={picUploading} onClick={() => fileInputRef.current?.click()}>
-                  {picFile ? 'choose different…' : 'choose photo…'}
-                </Button>
-                {picFile && (
-                  <Button variant="primary" size="sm" disabled={picUploading} onClick={handlePicUpload}>
-                    {picUploading ? 'uploading…' : 'upload'}
-                  </Button>
-                )}
-              </div>
-              <p className="text-xs text-muted mt-2">JPEG, PNG, GIF or WebP — max 2 MB.</p>
+              {cloudName ? (
+                <CldUploadWidget
+                  uploadPreset={uploadPreset}
+                  options={{ sources: ['local', 'url', 'camera'], cropping: true, croppingAspectRatio: 1, multiple: false, folder: 'artypot/profiles', ...AVATAR_UPLOAD_OPTIONS }}
+                  onSuccess={(result: CloudinaryUploadWidgetResults) => {
+                    const info = result?.info;
+                    if (info && typeof info === 'object' && 'secure_url' in info) {
+                      void handlePicUploaded(info.secure_url as string);
+                    }
+                  }}
+                >
+                  {({ open }) => (
+                    <Button variant="default" size="sm" disabled={picSaving} onClick={() => open()}>
+                      {picSaving ? 'saving…' : user.profile_picture ? 'change photo…' : 'upload photo…'}
+                    </Button>
+                  )}
+                </CldUploadWidget>
+              ) : (
+                <p className="text-xs text-bad">
+                  Image uploads are unavailable — NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is not set.
+                </p>
+              )}
+              <p className="text-xs text-muted mt-2">
+                Cropped to a square and optimized automatically — any size is fine.
+              </p>
             </div>
           </div>
         </Card>

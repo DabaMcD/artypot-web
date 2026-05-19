@@ -18,6 +18,7 @@ function computeExpiresAt(value: number, unit: ExpireUnit): string {
 import { useToast } from '@/lib/toast-context';
 import Link from 'next/link';
 import { bounties as bountiesApi, billing } from '@/lib/api';
+import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { useAuth } from '@/lib/auth-context';
 import type { Bounty, BountyPledge, PaymentMethod, BountyHistoryEvent } from '@/lib/types';
 import AddCardForm from '@/components/AddCardForm';
@@ -190,7 +191,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         if (!prev) return prev;
         const updatedPledge: BountyPledge = {
           ...res.data,
-          user: user ? { id: user.id, name: user.name, display_name: user.display_name } : undefined,
+          user: user ? { id: user.id, display_name: user.display_name, profile_picture: user.profile_picture } : undefined,
         };
         const filteredPledges = (prev.pledges ?? []).filter(
           (v) => v.user_id !== user?.id || v.revoked_at,
@@ -554,7 +555,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       {/* Pending-bounty revoke warning */}
       {showPendingRevokeWarning && userPledge && (
         <Modal
-          title={`Hold on, ${user?.name.split(' ')[0]}.`}
+          title={`Hold on, ${user?.display_name.split(' ')[0]}.`}
           onClose={() => setShowPendingRevokeWarning(false)}
           actions={
             <>
@@ -798,7 +799,16 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           {bounty.initiator && (
             <div>
               <span className="text-muted">Created by </span>
-              <span className="text-foreground font-medium">{bounty.initiator.display_name}</span>
+              {bounty.initiator.id === 0 ? (
+                <span className="text-foreground font-medium">{bounty.initiator.display_name}</span>
+              ) : (
+                <Link
+                  href={`/users/${bounty.initiator.id}`}
+                  className="text-foreground font-medium hover:underline cursor-pointer"
+                >
+                  {bounty.initiator.display_name}
+                </Link>
+              )}
             </div>
           )}
         </div>
@@ -1089,18 +1099,27 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     const expiryDate = pledge.expires_at
                       ? new Date(pledge.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
                       : null;
+                    const avatarSrc = !isAnon ? normalizeAvatarUrl(pledge.user?.profile_picture ?? null) : null;
                     return (
                       <div
                         key={pledge.id}
                         className="flex items-center justify-between py-2 border-b border-border last:border-0"
                       >
                         <div className="flex items-center gap-2">
-                          <div
-                            className="w-6 h-6 rounded-full flex items-center justify-center font-mono text-xs font-bold shrink-0"
-                            style={{ background: '#F5A623', color: '#0a0a0a' }}
-                          >
-                            {initial}
-                          </div>
+                          {avatarSrc ? (
+                            <img
+                              src={avatarSrc}
+                              alt={displayName}
+                              className="w-6 h-6 rounded-full object-cover border border-border shrink-0"
+                            />
+                          ) : (
+                            <div
+                              className="w-6 h-6 rounded-full flex items-center justify-center font-mono text-xs font-bold shrink-0"
+                              style={{ background: '#F5A623', color: '#0a0a0a' }}
+                            >
+                              {initial}
+                            </div>
+                          )}
                           <div>
                             {isAnon ? (
                               <span className="text-sm text-muted">{displayName}</span>

@@ -7,6 +7,7 @@ import { CldUploadWidget } from 'next-cloudinary';
 import type { CloudinaryUploadWidgetResults } from 'next-cloudinary';
 import { creators as creatorsApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { normalizeAvatarUrl, AVATAR_UPLOAD_OPTIONS } from '@/lib/cloudinary';
 import type { Creator } from '@/lib/types';
 import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
 
@@ -193,11 +194,11 @@ export default function EditCreatorSlugPage({ params }: { params: Promise<{ slug
               {cloudName ? (
                 <CldUploadWidget
                   uploadPreset={uploadPreset}
-                  options={{ sources: ['local', 'url', 'camera'], cropping: true, croppingAspectRatio: 1, folder: 'artypot/profiles' }}
+                  options={{ sources: ['local', 'url', 'camera'], cropping: true, croppingAspectRatio: 1, folder: 'artypot/profiles', ...AVATAR_UPLOAD_OPTIONS }}
                   onSuccess={(result: CloudinaryUploadWidgetResults) => {
                     const info = result?.info;
                     if (info && typeof info === 'object' && 'secure_url' in info) {
-                      setProfilePicture(info.secure_url as string);
+                      setProfilePicture(normalizeAvatarUrl(info.secure_url as string) ?? '');
                     }
                   }}
                 >

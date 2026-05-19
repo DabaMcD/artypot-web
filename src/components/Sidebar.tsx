@@ -218,6 +218,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
       <div className="mx-5 mt-3 mb-3 p-2.5 bg-background border border-border rounded flex items-center gap-2.5">
         <Avatar
           initials={user?.display_name?.charAt(0).toUpperCase()}
+          src={user?.profile_picture || undefined}
           size="sm"
           style={role === 'fan'
             ? { background: 'var(--color-fan)', color: 'var(--color-background)' }
@@ -227,7 +228,14 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
           }
         />
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-bold text-foreground truncate">{user?.display_name}</div>
+          {user && (
+            <Link
+              href={user.slug ? `/${user.slug}` : `/users/${user.id}`}
+              className="text-sm font-bold text-foreground truncate block hover:underline underline-offset-2"
+            >
+              {user.display_name}
+            </Link>
+          )}
           <div className="font-mono text-[9px] uppercase tracking-wide text-muted/60">{role}</div>
         </div>
         <button

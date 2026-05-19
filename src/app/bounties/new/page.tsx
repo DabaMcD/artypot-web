@@ -422,7 +422,7 @@ function Step2({ target, onBack, onNext, initialTitle, initialDescription, initi
             className="pl-7"
           />
         </div>
-        <FieldHint>minimum $1. you are only charged if council confirms the bounty is completed.</FieldHint>
+        <FieldHint>Minimum $1. You are only charged if council confirms the bounty is completed.</FieldHint>
       </Card>
 
       <div className="flex gap-3">
