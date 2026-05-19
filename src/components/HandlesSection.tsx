@@ -15,6 +15,7 @@ import {
   ALL_PLATFORMS,
   CURATED_PLATFORMS,
   OAUTH_PLATFORMS,
+  ENABLED_OAUTH_PLATFORMS,
   OTHER_SLUG,
   platformLabel,
 } from '@/lib/platforms';
@@ -36,7 +37,7 @@ const PLATFORM_LABELS: Record<string, string> = Object.fromEntries(
 // Avoid "imported but unused" warnings in static lints — these symbols are
 // referenced via the imports themselves but we want explicit re-exports for
 // any consumer that does `import { OAUTH_PLATFORMS } from './HandlesSection'`.
-export { OAUTH_PLATFORMS, OTHER_SLUG, CURATED_PLATFORMS };
+export { OAUTH_PLATFORMS, ENABLED_OAUTH_PLATFORMS, OTHER_SLUG, CURATED_PLATFORMS };
 
 // ── Review request modal ──────────────────────────────────────────────────────
 
@@ -275,7 +276,7 @@ export default function HandlesSection() {
             {claims.map((claim) => {
               const platform = claim.handle.platform as HandlePlatform;
               const platformLabel = PLATFORM_LABELS[platform] ?? platform;
-              const supportsOAuth = OAUTH_PLATFORMS.includes(platform);
+              const supportsOAuth = ENABLED_OAUTH_PLATFORMS.includes(platform);
               const pendingReview = claim.status === 'unverified' && claim.verification_method === 'admin';
               const prefix = PLATFORM_HANDLE_CONFIG[platform]?.prefix ?? '@';
 

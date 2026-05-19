@@ -81,10 +81,33 @@ export const CURATED_PLATFORMS: HandlePlatform[] = Object.keys(PLATFORM_CATALOGU
 /** Curated slugs plus the 'other' catch-all. */
 export const ALL_PLATFORMS: HandlePlatform[] = [...CURATED_PLATFORMS, OTHER_SLUG];
 
-/** Slugs that support OAuth-based instant verification. */
+/** Slugs that support OAuth-based instant verification (per the platform catalogue). */
 export const OAUTH_PLATFORMS: HandlePlatform[] = CURATED_PLATFORMS.filter(
   (slug) => PLATFORM_CATALOGUE[slug].oauth,
 );
+
+/**
+ * The subset of OAUTH_PLATFORMS that are enabled on this deployment.
+ *
+ * Gated by NEXT_PUBLIC_OAUTH_PROVIDERS — the same env var that controls which
+ * buttons appear on /login and /register. When unset, all OAuth-capable
+ * platforms are available. When set, only platforms whose slug appears in the
+ * comma-separated list are offered for OAuth handle verification.
+ *
+ * Use this (not OAUTH_PLATFORMS) anywhere you want to show an "instant verify
+ * via OAuth" button so the setting stays in sync with the login page buttons.
+ */
+const _oauthEnabledSet: Set<string> | null = process.env.NEXT_PUBLIC_OAUTH_PROVIDERS
+  ? new Set(
+      process.env.NEXT_PUBLIC_OAUTH_PROVIDERS.split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    )
+  : null;
+
+export const ENABLED_OAUTH_PLATFORMS: HandlePlatform[] = _oauthEnabledSet
+  ? OAUTH_PLATFORMS.filter((slug) => _oauthEnabledSet.has(slug))
+  : OAUTH_PLATFORMS;
 
 /** Set form for fast routing checks (used by /{platform}/{handle} page). */
 export const KNOWN_PLATFORMS = new Set<string>(CURATED_PLATFORMS);
