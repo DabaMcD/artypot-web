@@ -17,11 +17,10 @@ function computeExpiresAt(value: number, unit: ExpireUnit): string {
 }
 import { useToast } from '@/lib/toast-context';
 import Link from 'next/link';
-import { bounties as bountiesApi, billing } from '@/lib/api';
+import { bounties as bountiesApi } from '@/lib/api';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { useAuth } from '@/lib/auth-context';
-import type { Bounty, BountyPledge, PaymentMethod, BountyHistoryEvent } from '@/lib/types';
-import AddCardForm from '@/components/AddCardForm';
+import type { Bounty, BountyPledge, BountyHistoryEvent } from '@/lib/types';
 import ShareButton from '@/components/ShareButton';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
 import CommentSection from '@/components/CommentSection';
@@ -71,14 +70,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Payment method gate — null means "still loading"
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[] | null>(null);
-  const [pmLoading, setPmLoading] = useState(false);
 
   // Pledge form
   const [pledgeAmount, setPledgeAmount] = useState('');
-  const [expireValue, setExpireValue] = useState('10');
+  const [expireValue, setExpireValue] = useState('7');
   const [expireUnit, setExpireUnit] = useState<ExpireUnit>('years');
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [pledgeLoading, setPledgeLoading] = useState(false);
   const [pledgeError, setPledgeError] = useState<React.ReactNode | null>(null);
 
@@ -131,17 +128,6 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Load payment methods when the bounty is open and user is logged in
-  useEffect(() => {
-    if (!user || !bounty || bounty.status !== 'open') return;
-    setPmLoading(true);
-    billing
-      .paymentMethods()
-      .then((res) => setPaymentMethods(res.data))
-      .catch(() => setPaymentMethods([]))
-      .finally(() => setPmLoading(false));
-  }, [user, bounty?.status]); // eslint-disable-line react-hooks/exhaustive-deps
-
   // Fetch history the first time the panel is opened
   useEffect(() => {
     if (!showHistory || historyLoaded) return;
@@ -158,7 +144,6 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
 
   const activePledges = bounty?.pledges?.filter((v) => !v.revoked_at) ?? [];
   const userPledge = user ? activePledges.find((v) => v.user_id === user.id) : null;
-  const hasPaymentMethod = paymentMethods !== null && paymentMethods.length > 0;
 
   // ── Derived display values ────────────────────────────────────────────────
   const displayedTotal = selectedEvent
@@ -214,12 +199,11 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         const current = e.data?.current_total ?? 0;
         setPledgeError(
           <>
-            You can pledge up to <strong>${cap.toFixed(2)}</strong>. You currently have{' '}
-            <strong>${current.toFixed(2)}</strong> pledged.{' '}
+            You&apos;ve reached your good faith limit.{' '}
             <Link href="/billing" className="underline underline-offset-2 font-semibold">
               Add a payment method
             </Link>{' '}
-            to remove this limit.
+            to continue.
           </>,
         );
       } else if (e.status === 422 && e.reason === 'payment_grace_period') {
@@ -333,32 +317,45 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   // ── Expiry picker (shared between new + update forms) ───────────────────────
   // Must be declared before any early returns to satisfy Rules of Hooks.
   const renderExpirePicker = useCallback(() => (
-    <div className="flex items-center gap-2">
-      <span className="font-mono text-[10px] uppercase tracking-widest text-muted shrink-0">Expires in</span>
-      <Input
-        type="number"
-        min="1"
-        max="999"
-        step="1"
-        mono
-        value={expireValue}
-        onChange={(e) => setExpireValue(e.target.value)}
-        className="w-16 text-center"
-      />
-      <Select
-        value={expireUnit}
-        onChange={(e) => setExpireUnit(e.target.value as ExpireUnit)}
-        className="flex-1"
+    <div>
+      <button
+        type="button"
+        onClick={() => setShowAdvanced((v) => !v)}
+        className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-muted/60 hover:text-muted transition-colors cursor-pointer select-none"
       >
-        <option value="years">year(s)</option>
-        <option value="months">month(s)</option>
-        <option value="weeks">week(s)</option>
-        <option value="days">day(s)</option>
-        <option value="hours">hour(s)</option>
-        <option value="minutes">minute(s)</option>
-      </Select>
+        <span className={`transition-transform duration-150 ${showAdvanced ? 'rotate-90' : ''}`}>▶</span>
+        Advanced
+      </button>
+      {showAdvanced && (
+        <div className="mt-2 space-y-1.5">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted">Expires in</span>
+          <div className="grid gap-0" style={{ gridTemplateColumns: '5rem 1fr' }}>
+            <Input
+              type="number"
+              min="1"
+              max="999"
+              step="1"
+              mono
+              value={expireValue}
+              onChange={(e) => setExpireValue(e.target.value)}
+              className="text-center"
+            />
+            <Select
+              value={expireUnit}
+              onChange={(e) => setExpireUnit(e.target.value as ExpireUnit)}
+            >
+              <option value="years">year(s)</option>
+              <option value="months">month(s)</option>
+              <option value="weeks">week(s)</option>
+              <option value="days">day(s)</option>
+              <option value="hours">hour(s)</option>
+              <option value="minutes">minute(s)</option>
+            </Select>
+          </div>
+        </div>
+      )}
     </div>
-  ), [expireValue, expireUnit]);
+  ), [expireValue, expireUnit, showAdvanced]);
 
   if (loading) {
     return (
@@ -382,7 +379,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const isOwner = user && bounty.initiator_user_id === user.id;
   const isCreator =
     user &&
-    bounty.creator?.user_id === user.id &&
+    bounty.owner_user?.id === user.id &&
     (user.role === 'creator' || user.role === 'council');
   const canVote = user && bounty.status === 'open';
   const canSubmitCompletion = isCreator && bounty.status === 'open';
@@ -392,39 +389,10 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const renderPledgePanel = () => {
     if (!canVote) return null;
 
-    // Still checking for payment methods
-    if (pmLoading || paymentMethods === null) {
-      return (
-        <Card>
-          <div className="h-4 w-32 bg-surface-2 animate-pulse rounded mb-4" />
-          <div className="h-10 bg-surface-2 animate-pulse rounded mb-3" />
-          <div className="h-10 bg-surface-2 animate-pulse rounded" />
-        </Card>
-      );
-    }
-
-    // No payment method saved — show gate
-    if (!hasPaymentMethod) {
-      return (
-        <Card accent>
-          <SectionLabel className="mb-3">Add a card to back this bounty</SectionLabel>
-          <p className="text-sm text-muted mb-4 leading-relaxed">
-            Your card is only charged if and when a bounty pays out — nothing happens when you back something. Save a card now so you&apos;re ready.
-          </p>
-          <AddCardForm
-            onSuccess={() => {
-              billing.paymentMethods().then((res) => setPaymentMethods(res.data));
-            }}
-          />
-        </Card>
-      );
-    }
-
-    // Has payment method — show normal pledge form
     return (
       <Card>
         <div className="flex items-center gap-2 mb-4">
-          <SectionLabel>Back this bounty</SectionLabel>
+          <SectionLabel>Chip in</SectionLabel>
           <span className="relative group cursor-default">
             <span className="font-mono text-[10px] text-muted w-4 h-4 rounded-full border border-muted/40 inline-flex items-center justify-center leading-none select-none hover:border-foreground/40 hover:text-foreground transition-colors cursor-pointer">
               i
@@ -586,7 +554,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           }
         >
           <p className="text-muted text-sm leading-relaxed mb-2">
-            <span className="text-foreground font-semibold">{bounty?.creator?.display_name ?? 'The creator'}</span> has
+            <span className="text-foreground font-semibold">{bounty?.owner_user?.display_name ?? 'The creator'}</span> has
             already submitted their work. The Council is reviewing it.
           </p>
           <p className="text-muted text-sm leading-relaxed mb-1">
@@ -670,7 +638,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           }
         >
           <p className="text-muted text-sm leading-relaxed">
-            You&apos;re the only {bounty?.creator?.fan_name ?? 'supporter'} of this bounty. Backing out will leave it empty — it will be cleared automatically.
+            You&apos;re the only supporter of this bounty. Backing out will leave it empty — it will be cleared automatically.
           </p>
         </Modal>
       )}
@@ -785,14 +753,14 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         )}
 
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
-          {bounty.creator && (
+          {bounty.owner_user && (
             <div>
               <span className="text-muted">For </span>
               <Link
-                href={bounty.creator.slug ? `/${bounty.creator.slug}` : `/creators/${bounty.creator.id}`}
+                href={bounty.owner_user.slug ? `/${bounty.owner_user.slug}` : `/users/${bounty.owner_user.id}`}
                 className="text-creator hover:underline font-medium cursor-pointer"
               >
-                {bounty.creator.display_name}
+                {bounty.owner_user.display_name}
               </Link>
             </div>
           )}
@@ -826,7 +794,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <div className="flex items-center justify-between gap-2 mt-0.5">
             <div>
               <div className="text-muted text-sm">
-                supported by {activePledges.length} {activePledges.length === 1 ? (bounty.creator?.fan_name ?? 'supporter') : (bounty.creator?.fan_name_plural ?? bounty.creator?.fan_name ?? 'supporters')}
+                supported by {activePledges.length} {activePledges.length === 1 ? 'supporter' : 'supporters'}
               </div>
               {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5 tabular-nums">
@@ -900,7 +868,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
 
           {/* Closed-bounty notice — shown for every non-open status */}
           {bounty.status !== 'open' && (() => {
-            const creatorName = bounty.creator?.display_name ?? 'The creator';
+            const creatorName = bounty.owner_user?.display_name ?? 'The creator';
             const notices: Record<string, { heading: string; body: string; tone: 'default' | 'warn' | 'bad' | 'good' }> = {
               pending: {
                 heading: 'Awaiting Council review',
@@ -1089,7 +1057,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             {/* Pledges panel */}
             <div className={`p-5 ${activeTab !== 'pledges' ? 'hidden' : ''}`}>
               {activePledges.length === 0 ? (
-                <p className="text-muted text-sm">No {bounty.creator?.fan_name_plural ?? bounty.creator?.fan_name ?? 'supporters'} yet. Be the first!</p>
+                <p className="text-muted text-sm">No supporters yet. Be the first!</p>
               ) : (
                 <div className="space-y-2">
                   {activePledges.map((pledge) => {

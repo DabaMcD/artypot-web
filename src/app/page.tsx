@@ -54,10 +54,10 @@ function TrendingBountyCard({ bounty }: { bounty: Bounty }) {
       className="block group bg-surface border border-border rounded-xl p-5 hover:border-creator/50 transition-all hover:translate-y-[-2px] hover:shadow-[0_8px_24px_rgba(71,223,211,0.08)]"
     >
       {/* Creator header */}
-      {bounty.creator && (
+      {bounty.owner_user && (
         <div className="flex items-center gap-2 mb-3">
-          <CreatorAvatar creator={bounty.creator} />
-          <span className="text-sm text-creator font-medium truncate">{bounty.creator.display_name}</span>
+          <CreatorAvatar creator={bounty.owner_user} />
+          <span className="text-sm text-creator font-medium truncate">{bounty.owner_user.display_name}</span>
         </div>
       )}
 

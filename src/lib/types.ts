@@ -237,15 +237,15 @@ export interface Bounty {
   status: BountyStatus;
   initiator_user_id: number;
   initiator?: User;
-  creator_id: number;
-  creator?: Creator;
+  owner_user_id?: number | null;
+  /** The user who owns this bounty (i.e. the creator). Serialised from ownerUser relation. */
+  owner_user?: Pick<User, 'id' | 'display_name' | 'profile_picture' | 'slug'>;
   total_pledged: number;
   /** Sum of pledges from fans with an active payment method. Appended by the backend on show(). */
   solid_total?: number;
   /** New targeting fields */
   target_handle_id?: number | null;
   target_user_id?: number | null;
-  owner_user_id?: number | null;
   /** Backend-appended. Null when target is unverified. */
   avatar_url?: string | null;
   target_display_name?: string | null;

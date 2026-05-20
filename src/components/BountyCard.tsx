@@ -13,8 +13,8 @@ const STATUS_STYLES: Record<BountyStatus, { label: string; className: string }> 
 export default function BountyCard({ bounty }: { bounty: Bounty }) {
   const status = STATUS_STYLES[bounty.status];
   const backerCount = bounty.pledges?.filter((v) => !v.revoked_at).length ?? null;
-  const fanSingular = bounty.creator?.fan_name || 'supporter';
-  const fanPlural   = bounty.creator?.fan_name_plural || bounty.creator?.fan_name || 'supporters';
+  const fanSingular = 'supporter';
+  const fanPlural   = 'supporters';
 
   return (
     <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-fan/50 transition-colors group">
@@ -55,16 +55,16 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
             </div>
           )}
         </div>
-        {(bounty.avatar_url !== undefined || bounty.creator) && (
+        {(bounty.avatar_url !== undefined || bounty.owner_user) && (
           <div className="flex items-center gap-2">
             <AvatarOrUnknown
-              avatarUrl={bounty.avatar_url ?? bounty.creator?.profile_picture ?? null}
+              avatarUrl={bounty.avatar_url ?? bounty.owner_user?.profile_picture ?? null}
               size="sm"
             />
             <div className="text-right">
               <div className="text-xs text-muted">for</div>
               <div className="text-sm text-creator font-medium truncate max-w-[100px]">
-                {bounty.target_display_name ?? bounty.creator?.display_name}
+                {bounty.target_display_name ?? bounty.owner_user?.display_name}
               </div>
             </div>
           </div>

@@ -184,7 +184,7 @@ export default function FeaturedBountiesAdminPage() {
                     {slot.preview.title}
                   </p>
                   <p className="font-mono text-[10px] text-muted mt-0.5">
-                    {slot.preview.creator?.display_name ?? '—'}
+                    {slot.preview.owner_user?.display_name ?? '—'}
                     {' · '}
                     <span className="capitalize">{String(slot.preview.status).replace('_', ' ')}</span>
                     {' · '}
