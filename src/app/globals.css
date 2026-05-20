@@ -6,7 +6,7 @@
   --color-surface-2: #321F16;
   --color-border: #4A2D1E;
   --color-foreground: #F2EFE6;
-  --color-muted: #8C7468;
+  --color-muted: #BFB0A9; /* previously #8C7468 */
 
   /* Brand colors from the README role definitions */
   --color-fan: #ffd966;

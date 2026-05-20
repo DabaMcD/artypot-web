@@ -13,8 +13,8 @@ const CARD_STYLE = {
     fontFamily: 'ui-sans-serif, system-ui, sans-serif',
     fontSize: '14px',
     fontSmoothing: 'antialiased',
-    '::placeholder': { color: '#8C7468' }, // --color-muted
-    iconColor: '#8C7468',
+    '::placeholder': { color: '#BFB0A9' }, // --color-muted
+    iconColor: '#BFB0A9',
   },
   invalid: {
     color: '#f87171',
