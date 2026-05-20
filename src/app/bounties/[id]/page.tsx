@@ -794,7 +794,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <div className="flex items-center justify-between gap-2 mt-0.5">
             <div>
               <div className="text-muted text-sm">
-                supported by {activePledges.length} {activePledges.length === 1 ? 'supporter' : 'supporters'}
+                supported by {activePledges.length} {activePledges.length === 1 ? 'fan' : 'fans'}
               </div>
               {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5 tabular-nums">

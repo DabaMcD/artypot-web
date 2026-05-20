@@ -29,9 +29,22 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-4 pt-24 pb-20">
         <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 bg-fan/10 border border-fan/30 text-fan text-xs font-medium px-3 py-1.5 rounded-full mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-fan animate-pulse" />
-            Not a tip jar. Not a Kickstarter.
+          {/* TODO: Fix this styling! I wrote it badly, I'm bad at CSS ---> */}
+          <div className="mb-6 flex-col items-center gap-2">
+            <div className="inline-flex items-center gap-2 bg-fan/10 border border-fan/30 text-fan text-xs font-medium px-3 py-1.5 rounded-full mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-fan animate-pulse" />
+              Like Kickstarter, but no money moves until the thing is done.
+            </div><br />
+
+            <div className="inline-flex items-center gap-2 bg-fan/10 border border-fan/30 text-fan text-xs font-medium px-3 py-1.5 rounded-full mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-fan animate-pulse" />
+              Like Change.org, but with accurate financial incentives.
+            </div><br />
+
+            <div className="inline-flex items-center gap-2 bg-fan/10 border border-fan/30 text-fan text-xs font-medium px-3 py-1.5 rounded-full mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-fan animate-pulse" />
+              Artypot is communication device -- a demand coordinator.
+            </div>
           </div>
 
           <h1 className="text-5xl sm:text-6xl font-display font-bold tracking-tight text-foreground leading-tight mb-6">

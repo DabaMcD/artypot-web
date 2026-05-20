@@ -257,7 +257,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
           <Link
             key={href}
             href={href}
-            className="font-mono text-[9px] uppercase tracking-wide text-muted/40 hover:text-muted transition-colors"
+            className="font-mono text-[9px] uppercase tracking-wide text-muted/60 hover:text-muted transition-colors"
           >
             {label}
           </Link>

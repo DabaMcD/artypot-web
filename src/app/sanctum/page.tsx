@@ -291,7 +291,7 @@ function SanctumPageContent() {
         <SectionLabel className="mb-3">earnings pipeline</SectionLabel>
         <BalancePipeline balances={{ pending: pendingPayment, clearing, available: availableBalance }} />
         <p className="text-xs text-muted mt-2">
-          contributions flow left → right. council approval moves funds to pending. the {BILLING_DAY}th moves them into clearing. 7 days later they&apos;re available.
+          Contributions flow left &rarr; right. Council approval moves funds to pending. Payment from fans on the {BILLING_DAY}th moves them into clearing. 7 days later they&apos;re available.
         </p>
       </div>
 
@@ -306,7 +306,7 @@ function SanctumPageContent() {
               <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{fmt(solidOpenPledges)}</div>
               <div className="font-mono text-[10px] text-muted mt-0.5">solid pledges (active payment method)</div>
               {softOpenPledges > 0.005 && (
-                <div className="font-mono text-[10px] text-muted/60 mt-0.5">+ {fmt(softOpenPledges)} soft (no payment method)</div>
+                <div className="font-mono text-[10px] text-muted mt-0.5">+ {fmt(softOpenPledges)} soft (no payment method)</div>
               )}
             </Card>
             <Card>
@@ -584,9 +584,9 @@ function SanctumPageContent() {
             </div>
           </Card>
 
-          {/* Payout readiness checklist */}
+          {/* First payout checklist */}
           <Card>
-            <SectionLabel className="mb-3">payout readiness</SectionLabel>
+            <SectionLabel className="mb-3">first payout</SectionLabel>
             <PayoutReadinessChecklist />
           </Card>
 
