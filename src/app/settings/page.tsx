@@ -485,6 +485,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Email */}
+        <div id="email">
         {!hasEmail ? (
           <Card>
             <SectionLabel className="mb-3">email address</SectionLabel>
@@ -524,6 +525,7 @@ export default function SettingsPage() {
             )}
           </Card>
         )}
+        </div>
 
         {/* Profile picture — moved to creator settings for creators */}
         {user.role === 'creator' ? (
@@ -533,7 +535,7 @@ export default function SettingsPage() {
                 <SectionLabel className="mb-1">profile picture</SectionLabel>
                 <p className="text-sm text-muted">Manage your creator profile picture.</p>
               </div>
-              <Link href="/creator/settings"><Button variant="default" size="sm">Creator Settings →</Button></Link>
+              <Link href="/creator/settings#picture"><Button variant="default" size="sm">Creator Settings →</Button></Link>
             </div>
           </Card>
         ) : (
@@ -588,7 +590,7 @@ export default function SettingsPage() {
                 <SectionLabel className="mb-1">display name</SectionLabel>
                 <p className="text-sm text-muted">Update your public name in creator settings.</p>
               </div>
-              <Link href="/creator/settings"><Button variant="default" size="sm">Creator Settings →</Button></Link>
+              <Link href="/creator/settings#display-name"><Button variant="default" size="sm">Creator Settings →</Button></Link>
             </div>
           </Card>
         ) : (
@@ -718,6 +720,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Notifications */}
+        <div id="notifications">
         <Card>
           <SectionLabel className="mb-4">notifications</SectionLabel>
           {!hasEmail && <Banner tone="warn" className="mb-3">Add an email address above to enable email notifications.</Banner>}
@@ -810,6 +813,7 @@ export default function SettingsPage() {
             </>
           )}
         </Card>
+        </div>
 
         {/* Password */}
         {hasEmail && emailVerified && (
@@ -833,7 +837,7 @@ export default function SettingsPage() {
                   <SectionLabel className="mb-1">location of residence</SectionLabel>
                   <p className="text-sm text-muted">Required for creator earnings reporting.</p>
                 </div>
-                <Link href="/creator/settings"><Button variant="default" size="sm">Creator Settings →</Button></Link>
+                <Link href="/creator/settings#location"><Button variant="default" size="sm">Creator Settings →</Button></Link>
               </div>
             </Card>
           </div>
@@ -891,15 +895,17 @@ export default function SettingsPage() {
 
         {/* Handles — moved to /creator/handles for creators */}
         {user.role === 'creator' && (
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <SectionLabel className="mb-1">handles</SectionLabel>
-                <p className="text-sm text-muted">Manage your verified social handles.</p>
+          <div id="handles">
+            <Card>
+              <div className="flex items-center justify-between">
+                <div>
+                  <SectionLabel className="mb-1">handles</SectionLabel>
+                  <p className="text-sm text-muted">Manage your verified social handles.</p>
+                </div>
+                <Link href="/creator/handles"><Button variant="default" size="sm">Manage Handles →</Button></Link>
               </div>
-              <Link href="/creator/handles"><Button variant="default" size="sm">Manage Handles →</Button></Link>
-            </div>
-          </Card>
+            </Card>
+          </div>
         )}
 
         {/* Danger zone */}

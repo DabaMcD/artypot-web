@@ -9,7 +9,7 @@ import type { PublicUserPledge, CashBalance } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Empty } from '@/components/ui/Empty';
-import { BILLING_DAY } from '@/lib/config';
+import { nextBillingInfo } from '@/lib/config';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
 import ShareButton from '@/components/ShareButton';
 
@@ -62,11 +62,7 @@ export default function MyPledgesPage() {
     setPage(1);
   };
 
-  const now = new Date();
-  const nextBillingDate = now.getDate() < BILLING_DAY
-    ? new Date(now.getFullYear(), now.getMonth(), BILLING_DAY)
-    : new Date(now.getFullYear(), now.getMonth() + 1, BILLING_DAY);
-  const billingDateStr = nextBillingDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const { label: billingDateStr } = nextBillingInfo();
 
   const outstandingAmount = cashBalance !== null && cashBalance.balance < 0
     ? Math.abs(cashBalance.balance)

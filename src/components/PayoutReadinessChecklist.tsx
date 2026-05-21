@@ -53,7 +53,7 @@ export default function PayoutReadinessChecklist() {
     {
       label: 'Email verified',
       done: user.email_verified_at !== null && user.email_verified_at !== undefined,
-      href: '/settings',
+      href: '/settings#email',
     },
     {
       label: 'Creator TOS agreed',
@@ -63,7 +63,7 @@ export default function PayoutReadinessChecklist() {
     {
       label: 'Country / region set',
       done: user.location_complete === true,
-      href: '/settings',
+      href: '/settings#location',
     },
     {
       label: 'Handle claimed and approved',
@@ -75,7 +75,7 @@ export default function PayoutReadinessChecklist() {
           {
             label: 'Bank account connected',
             done: creator.bank_connected === true,
-            href: '/creator',
+            href: '/creator#bank-account',
           } as ChecklistItem,
         ]
       : isManualPayoutRegion
@@ -90,7 +90,7 @@ export default function PayoutReadinessChecklist() {
     {
       label: `Tax form submitted (${taxFormLabel})`,
       done: taxFormDone,
-      href: '/creator',
+      href: '/creator#tax',
     },
     {
       label: `Minimum balance reached ($${payoutMin} required, $${amountEarned.toFixed(2)} earned)`,
@@ -114,7 +114,7 @@ export default function PayoutReadinessChecklist() {
               Identity verification required by Stripe
             </span>
             <Link
-              href="/creator"
+              href="/creator#payout-hold"
               className="ml-2 text-xs text-bad underline underline-offset-2 hover:opacity-80 transition-opacity"
             >
               Complete now →

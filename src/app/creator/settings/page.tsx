@@ -225,6 +225,7 @@ export default function CreatorSettingsPage() {
       </div>
 
       {/* Profile picture */}
+      <div id="picture">
       <Card>
         <SectionLabel className="mb-4">profile picture</SectionLabel>
         <div className="flex items-center gap-4">
@@ -266,8 +267,10 @@ export default function CreatorSettingsPage() {
           </div>
         </div>
       </Card>
+      </div>
 
       {/* Display name */}
+      <div id="display-name">
       <Card>
         <SectionLabel className="mb-3">display name</SectionLabel>
         <form onSubmit={handleSaveName} className="flex gap-2">
@@ -277,6 +280,7 @@ export default function CreatorSettingsPage() {
           </Button>
         </form>
       </Card>
+      </div>
 
       {/* Creator slug */}
       <CreatorSlugSection />
@@ -293,6 +297,7 @@ export default function CreatorSettingsPage() {
       </Card>
 
       {/* Location of residence */}
+      <div id="location">
       <Card>
         <SectionLabel className="mb-3">location of residence</SectionLabel>
         <p className="text-sm text-muted mb-4">Required for tax and earnings reporting.</p>
@@ -338,6 +343,7 @@ export default function CreatorSettingsPage() {
           </Button>
         </form>
       </Card>
+      </div>
 
       {/* Creator notifications */}
       <div id="notifications">
@@ -450,7 +456,7 @@ export default function CreatorSettingsPage() {
       <Card dashed>
         <p className="text-sm text-muted">
           To edit your email, phone number, password, or other account options,{' '}
-          <Link href="/settings" className="text-foreground hover:underline underline-offset-2 font-medium">
+          <Link href="/settings#email" className="text-foreground hover:underline underline-offset-2 font-medium">
             go to fan settings →
           </Link>
         </p>

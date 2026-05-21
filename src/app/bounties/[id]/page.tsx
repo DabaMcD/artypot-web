@@ -123,7 +123,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       })
       .catch(() => toast('Failed to load history.', 'error'))
       .finally(() => setHistoryLoading(false));
-  }, [showHistory]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [showHistory, id, toast]);
 
   const activePledges = bounty?.pledges?.filter((v) => !v.revoked_at) ?? [];
   const userPledge = user ? activePledges.find((v) => v.user_id === user.id) : null;
@@ -187,7 +187,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         setPledgeError(
           <>
             You&apos;ve reached your good faith limit.{' '}
-            <Link href="/billing" className="underline underline-offset-2 font-semibold">
+            <Link href="/billing#payment-method" className="underline underline-offset-2 font-semibold">
               Add a payment method
             </Link>{' '}
             to continue.
@@ -197,7 +197,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         setPledgeError(
           <>
             New pledges are paused while you resolve a failed payment.{' '}
-            <Link href="/billing" className="underline underline-offset-2 font-semibold">
+            <Link href="/billing#payment-method" className="underline underline-offset-2 font-semibold">
               Update your card
             </Link>{' '}
             to continue.
@@ -368,7 +368,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     user &&
     bounty.owner_user?.id === user.id &&
     (user.role === 'creator' || user.role === 'council');
-  const canVote = user && bounty.status === 'open';
+  // Creators cannot pledge on their own bounty
+  const canVote = user && bounty.status === 'open' && !isCreator;
   // Fans can back out during council review, but only if they already have a pledge.
   const canRevokeDuringReview = user && bounty.status === 'pending' && !!userPledge;
   const isPayoutBlocked = user?.creator?.payout_category === 3;
@@ -877,133 +878,190 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       <div className="grid sm:grid-cols-3 gap-6">
         {/* Action panel */}
         <div className="sm:col-span-1 space-y-4">
-          {/* Payment-gated pledge panel */}
-          {renderPledgePanel()}
 
-          {/* Not logged in */}
-          {!user && bounty.status === 'open' && (
-            <Card className="text-center">
-              <p className="text-muted text-sm mb-3">Log in to back this bounty</p>
-              <Link
-                href="/login"
-                className="block w-full cursor-pointer"
-              >
-                <Button variant="primary" className="w-full justify-center">
-                  Log in
-                </Button>
-              </Link>
-            </Card>
-          )}
-
-          {/* Closed-bounty notice — shown for every non-open status */}
-          {bounty.status !== 'open' && (() => {
-            const creatorName = bounty.owner_user?.display_name ?? 'The creator';
-            const notices: Record<string, { heading: string; body: string; tone: 'default' | 'warn' | 'bad' | 'good' }> = {
-              pending: {
-                heading: 'Awaiting Council review',
-                body: `${creatorName} has submitted their work and the Council is considering it. You can still back out — but it would be a bit of a dick move.`,
-                tone: 'default',
-              },
-              completed: {
-                heading: 'Completed — payout pending',
-                body: 'The Council has approved this bounty. Commitments are now locked — your card will be charged in the next billing cycle.',
-                tone: 'warn',
-              },
-              paid_out: {
-                heading: 'Paid out',
-                body: `This bounty has been paid out. ${creatorName} has been compensated for their work.`,
-                tone: 'good',
-              },
-              revoked: {
-                heading: 'Bounty revoked',
-                body: 'This bounty has been revoked and is no longer active.',
-                tone: 'bad',
-              },
-            };
-            const notice = notices[bounty.status];
-            if (!notice) return null;
-
-            return (
-              <Banner tone={notice.tone}>
-                <div>
-                  <div className="font-semibold text-foreground text-sm mb-1">{notice.heading}</div>
-                  <div className="text-muted text-sm leading-relaxed">{notice.body}</div>
-                </div>
-              </Banner>
-            );
-          })()}
-
-          {/* Creator: submit completion */}
-          {canSubmitCompletion && !showCompletion && (
-            <Button
-              variant="default"
-              onClick={() => setShowCompletion(true)}
-              className="w-full justify-center cursor-pointer"
-            >
-              Submit Completion
-            </Button>
-          )}
-
-          {/* Creator: remove bounty */}
-          {canCreatorRemove && !showCompletion && (
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={() => setShowRemoveDialog(true)}
-              className="w-full justify-center cursor-pointer"
-            >
-              Remove this bounty
-            </Button>
-          )}
-
-          {showCompletion && (
-            <Card accent>
-              <SectionLabel className="mb-4">Submit Completed Work</SectionLabel>
-              <form onSubmit={handleSubmitCompletion} className="space-y-3">
-                <div>
-                  <FieldLabel>Link to the work (URL)</FieldLabel>
-                  <Input
-                    type="text"
-                    required
-                    value={submissionUrl}
-                    onChange={(e) => setSubmissionUrl(e.target.value)}
-                    placeholder="example.com/proof"
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Notes (optional)</FieldLabel>
-                  <Textarea
-                    rows={2}
-                    value={submissionNotes}
-                    onChange={(e) => setSubmissionNotes(e.target.value)}
-                    placeholder="Anything the council should know…"
-                  />
-                </div>
-                {completionError && (
-                  <div className="rounded bg-bad-soft border border-bad text-bad px-3 py-2.5">
-                    <p className="text-xs">{completionError}</p>
-                  </div>
-                )}
-                <div className="flex gap-2">
+          {isCreator ? (
+            // ── Creator view: submit completion dominates ───────────────────
+            <>
+              {/* Primary CTA: submit completion */}
+              {canSubmitCompletion && !showCompletion && (
+                <Card accent>
+                  <SectionLabel className="mb-3">submit completion</SectionLabel>
+                  <p className="text-sm text-muted mb-4 leading-relaxed">
+                    Ready? Link to your finished work and the Council will review it. Fans are charged once approved.
+                  </p>
                   <Button
-                    type="submit"
                     variant="primary"
-                    disabled={completionLoading}
-                    className="flex-1 justify-center cursor-pointer"
+                    onClick={() => setShowCompletion(true)}
+                    className="w-full justify-center cursor-pointer"
                   >
-                    {completionLoading ? 'Submitting…' : 'Submit'}
+                    Submit Completion →
                   </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setShowCompletion(false)}
-                    className="cursor-pointer"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </Card>
+                </Card>
+              )}
+
+              {/* Payout blocked notice */}
+              {isCreator && bounty.status === 'open' && isPayoutBlocked && (
+                <Banner tone="warn">
+                  <div className="font-semibold text-foreground text-sm mb-1">Payout blocked</div>
+                  <div className="text-muted text-sm">Your account is not eligible for payouts. Contact support to resolve this.</div>
+                </Banner>
+              )}
+
+              {/* Inline completion form */}
+              {showCompletion && (
+                <Card accent>
+                  <SectionLabel className="mb-4">Submit Completed Work</SectionLabel>
+                  <form onSubmit={handleSubmitCompletion} className="space-y-3">
+                    <div>
+                      <FieldLabel>Link to the work (URL)</FieldLabel>
+                      <Input
+                        type="text"
+                        required
+                        value={submissionUrl}
+                        onChange={(e) => setSubmissionUrl(e.target.value)}
+                        placeholder="example.com/proof"
+                      />
+                      <FieldHint>Publicly visible</FieldHint>
+                    </div>
+                    <div>
+                      <FieldLabel>Notes (optional)</FieldLabel>
+                      <Textarea
+                        rows={2}
+                        value={submissionNotes}
+                        onChange={(e) => setSubmissionNotes(e.target.value)}
+                        placeholder="Anything the council should know…"
+                      />
+                      <FieldHint>Publicly visible</FieldHint>
+                    </div>
+                    {completionError && (
+                      <div className="rounded bg-bad-soft border border-bad text-bad px-3 py-2.5">
+                        <p className="text-xs">{completionError}</p>
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        disabled={completionLoading}
+                        className="flex-1 justify-center cursor-pointer"
+                      >
+                        {completionLoading ? 'Submitting…' : 'Submit'}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => setShowCompletion(false)}
+                        className="cursor-pointer"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </Card>
+              )}
+
+              {/* Status notices for non-open bounties */}
+              {bounty.status !== 'open' && (() => {
+                const notices: Record<string, { heading: string; body: string; tone: 'default' | 'warn' | 'bad' | 'good' }> = {
+                  pending: {
+                    heading: 'Under Council review',
+                    body: 'Your submission is being reviewed. You\'ll be notified of the decision.',
+                    tone: 'default',
+                  },
+                  completed: {
+                    heading: 'Approved — payout incoming',
+                    body: 'The Council approved your work. Fans will be charged in the next billing cycle.',
+                    tone: 'good',
+                  },
+                  paid_out: {
+                    heading: 'Paid out',
+                    body: 'Your payout has been processed. Thank you!',
+                    tone: 'good',
+                  },
+                  revoked: {
+                    heading: 'Bounty revoked',
+                    body: 'This bounty has been revoked and is no longer active.',
+                    tone: 'bad',
+                  },
+                };
+                const notice = notices[bounty.status];
+                if (!notice) return null;
+                return (
+                  <Banner tone={notice.tone}>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm mb-1">{notice.heading}</div>
+                      <div className="text-muted text-sm leading-relaxed">{notice.body}</div>
+                    </div>
+                  </Banner>
+                );
+              })()}
+
+              {/* Remove bounty */}
+              {canCreatorRemove && !showCompletion && (
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => setShowRemoveDialog(true)}
+                  className="w-full justify-center cursor-pointer"
+                >
+                  Remove this bounty
+                </Button>
+              )}
+            </>
+          ) : (
+            // ── Fan view: chip in + status notices ─────────────────────────
+            <>
+              {renderPledgePanel()}
+
+              {/* Not logged in */}
+              {!user && bounty.status === 'open' && (
+                <Card className="text-center">
+                  <p className="text-muted text-sm mb-3">Log in to back this bounty</p>
+                  <Link href="/login" className="block w-full cursor-pointer">
+                    <Button variant="primary" className="w-full justify-center">
+                      Log in
+                    </Button>
+                  </Link>
+                </Card>
+              )}
+
+              {/* Status notices for non-open bounties */}
+              {bounty.status !== 'open' && (() => {
+                const creatorName = bounty.owner_user?.display_name ?? 'The creator';
+                const notices: Record<string, { heading: string; body: string; tone: 'default' | 'warn' | 'bad' | 'good' }> = {
+                  pending: {
+                    heading: 'Awaiting Council review',
+                    body: `${creatorName} has submitted their work and the Council is considering it. You can still back out — but it would be a bit of a dick move.`,
+                    tone: 'default',
+                  },
+                  completed: {
+                    heading: 'Completed — payout pending',
+                    body: 'The Council has approved this bounty. Commitments are now locked — your card will be charged in the next billing cycle.',
+                    tone: 'warn',
+                  },
+                  paid_out: {
+                    heading: 'Paid out',
+                    body: `This bounty has been paid out. ${creatorName} has been compensated for their work.`,
+                    tone: 'good',
+                  },
+                  revoked: {
+                    heading: 'Bounty revoked',
+                    body: 'This bounty has been revoked and is no longer active.',
+                    tone: 'bad',
+                  },
+                };
+                const notice = notices[bounty.status];
+                if (!notice) return null;
+                return (
+                  <Banner tone={notice.tone}>
+                    <div>
+                      <div className="font-semibold text-foreground text-sm mb-1">{notice.heading}</div>
+                      <div className="text-muted text-sm leading-relaxed">{notice.body}</div>
+                    </div>
+                  </Banner>
+                );
+              })()}
+            </>
           )}
 
         </div>

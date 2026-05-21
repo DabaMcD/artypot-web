@@ -11,7 +11,7 @@ import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Empty } from '@/components/ui/Empty';
-import { Input, Textarea, FieldLabel } from '@/components/ui/Input';
+import { Input, Textarea, FieldLabel, FieldHint } from '@/components/ui/Input';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
 import ShareButton from '@/components/ShareButton';
 
@@ -211,6 +211,7 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
               />
+              <FieldHint>Publicly visible</FieldHint>
             </div>
             <div>
               <FieldLabel>Notes (optional)</FieldLabel>
@@ -220,6 +221,7 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
+              <FieldHint>Publicly visible</FieldHint>
             </div>
             {error && (
               <div className="bg-[var(--color-bad-soft)] border border-[var(--color-bad)] text-[var(--color-bad)] rounded px-3 py-2 text-xs">

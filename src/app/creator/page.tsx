@@ -250,18 +250,20 @@ function CreatorDashboardContent() {
       </div>
 
       {/* Payout hold warning */}
-      {payoutHold && (
-        <Banner tone="bad" action={
-          <Link href="/creator">
-            <Button variant="primary" size="sm">Complete verification →</Button>
-          </Link>
-        }>
-          <div>
-            <strong>Your payouts are currently on hold.</strong>
-            {' '}Stripe needs additional verification before funds can be released.
-          </div>
-        </Banner>
-      )}
+      <div id="payout-hold">
+        {payoutHold && (
+          <Banner tone="bad" action={
+            <Link href="/creator#payout-hold">
+              <Button variant="primary" size="sm">Complete verification →</Button>
+            </Link>
+          }>
+            <div>
+              <strong>Your payouts are currently on hold.</strong>
+              {' '}Stripe needs additional verification before funds can be released.
+            </div>
+          </Banner>
+        )}
+      </div>
 
       {/* Setup checklist */}
       {(needsLocation || !canWithdraw || taxFormRequired) && (
@@ -321,7 +323,7 @@ function CreatorDashboardContent() {
           <Card>
             <div className="flex items-center justify-between mb-4">
               <SectionLabel>recent transactions</SectionLabel>
-              <Link href="/cash" className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors">
+              <Link href="/creator/ledger" className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors">
                 full ledger →
               </Link>
             </div>
@@ -370,6 +372,7 @@ function CreatorDashboardContent() {
           </Card>
 
           {/* Bank account */}
+          <div id="bank-account">
           <Card>
             <div className="flex items-start justify-between mb-3">
               <SectionLabel>bank account</SectionLabel>
@@ -402,7 +405,10 @@ function CreatorDashboardContent() {
               </Button>
             )}
           </Card>
+          </div>
 
+          {/* Tax — W-9 / W-8BEN */}
+          <div id="tax">
           {/* Tax — W-9 */}
           {isUS && w9Status && (
             <Card className={w9Status.record?.tin_matched ? 'border-good/30' : w9Status.requires_w9 ? 'border-warn/30' : ''}>
@@ -484,11 +490,13 @@ function CreatorDashboardContent() {
               )}
             </Card>
           )}
+          </div>
         </div>
 
         {/* RIGHT sidebar */}
         <div className="space-y-4">
           {/* Withdraw */}
+          <div id="available">
           <Card className="border-[var(--color-role)]/30">
             <SectionLabel className="mb-1">available</SectionLabel>
             <div className="font-mono text-[32px] font-medium tabular-nums text-creator mb-3">
@@ -548,6 +556,7 @@ function CreatorDashboardContent() {
               </div>
             )}
           </Card>
+          </div>
 
           {/* Status summary */}
           <Card>

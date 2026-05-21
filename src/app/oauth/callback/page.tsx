@@ -17,6 +17,17 @@ function OAuthCallbackContent() {
     const err   = searchParams.get('error');
 
     if (token) {
+      // Nonce check: verify this callback was initiated from this browser session.
+      // This prevents simple token injection attacks where an attacker crafts a
+      // /oauth/callback?token=... URL. If the nonce is missing, the flow did not
+      // originate from a legitimate handleOAuth call in this tab.
+      const nonce = sessionStorage.getItem('oauth_nonce');
+      if (!nonce) {
+        router.replace('/login?error=invalid_oauth_state');
+        return;
+      }
+      sessionStorage.removeItem('oauth_nonce');
+
       setToken(token);
       refreshUser()
         .then(() => router.replace('/dashboard'))

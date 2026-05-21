@@ -560,8 +560,8 @@ export const billing = {
 // Cash (creator-specific endpoints)
 export const cash = {
   /** Wallet overview for the authenticated creator: confirmed balance + pending earnings. */
-  creatorBalance: () =>
-    request<CreatorBalance>('/cash/creator-balance'),
+  creatorBalance: (page?: number) =>
+    request<CreatorBalance>(`/cash/creator-balance${page && page > 1 ? `?available_page=${page}` : ''}`),
 
   /** Per-bounty earnings breakdown for the authenticated creator. */
   creatorEarnings: () =>

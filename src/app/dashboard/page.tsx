@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { bounties as bountiesApi, billing, pledges as pledgesApi } from '@/lib/api';
-import { BILLING_DAY } from '@/lib/config';
+import { nextBillingInfo } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
 import type { Bounty, CashBalance, PaginatedResponse, PublicUserPledge } from '@/lib/types';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
@@ -94,9 +94,7 @@ export default function DashboardPage() {
   const balanceIsNegative = balance < 0;
   const outstandingAmount = balanceIsNegative ? Math.abs(balance) : 0;
 
-  const now = new Date();
-  const nextBilling = new Date(now.getFullYear(), now.getMonth() + (now.getDate() >= BILLING_DAY ? 1 : 0), BILLING_DAY);
-  const nextBillingStr = nextBilling.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const { date: nextBilling, label: nextBillingStr } = nextBillingInfo();
 
   const activePledges = myPledges.filter((v) => v.bounty?.status !== 'revoked' && v.bounty?.status !== 'paid_out');
   const awaitingBilling = myPledges.filter((v) => v.bounty?.status === 'pending');

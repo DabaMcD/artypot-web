@@ -6,9 +6,9 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { auth as authApi } from '@/lib/api';
+import { PLATFORM_FEE_PCT } from '@/lib/config';
 import { Button } from '@/components/ui/Button';
 import { Input, FieldLabel } from '@/components/ui/Input';
-import { Toggle } from '@/components/ui/Toggle';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 
 /** All OAuth providers the backend supports, in preferred display order. */
@@ -41,7 +41,6 @@ export default function LoginPage() {
   const [emailInput, setEmailInput] = useState('');
   const [phoneInput, setPhoneInput] = useState<E164Number | undefined>(undefined);
   const [password, setPassword] = useState('');
-  const [remember, setRemember] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
@@ -83,6 +82,10 @@ export default function LoginPage() {
     setError('');
     setOauthLoading(provider);
     try {
+      // Generate and store a nonce so the callback page can verify this flow
+      // was initiated from this browser, preventing token injection attacks.
+      const nonce = crypto.randomUUID();
+      sessionStorage.setItem('oauth_nonce', nonce);
       const { url } = await authApi.oauthRedirect(provider);
       window.location.href = url;
     } catch (err: unknown) {
@@ -130,7 +133,7 @@ export default function LoginPage() {
           </div>
           <div>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted">platform fee</div>
-            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">20%</div>
+            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">{PLATFORM_FEE_PCT}%</div>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">no sales tax</div>
           </div>
         </div>
@@ -242,8 +245,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <Toggle on={remember} onChange={setRemember} label="remember me" />
+          <div className="flex justify-end">
             <Link href="/forgot-password" className="ap-inline-link text-sm">forgot password?</Link>
           </div>
 

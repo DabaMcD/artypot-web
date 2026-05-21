@@ -33,7 +33,7 @@ export default function ToSPage() {
           <ul className="space-y-2 text-sm text-foreground">
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>No money moves when you back a bounty</strong> — not even a hold. Your card is only charged after The Council confirms a bounty complete.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>You can back out any time</strong> before a bounty completes, for free. No questions asked.</span></li>
-            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Artypot takes a 20% platform fee</strong>, deducted from the creator&apos;s payout. This fee covers all transaction costs including payment processing — backers are charged their committed amount in full, creators receive 90%.</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Artypot takes a 20% platform fee</strong>, deducted from the creator&apos;s payout. This fee covers all transaction costs including payment processing — backers are charged their committed amount in full, creators receive 80%.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Payouts go to US-based creators only</strong> for now. Fans anywhere in the world can back bounties.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>If a bounty never completes, no money moves.</strong> Ever.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>No NSFW requests.</strong> Artypot is an all-ages platform. You may not use bounties to commission sexually explicit, graphic, or adult-only content. This applies equally to bounty descriptions, submissions, comments, and profiles.</span></li>
@@ -118,7 +118,7 @@ export default function ToSPage() {
           </Section>
 
           <Section id="fees" title="8. Fees">
-            <p>When a bounty pays out, Artypot deducts a <strong className="text-foreground">20% platform fee</strong> from the creator&apos;s payout. This single fee is all-inclusive: it covers Artypot&apos;s operating costs and all payment processing costs (including Stripe card transaction fees). Creators always receive 90% of the total amount backed.</p>
+            <p>When a bounty pays out, Artypot deducts a <strong className="text-foreground">20% platform fee</strong> from the creator&apos;s payout. This single fee is all-inclusive: it covers Artypot&apos;s operating costs and all payment processing costs (including Stripe card transaction fees). Creators always receive 80% of the total amount backed.</p>
             <p>Backers are charged their exact committed amount — no processing surcharges are ever added to a backer&apos;s charge.</p>
             <p>Fee rates may change with notice. Changes apply to bounties opened after the effective date of the change.</p>
           </Section>

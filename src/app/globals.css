@@ -265,19 +265,19 @@ body {
 }
 
 /* ── Hash-anchor navigation ───────────────────────────────────────────────────
-   scroll-margin-top: the sticky header is h-14 (56 px). Adding this to every
+   scroll-margin-top: the sticky header is h-16 (64 px). Adding this to every
    [id] element ensures hash-navigating to it never tucks the target underneath
    the header. Only fires when the browser scrolls to a hash target; does not
    affect normal layout.
 
-   :target animation: when the URL hash points at an element, briefly flash a
-   warm ring around it so the user knows what they scrolled to, then fade out.
-   Structure in settings pages is <div id="..."><Card> (a plain div), so the
-   selector targets the first child div (the rendered Card).
+   .hash-highlighted: added/removed by HashHighlight.tsx (JS-driven — the CSS
+   :target pseudo-class is unreliable with Next.js SPA pushState navigation).
+   Structure in settings pages is <div id="..."><Card>, so the class is placed
+   on the first child div (the rendered Card) by the component.
 ──────────────────────────────────────────────────────────────────────────── */
 
 [id] {
-  scroll-margin-top: 5rem; /* 80 px: header 56 px + 24 px breathing room */
+  scroll-margin-top: 5.5rem; /* 88 px: header 64 px + 24 px breathing room */
 }
 
 @keyframes hash-highlight {
@@ -293,8 +293,7 @@ body {
   }
 }
 
-/* Target the Card (first child div) inside a hash-navigated wrapper */
-:target > div:first-child {
+.hash-highlighted {
   animation: hash-highlight 2.5s ease-out forwards;
   border-radius: 0.75rem; /* matches Tailwind rounded-xl used by Card */
 }

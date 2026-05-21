@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { billing } from '@/lib/api';
-import { BILLING_DAY } from '@/lib/config';
+import { BILLING_DAY, nextBillingInfo, WARP_SPEED, PLATFORM_FEE_PCT } from '@/lib/config';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
 import { ConfirmPaymentModal } from '@/components/ConfirmPaymentModal';
 import { Button } from '@/components/ui/Button';
@@ -74,15 +74,28 @@ export default function BillingPage() {
   const hasOutstandingBalance = balance !== null && balance < 0;
   const outstandingAmount = hasOutstandingBalance ? Math.abs(balance) : 0;
 
-  const now = new Date();
-  const dayOfMonth = now.getDate();
-  const previewDay = BILLING_DAY - 1;
-  const previewDate = dayOfMonth < previewDay
-    ? `${now.toLocaleDateString('en-US', { month: 'short' })} ${previewDay}`
-    : `${new Date(now.getFullYear(), now.getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'short' })} ${previewDay}`;
-  const chargeDate = dayOfMonth < BILLING_DAY
-    ? `${now.toLocaleDateString('en-US', { month: 'short' })} ${BILLING_DAY}`
-    : `${new Date(now.getFullYear(), now.getMonth() + 1, 1).toLocaleDateString('en-US', { month: 'short' })} ${BILLING_DAY}`;
+  const { label: chargeDate } = nextBillingInfo();
+  // Preview fires one "unit" before billing (one day normal, one minute warp)
+  const previewDate = (() => {
+    if (WARP_SPEED) {
+      const now = new Date();
+      const previewMinute = BILLING_DAY - 1;
+      const d = new Date(now);
+      d.setSeconds(0, 0);
+      if (now.getMinutes() < previewMinute) {
+        d.setMinutes(previewMinute);
+      } else {
+        d.setHours(now.getHours() + 1, previewMinute, 0, 0);
+      }
+      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+    const now = new Date();
+    const previewDay = BILLING_DAY - 1;
+    const d = now.getDate() < previewDay
+      ? new Date(now.getFullYear(), now.getMonth(), previewDay)
+      : new Date(now.getFullYear(), now.getMonth() + 1, previewDay);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  })();
 
   return (
     <div className="space-y-7 pt-2 max-w-[680px]">
@@ -138,26 +151,28 @@ export default function BillingPage() {
                 <td className="py-1.5 text-right font-bold tabular-nums">${outstandingAmount.toFixed(2)}</td>
               </tr>
               <tr>
-                <td className="py-1 text-[11px] text-muted">− platform fee (15%)</td>
-                <td className="py-1 text-right text-[11px] text-muted tabular-nums">−${(outstandingAmount * 0.15).toFixed(2)}</td>
+                <td className="py-1 text-[11px] text-muted">− platform fee ({PLATFORM_FEE_PCT}%)</td>
+                <td className="py-1 text-right text-[11px] text-muted tabular-nums">−${(outstandingAmount * PLATFORM_FEE_PCT / 100).toFixed(2)}</td>
               </tr>
               <tr className="border-t border-border">
                 <td className="py-1.5 text-creator font-bold">creators receive</td>
-                <td className="py-1.5 text-right text-creator font-bold tabular-nums">${(outstandingAmount * 0.85).toFixed(2)}</td>
+                <td className="py-1.5 text-right text-creator font-bold tabular-nums">${(outstandingAmount * (1 - PLATFORM_FEE_PCT / 100)).toFixed(2)}</td>
               </tr>
             </tbody>
           </table>
           <p className="text-xs text-muted mt-3 pt-3 border-t border-dashed border-border">
-            The 15% platform fee covers all transaction costs. You are always charged your exact committed amount.
+            The {PLATFORM_FEE_PCT}% platform fee covers all transaction costs. You are always charged your exact committed amount.
           </p>
         </Card>
       )}
 
       {/* Payment method */}
-      <Card>
-        <SectionLabel className="mb-4">payment method</SectionLabel>
-        <PaymentMethodManager />
-      </Card>
+      <div id="payment-method">
+        <Card>
+          <SectionLabel className="mb-4">payment method</SectionLabel>
+          <PaymentMethodManager />
+        </Card>
+      </div>
 
       {/* How billing works */}
       <Card dashed>
@@ -167,7 +182,7 @@ export default function BillingPage() {
             'You commit an amount when you back a bounty. Nothing is charged at that point.',
             'When a creator submits their work and the council approves it, your charge is locked in. You can only back out while the bounty is still open.',
             `Locked charges are collected automatically on the ${BILLING_DAY}th of each month, or you can pay early.`,
-            'Artypot takes a 15% all-in platform fee from the creator\'s payout. You always pay your exact committed amount.',
+            `Artypot takes a ${PLATFORM_FEE_PCT}% all-in platform fee from the creator's payout. You always pay your exact committed amount.`,
           ].map((item, i) => (
             <li key={i} className="flex items-start gap-2">
               <span className="text-fan mt-0.5 shrink-0">✓</span>

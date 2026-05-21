@@ -180,6 +180,10 @@ export default function RegisterPage() {
     setError('');
     setOauthLoading(provider);
     try {
+      // Generate and store a nonce so the callback page can verify this flow
+      // was initiated from this browser, preventing token injection attacks.
+      const nonce = crypto.randomUUID();
+      sessionStorage.setItem('oauth_nonce', nonce);
       const { url } = await authApi.oauthRedirect(provider);
       window.location.href = url;
     } catch (err: unknown) {
