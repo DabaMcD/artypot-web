@@ -7,20 +7,13 @@ import { pledges as pledgesApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { PublicUserPledge, CashBalance } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Empty } from '@/components/ui/Empty';
 import { BILLING_DAY } from '@/lib/config';
+import { BountyStatusBadge } from '@/components/BountyStatusBadge';
+import ShareButton from '@/components/ShareButton';
 
 type SortKey = 'date' | 'amount';
-
-const STATUS_BADGE: Record<string, { label: string; tone: 'default' | 'info' | 'good' | 'warn' | 'bad' }> = {
-  open:      { label: 'open',      tone: 'default' },
-  pending:   { label: 'approved',  tone: 'warn' },
-  completed: { label: 'submitted', tone: 'info' },
-  paid_out:  { label: 'paid out',  tone: 'good' },
-  revoked:   { label: 'revoked',   tone: 'bad' },
-};
 
 export default function MyPledgesPage() {
   const router = useRouter();
@@ -142,7 +135,6 @@ export default function MyPledgesPage() {
               <div className="divide-y divide-border -mx-5 -my-4">
                 {pledges.map((pledge) => {
                   const status = pledge.bounty?.status ?? 'open';
-                  const badge = STATUS_BADGE[status] ?? { label: status, tone: 'default' as const };
                   return (
                     <div key={pledge.id} className="flex items-center gap-3 px-5 py-3.5">
                       <div className="flex-1 min-w-0">
@@ -163,7 +155,10 @@ export default function MyPledgesPage() {
                           )}
                         </div>
                       </div>
-                      <Badge tone={badge.tone}>{badge.label}</Badge>
+                      <BountyStatusBadge status={status} />
+                      {pledge.bounty && (
+                        <ShareButton path={`/bounties/${pledge.bounty_id}`} title={pledge.bounty.title} />
+                      )}
                       <span className="font-mono text-sm font-medium text-fan tabular-nums shrink-0">
                         ${Number(pledge.amount).toFixed(2)}
                       </span>
@@ -208,9 +203,6 @@ export default function MyPledgesPage() {
               ${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </div>
             <div className="font-mono text-[10px] text-muted mt-0.5">on {billingDateStr}</div>
-            <div className="border-t border-border mt-3 pt-3">
-              <p className="text-xs text-muted">fees are deducted from creator payouts — you pay exactly this amount.</p>
-            </div>
           </Card>
           <Card>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">payment method</div>

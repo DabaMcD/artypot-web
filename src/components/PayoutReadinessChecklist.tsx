@@ -58,7 +58,7 @@ export default function PayoutReadinessChecklist() {
     {
       label: 'Creator TOS agreed',
       done: (user as unknown as Record<string, unknown>).creator_tos_accepted_at != null,
-      href: '/sanctum',
+      href: '/creator',
     },
     {
       label: 'Country / region set',
@@ -75,7 +75,7 @@ export default function PayoutReadinessChecklist() {
           {
             label: 'Bank account connected',
             done: creator.bank_connected === true,
-            href: '/sanctum',
+            href: '/creator',
           } as ChecklistItem,
         ]
       : isManualPayoutRegion
@@ -90,7 +90,7 @@ export default function PayoutReadinessChecklist() {
     {
       label: `Tax form submitted (${taxFormLabel})`,
       done: taxFormDone,
-      href: '/sanctum',
+      href: '/creator',
     },
     {
       label: `Minimum balance reached ($${payoutMin} required, $${amountEarned.toFixed(2)} earned)`,
@@ -114,7 +114,7 @@ export default function PayoutReadinessChecklist() {
               Identity verification required by Stripe
             </span>
             <Link
-              href="/sanctum"
+              href="/creator"
               className="ml-2 text-xs text-bad underline underline-offset-2 hover:opacity-80 transition-opacity"
             >
               Complete now →

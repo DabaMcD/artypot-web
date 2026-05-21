@@ -2,6 +2,10 @@ import { BILLING_DAY } from '@/lib/config';
 
 interface Balances {
   pending: number;
+  /** Subset of pending from fans with an active payment method. When provided,
+   *  the cell shows the solid amount as the headline and a "+ $X soft" line for
+   *  the remainder, matching the "open backing" card pattern. */
+  solidPending?: number;
   clearing: number;
   available: number;
 }
@@ -11,6 +15,11 @@ interface BalancePipelineProps {
 }
 
 export function BalancePipeline({ balances }: BalancePipelineProps) {
+  const softPending =
+    balances.solidPending !== undefined
+      ? Math.max(0, balances.pending - balances.solidPending)
+      : undefined;
+
   return (
     <div className="grid grid-cols-3 border border-border rounded-md overflow-hidden bg-surface">
       {/* Pending */}
@@ -20,9 +29,14 @@ export function BalancePipeline({ balances }: BalancePipelineProps) {
           pending
         </div>
         <div className="font-mono font-medium text-xl text-foreground tabular-nums">
-          ${balances.pending.toLocaleString()}
+          ${(balances.solidPending ?? balances.pending).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
         <div className="text-sm text-muted mt-1">verified by Council - bills on the {BILLING_DAY}th</div>
+        {softPending !== undefined && softPending > 0.005 && (
+          <div className="font-mono text-[10px] text-muted mt-1">
+            + ${softPending.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} soft
+          </div>
+        )}
       </div>
 
       {/* Clearing */}
@@ -32,7 +46,7 @@ export function BalancePipeline({ balances }: BalancePipelineProps) {
           clearing
         </div>
         <div className="font-mono font-medium text-xl text-foreground tabular-nums">
-          ${balances.clearing.toLocaleString()}
+          ${balances.clearing.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
         <div className="text-sm text-muted mt-1">fans billed · 7-day clearing window</div>
       </div>
@@ -44,7 +58,7 @@ export function BalancePipeline({ balances }: BalancePipelineProps) {
           available
         </div>
         <div className="font-mono font-medium text-xl text-foreground tabular-nums">
-          ${balances.available.toLocaleString()}
+          ${balances.available.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
         <div className="text-sm text-muted mt-1">withdraw to your bank (min $1)</div>
       </div>

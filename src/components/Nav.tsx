@@ -210,11 +210,11 @@ export default function Nav() {
                           <>
                             <div className="border-t border-border" />
                             <Link
-                              href="/sanctum"
+                              href="/creator"
                               onClick={() => setMenuOpen(false)}
                               className="block px-4 py-2.5 hover:bg-border transition-colors text-creator"
                             >
-                              Creator Sanctum
+                              Creator Dashboard
                             </Link>
                           </>
                         )}
@@ -408,8 +408,8 @@ export default function Nav() {
                 Settings
               </Link>
               {(user.role === 'creator' || user.role === 'council') && !!user.creator && (
-                <Link href="/sanctum" onClick={() => setDrawerOpen(false)} className="block px-4 py-3 text-sm font-medium text-creator transition-colors">
-                  Creator Sanctum
+                <Link href="/creator" onClick={() => setDrawerOpen(false)} className="block px-4 py-3 text-sm font-medium text-creator transition-colors">
+                  Creator Dashboard
                 </Link>
               )}
               {user.role === 'council' && (

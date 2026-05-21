@@ -8,7 +8,7 @@ import { GateCard } from '@/components/ui/GateCard';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 
-export default function SanctumSetupPage() {
+export default function CreatorSetupPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -51,7 +51,7 @@ export default function SanctumSetupPage() {
             detail: 'Submit your W-9 (US) or W-8BEN (international) once your annual payouts reach the threshold.',
             status: 'todo',
           }}
-          action={<Link href="/sanctum"><Button variant="default" size="sm">Go to Sanctum →</Button></Link>}
+          action={<Link href="/creator"><Button variant="default" size="sm">Go to Dashboard →</Button></Link>}
         />
         <GateCard
           gate={{
@@ -59,14 +59,14 @@ export default function SanctumSetupPage() {
             detail: 'Connect a Stripe-verified bank account for direct payouts.',
             status: creator?.bank_connected ? 'done' : 'todo',
           }}
-          action={<Link href="/sanctum"><Button variant="default" size="sm">Connect Bank →</Button></Link>}
+          action={<Link href="/creator"><Button variant="default" size="sm">Connect Bank →</Button></Link>}
         />
       </div>
 
       <Card dashed>
         <p className="text-sm text-muted">
           Gates 3 and 4 are handled from your{' '}
-          <Link href="/sanctum" className="ap-inline-link">main sanctum page</Link>.
+          <Link href="/creator" className="ap-inline-link">main dashboard</Link>.
         </p>
       </Card>
     </div>

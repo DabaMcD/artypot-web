@@ -3,11 +3,12 @@
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { creators as creatorsApi, bounties as bountiesApi, creatorNames as creatorNamesApi } from '@/lib/api';
+import { creators as creatorsApi, bounties as bountiesApi, following as followingApi } from '@/lib/api';
+import { useToast } from '@/lib/toast-context';
 import { countryFlag, countryName } from '@/lib/countries';
 import { useAuth } from '@/lib/auth-context';
 import { useViewMode } from '@/lib/view-mode-context';
-import type { Creator, PaginatedResponse, Bounty, CreatorName } from '@/lib/types';
+import type { Creator, PaginatedResponse, Bounty } from '@/lib/types';
 import BountyCard from '@/components/BountyCard';
 import ShareButton from '@/components/ShareButton';
 import { Card, SectionLabel } from '@/components/ui/Card';
@@ -218,12 +219,12 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   const { slug } = use(params);
   const router = useRouter();
   const { user } = useAuth();
+  const { toast } = useToast();
   const { mode } = useViewMode();
   const isCreatorMode = mode === 'creator';
 
   const [creator, setCreator] = useState<Creator | null>(null);
   const [bountiesData, setBountiesData] = useState<PaginatedResponse<Bounty> | null>(null);
-  const [names, setNames] = useState<CreatorName[]>([]);
   const [pageState, setPageState] = useState<'loading' | 'not-found' | 'error' | 'ready'>('loading');
   const [showHeraldModal, setShowHeraldModal] = useState(false);
 
@@ -231,13 +232,9 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [claimSuccess, setClaimSuccess] = useState(false);
 
-  // Alias state
-  const [newAlias, setNewAlias] = useState('');
-  const [addingAlias, setAddingAlias] = useState(false);
-  const [aliasError, setAliasError] = useState('');
-
-  const loadNames = (creatorId: number) =>
-    creatorNamesApi.list(creatorId).then((r) => setNames(r.data));
+  // Follow state
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -254,17 +251,23 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
 
         // res.match === 'current' — load full profile data
         const userId = res.user.id;
-        const [creatorRes, bountiesRes, namesRes] = await Promise.all([
+        const [creatorRes, bountiesRes] = await Promise.all([
           creatorsApi.get(userId),
           bountiesApi.list({ creator_id: userId }),
-          creatorNamesApi.list(userId),
         ]);
         if (cancelled) return;
 
         setCreator(creatorRes.data);
         setBountiesData(bountiesRes);
-        setNames(namesRes.data);
         setPageState('ready');
+
+        // Load following state for logged-in users
+        if (user) {
+          followingApi.index().then((f) => {
+            if (cancelled) return;
+            setIsFollowing(f.users.includes(creatorRes.data.user_id ?? -1));
+          }).catch(() => {});
+        }
       } catch (err) {
         if (cancelled) return;
         const status = (err as { status?: number }).status;
@@ -283,31 +286,23 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
     }
   };
 
-  const handleAddAlias = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!creator || !newAlias.trim()) return;
-    setAddingAlias(true);
-    setAliasError('');
+  const handleFollowToggle = async () => {
+    if (!user || !creator) return;
+    setFollowLoading(true);
     try {
-      await creatorNamesApi.create(creator.id, newAlias.trim());
-      setNewAlias('');
-      await loadNames(creator.id);
-    } catch (err: unknown) {
-      const e = err as { message?: string };
-      setAliasError(e.message ?? 'Failed to add alias.');
+      if (isFollowing) {
+        await followingApi.unfollow('user', creator.user_id!);
+        setIsFollowing(false);
+        toast('Unfollowed.', 'success');
+      } else {
+        await followingApi.follow('user', creator.user_id!);
+        setIsFollowing(true);
+        toast('Following!', 'success');
+      }
+    } catch {
+      toast('Failed to update follow status.', 'error');
     } finally {
-      setAddingAlias(false);
-    }
-  };
-
-  const handleDeleteAlias = async (nameId: number) => {
-    if (!creator) return;
-    try {
-      await creatorNamesApi.delete(creator.id, nameId);
-      await loadNames(creator.id);
-    } catch (err: unknown) {
-      const e = err as { message?: string };
-      alert(e.message ?? 'Failed to delete alias.');
+      setFollowLoading(false);
     }
   };
 
@@ -364,7 +359,6 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   const canClaim  = false;
   const isOwner   = user && creator.user_id === user.id;
   const isHerald  = user && creator.herald_user_id === user.id;
-  const canDeleteAlias = () => !!(user && (isOwner || isHerald || user.role === 'council'));
   const socialLinks = SOCIAL_LINKS.filter(({ key }) => creator[key]);
 
   return (
@@ -468,6 +462,20 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                   </div>
                 )}
 
+                {/* Follow button — shown to any logged-in user who isn't the creator */}
+                {user && user.id !== (creator.user_id ?? -1) && (
+                  <div className="shrink-0">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={handleFollowToggle}
+                      disabled={followLoading}
+                    >
+                      {followLoading ? '…' : isFollowing ? 'Unfollow' : 'Follow'}
+                    </Button>
+                  </div>
+                )}
+
                 {canClaim && !claimSuccess && (
                   <div className="shrink-0">
                     <button
@@ -566,57 +574,6 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                   ))}
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* ── Sidebar ─────────────────────────────────────────────────────── */}
-          <div className="w-full lg:w-72 shrink-0">
-            <div className="bg-surface border border-border rounded-xl p-4">
-              <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">
-                Also Known As
-              </h3>
-
-              {names.length === 0 ? (
-                <p className="text-xs text-muted italic">No aliases yet.</p>
-              ) : (
-                <ul className="space-y-1 mb-3">
-                  {names.map((n) => (
-                    <li key={n.id} className="flex items-center justify-between gap-2 group">
-                      <span className="text-sm text-foreground truncate">{n.name}</span>
-                      {isCreatorMode && canDeleteAlias() && (
-                        <button
-                          onClick={() => handleDeleteAlias(n.id)}
-                          title="Remove alias"
-                          className="text-muted hover:text-red-400 transition-colors text-xs opacity-0 group-hover:opacity-100 shrink-0"
-                        >
-                          ✕
-                        </button>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {user && (
-                <form onSubmit={handleAddAlias} className="flex gap-2 mt-2">
-                  <input
-                    type="text"
-                    value={newAlias}
-                    onChange={(e) => setNewAlias(e.target.value)}
-                    placeholder="Add an alias…"
-                    maxLength={100}
-                    className="flex-1 bg-surface-2 border border-border text-foreground text-xs rounded px-2 py-1.5 focus:outline-none focus:border-creator/50 placeholder:text-muted"
-                  />
-                  <button
-                    type="submit"
-                    disabled={addingAlias || !newAlias.trim()}
-                    className="text-xs bg-creator text-black font-semibold px-3 py-1.5 rounded hover:opacity-90 disabled:opacity-40 transition-opacity"
-                  >
-                    Add
-                  </button>
-                </form>
-              )}
-              {aliasError && <p className="text-red-400 text-xs mt-1">{aliasError}</p>}
             </div>
           </div>
 

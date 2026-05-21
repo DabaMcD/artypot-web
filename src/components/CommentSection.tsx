@@ -120,7 +120,7 @@ function CommentRow({
   currentUserId,
   isCouncil,
   replies,
-  replyText = '',
+  replyText,
   editingText,
   onLoadReplies,
   onSetReplyText,
@@ -218,10 +218,10 @@ function CommentRow({
             {/* Reply — only on top-level, only if logged in */}
             {!isReply && currentUserId && (
               <button
-                onClick={() => onSetReplyText(replyText === '' ? '' : '')}
+                onClick={() => onSetReplyText(replyText !== undefined ? '\x00CLOSE' : '')}
                 className="text-xs text-muted hover:text-foreground transition-colors"
               >
-                Reply
+                {replyText !== undefined ? 'Cancel' : 'Reply'}
               </button>
             )}
 
@@ -254,7 +254,7 @@ function CommentRow({
           <div className="mt-3 space-y-2">
             <textarea
               rows={2}
-              value={replyText}
+              value={replyText ?? ''}
               onChange={(e) => onSetReplyText(e.target.value)}
               maxLength={2000}
               placeholder="Write a reply…"

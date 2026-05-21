@@ -40,7 +40,7 @@ const PROVIDERS = _enabledSet
 export default function LoginPage() {
   const { user, loading: authLoading, login } = useAuth();
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState('');
@@ -58,7 +58,7 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
+      await login(identifier, password);
       router.push('/dashboard');
     } catch (err: unknown) {
       const e = err as { status?: number; message?: string };
@@ -121,7 +121,7 @@ export default function LoginPage() {
           </div>
           <div>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted">platform fee</div>
-            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">15%</div>
+            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">20%</div>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">no sales tax</div>
           </div>
         </div>
@@ -164,7 +164,7 @@ export default function LoginPage() {
         {/* Divider */}
         <div className="flex items-center gap-3 mb-5">
           <div className="flex-1 h-px bg-border" />
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted">or email</span>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted">or</span>
           <div className="flex-1 h-px bg-border" />
         </div>
 
@@ -176,14 +176,14 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <FieldLabel>email</FieldLabel>
+            <FieldLabel>email or phone number</FieldLabel>
             <Input
-              type="email"
+              type="text"
               required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              autoComplete="username"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              placeholder="you@example.com or +14155550100"
             />
           </div>
           <div>

@@ -19,6 +19,8 @@ export default function CashPage() {
 
   const [error, setError] = useState('');
 
+  const isPayoutBlocked = user?.creator?.payout_category === 3;
+
   useEffect(() => {
     if (loading) return;
     if (!user) { router.push('/login'); return; }
@@ -26,7 +28,7 @@ export default function CashPage() {
   }, [loading, user, router]);
 
   useEffect(() => {
-    if (!user || user.role === 'fan') return;
+    if (!user || user.role === 'fan' || isPayoutBlocked) return;
 
     cashApi
       .creatorBalance()
@@ -47,6 +49,30 @@ export default function CashPage() {
         <div className="h-8 w-40 bg-surface animate-pulse rounded" />
         <div className="h-28 bg-surface animate-pulse rounded-xl" />
         <div className="h-28 bg-surface animate-pulse rounded-xl" />
+      </div>
+    );
+  }
+
+  if (isPayoutBlocked) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-10">
+        <div className="mb-6">
+          <h1 className="text-2xl font-display font-bold text-foreground mb-1">Earnings</h1>
+        </div>
+        <div className="bg-surface border border-border rounded-xl p-8 text-center space-y-3">
+          <p className="text-lg font-semibold text-foreground">Payouts unavailable in your region</p>
+          <p className="text-muted text-sm leading-relaxed max-w-sm mx-auto">
+            Due to international payment restrictions, we&apos;re unable to process payouts to
+            creators in your country at this time. Your bounty activity is otherwise unaffected.
+          </p>
+          <p className="text-muted text-xs">
+            If you believe this is an error, please{' '}
+            <a href="mailto:support@artypot.com" className="text-creator hover:underline">
+              contact support
+            </a>
+            .
+          </p>
+        </div>
       </div>
     );
   }
@@ -98,11 +124,24 @@ export default function CashPage() {
               <p className="text-xs text-muted mt-0.5">sent to bank</p>
             </div>
           </div>
-          {balance.pending_payment > 0 && (
-            <p className="text-xs text-muted mt-4 pt-4 border-t border-border leading-relaxed">
-              Pending Payment amounts are fan obligations locked in at bounty approval. Fans have
-              up to 50 days to pay; amounts will flow through Clearing into Available once collected.
-            </p>
+          {(balance.pending_payment > 0 || user?.creator?.payout_category === 2) && (
+            <div className="mt-4 pt-4 border-t border-border space-y-2">
+              {balance.pending_payment > 0 && (
+                <p className="text-xs text-muted leading-relaxed">
+                  Pending Payment amounts are fan obligations locked in at bounty approval. Fans have
+                  up to 50 days to pay; amounts will flow through Clearing into Available once collected.
+                </p>
+              )}
+              {user?.creator?.payout_category === 2 && (
+                <p className="text-xs text-amber-400/80 leading-relaxed">
+                  Your country requires manual payout processing. Minimum withdrawal:{' '}
+                  <strong className="text-amber-400">
+                    ${user.creator.payout_minimum?.toLocaleString('en-US', { minimumFractionDigits: 0 }) ?? '50'}
+                  </strong>
+                  . Payouts are sent via Wise, PayPal, or wire transfer.
+                </p>
+              )}
+            </div>
           )}
         </div>
       )}

@@ -2,7 +2,6 @@ import type {
   User,
   PublicUser,
   Creator,
-  CreatorName,
   NotificationSettings,
   UserNotification,
   NotificationPage,
@@ -117,16 +116,34 @@ async function requestMultipart<T>(path: string, body: FormData): Promise<T> {
 
 // Auth
 export const auth = {
-  register: (name: string, email: string, password: string, password_confirmation: string) =>
-    request<{ token: string }>('/auth/register', {
+  register: (payload: {
+    name: string;
+    email?: string;
+    phone_number?: string;
+    password: string;
+    password_confirmation: string;
+  }) =>
+    request<{ token: string; phone_verification_required?: boolean }>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ display_name: name, email, password, password_confirmation, agreed_to_terms: true }),
+      body: JSON.stringify({
+        display_name:           payload.name,
+        email:                  payload.email       || undefined,
+        phone_number:           payload.phone_number || undefined,
+        password:               payload.password,
+        password_confirmation:  payload.password_confirmation,
+        agreed_to_terms:        true,
+      }),
     }),
 
-  login: (email: string, password: string) =>
+  login: (identifier: string, password: string) =>
     request<{ token: string }>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      // Phone numbers start with '+'; everything else is treated as an email.
+      body: JSON.stringify(
+        identifier.startsWith('+')
+          ? { phone_number: identifier, password }
+          : { email: identifier, password },
+      ),
     }),
 
   logout: () => request('/auth/logout', { method: 'POST' }),
@@ -300,21 +317,6 @@ export const creators = {
     }),
 };
 
-// Creator Names (aliases)
-export const creatorNames = {
-  list: (creatorId: number) =>
-    request<{ data: CreatorName[] }>(`/creators/${creatorId}/names`),
-
-  create: (creatorId: number, name: string) =>
-    request<{ data: CreatorName }>(`/creators/${creatorId}/names`, {
-      method: 'POST',
-      body: JSON.stringify({ name }),
-    }),
-
-  delete: (creatorId: number, nameId: number) =>
-    request<void>(`/creators/${creatorId}/names/${nameId}`, { method: 'DELETE' }),
-};
-
 // Bounties
 export const bounties = {
   list: (params?: { creator_id?: number; status?: BountyStatus; page?: number }) => {
@@ -448,6 +450,25 @@ export const notificationSettings = {
     request<NotificationSettings>('/auth/notification-settings', {
       method: 'PUT',
       body: JSON.stringify(data),
+    }),
+  reset: () =>
+    request<NotificationSettings>('/auth/notification-settings/reset', {
+      method: 'PUT',
+    }),
+};
+
+// Following
+export const following = {
+  index: () =>
+    request<{ users: number[]; bounties: number[] }>('/auth/following'),
+  follow: (type: 'user' | 'bounty', id: number) =>
+    request<{ followed: boolean }>('/auth/following', {
+      method: 'POST',
+      body: JSON.stringify({ type, id }),
+    }),
+  unfollow: (type: 'user' | 'bounty', id: number) =>
+    request<{ followed: boolean }>(`/auth/following/${type}/${id}`, {
+      method: 'DELETE',
     }),
 };
 

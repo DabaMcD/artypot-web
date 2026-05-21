@@ -357,32 +357,55 @@ function Step1({
 
 interface Step2Props {
   target: TargetSelection;
+  isSelfBounty: boolean;
   onBack: () => void;
-  onNext: (title: string, description: string, amount: string) => void;
+  onNext: (title: string, description: string, amount: string, displayName: string) => void;
   initialTitle: string;
   initialDescription: string;
   initialAmount: string;
+  initialDisplayName: string;
 }
 
-function Step2({ target, onBack, onNext, initialTitle, initialDescription, initialAmount }: Step2Props) {
+function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDescription, initialAmount, initialDisplayName }: Step2Props) {
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
   const [amount, setAmount] = useState(initialAmount);
+  const [displayName, setDisplayName] = useState(initialDisplayName);
 
   const handleNext = () => {
     if (!title.trim()) return;
-    const amt = parseFloat(amount);
-    if (isNaN(amt) || amt < 1) return;
-    onNext(title.trim(), description.trim(), amount);
+    if (!isSelfBounty) {
+      const amt = parseFloat(amount);
+      if (isNaN(amt) || amt < 1) return;
+    }
+    if (target.kind === 'handle' && !displayName.trim()) return;
+    onNext(title.trim(), description.trim(), isSelfBounty ? '0' : amount, displayName.trim());
   };
 
   return (
     <div className="space-y-5">
       <div>
+        <button type="button" onClick={onBack} className="text-sm font-mono text-muted hover:text-foreground cursor-pointer transition-colors mb-3 block">
+          ← back
+        </button>
         <h1 className="font-display font-bold text-[28px] text-foreground">bounty details</h1>
       </div>
 
       <TargetingCard target={target} />
+
+      {target.kind === 'handle' && (
+        <Card>
+          <SectionLabel className="mb-3">creator name</SectionLabel>
+          <Input
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="e.g. Tom Scott"
+            required
+          />
+          <FieldHint>This name will be shown on your bounty.</FieldHint>
+        </Card>
+      )}
 
       <Card>
         <SectionLabel className="mb-3">what should they make?</SectionLabel>
@@ -407,36 +430,35 @@ function Step2({ target, onBack, onNext, initialTitle, initialDescription, initi
         </div>
       </Card>
 
-      <Card>
-        <SectionLabel className="mb-3">your opening commitment</SectionLabel>
-        <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-muted text-sm select-none">$</span>
-          <Input
-            type="number"
-            required
-            min={1}
-            max={999999.99}
-            step="0.01"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="pl-7"
-          />
-        </div>
-        <FieldHint>Minimum $1. You are only charged if council confirms the bounty is completed.</FieldHint>
-      </Card>
+      {!isSelfBounty && (
+        <Card>
+          <SectionLabel className="mb-3">your opening commitment</SectionLabel>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-muted text-sm select-none">$</span>
+            <Input
+              type="number"
+              required
+              min={1}
+              max={999999.99}
+              step="0.01"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="pl-7"
+            />
+          </div>
+          <FieldHint>Minimum $1. You are only charged if council confirms the bounty is completed.</FieldHint>
+        </Card>
+      )}
 
-      <div className="flex gap-3">
-        <Button type="button" variant="ghost" onClick={onBack}>← Back</Button>
-        <Button
-          type="button"
-          variant="primary"
-          className="flex-1 justify-center"
-          disabled={!title.trim() || parseFloat(amount) < 1}
-          onClick={handleNext}
-        >
-          Review →
-        </Button>
-      </div>
+      <Button
+        type="button"
+        variant="primary"
+        className="w-full justify-center"
+        disabled={!title.trim() || (!isSelfBounty && parseFloat(amount) < 1) || (target.kind === 'handle' && !displayName.trim())}
+        onClick={handleNext}
+      >
+        Review →
+      </Button>
     </div>
   );
 }
@@ -445,19 +467,24 @@ function Step2({ target, onBack, onNext, initialTitle, initialDescription, initi
 
 interface Step3Props {
   target: TargetSelection;
+  isSelfBounty: boolean;
   title: string;
   description: string;
   amount: string;
+  displayName: string;
   onBack: () => void;
   onSubmit: () => void;
   submitting: boolean;
   error: string;
 }
 
-function Step3({ target, title, description, amount, onBack, onSubmit, submitting, error }: Step3Props) {
+function Step3({ target, isSelfBounty, title, description, amount, displayName, onBack, onSubmit, submitting, error }: Step3Props) {
   return (
     <div className="space-y-5">
       <div>
+        <button type="button" onClick={onBack} disabled={submitting} className="text-sm font-mono text-muted hover:text-foreground cursor-pointer transition-colors mb-3 block disabled:opacity-40">
+          ← back
+        </button>
         <h1 className="font-display font-bold text-[28px] text-foreground">review &amp; submit</h1>
       </div>
 
@@ -465,6 +492,12 @@ function Step3({ target, title, description, amount, onBack, onSubmit, submittin
 
       <Card>
         <div className="space-y-3">
+          {target.kind === 'handle' && (
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">creator name</div>
+              <div className="text-sm text-foreground font-medium">{displayName}</div>
+            </div>
+          )}
           <div>
             <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">title</div>
             <div className="text-sm text-foreground font-medium">{title}</div>
@@ -475,27 +508,26 @@ function Step3({ target, title, description, amount, onBack, onSubmit, submittin
               <div className="text-sm text-foreground whitespace-pre-wrap">{description}</div>
             </div>
           )}
-          <div>
-            <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">your commitment</div>
-            <div className="text-fan font-bold text-lg">${parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
-          </div>
+          {!isSelfBounty && (
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">your commitment</div>
+              <div className="text-fan font-bold text-lg">${parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+            </div>
+          )}
         </div>
       </Card>
 
       {error && <Banner tone="bad">{error}</Banner>}
 
-      <div className="flex gap-3">
-        <Button type="button" variant="ghost" onClick={onBack} disabled={submitting}>← Back</Button>
-        <Button
-          type="button"
-          variant="primary"
-          className="flex-1 justify-center"
-          onClick={onSubmit}
-          disabled={submitting}
-        >
-          {submitting ? 'Creating…' : 'Create Bounty'}
-        </Button>
-      </div>
+      <Button
+        type="button"
+        variant="primary"
+        className="w-full justify-center"
+        onClick={onSubmit}
+        disabled={submitting}
+      >
+        {submitting ? 'Creating…' : 'Create Bounty'}
+      </Button>
     </div>
   );
 }
@@ -512,6 +544,7 @@ function NewBountyForm() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('1');
+  const [displayName, setDisplayName] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
@@ -522,15 +555,22 @@ function NewBountyForm() {
   const [s1NewPlatform, setS1NewPlatform] = useState<HandlePlatform | ''>('');
   const [s1NewUsername, setS1NewUsername] = useState('');
 
+  // True when the logged-in creator is targeting their own profile.
+  // Self-bounties don't require an opening pledge — fans add onto them.
+  const isSelfBounty = !!(target && target.kind === 'user' && user && target.userId === user.id);
+
   const handleSelectTarget = (t: TargetSelection) => {
     setTarget(t);
+    // Pre-fill the editable creator name for existing unverified handles
+    setDisplayName(t.kind === 'handle' ? t.displayName : '');
     setStep(2);
   };
 
-  const handleStep2Next = (t: string, d: string, a: string) => {
+  const handleStep2Next = (t: string, d: string, a: string, dn: string) => {
     setTitle(t);
     setDescription(d);
     setAmount(a);
+    setDisplayName(dn);
     setStep(3);
   };
 
@@ -549,6 +589,7 @@ function NewBountyForm() {
         payload.target_user_id = target.userId;
       } else if (target.kind === 'handle') {
         payload.target_handle_id = target.handleId;
+        payload.display_name = displayName;
       } else {
         payload.platform = target.platform;
         payload.username = target.username;
@@ -602,19 +643,23 @@ function NewBountyForm() {
       {step === 2 && target && (
         <Step2
           target={target}
+          isSelfBounty={isSelfBounty}
           onBack={() => setStep(1)}
           onNext={handleStep2Next}
           initialTitle={title}
           initialDescription={description}
           initialAmount={amount}
+          initialDisplayName={displayName}
         />
       )}
       {step === 3 && target && (
         <Step3
           target={target}
+          isSelfBounty={isSelfBounty}
           title={title}
           description={description}
           amount={amount}
+          displayName={displayName}
           onBack={() => setStep(2)}
           onSubmit={handleSubmit}
           submitting={submitting}

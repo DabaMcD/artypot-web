@@ -168,14 +168,6 @@ export interface CouncilPage {
   per_page: number;
 }
 
-export interface CreatorName {
-  id: number;
-  creator_id: number;
-  name: string;
-  added_by_user_id?: number;
-  created_at: string;
-}
-
 export interface Creator {
   id: number;
   /** Public URL slug — `artypot.com/{slug}`. Present on full Creator objects; may be absent on embedded/minimal selects. */
@@ -222,35 +214,51 @@ export interface Creator {
   payout_hold?: boolean;
   /** List of Stripe requirement field names causing the hold. */
   payout_hold_reason?: string[] | null;
+  /**
+   * Country payment category derived from the creator's location.
+   * 1 = Stripe Global Payouts supported (low minimum).
+   * 2 = Not Stripe-supported, not sanctioned (higher minimum, manual payout).
+   * 3 = Comprehensive sanction — payouts blocked, money features hidden.
+   * Null when location is not yet set.
+   */
+  payout_category?: 1 | 2 | 3 | null;
+  /** Minimum withdrawal amount in dollars for this creator's country. Null when blocked (category 3) or location unknown. */
+  payout_minimum?: number | null;
   /** Timestamp of TOS agreement, stamped when the user activates creator mode. */
   creator_tos_agreed_at?: string | null;
   claimed_at?: string;
   merged_into_creator_id?: number;
-  creator_names?: CreatorName[];
 }
 
 export interface Bounty {
   id: number;
   title: string;
   description?: string;
+  /**
+   * Fan-supplied human name for the person this bounty targets.
+   * Only populated when the handle has no verified owner (owner_user_id is null).
+   * When owner_user_id is set, owner_user.display_name is used for display instead.
+   */
+  display_name?: string | null;
   type: BountyType;
   status: BountyStatus;
   initiator_user_id: number;
   initiator?: User;
   owner_user_id?: number | null;
   /** The user who owns this bounty (i.e. the creator). Serialised from ownerUser relation. */
-  owner_user?: Pick<User, 'id' | 'display_name' | 'profile_picture' | 'slug'>;
+  owner_user?: Pick<User, 'id' | 'display_name' | 'profile_picture' | 'slug'> & {
+    fan_name?: string | null;
+    fan_name_plural?: string | null;
+  };
   total_pledged: number;
   /** Sum of pledges from fans with an active payment method. Appended by the backend on show(). */
   solid_total?: number;
-  /** New targeting fields */
   target_handle_id?: number | null;
   target_user_id?: number | null;
-  /** Backend-appended. Null when target is unverified. */
+  /** Eager-loaded handle record. Present when the bounty targets a platform handle. */
+  target_handle?: { id: number; platform: string; username: string; status: string } | null;
+  /** Backend-appended profile picture of the owner user. Null for owner-less bounties. */
   avatar_url?: string | null;
-  target_display_name?: string | null;
-  target_platform?: string | null;
-  target_username?: string | null;
   completed_at?: string;
   approved_at?: string;
   paid_out_at?: string;
@@ -485,6 +493,8 @@ export interface CreatorBalance {
   pending_verification: number;
   /** Gross fan obligations locked on approved bounties, not yet billed */
   pending_payment: number;
+  /** Subset of pending_payment from fans with an active payment method */
+  solid_pending_payment: number;
   /** Stripe-collected funds within the 7-day hold period */
   clearing: number;
   /** Withdrawable balance (hold period elapsed) */
@@ -505,41 +515,81 @@ export interface CreatorEarning {
 }
 
 export interface NotificationSettings {
-  // Email preferences
-  creator_answered: boolean;
-  bounty_pending_completion: boolean;
-  bounty_confirmed_completed: boolean;
-  pledge_confirmation: boolean;
-  pledge_expired: boolean;
-  bounty_updated: boolean;
-  monthly_pledge_preview: boolean;
-  monthly_pledge_receipt: boolean;
-  herald_status_lost: boolean;
-  // In-app preferences
-  in_app_creator_answered: boolean;
-  in_app_bounty_pending_completion: boolean;
-  in_app_bounty_confirmed_completed: boolean;
-  in_app_pledge_confirmation: boolean;
-  in_app_pledge_expired: boolean;
-  in_app_bounty_updated: boolean;
-  in_app_monthly_pledge_preview: boolean;
-  in_app_monthly_pledge_receipt: boolean;
-  in_app_herald_status_lost: boolean;
-  // SMS preferences
-  sms_creator_answered: boolean;
-  sms_bounty_pending_completion: boolean;
-  sms_bounty_confirmed_completed: boolean;
-  sms_pledge_confirmation: boolean;
-  sms_pledge_expired: boolean;
-  sms_bounty_updated: boolean;
-  sms_monthly_pledge_preview: boolean;
-  sms_monthly_pledge_receipt: boolean;
-  sms_herald_status_lost: boolean;
-  // Payment-action-required (3DS / SCA)
-  payment_action_required: boolean;
-  in_app_payment_action_required: boolean;
-  sms_payment_action_required: boolean;
+  // ── Email preferences (no prefix) ────────────────────────────────────────
+  creator_verified: boolean;
+  bounty_pending_review: boolean;
+  bounty_confirmed: boolean;
+  backing_confirmed: boolean;
+  backing_expired: boolean;
+  billing_preview: boolean;
+  billing_receipt: boolean;
+  bounty_activity: boolean;
+  creator_activity: boolean;
+  // ── SMS preferences (sms_ prefix) ────────────────────────────────────────
+  sms_creator_verified: boolean;
+  sms_bounty_pending_review: boolean;
+  sms_bounty_confirmed: boolean;
+  sms_backing_confirmed: boolean;
+  sms_backing_expired: boolean;
+  sms_billing_preview: boolean;
+  sms_billing_receipt: boolean;
+  sms_bounty_activity: boolean;
+  sms_creator_activity: boolean;
+  // ── Bell preferences (in_app_ prefix) ────────────────────────────────────
+  // Note: backing_confirmed and billing_preview have no bell column (mandatory OFF).
+  // Note: account_management has no columns (mandatory ON for all channels).
+  in_app_creator_verified: boolean;
+  in_app_bounty_pending_review: boolean;
+  in_app_bounty_confirmed: boolean;
+  in_app_backing_expired: boolean;
+  in_app_billing_receipt: boolean;
+  in_app_bounty_activity: boolean;
+  in_app_creator_activity: boolean;
+  // ── Master channel toggles ────────────────────────────────────────────────
+  email_master: boolean;
+  sms_master: boolean;
+  in_app_master: boolean;
 }
+
+/**
+ * Default notification preference values.
+ *
+ * IMPORTANT: Keep in sync with NotificationSettings::DEFAULTS in
+ * artypot-api/app/Models/NotificationSettings.php — update both together
+ * whenever a notification type is added or a default changes.
+ */
+export const NOTIFICATION_DEFAULTS: NotificationSettings = {
+  creator_verified: true,      sms_creator_verified: true,      in_app_creator_verified: true,
+  bounty_pending_review: true, sms_bounty_pending_review: true, in_app_bounty_pending_review: true,
+  bounty_confirmed: false,     sms_bounty_confirmed: false,     in_app_bounty_confirmed: false,
+  backing_confirmed: false,    sms_backing_confirmed: false,
+  backing_expired: false,      sms_backing_expired: false,      in_app_backing_expired: false,
+  billing_preview: false,      sms_billing_preview: false,
+  billing_receipt: true,       sms_billing_receipt: false,      in_app_billing_receipt: true,
+  bounty_activity: false,      sms_bounty_activity: false,      in_app_bounty_activity: true,
+  creator_activity: false,     sms_creator_activity: false,     in_app_creator_activity: true,
+  email_master: true,
+  sms_master: true,
+  in_app_master: true,
+};
+
+/**
+ * Notification types that are always sent on all channels (mandatory ON).
+ * These show as a locked indicator in the UI — cannot be toggled.
+ *
+ * IMPORTANT: Keep in sync with NotificationSettings::MANDATORY_ON in
+ * artypot-api/app/Models/NotificationSettings.php — update both together.
+ */
+export const MANDATORY_ON_TYPES = ['account_management'] as const;
+
+/**
+ * Notification types whose bell channel is permanently OFF.
+ * These show as an inert dash in the bell column — no toggle rendered.
+ *
+ * IMPORTANT: Keep in sync with NotificationSettings::MANDATORY_OFF_BELL in
+ * artypot-api/app/Models/NotificationSettings.php — update both together.
+ */
+export const MANDATORY_OFF_BELL = ['backing_confirmed', 'billing_preview'] as const;
 
 export interface UserNotification {
   id: number;

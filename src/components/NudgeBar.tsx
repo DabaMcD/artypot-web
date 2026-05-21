@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useNudge } from '@/hooks/useNudge';
+import { useNudgeContext } from '@/lib/nudge-context';
 import { useAuth } from '@/lib/auth-context';
 
 const TONE_CLASSES: Record<string, string> = {
+  add_contact_method:   'bg-bad-soft  border-bad  text-foreground',
   verify_email:         'bg-bad-soft  border-bad  text-foreground',
   add_payment_method:   'bg-bad-soft  border-bad  text-foreground',
   payout_hold:          'bg-bad-soft  border-bad  text-foreground',
@@ -15,6 +16,7 @@ const TONE_CLASSES: Record<string, string> = {
 };
 
 const ICON_CLASSES: Record<string, string> = {
+  add_contact_method:   'border-bad  text-bad',
   verify_email:         'border-bad  text-bad',
   add_payment_method:   'border-bad  text-bad',
   payout_hold:          'border-bad  text-bad',
@@ -26,7 +28,7 @@ const ICON_CLASSES: Record<string, string> = {
 
 export function NudgeBar() {
   const { user } = useAuth();
-  const { nudge, dismiss } = useNudge();
+  const { nudge, dismiss } = useNudgeContext();
 
   if (!user || !nudge) return null;
 

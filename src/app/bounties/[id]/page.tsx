@@ -24,30 +24,13 @@ import type { Bounty, BountyPledge, BountyHistoryEvent } from '@/lib/types';
 import ShareButton from '@/components/ShareButton';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
 import CommentSection from '@/components/CommentSection';
+import { BOUNTY_STATUS_LABELS as STATUS_LABELS, BOUNTY_STATUS_TONES as STATUS_TONES } from '@/components/BountyStatusBadge';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Input, Textarea, Select, FieldLabel, FieldHint } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Banner } from '@/components/ui/Banner';
-
-const STATUS_LABELS: Record<string, string> = {
-  open:      'Open',
-  pending:   'Pending Review',
-  completed: 'Completed',
-  paid_out:  'Paid Out',
-  revoked:   'Revoked',
-};
-
-type BadgeTone = 'default' | 'info' | 'warn' | 'good' | 'bad';
-
-const STATUS_TONES: Record<string, BadgeTone> = {
-  open:      'default',
-  pending:   'info',
-  completed: 'warn',
-  paid_out:  'good',
-  revoked:   'bad',
-};
 
 function formatHoverDate(iso: string): string {
   return new Date(iso).toLocaleString('en-US', {
@@ -144,6 +127,10 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
 
   const activePledges = bounty?.pledges?.filter((v) => !v.revoked_at) ?? [];
   const userPledge = user ? activePledges.find((v) => v.user_id === user.id) : null;
+
+  // Fan name terms set by the creator; fall back to generic labels.
+  const fanSingular = bounty?.owner_user?.fan_name || 'supporter';
+  const fanPlural   = bounty?.owner_user?.fan_name_plural || bounty?.owner_user?.fan_name || 'supporters';
 
   // ── Derived display values ────────────────────────────────────────────────
   const displayedTotal = selectedEvent
@@ -382,12 +369,52 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     bounty.owner_user?.id === user.id &&
     (user.role === 'creator' || user.role === 'council');
   const canVote = user && bounty.status === 'open';
-  const canSubmitCompletion = isCreator && bounty.status === 'open';
+  // Fans can back out during council review, but only if they already have a pledge.
+  const canRevokeDuringReview = user && bounty.status === 'pending' && !!userPledge;
+  const isPayoutBlocked = user?.creator?.payout_category === 3;
+  const canSubmitCompletion = isCreator && bounty.status === 'open' && !isPayoutBlocked;
   const canCreatorRemove = isCreator && bounty.status === 'open';
 
   // ── Pledge panel content ────────────────────────────────────────────────────
   const renderPledgePanel = () => {
-    if (!canVote) return null;
+    if (!canVote && !canRevokeDuringReview) return null;
+
+    // When the bounty is pending review, show a stripped-down panel — just
+    // the fan's current commitment and the option to back out.
+    if (canRevokeDuringReview && !canVote) {
+      return (
+        <Card>
+          <SectionLabel className="mb-3">Your votive</SectionLabel>
+          <div className="bg-fan/10 border border-fan/30 rounded px-4 py-3 text-sm mb-3">
+            <div>
+              You&apos;re in for{' '}
+              <span className="text-fan font-mono font-semibold tabular-nums">
+                ${Number(userPledge!.amount).toFixed(2)}
+              </span>
+            </div>
+            {userPledge!.expires_at && (
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5">
+                Expires{' '}
+                {new Date(userPledge!.expires_at).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </div>
+            )}
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowPendingRevokeWarning(true)}
+            disabled={pledgeLoading}
+            className="w-full justify-center text-muted hover:text-bad cursor-pointer"
+          >
+            Back out
+          </Button>
+        </Card>
+      );
+    }
 
     return (
       <Card>
@@ -555,14 +582,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         >
           <p className="text-muted text-sm leading-relaxed mb-2">
             <span className="text-foreground font-semibold">{bounty?.owner_user?.display_name ?? 'The creator'}</span> has
-            already submitted their work. The Council is reviewing it.
-          </p>
-          <p className="text-muted text-sm leading-relaxed mb-1">
-            Pulling your{' '}
-            <span className="text-foreground font-mono font-semibold tabular-nums">
-              ${Number(userPledge.amount).toFixed(2)}
-            </span>{' '}
-            backing out now would be a d*** move. Just saying.
+            already submitted their work for completion. Removing your votive at this time may be seen as a dick move.
           </p>
           <p className="font-mono text-[10px] uppercase tracking-widest text-muted/60 mt-2">
             (You can still do it. We&apos;re just saying.)
@@ -638,7 +658,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           }
         >
           <p className="text-muted text-sm leading-relaxed">
-            You&apos;re the only supporter of this bounty. Backing out will leave it empty — it will be cleared automatically.
+            You&apos;re the only {fanSingular} of this bounty. Backing out will leave it empty — it will be cleared automatically.
           </p>
         </Modal>
       )}
@@ -753,15 +773,24 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         )}
 
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
-          {bounty.owner_user && (
+          {(bounty.owner_user || bounty.target_handle) && (
             <div>
               <span className="text-muted">For </span>
-              <Link
-                href={bounty.owner_user.slug ? `/${bounty.owner_user.slug}` : `/users/${bounty.owner_user.id}`}
-                className="text-creator hover:underline font-medium cursor-pointer"
-              >
-                {bounty.owner_user.display_name}
-              </Link>
+              {bounty.owner_user ? (
+                <Link
+                  href={bounty.owner_user.slug ? `/${bounty.owner_user.slug}` : `/users/${bounty.owner_user.id}`}
+                  className="text-creator hover:underline font-medium cursor-pointer"
+                >
+                  {bounty.owner_user.display_name}
+                </Link>
+              ) : bounty.target_handle ? (
+                <Link
+                  href={`/${bounty.target_handle.platform}/${bounty.target_handle.username}`}
+                  className="text-creator hover:underline font-medium cursor-pointer"
+                >
+                  {bounty.display_name ?? `${bounty.target_handle.platform}/${bounty.target_handle.username}`}
+                </Link>
+              ) : null}
             </div>
           )}
           {bounty.initiator && (
@@ -872,7 +901,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             const notices: Record<string, { heading: string; body: string; tone: 'default' | 'warn' | 'bad' | 'good' }> = {
               pending: {
                 heading: 'Awaiting Council review',
-                body: `${creatorName} has submitted this bounty for review. Existing commitments are locked while the Council considers the completion.`,
+                body: `${creatorName} has submitted their work and the Council is considering it. You can still back out — but it would be a bit of a dick move.`,
                 tone: 'default',
               },
               completed: {
@@ -1034,7 +1063,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     : 'text-muted hover:text-foreground'
                 }`}
               >
-                Backers{' '}
+                {fanPlural}{' '}
                 <span className={activeTab === 'pledges' ? 'text-muted font-normal' : ''}>
                   ({activePledges.length})
                 </span>
@@ -1057,7 +1086,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             {/* Pledges panel */}
             <div className={`p-5 ${activeTab !== 'pledges' ? 'hidden' : ''}`}>
               {activePledges.length === 0 ? (
-                <p className="text-muted text-sm">No supporters yet. Be the first!</p>
+                <p className="text-muted text-sm">No {fanPlural} yet. Be the first!</p>
               ) : (
                 <div className="space-y-2">
                   {activePledges.map((pledge) => {

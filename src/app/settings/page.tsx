@@ -25,9 +25,10 @@ import { Banner } from '@/components/ui/Banner';
 
 // Inline toggle for notification table rows
 function MiniToggle({
-  checked, onChange, saving, label, disabled = false,
+  checked, onChange, saving, label, disabled = false, dimmed = false,
 }: {
-  checked: boolean; onChange: (val: boolean) => void; saving: boolean; label: string; disabled?: boolean;
+  checked: boolean; onChange: (val: boolean) => void; saving: boolean;
+  label: string; disabled?: boolean; dimmed?: boolean;
 }) {
   return (
     <button
@@ -37,7 +38,9 @@ function MiniToggle({
       aria-label={label}
       disabled={saving || disabled}
       onClick={() => !disabled && onChange(!checked)}
-      className={`relative shrink-0 w-9 h-5 rounded-full transition-colors focus:outline-none disabled:opacity-30 cursor-pointer ${
+      className={`relative shrink-0 w-9 h-5 rounded-full transition-colors focus:outline-none cursor-pointer ${
+        disabled ? 'opacity-30' : dimmed ? 'opacity-50' : ''
+      } ${
         checked && !disabled ? 'bg-[var(--color-role)]' : 'bg-surface-2 border border-border'
       }`}
     >
@@ -46,23 +49,90 @@ function MiniToggle({
   );
 }
 
+type ChannelRule = 'toggle' | 'mandatory_on' | 'mandatory_off';
+
 const NOTIF_ROWS: {
   label: string;
   desc: string;
-  emailKey: keyof NotificationSettings;
-  smsKey: keyof NotificationSettings;
-  inAppKey: keyof NotificationSettings;
+  emailKey: keyof NotificationSettings | null;
+  emailRule: ChannelRule;
+  smsKey: keyof NotificationSettings | null;
+  smsRule: ChannelRule;
+  bellKey: keyof NotificationSettings | null;
+  bellRule: ChannelRule;
 }[] = [
-  { label: 'creator verified',       desc: 'a creator joins Artypot and your backing activates.',              emailKey: 'creator_answered',          smsKey: 'sms_creator_answered',          inAppKey: 'in_app_creator_answered' },
-  { label: 'bounty pending review',  desc: 'a creator submits a bounty for council review.',                  emailKey: 'bounty_pending_completion',    smsKey: 'sms_bounty_pending_completion',    inAppKey: 'in_app_bounty_pending_completion' },
-  { label: 'bounty confirmed',       desc: 'council approves a bounty and payment is queued.',               emailKey: 'bounty_confirmed_completed',   smsKey: 'sms_bounty_confirmed_completed',   inAppKey: 'in_app_bounty_confirmed_completed' },
-  { label: 'backing confirmed',      desc: 'you backed a bounty.',                                           emailKey: 'pledge_confirmation',        smsKey: 'sms_pledge_confirmation',        inAppKey: 'in_app_pledge_confirmation' },
-  { label: 'backing expired',        desc: 'your backing on a bounty reached its expiry and was removed.',   emailKey: 'pledge_expired',             smsKey: 'sms_pledge_expired',             inAppKey: 'in_app_pledge_expired' },
-  { label: 'bounty updated',         desc: 'an initiator changes the title or description of a bounty you back.', emailKey: 'bounty_updated',           smsKey: 'sms_bounty_updated',                inAppKey: 'in_app_bounty_updated' },
-  { label: 'billing preview',        desc: 'heads-up before your payment method is charged.',                emailKey: 'monthly_pledge_preview',    smsKey: 'sms_monthly_pledge_preview',    inAppKey: 'in_app_monthly_pledge_preview' },
-  { label: 'monthly receipt',        desc: 'breakdown after your monthly payment is processed.',             emailKey: 'monthly_pledge_receipt',    smsKey: 'sms_monthly_pledge_receipt',    inAppKey: 'in_app_monthly_pledge_receipt' },
-  { label: 'herald status lost',     desc: 'another fan outbids you and edits a profile you were heralding.', emailKey: 'herald_status_lost',       smsKey: 'sms_herald_status_lost',        inAppKey: 'in_app_herald_status_lost' },
-  { label: 'payment authentication', desc: 'your bank needs you to confirm a charge (3D Secure).',           emailKey: 'payment_action_required',   smsKey: 'sms_payment_action_required',   inAppKey: 'in_app_payment_action_required' },
+  // IMPORTANT: Keep mandatory rules in sync with MANDATORY_ON / MANDATORY_OFF_BELL
+  // in artypot-api/app/Models/NotificationSettings.php — update both together.
+  {
+    label: 'creator verified',
+    desc: 'a creator you left a bounty for joins Artypot.',
+    emailKey: 'creator_verified',         emailRule: 'toggle',
+    smsKey:   'sms_creator_verified',     smsRule:   'toggle',
+    bellKey:  'in_app_creator_verified',  bellRule:  'toggle',
+  },
+  {
+    label: 'bounty pending review',
+    desc: 'a creator submits completion for your bounty.',
+    emailKey: 'bounty_pending_review',         emailRule: 'toggle',
+    smsKey:   'sms_bounty_pending_review',     smsRule:   'toggle',
+    bellKey:  'in_app_bounty_pending_review',  bellRule:  'toggle',
+  },
+  {
+    label: 'bounty confirmed',
+    desc: 'council approves a bounty and payment is queued.',
+    emailKey: 'bounty_confirmed',         emailRule: 'toggle',
+    smsKey:   'sms_bounty_confirmed',     smsRule:   'toggle',
+    bellKey:  'in_app_bounty_confirmed',  bellRule:  'toggle',
+  },
+  {
+    label: 'backing confirmed',
+    desc: 'you backed a bounty.',
+    emailKey: 'backing_confirmed',     emailRule: 'toggle',
+    smsKey:   'sms_backing_confirmed', smsRule:   'toggle',
+    bellKey:  null,                    bellRule:  'mandatory_off',
+  },
+  {
+    label: 'backing expired',
+    desc: 'your backing on a bounty reached its expiry and was removed.',
+    emailKey: 'backing_expired',         emailRule: 'toggle',
+    smsKey:   'sms_backing_expired',     smsRule:   'toggle',
+    bellKey:  'in_app_backing_expired',  bellRule:  'toggle',
+  },
+  {
+    label: 'billing preview',
+    desc: 'heads-up before your payment method is charged.',
+    emailKey: 'billing_preview',     emailRule: 'toggle',
+    smsKey:   'sms_billing_preview', smsRule:   'toggle',
+    bellKey:  null,                  bellRule:  'mandatory_off',
+  },
+  {
+    label: 'billing receipt',
+    desc: 'breakdown after your monthly payment is processed.',
+    emailKey: 'billing_receipt',         emailRule: 'toggle',
+    smsKey:   'sms_billing_receipt',     smsRule:   'toggle',
+    bellKey:  'in_app_billing_receipt',  bellRule:  'toggle',
+  },
+  {
+    label: 'bounty activity',
+    desc: "a comment or update on a bounty you're following.",
+    emailKey: 'bounty_activity',         emailRule: 'toggle',
+    smsKey:   'sms_bounty_activity',     smsRule:   'toggle',
+    bellKey:  'in_app_bounty_activity',  bellRule:  'toggle',
+  },
+  {
+    label: 'creator activity',
+    desc: 'a creator you follow posts something or submits a bounty.',
+    emailKey: 'creator_activity',         emailRule: 'toggle',
+    smsKey:   'sms_creator_activity',     smsRule:   'toggle',
+    bellKey:  'in_app_creator_activity',  bellRule:  'toggle',
+  },
+  {
+    label: 'account management',
+    desc: 'required actions, admin messages, handle verification results.',
+    emailKey: null, emailRule: 'mandatory_on',
+    smsKey:   null, smsRule:   'mandatory_on',
+    bellKey:  null, bellRule:  'mandatory_on',
+  },
 ];
 
 export default function SettingsPage() {
@@ -74,6 +144,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [notifSettings, setNotifSettings] = useState<NotificationSettings | null>(null);
   const [notifSaving, setNotifSaving] = useState<Set<string>>(new Set());
+  const [notifResetting, setNotifResetting] = useState(false);
   const [phoneInput, setPhoneInput] = useState<E164Number | undefined>(undefined);
   const [codeInput, setCodeInput] = useState('');
   const [phoneStep, setPhoneStep] = useState<'idle' | 'awaiting_code'>('idle');
@@ -110,10 +181,39 @@ export default function SettingsPage() {
 
   const handleNotifToggle = async (key: keyof NotificationSettings, value: boolean) => {
     if (!notifSettings) return;
-    setNotifSettings({ ...notifSettings, [key]: value });
+
+    // If turning ON while master is off, also re-enable the master
+    let masterKey: keyof NotificationSettings | null = null;
+    const emailKeys: Array<keyof NotificationSettings> = [
+      'creator_verified','bounty_pending_review','bounty_confirmed',
+      'backing_confirmed','backing_expired','billing_preview',
+      'billing_receipt','bounty_activity','creator_activity',
+    ];
+    const smsKeys: Array<keyof NotificationSettings> = [
+      'sms_creator_verified','sms_bounty_pending_review','sms_bounty_confirmed',
+      'sms_backing_confirmed','sms_backing_expired','sms_billing_preview',
+      'sms_billing_receipt','sms_bounty_activity','sms_creator_activity',
+    ];
+    const bellKeys: Array<keyof NotificationSettings> = [
+      'in_app_creator_verified','in_app_bounty_pending_review','in_app_bounty_confirmed',
+      'in_app_backing_expired','in_app_billing_receipt','in_app_bounty_activity','in_app_creator_activity',
+    ];
+
+    if (value) {
+      if (emailKeys.includes(key) && !notifSettings.email_master) masterKey = 'email_master';
+      else if (smsKeys.includes(key) && !notifSettings.sms_master) masterKey = 'sms_master';
+      else if (bellKeys.includes(key) && !notifSettings.in_app_master) masterKey = 'in_app_master';
+    }
+
+    const optimistic = { ...notifSettings, [key]: value };
+    if (masterKey) optimistic[masterKey] = true as never;
+    setNotifSettings(optimistic);
+
     setNotifSaving((prev) => new Set(prev).add(key));
     try {
-      const updated = await notifApi.update({ [key]: value });
+      const payload: Partial<NotificationSettings> = { [key]: value };
+      if (masterKey) payload[masterKey] = true as never;
+      const updated = await notifApi.update(payload);
       setNotifSettings(updated);
       toast('Settings saved.', 'success');
     } catch {
@@ -121,6 +221,19 @@ export default function SettingsPage() {
       toast('Failed to save. Please try again.', 'error');
     } finally {
       setNotifSaving((prev) => { const s = new Set(prev); s.delete(key); return s; });
+    }
+  };
+
+  const handleNotifReset = async () => {
+    setNotifResetting(true);
+    try {
+      const updated = await notifApi.reset();
+      setNotifSettings(updated);
+      toast('Notification settings reset to defaults.', 'success');
+    } catch {
+      toast('Failed to reset. Please try again.', 'error');
+    } finally {
+      setNotifResetting(false);
     }
   };
 
@@ -513,23 +626,75 @@ export default function SettingsPage() {
             <div className="py-6 text-center font-mono text-xs text-muted">loading…</div>
           ) : (
             <>
-              <div className="grid gap-x-4 items-center mb-2 px-1" style={{ gridTemplateColumns: '1fr auto auto auto' }}>
-                <span />
-                <span className="font-mono text-[9px] uppercase text-muted text-center w-9">email</span>
-                <span className="font-mono text-[9px] uppercase text-muted text-center w-9">sms</span>
-                <span className="font-mono text-[9px] uppercase text-muted text-center w-9">bell</span>
-              </div>
-              {NOTIF_ROWS.map(({ label, desc, emailKey, smsKey, inAppKey }) => (
-                <div key={emailKey} className="grid gap-x-4 items-center py-2.5 border-b border-border last:border-0" style={{ gridTemplateColumns: '1fr auto auto auto' }}>
+              {/* Notification rows */}
+              {NOTIF_ROWS.map(({ label, desc, emailKey, emailRule, smsKey, smsRule, bellKey, bellRule }) => (
+                <div key={label} className="grid gap-x-4 items-center py-2.5 border-b border-border last:border-0" style={{ gridTemplateColumns: '1fr auto auto auto' }}>
                   <div>
                     <p className="text-sm text-foreground">{label}</p>
                     <p className="text-xs text-muted mt-0.5">{desc}</p>
                   </div>
-                  <MiniToggle checked={notifSettings[emailKey] as boolean} onChange={(val) => handleNotifToggle(emailKey, val)} saving={notifSaving.has(emailKey)} label={`email: ${label}`} disabled={!emailChannelAvailable} />
-                  <MiniToggle checked={notifSettings[smsKey] as boolean} onChange={(val) => handleNotifToggle(smsKey, val)} saving={notifSaving.has(smsKey)} label={`sms: ${label}`} disabled={!phoneVerified} />
-                  <MiniToggle checked={notifSettings[inAppKey] as boolean} onChange={(val) => handleNotifToggle(inAppKey, val)} saving={notifSaving.has(inAppKey)} label={`in-app: ${label}`} />
+
+                  {/* Email cell */}
+                  {emailRule === 'mandatory_on' ? (
+                    <MiniToggle checked={true} onChange={() => {}} saving={false} label={`email: ${label} (always on)`} disabled={true} />
+                  ) : emailRule === 'mandatory_off' ? (
+                    <span title="Not available" className="w-9 flex justify-center text-muted text-xs font-mono">—</span>
+                  ) : (
+                    <MiniToggle
+                      checked={!!(emailKey && notifSettings[emailKey])}
+                      onChange={(val) => emailKey && handleNotifToggle(emailKey, val)}
+                      saving={!!emailKey && notifSaving.has(emailKey)}
+                      label={`email: ${label}`}
+                      disabled={!emailChannelAvailable}
+                      dimmed={emailChannelAvailable && !notifSettings.email_master}
+                    />
+                  )}
+
+                  {/* SMS cell */}
+                  {smsRule === 'mandatory_on' ? (
+                    <MiniToggle checked={true} onChange={() => {}} saving={false} label={`sms: ${label} (always on)`} disabled={true} />
+                  ) : smsRule === 'mandatory_off' ? (
+                    <span title="Not available" className="w-9 flex justify-center text-muted text-xs font-mono">—</span>
+                  ) : (
+                    <MiniToggle
+                      checked={!!(smsKey && notifSettings[smsKey])}
+                      onChange={(val) => smsKey && handleNotifToggle(smsKey, val)}
+                      saving={!!smsKey && notifSaving.has(smsKey)}
+                      label={`sms: ${label}`}
+                      disabled={!phoneVerified}
+                      dimmed={phoneVerified && !notifSettings.sms_master}
+                    />
+                  )}
+
+                  {/* Bell cell */}
+                  {bellRule === 'mandatory_on' ? (
+                    <MiniToggle checked={true} onChange={() => {}} saving={false} label={`bell: ${label} (always on)`} disabled={true} />
+                  ) : bellRule === 'mandatory_off' ? (
+                    <span title="Not available" className="w-9 flex justify-center text-muted text-xs font-mono">—</span>
+                  ) : (
+                    <MiniToggle
+                      checked={!!(bellKey && notifSettings[bellKey])}
+                      onChange={(val) => bellKey && handleNotifToggle(bellKey, val)}
+                      saving={!!bellKey && notifSaving.has(bellKey)}
+                      label={`bell: ${label}`}
+                      disabled={false}
+                      dimmed={!notifSettings.in_app_master}
+                    />
+                  )}
                 </div>
               ))}
+
+              {/* Reset to defaults */}
+              <div className="mt-4 pt-3 border-border flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleNotifReset}
+                  disabled={notifResetting}
+                  className="text-xs font-mono text-muted hover:text-foreground transition-colors disabled:opacity-40 cursor-pointer"
+                >
+                  {notifResetting ? 'resetting…' : 'reset to defaults'}
+                </button>
+              </div>
             </>
           )}
         </Card>

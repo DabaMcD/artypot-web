@@ -260,7 +260,7 @@ export default function BecomeCreatorPage() {
 
   const handleActivated = useCallback(async () => {
     await refreshUser();
-    router.push('/sanctum');
+    router.push('/creator');
   }, [refreshUser, router]);
 
   if (authLoading) return null;
@@ -284,10 +284,10 @@ export default function BecomeCreatorPage() {
             <h2 className="font-bold text-lg text-good">you&apos;re already a creator</h2>
           </div>
           <p className="text-sm text-muted mb-4">
-            Your creator account is active. Head to your sanctum to manage bounties, track earnings, and more.
+            Your creator account is active. Head to your creator dashboard to manage bounties, track earnings, and more.
           </p>
-          <Link href="/sanctum">
-            <Button variant="primary">Go to Sanctum →</Button>
+          <Link href="/creator">
+            <Button variant="primary">Go to Dashboard →</Button>
           </Link>
         </Card>
       </div>

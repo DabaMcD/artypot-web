@@ -77,7 +77,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
 
   const switchHandlers: Record<'fan' | 'creator' | 'council', () => void> = {
     fan:     () => { switchTo('fan');     router.push('/dashboard'); },
-    creator: () => { switchTo('creator'); router.push('/sanctum'); },
+    creator: () => { switchTo('creator'); router.push('/creator'); },
     council: () => { router.push('/admin'); },
   };
 
@@ -96,20 +96,20 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
 
   const creatorItems: NavItem[] = [
     { sec: 'overview' },
-    { id: 'creator-dashboard',  label: 'Dashboard',          icon: '◐', href: '/sanctum' },
-    { id: 'creator-onboarding', label: 'Setup',              icon: '◔', href: '/sanctum/setup' },
+    { id: 'creator-dashboard',  label: 'Dashboard',          icon: '◐', href: '/creator' },
+    { id: 'creator-onboarding', label: 'Setup',              icon: '◔', href: '/creator/setup' },
     { sec: 'work' },
-    { id: 'creator-bounties',   label: 'Active bounties',    icon: '◇', href: '/sanctum/bounties' },
-    { id: 'creator-queue',      label: 'Queued for me',      icon: '⌗', href: '/sanctum/queue' },
-    { id: 'creator-mine',       label: 'My own bounties',    icon: '★', href: '/sanctum/my-bounties' },
+    { id: 'creator-bounties',   label: 'Active bounties',    icon: '◇', href: '/creator/bounties' },
+    { id: 'creator-queue',      label: 'Queued for me',      icon: '⌗', href: '/creator/queue' },
+    { id: 'creator-mine',       label: 'My own bounties',    icon: '★', href: '/creator/my-bounties' },
     { sec: 'money' },
-    { id: 'creator-balance',    label: 'Balance',            icon: '$', href: '/sanctum/balance' },
-    { id: 'creator-withdraw',   label: 'Withdraw',           icon: '↓', href: '/sanctum/withdraw' },
-    { id: 'creator-ledger',     label: 'Ledger',             icon: '⌗', href: '/sanctum/ledger' },
+    { id: 'creator-balance',    label: 'Balance',            icon: '$', href: '/creator/balance' },
+    { id: 'creator-withdraw',   label: 'Withdraw',           icon: '↓', href: '/creator/withdraw' },
+    { id: 'creator-ledger',     label: 'Ledger',             icon: '⌗', href: '/creator/ledger' },
     { sec: 'admin' },
     { id: 'creator-handles',    label: 'Handles',            icon: '@', href: '/settings#handles' },
-    { id: 'creator-tax',        label: 'Tax & compliance',   icon: '⚖', href: '/sanctum/tax' },
-    { id: 'creator-settings',   label: 'Settings',           icon: '⚙', href: '/sanctum/settings' },
+    { id: 'creator-tax',        label: 'Tax & compliance',   icon: '⚖', href: '/creator/tax' },
+    { id: 'creator-settings',   label: 'Settings',           icon: '⚙', href: '/creator/settings' },
   ];
 
   const councilItems: NavItem[] = [
@@ -141,7 +141,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
       {/* Mobile backdrop — shown behind the drawer, closes it on tap */}
       {open && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -156,8 +156,8 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
           'transition-transform duration-200 ease-in-out',
           open ? 'translate-x-0' : '-translate-x-full',
           // Desktop: always-visible sticky column below the top bar
-          'md:sticky md:top-12 md:bottom-auto md:left-auto md:z-auto',
-          'md:translate-x-0 md:h-[calc(100vh-3rem)]',
+          'lg:sticky lg:top-12 lg:bottom-auto lg:left-auto lg:z-auto',
+          'lg:translate-x-0 lg:h-[calc(100vh-3rem)]',
         ].join(' ')}
       >
       {/* Nav — internally scrollable so the role widget + user card stay pinned to the bottom */}
@@ -171,9 +171,9 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
               item={item}
               active={(() => {
                 if (!item.href) return false;
-                // Section landing pages (e.g. /sanctum, /admin) must match exactly —
+                // Section landing pages (e.g. /creator, /admin) must match exactly —
                 // otherwise they'd light up for every sub-route below them.
-                const EXACT_MATCH_ROUTES = new Set(['/sanctum', '/admin', '/dashboard']);
+                const EXACT_MATCH_ROUTES = new Set(['/creator', '/admin', '/dashboard']);
                 if (EXACT_MATCH_ROUTES.has(item.href)) return pathname === item.href;
                 // Sub-routes: active when on the exact page OR a deeper page beneath it.
                 return pathname === item.href || pathname.startsWith(item.href + '/');

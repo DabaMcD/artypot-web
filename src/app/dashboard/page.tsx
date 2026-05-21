@@ -10,18 +10,11 @@ import type { Bounty, CashBalance, PaginatedResponse, PublicUserPledge } from '@
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 import { Banner } from '@/components/ui/Banner';
 import { BountyCard } from '@/components/ui/BountyCard';
 import { Empty } from '@/components/ui/Empty';
-
-const STATUS_BADGE: Record<string, { label: string; tone: 'default' | 'info' | 'good' | 'warn' | 'bad' }> = {
-  open:      { label: 'open',      tone: 'default' },
-  pending:   { label: 'approved',  tone: 'warn' },
-  completed: { label: 'submitted', tone: 'info' },
-  paid_out:  { label: 'paid out',  tone: 'good' },
-  revoked:   { label: 'revoked',   tone: 'bad' },
-};
+import { BountyStatusBadge } from '@/components/BountyStatusBadge';
+import ShareButton from '@/components/ShareButton';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -198,7 +191,6 @@ export default function DashboardPage() {
             <div className="divide-y divide-border -mx-5 -my-4">
               {activePledges.slice(0, 10).map((pledge) => {
                 const status = pledge.bounty?.status ?? 'open';
-                const badge = STATUS_BADGE[status] ?? { label: status, tone: 'default' as const };
                 const canRevoke = status === 'open';
                 return (
                   <div key={pledge.id} className="flex items-center gap-3 px-5 py-3">
@@ -214,7 +206,10 @@ export default function DashboardPage() {
                         <span className="text-sm text-muted">bounty #{pledge.bounty_id}</span>
                       )}
                     </div>
-                    <Badge tone={badge.tone}>{badge.label}</Badge>
+                    <BountyStatusBadge status={status} />
+                    {pledge.bounty && (
+                      <ShareButton path={`/bounties/${pledge.bounty_id}`} title={pledge.bounty.title} />
+                    )}
                     <span className="font-mono text-sm font-medium text-fan tabular-nums shrink-0">
                       ${Number(pledge.amount).toFixed(2)}
                     </span>

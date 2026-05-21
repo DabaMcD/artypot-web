@@ -1,20 +1,13 @@
 import Link from 'next/link';
-import type { Bounty, BountyStatus } from '@/lib/types';
+import type { Bounty } from '@/lib/types';
 import { AvatarOrUnknown } from './ui/AvatarOrUnknown';
-
-const STATUS_STYLES: Record<BountyStatus, { label: string; className: string }> = {
-  open:      { label: 'Open',           className: 'bg-green-900/40 text-green-400 border-green-800/50' },
-  pending:   { label: 'Pending Review', className: 'bg-blue-900/40 text-blue-400 border-blue-800/50' },
-  completed: { label: 'Completed',      className: 'bg-creator/10 text-creator border-creator/30' },
-  paid_out:  { label: 'Paid Out',       className: 'bg-council/10 text-council border-council/30' },
-  revoked:   { label: 'Revoked',        className: 'bg-red-900/40 text-red-400 border-red-800/50' },
-};
+import { BountyStatusBadge } from './BountyStatusBadge';
+import ShareButton from './ShareButton';
 
 export default function BountyCard({ bounty }: { bounty: Bounty }) {
-  const status = STATUS_STYLES[bounty.status];
   const backerCount = bounty.pledges?.filter((v) => !v.revoked_at).length ?? null;
-  const fanSingular = 'supporter';
-  const fanPlural   = 'supporters';
+  const fanSingular = bounty.owner_user?.fan_name || 'supporter';
+  const fanPlural   = bounty.owner_user?.fan_name_plural || bounty.owner_user?.fan_name || 'supporters';
 
   return (
     <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-fan/50 transition-colors group">
@@ -28,11 +21,11 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
             {bounty.title}
           </Link>
         </h3>
-        <span
-          className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full border ${status.className}`}
-        >
-          {status.label}
-        </span>
+        {/* relative z-10 lifts these above the stretched-link ::after overlay */}
+        <div className="relative z-10 flex items-center gap-1.5 shrink-0">
+          <ShareButton path={`/bounties/${bounty.id}`} title={bounty.title} />
+          <BountyStatusBadge status={bounty.status} />
+        </div>
       </div>
 
       {bounty.description && (
@@ -64,7 +57,7 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
             <div className="text-right">
               <div className="text-xs text-muted">for</div>
               <div className="text-sm text-creator font-medium truncate max-w-[100px]">
-                {bounty.target_display_name ?? bounty.owner_user?.display_name}
+                {bounty.owner_user?.display_name ?? bounty.display_name ?? (bounty.target_handle ? `${bounty.target_handle.platform}/${bounty.target_handle.username}` : null)}
               </div>
             </div>
           </div>

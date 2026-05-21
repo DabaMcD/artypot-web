@@ -25,7 +25,7 @@ type StripeAccountStatus = {
   requirements: string[];
 };
 
-function SanctumPageContent() {
+function CreatorDashboardContent() {
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
@@ -68,7 +68,7 @@ function SanctumPageContent() {
   useEffect(() => {
     const stripeParam = searchParams.get('stripe');
     if (!stripeParam) return;
-    router.replace('/sanctum', { scroll: false });
+    router.replace('/creator', { scroll: false });
     if (stripeParam === 'complete') {
       toast('Bank setup complete! Verifying your account status…', 'success');
       stripeConnectApi.accountStatus().then((res) => setStripeStatus(res.data)).catch(() => {});
@@ -80,7 +80,7 @@ function SanctumPageContent() {
   useEffect(() => {
     const w9Param = searchParams.get('w9');
     if (!w9Param) return;
-    router.replace('/sanctum', { scroll: false });
+    router.replace('/creator', { scroll: false });
     if (w9Param === 'complete') {
       toast('W-9 submitted! We\'ll notify you once your SSN/TIN has been verified.', 'success');
       w9Api.status().then((res) => setW9Status(res.data)).catch(() => {});
@@ -92,7 +92,7 @@ function SanctumPageContent() {
   useEffect(() => {
     const w8benParam = searchParams.get('w8ben');
     if (!w8benParam) return;
-    router.replace('/sanctum', { scroll: false });
+    router.replace('/creator', { scroll: false });
     if (w8benParam === 'complete') {
       toast('W-8BEN submitted! We\'ll review and confirm shortly.', 'success');
       w8benApi.status().then((res) => setW8benStatus(res.data)).catch(() => {});
@@ -105,8 +105,8 @@ function SanctumPageContent() {
     if (stripeLoading) return;
     setStripeLoading(true);
     try {
-      const returnUrl  = `${window.location.origin}/sanctum?stripe=complete`;
-      const refreshUrl = `${window.location.origin}/sanctum?stripe=refresh`;
+      const returnUrl  = `${window.location.origin}/creator?stripe=complete`;
+      const refreshUrl = `${window.location.origin}/creator?stripe=refresh`;
       const res = await stripeConnectApi.createAccount(returnUrl, refreshUrl);
       window.location.href = res.data.onboarding_url;
     } catch {
@@ -119,8 +119,8 @@ function SanctumPageContent() {
     if (stripeLoading) return;
     setStripeLoading(true);
     try {
-      const returnUrl  = `${window.location.origin}/sanctum?stripe=complete`;
-      const refreshUrl = `${window.location.origin}/sanctum?stripe=refresh`;
+      const returnUrl  = `${window.location.origin}/creator?stripe=complete`;
+      const refreshUrl = `${window.location.origin}/creator?stripe=refresh`;
       const res = await stripeConnectApi.onboardingLink(returnUrl, refreshUrl);
       window.location.href = res.data.onboarding_url;
     } catch {
@@ -219,10 +219,11 @@ function SanctumPageContent() {
   const isUS           = user.country_code === 'US';
   const needsLocation  = !user.location_complete;
 
-  const openPledges        = balance?.open_pledges ?? 0;
-  const solidOpenPledges   = balance?.solid_open_pledges ?? openPledges;
-  const softOpenPledges    = openPledges - solidOpenPledges;
-  const pendingPayment     = balance?.pending_payment ?? 0;
+  const openPledges          = balance?.open_pledges ?? 0;
+  const solidOpenPledges     = balance?.solid_open_pledges ?? openPledges;
+  const softOpenPledges      = openPledges - solidOpenPledges;
+  const pendingPayment       = balance?.pending_payment ?? 0;
+  const solidPendingPayment  = balance?.solid_pending_payment ?? pendingPayment;
   const clearing           = balance?.clearing ?? 0;
   const availableBalance   = balance?.available_balance ?? 0;
   const paidOut            = balance?.paid_out ?? 0;
@@ -240,7 +241,7 @@ function SanctumPageContent() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <SectionLabel>creator · sanctum</SectionLabel>
+          <SectionLabel>creator · dashboard</SectionLabel>
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{creator.display_name}</h1>
         </div>
         <Link href={`/${user.slug}`}>
@@ -251,7 +252,7 @@ function SanctumPageContent() {
       {/* Payout hold warning */}
       {payoutHold && (
         <Banner tone="bad" action={
-          <Link href="/sanctum">
+          <Link href="/creator">
             <Button variant="primary" size="sm">Complete verification →</Button>
           </Link>
         }>
@@ -289,7 +290,7 @@ function SanctumPageContent() {
       {/* Balance pipeline */}
       <div>
         <SectionLabel className="mb-3">earnings pipeline</SectionLabel>
-        <BalancePipeline balances={{ pending: pendingPayment, clearing, available: availableBalance }} />
+        <BalancePipeline balances={{ pending: pendingPayment, solidPending: solidPendingPayment, clearing, available: availableBalance }} />
         <p className="text-xs text-muted mt-2">
           Contributions flow left &rarr; right. Council approval moves funds to pending. Payment from fans on the {BILLING_DAY}th moves them into clearing. 7 days later they&apos;re available.
         </p>
@@ -497,7 +498,7 @@ function SanctumPageContent() {
             {payoutHold ? (
               <p className="text-sm text-bad">
                 Payouts are on hold — complete Stripe verification to withdraw.{' '}
-                <Link href="/sanctum" className="underline underline-offset-2 hover:opacity-80">Resolve now →</Link>
+                <Link href="/creator" className="underline underline-offset-2 hover:opacity-80">Resolve now →</Link>
               </p>
             ) : !canWithdraw ? (
               <p className="text-sm text-muted">
@@ -605,10 +606,10 @@ function SanctumPageContent() {
   );
 }
 
-export default function SanctumPage() {
+export default function CreatorDashboardPage() {
   return (
     <Suspense>
-      <SanctumPageContent />
+      <CreatorDashboardContent />
     </Suspense>
   );
 }

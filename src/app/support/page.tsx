@@ -17,6 +17,7 @@ export default function SupportPage() {
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [website, setWebsite] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -30,7 +31,7 @@ export default function SupportPage() {
       const res = await fetch(`${API_BASE}/support`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ name, email, subject, message }),
+        body: JSON.stringify({ name, email, subject, message, website }),
       });
 
       if (!res.ok) {
@@ -73,6 +74,7 @@ export default function SupportPage() {
                 setEmail('');
                 setSubject('');
                 setMessage('');
+                setWebsite('');
               }}
               className="mt-6 text-sm text-fan hover:underline"
             >
@@ -81,6 +83,21 @@ export default function SupportPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Honeypot — positioned far off-screen; ignored by real users,
+                filled by bots. No logic here — the backend handles it silently. */}
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }} aria-hidden="true">
+              <label htmlFor="support_website">Website</label>
+              <input
+                id="support_website"
+                type="text"
+                name="website"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
+
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
                 <label className="block text-xs font-medium text-muted mb-1.5">Your name</label>

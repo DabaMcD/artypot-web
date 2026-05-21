@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { billing, pledges as pledgesApi } from '@/lib/api';
 import type { PaymentMethod } from '@/lib/types';
 import { useToast } from '@/lib/toast-context';
+import { useNudgeContext } from '@/lib/nudge-context';
 import AddCardForm from './AddCardForm';
 
 const BRAND_ICONS: Record<string, string> = {
@@ -29,6 +30,7 @@ interface Props {
 
 export default function PaymentMethodManager({ onMethodsChange, compact = false }: Props) {
   const { toast } = useToast();
+  const { refresh: refreshNudge } = useNudgeContext();
 
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,6 +65,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
   const handleAdded = async () => {
     setShowAdd(false);
     await fetchMethods();
+    void refreshNudge();
   };
 
   const confirmRemove = async () => {

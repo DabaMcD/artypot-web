@@ -10,6 +10,7 @@ import { Sidebar } from './Sidebar';
 import CreatorSearchWidget from './CreatorSearchWidget';
 import NotificationBell from './NotificationBell';
 import { NudgeBar } from '@/components/NudgeBar';
+import { NudgeProvider } from '@/lib/nudge-context';
 import { StaleCardBar } from '@/components/StaleCardBar';
 import { PaymentGraceBanner } from '@/components/PaymentGraceBanner';
 import { PaymentAuthBanner } from '@/components/PaymentAuthBanner';
@@ -23,7 +24,7 @@ function isAuthRoute(pathname: string) {
 
 function inferRole(pathname: string, mode: string): 'fan' | 'creator' | 'council' {
   if (pathname.startsWith('/admin') || pathname.startsWith('/overlord')) return 'council';
-  if (pathname.startsWith('/sanctum') || mode === 'creator') return 'creator';
+  if (pathname.startsWith('/creator') || mode === 'creator') return 'creator';
   return 'fan';
 }
 
@@ -59,13 +60,14 @@ export function AppShell({ children }: AppShellProps) {
   const role = inferRole(pathname, mode);
 
   return (
+    <NudgeProvider>
     <div className="flex flex-col min-h-screen bg-background" data-role={role}>
 
       {/* ── Full-width top bar ─────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 flex items-center h-12 px-4 bg-surface border-b border-border shrink-0 gap-3">
         {/* Hamburger — mobile only, opens sidebar drawer */}
         <button
-          className="md:hidden p-1.5 -ml-1 rounded-md hover:bg-surface-2 transition-colors shrink-0"
+          className="lg:hidden p-1.5 -ml-1 rounded-md hover:bg-surface-2 transition-colors shrink-0"
           onClick={() => setSidebarOpen(true)}
           aria-label="Open menu"
         >
@@ -127,5 +129,6 @@ export function AppShell({ children }: AppShellProps) {
       </div>
 
     </div>
+    </NudgeProvider>
   );
 }
