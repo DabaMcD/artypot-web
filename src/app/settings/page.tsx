@@ -9,8 +9,6 @@ import type { CloudinaryUploadWidgetResults } from 'next-cloudinary';
 import { normalizeAvatarUrl, AVATAR_UPLOAD_OPTIONS } from '@/lib/cloudinary';
 import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi, pledges as pledgesApi } from '@/lib/api';
 import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
-import HandlesSection from '@/components/HandlesSection';
-import CreatorSlugSection from '@/components/CreatorSlugSection';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 import { useToast } from '@/lib/toast-context';
@@ -127,6 +125,13 @@ const NOTIF_ROWS: {
     bellKey:  'in_app_creator_activity',  bellRule:  'toggle',
   },
   {
+    label: 'comment reply',
+    desc: 'someone replied to a comment thread you participated in.',
+    emailKey: 'comment_reply',         emailRule: 'toggle',
+    smsKey:   'sms_comment_reply',     smsRule:   'toggle',
+    bellKey:  'in_app_comment_reply',  bellRule:  'toggle',
+  },
+  {
     label: 'account management',
     desc: 'required actions, admin messages, handle verification results.',
     emailKey: null, emailRule: 'mandatory_on',
@@ -154,11 +159,15 @@ export default function SettingsPage() {
   const [emailChangeSent, setEmailChangeSent] = useState<string | null>(null);
   const [nameInput, setNameInput] = useState('');
   const [nameSaving, setNameSaving] = useState(false);
+  const [expiryValue, setExpiryValue] = useState('39');
+  const [expiryUnit, setExpiryUnit] = useState('month');
+  const [expirySaving, setExpirySaving] = useState(false);
   const [picSaving, setPicSaving] = useState(false);
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? 'artypot_profiles';
   const [showBrokeConfirm, setShowBrokeConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
   const [dangerLoading, setDangerLoading] = useState(false);
   const [dangerMsg, setDangerMsg] = useState('');
   const [pledgeTotalAmount, setPledgeTotalAmount] = useState<number | null>(null);
@@ -173,6 +182,8 @@ export default function SettingsPage() {
     if (!user) { router.replace('/login'); return; }
     setIsAnonymous(user.is_anonymous ?? false);
     setNameInput(user.display_name ?? '');
+    setExpiryValue(String(user.default_expiry_value ?? 39));
+    setExpiryUnit(user.default_expiry_unit ?? 'month');
     setCountryCode(user.country_code ?? '');
     setStateCode(user.state_code ?? '');
     notifApi.get().then(setNotifSettings).catch(() => {});
@@ -187,16 +198,19 @@ export default function SettingsPage() {
     const emailKeys: Array<keyof NotificationSettings> = [
       'creator_verified','bounty_pending_review','bounty_confirmed',
       'backing_confirmed','backing_expired','billing_preview',
-      'billing_receipt','bounty_activity','creator_activity',
+      'billing_receipt','bounty_activity','creator_activity','comment_reply',
+      'creator_new_bounty','creator_bounty_verified',
     ];
     const smsKeys: Array<keyof NotificationSettings> = [
       'sms_creator_verified','sms_bounty_pending_review','sms_bounty_confirmed',
       'sms_backing_confirmed','sms_backing_expired','sms_billing_preview',
-      'sms_billing_receipt','sms_bounty_activity','sms_creator_activity',
+      'sms_billing_receipt','sms_bounty_activity','sms_creator_activity','sms_comment_reply',
+      'sms_creator_new_bounty','sms_creator_bounty_verified',
     ];
     const bellKeys: Array<keyof NotificationSettings> = [
       'in_app_creator_verified','in_app_bounty_pending_review','in_app_bounty_confirmed',
       'in_app_backing_expired','in_app_billing_receipt','in_app_bounty_activity','in_app_creator_activity',
+      'in_app_comment_reply','in_app_creator_new_bounty','in_app_creator_bounty_verified',
     ];
 
     if (value) {
@@ -263,6 +277,20 @@ export default function SettingsPage() {
       toast('Name updated!', 'success');
     } catch { toast('Failed to save name.', 'error'); }
     finally { setNameSaving(false); }
+  };
+
+  const handleSaveExpiry = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    const val = parseInt(expiryValue, 10);
+    if (isNaN(val) || val < 1 || val > 999) return;
+    setExpirySaving(true);
+    try {
+      await usersApi.update(user.id, { default_expiry_value: val, default_expiry_unit: expiryUnit });
+      await refreshUser();
+      toast('Default expiry saved.', 'success');
+    } catch { toast('Failed to save expiry.', 'error'); }
+    finally { setExpirySaving(false); }
   };
 
   const handleSaveLocation = async (e: React.FormEvent) => {
@@ -423,11 +451,11 @@ export default function SettingsPage() {
       {showDeleteConfirm && (
         <Modal
           title="Delete My Account"
-          onClose={() => setShowDeleteConfirm(false)}
+          onClose={() => { setShowDeleteConfirm(false); setDeleteConfirmName(''); }}
           actions={
             <>
-              <Button variant="ghost" onClick={() => setShowDeleteConfirm(false)} disabled={dangerLoading}>Cancel</Button>
-              <Button variant="danger" onClick={handleDeleteAccount} disabled={dangerLoading}>
+              <Button variant="ghost" onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmName(''); }} disabled={dangerLoading}>Cancel</Button>
+              <Button variant="danger" onClick={handleDeleteAccount} disabled={dangerLoading || deleteConfirmName !== user.display_name}>
                 {dangerLoading ? 'Deleting…' : 'Yes, Delete My Account'}
               </Button>
             </>
@@ -436,7 +464,17 @@ export default function SettingsPage() {
           <p className="text-sm text-muted leading-relaxed mb-2">
             This will <strong className="text-foreground">permanently delete your account</strong>, cancel all your active commitments, and log you out immediately.
           </p>
-          <p className="text-sm text-muted">Your account cannot be recovered. You may re-register with the same email address.</p>
+          <p className="text-sm text-muted mb-3">Your account cannot be recovered. You may re-register with the same email address.</p>
+          <p className="text-sm text-muted mb-2">
+            Type <strong className="text-foreground font-mono">{user.display_name}</strong> to confirm:
+          </p>
+          <Input
+            type="text"
+            value={deleteConfirmName}
+            onChange={(e) => setDeleteConfirmName(e.target.value)}
+            placeholder={user.display_name ?? ''}
+            autoFocus
+          />
         </Modal>
       )}
 
@@ -487,56 +525,121 @@ export default function SettingsPage() {
           </Card>
         )}
 
-        {/* Profile picture */}
-        <Card>
-          <SectionLabel className="mb-4">profile picture</SectionLabel>
-          <div className="flex items-center gap-4">
-            <div className="relative w-16 h-16 rounded-full overflow-hidden bg-surface-2 border border-border shrink-0">
-              {user.profile_picture ? (
-                <Image src={user.profile_picture} alt="Profile picture" fill className="object-cover" unoptimized />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-2xl text-muted select-none font-bold">
-                  {user.display_name?.charAt(0).toUpperCase() ?? '?'}
-                </div>
-              )}
+        {/* Profile picture — moved to creator settings for creators */}
+        {user.role === 'creator' ? (
+          <Card>
+            <div className="flex items-center justify-between">
+              <div>
+                <SectionLabel className="mb-1">profile picture</SectionLabel>
+                <p className="text-sm text-muted">Manage your creator profile picture.</p>
+              </div>
+              <Link href="/creator/settings"><Button variant="default" size="sm">Creator Settings →</Button></Link>
             </div>
-            <div className="flex-1 min-w-0">
-              {cloudName ? (
-                <CldUploadWidget
-                  uploadPreset={uploadPreset}
-                  options={{ sources: ['local', 'url', 'camera'], cropping: true, croppingAspectRatio: 1, multiple: false, folder: 'artypot/profiles', ...AVATAR_UPLOAD_OPTIONS }}
-                  onSuccess={(result: CloudinaryUploadWidgetResults) => {
-                    const info = result?.info;
-                    if (info && typeof info === 'object' && 'secure_url' in info) {
-                      void handlePicUploaded(info.secure_url as string);
-                    }
-                  }}
-                >
-                  {({ open }) => (
-                    <Button variant="default" size="sm" disabled={picSaving} onClick={() => open()}>
-                      {picSaving ? 'saving…' : user.profile_picture ? 'change photo…' : 'upload photo…'}
-                    </Button>
-                  )}
-                </CldUploadWidget>
-              ) : (
-                <p className="text-xs text-bad">
-                  Image uploads are unavailable — NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is not set.
+          </Card>
+        ) : (
+          <Card>
+            <SectionLabel className="mb-4">profile picture</SectionLabel>
+            <div className="flex items-center gap-4">
+              <div className="relative w-16 h-16 rounded-full overflow-hidden bg-surface-2 border border-border shrink-0">
+                {user.profile_picture ? (
+                  <Image src={user.profile_picture} alt="Profile picture" fill className="object-cover" unoptimized />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-2xl text-muted select-none font-bold">
+                    {user.display_name?.charAt(0).toUpperCase() ?? '?'}
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                {cloudName ? (
+                  <CldUploadWidget
+                    uploadPreset={uploadPreset}
+                    options={{ sources: ['local', 'url', 'camera'], cropping: true, croppingAspectRatio: 1, multiple: false, folder: 'artypot/profiles', ...AVATAR_UPLOAD_OPTIONS }}
+                    onSuccess={(result: CloudinaryUploadWidgetResults) => {
+                      const info = result?.info;
+                      if (info && typeof info === 'object' && 'secure_url' in info) {
+                        void handlePicUploaded(info.secure_url as string);
+                      }
+                    }}
+                  >
+                    {({ open }) => (
+                      <Button variant="default" size="sm" disabled={picSaving} onClick={() => open()}>
+                        {picSaving ? 'saving…' : user.profile_picture ? 'change photo…' : 'upload photo…'}
+                      </Button>
+                    )}
+                  </CldUploadWidget>
+                ) : (
+                  <p className="text-xs text-bad">
+                    Image uploads are unavailable — NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is not set.
+                  </p>
+                )}
+                <p className="text-xs text-muted mt-2">
+                  Cropped to a square and optimized automatically — any size is fine.
                 </p>
-              )}
-              <p className="text-xs text-muted mt-2">
-                Cropped to a square and optimized automatically — any size is fine.
-              </p>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        )}
 
-        {/* Display name */}
+        {/* Display name — moved to creator settings for creators */}
+        {user.role === 'creator' ? (
+          <Card>
+            <div className="flex items-center justify-between">
+              <div>
+                <SectionLabel className="mb-1">display name</SectionLabel>
+                <p className="text-sm text-muted">Update your public name in creator settings.</p>
+              </div>
+              <Link href="/creator/settings"><Button variant="default" size="sm">Creator Settings →</Button></Link>
+            </div>
+          </Card>
+        ) : (
+          <Card>
+            <SectionLabel className="mb-3">display name</SectionLabel>
+            <form onSubmit={handleSaveName} className="flex gap-2">
+              <Input type="text" required value={nameInput} onChange={(e) => setNameInput(e.target.value)} className="flex-1" />
+              <Button type="submit" variant="default" disabled={nameSaving || !nameInput.trim() || nameInput.trim() === user.display_name}>
+                {nameSaving ? 'Saving…' : 'Save Name'}
+              </Button>
+            </form>
+          </Card>
+        )}
+
+        {/* Default pledge expiry */}
         <Card>
-          <SectionLabel className="mb-3">display name</SectionLabel>
-          <form onSubmit={handleSaveName} className="flex gap-2">
-            <Input type="text" required value={nameInput} onChange={(e) => setNameInput(e.target.value)} className="flex-1" />
-            <Button type="submit" variant="default" disabled={nameSaving || !nameInput.trim() || nameInput.trim() === user.display_name}>
-              {nameSaving ? 'Saving…' : 'Save Name'}
+          <SectionLabel className="mb-1">default pledge expiry</SectionLabel>
+          <p className="text-sm text-muted mb-4">
+            How long your pledge stays active when you back a new bounty. You can always override this per bounty.
+          </p>
+          <form onSubmit={handleSaveExpiry} className="flex gap-2 items-end">
+            <div className="flex-1">
+              <FieldLabel>length</FieldLabel>
+              <Input
+                type="number"
+                required
+                min={1}
+                max={999}
+                value={expiryValue}
+                onChange={(e) => setExpiryValue(e.target.value)}
+              />
+            </div>
+            <div className="flex-1">
+              <FieldLabel>unit</FieldLabel>
+              <select
+                value={expiryUnit}
+                onChange={(e) => setExpiryUnit(e.target.value)}
+                className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
+              >
+                <option value="day">day(s)</option>
+                <option value="week">week(s)</option>
+                <option value="month">month(s)</option>
+                <option value="year">year(s)</option>
+              </select>
+            </div>
+            <Button
+              type="submit"
+              variant="default"
+              disabled={expirySaving || !expiryValue || parseInt(expiryValue, 10) < 1}
+            >
+              {expirySaving ? 'Saving…' : 'Save'}
             </Button>
           </form>
         </Card>
@@ -578,6 +681,7 @@ export default function SettingsPage() {
         )}
 
         {/* Phone number */}
+        <div id="phone">
         <Card>
           <SectionLabel className="mb-2">phone number</SectionLabel>
           <p className="text-sm text-muted mb-4">Add a verified phone number to receive SMS notifications.</p>
@@ -611,6 +715,7 @@ export default function SettingsPage() {
             </div>
           )}
         </Card>
+        </div>
 
         {/* Notifications */}
         <Card>
@@ -684,8 +789,15 @@ export default function SettingsPage() {
                 </div>
               ))}
 
-              {/* Reset to defaults */}
-              <div className="mt-4 pt-3 border-border flex justify-end">
+              {/* Reset to defaults + creator cross-link */}
+              <div className="mt-4 pt-3 border-border flex items-center justify-between gap-4">
+                {user.role === 'creator' ? (
+                  <Link href="/creator/settings#notifications" className="text-xs font-mono text-muted hover:text-foreground transition-colors">
+                    go to creator-related notifications →
+                  </Link>
+                ) : (
+                  <span />
+                )}
                 <button
                   type="button"
                   onClick={handleNotifReset}
@@ -712,66 +824,83 @@ export default function SettingsPage() {
           </Card>
         )}
 
-        {/* Location of residence */}
-        <div id="location">
-        <Card>
-          <SectionLabel className="mb-3">location of residence</SectionLabel>
-          <p className="text-sm text-muted mb-4">
-            Used for earnings reporting if you enable creator mode. Required to become a creator.
-          </p>
-          <form onSubmit={handleSaveLocation} className="space-y-3">
-            {/* Country */}
-            <div>
-              <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">country</label>
-              <select
-                value={countryCode}
-                onChange={(e) => { setCountryCode(e.target.value); setStateCode(''); }}
-                className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
-              >
-                <option value="">— select country —</option>
-                {COUNTRIES.map((c) => (
-                  <option key={c.code} value={c.code}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* State / province (conditional) */}
-            {countryCode && subdivisions(countryCode) && (
+        {/* Location of residence — moved to creator settings for creators */}
+        {user.role === 'creator' ? (
+          <div id="location">
+            <Card>
+              <div className="flex items-center justify-between">
+                <div>
+                  <SectionLabel className="mb-1">location of residence</SectionLabel>
+                  <p className="text-sm text-muted">Required for creator earnings reporting.</p>
+                </div>
+                <Link href="/creator/settings"><Button variant="default" size="sm">Creator Settings →</Button></Link>
+              </div>
+            </Card>
+          </div>
+        ) : (
+          <div id="location">
+          <Card>
+            <SectionLabel className="mb-3">location of residence</SectionLabel>
+            <p className="text-sm text-muted mb-4">
+              Used for earnings reporting if you enable creator mode. Required to become a creator.
+            </p>
+            <form onSubmit={handleSaveLocation} className="space-y-3">
               <div>
-                <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">
-                  {subdivisionLabel(countryCode)}
-                </label>
+                <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">country</label>
                 <select
-                  value={stateCode}
-                  onChange={(e) => setStateCode(e.target.value)}
+                  value={countryCode}
+                  onChange={(e) => { setCountryCode(e.target.value); setStateCode(''); }}
                   className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
-                  required
                 >
-                  <option value="">— select {subdivisionLabel(countryCode).toLowerCase()} —</option>
-                  {subdivisions(countryCode)!.map((s) => (
-                    <option key={s.code} value={s.code}>{s.name}</option>
+                  <option value="">— select country —</option>
+                  {COUNTRIES.map((c) => (
+                    <option key={c.code} value={c.code}>{c.name}</option>
                   ))}
                 </select>
               </div>
-            )}
+              {countryCode && subdivisions(countryCode) && (
+                <div>
+                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">
+                    {subdivisionLabel(countryCode)}
+                  </label>
+                  <select
+                    value={stateCode}
+                    onChange={(e) => setStateCode(e.target.value)}
+                    className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
+                    required
+                  >
+                    <option value="">— select {subdivisionLabel(countryCode).toLowerCase()} —</option>
+                    {subdivisions(countryCode)!.map((s) => (
+                      <option key={s.code} value={s.code}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <Button
+                type="submit"
+                variant="default"
+                size="sm"
+                disabled={locationSaving || !countryCode || (!!subdivisions(countryCode) && !stateCode)}
+              >
+                {locationSaving ? 'Saving…' : 'Save Location'}
+              </Button>
+            </form>
+          </Card>
+          </div>
+        )}
 
-            <Button
-              type="submit"
-              variant="default"
-              size="sm"
-              disabled={locationSaving || !countryCode || (!!subdivisions(countryCode) && !stateCode)}
-            >
-              {locationSaving ? 'Saving…' : 'Save Location'}
-            </Button>
-          </form>
-        </Card>
-        </div>
-
-        {/* Creator slug (creators only) */}
-        <CreatorSlugSection />
-
-        {/* Handles */}
-        <HandlesSection />
+        {/* Handles — moved to /creator/handles for creators */}
+        {user.role === 'creator' && (
+          <Card>
+            <div className="flex items-center justify-between">
+              <div>
+                <SectionLabel className="mb-1">handles</SectionLabel>
+                <p className="text-sm text-muted">Manage your verified social handles.</p>
+              </div>
+              <Link href="/creator/handles"><Button variant="default" size="sm">Manage Handles →</Button></Link>
+            </div>
+          </Card>
+        )}
 
         {/* Danger zone */}
         <Card className="border-bad/30">

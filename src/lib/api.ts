@@ -338,6 +338,8 @@ export const bounties = {
     platform?: string;
     username?: string;
     display_name?: string;
+    pledge_expiry_value?: number;
+    pledge_expiry_unit?: string;
   }) =>
     request<{ data: Bounty }>('/bounties', { method: 'POST', body: JSON.stringify(data) }),
 
@@ -374,7 +376,7 @@ export const users = {
   get: (id: number) =>
     request<{ data: PublicUser }>(`/users/${id}`),
 
-  update: (id: number, data: Partial<Pick<User, 'display_name' | 'profile_picture' | 'is_anonymous' | 'country_code' | 'state_code'>>) =>
+  update: (id: number, data: Partial<Pick<User, 'display_name' | 'profile_picture' | 'is_anonymous' | 'country_code' | 'state_code' | 'default_expiry_value' | 'default_expiry_unit'>>) =>
     request<{ data: User }>(`/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -801,6 +803,9 @@ export const admin = {
   getUser: (id: number) =>
     request<{ data: import('./types').AdminUser }>(`/admin/users/${id}`),
 
+  deleteUser: (id: number) =>
+    request<null>(`/admin/users/${id}`, { method: 'DELETE' }),
+
   // Creators
   listCreators: (params?: { q?: string; claimed?: 'true' | 'false' | 'all'; page?: number }) => {
     const entries = Object.entries(params ?? {})
@@ -813,16 +818,7 @@ export const admin = {
   },
 
   getCreator: (id: number) =>
-    request<{ data: import('./types').AdminCreator & {
-      w9_records: Array<{
-        id: number;
-        tax_year: number;
-        status: import('./types').CreatorW9Status;
-        completed_at: string | null;
-        tin_matched_at: string | null;
-        created_at: string;
-      }>;
-    } }>(`/admin/creators/${id}`),
+    request<{ data: import('./types').AdminCreatorDetail }>(`/admin/creators/${id}`),
 
   // External Payouts (off-Stripe payouts: Wise, PayPal, wire, check, etc.)
   externalPayouts: {

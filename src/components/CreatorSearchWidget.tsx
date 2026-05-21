@@ -38,6 +38,8 @@ interface CreatorSearchWidgetProps {
   placeholder?: string;
   /** Override the input element's className (e.g. for compact nav variant) */
   inputClassName?: string;
+  /** Auto-focus the input when mounted (e.g. mobile search expand) */
+  autoFocus?: boolean;
 }
 
 export default function CreatorSearchWidget({
@@ -48,6 +50,7 @@ export default function CreatorSearchWidget({
   onCreateNew,
   placeholder = 'Search for a creator…',
   inputClassName,
+  autoFocus,
 }: CreatorSearchWidgetProps) {
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -141,6 +144,8 @@ export default function CreatorSearchWidget({
         }}
         placeholder={placeholder}
         className={inputClassName ?? defaultInputClass}
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus={autoFocus}
       />
 
       {showDropdown && (

@@ -359,18 +359,22 @@ interface Step2Props {
   target: TargetSelection;
   isSelfBounty: boolean;
   onBack: () => void;
-  onNext: (title: string, description: string, amount: string, displayName: string) => void;
+  onNext: (title: string, description: string, amount: string, displayName: string, expiryValue: string, expiryUnit: string) => void;
   initialTitle: string;
   initialDescription: string;
   initialAmount: string;
   initialDisplayName: string;
+  initialExpiryValue: string;
+  initialExpiryUnit: string;
 }
 
-function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDescription, initialAmount, initialDisplayName }: Step2Props) {
+function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDescription, initialAmount, initialDisplayName, initialExpiryValue, initialExpiryUnit }: Step2Props) {
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
   const [amount, setAmount] = useState(initialAmount);
   const [displayName, setDisplayName] = useState(initialDisplayName);
+  const [expiryValue, setExpiryValue] = useState(initialExpiryValue);
+  const [expiryUnit, setExpiryUnit] = useState(initialExpiryUnit);
 
   const handleNext = () => {
     if (!title.trim()) return;
@@ -379,7 +383,7 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
       if (isNaN(amt) || amt < 1) return;
     }
     if (target.kind === 'handle' && !displayName.trim()) return;
-    onNext(title.trim(), description.trim(), isSelfBounty ? '0' : amount, displayName.trim());
+    onNext(title.trim(), description.trim(), isSelfBounty ? '0' : amount, displayName.trim(), expiryValue, expiryUnit);
   };
 
   return (
@@ -450,6 +454,39 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
         </Card>
       )}
 
+      {!isSelfBounty && (
+        <Card>
+          <SectionLabel className="mb-3">pledge expiry</SectionLabel>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <FieldLabel>length</FieldLabel>
+              <Input
+                type="number"
+                required
+                min={1}
+                max={999}
+                value={expiryValue}
+                onChange={(e) => setExpiryValue(e.target.value)}
+              />
+            </div>
+            <div className="flex-1">
+              <FieldLabel>unit</FieldLabel>
+              <select
+                value={expiryUnit}
+                onChange={(e) => setExpiryUnit(e.target.value)}
+                className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
+              >
+                <option value="day">day(s)</option>
+                <option value="week">week(s)</option>
+                <option value="month">month(s)</option>
+                <option value="year">year(s)</option>
+              </select>
+            </div>
+          </div>
+          <FieldHint>Your pledge will auto-expire after this period if the bounty is still open. Change your default in settings.</FieldHint>
+        </Card>
+      )}
+
       <Button
         type="button"
         variant="primary"
@@ -472,13 +509,16 @@ interface Step3Props {
   description: string;
   amount: string;
   displayName: string;
+  expiryValue: string;
+  expiryUnit: string;
   onBack: () => void;
   onSubmit: () => void;
   submitting: boolean;
   error: string;
 }
 
-function Step3({ target, isSelfBounty, title, description, amount, displayName, onBack, onSubmit, submitting, error }: Step3Props) {
+function Step3({ target, isSelfBounty, title, description, amount, displayName, expiryValue, expiryUnit, onBack, onSubmit, submitting, error }: Step3Props) {
+  const UNIT_LABELS: Record<string, string> = { day: 'day(s)', week: 'week(s)', month: 'month(s)', year: 'year(s)' };
   return (
     <div className="space-y-5">
       <div>
@@ -514,6 +554,12 @@ function Step3({ target, isSelfBounty, title, description, amount, displayName, 
               <div className="text-fan font-bold text-lg">${parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
             </div>
           )}
+          {!isSelfBounty && (
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">pledge expires after</div>
+              <div className="text-sm text-foreground font-medium font-mono">{expiryValue} {UNIT_LABELS[expiryUnit] ?? expiryUnit}</div>
+            </div>
+          )}
         </div>
       </Card>
 
@@ -545,6 +591,8 @@ function NewBountyForm() {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('1');
   const [displayName, setDisplayName] = useState('');
+  const [expiryValue, setExpiryValue] = useState('39');
+  const [expiryUnit, setExpiryUnit] = useState('month');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
@@ -554,6 +602,15 @@ function NewBountyForm() {
   const [s1NewDisplayName, setS1NewDisplayName] = useState('');
   const [s1NewPlatform, setS1NewPlatform] = useState<HandlePlatform | ''>('');
   const [s1NewUsername, setS1NewUsername] = useState('');
+
+  // Sync expiry defaults from user once auth loads (useState initial runs before user is available)
+  useEffect(() => {
+    if (user) {
+      setExpiryValue(String(user.default_expiry_value ?? 39));
+      setExpiryUnit(user.default_expiry_unit ?? 'month');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // True when the logged-in creator is targeting their own profile.
   // Self-bounties don't require an opening pledge — fans add onto them.
@@ -566,10 +623,12 @@ function NewBountyForm() {
     setStep(2);
   };
 
-  const handleStep2Next = (t: string, d: string, a: string, dn: string) => {
+  const handleStep2Next = (t: string, d: string, a: string, dn: string, ev: string, eu: string) => {
     setTitle(t);
     setDescription(d);
     setAmount(a);
+    setExpiryValue(ev);
+    setExpiryUnit(eu);
     setDisplayName(dn);
     setStep(3);
   };
@@ -583,6 +642,8 @@ function NewBountyForm() {
         title,
         description: description || undefined,
         initial_pledge_amount: parseFloat(amount),
+        pledge_expiry_value: parseInt(expiryValue, 10),
+        pledge_expiry_unit: expiryUnit,
       };
 
       if (target.kind === 'user') {
@@ -650,6 +711,8 @@ function NewBountyForm() {
           initialDescription={description}
           initialAmount={amount}
           initialDisplayName={displayName}
+          initialExpiryValue={expiryValue}
+          initialExpiryUnit={expiryUnit}
         />
       )}
       {step === 3 && target && (
@@ -660,6 +723,8 @@ function NewBountyForm() {
           description={description}
           amount={amount}
           displayName={displayName}
+          expiryValue={expiryValue}
+          expiryUnit={expiryUnit}
           onBack={() => setStep(2)}
           onSubmit={handleSubmit}
           submitting={submitting}

@@ -148,6 +148,10 @@ export interface User {
   payment_failed_at?: string | null;
   /** ISO timestamp of when the post-failure grace period expires. Computed by backend. */
   payment_grace_expires_at?: string | null;
+  /** Default pledge expiry — number of units (e.g. 39) prefilled on the bounty creation form. */
+  default_expiry_value?: number;
+  /** Unit for default pledge expiry: 'day' | 'week' | 'month' | 'year'. */
+  default_expiry_unit?: string;
   creator?: Creator;
 }
 
@@ -525,6 +529,11 @@ export interface NotificationSettings {
   billing_receipt: boolean;
   bounty_activity: boolean;
   creator_activity: boolean;
+  comment_reply: boolean;
+  // ── Creator-side email preferences ───────────────────────────────────────
+  creator_new_bounty: boolean;
+  creator_bounty_verified: boolean;
+  // creator_bounty_rejected: mandatory ON — no column
   // ── SMS preferences (sms_ prefix) ────────────────────────────────────────
   sms_creator_verified: boolean;
   sms_bounty_pending_review: boolean;
@@ -535,9 +544,12 @@ export interface NotificationSettings {
   sms_billing_receipt: boolean;
   sms_bounty_activity: boolean;
   sms_creator_activity: boolean;
+  sms_comment_reply: boolean;
+  sms_creator_new_bounty: boolean;
+  sms_creator_bounty_verified: boolean;
   // ── Bell preferences (in_app_ prefix) ────────────────────────────────────
   // Note: backing_confirmed and billing_preview have no bell column (mandatory OFF).
-  // Note: account_management has no columns (mandatory ON for all channels).
+  // Note: account_management and creator_bounty_rejected have no columns (mandatory ON).
   in_app_creator_verified: boolean;
   in_app_bounty_pending_review: boolean;
   in_app_bounty_confirmed: boolean;
@@ -545,6 +557,9 @@ export interface NotificationSettings {
   in_app_billing_receipt: boolean;
   in_app_bounty_activity: boolean;
   in_app_creator_activity: boolean;
+  in_app_comment_reply: boolean;
+  in_app_creator_new_bounty: boolean;
+  in_app_creator_bounty_verified: boolean;
   // ── Master channel toggles ────────────────────────────────────────────────
   email_master: boolean;
   sms_master: boolean;
@@ -566,8 +581,11 @@ export const NOTIFICATION_DEFAULTS: NotificationSettings = {
   backing_expired: false,      sms_backing_expired: false,      in_app_backing_expired: false,
   billing_preview: false,      sms_billing_preview: false,
   billing_receipt: true,       sms_billing_receipt: false,      in_app_billing_receipt: true,
-  bounty_activity: false,      sms_bounty_activity: false,      in_app_bounty_activity: true,
-  creator_activity: false,     sms_creator_activity: false,     in_app_creator_activity: true,
+  bounty_activity: false,         sms_bounty_activity: false,         in_app_bounty_activity: true,
+  creator_activity: false,        sms_creator_activity: false,        in_app_creator_activity: true,
+  comment_reply: false,           sms_comment_reply: false,           in_app_comment_reply: true,
+  creator_new_bounty: false,      sms_creator_new_bounty: false,      in_app_creator_new_bounty: false,
+  creator_bounty_verified: false, sms_creator_bounty_verified: true,  in_app_creator_bounty_verified: true,
   email_master: true,
   sms_master: true,
   in_app_master: true,
@@ -580,7 +598,7 @@ export const NOTIFICATION_DEFAULTS: NotificationSettings = {
  * IMPORTANT: Keep in sync with NotificationSettings::MANDATORY_ON in
  * artypot-api/app/Models/NotificationSettings.php — update both together.
  */
-export const MANDATORY_ON_TYPES = ['account_management'] as const;
+export const MANDATORY_ON_TYPES = ['account_management', 'creator_bounty_rejected'] as const;
 
 /**
  * Notification types whose bell channel is permanently OFF.
@@ -718,4 +736,111 @@ export interface AdminCreator {
   projects_open: number;
   projects_finished: number;
   created_at: string;
+}
+
+// ── Admin creator detail (single-creator modal) ────────────────────────────
+
+export interface AdminCreatorDetail extends AdminCreator {
+  // Identity
+  email: string;
+  email_verified_at: string | null;
+  phone_number: string | null;
+  phone_verified_at: string | null;
+  country_code: string | null;
+  state_code: string | null;
+  bio: string | null;
+  profile_picture: string | null;
+  last_active_at: string | null;
+
+  // Creator status
+  creator_enabled_at: string | null;
+  creator_tos_accepted_at: string | null;
+  tax_form_status: string | null;
+  stripe_connect_account_id: string | null;
+  payout_hold: boolean;
+  payout_hold_reason: string[] | null;
+  payout_category: 1 | 2 | 3 | null;
+
+  // Aggregate summary
+  w8ben_status: CreatorW8BENStatus | null;
+
+  // Wallet
+  wallet: {
+    available_balance: number;
+    clearing_balance: number;
+    open_pledge_total: number;
+    total_paid_out: number;
+    amount_earned: number;
+  };
+
+  // Handle claims
+  handle_claims: Array<{
+    id: number;
+    handle_id: number;
+    status: string;
+    verification_method: string | null;
+    verified_at: string | null;
+    created_at: string;
+    handle: {
+      id: number;
+      platform: HandlePlatform;
+      username: string;
+      profile_url: string | null;
+      status: string;
+    } | null;
+  }>;
+
+  // Stripe withdrawals
+  withdrawals: Array<{
+    id: number;
+    amount: number;
+    status: string;
+    stripe_payout_id: string | null;
+    initiated_at: string | null;
+    completed_at: string | null;
+    failure_reason: string | null;
+    created_at: string;
+  }>;
+
+  // External (non-Stripe) payouts
+  external_payouts: Array<{
+    id: number;
+    amount: number;
+    method: ExternalPayoutMethod;
+    external_reference_id: string | null;
+    sent_at: string;
+    notes: string | null;
+    reversed_at: string | null;
+    reversal_reason: string | null;
+    recorded_by: { id: number; display_name: string } | null;
+    created_at: string;
+  }>;
+
+  // Tax records
+  w9_records: Array<{
+    id: number;
+    tax_year: number;
+    status: CreatorW9Status;
+    completed_at: string | null;
+    tin_matched_at: string | null;
+    created_at: string;
+  }>;
+
+  w8ben_records: Array<{
+    id: number;
+    tax_year: number;
+    status: CreatorW8BENStatus;
+    completed_at: string | null;
+    created_at: string;
+  }>;
+
+  // Recent bounties
+  recent_bounties: Array<{
+    id: number;
+    title: string;
+    status: BountyStatus;
+    total_pledged: number;
+    created_at: string;
+    completed_at: string | null;
+  }>;
 }

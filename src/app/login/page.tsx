@@ -9,7 +9,7 @@ import { auth as authApi } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Input, FieldLabel } from '@/components/ui/Input';
 import { Toggle } from '@/components/ui/Toggle';
-import { Timeline } from '@/components/ui/Timeline';
+import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 
 /** All OAuth providers the backend supports, in preferred display order. */
 const ALL_PROVIDERS = [
@@ -24,11 +24,6 @@ const ALL_PROVIDERS = [
   { id: 'facebook',  label: 'Facebook' },
 ] as const;
 
-/**
- * NEXT_PUBLIC_OAUTH_PROVIDERS — comma-separated list of provider IDs to show
- * (e.g. "google,github,discord"). When unset, all providers are shown.
- * Set this in your .env to hide providers that aren't configured yet.
- */
 const _enabledSet = process.env.NEXT_PUBLIC_OAUTH_PROVIDERS
   ? new Set(process.env.NEXT_PUBLIC_OAUTH_PROVIDERS.split(',').map((s) => s.trim()).filter(Boolean))
   : null;
@@ -40,7 +35,11 @@ const PROVIDERS = _enabledSet
 export default function LoginPage() {
   const { user, loading: authLoading, login } = useAuth();
   const router = useRouter();
-  const [identifier, setIdentifier] = useState('');
+
+  type IdentifierMode = 'email' | 'phone';
+  const [mode, setMode] = useState<IdentifierMode>('email');
+  const [emailInput, setEmailInput] = useState('');
+  const [phoneInput, setPhoneInput] = useState<E164Number | undefined>(undefined);
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState('');
@@ -53,10 +52,22 @@ export default function LoginPage() {
 
   if (authLoading || user) return null;
 
+  const switchMode = (next: IdentifierMode) => {
+    setMode(next);
+    setError('');
+  };
+
+  const identifierReady =
+    mode === 'email'
+      ? emailInput.trim().length > 0
+      : phoneInput != null && isValidPhoneNumber(phoneInput);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!identifierReady) return;
     setError('');
     setLoading(true);
+    const identifier = mode === 'email' ? emailInput.trim() : (phoneInput ?? '');
     try {
       await login(identifier, password);
       router.push('/dashboard');
@@ -75,8 +86,6 @@ export default function LoginPage() {
       const { url } = await authApi.oauthRedirect(provider);
       window.location.href = url;
     } catch (err: unknown) {
-      // Surface the backend's message verbatim — it already names the platform
-      // ("Sign-in with Reddit isn't available right now…") for unconfigured providers.
       const e = err as { message?: string };
       setError(e.message ?? 'Failed to start sign-in. Please try again.');
       setOauthLoading(null);
@@ -162,10 +171,32 @@ export default function LoginPage() {
         </div>
 
         {/* Divider */}
-        <div className="flex items-center gap-3 mb-5">
+        <div className="flex items-center gap-3 mb-4">
           <div className="flex-1 h-px bg-border" />
           <span className="font-mono text-[10px] uppercase tracking-widest text-muted">or</span>
           <div className="flex-1 h-px bg-border" />
+        </div>
+
+        {/* Email / Phone toggle */}
+        <div className="flex rounded-lg border border-border overflow-hidden mb-5 text-xs font-mono">
+          <button
+            type="button"
+            onClick={() => switchMode('email')}
+            className={`flex-1 py-2 transition-colors ${
+              mode === 'email' ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
+            }`}
+          >
+            email
+          </button>
+          <button
+            type="button"
+            onClick={() => switchMode('phone')}
+            className={`flex-1 py-2 border-l border-border transition-colors ${
+              mode === 'phone' ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
+            }`}
+          >
+            phone
+          </button>
         </div>
 
         {error && (
@@ -175,17 +206,30 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <FieldLabel>email or phone number</FieldLabel>
-            <Input
-              type="text"
-              required
-              autoComplete="username"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              placeholder="you@example.com or +14155550100"
-            />
-          </div>
+          {/* Identifier field */}
+          {mode === 'email' ? (
+            <div>
+              <FieldLabel>email address</FieldLabel>
+              <Input
+                type="email"
+                required
+                autoComplete="email"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                placeholder="you@example.com"
+              />
+            </div>
+          ) : (
+            <div>
+              <FieldLabel>phone number</FieldLabel>
+              <PhoneNumberInput
+                value={phoneInput}
+                onChange={setPhoneInput}
+                disabled={anyLoading}
+              />
+            </div>
+          )}
+
           <div>
             <FieldLabel>password</FieldLabel>
             <Input
@@ -207,7 +251,7 @@ export default function LoginPage() {
             type="submit"
             variant="primary"
             className="w-full justify-center mt-2"
-            disabled={anyLoading}
+            disabled={anyLoading || !identifierReady || !password}
           >
             {loading ? 'Signing in…' : 'Sign In'}
           </Button>

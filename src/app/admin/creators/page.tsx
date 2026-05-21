@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { admin as adminApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { AdminCreator, CreatorW9Status } from '@/lib/types';
+import type { AdminCreator, AdminCreatorDetail, CreatorW9Status, CreatorW8BENStatus } from '@/lib/types';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
@@ -40,107 +40,340 @@ function W9Badge({ status }: { status: CreatorW9Status | null }) {
   return <Badge tone={tones[status]}>{labels[status]}</Badge>;
 }
 
+function W8BENBadge({ status }: { status: CreatorW8BENStatus | null }) {
+  if (!status) return <span className="font-mono text-[10px] uppercase tracking-widest text-muted">no W-8BEN</span>;
+  const tones: Record<CreatorW8BENStatus, 'warn' | 'good' | 'bad'> = {
+    initiated: 'warn',
+    completed: 'good',
+    invalid:   'bad',
+  };
+  const labels: Record<CreatorW8BENStatus, string> = {
+    initiated: 'W-8BEN started',
+    completed: 'W-8BEN ✓',
+    invalid:   'W-8BEN invalid',
+  };
+  return <Badge tone={tones[status]}>{labels[status]}</Badge>;
+}
+
+function PayoutCategoryBadge({ category }: { category: 1 | 2 | 3 | null }) {
+  if (category === null) return null;
+  const tones = { 1: 'good', 2: 'warn', 3: 'bad' } as const;
+  const labels = { 1: 'Cat 1 · Stripe', 2: 'Cat 2 · Manual', 3: 'Cat 3 · Blocked' } as const;
+  return <Badge tone={tones[category]}>{labels[category]}</Badge>;
+}
+
+function fmt(date: string | null | undefined) {
+  if (!date) return '—';
+  return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function fmtMoney(amount: number | null | undefined) {
+  return `$${Number(amount ?? 0).toFixed(2)}`;
+}
+
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex justify-between items-start gap-3 text-sm min-h-[1.5rem]">
+      <dt className="text-muted shrink-0">{label}</dt>
+      <dd className="font-mono tabular-nums text-foreground text-right break-all">{children}</dd>
+    </div>
+  );
+}
+
 // ── Creator detail modal ──────────────────────────────────────────────────────
 
-type CreatorDetail = AdminCreator & {
-  w9_records: Array<{
-    id: number;
-    tax_year: number;
-    status: CreatorW9Status;
-    completed_at: string | null;
-    tin_matched_at: string | null;
-    created_at: string;
-  }>;
-};
+type CreatorDetail = AdminCreatorDetail;
 
 function CreatorModal({ creator, onClose }: { creator: CreatorDetail; onClose: () => void }) {
+  const platformIcon: Record<string, string> = {
+    youtube:   'YT',
+    twitch:    'TW',
+    twitter:   'X',
+    instagram: 'IG',
+    tiktok:    'TK',
+    spotify:   'SP',
+    other:     '↗',
+  };
+
   return (
     <Modal title={creator.display_name} onClose={onClose} lg>
-      {/* Email */}
-      {creator.user && (
-        <p className="font-mono text-[10px] uppercase tracking-widest text-muted mb-4">{creator.user.email}</p>
-      )}
+      {/* Top meta */}
+      <p className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">{creator.email}</p>
 
-      {/* Badges */}
+      {/* Status badges */}
       <div className="flex flex-wrap gap-2 mb-5">
         <ClaimedBadge claimed={creator.claimed} />
         <W9Badge status={creator.w9_status} />
+        <W8BENBadge status={creator.w8ben_status ?? null} />
+        <PayoutCategoryBadge category={creator.payout_category ?? null} />
+        {creator.payout_hold && <Badge tone="bad">payout hold</Badge>}
+        {creator.stripe_connect_account_id && <Badge tone="info">Stripe Connect</Badge>}
       </div>
 
-      {/* Stats */}
+      {/* ── Identity ── */}
+      <SectionLabel className="mb-2">Identity</SectionLabel>
       <Card accent className="mb-4">
-        <dl className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <dt className="text-muted">Creator ID</dt>
-            <dd className="font-mono tabular-nums text-foreground">#{creator.id}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-muted">Created</dt>
-            <dd className="font-mono tabular-nums text-foreground">{new Date(creator.created_at).toLocaleDateString()}</dd>
-          </div>
-          {creator.claimed_at && (
-            <div className="flex justify-between">
-              <dt className="text-muted">Claimed</dt>
-              <dd className="font-mono tabular-nums text-foreground">{new Date(creator.claimed_at).toLocaleDateString()}</dd>
+        <dl className="space-y-2">
+          <Row label="Creator ID">#{creator.id}</Row>
+          <Row label="Slug">{creator.slug ?? '—'}</Row>
+          <Row label="Email">{creator.email}</Row>
+          <Row label="Email verified">{creator.email_verified_at ? fmt(creator.email_verified_at) : <span className="text-bad">unverified</span>}</Row>
+          <Row label="Phone">{creator.phone_number ?? '—'}</Row>
+          <Row label="Phone verified">{creator.phone_verified_at ? fmt(creator.phone_verified_at) : <span className="text-muted">unverified</span>}</Row>
+          <Row label="Country">{creator.country_code ?? '—'}</Row>
+          <Row label="State">{creator.state_code ?? '—'}</Row>
+          <Row label="Joined">{fmt(creator.created_at)}</Row>
+          <Row label="Last active">{creator.last_active_at ? fmt(creator.last_active_at) : '—'}</Row>
+          {creator.bio && (
+            <div className="pt-1">
+              <p className="text-[11px] text-muted mb-0.5">Bio</p>
+              <p className="text-sm text-foreground whitespace-pre-wrap">{creator.bio}</p>
             </div>
           )}
-          <div className="flex justify-between">
-            <dt className="text-muted">Total earned</dt>
-            <dd className="font-mono tabular-nums text-foreground">${Number(creator.amount_earned ?? 0).toFixed(2)}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-muted">Open bounties</dt>
-            <dd className="font-mono tabular-nums text-foreground">{creator.projects_open ?? 0}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-muted">Finished bounties</dt>
-            <dd className="font-mono tabular-nums text-foreground">{creator.projects_finished ?? 0}</dd>
-          </div>
         </dl>
       </Card>
 
-      {/* Claimed-by user */}
-      {creator.user && (
-        <Card accent className="mb-4">
-          <SectionLabel className="mb-2">Claimed by</SectionLabel>
-          <Link
-            href={`/users/${creator.user.id}`}
-            className="font-medium text-foreground hover:text-fan transition-colors text-sm"
-          >
-            {creator.user.display_name} →
-          </Link>
-          <p className="font-mono text-[10px] text-muted mt-0.5">{creator.user.email}</p>
-        </Card>
+      {/* ── Creator Status ── */}
+      <SectionLabel className="mb-2">Creator Status</SectionLabel>
+      <Card accent className="mb-4">
+        <dl className="space-y-2">
+          <Row label="Creator enabled">{fmt(creator.creator_enabled_at)}</Row>
+          <Row label="TOS accepted">{creator.creator_tos_accepted_at ? fmt(creator.creator_tos_accepted_at) : <span className="text-bad">not accepted</span>}</Row>
+          <Row label="Tax form status">{creator.tax_form_status ?? '—'}</Row>
+          <Row label="Stripe Connect">{creator.stripe_connect_account_id ?? <span className="text-muted">none</span>}</Row>
+          <Row label="Payout category">
+            {creator.payout_category !== null && creator.payout_category !== undefined ? (
+              `Category ${creator.payout_category}`
+            ) : '—'}
+          </Row>
+          {creator.payout_hold && (
+            <>
+              <Row label="Payout hold"><span className="text-bad">Yes</span></Row>
+              {Array.isArray(creator.payout_hold_reason) && creator.payout_hold_reason.length > 0 && (
+                <Row label="Hold reason">{creator.payout_hold_reason.join(', ')}</Row>
+              )}
+            </>
+          )}
+        </dl>
+      </Card>
+
+      {/* ── Wallet ── */}
+      {creator.wallet && (
+        <>
+          <SectionLabel className="mb-2">Wallet</SectionLabel>
+          <Card accent className="mb-4">
+            <dl className="space-y-2">
+              <Row label="Available balance">{fmtMoney(creator.wallet.available_balance)}</Row>
+              <Row label="Clearing balance">{fmtMoney(creator.wallet.clearing_balance)}</Row>
+              <Row label="Open pledge total">{fmtMoney(creator.wallet.open_pledge_total)}</Row>
+              <Row label="Total paid out">{fmtMoney(creator.wallet.total_paid_out)}</Row>
+              <Row label="Lifetime earned">{fmtMoney(creator.wallet.amount_earned)}</Row>
+            </dl>
+          </Card>
+        </>
       )}
 
-      {/* W-9 history */}
-      <div>
-        <SectionLabel className="mb-2">W-9 History</SectionLabel>
-        {creator.w9_records.length === 0 ? (
-          <Empty message="No W-9 records." />
-        ) : (
-          <div className="space-y-2">
-            {creator.w9_records.map((w) => (
+      {/* ── Handles ── */}
+      <SectionLabel className="mb-2">
+        Handles
+        <span className="ml-2 font-mono text-[10px] text-muted normal-case">{creator.handle_claims?.length ?? 0} claim{(creator.handle_claims?.length ?? 0) !== 1 ? 's' : ''}</span>
+      </SectionLabel>
+      {!creator.handle_claims || creator.handle_claims.length === 0 ? (
+        <Empty message="No handle claims." className="mb-4" />
+      ) : (
+        <div className="space-y-2 mb-4">
+          {creator.handle_claims.map((claim) => (
+            <Card key={claim.id} accent>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-mono text-[10px] uppercase text-muted bg-surface-2 px-1.5 py-0.5 rounded shrink-0">
+                    {platformIcon[claim.handle?.platform ?? 'other'] ?? '↗'}
+                  </span>
+                  <div className="min-w-0">
+                    {claim.handle?.profile_url ? (
+                      <a
+                        href={claim.handle.profile_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-sm text-foreground hover:text-creator transition-colors truncate block"
+                      >
+                        @{claim.handle?.username}
+                      </a>
+                    ) : (
+                      <p className="font-medium text-sm text-foreground truncate">@{claim.handle?.username}</p>
+                    )}
+                    <p className="font-mono text-[10px] text-muted capitalize">{claim.handle?.platform}</p>
+                  </div>
+                </div>
+                <div className="shrink-0 text-right">
+                  <Badge tone={claim.status === 'verified' ? 'good' : claim.status === 'unverified' ? 'warn' : 'default'}>
+                    {claim.status}
+                  </Badge>
+                  {claim.verified_at && (
+                    <p className="font-mono text-[9px] text-muted mt-0.5">{fmt(claim.verified_at)}</p>
+                  )}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* ── Recent Bounties ── */}
+      <SectionLabel className="mb-2">Recent Bounties</SectionLabel>
+      {!creator.recent_bounties || creator.recent_bounties.length === 0 ? (
+        <Empty message="No bounties." className="mb-4" />
+      ) : (
+        <div className="space-y-2 mb-4">
+          {creator.recent_bounties.map((b) => {
+            const statusTone: Record<string, 'good' | 'warn' | 'info' | 'default' | 'bad'> = {
+              open:      'good',
+              pending:   'warn',
+              completed: 'info',
+              paid_out:  'info',
+              revoked:   'bad',
+            };
+            return (
+              <Card key={b.id} accent>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <Link
+                      href={`/bounties/${b.id}`}
+                      target="_blank"
+                      className="font-medium text-sm text-foreground hover:text-creator transition-colors truncate block"
+                    >
+                      {b.title}
+                    </Link>
+                    <p className="font-mono text-[10px] text-muted">{fmt(b.created_at)}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <Badge tone={statusTone[b.status] ?? 'default'}>{b.status.replace('_', ' ')}</Badge>
+                    <p className="font-mono text-[10px] text-muted mt-0.5">{fmtMoney(b.total_pledged)}</p>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Stripe Withdrawals ── */}
+      <SectionLabel className="mb-2">
+        Stripe Withdrawals
+        <span className="ml-2 font-mono text-[10px] text-muted normal-case">{creator.withdrawals?.length ?? 0} recent</span>
+      </SectionLabel>
+      {!creator.withdrawals || creator.withdrawals.length === 0 ? (
+        <Empty message="No Stripe withdrawals." className="mb-4" />
+      ) : (
+        <div className="space-y-2 mb-4">
+          {creator.withdrawals.map((w) => {
+            const wTone: Record<string, 'good' | 'warn' | 'bad' | 'default'> = {
+              completed: 'good',
+              pending:   'warn',
+              initiated: 'warn',
+              failed:    'bad',
+            };
+            return (
               <Card key={w.id} accent>
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="font-mono tabular-nums text-sm text-foreground">{w.tax_year}</p>
-                    {w.completed_at && (
-                      <p className="font-mono text-[10px] text-muted">Completed {new Date(w.completed_at).toLocaleDateString()}</p>
-                    )}
-                    {w.tin_matched_at && (
-                      <p className="font-mono text-[10px] text-muted">TIN matched {new Date(w.tin_matched_at).toLocaleDateString()}</p>
+                    <p className="font-mono tabular-nums text-sm text-foreground">{fmtMoney(w.amount)}</p>
+                    <p className="font-mono text-[10px] text-muted">{fmt(w.created_at)}</p>
+                    {w.failure_reason && (
+                      <p className="font-mono text-[10px] text-bad mt-0.5">{w.failure_reason}</p>
                     )}
                   </div>
-                  <W9Badge status={w.status} />
+                  <Badge tone={wTone[w.status] ?? 'default'}>{w.status}</Badge>
                 </div>
               </Card>
-            ))}
-          </div>
-        )}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
-      <div className="mt-5">
+      {/* ── External Payouts ── */}
+      <SectionLabel className="mb-2">
+        External Payouts
+        <span className="ml-2 font-mono text-[10px] text-muted normal-case">{creator.external_payouts?.length ?? 0} recent</span>
+      </SectionLabel>
+      {!creator.external_payouts || creator.external_payouts.length === 0 ? (
+        <Empty message="No external payouts." className="mb-4" />
+      ) : (
+        <div className="space-y-2 mb-4">
+          {creator.external_payouts.map((ep) => (
+            <Card key={ep.id} accent>
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-mono tabular-nums text-sm text-foreground">
+                    {fmtMoney(ep.amount)}
+                    {ep.reversed_at && <span className="ml-2 text-bad text-[10px]">reversed</span>}
+                  </p>
+                  <p className="font-mono text-[10px] text-muted capitalize">
+                    {ep.method} · {fmt(ep.sent_at)}
+                  </p>
+                  {ep.notes && (
+                    <p className="font-mono text-[10px] text-muted truncate">{ep.notes}</p>
+                  )}
+                </div>
+                <Badge tone={ep.reversed_at ? 'bad' : 'good'}>{ep.reversed_at ? 'reversed' : 'sent'}</Badge>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* ── Tax Compliance ── */}
+      <SectionLabel className="mb-2">Tax Compliance</SectionLabel>
+
+      {/* W-9 history */}
+      <p className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1.5">W-9 Records</p>
+      {!creator.w9_records || creator.w9_records.length === 0 ? (
+        <Empty message="No W-9 records." className="mb-3" />
+      ) : (
+        <div className="space-y-2 mb-3">
+          {creator.w9_records.map((w) => (
+            <Card key={w.id} accent>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-mono tabular-nums text-sm text-foreground">{w.tax_year}</p>
+                  {w.completed_at && (
+                    <p className="font-mono text-[10px] text-muted">Completed {fmt(w.completed_at)}</p>
+                  )}
+                  {w.tin_matched_at && (
+                    <p className="font-mono text-[10px] text-muted">TIN matched {fmt(w.tin_matched_at)}</p>
+                  )}
+                </div>
+                <W9Badge status={w.status} />
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* W-8BEN history */}
+      <p className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1.5">W-8BEN Records</p>
+      {!creator.w8ben_records || creator.w8ben_records.length === 0 ? (
+        <Empty message="No W-8BEN records." className="mb-4" />
+      ) : (
+        <div className="space-y-2 mb-4">
+          {creator.w8ben_records.map((w) => (
+            <Card key={w.id} accent>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-mono tabular-nums text-sm text-foreground">{w.tax_year}</p>
+                  {w.completed_at && (
+                    <p className="font-mono text-[10px] text-muted">Completed {fmt(w.completed_at)}</p>
+                  )}
+                </div>
+                <W8BENBadge status={w.status} />
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* ── Profile link ── */}
+      <div className="mt-2 pt-4 border-t border-border">
         <Link
           href={creator.slug ? `/${creator.slug}` : `/creators/${creator.id}`}
           target="_blank"
@@ -168,7 +401,7 @@ export default function AdminCreatorsPage() {
   const [lastPage, setLastPage]       = useState(1);
   const [total, setTotal]             = useState(0);
   const [loading, setLoading]         = useState(true);
-  const [selected, setSelected]       = useState<CreatorDetail | null>(null);
+  const [selected, setSelected]       = useState<AdminCreatorDetail | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -223,10 +456,9 @@ export default function AdminCreatorsPage() {
     setLoadingDetail(true);
     try {
       const res = await adminApi.getCreator(s.id);
-      setSelected(res.data as CreatorDetail);
+      setSelected(res.data);
     } catch {
-      // fallback: show what we have without w9_records
-      setSelected({ ...s, w9_records: [] } as CreatorDetail);
+      // silent — keep modal closed on error
     } finally {
       setLoadingDetail(false);
     }

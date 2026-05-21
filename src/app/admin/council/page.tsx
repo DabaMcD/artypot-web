@@ -9,6 +9,8 @@ import type { CouncilMember } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Empty } from '@/components/ui/Empty';
+import { Modal } from '@/components/ui/Modal';
+import { Input } from '@/components/ui/Input';
 
 // ── Main page ───────────────────────────────────────────────────────────────
 export default function AdminCouncilPage() {
@@ -20,6 +22,12 @@ export default function AdminCouncilPage() {
   const [lastPage, setLastPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  // Delete state
+  const [deleteTarget, setDeleteTarget] = useState<CouncilMember | null>(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'council')) {
@@ -48,7 +56,40 @@ export default function AdminCouncilPage() {
     }
   }, [user, fetchMembers]);
 
+  const openDeleteModal = (member: CouncilMember) => {
+    setDeleteTarget(member);
+    setDeleteConfirmName('');
+    setDeleteError(null);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteTarget(null);
+    setDeleteConfirmName('');
+    setDeleteError(null);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await adminApi.deleteUser(deleteTarget.id);
+      setMembers((prev) => prev.filter((m) => m.id !== deleteTarget.id));
+      setTotal((prev) => prev - 1);
+      closeDeleteModal();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete user.';
+      setDeleteError(msg);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (authLoading || !user || user.role !== 'council') return null;
+
+  const canConfirmDelete =
+    deleteTarget !== null &&
+    deleteConfirmName === deleteTarget.display_name;
 
   return (
     <div className="space-y-6 pt-2 max-w-3xl">
@@ -69,10 +110,11 @@ export default function AdminCouncilPage() {
       {/* Member list */}
       <Card>
         {/* Column headers */}
-        <div className="grid grid-cols-[1fr_auto_auto] gap-4 -mx-5 -mt-4 px-5 py-3 border-b border-border bg-surface-2 rounded-t-md mb-0">
+        <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 -mx-5 -mt-4 px-5 py-3 border-b border-border bg-surface-2 rounded-t-md mb-0">
           <SectionLabel>Member</SectionLabel>
           <SectionLabel>Appointed by</SectionLabel>
           <SectionLabel>Date</SectionLabel>
+          <span />
         </div>
 
         {loading ? (
@@ -88,7 +130,7 @@ export default function AdminCouncilPage() {
         ) : (
           <div className="divide-y divide-border -mx-5 -mb-4 mt-3">
             {members.map((member) => (
-              <div key={member.id} className="grid grid-cols-[1fr_auto_auto] gap-4 items-center px-5 py-4">
+              <div key={member.id} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center px-5 py-4">
                 {/* Member info */}
                 <div>
                   <p className="text-sm font-medium text-foreground">{member.display_name}</p>
@@ -116,6 +158,17 @@ export default function AdminCouncilPage() {
                       day: 'numeric',
                     })}
                   </p>
+                </div>
+
+                {/* Delete */}
+                <div>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => openDeleteModal(member)}
+                  >
+                    Delete
+                  </Button>
                 </div>
               </div>
             ))}
@@ -158,6 +211,47 @@ export default function AdminCouncilPage() {
         )}
         .
       </p>
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <Modal
+          title="Delete User Account"
+          onClose={closeDeleteModal}
+          actions={
+            <>
+              <Button variant="ghost" onClick={closeDeleteModal} disabled={deleting}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleDeleteUser}
+                disabled={!canConfirmDelete || deleting}
+              >
+                {deleting ? 'Deleting…' : 'Yes, Delete Account'}
+              </Button>
+            </>
+          }
+        >
+          <p className="text-sm text-muted leading-relaxed mb-3">
+            This will <strong className="text-foreground">permanently delete</strong> the account
+            for <strong className="text-foreground">{deleteTarget.display_name}</strong>, cancel
+            all their active commitments, and scrub their personal data. This cannot be undone.
+          </p>
+          <p className="text-sm text-muted mb-2">
+            Type <strong className="text-foreground font-mono">{deleteTarget.display_name}</strong> to confirm:
+          </p>
+          <Input
+            type="text"
+            value={deleteConfirmName}
+            onChange={(e) => setDeleteConfirmName(e.target.value)}
+            placeholder={deleteTarget.display_name}
+            autoFocus
+          />
+          {deleteError && (
+            <p className="mt-2 text-xs text-bad">{deleteError}</p>
+          )}
+        </Modal>
+      )}
     </div>
   );
 }

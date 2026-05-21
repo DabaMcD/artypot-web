@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Input, FieldLabel, FieldGrid2 } from '@/components/ui/Input';
 import { Toggle } from '@/components/ui/Toggle';
 import { Card } from '@/components/ui/Card';
+import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 
 /** All OAuth providers the backend supports, in preferred display order. */
 const ALL_PROVIDERS = [
@@ -160,7 +161,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
 
   // Phone-mode field
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState<E164Number | undefined>(undefined);
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -207,7 +208,7 @@ export default function RegisterPage() {
     try {
       const result = await register(
         mode === 'phone'
-          ? { name, phone_number: phone, password, password_confirmation: confirm }
+          ? { name, phone_number: phone ?? '', password, password_confirmation: confirm }
           : { name, email, password, password_confirmation: confirm },
       );
 
@@ -229,7 +230,7 @@ export default function RegisterPage() {
   };
 
   const handleResendOtp = async () => {
-    await phoneApi.sendCode(phone);
+    await phoneApi.sendCode(phone ?? '');
   };
 
   const switchMode = (next: Mode) => {
@@ -369,17 +370,11 @@ export default function RegisterPage() {
               ) : (
                 <div>
                   <FieldLabel>phone number</FieldLabel>
-                  <Input
-                    type="tel"
-                    required
-                    autoComplete="tel"
+                  <PhoneNumberInput
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+14155550100"
+                    onChange={setPhone}
+                    disabled={anyLoading}
                   />
-                  <p className="text-[11px] text-muted mt-1">
-                    International format — include your country code (e.g. +1 for US/Canada).
-                  </p>
                 </div>
               )}
 
@@ -434,7 +429,7 @@ export default function RegisterPage() {
                 type="submit"
                 variant="primary"
                 className="w-full justify-center mt-2"
-                disabled={anyLoading}
+                disabled={anyLoading || (mode === 'phone' && (phone == null || !isValidPhoneNumber(phone)))}
               >
                 {loading
                   ? 'Creating account…'
