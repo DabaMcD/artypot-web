@@ -14,6 +14,8 @@ import { NudgeProvider } from '@/lib/nudge-context';
 import { StaleCardBar } from '@/components/StaleCardBar';
 import { PaymentGraceBanner } from '@/components/PaymentGraceBanner';
 import { PaymentAuthBanner } from '@/components/PaymentAuthBanner';
+import { PublicHeader } from '@/components/PublicHeader';
+import { PublicFooter } from '@/components/PublicFooter';
 
 const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password'];
 const AUTH_PREFIXES = ['/email/', '/oauth/'];
@@ -56,9 +58,18 @@ export function AppShell({ children }: AppShellProps) {
     return <div className="min-h-screen bg-background" />;
   }
 
-  // Unauthenticated on non-auth route: render content with no sidebar (some pages handle this)
+  // Unauthenticated on non-auth route: render the public header + footer
+  // around the page content. Pages own their internal padding.
   if (!user) {
-    return <>{children}</>;
+    return (
+      <div className="flex flex-col min-h-screen bg-background">
+        <PublicHeader />
+        <main className="flex-1 min-w-0">
+          {children}
+        </main>
+        <PublicFooter />
+      </div>
+    );
   }
 
   // Authenticated: full sidebar layout
