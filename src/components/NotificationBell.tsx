@@ -34,7 +34,7 @@ function NotifItem({
     >
       <div className="flex items-start gap-2">
         {isUnread && (
-          <span className="mt-1.5 w-2 h-2 rounded-full bg-brand shrink-0" />
+          <span className="mt-1.5 w-2 h-2 rounded-full bg-fan shrink-0" />
         )}
         {!isUnread && <span className="mt-1.5 w-2 h-2 shrink-0" />}
         <div className="flex-1 min-w-0">
@@ -59,7 +59,15 @@ function NotifItem({
   return inner;
 }
 
-export default function NotificationBell() {
+interface NotificationBellProps {
+  /** Override the positioning classes on the dropdown panel.
+   *  Defaults to `'absolute right-0 mt-2'` (opens downward, right-anchored).
+   *  Pass `'absolute left-0 bottom-full mb-2'` when the bell is at the bottom
+   *  of a sidebar so the panel opens upward. */
+  panelClassName?: string;
+}
+
+export default function NotificationBell({ panelClassName }: NotificationBellProps = {}) {
   const { unreadCount, notifications, loading, fetchNotifications, markBulkRead, totalPages, currentPage } =
     useNotifications();
   const [open, setOpen] = useState(false);
@@ -130,7 +138,7 @@ export default function NotificationBell() {
           />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-brand text-black text-[10px] font-bold px-1 leading-none">
+          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-fan text-black text-[10px] font-bold px-1 leading-none">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -140,7 +148,7 @@ export default function NotificationBell() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={handleClose} />
-          <div className="absolute right-0 mt-2 w-80 bg-surface-2 border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
+          <div className={`${panelClassName ?? 'absolute right-0 mt-2'} w-80 bg-surface-2 border border-border rounded-xl shadow-2xl z-50 overflow-hidden`}>
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-border">
               <h3 className="text-sm font-semibold">Notifications</h3>

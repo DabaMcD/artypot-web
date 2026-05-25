@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { users as usersApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { PublicUser } from '@/lib/types';
@@ -23,6 +24,7 @@ function formatExpiry(dateStr: string) {
 export default function UserProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { user: authUser } = useAuth();
+  const router = useRouter();
 
   const [profile, setProfile] = useState<PublicUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,6 +38,12 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
     usersApi
       .get(userId)
       .then((res) => {
+        // Creators have a public vanity URL — redirect there and keep the
+        // skeleton up so the user page never flashes.
+        if (res.data.slug) {
+          router.replace(`/${res.data.slug}`);
+          return;
+        }
         setProfile(res.data);
         setLoading(false);
       })
@@ -64,7 +72,9 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  const totalVotives = profile.votives.reduce((sum, v) => sum + Number(v.amount), 0);
+  // Use server-computed total (all active unrevoked pledges) when available;
+  // fall back to summing the displayed top-10 slice only if not present.
+  const totalPledges = profile.total_pledge_amount ?? profile.pledges.reduce((sum, v) => sum + Number(v.amount), 0);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
@@ -76,15 +86,15 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
             {profile.profile_picture ? (
               <img
                 src={profile.profile_picture}
-                alt={profile.name}
+                alt={profile.display_name}
                 className="w-16 h-16 rounded-full object-cover border border-border"
               />
             ) : (
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold border border-border"
-                style={{ background: '#47DFD3', color: '#0a0a0a' }}
+                style={{ background: 'var(--color-fan)', color: 'var(--color-brand-dark)' }}
               >
-                {profile.name.charAt(0).toUpperCase()}
+                {profile.display_name.charAt(0).toUpperCase()}
               </div>
             )}
           </div>
@@ -92,7 +102,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl font-bold text-foreground">{profile.name}</h1>
+              <h1 className="text-xl font-bold text-foreground">{profile.display_name}</h1>
               {isOwnProfile && (
                 <span className="text-xs bg-creator/20 text-creator px-2 py-0.5 rounded-full font-medium">
                   You
@@ -114,27 +124,27 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
         </div>
       </div>
 
-      {/* Votives */}
+      {/* Pledges */}
       <div className="bg-surface border border-border rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-semibold text-foreground">
-              Top Votives
+              Top Pledges
             </h2>
-            {!profile.is_anonymous && profile.votives.length === 10 && (
+            {!profile.is_anonymous && profile.pledges.length === 10 && (
               <p className="text-xs text-muted mt-0.5">Showing top 10 by amount</p>
             )}
           </div>
           <div className="flex items-center gap-3">
-            {profile.votives.length > 0 && (
+            {profile.pledges.length > 0 && (
               <span className="text-sm text-muted">
-                <span className="text-creator font-semibold">${totalVotives.toFixed(2)}</span>
+                <span className="text-creator font-semibold">${totalPledges.toFixed(2)}</span>
               </span>
             )}
             {isOwnProfile && (
               <Link
-                href="/votives"
-                className="text-xs text-brand hover:underline"
+                href="/pledges"
+                className="text-xs text-fan hover:underline"
               >
                 View all →
               </Link>
@@ -144,36 +154,36 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
 
         {profile.is_anonymous && !isOwnProfile ? (
           <p className="text-muted text-sm">This user has chosen to remain anonymous.</p>
-        ) : profile.votives.length === 0 ? (
+        ) : profile.pledges.length === 0 ? (
           <p className="text-muted text-sm">
-            {isOwnProfile ? "You haven't placed any votives on open projects yet." : 'No active votives.'}
+            {isOwnProfile ? "You're not backing anything yet." : 'Not backing anything.'}
           </p>
         ) : (
           <div className="space-y-2">
-            {profile.votives.map((votive) => (
+            {profile.pledges.map((pledge) => (
               <div
-                key={votive.id}
+                key={pledge.id}
                 className="flex items-center justify-between py-3 border-b border-border last:border-0"
               >
                 <div className="flex-1 min-w-0">
-                  {votive.pot ? (
+                  {pledge.bounty ? (
                     <Link
-                      href={`/pots/${votive.pot_id}`}
+                      href={`/bounties/${pledge.bounty_id}`}
                       className="text-sm font-medium text-foreground hover:underline truncate block"
                     >
-                      {votive.pot.title}
+                      {pledge.bounty.title}
                     </Link>
                   ) : (
-                    <span className="text-sm text-muted">Project #{votive.pot_id}</span>
+                    <span className="text-sm text-muted">Project #{pledge.bounty_id}</span>
                   )}
-                  {votive.expires_at && (
+                  {pledge.expires_at && (
                     <p className="text-xs text-muted mt-0.5">
-                      Expires {formatExpiry(votive.expires_at)}
+                      Expires {formatExpiry(pledge.expires_at)}
                     </p>
                   )}
                 </div>
                 <span className="text-creator font-semibold text-sm ml-4">
-                  ${Number(votive.amount).toFixed(2)}
+                  ${Number(pledge.amount).toFixed(2)}
                 </span>
               </div>
             ))}

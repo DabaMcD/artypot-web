@@ -1,28 +1,38 @@
 import type {
   User,
   PublicUser,
-  Summon,
-  SummonName,
+  Creator,
   NotificationSettings,
   UserNotification,
   NotificationPage,
-  Pot,
-  PotVotive,
-  PotCompletion,
-  PotHistory,
-  SummonClaim,
+  Nudge,
+  Bounty,
+  BountyPledge,
+  BountyCompletion,
+  BountyHistory,
+  CreatorClaim,
   PaginatedResponse,
-  VotivePage,
+  PledgePage,
   CashBalance,
   PaymentMethod,
-  PotStatus,
-  RemoveVotiveResult,
+  BountyStatus,
+  RemovePledgeResult,
   DeletePaymentMethodResult,
   CouncilMember,
   CouncilPage,
-  AdminSummonClaim,
-  AdminPotCompletion,
-  SummonEarning,
+  AdminCreatorClaim,
+  AdminBountyCompletion,
+  HandleVerificationApplicationRow,
+  HandleVerificationApplicationStatus,
+  ExternalPayout,
+  CreatorSearchResult,
+  CreatorEarning,
+  CreatorBalance,
+  Comment,
+  UserHandle,
+  HandlePlatform,
+  HandleClaim,
+  HandleSearchResult,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -32,17 +42,59 @@ export function getToken(): string | null {
   return localStorage.getItem('artypot_token');
 }
 
+/**
+ * Best-effort flag cookie used by the Edge middleware (`src/middleware.ts`)
+ * to gate `/admin` and `/obelisk` routes server-side. The middleware only
+ * checks the cookie's presence — not its value — so we store an innocuous
+ * `1` rather than mirroring the bearer token (which would needlessly expose
+ * it to same-site requests). The real auth check stays Bearer-header-based.
+ */
+const SESSION_COOKIE = 'artypot_session';
+
+function writeSessionCookie(): void {
+  if (typeof document === 'undefined') return;
+  const secure = typeof location !== 'undefined' && location.protocol === 'https:' ? '; Secure' : '';
+  // No Max-Age → session cookie; cleared on browser close, matching the
+  // localStorage token's effective lifetime in private windows.
+  document.cookie = `${SESSION_COOKIE}=1; Path=/; SameSite=Lax${secure}`;
+}
+
+function clearSessionCookie(): void {
+  if (typeof document === 'undefined') return;
+  document.cookie = `${SESSION_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
+}
+
 export function setToken(token: string): void {
   localStorage.setItem('artypot_token', token);
+  writeSessionCookie();
 }
 
 export function clearToken(): void {
   localStorage.removeItem('artypot_token');
+  clearSessionCookie();
+}
+
+/**
+ * Ensure the session cookie is present when a token is already in localStorage.
+ * Called from <AuthProvider> on boot so users who logged in before the cookie
+ * code existed aren't permanently locked out of `/admin` / `/obelisk` by the
+ * middleware until they log out and back in.
+ */
+export function ensureSessionCookie(): void {
+  if (typeof document === 'undefined') return;
+  if (!localStorage.getItem('artypot_token')) return;
+  const has = document.cookie.split(';').some((c) => c.trim().startsWith(`${SESSION_COOKIE}=`));
+  if (!has) writeSessionCookie();
 }
 
 interface ApiError {
   status: number;
   message: string;
+  requires_w9?: boolean;
+  /** 422 body reason code, e.g. 'pledge_cap_exceeded' | 'payment_grace_period' */
+  reason?: string;
+  /** Free-form body payload for 422 responses (cap, current_total, requested, grace_expires_at, etc.) */
+  data?: Record<string, unknown>;
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -58,7 +110,18 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    const error: ApiError = { status: res.status, message: body.message ?? res.statusText };
+    let message: string = body.message ?? res.statusText;
+    if (res.status === 422 && body.errors) {
+      const firstField = Object.values(body.errors as Record<string, string[]>)[0];
+      if (firstField?.[0]) message = firstField[0];
+    }
+    const error: ApiError = {
+      status: res.status,
+      message,
+      ...(body.requires_w9 ? { requires_w9: true } : {}),
+      ...(body.reason ? { reason: body.reason as string } : {}),
+      data: body as Record<string, unknown>,
+    };
     throw error;
   }
 
@@ -75,8 +138,13 @@ async function requestMultipart<T>(path: string, body: FormData): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, { method: 'POST', headers, body });
 
   if (!res.ok) {
-    const json = await res.json().catch(() => ({}));
-    const error: ApiError = { status: res.status, message: (json as { message?: string }).message ?? res.statusText };
+    const json = await res.json().catch(() => ({})) as { message?: string; errors?: Record<string, string[]> };
+    let message: string = json.message ?? res.statusText;
+    if (res.status === 422 && json.errors) {
+      const firstField = Object.values(json.errors)[0];
+      if (firstField?.[0]) message = firstField[0];
+    }
+    const error: ApiError = { status: res.status, message };
     throw error;
   }
 
@@ -85,21 +153,78 @@ async function requestMultipart<T>(path: string, body: FormData): Promise<T> {
 
 // Auth
 export const auth = {
-  register: (name: string, email: string, password: string, password_confirmation: string) =>
-    request<{ token: string }>('/auth/register', {
+  register: (payload: {
+    name: string;
+    email?: string;
+    phone_number?: string;
+    password: string;
+    password_confirmation: string;
+  }) =>
+    request<{ token: string; phone_verification_required?: boolean }>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ name, email, password, password_confirmation }),
+      body: JSON.stringify({
+        display_name:           payload.name,
+        email:                  payload.email       || undefined,
+        phone_number:           payload.phone_number || undefined,
+        password:               payload.password,
+        password_confirmation:  payload.password_confirmation,
+        agreed_to_terms:        true,
+      }),
     }),
 
-  login: (email: string, password: string) =>
+  login: (identifier: string, password: string) =>
     request<{ token: string }>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      // Phone numbers start with '+'; everything else is treated as an email.
+      body: JSON.stringify(
+        identifier.startsWith('+')
+          ? { phone_number: identifier, password }
+          : { email: identifier, password },
+      ),
     }),
 
   logout: () => request('/auth/logout', { method: 'POST' }),
 
   me: () => request<{ data: User }>('/auth/me'),
+
+  /**
+   * POST /auth/become-creator
+   * Re-verifies all three gates server-side and creates the Creator record.
+   * Gate status is derived from the /me response — no separate status fetch needed.
+   */
+  /**
+   * POST /auth/become-creator
+   * Activates creator mode after all four gates pass.
+   * `slug` becomes the creator's permanent artypot.com/{slug} URL.
+   */
+  becomeCreator: (slug: string) =>
+    request<{ message: string; slug: string }>('/auth/become-creator', {
+      method: 'POST',
+      body: JSON.stringify({ agreed_to_creator_terms: true, slug }),
+    }),
+
+  /** GET /auth/slug — current slug + cooldown availability. */
+  getSlug: () =>
+    request<{ slug: string | null; slug_changed_at: string | null; cooldown_until: string | null; cooldown_days: number }>('/auth/slug'),
+
+  /** PATCH /auth/slug — change the creator's slug. Subject to the 30-day cooldown. */
+  updateSlug: (slug: string) =>
+    request<{ message: string; slug: string }>('/auth/slug', {
+      method: 'PATCH',
+      body: JSON.stringify({ slug }),
+    }),
+
+  /** GET /auth/slug/check?slug=… — lightweight availability check for the picker UI. */
+  checkSlug: (slug: string) =>
+    request<{ available: boolean; error: string | null }>(
+      `/auth/slug/check?slug=${encodeURIComponent(slug)}`
+    ),
+
+  /**
+   * GET /auth/handles
+   * Returns the authenticated user's handle requests (pending + verified).
+   */
+  myHandles: () => request<{ data: HandleClaim[] }>('/auth/handles'),
 
   broke: () =>
     request<{ data: { revoked_count: number } }>('/auth/broke', { method: 'POST' }),
@@ -113,6 +238,9 @@ export const auth = {
 
   resendVerification: () =>
     request<{ message: string }>('/auth/email/resend', { method: 'POST' }),
+
+  oauthRedirect: (provider: string) =>
+    request<{ url: string }>(`/auth/oauth/${provider}/redirect`),
 
   forgotPassword: (email: string) =>
     request<{ message: string }>('/auth/password/forgot', {
@@ -174,86 +302,110 @@ export const phone = {
     request<{ message: string }>('/auth/phone', { method: 'DELETE' }),
 };
 
-// Summons
-export const summons = {
+// Creators
+export const creators = {
   list: (params?: {
     q?: string;
     page?: number;
-    status?: 'answered' | 'unanswered';
-    sort?: 'newest' | 'most_summoned' | 'most_completed';
+    sort?: 'newest' | 'most_pledged' | 'most_completed';
   }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
     const qs = new URLSearchParams(entries).toString();
-    return request<PaginatedResponse<Summon>>(`/summons${qs ? `?${qs}` : ''}`);
+    return request<PaginatedResponse<Creator>>(`/creators${qs ? `?${qs}` : ''}`);
   },
 
-  get: (id: number) => request<{ data: Summon }>(`/summons/${id}`),
+  get: (id: number) => request<{ data: Creator }>(`/creators/${id}`),
 
-  create: (data: Partial<Summon>) =>
-    request<{ data: Summon }>('/summons', { method: 'POST', body: JSON.stringify(data) }),
+  /**
+   * GET /creators/by-slug/{slug}
+   * Resolves a public creator URL slug to its current owner.
+   *  - match === 'current'  → live slug, returns user
+   *  - match === 'redirect' → historical slug, returns current_slug to redirect to
+   */
+  bySlug: (slug: string) =>
+    request<
+      | { match: 'current';  user: { id: number; display_name: string; slug: string; profile_picture: string | null; bio: string | null } }
+      | { match: 'redirect'; current_slug: string }
+    >(`/creators/by-slug/${encodeURIComponent(slug)}`),
 
-  update: (id: number, data: Partial<Summon>) =>
-    request<{ data: Summon }>(`/summons/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  /**
+   * GET /platform/{platform}/{handle}
+   *  - match === 'claimed'   → handle is verified by a creator; redirect client to /{user.slug}
+   *  - match === 'unclaimed' → no claim; returns bounties for share/recruitment UI
+   */
+  byPlatformHandle: (platform: string, handle: string) =>
+    request<
+      | { match: 'claimed';   user: { id: number; display_name: string; slug: string; profile_picture: string | null } }
+      | { match: 'unclaimed'; handle: { id: number | null; platform: string; username: string }; bounties: Array<{ id: number; title: string; status: string; total_pledged: string; created_at: string }> }
+    >(`/platform/${encodeURIComponent(platform)}/${encodeURIComponent(handle)}`),
 
-  claim: (summon_id: number, contact_info: string) =>
-    request<{ data: SummonClaim }>('/summon-claims', {
+  create: (data: Partial<Creator>) =>
+    request<{ data: Creator }>('/creators', { method: 'POST', body: JSON.stringify(data) }),
+
+  update: (id: number, data: Partial<Creator>) =>
+    request<{ data: Creator }>(`/creators/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+
+  claim: (creator_id: number, contact_info: string) =>
+    request<{ data: CreatorClaim }>('/creator-claims', {
       method: 'POST',
-      body: JSON.stringify({ summon_id, contact_info }),
+      body: JSON.stringify({ creator_id, contact_info }),
     }),
 };
 
-// Summon Names (aliases)
-export const summonNames = {
-  list: (summonId: number) =>
-    request<{ data: SummonName[] }>(`/summons/${summonId}/names`),
-
-  create: (summonId: number, name: string) =>
-    request<{ data: SummonName }>(`/summons/${summonId}/names`, {
-      method: 'POST',
-      body: JSON.stringify({ name }),
-    }),
-
-  delete: (summonId: number, nameId: number) =>
-    request<void>(`/summons/${summonId}/names/${nameId}`, { method: 'DELETE' }),
-};
-
-// Pots
-export const pots = {
-  list: (params?: { summon_id?: number; status?: PotStatus; page?: number }) => {
+// Bounties
+export const bounties = {
+  list: (params?: { creator_id?: number; status?: BountyStatus; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
     const qs = new URLSearchParams(entries).toString();
-    return request<PaginatedResponse<Pot>>(`/pots${qs ? `?${qs}` : ''}`);
+    return request<PaginatedResponse<Bounty>>(`/bounties${qs ? `?${qs}` : ''}`);
   },
 
-  get: (id: number) => request<{ data: Pot }>(`/pots/${id}`),
+  get: (id: number) => request<{ data: Bounty }>(`/bounties/${id}`),
 
-  create: (data: { title: string; description?: string; summon_id: number; initial_votive_amount?: number }) =>
-    request<{ data: Pot }>('/pots', { method: 'POST', body: JSON.stringify(data) }),
+  create: (data: {
+    title: string;
+    description?: string;
+    initial_pledge_amount?: number;
+    target_user_id?: number;
+    target_handle_id?: number;
+    platform?: string;
+    username?: string;
+    display_name?: string;
+    pledge_expiry_value?: number;
+    pledge_expiry_unit?: string;
+  }) =>
+    request<{ data: Bounty }>('/bounties', { method: 'POST', body: JSON.stringify(data) }),
 
   update: (id: number, data: { title?: string; description?: string }) =>
-    request<{ data: Pot }>(`/pots/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    request<{ data: Bounty }>(`/bounties/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
-  votive: (potId: number, amount: number, expires_at?: string) =>
-    request<{ data: PotVotive & { pot: { total_pledged: number } } }>(`/pots/${potId}/votives`, {
+  pledge: (bountyId: number, amount: number, expires_at?: string) =>
+    request<{ data: BountyPledge & { bounty: { total_pledged: number } } }>(`/bounties/${bountyId}/pledges`, {
       method: 'POST',
       body: JSON.stringify({ amount, ...(expires_at ? { expires_at } : {}) }),
     }),
 
-  removeVotive: (potId: number, votiveId: number) =>
-    request<RemoveVotiveResult>(`/pots/${potId}/votives/${votiveId}`, { method: 'DELETE' }),
+  removePledge: (bountyId: number, pledgeId: number) =>
+    request<RemovePledgeResult>(`/bounties/${bountyId}/pledges/${pledgeId}`, { method: 'DELETE' }),
 
-  submitCompletion: (potId: number, submission_url: string, submission_notes?: string) =>
-    request<{ data: PotCompletion }>(`/pots/${potId}/completion`, {
+  submitCompletion: (bountyId: number, submission_url: string, submission_notes?: string) =>
+    request<{ data: BountyCompletion }>(`/bounties/${bountyId}/completion`, {
       method: 'POST',
       body: JSON.stringify({ submission_url, submission_notes }),
     }),
 
-  history: (potId: number) =>
-    request<PotHistory>(`/pots/${potId}/history`),
+  history: (bountyId: number) =>
+    request<BountyHistory>(`/bounties/${bountyId}/history`),
+
+  creatorRemove: (bountyId: number, reason: string) =>
+    request<{ message: string }>(`/bounties/${bountyId}/creator-remove`, {
+      method: 'DELETE',
+      body: JSON.stringify({ reason }),
+    }),
 };
 
 // Users
@@ -261,27 +413,72 @@ export const users = {
   get: (id: number) =>
     request<{ data: PublicUser }>(`/users/${id}`),
 
-  update: (id: number, data: Partial<Pick<User, 'name' | 'profile_picture' | 'is_anonymous' | 'cover_processing_fees'>>) =>
+  update: (id: number, data: Partial<Pick<User, 'display_name' | 'profile_picture' | 'is_anonymous' | 'country_code' | 'state_code' | 'default_expiry_value' | 'default_expiry_unit'>>) =>
     request<{ data: User }>(`/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
-
-  uploadProfilePicture: (id: number, file: File) => {
-    const form = new FormData();
-    form.append('profile_picture', file);
-    return requestMultipart<{ data: { profile_picture: string } }>(`/users/${id}/profile-picture`, form);
-  },
 };
 
-// Votives (authenticated user's own)
-export const votives = {
+// Comments
+export const comments = {
+  /** Paginated top-level comments for a bounty. */
+  list: (bountyId: number, page = 1) =>
+    request<PaginatedResponse<Comment>>(`/bounties/${bountyId}/comments?page=${page}`),
+
+  /** All direct replies to a top-level comment (not paginated). */
+  replies: (commentId: number) =>
+    request<{ data: Comment[] }>(`/comments/${commentId}/replies`),
+
+  /** Post a new top-level comment on a bounty. */
+  create: (bountyId: number, content: string) =>
+    request<{ data: Comment }>(`/bounties/${bountyId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    }),
+
+  /** Post a reply to a top-level comment. */
+  createReply: (commentId: number, content: string) =>
+    request<{ data: Comment }>(`/comments/${commentId}/replies`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    }),
+
+  /** Edit a comment's content. */
+  update: (commentId: number, content: string) =>
+    request<{ data: Comment }>(`/comments/${commentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ content }),
+    }),
+
+  /** Soft-delete a comment. */
+  delete: (commentId: number) =>
+    request<{ message: string }>(`/comments/${commentId}`, { method: 'DELETE' }),
+
+  /**
+   * React to a comment. Toggles: calling with the same type removes the reaction;
+   * calling with a different type swaps it.
+   */
+  react: (commentId: number, type: 'like' | 'dislike') =>
+    request<{ likes_count: number; dislikes_count: number; user_reaction: 'like' | 'dislike' | null }>(
+      `/comments/${commentId}/react`,
+      { method: 'POST', body: JSON.stringify({ type }) }
+    ),
+};
+
+// Featured bounties (public)
+export const featuredBounties = {
+  list: () => request<{ data: Bounty[] }>('/featured-bounties'),
+};
+
+// Pledges (authenticated user's own)
+export const pledges = {
   list: (params?: { sort?: 'date' | 'amount'; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
     const qs = new URLSearchParams(entries).toString();
-    return request<VotivePage>(`/auth/votives${qs ? `?${qs}` : ''}`);
+    return request<PledgePage>(`/auth/pledges${qs ? `?${qs}` : ''}`);
   },
 };
 
@@ -293,6 +490,33 @@ export const notificationSettings = {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
+  reset: () =>
+    request<NotificationSettings>('/auth/notification-settings/reset', {
+      method: 'PUT',
+    }),
+};
+
+// Following
+export const following = {
+  index: () =>
+    request<{ users: number[]; bounties: number[] }>('/auth/following'),
+  follow: (type: 'user' | 'bounty', id: number) =>
+    request<{ followed: boolean }>('/auth/following', {
+      method: 'POST',
+      body: JSON.stringify({ type, id }),
+    }),
+  unfollow: (type: 'user' | 'bounty', id: number) =>
+    request<{ followed: boolean }>(`/auth/following/${type}/${id}`, {
+      method: 'DELETE',
+    }),
+};
+
+// Nudges
+export const nudges = {
+  get: () =>
+    request<{ nudge: Nudge | null }>('/auth/nudge'),
+  dismiss: (type: string) =>
+    request<{ message: string }>(`/auth/nudge/${type}/dismiss`, { method: 'POST' }),
 };
 
 // In-app notifications
@@ -330,19 +554,171 @@ export const billing = {
   deletePaymentMethod: (id: string) =>
     request<DeletePaymentMethodResult>(`/billing/payment-methods/${id}`, { method: 'DELETE' }),
 
-  /** Immediately charge the authenticated user's full negative available_cash balance. */
+  /** Confirm an existing card is still valid, resetting its 90-day activity window. */
+  confirmPaymentMethod: (id: string) =>
+    request<{ data: PaymentMethod }>(`/billing/payment-methods/${id}/confirm`, { method: 'POST' }),
+
+  /**
+   * Immediately charge the authenticated user's full negative available_cash balance.
+   *
+   * Response shape varies:
+   *   - Happy path:        { message, charged }
+   *   - 3DS / SCA needed:  { message, requires_action: true, client_secret, fan_payment_id }
+   *
+   * Callers MUST check `requires_action` before treating the response as success
+   * and open the ConfirmPaymentModal with the returned `client_secret`.
+   */
   payNow: () =>
-    request<{ message: string; charged: number }>('/billing/pay-now', { method: 'POST' }),
+    request<{
+      message: string;
+      charged?: number;
+      requires_action?: boolean;
+      client_secret?: string;
+      fan_payment_id?: number;
+    }>('/billing/pay-now', { method: 'POST' }),
+
+  /**
+   * Returns the user's outstanding 3DS / SCA challenge, if any.
+   *
+   * Polled on app load (and after billing-page mounts) to decide whether to
+   * render PaymentAuthBanner / Complete Authentication CTA.
+   */
+  pendingAction: () =>
+    request<{
+      pending: boolean;
+      fan_payment_id?: number;
+      client_secret?: string;
+      amount_cents?: number;
+      requires_action_at?: string;
+      expires_at?: string;
+    }>('/billing/pending-action'),
 };
 
-// Cash (summon-specific endpoints)
+// Cash (creator-specific endpoints)
 export const cash = {
-  /** Per-pot earnings breakdown for the authenticated summon. */
-  summonEarnings: () =>
-    request<{ data: SummonEarning[] }>('/cash/summon-earnings'),
+  /** Wallet overview for the authenticated creator: confirmed balance + pending earnings. */
+  creatorBalance: (page?: number) =>
+    request<CreatorBalance>(`/cash/creator-balance${page && page > 1 ? `?available_page=${page}` : ''}`),
+
+  /** Per-bounty earnings breakdown for the authenticated creator. */
+  creatorEarnings: () =>
+    request<{ data: CreatorEarning[] }>('/cash/creator-earnings'),
+};
+
+// W-9 — tax compliance for creators
+export const w9 = {
+  /** Current W-9 status + YTD withdrawal total for the authenticated creator. */
+  status: () =>
+    request<{ data: import('./types').FormW9StatusResponse }>('/w9/status'),
+
+  /** Create or retrieve the TaxBandits hosted W-9 form URL for the current tax year. */
+  w9Url: () =>
+    request<{ data: { w9_url: string; w9_url_expires_at: string; status: string } }>('/w9/url', {
+      method: 'POST',
+    }),
+};
+
+// W-8BEN — tax compliance for non-US creators
+export const w8ben = {
+  /** Current W-8BEN status + YTD withdrawal total for the authenticated non-US creator. */
+  status: () =>
+    request<{ data: import('./types').FormW8BENStatusResponse }>('/w8ben/status'),
+
+  /** Create or retrieve the TaxBandits hosted W-8BEN form URL for the current tax year. */
+  w8benUrl: () =>
+    request<{ data: { w8ben_url: string; w8ben_url_expires_at: string; status: string } }>('/w8ben/url', {
+      method: 'POST',
+    }),
+};
+
+// Withdrawals — creator payout (creator/council only)
+export const withdrawals = {
+  /** Request a payout of `amount` dollars to the linked bank account. */
+  request: (amount: number) =>
+    request<{ data: import('./types').Withdrawal }>('/withdrawals', {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    }),
+};
+
+// Stripe Connect — bank account onboarding for creators
+export const stripeConnect = {
+  /**
+   * Create (or retrieve) the creator's Stripe Connect account and return a
+   * Stripe-hosted Account Link URL for onboarding (KYC + bank via Financial Connections).
+   * Idempotent — safe to call multiple times; always returns a fresh link URL.
+   */
+  createAccount: (returnUrl: string, refreshUrl: string) =>
+    request<{ data: { account_id: string; onboarding_url: string } }>('/payout/stripe/account', {
+      method: 'POST',
+      body: JSON.stringify({ return_url: returnUrl, refresh_url: refreshUrl }),
+    }),
+
+  /** Get the current Connect account status (payouts_enabled, etc.). */
+  accountStatus: () =>
+    request<{
+      data: {
+        account_id: string | null;
+        payouts_enabled: boolean;
+        charges_enabled: boolean;
+        details_submitted: boolean;
+        requirements: string[];
+      };
+    }>('/payout/stripe/account'),
+
+  /** Generate a fresh Account Link URL for a creator who needs to re-enter onboarding. */
+  onboardingLink: (returnUrl: string, refreshUrl: string) =>
+    request<{ data: { onboarding_url: string } }>('/payout/stripe/onboarding-link', {
+      method: 'POST',
+      body: JSON.stringify({ return_url: returnUrl, refresh_url: refreshUrl }),
+    }),
+
+  /** Disconnect and delete the creator's Stripe Connect account so they can re-onboard. */
+  disconnect: () =>
+    request<{ data: { disconnected: boolean } }>('/payout/stripe/account', { method: 'DELETE' }),
 };
 
 // Overlord — logs
+export const handles = {
+  /** GET /handles/search?q=... — unified handle search for bounty targeting */
+  search: (q: string) =>
+    request<{ data: HandleSearchResult }>(
+      `/handles/search?q=${encodeURIComponent(q)}`
+    ),
+
+  /**
+   * POST /handles — find-or-create a handle and create an unverified claim.
+   *
+   * - Curated platform: pass `{ platform: 'twitter', value: 'zachking' }`. The
+   *   `value` becomes the username and is canonicalised server-side.
+   * - 'other' platform: pass `{ platform: 'other', value: 'https://…' }`. The
+   *   `value` is treated as a URL and canonicalised into a host+path key.
+   */
+  store: (platform: HandlePlatform, value: string) => {
+    const body = platform === 'other'
+      ? { platform, url: value }
+      : { platform, username: value };
+    return request<{ data: HandleClaim }>('/handles', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  },
+
+  /** DELETE /handles/{claimId} — remove the authenticated user's handle claim */
+  destroy: (claimId: number) =>
+    request<void>(`/handles/${claimId}`, { method: 'DELETE' }),
+
+  /**
+   * POST /handles/{claimId}/request-review
+   * Submit a claim for admin review. contactMessage tells admins how to verify ownership.
+   */
+  requestReview: (claimId: number, contactMessage: string) =>
+    request<{ message: string; data: HandleClaim }>(`/handles/${claimId}/request-review`, {
+      method: 'POST',
+      body: JSON.stringify({ contact_message: contactMessage }),
+    }),
+};
+
 export const logs = {
   list: (params?: { page?: number; level?: string; search?: string }) => {
     const entries = Object.entries(params ?? {})
@@ -379,22 +755,59 @@ export const overlord = {
 
 // Admin (Council only)
 export const admin = {
-  // Summon Claims
+  // Handle Verification
+  /** Pending applications queue (the active admin review work list). */
+  listHandleReviews: (page = 1) =>
+    request<PaginatedResponse<HandleVerificationApplicationRow>>(`/admin/handles?page=${page}`),
+
+  /**
+   * Decided / retracted application history with optional filters.
+   * `reviewer_q` matches admin display_name or email.
+   * `creator_q`  matches claimant display_name, email, OR handle username.
+   */
+  listHandleHistory: (params: {
+    status?: HandleVerificationApplicationStatus | 'all';
+    reviewer_q?: string;
+    creator_q?: string;
+    page?: number;
+  } = {}) => {
+    const entries = Object.entries(params)
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<PaginatedResponse<HandleVerificationApplicationRow>>(
+      `/admin/handles/history${qs ? `?${qs}` : ''}`
+    );
+  },
+
+  approveHandle: (handleId: number, decisionNotes?: string) =>
+    request<{ data: unknown }>(`/admin/handles/${handleId}/approve`, {
+      method: 'POST',
+      body: JSON.stringify(decisionNotes ? { decision_notes: decisionNotes } : {}),
+    }),
+
+  rejectHandle: (handleId: number, decisionNotes?: string) =>
+    request<{ data: unknown }>(`/admin/handles/${handleId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify(decisionNotes ? { decision_notes: decisionNotes } : {}),
+    }),
+
+  // Creator Claims
   listClaims: (status: 'pending' | 'approved' | 'rejected' | 'all' = 'pending', page = 1) =>
-    request<PaginatedResponse<AdminSummonClaim>>(`/admin/summon-claims?status=${status}&page=${page}`),
+    request<PaginatedResponse<AdminCreatorClaim>>(`/admin/creator-claims?status=${status}&page=${page}`),
 
   reviewClaim: (claimId: number, data: { status: 'approved' | 'rejected'; council_notes?: string }) =>
-    request<{ data: AdminSummonClaim }>(`/admin/summon-claims/${claimId}`, {
+    request<{ data: AdminCreatorClaim }>(`/admin/creator-claims/${claimId}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
 
-  // Pot Completions
+  // Bounty Completions
   listCompletions: (status: 'pending_review' | 'approved' | 'rejected' | 'all' = 'pending_review', page = 1) =>
-    request<PaginatedResponse<AdminPotCompletion>>(`/admin/pot-completions?status=${status}&page=${page}`),
+    request<PaginatedResponse<AdminBountyCompletion>>(`/admin/bounty-completions?status=${status}&page=${page}`),
 
-  reviewCompletion: (potId: number, data: { status: 'approved' | 'rejected'; council_notes?: string }) =>
-    request<{ data: Pot }>(`/admin/pots/${potId}/completion`, {
+  reviewCompletion: (bountyId: number, data: { status: 'approved' | 'rejected'; council_notes?: string }) =>
+    request<{ data: Bounty }>(`/admin/bounties/${bountyId}/completion`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
@@ -402,4 +815,74 @@ export const admin = {
   // Council Members
   listCouncil: (page = 1) =>
     request<PaginatedResponse<CouncilMember>>(`/admin/council?page=${page}`),
+
+  // Featured Bounties
+  getFeaturedBounties: () =>
+    request<{ data: Array<{ position: number; bounty: Bounty | null; added_by: { id: number; name: string } | null; updated_at: string }> }>('/admin/featured-bounties'),
+
+  setFeaturedBounties: (slots: Array<{ bounty_id: number }>) =>
+    request<{ data: Array<{ position: number; bounty: Bounty | null; added_by: { id: number; name: string } | null; updated_at: string }> }>('/admin/featured-bounties', {
+      method: 'PUT',
+      body: JSON.stringify({ slots }),
+    }),
+
+  // Users
+  listUsers: (params?: { q?: string; filter?: 'creator' | 'council' | 'fan'; page?: number }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<import('./types').PaginatedResponse<import('./types').AdminUser>>(
+      `/admin/users${qs ? `?${qs}` : ''}`
+    );
+  },
+
+  getUser: (id: number) =>
+    request<{ data: import('./types').AdminUser }>(`/admin/users/${id}`),
+
+  deleteUser: (id: number) =>
+    request<null>(`/admin/users/${id}`, { method: 'DELETE' }),
+
+  // Creators
+  listCreators: (params?: { q?: string; claimed?: 'true' | 'false' | 'all'; page?: number }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null && v !== '' && v !== 'all')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<import('./types').PaginatedResponse<import('./types').AdminCreator>>(
+      `/admin/creators${qs ? `?${qs}` : ''}`
+    );
+  },
+
+  getCreator: (id: number) =>
+    request<{ data: import('./types').AdminCreatorDetail }>(`/admin/creators/${id}`),
+
+  // External Payouts (off-Stripe payouts: Wise, PayPal, wire, check, etc.)
+  externalPayouts: {
+    list: (params?: { creator_id?: number; include_reversed?: boolean; page?: number }) => {
+      const entries = Object.entries(params ?? {})
+        .filter(([, v]) => v != null)
+        .map(([k, v]) => [k, String(v)]) as [string, string][];
+      const qs = new URLSearchParams(entries).toString();
+      return request<PaginatedResponse<ExternalPayout>>(`/admin/external-payouts${qs ? `?${qs}` : ''}`);
+    },
+
+    get: (id: number) =>
+      request<{ data: ExternalPayout }>(`/admin/external-payouts/${id}`),
+
+    /** multipart/form-data — caller builds the FormData with creator_id, amount, method, etc. */
+    create: (form: FormData) =>
+      requestMultipart<{ data: ExternalPayout }>('/admin/external-payouts', form),
+
+    reverse: (id: number, reason: string) =>
+      request<{ data: ExternalPayout }>(`/admin/external-payouts/${id}/reverse`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      }),
+
+    searchCreators: (q: string) =>
+      request<{ data: CreatorSearchResult[] }>(
+        `/admin/external-payouts/creators?q=${encodeURIComponent(q)}`
+      ),
+  },
 };

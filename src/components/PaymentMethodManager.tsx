@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { billing, votives as votivesApi } from '@/lib/api';
+import { billing, pledges as pledgesApi } from '@/lib/api';
 import type { PaymentMethod } from '@/lib/types';
 import { useToast } from '@/lib/toast-context';
+import { useNudgeContext } from '@/lib/nudge-context';
 import AddCardForm from './AddCardForm';
 
 const BRAND_ICONS: Record<string, string> = {
@@ -16,19 +17,20 @@ const BRAND_ICONS: Record<string, string> = {
   diners: '💳 Diners',
 };
 
-function cardLabel(brand: string) {
-  return BRAND_ICONS[brand.toLowerCase()] ?? `💳 ${brand}`;
+function cardLabel(cardBrand: string) {
+  return BRAND_ICONS[cardBrand.toLowerCase()] ?? `💳 ${cardBrand}`;
 }
 
 interface Props {
   /** Called whenever the list of payment methods changes (useful for parent gating). */
   onMethodsChange?: (methods: PaymentMethod[]) => void;
-  /** If true renders more compactly (e.g. inline on pot page). */
+  /** If true renders more compactly (e.g. inline on bounty page). */
   compact?: boolean;
 }
 
 export default function PaymentMethodManager({ onMethodsChange, compact = false }: Props) {
   const { toast } = useToast();
+  const { refresh: refreshNudge } = useNudgeContext();
 
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,8 +41,8 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
   // For the confirm dialog
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
 
-  // Total active votive amount — fetched once on mount for last-card warning
-  const [votiveTotalAmount, setVotiveTotalAmount] = useState(0);
+  // Total active pledge amount — fetched once on mount for last-card warning
+  const [pledgeTotalAmount, setPledgeTotalAmount] = useState(0);
 
   const fetchMethods = useCallback(async () => {
     setLoading(true);
@@ -57,12 +59,13 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
 
   useEffect(() => {
     fetchMethods();
-    votivesApi.list().then((res) => setVotiveTotalAmount(res.total_active_amount)).catch(() => {});
+    pledgesApi.list().then((res) => setPledgeTotalAmount(res.total_active_amount)).catch(() => {});
   }, [fetchMethods]);
 
   const handleAdded = async () => {
     setShowAdd(false);
     await fetchMethods();
+    void refreshNudge();
   };
 
   const confirmRemove = async () => {
@@ -77,7 +80,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
       onMethodsChange?.(updated);
       if (res.data.revoked_count > 0) {
         toast(
-          `Payment method removed — ${res.data.revoked_count} votive${res.data.revoked_count === 1 ? '' : 's'} ($${res.data.revoked_amount.toFixed(2)}) cancelled.`,
+          `Payment method removed — ${res.data.revoked_count} commitment${res.data.revoked_count === 1 ? '' : 's'} ($${res.data.revoked_amount.toFixed(2)}) cancelled.`,
           'error',
         );
       }
@@ -93,7 +96,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
   if (loading) {
     return (
       <div className="py-4 flex justify-center">
-        <div className="w-5 h-5 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+        <div className="w-5 h-5 border-2 border-fan border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -111,16 +114,16 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
               {isLastCard ? 'Remove last payment method' : 'Remove payment method'}
             </h2>
             <div className="text-sm text-muted leading-relaxed mb-6">
-              {isLastCard && votiveTotalAmount > 0 ? (
+              {isLastCard && pledgeTotalAmount > 0 ? (
                 <>
                   <p className="mb-2">
                     This is your <strong className="text-foreground">only payment method</strong>. Removing it will
                     immediately cancel{' '}
                     <strong className="text-foreground">
-                      all ${votiveTotalAmount.toFixed(2)} of your active votives
+                      all ${pledgeTotalAmount.toFixed(2)} of your active commitments
                     </strong>.
                   </p>
-                  <p>You won&apos;t be charged for completed pots until you add a new payment method.</p>
+                  <p>You won&apos;t be charged for completed bounties until you add a new payment method.</p>
                 </>
               ) : isLastCard ? (
                 <p>This is your only saved payment method. Remove it?</p>
@@ -193,7 +196,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
 
         {/* Add card form */}
         {showAdd ? (
-          <div className="border border-brand/30 rounded-xl p-5 bg-surface">
+          <div className="border border-fan/30 rounded-xl p-5 bg-surface">
             {!compact && (
               <p className="text-sm font-medium text-foreground mb-4">Add a card</p>
             )}
@@ -205,7 +208,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
         ) : (
           <button
             onClick={() => setShowAdd(true)}
-            className={`text-sm font-medium text-brand hover:underline ${compact ? '' : 'mt-1 block'}`}
+            className={`text-sm font-medium text-fan hover:underline ${compact ? '' : 'mt-1 block'}`}
           >
             + Add payment method
           </button>

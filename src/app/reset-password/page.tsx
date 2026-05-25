@@ -3,7 +3,10 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { auth as authApi } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
+import { Input, FieldLabel } from '@/components/ui/Input';
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -18,7 +21,6 @@ function ResetPasswordForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  // Redirect away if no token/email in the URL
   useEffect(() => {
     if (!token || !email) {
       router.replace('/login');
@@ -57,33 +59,41 @@ function ResetPasswordForm() {
 
   if (success) {
     return (
-      <div className="text-center">
-        <div className="text-4xl mb-4">✅</div>
-        <h2 className="text-xl font-bold text-foreground mb-2">Password reset!</h2>
-        <p className="text-muted text-sm mb-6">
-          Your password has been updated. All other sessions have been logged out.
+      <div className="text-center space-y-4">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-good">done</div>
+        <h2 className="font-display font-bold text-[24px] text-foreground">Password Updated</h2>
+        <p className="text-sm text-muted leading-relaxed">
+          Your password has been changed. All other sessions have been signed out.
         </p>
-        <Link
-          href="/login"
-          className="inline-block bg-brand text-black font-semibold px-6 py-2.5 rounded-lg hover:bg-brand-dim transition-colors text-sm"
+        <Button
+          variant="primary"
+          className="justify-center"
+          onClick={() => router.push('/login')}
         >
-          Log in with new password →
-        </Link>
+          Sign In with New Password →
+        </Button>
       </div>
     );
   }
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-foreground mb-1">Reset your password</h1>
-      <p className="text-muted text-sm mb-6">
-        Enter a new password for <span className="font-mono text-foreground/80">{email}</span>.
+      <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">password reset</div>
+      <h1 className="font-display font-bold text-[30px] text-foreground mb-2">Set a New Password</h1>
+      <p className="text-sm text-muted mb-8 leading-relaxed">
+        For <span className="font-mono text-foreground">{email}</span>
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {error && (
+          <div className="bg-bad-soft border border-bad text-bad text-sm rounded px-4 py-3">
+            {error}
+          </div>
+        )}
+
         <div>
-          <label className="block text-xs text-muted mb-1">New password</label>
-          <input
+          <FieldLabel>new password</FieldLabel>
+          <Input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -91,44 +101,36 @@ function ResetPasswordForm() {
             minLength={8}
             autoComplete="new-password"
             autoFocus
-            placeholder="At least 8 characters"
-            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+            placeholder="at least 8 characters"
           />
         </div>
+
         <div>
-          <label className="block text-xs text-muted mb-1">Confirm new password</label>
-          <input
+          <FieldLabel>confirm new password</FieldLabel>
+          <Input
             type="password"
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
             required
             minLength={8}
             autoComplete="new-password"
-            placeholder="Repeat your new password"
-            className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+            placeholder="repeat your new password"
           />
         </div>
 
-        {error && (
-          <p className="text-red-400 text-sm bg-red-900/20 border border-red-800/40 rounded-lg px-3 py-2">
-            {error}
-          </p>
-        )}
-
-        <button
+        <Button
           type="submit"
+          variant="primary"
+          className="w-full justify-center"
           disabled={loading || !password || !passwordConfirm}
-          className="w-full bg-brand text-black font-semibold py-2.5 text-sm rounded-lg hover:bg-brand-dim disabled:opacity-50 transition-colors"
         >
-          {loading ? 'Resetting…' : 'Set new password'}
-        </button>
+          {loading ? 'Resetting…' : 'Set New Password'}
+        </Button>
       </form>
 
-      <p className="text-center text-sm text-muted mt-6">
+      <p className="text-sm text-muted text-center mt-6">
         Remembered it?{' '}
-        <Link href="/login" className="text-brand hover:underline">
-          Log in
-        </Link>
+        <Link href="/login" className="ap-inline-link">Sign In →</Link>
       </p>
     </>
   );
@@ -136,9 +138,19 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <div className="bg-surface border border-border rounded-2xl p-8 w-full max-w-md shadow-xl">
-        <Suspense fallback={<div className="text-muted text-sm text-center">Loading…</div>}>
+    <div data-role="auth" className="min-h-screen flex flex-col items-center justify-center px-6 py-16 bg-background">
+      <div className="w-full max-w-[420px]">
+        <Link href="/" className="block mb-10">
+          <Image
+            src="/artypot-logo-transparent-dark.png"
+            alt="Artypot"
+            width={1024}
+            height={269}
+            className="h-8 w-auto"
+          />
+        </Link>
+
+        <Suspense fallback={<div className="font-mono text-xs text-muted">loading…</div>}>
           <ResetPasswordForm />
         </Suspense>
       </div>

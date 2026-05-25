@@ -19,6 +19,13 @@ const ToastContext = createContext<ToastContextValue>({
   toast: () => {},
 });
 
+// How long each type stays fully visible before the fade begins
+const VISIBLE_MS: Record<'success' | 'error', number> = {
+  success: 3000,
+  error:   6000,
+};
+const FADE_MS = 300; // must match the CSS transition-duration in ToastDisplay
+
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const nextId = useRef(0);
@@ -28,16 +35,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
     setToasts((prev) => [...prev, { id, message, type, fading: false }]);
 
-    // After 1700ms begin fade-out
+    // Begin fade-out after type-appropriate delay
     setTimeout(() => {
       setToasts((prev) =>
         prev.map((t) => (t.id === id ? { ...t, fading: true } : t)),
       );
-      // After 300ms CSS fade, remove from DOM
+      // Remove from DOM after CSS fade completes
       setTimeout(() => {
         setToasts((prev) => prev.filter((t) => t.id !== id));
-      }, 300);
-    }, 1700);
+      }, FADE_MS);
+    }, VISIBLE_MS[type]);
   }, []);
 
   return (

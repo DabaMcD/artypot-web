@@ -1,0 +1,195 @@
+/**
+ * Frontend mirror of the backend's config/platforms.php catalogue.
+ *
+ * SOURCE OF TRUTH for backend platforms is config/platforms.php in the API.
+ * This file is a hand-maintained TypeScript mirror. When you add a platform
+ * to the backend catalogue, add a matching entry here in the same PR.
+ *
+ * Why a static mirror (rather than fetching from an API)?
+ *   - Works at SSR / build time with no network round-trip
+ *   - Type-safe — adding LinkedIn here flows into every consumer's IntelliSense
+ *   - ~20 stable entries; the latency of a /platforms endpoint isn't worth it
+ *
+ * The special `OTHER_SLUG` represents "any URL not in the curated catalogue".
+ * Creators paste a full URL; we store the canonical form.
+ */
+
+import type { HandlePlatform } from './types';
+
+interface PlatformConfig {
+  /** Human-readable label shown in dropdowns and badges. */
+  label: string;
+  /** Visual prefix shown next to the handle input ('@', 'twitch.tv/', ''). */
+  prefix: string;
+  /** Profile URL template, with `{username}` interpolated at use time. */
+  urlTemplate: string;
+  /** Whether handles on this platform can be auto-verified via OAuth. */
+  oauth: boolean;
+}
+
+export const OTHER_SLUG = 'other';
+
+/** Curated platforms — keys mirror config/platforms.php exactly. */
+export const PLATFORM_CATALOGUE: Record<string, PlatformConfig> = {
+  twitter: {
+    label:       'X / Twitter',
+    prefix:      '@',
+    urlTemplate: 'https://x.com/{username}',
+    oauth:       true,
+  },
+  youtube: {
+    label:       'YouTube',
+    prefix:      '@',
+    urlTemplate: 'https://youtube.com/@{username}',
+    oauth:       false,
+  },
+  instagram: {
+    label:       'Instagram',
+    prefix:      '@',
+    urlTemplate: 'https://instagram.com/{username}',
+    oauth:       true,
+  },
+  tiktok: {
+    label:       'TikTok',
+    prefix:      '@',
+    urlTemplate: 'https://tiktok.com/@{username}',
+    oauth:       true,
+  },
+  twitch: {
+    label:       'Twitch',
+    prefix:      'twitch.tv/',
+    urlTemplate: 'https://twitch.tv/{username}',
+    oauth:       true,
+  },
+  bluesky: {
+    label:       'Bluesky',
+    prefix:      '@',
+    urlTemplate: 'https://bsky.app/profile/{username}',
+    oauth:       false,
+  },
+  kick: {
+    label:       'Kick',
+    prefix:      'kick.com/',
+    urlTemplate: 'https://kick.com/{username}',
+    oauth:       true,
+  },
+};
+
+/** Every curated slug (no 'other'). */
+export const CURATED_PLATFORMS: HandlePlatform[] = Object.keys(PLATFORM_CATALOGUE);
+
+/** Curated slugs plus the 'other' catch-all. */
+export const ALL_PLATFORMS: HandlePlatform[] = [...CURATED_PLATFORMS, OTHER_SLUG];
+
+/** Slugs that support OAuth-based instant verification (per the platform catalogue). */
+export const OAUTH_PLATFORMS: HandlePlatform[] = CURATED_PLATFORMS.filter(
+  (slug) => PLATFORM_CATALOGUE[slug].oauth,
+);
+
+/**
+ * The subset of OAUTH_PLATFORMS that are enabled on this deployment.
+ *
+ * Gated by NEXT_PUBLIC_OAUTH_PROVIDERS — the same env var that controls which
+ * buttons appear on /login and /register. When unset, all OAuth-capable
+ * platforms are available. When set, only platforms whose slug appears in the
+ * comma-separated list are offered for OAuth handle verification.
+ *
+ * Use this (not OAUTH_PLATFORMS) anywhere you want to show an "instant verify
+ * via OAuth" button so the setting stays in sync with the login page buttons.
+ */
+const _oauthEnabledSet: Set<string> | null = process.env.NEXT_PUBLIC_OAUTH_PROVIDERS
+  ? new Set(
+      process.env.NEXT_PUBLIC_OAUTH_PROVIDERS.split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    )
+  : null;
+
+export const ENABLED_OAUTH_PLATFORMS: HandlePlatform[] = _oauthEnabledSet
+  ? OAUTH_PLATFORMS.filter((slug) => _oauthEnabledSet.has(slug))
+  : OAUTH_PLATFORMS;
+
+/** Set form for fast routing checks (used by /{platform}/{handle} page). */
+export const KNOWN_PLATFORMS = new Set<string>(CURATED_PLATFORMS);
+
+/** Human-readable label for any slug (curated or 'other' or even unknown). */
+export function platformLabel(slug: string): string {
+  if (slug === OTHER_SLUG) return 'Other';
+  return PLATFORM_CATALOGUE[slug]?.label ?? slug;
+}
+
+/** Input prefix for a curated platform; empty string for 'other' / unknown. */
+export function platformPrefix(slug: string): string {
+  if (slug === OTHER_SLUG) return '';
+  return PLATFORM_CATALOGUE[slug]?.prefix ?? '';
+}
+
+/**
+ * Build a canonical profile URL for a handle.
+ *
+ * - Curated platform: interpolates {username} into the URL template.
+ * - 'other' platform: the username is already canonical 'host/path'; just
+ *   prepend https://.
+ * - Unknown slug: returns the bare username (caller's responsibility to handle).
+ */
+export function platformProfileUrl(slug: string, username: string): string {
+  if (slug === OTHER_SLUG) {
+    return `https://${username.replace(/^\/+/, '')}`;
+  }
+  const template = PLATFORM_CATALOGUE[slug]?.urlTemplate;
+  if (!template) return username;
+  return template.replace('{username}', username);
+}
+
+/**
+ * Format a handle for display — `@username`, `twitch.tv/streamer`, or the
+ * canonical URL for 'other'. Mirrors `Platforms::label() + Platforms::prefix()`
+ * on the backend.
+ */
+export function formatPlatformHandle(slug: string, username: string): string {
+  if (slug === OTHER_SLUG) return username;
+  const prefix = platformPrefix(slug);
+  // Username may already include a leading '@'; strip it so we don't double up.
+  const bare = username.replace(/^@+/, '');
+  return `${prefix}${bare}`;
+}
+
+/**
+ * Canonicalise a free-form URL for the 'other' platform — matches the
+ * backend's Platforms::canonicaliseUrl() byte-for-byte.
+ *
+ *   https://www.LinkedIn.com/in/ZachKing/?ref=foo#bar
+ *     → linkedin.com/in/ZachKing
+ *
+ * Throws if the input doesn't parse as an http(s) URL.
+ */
+export function canonicaliseUrl(input: string): string {
+  let parsed: URL;
+  try {
+    parsed = new URL(input.trim());
+  } catch {
+    throw new Error('Not a valid URL.');
+  }
+
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new Error('URL must use http or https.');
+  }
+
+  let host = parsed.host.toLowerCase();
+  if (host.startsWith('www.')) host = host.slice(4);
+
+  // Preserve path case (GitHub repos are case-sensitive); strip trailing slashes.
+  const path = parsed.pathname.replace(/\/+$/, '');
+
+  return `${host}${path}`;
+}
+
+/** Validate that a string would be a valid 'other' URL when submitted. */
+export function isValidOtherUrl(input: string): boolean {
+  try {
+    canonicaliseUrl(input);
+    return true;
+  } catch {
+    return false;
+  }
+}
