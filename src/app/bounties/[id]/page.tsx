@@ -20,6 +20,7 @@ import Link from 'next/link';
 import { bounties as bountiesApi } from '@/lib/api';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { useAuth } from '@/lib/auth-context';
+import { useViewMode } from '@/lib/view-mode-context';
 import type { Bounty, BountyPledge, BountyHistoryEvent } from '@/lib/types';
 import ShareButton from '@/components/ShareButton';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
@@ -46,6 +47,7 @@ function formatHoverDate(iso: string): string {
 export default function BountyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { user } = useAuth();
+  const { setCurrentBountyTargetUserId } = useViewMode();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -110,6 +112,13 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       .catch(() => setError('Failed to load bounty.'))
       .finally(() => setLoading(false));
   }, [id]);
+
+  // Register the bounty's target with the view-mode context so the sidebar
+  // flips to creator mode whenever the logged-in user is the target.
+  useEffect(() => {
+    setCurrentBountyTargetUserId(bounty?.target_user_id ?? null);
+    return () => setCurrentBountyTargetUserId(null);
+  }, [bounty?.target_user_id, setCurrentBountyTargetUserId]);
 
   // Fetch history the first time the panel is opened
   useEffect(() => {
