@@ -30,7 +30,7 @@ interface Props {
 export default function PhoneNumberInput({ value, onChange, disabled }: Props) {
   return (
     // artypot-phone-input scopes the CSS overrides in globals.css
-    <div className="artypot-phone-input flex items-center bg-surface-2 border border-border rounded-lg px-3 py-2 focus-within:border-brand transition-colors">
+    <div className="artypot-phone-input flex items-center bg-surface-2 border border-border rounded-lg px-3 py-2 focus-within:border-fan transition-colors">
       <ReactPhoneInput
         flags={flags}
         placeholder="Phone number"

@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 const SUBJECTS = [
   'I have a question about a bounty',
-  'I have a question about a pledge',
+  'I have a question about backing a bounty',
   'I need help with payments or billing',
   'I want to report a problem or bug',
   'I want to report content',
@@ -17,6 +17,7 @@ export default function SupportPage() {
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [website, setWebsite] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -30,7 +31,7 @@ export default function SupportPage() {
       const res = await fetch(`${API_BASE}/support`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ name, email, subject, message }),
+        body: JSON.stringify({ name, email, subject, message, website }),
       });
 
       if (!res.ok) {
@@ -46,21 +47,21 @@ export default function SupportPage() {
   };
 
   const inputClass =
-    'w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors';
+    'w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors';
 
   return (
     <div className="min-h-screen">
       <div className="max-w-2xl mx-auto px-4 pt-16 pb-24">
         {/* Header */}
         <div className="mb-10">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Get in touch</h1>
+          <h1 className="text-3xl font-display font-bold text-foreground mb-2">Get in touch</h1>
           <p className="text-muted">
             Questions, problems, or just want to say something. I actually read these.
           </p>
         </div>
 
         {status === 'success' ? (
-          <div className="bg-surface border border-brand/30 rounded-xl p-8 text-center">
+          <div className="bg-surface border border-fan/30 rounded-xl p-8 text-center">
             <div className="text-3xl mb-4">✓</div>
             <h2 className="text-lg font-semibold text-foreground mb-2">Message sent</h2>
             <p className="text-muted text-sm">
@@ -73,14 +74,30 @@ export default function SupportPage() {
                 setEmail('');
                 setSubject('');
                 setMessage('');
+                setWebsite('');
               }}
-              className="mt-6 text-sm text-brand hover:underline"
+              className="mt-6 text-sm text-fan hover:underline"
             >
               Send another message
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Honeypot — positioned far off-screen; ignored by real users,
+                filled by bots. No logic here — the backend handles it silently. */}
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }} aria-hidden="true">
+              <label htmlFor="support_website">Website</label>
+              <input
+                id="support_website"
+                type="text"
+                name="website"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
+
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
                 <label className="block text-xs font-medium text-muted mb-1.5">Your name</label>
@@ -141,14 +158,14 @@ export default function SupportPage() {
             <button
               type="submit"
               disabled={status === 'submitting'}
-              className="w-full bg-brand text-black font-semibold py-3 rounded-lg hover:bg-brand-dim transition-colors disabled:opacity-50"
+              className="w-full bg-fan text-black font-semibold py-3 rounded-lg hover:bg-fan-dim transition-colors disabled:opacity-50"
             >
               {status === 'submitting' ? 'Sending…' : 'Send message'}
             </button>
 
             <p className="text-xs text-muted text-center">
               Or email directly:{' '}
-              <a href="mailto:baldwig@artypot.com" className="text-brand hover:underline">
+              <a href="mailto:baldwig@artypot.com" className="text-fan hover:underline">
                 baldwig@artypot.com
               </a>
             </p>

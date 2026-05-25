@@ -1,16 +1,19 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { useViewMode } from '@/lib/view-mode-context';
 import { useState, useEffect } from 'react';
 import NotificationBell from '@/components/NotificationBell';
-import SummonSearchWidget from '@/components/SummonSearchWidget';
-import { ROLE_COLORS, ROLE_TEXT_COLORS, ROLE_LABELS } from '@/lib/theme';
+import CreatorSearchWidget from '@/components/CreatorSearchWidget';
+import { ROLE_LABELS } from '@/lib/theme';
 import type { RoleKey } from '@/lib/theme';
 
 export default function Nav() {
   const { user, logout, loading } = useAuth();
+  const { mode, canSwitch, switchTo } = useViewMode();
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -28,23 +31,42 @@ export default function Nav() {
     router.push('/');
   };
 
-  const isActive = (href: string) =>
-    pathname === href ? 'text-brand' : 'text-muted hover:text-foreground';
+  const isCreatorMode = mode === 'creator';
+  const isAdminZone = pathname.startsWith('/admin') || pathname.startsWith('/overlord');
 
-  const roleColor = user ? ROLE_COLORS[user.role as RoleKey] : ROLE_COLORS.mob;
-  const roleTextColor = user ? ROLE_TEXT_COLORS[user.role as RoleKey] : '#ffffff';
-  const roleLabel = user ? ROLE_LABELS[user.role as RoleKey] : '';
+  // Active-link color follows mode (council zone overrides both)
+  const activeClass = isAdminZone ? 'text-council' : isCreatorMode ? 'text-creator' : 'text-fan';
+  const isActive = (href: string) =>
+    pathname === href ? activeClass : 'text-muted hover:text-foreground';
+
+  // Accent color: council overrides mode in admin/overlord zone
+  const accentColor = isAdminZone
+    ? 'var(--color-council)'
+    : isCreatorMode ? 'var(--color-creator)' : 'var(--color-fan)';
+
+  // Avatar bg/text for role-based coloring in dropdown header
+  const roleBgVar   = `var(--color-${user?.role ?? 'fan'})`;
+  const roleTextVar = user?.role === 'council' ? 'var(--color-brand-light)' : 'var(--color-brand-dark)';
+  const roleLabel   = user ? ROLE_LABELS[user.role as RoleKey] : '';
 
   const logoHref = user ? '/dashboard' : '/';
   const isHomePage = pathname === '/';
 
+  // Nav bottom border color follows mode
+  const borderStyle = user
+    ? { borderBottomColor: accentColor, borderBottomWidth: '1px', borderBottomStyle: 'solid' as const }
+    : {};
+
   return (
     <>
-      <nav className={`bg-surface sticky top-0 z-50 ${isHomePage ? '' : 'border-b border-border'}`}>
+      <nav
+        className={`bg-surface sticky top-0 z-50 ${isHomePage ? '' : 'border-b border-border'}`}
+        style={isHomePage ? {} : borderStyle}
+      >
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link href={logoHref} className="text-brand font-bold text-xl tracking-tight shrink-0">
-            artypot
+          <Link href={logoHref} className="shrink-0 flex items-center">
+            <Image src="/artypot-logo-transparent-dark.png" alt="Artypot" width={1024} height={269} className="h-8 w-auto translate-y-[3px]" priority />
           </Link>
 
           {/* Center: links + search (desktop, non-homepage only) */}
@@ -57,10 +79,10 @@ export default function Nav() {
                 Guide
               </Link>
               <div className="w-80 shrink-0">
-                <SummonSearchWidget
+                <CreatorSearchWidget
                   navigateOnSelect
                   placeholder="Search creators…"
-                  inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+                  inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
                 />
               </div>
             </div>
@@ -68,7 +90,7 @@ export default function Nav() {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
-            {/* Homepage-only desktop links (no search — page is the search) */}
+            {/* Homepage-only desktop links */}
             {isHomePage && (
               <div className="hidden md:flex items-center gap-5 mr-1">
                 <Link href="/about" className={`transition-colors text-sm font-medium ${isActive('/about')}`}>
@@ -79,25 +101,54 @@ export default function Nav() {
                 </Link>
               </div>
             )}
+
             {loading ? (
               <div className="w-20 h-8 rounded bg-surface-2 animate-pulse" />
             ) : user ? (
               <>
+                {/* Mode switcher pill — creators only, desktop */}
+                {canSwitch && (
+                  <div className="hidden md:flex items-center rounded-full border border-border overflow-hidden text-xs font-semibold">
+                    <button
+                      onClick={() => switchTo('fan')}
+                      className="px-3 py-1.5 transition-colors"
+                      style={
+                        !isCreatorMode
+                          ? { background: 'var(--color-fan)', color: 'var(--color-brand-dark)' }
+                          : { color: 'var(--color-muted)' }
+                      }
+                    >
+                      Fan
+                    </button>
+                    <button
+                      onClick={() => switchTo('creator')}
+                      className="px-3 py-1.5 transition-colors"
+                      style={
+                        isCreatorMode
+                          ? { background: 'var(--color-creator)', color: 'var(--color-brand-dark)' }
+                          : { color: 'var(--color-muted)' }
+                      }
+                    >
+                      Creator
+                    </button>
+                  </div>
+                )}
+
                 <NotificationBell />
 
                 {/* Desktop avatar dropdown */}
                 <div className="hidden md:block relative">
                   <button
                     onClick={() => setMenuOpen((o) => !o)}
-                    className="flex items-center gap-2 text-sm text-foreground hover:text-brand transition-colors"
+                    className="flex items-center gap-2 text-sm text-foreground hover:text-fan transition-colors"
                   >
                     <span
                       className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                      style={{ background: roleColor, color: roleTextColor }}
+                      style={{ background: roleBgVar, color: roleTextVar }}
                     >
-                      {user.name.charAt(0).toUpperCase()}
+                      {user.display_name?.charAt(0).toUpperCase() ?? '?'}
                     </span>
-                    <span className="max-w-[120px] truncate">{user.name}</span>
+                    <span className="max-w-[120px] truncate">{user.display_name}</span>
                     <svg className="w-3 h-3 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -112,24 +163,24 @@ export default function Nav() {
                           <div className="flex items-center gap-2.5">
                             <span
                               className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                              style={{ background: roleColor, color: roleTextColor }}
+                              style={{ background: roleBgVar, color: roleTextVar }}
                             >
-                              {user.name.charAt(0).toUpperCase()}
+                              {user.display_name?.charAt(0).toUpperCase() ?? '?'}
                             </span>
                             <div className="min-w-0">
-                              <p className="font-medium text-foreground truncate">{user.name}</p>
+                              <p className="font-medium text-foreground truncate">{user.display_name}</p>
                             </div>
                           </div>
                         </div>
 
-                        {/* Nav links */}
+                        {/* Fan-side nav links */}
                         <Link
                           href="/dashboard"
                           onClick={() => setMenuOpen(false)}
                           className="block px-4 py-2.5 hover:bg-border transition-colors"
                         >
                           <span className="font-medium text-foreground">My Dashboard</span>
-                          <span className="block text-xs text-muted mt-0.5">Pledges, billing &amp; metrics</span>
+                          <span className="block text-xs text-muted mt-0.5">Backing, billing &amp; metrics</span>
                         </Link>
                         <Link
                           href={`/users/${user.id}`}
@@ -154,16 +205,16 @@ export default function Nav() {
                           Settings
                         </Link>
 
-                        {/* Creator-only */}
-                        {(user.role === 'summoned' || user.role === 'council') && !!user.summon && (
+                        {/* Creator-side links */}
+                        {(user.role === 'creator' || user.role === 'council') && !!user.creator && (
                           <>
                             <div className="border-t border-border" />
                             <Link
-                              href="/sanctum"
+                              href="/creator"
                               onClick={() => setMenuOpen(false)}
                               className="block px-4 py-2.5 hover:bg-border transition-colors text-creator"
                             >
-                              Summon Sanctum
+                              Creator Dashboard
                             </Link>
                           </>
                         )}
@@ -220,7 +271,7 @@ export default function Nav() {
                 </Link>
                 <Link
                   href="/register"
-                  className="hidden md:block text-sm bg-brand text-black font-semibold px-3 py-1.5 rounded-md hover:bg-brand-dim transition-colors"
+                  className="hidden md:block text-sm bg-fan text-black font-semibold px-3 py-1.5 rounded-md hover:bg-fan-dim transition-colors"
                 >
                   Sign up
                 </Link>
@@ -256,9 +307,12 @@ export default function Nav() {
         }`}
       >
         {/* Drawer header */}
-        <div className="flex items-center justify-between px-4 h-14 border-b border-border shrink-0">
-          <Link href={logoHref} onClick={() => setDrawerOpen(false)} className="text-brand font-bold text-xl tracking-tight">
-            artypot
+        <div
+          className="flex items-center justify-between px-4 h-14 border-b shrink-0"
+          style={user ? { borderBottomColor: accentColor } : { borderBottomColor: 'var(--color-border)' }}
+        >
+          <Link href={logoHref} onClick={() => setDrawerOpen(false)} className="flex items-center">
+            <Image src="/artypot-logo-transparent-dark.png" alt="Artypot" width={1024} height={269} className="h-9 w-auto" />
           </Link>
           <button
             onClick={() => setDrawerOpen(false)}
@@ -277,15 +331,43 @@ export default function Nav() {
             <div className="flex items-center gap-3">
               <span
                 className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-                style={{ background: roleColor, color: roleTextColor }}
+                style={{ background: roleBgVar, color: roleTextVar }}
               >
-                {user.name.charAt(0).toUpperCase()}
+                {user.display_name?.charAt(0).toUpperCase() ?? '?'}
               </span>
               <div className="min-w-0">
-                <p className="font-semibold text-foreground truncate">{user.name}</p>
-                <p className="text-xs font-medium" style={{ color: roleColor }}>{roleLabel}</p>
+                <p className="font-semibold text-foreground truncate">{user.display_name}</p>
+                <p className="text-xs font-medium" style={{ color: roleBgVar }}>{roleLabel}</p>
               </div>
             </div>
+
+            {/* Mode switcher — mobile, creators only */}
+            {canSwitch && (
+              <div className="mt-3 flex items-center rounded-full border border-border overflow-hidden text-xs font-semibold w-fit">
+                <button
+                  onClick={() => switchTo('fan')}
+                  className="px-4 py-1.5 transition-colors"
+                  style={
+                    !isCreatorMode
+                      ? { background: 'var(--color-fan)', color: 'var(--color-brand-dark)' }
+                      : { color: 'var(--color-muted)' }
+                  }
+                >
+                  Fan
+                </button>
+                <button
+                  onClick={() => switchTo('creator')}
+                  className="px-4 py-1.5 transition-colors"
+                  style={
+                    isCreatorMode
+                      ? { background: 'var(--color-creator)', color: 'var(--color-brand-dark)' }
+                      : { color: 'var(--color-muted)' }
+                  }
+                >
+                  Creator
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -293,10 +375,10 @@ export default function Nav() {
         <div className="flex-1 overflow-y-auto py-2">
           {/* Search */}
           <div className="px-4 py-3">
-            <SummonSearchWidget
+            <CreatorSearchWidget
               navigateOnSelect
               placeholder="Search creators…"
-              inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+              inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
             />
           </div>
           <div className="border-t border-border" />
@@ -325,9 +407,9 @@ export default function Nav() {
               <Link href="/settings" onClick={() => setDrawerOpen(false)} className="block px-4 py-3 text-sm font-medium text-muted hover:text-foreground transition-colors">
                 Settings
               </Link>
-              {(user.role === 'summoned' || user.role === 'council') && !!user.summon && (
-                <Link href="/sanctum" onClick={() => setDrawerOpen(false)} className="block px-4 py-3 text-sm font-medium text-creator transition-colors">
-                  Summon Sanctum
+              {(user.role === 'creator' || user.role === 'council') && !!user.creator && (
+                <Link href="/creator" onClick={() => setDrawerOpen(false)} className="block px-4 py-3 text-sm font-medium text-creator transition-colors">
+                  Creator Dashboard
                 </Link>
               )}
               {user.role === 'council' && (
@@ -358,7 +440,7 @@ export default function Nav() {
                 <Link
                   href="/register"
                   onClick={() => setDrawerOpen(false)}
-                  className="block text-center text-sm font-semibold bg-brand text-black py-2.5 rounded-lg hover:bg-brand-dim transition-colors"
+                  className="block text-center text-sm font-semibold bg-fan text-black py-2.5 rounded-lg hover:bg-fan-dim transition-colors"
                 >
                   Sign up
                 </Link>

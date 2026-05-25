@@ -2,7 +2,7 @@ export default function GuidePage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">The Lingo</h1>
+        <h1 className="text-3xl font-display font-bold text-foreground mb-2">The Lingo</h1>
         <p className="text-muted">
           Artypot has its own vocabulary. Here&apos;s everything you need to know.
         </p>
@@ -10,40 +10,40 @@ export default function GuidePage() {
 
       <div className="space-y-4">
 
-        {/* The Pot */}
-        <div className="bg-surface border border-brand/30 rounded-xl p-6">
+        {/* The Bounty */}
+        <div className="bg-surface border border-fan/30 rounded-xl p-6">
           <div className="flex items-start gap-4">
             <span className="text-2xl">🪴</span>
             <div>
-              <h2 className="text-lg font-bold text-brand mb-1">The Bounty</h2>
+              <h2 className="text-lg font-bold text-fan mb-1">The Bounty</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                A fan-created, crowdfunded request aimed at a specific Summoned One. Fans place pledges into a bounty to signal what they want The Summoned to make. If The Summoned completes the project, the bounty pays out.
+                A fan-created, crowdfunded request aimed at a specific Creator. Fans back a bounty to signal what they want the Creator to make. If the Creator completes the project, the bounty pays out.
               </p>
             </div>
           </div>
         </div>
 
-        {/* The Summoned */}
+        {/* The Creator */}
         <div className="bg-surface border border-creator/30 rounded-xl p-6">
           <div className="flex items-start gap-4">
             <span className="text-2xl">🔮</span>
             <div>
-              <h2 className="text-lg font-bold text-creator mb-1">The Summoned</h2>
+              <h2 className="text-lg font-bold text-creator mb-1">The Creator</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                A creator or entity who has claimed their Artypot profile. Once summoned, they can receive payouts from bounties dedicated to their work, communicate directly with fans, and confirm or reject completed projects.
+                A creator or entity who has joined Artypot and been verified. Once verified, they can receive payouts from bounties dedicated to their work, communicate directly with fans, and confirm or reject completed projects.
               </p>
             </div>
           </div>
         </div>
 
-        {/* The Votive */}
-        <div className="bg-surface border border-brand/30 rounded-xl p-6">
+        {/* Backing */}
+        <div className="bg-surface border border-fan/30 rounded-xl p-6">
           <div className="flex items-start gap-4">
             <span className="text-2xl">🕯️</span>
             <div>
-              <h2 className="text-lg font-bold text-brand mb-1">The Pledge</h2>
+              <h2 className="text-lg font-bold text-fan mb-1">Backing a Bounty</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                A commitment of money placed into a bounty. Your pledge signals your belief in a project and your willingness to pay when it&apos;s completed. Pledges are only charged when a project is approved and paid out by The Council. You can cancel your pledge at any time before that.
+                You commit an amount to a bounty — but your card isn&apos;t charged until the Creator actually delivers and the Council approves it. You can back out at any time before that happens.
               </p>
             </div>
           </div>
@@ -56,20 +56,20 @@ export default function GuidePage() {
             <div>
               <h2 className="text-lg font-bold text-council mb-1">The Council</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                The moderators and administrators of Artypot. The Council verifies Summon identities, approves completed projects for payout, and keeps the platform running with integrity.
+                The moderators and administrators of Artypot. The Council verifies Creator identities, approves completed projects for payout, and keeps the platform running with integrity.
               </p>
             </div>
           </div>
         </div>
 
         {/* The Herald */}
-        <div className="bg-surface border border-brand/30 rounded-xl p-6">
+        <div className="bg-surface border border-fan/30 rounded-xl p-6">
           <div className="flex items-start gap-4">
             <span className="text-2xl">📯</span>
             <div>
-              <h2 className="text-lg font-bold text-brand mb-1">The Herald</h2>
+              <h2 className="text-lg font-bold text-fan mb-1">The Herald</h2>
               <p className="text-foreground text-sm leading-relaxed">
-                When a Summon is yet unanswered, it is up to loyal fans to take on the role of Herald — the caretaker of that Summon&apos;s unclaimed presence on Artypot.
+                When a Creator profile is yet unclaimed, it is up to loyal fans to take on the role of Herald — the caretaker of that Creator&apos;s unclaimed presence on Artypot.
               </p>
             </div>
           </div>
@@ -93,7 +93,7 @@ export default function GuidePage() {
       <div className="mt-8 p-5 bg-surface border border-border rounded-xl text-center">
         <p className="text-muted text-sm">
           Still confused?{' '}
-          <a href="mailto:baldwig@artypot.com" className="text-brand hover:underline">
+          <a href="mailto:baldwig@artypot.com" className="text-fan hover:underline">
             Drop us a line.
           </a>
         </p>

@@ -46,7 +46,7 @@ export default function OverlordPage() {
       const res = await overlordApi.grantCouncil(emailInput.trim());
       setMembers((prev) => [res.data, ...prev]);
       setEmailInput('');
-      toast(`✅ ${res.data.user.name} is now Council.`, 'success');
+      toast(`✅ ${res.data.display_name} is now Council.`, 'success');
     } catch (err: unknown) {
       const e = err as { message?: string };
       toast(e.message ?? 'Failed to grant Council access.', 'error');
@@ -61,7 +61,7 @@ export default function OverlordPage() {
     try {
       await overlordApi.revokeCouncil(member.id);
       setMembers((prev) => prev.filter((m) => m.id !== member.id));
-      toast(`${member.user.name} removed from Council.`, 'success');
+      toast(`${member.display_name} removed from Council.`, 'success');
     } catch (err: unknown) {
       const e = err as { message?: string };
       toast(e.message ?? 'Failed to revoke Council access.', 'error');
@@ -85,11 +85,11 @@ export default function OverlordPage() {
           <div className="bg-surface border border-[#8A2BE2]/30 rounded-2xl w-full max-w-sm p-6 shadow-2xl">
             <h2 className="text-lg font-bold text-foreground mb-2">Remove from Council</h2>
             <p className="text-sm text-muted mb-1">
-              Remove <strong className="text-foreground">{confirmRevoke.user.name}</strong>{' '}
-              (<span className="text-[#8A2BE2]">{confirmRevoke.user.email}</span>) from The Council?
+              Remove <strong className="text-foreground">{confirmRevoke.display_name}</strong>{' '}
+              (<span className="text-[#8A2BE2]">{confirmRevoke.email}</span>) from The Council?
             </p>
             <p className="text-xs text-muted mb-6">
-              Their role will downgrade to Summoned or Mob depending on whether they have a claimed summon.
+              Their role will downgrade to Creator or Mob depending on whether they have a claimed creator profile.
             </p>
             <div className="flex gap-3">
               <button
@@ -119,7 +119,7 @@ export default function OverlordPage() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-1">
             <span className="text-2xl">👁️</span>
-            <h1 className="text-2xl font-bold text-foreground">The Overlord Obelisk</h1>
+            <h1 className="text-2xl font-display font-bold text-foreground">The Overlord Obelisk</h1>
           </div>
           <p className="text-sm text-muted">
             Grant or revoke{' '}
@@ -179,17 +179,17 @@ export default function OverlordPage() {
                   className="flex items-center justify-between bg-surface-2 border border-border rounded-lg px-4 py-3 gap-4"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{m.user.name}</p>
-                    <p className="text-xs text-muted truncate">{m.user.email}</p>
-                    {m.appointed_at && (
+                    <p className="text-sm font-semibold text-foreground truncate">{m.display_name}</p>
+                    <p className="text-xs text-muted truncate">{m.email}</p>
+                    {m.council_appointed_at && (
                       <p className="text-xs text-muted/60 mt-0.5">
                         Appointed{' '}
-                        {new Date(m.appointed_at).toLocaleDateString('en-US', {
+                        {new Date(m.council_appointed_at).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'short',
                           day: 'numeric',
                         })}
-                        {m.appointed_by && ` by ${m.appointed_by.name}`}
+                        {m.appointed_by && ` by ${m.appointed_by.display_name}`}
                       </p>
                     )}
                   </div>

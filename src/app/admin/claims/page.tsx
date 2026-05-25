@@ -6,9 +6,21 @@ import Link from 'next/link';
 import { admin as adminApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
-import type { AdminSummonClaim, SummonClaimStatus } from '@/lib/types';
+import type { AdminCreatorClaim, CreatorClaimStatus } from '@/lib/types';
+import { Card, SectionLabel } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Modal } from '@/components/ui/Modal';
+import { Textarea, FieldLabel } from '@/components/ui/Input';
+import { Empty } from '@/components/ui/Empty';
 
 type StatusFilter = 'pending' | 'approved' | 'rejected' | 'all';
+
+const CLAIM_TONES: Record<CreatorClaimStatus, 'warn' | 'good' | 'bad'> = {
+  pending:  'warn',
+  approved: 'good',
+  rejected: 'bad',
+};
 
 // ── Review modal ────────────────────────────────────────────────────────────
 function ReviewModal({
@@ -16,7 +28,7 @@ function ReviewModal({
   onClose,
   onDone,
 }: {
-  claim: AdminSummonClaim;
+  claim: AdminCreatorClaim;
   onClose: () => void;
   onDone: () => void;
 }) {
@@ -41,100 +53,70 @@ function ReviewModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    <Modal
+      title="Review Claim"
+      onClose={onClose}
+      actions={
+        <>
+          <Button variant="ghost" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button
+            variant={decision === 'approved' ? 'primary' : 'danger'}
+            onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
+            disabled={loading}
+          >
+            {loading ? 'Submitting…' : decision === 'approved' ? 'Approve Claim' : 'Reject Claim'}
+          </Button>
+        </>
+      }
     >
-      <div className="bg-surface border border-border rounded-2xl w-full max-w-md p-6 shadow-2xl">
-        <h2 className="text-lg font-bold text-foreground mb-1">Review Claim</h2>
-        <p className="text-sm text-muted mb-4">
-          <span className="text-foreground font-medium">{claim.user.name}</span> ({claim.user.email}) claims{' '}
-          <span className="text-creator font-medium">{claim.summon.display_name}</span>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <p className="text-sm text-muted">
+          <span className="text-foreground">{claim.user.display_name}</span>{' '}
+          <span className="text-muted/70">({claim.user.email})</span> claims{' '}
+          <span className="text-creator">{claim.creator.display_name}</span>
         </p>
 
-        {/* Contact info */}
-        <div className="bg-surface-2 border border-border rounded-lg p-3 mb-4 text-sm">
-          <p className="text-xs text-muted uppercase tracking-wider font-semibold mb-1">Contact info / proof</p>
-          <p className="text-foreground whitespace-pre-wrap break-words">{claim.contact_info}</p>
+        <Card>
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-2">contact info / proof</div>
+          <p className="text-sm text-foreground whitespace-pre-wrap break-words">{claim.contact_info}</p>
+        </Card>
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setDecision('approved')}
+            className={`flex-1 py-2 rounded font-mono text-[10px] uppercase tracking-wider border transition-colors cursor-pointer ${
+              decision === 'approved'
+                ? 'bg-good/10 border-good/40 text-good'
+                : 'bg-surface border-border text-muted hover:border-good/30'
+            }`}
+          >
+            ✓ approve
+          </button>
+          <button
+            type="button"
+            onClick={() => setDecision('rejected')}
+            className={`flex-1 py-2 rounded font-mono text-[10px] uppercase tracking-wider border transition-colors cursor-pointer ${
+              decision === 'rejected'
+                ? 'bg-bad/10 border-bad/40 text-bad'
+                : 'bg-surface border-border text-muted hover:border-bad/30'
+            }`}
+          >
+            ✕ reject
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Decision */}
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setDecision('approved')}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
-                decision === 'approved'
-                  ? 'bg-green-900/40 border-green-600/60 text-green-300'
-                  : 'bg-surface-2 border-border text-muted hover:border-green-700/40'
-              }`}
-            >
-              ✓ Approve
-            </button>
-            <button
-              type="button"
-              onClick={() => setDecision('rejected')}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
-                decision === 'rejected'
-                  ? 'bg-red-900/40 border-red-600/60 text-red-300'
-                  : 'bg-surface-2 border-border text-muted hover:border-red-700/40'
-              }`}
-            >
-              ✕ Reject
-            </button>
-          </div>
-
-          {/* Council notes */}
-          <div>
-            <label className="text-xs text-muted font-medium mb-1.5 block">Council notes (optional — sent to claimant)</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-              placeholder="e.g. Yo boiii glad to have u on board"
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
-            />
-          </div>
-
-          <div className="flex gap-3 pt-1">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="flex-1 border border-border text-foreground text-sm font-medium py-2.5 rounded-lg hover:border-foreground/30 transition-colors disabled:opacity-40"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`flex-1 text-sm font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-40 ${
-                decision === 'approved'
-                  ? 'bg-green-700 hover:bg-green-600 text-white'
-                  : 'bg-red-700 hover:bg-red-600 text-white'
-              }`}
-            >
-              {loading ? 'Submitting…' : decision === 'approved' ? 'Approve Claim' : 'Reject Claim'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-// ── Status badge ────────────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: SummonClaimStatus }) {
-  const styles: Record<SummonClaimStatus, string> = {
-    pending:  'bg-amber-900/30 border-amber-700/40 text-amber-300',
-    approved: 'bg-green-900/30 border-green-700/40 text-green-300',
-    rejected: 'bg-red-900/30 border-red-700/40 text-red-300',
-  };
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${styles[status]}`}>
-      {status}
-    </span>
+        <div>
+          <FieldLabel>council notes <span className="text-muted/50 font-normal normal-case tracking-normal">(optional — sent to claimant)</span></FieldLabel>
+          <Textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={3}
+            placeholder="e.g. Yo boiii glad to have u on board"
+          />
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -144,12 +126,12 @@ export default function AdminClaimsPage() {
   const router = useRouter();
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('pending');
-  const [claims, setClaims] = useState<AdminSummonClaim[]>([]);
+  const [claims, setClaims] = useState<AdminCreatorClaim[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [reviewing, setReviewing] = useState<AdminSummonClaim | null>(null);
+  const [reviewing, setReviewing] = useState<AdminCreatorClaim | null>(null);
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'council')) {
@@ -166,7 +148,7 @@ export default function AdminClaimsPage() {
       setLastPage(res.last_page);
       setTotal(res.total);
     } catch {
-      // silently fail — toasts not needed for list load failures
+      // silently fail
     } finally {
       setLoading(false);
     }
@@ -182,10 +164,10 @@ export default function AdminClaimsPage() {
   if (authLoading || !user || user.role !== 'council') return null;
 
   const STATUS_TABS: { label: string; value: StatusFilter }[] = [
-    { label: 'Pending', value: 'pending' },
-    { label: 'Approved', value: 'approved' },
-    { label: 'Rejected', value: 'rejected' },
-    { label: 'All', value: 'all' },
+    { label: 'pending', value: 'pending' },
+    { label: 'approved', value: 'approved' },
+    { label: 'rejected', value: 'rejected' },
+    { label: 'all', value: 'all' },
   ];
 
   return (
@@ -201,27 +183,25 @@ export default function AdminClaimsPage() {
         />
       )}
 
-      <div className="max-w-5xl mx-auto px-4 py-10">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <Link href="/admin" className="text-muted hover:text-foreground transition-colors text-sm">
-            ← Admin
-          </Link>
-          <span className="text-border">/</span>
-          <h1 className="text-xl font-bold text-foreground">Summon Claims</h1>
-          <span className="ml-auto text-sm text-muted">{total} total</span>
+      <div className="space-y-6 pt-2 max-w-3xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <SectionLabel>council · admin</SectionLabel>
+            <h1 className="font-display font-bold text-[28px] text-foreground mt-1">creator claims</h1>
+            <p className="text-sm text-muted mt-1">{total} {total === 1 ? 'claim' : 'claims'}</p>
+          </div>
+          <Link href="/admin"><Button variant="ghost" size="sm">← Admin</Button></Link>
         </div>
 
-        {/* Status tabs */}
-        <div className="flex gap-1 bg-surface-2 border border-border rounded-xl p-1 mb-6 w-fit">
+        {/* Status filter tabs */}
+        <div className="flex items-center gap-1 border border-border rounded p-1 bg-surface w-fit">
           {STATUS_TABS.map(({ label, value }) => (
             <button
               key={value}
-              type="button"
               onClick={() => setStatusFilter(value)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1 font-mono text-[10px] uppercase tracking-wider rounded transition-colors cursor-pointer ${
                 statusFilter === value
-                  ? 'bg-surface text-foreground shadow-sm'
+                  ? 'bg-[var(--color-role-soft)] text-[var(--color-role)]'
                   : 'text-muted hover:text-foreground'
               }`}
             >
@@ -232,79 +212,75 @@ export default function AdminClaimsPage() {
 
         {/* Claims list */}
         {loading ? (
-          <div className="space-y-3">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-20 bg-surface border border-border rounded-xl animate-pulse" />
-            ))}
-          </div>
+          <Card>
+            <div className="space-y-3">
+              {[1,2,3,4,5].map(i => <div key={i} className="h-14 bg-surface-2 animate-pulse rounded" />)}
+            </div>
+          </Card>
         ) : claims.length === 0 ? (
-          <div className="text-center py-16 text-muted text-sm">
-            No {statusFilter === 'all' ? '' : statusFilter} claims found.
-          </div>
+          <Empty message={`No ${statusFilter === 'all' ? '' : statusFilter + ' '}claims`} />
         ) : (
-          <div className="space-y-3">
-            {claims.map((claim) => (
-              <div
-                key={claim.id}
-                className="bg-surface border border-border rounded-xl p-4 flex items-start gap-4"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className="font-medium text-foreground text-sm">{claim.user.name}</span>
-                    <span className="text-muted text-xs">{claim.user.email}</span>
-                    <StatusBadge status={claim.status} />
-                  </div>
-                  <p className="text-sm text-muted mb-1">
-                    Claims:{' '}
-                    <Link href={`/summons/${claim.summon.id}`} className="text-creator hover:underline font-medium">
-                      {claim.summon.display_name}
-                    </Link>
-                  </p>
-                  <p className="text-xs text-muted line-clamp-1">
-                    <span className="text-muted/70">Proof:</span> {claim.contact_info}
-                  </p>
-                  {claim.reviewer && (
-                    <p className="text-xs text-muted mt-1">
-                      Reviewed by {claim.reviewer.name} · {claim.reviewed_at ? new Date(claim.reviewed_at).toLocaleDateString() : ''}
-                      {claim.council_notes && <span className="ml-1 text-muted/70">— &quot;{claim.council_notes}&quot;</span>}
+          <Card>
+            <div className="divide-y divide-border -mx-5 -my-4">
+              {claims.map((claim) => (
+                <div key={claim.id} className="flex items-start gap-3 px-5 py-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                      <span className="text-sm text-foreground">{claim.user.display_name}</span>
+                      <span className="font-mono text-[10px] text-muted">{claim.user.email}</span>
+                      <Badge tone={CLAIM_TONES[claim.status]}>{claim.status}</Badge>
+                    </div>
+                    <p className="text-sm text-muted mb-0.5">
+                      claims{' '}
+                      <Link href={`/creators/${claim.creator.id}`} className="text-creator hover:underline">
+                        {claim.creator.display_name}
+                      </Link>
                     </p>
+                    <p className="font-mono text-[10px] text-muted/70 truncate">
+                      proof: {claim.contact_info}
+                    </p>
+                    {claim.reviewer && (
+                      <p className="font-mono text-[10px] text-muted mt-1">
+                        reviewed by {claim.reviewer.display_name}
+                        {claim.reviewed_at && <> · {new Date(claim.reviewed_at).toLocaleDateString()}</>}
+                        {claim.council_notes && <> — &quot;{claim.council_notes}&quot;</>}
+                      </p>
+                    )}
+                  </div>
+
+                  {claim.status === 'pending' && (
+                    <Button variant="default" size="sm" onClick={() => setReviewing(claim)}>
+                      review →
+                    </Button>
                   )}
                 </div>
-
-                {claim.status === 'pending' && (
-                  <button
-                    type="button"
-                    onClick={() => setReviewing(claim)}
-                    className="shrink-0 bg-creator/10 border border-creator/30 text-creator text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-creator/20 transition-colors"
-                  >
-                    Review
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </Card>
         )}
 
         {/* Pagination */}
         {lastPage > 1 && (
-          <div className="flex items-center justify-center gap-3 mt-6">
-            <button
-              type="button"
+          <div className="flex items-center justify-between">
+            <Button
+              variant="default"
+              size="sm"
               disabled={currentPage === 1 || loading}
               onClick={() => { const p = currentPage - 1; setCurrentPage(p); fetchClaims(statusFilter, p); }}
-              className="px-4 py-2 text-sm border border-border rounded-lg text-foreground disabled:opacity-40 hover:border-foreground/30 transition-colors"
             >
-              ← Prev
-            </button>
-            <span className="text-sm text-muted">Page {currentPage} of {lastPage}</span>
-            <button
-              type="button"
+              ← prev
+            </Button>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
+              {currentPage} / {lastPage}
+            </span>
+            <Button
+              variant="default"
+              size="sm"
               disabled={currentPage === lastPage || loading}
               onClick={() => { const p = currentPage + 1; setCurrentPage(p); fetchClaims(statusFilter, p); }}
-              className="px-4 py-2 text-sm border border-border rounded-lg text-foreground disabled:opacity-40 hover:border-foreground/30 transition-colors"
             >
-              Next →
-            </button>
+              next →
+            </Button>
           </div>
         )}
       </div>

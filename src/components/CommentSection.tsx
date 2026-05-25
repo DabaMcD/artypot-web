@@ -37,18 +37,18 @@ function UserAvatar({ user, size = 8 }: { user: Comment['user']; size?: number }
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={user.profile_picture}
-        alt={user.name}
+        alt={user.display_name}
         className={`${sizeClass} rounded-full object-cover flex-shrink-0`}
       />
     );
   }
-  const initial = user.name.charAt(0).toUpperCase();
+  const initial = user.display_name?.charAt(0).toUpperCase() ?? '?';
   const roleColor =
     user.role === 'council'
       ? 'bg-council/20 text-council'
-      : user.role === 'summoned'
+      : user.role === 'creator'
         ? 'bg-creator/20 text-creator'
-        : 'bg-brand/20 text-brand';
+        : 'bg-fan/20 text-fan';
   return (
     <div
       className={`${sizeClass} rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${roleColor}`}
@@ -120,7 +120,7 @@ function CommentRow({
   currentUserId,
   isCouncil,
   replies,
-  replyText = '',
+  replyText,
   editingText,
   onLoadReplies,
   onSetReplyText,
@@ -150,7 +150,7 @@ function CommentRow({
               href={`/users/${comment.user.id}`}
               className="text-sm font-medium text-foreground hover:underline"
             >
-              {comment.user.name}
+              {comment.user.display_name}
             </Link>
           )}
           <span className="text-xs text-muted">{timeAgo(comment.created_at)}</span>
@@ -168,13 +168,13 @@ function CommentRow({
               value={editingText}
               onChange={(e) => onSetEditText(e.target.value)}
               maxLength={2000}
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
             />
             <div className="flex gap-2">
               <button
                 onClick={onSubmitEdit}
                 disabled={!editingText.trim() || editingText === comment.content}
-                className="text-xs px-3 py-1.5 bg-brand text-black font-semibold rounded-lg hover:bg-brand-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="text-xs px-3 py-1.5 bg-fan text-black font-semibold rounded-lg hover:bg-fan-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Save
               </button>
@@ -218,10 +218,10 @@ function CommentRow({
             {/* Reply — only on top-level, only if logged in */}
             {!isReply && currentUserId && (
               <button
-                onClick={() => onSetReplyText(replyText === '' ? '' : '')}
+                onClick={() => onSetReplyText(replyText !== undefined ? '\x00CLOSE' : '')}
                 className="text-xs text-muted hover:text-foreground transition-colors"
               >
-                Reply
+                {replyText !== undefined ? 'Cancel' : 'Reply'}
               </button>
             )}
 
@@ -254,17 +254,17 @@ function CommentRow({
           <div className="mt-3 space-y-2">
             <textarea
               rows={2}
-              value={replyText}
+              value={replyText ?? ''}
               onChange={(e) => onSetReplyText(e.target.value)}
               maxLength={2000}
               placeholder="Write a reply…"
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
             />
             <div className="flex gap-2">
               <button
                 onClick={onSubmitReply}
                 disabled={!replyText.trim()}
-                className="text-xs px-3 py-1.5 bg-brand text-black font-semibold rounded-lg hover:bg-brand-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="text-xs px-3 py-1.5 bg-fan text-black font-semibold rounded-lg hover:bg-fan-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Post reply
               </button>
@@ -284,7 +284,7 @@ function CommentRow({
             {comment.reply_count > 0 && replies === undefined && (
               <button
                 onClick={onLoadReplies}
-                className="text-xs text-brand hover:text-brand-dim transition-colors"
+                className="text-xs text-fan hover:text-fan-dim transition-colors"
               >
                 {comment.reply_count} {comment.reply_count === 1 ? 'reply' : 'replies'} ↓
               </button>
@@ -328,18 +328,18 @@ function CommentRow({
 // ── Main section ──────────────────────────────────────────────────────────────
 
 interface CommentSectionProps {
-  potId: number;
+  bountyId: number;
   /**
    * When true, strips the outer border/margin wrapper and the "Comments" h2
    * heading — use when embedding inside a parent card that provides its own
-   * container and heading (e.g. the tabbed backers/comments card on the pot page).
+   * container and heading (e.g. the tabbed backers/comments card on the bounty page).
    */
   inline?: boolean;
   /** Called whenever the total comment count changes (useful for tab labels). */
   onTotalChange?: (total: number) => void;
 }
 
-export default function CommentSection({ potId, inline = false, onTotalChange }: CommentSectionProps) {
+export default function CommentSection({ bountyId, inline = false, onTotalChange }: CommentSectionProps) {
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -366,7 +366,7 @@ export default function CommentSection({ potId, inline = false, onTotalChange }:
 
   const loadComments = useCallback(async (pageNum: number, append = false) => {
     try {
-      const res = await commentsApi.list(potId, pageNum);
+      const res = await commentsApi.list(bountyId, pageNum);
       setCommentList((prev) => (append ? [...prev, ...res.data] : res.data));
       setPage(res.current_page);
       setLastPage(res.last_page);
@@ -378,7 +378,7 @@ export default function CommentSection({ potId, inline = false, onTotalChange }:
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [potId, toast, onTotalChange]);
+  }, [bountyId, toast, onTotalChange]);
 
   useEffect(() => {
     loadComments(1);
@@ -411,7 +411,7 @@ export default function CommentSection({ potId, inline = false, onTotalChange }:
     if (!newText.trim() || submitting) return;
     setSubmitting(true);
     try {
-      const res = await commentsApi.create(potId, newText.trim());
+      const res = await commentsApi.create(bountyId, newText.trim());
       setCommentList((prev) => [res.data, ...prev]);
       setTotal((t) => t + 1);
       setNewText('');
@@ -593,7 +593,7 @@ export default function CommentSection({ potId, inline = false, onTotalChange }:
       {/* Compose new comment */}
       {user ? (
         <div className="flex gap-3 mb-8">
-          <UserAvatar user={{ id: user.id, name: user.name, profile_picture: user.profile_picture, is_anonymous: user.is_anonymous ?? false, role: user.role }} />
+          <UserAvatar user={{ id: user.id, name: user.display_name, display_name: user.display_name, profile_picture: user.profile_picture, is_anonymous: user.is_anonymous ?? false, role: user.role }} />
           <div className="flex-1 space-y-2">
             <textarea
               rows={3}
@@ -601,14 +601,14 @@ export default function CommentSection({ potId, inline = false, onTotalChange }:
               onChange={(e) => setNewText(e.target.value)}
               maxLength={2000}
               placeholder="Leave a comment…"
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
+              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
             />
             <div className="flex justify-between items-center">
               <span className="text-xs text-muted">{newText.length}/2000</span>
               <button
                 onClick={submitComment}
                 disabled={!newText.trim() || submitting}
-                className="text-sm px-4 py-1.5 bg-brand text-black font-semibold rounded-lg hover:bg-brand-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="text-sm px-4 py-1.5 bg-fan text-black font-semibold rounded-lg hover:bg-fan-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 {submitting ? 'Posting…' : 'Post'}
               </button>
@@ -617,7 +617,7 @@ export default function CommentSection({ potId, inline = false, onTotalChange }:
         </div>
       ) : (
         <div className="mb-8 text-sm text-muted">
-          <Link href="/login" className="text-brand hover:underline">Log in</Link>
+          <Link href="/login" className="text-fan hover:underline">Log in</Link>
           {' '}to leave a comment.
         </div>
       )}

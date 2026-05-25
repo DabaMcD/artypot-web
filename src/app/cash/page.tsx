@@ -5,37 +5,39 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { cash as cashApi } from '@/lib/api';
-import type { SummonBalance, SummonEarning } from '@/lib/types';
+import type { CreatorBalance, CreatorEarning } from '@/lib/types';
 
 export default function CashPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  const [balance, setBalance] = useState<SummonBalance | null>(null);
+  const [balance, setBalance] = useState<CreatorBalance | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
 
-  const [earnings, setEarnings] = useState<SummonEarning[] | null>(null);
+  const [earnings, setEarnings] = useState<CreatorEarning[] | null>(null);
   const [earningsLoading, setEarningsLoading] = useState(true);
 
   const [error, setError] = useState('');
 
+  const isPayoutBlocked = user?.creator?.payout_category === 3;
+
   useEffect(() => {
     if (loading) return;
     if (!user) { router.push('/login'); return; }
-    if (user.role === 'mob') { router.push('/billing'); return; }
+    if (user.role === 'fan') { router.push('/billing'); return; }
   }, [loading, user, router]);
 
   useEffect(() => {
-    if (!user || user.role === 'mob') return;
+    if (!user || user.role === 'fan' || isPayoutBlocked) return;
 
     cashApi
-      .summonBalance()
+      .creatorBalance()
       .then(setBalance)
       .catch(() => setError('Failed to load balance.'))
       .finally(() => setBalanceLoading(false));
 
     cashApi
-      .summonEarnings()
+      .creatorEarnings()
       .then((res) => setEarnings(res.data))
       .catch(() => {/* error already set above if both fail */})
       .finally(() => setEarningsLoading(false));
@@ -51,10 +53,34 @@ export default function CashPage() {
     );
   }
 
+  if (isPayoutBlocked) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-10">
+        <div className="mb-6">
+          <h1 className="text-2xl font-display font-bold text-foreground mb-1">Earnings</h1>
+        </div>
+        <div className="bg-surface border border-border rounded-xl p-8 text-center space-y-3">
+          <p className="text-lg font-semibold text-foreground">Payouts unavailable in your region</p>
+          <p className="text-muted text-sm leading-relaxed max-w-sm mx-auto">
+            Due to international payment restrictions, we&apos;re unable to process payouts to
+            creators in your country at this time. Your bounty activity is otherwise unaffected.
+          </p>
+          <p className="text-muted text-xs">
+            If you believe this is an error, please{' '}
+            <a href="mailto:support@artypot.com" className="text-creator hover:underline">
+              contact support
+            </a>
+            .
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground mb-1">Earnings</h1>
+        <h1 className="text-2xl font-display font-bold text-foreground mb-1">Earnings</h1>
         <p className="text-muted text-sm">
           Your wallet summary and per-project breakdown.
         </p>
@@ -98,16 +124,29 @@ export default function CashPage() {
               <p className="text-xs text-muted mt-0.5">sent to bank</p>
             </div>
           </div>
-          {balance.pending_payment > 0 && (
-            <p className="text-xs text-muted mt-4 pt-4 border-t border-border leading-relaxed">
-              Pending Payment amounts are fan obligations locked in at bounty approval. Fans have
-              up to 50 days to pay; amounts will flow through Clearing into Available once collected.
-            </p>
+          {(balance.pending_payment > 0 || user?.creator?.payout_category === 2) && (
+            <div className="mt-4 pt-4 border-t border-border space-y-2">
+              {balance.pending_payment > 0 && (
+                <p className="text-xs text-muted leading-relaxed">
+                  Pending Payment amounts are fan obligations locked in at bounty approval. Fans have
+                  up to 50 days to pay; amounts will flow through Clearing into Available once collected.
+                </p>
+              )}
+              {user?.creator?.payout_category === 2 && (
+                <p className="text-xs text-amber-400/80 leading-relaxed">
+                  Your country requires manual payout processing. Minimum withdrawal:{' '}
+                  <strong className="text-amber-400">
+                    ${user.creator.payout_minimum?.toLocaleString('en-US', { minimumFractionDigits: 0 }) ?? '50'}
+                  </strong>
+                  . Payouts are sent via Wise, PayPal, or wire transfer.
+                </p>
+              )}
+            </div>
           )}
         </div>
       )}
 
-      {/* ── Per-pot breakdown ────────────────────────────────────────────── */}
+      {/* ── Per-bounty breakdown ────────────────────────────────────────────── */}
       <p className="text-xs text-muted font-semibold uppercase tracking-widest mb-3">By Project</p>
 
       {earningsLoading ? (
@@ -120,16 +159,16 @@ export default function CashPage() {
         <div className="space-y-4">
           {earnings.map((earning) => {
             const earnedPct = earning.total > 0 ? (earning.earned / earning.total) * 100 : 0;
-            const statusLabel = earning.pot.status.replace('_', ' ');
+            const statusLabel = earning.bounty.status.replace('_', ' ');
 
             return (
-              <div key={earning.pot.id} className="bg-surface border border-border rounded-xl p-5">
+              <div key={earning.bounty.id} className="bg-surface border border-border rounded-xl p-5">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <Link
-                    href={`/bounties/${earning.pot.id}`}
+                    href={`/bounties/${earning.bounty.id}`}
                     className="text-creator font-semibold hover:underline leading-snug"
                   >
-                    {earning.pot.title}
+                    {earning.bounty.title}
                   </Link>
                   <span className="text-xs text-muted shrink-0 capitalize">{statusLabel}</span>
                 </div>
@@ -147,7 +186,7 @@ export default function CashPage() {
                       ${earning.earned.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </p>
                     <p className="text-xs text-muted">
-                      of ${earning.total.toLocaleString('en-US', { minimumFractionDigits: 2 })} potential
+                      of ${earning.total.toLocaleString('en-US', { minimumFractionDigits: 2 })} bountyential
                     </p>
                   </div>
                   {earning.incoming > 0 && (

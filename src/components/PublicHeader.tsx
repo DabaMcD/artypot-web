@@ -1,0 +1,124 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
+import CreatorSearchWidget from '@/components/CreatorSearchWidget';
+
+/**
+ * Sticky public header shown on every page when the viewer is not logged in.
+ * Mirrors the search-bar UX from the authenticated <AppShell> header:
+ *   - Desktop (≥sm): fixed-width search bar always visible.
+ *   - Mobile (<sm): search icon that expands the bar in-place.
+ */
+export function PublicHeader() {
+  const pathname = usePathname();
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // Close the mobile search whenever the route changes.
+  useEffect(() => { setSearchOpen(false); }, [pathname]);
+
+  return (
+    <header className="sticky top-0 z-50 h-16 bg-surface/95 backdrop-blur border-b border-border/60">
+      <div className="max-w-6xl mx-auto px-4 flex items-center h-full gap-3">
+
+        {/* Logo — hidden on mobile when search is expanded */}
+        <Link
+          href="/"
+          className={`shrink-0 items-center translate-y-px ${searchOpen ? 'hidden sm:flex' : 'flex'}`}
+          aria-label="Artypot home"
+        >
+          <Image
+            src="/artypot-logo-transparent-dark.png"
+            alt="Artypot"
+            width={1024}
+            height={269}
+            className="h-6 w-auto"
+            priority
+          />
+        </Link>
+
+        {/* Desktop (≥sm): fixed-width search bar always visible */}
+        <div className="hidden sm:block w-64 lg:w-[340px] xl:w-[420px] shrink-0">
+          <div className="relative">
+            <svg
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted pointer-events-none z-10"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path strokeLinecap="round" d="m21 21-4.35-4.35" />
+            </svg>
+            <CreatorSearchWidget
+              navigateOnSelect
+              placeholder="find a creator, bounty, or handle…"
+              inputClassName="w-full bg-surface-2 border border-border rounded-md px-3 py-1.5 pl-9 font-mono text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors"
+            />
+          </div>
+        </div>
+
+        {/* Mobile (<sm): search icon — collapses to full bar when tapped */}
+        {!searchOpen && (
+          <button
+            className="sm:hidden ml-auto p-2 rounded-md text-muted hover:text-foreground hover:bg-surface-2 transition-colors shrink-0"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <circle cx="11" cy="11" r="8" />
+              <path strokeLinecap="round" d="m21 21-4.35-4.35" />
+            </svg>
+          </button>
+        )}
+
+        {/* Mobile (<sm): expanded search bar */}
+        {searchOpen && (
+          <div className="sm:hidden flex items-center gap-2 flex-1 min-w-0">
+            <div className="relative flex-1 min-w-0">
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted pointer-events-none z-10"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path strokeLinecap="round" d="m21 21-4.35-4.35" />
+              </svg>
+              <CreatorSearchWidget
+                navigateOnSelect
+                autoFocus
+                placeholder="search…"
+                inputClassName="w-full bg-surface-2 border border-border rounded-md px-3 py-1.5 pl-9 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors"
+              />
+            </div>
+            <button
+              onClick={() => setSearchOpen(false)}
+              className="shrink-0 font-mono text-xs text-muted hover:text-foreground transition-colors"
+            >
+              cancel
+            </button>
+          </div>
+        )}
+
+        {/* Desktop spacer — pushes right-side nav to the far right */}
+        <div className="hidden sm:block flex-1" />
+
+        {/* Right nav — hidden on mobile while the search bar is expanded */}
+        {!searchOpen && (
+          <nav className="flex items-center gap-1 sm:gap-3 shrink-0">
+            <Link
+              href="/login"
+              className="text-sm text-muted hover:text-foreground transition-colors px-2 py-1"
+            >
+              Log in
+            </Link>
+            <Link
+              href="/register"
+              className="text-sm bg-creator text-brand-dark font-semibold px-3 py-1.5 rounded-md hover:brightness-110 transition-all whitespace-nowrap"
+            >
+              Sign up
+            </Link>
+          </nav>
+        )}
+      </div>
+    </header>
+  );
+}
