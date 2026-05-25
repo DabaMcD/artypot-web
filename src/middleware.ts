@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * Admin / overlord route protection middleware.
+ * Admin / obelisk (overlord) route protection middleware.
  *
  * NOTE: The app currently stores the auth token in localStorage via setToken()
  * in src/lib/api.ts. localStorage is not accessible in Edge middleware, so this
@@ -18,7 +18,7 @@ import type { NextRequest } from 'next/server';
  * token if/when server-side protection is needed.
  */
 
-const PROTECTED_PREFIXES = ['/admin', '/overlord'];
+const PROTECTED_PREFIXES = ['/admin', '/obelisk'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -45,5 +45,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/overlord/:path*'],
+  matcher: ['/admin/:path*', '/obelisk/:path*'],
 };

@@ -42,12 +42,49 @@ export function getToken(): string | null {
   return localStorage.getItem('artypot_token');
 }
 
+/**
+ * Best-effort flag cookie used by the Edge middleware (`src/middleware.ts`)
+ * to gate `/admin` and `/obelisk` routes server-side. The middleware only
+ * checks the cookie's presence — not its value — so we store an innocuous
+ * `1` rather than mirroring the bearer token (which would needlessly expose
+ * it to same-site requests). The real auth check stays Bearer-header-based.
+ */
+const SESSION_COOKIE = 'artypot_session';
+
+function writeSessionCookie(): void {
+  if (typeof document === 'undefined') return;
+  const secure = typeof location !== 'undefined' && location.protocol === 'https:' ? '; Secure' : '';
+  // No Max-Age → session cookie; cleared on browser close, matching the
+  // localStorage token's effective lifetime in private windows.
+  document.cookie = `${SESSION_COOKIE}=1; Path=/; SameSite=Lax${secure}`;
+}
+
+function clearSessionCookie(): void {
+  if (typeof document === 'undefined') return;
+  document.cookie = `${SESSION_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
+}
+
 export function setToken(token: string): void {
   localStorage.setItem('artypot_token', token);
+  writeSessionCookie();
 }
 
 export function clearToken(): void {
   localStorage.removeItem('artypot_token');
+  clearSessionCookie();
+}
+
+/**
+ * Ensure the session cookie is present when a token is already in localStorage.
+ * Called from <AuthProvider> on boot so users who logged in before the cookie
+ * code existed aren't permanently locked out of `/admin` / `/obelisk` by the
+ * middleware until they log out and back in.
+ */
+export function ensureSessionCookie(): void {
+  if (typeof document === 'undefined') return;
+  if (!localStorage.getItem('artypot_token')) return;
+  const has = document.cookie.split(';').some((c) => c.trim().startsWith(`${SESSION_COOKIE}=`));
+  if (!has) writeSessionCookie();
 }
 
 interface ApiError {

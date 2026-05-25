@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { auth, setToken, clearToken } from './api';
+import { auth, setToken, clearToken, ensureSessionCookie } from './api';
 import type { User } from './types';
 
 export interface RegisterPayload {
@@ -30,6 +30,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem('artypot_token');
     if (token) {
+      // Backfill the session cookie used by the Edge middleware. Existing
+      // users who logged in before this cookie was wired up would otherwise
+      // be locked out of /admin and /obelisk until they log out and back in.
+      ensureSessionCookie();
       auth
         .me()
         .then((res) => setUser(res.data))

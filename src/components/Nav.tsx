@@ -32,14 +32,14 @@ export default function Nav() {
   };
 
   const isCreatorMode = mode === 'creator';
-  const isAdminZone = pathname.startsWith('/admin') || pathname.startsWith('/overlord');
+  const isAdminZone = pathname.startsWith('/admin') || pathname.startsWith('/obelisk');
 
   // Active-link color follows mode (council zone overrides both)
   const activeClass = isAdminZone ? 'text-council' : isCreatorMode ? 'text-creator' : 'text-fan';
   const isActive = (href: string) =>
     pathname === href ? activeClass : 'text-muted hover:text-foreground';
 
-  // Accent color: council overrides mode in admin/overlord zone
+  // Accent color: council overrides mode in admin/obelisk zone
   const accentColor = isAdminZone
     ? 'var(--color-council)'
     : isCreatorMode ? 'var(--color-creator)' : 'var(--color-fan)';
@@ -233,7 +233,7 @@ export default function Nav() {
                         {/* Overlord */}
                         {user.is_overlord && (
                           <Link
-                            href="/overlord"
+                            href="/obelisk"
                             onClick={() => setMenuOpen(false)}
                             className="block px-4 py-2.5 hover:bg-border transition-colors text-amber-400"
                           >
@@ -418,7 +418,7 @@ export default function Nav() {
                 </Link>
               )}
               {user.is_overlord && (
-                <Link href="/overlord" onClick={() => setDrawerOpen(false)} className="block px-4 py-3 text-sm font-medium text-amber-400 transition-colors">
+                <Link href="/obelisk" onClick={() => setDrawerOpen(false)} className="block px-4 py-3 text-sm font-medium text-amber-400 transition-colors">
                   Overlord Obelisk
                 </Link>
               )}

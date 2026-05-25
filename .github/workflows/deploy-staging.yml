@@ -25,6 +25,6 @@ jobs:
             git reset --hard origin/staging
             npm ci
             npm run build
-            pm2 reload artypot-web-staging --update-env || pm2 start npm --name "artypot-web-staging" -- start
+            pm2 reload artypot-web-staging --update-env || pm2 start npm --name artypot-web-staging -- start
             pm2 save
             echo "Staging deploy complete."
