@@ -375,12 +375,15 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
   const [displayName, setDisplayName] = useState(initialDisplayName);
   const [expiryValue, setExpiryValue] = useState(initialExpiryValue);
   const [expiryUnit, setExpiryUnit] = useState(initialExpiryUnit);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleNext = () => {
     if (!title.trim()) return;
     if (!isSelfBounty) {
       const amt = parseFloat(amount);
       if (isNaN(amt) || amt < 1) return;
+      const exp = parseInt(expiryValue, 10);
+      if (isNaN(exp) || exp < 1 || exp > 999) return;
     }
     if (target.kind === 'handle' && !displayName.trim()) return;
     onNext(title.trim(), description.trim(), isSelfBounty ? '0' : amount, displayName.trim(), expiryValue, expiryUnit);
@@ -389,10 +392,10 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
   return (
     <div className="space-y-5">
       <div>
-        <button type="button" onClick={onBack} className="text-sm font-mono text-muted hover:text-foreground cursor-pointer transition-colors mb-3 block">
+        <h1 className="font-display font-bold text-[28px] text-foreground">bounty details</h1>
+        <button type="button" onClick={onBack} className="text-sm font-mono text-muted hover:text-foreground cursor-pointer transition-colors mt-1 block">
           ← back
         </button>
-        <h1 className="font-display font-bold text-[28px] text-foreground">bounty details</h1>
       </div>
 
       <TargetingCard target={target} />
@@ -451,39 +454,46 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
             />
           </div>
           <FieldHint>Minimum $1. You are only charged if council confirms the bounty is completed.</FieldHint>
-        </Card>
-      )}
 
-      {!isSelfBounty && (
-        <Card>
-          <SectionLabel className="mb-3">pledge expiry</SectionLabel>
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <FieldLabel>length</FieldLabel>
-              <Input
-                type="number"
-                required
-                min={1}
-                max={999}
-                value={expiryValue}
-                onChange={(e) => setExpiryValue(e.target.value)}
-              />
-            </div>
-            <div className="flex-1">
-              <FieldLabel>unit</FieldLabel>
-              <select
-                value={expiryUnit}
-                onChange={(e) => setExpiryUnit(e.target.value)}
-                className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
-              >
-                <option value="day">day(s)</option>
-                <option value="week">week(s)</option>
-                <option value="month">month(s)</option>
-                <option value="year">year(s)</option>
-              </select>
-            </div>
+          <div className="mt-4 pt-4 border-t border-border">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(v => !v)}
+              className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-muted/60 hover:text-muted transition-colors cursor-pointer select-none"
+            >
+              <span className={`transition-transform duration-150 ${showAdvanced ? 'rotate-90' : ''}`}>▶</span>
+              Advanced
+            </button>
+            {showAdvanced && (
+              <div className="mt-2 space-y-1.5">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-muted">Expires in</span>
+                <div className="grid gap-0" style={{ gridTemplateColumns: '5rem 1fr' }}>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="999"
+                    step="1"
+                    mono
+                    value={expiryValue}
+                    onChange={(e) => setExpiryValue(e.target.value)}
+                    className="text-center"
+                  />
+                  <Select
+                    value={expiryUnit}
+                    onChange={(e) => setExpiryUnit(e.target.value)}
+                  >
+                    <option value="year">year(s)</option>
+                    <option value="month">month(s)</option>
+                    <option value="week">week(s)</option>
+                    <option value="day">day(s)</option>
+                    <option value="hour">hour(s)</option>
+                    <option value="minute">minute(s)</option>
+                  </Select>
+                </div>
+                <FieldHint>Your pledge will auto-expire after this period if the bounty is still open. Change your default in settings.</FieldHint>
+              </div>
+            )}
           </div>
-          <FieldHint>Your pledge will auto-expire after this period if the bounty is still open. Change your default in settings.</FieldHint>
         </Card>
       )}
 
@@ -491,7 +501,7 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
         type="button"
         variant="primary"
         className="w-full justify-center"
-        disabled={!title.trim() || (!isSelfBounty && parseFloat(amount) < 1) || (target.kind === 'handle' && !displayName.trim())}
+        disabled={!title.trim() || (!isSelfBounty && parseFloat(amount) < 1) || (!isSelfBounty && (parseInt(expiryValue, 10) < 1 || parseInt(expiryValue, 10) > 999 || isNaN(parseInt(expiryValue, 10)))) || (target.kind === 'handle' && !displayName.trim())}
         onClick={handleNext}
       >
         Review →
@@ -518,7 +528,7 @@ interface Step3Props {
 }
 
 function Step3({ target, isSelfBounty, title, description, amount, displayName, expiryValue, expiryUnit, onBack, onSubmit, submitting, error }: Step3Props) {
-  const UNIT_LABELS: Record<string, string> = { day: 'day(s)', week: 'week(s)', month: 'month(s)', year: 'year(s)' };
+  const UNIT_LABELS: Record<string, string> = { minute: 'minute(s)', hour: 'hour(s)', day: 'day(s)', week: 'week(s)', month: 'month(s)', year: 'year(s)' };
   return (
     <div className="space-y-5">
       <div>
