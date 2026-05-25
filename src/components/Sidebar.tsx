@@ -17,7 +17,7 @@ interface NavItem {
 
 function NavSection({ title }: { title: string }) {
   return (
-    <div className="px-5 pt-5 pb-1.5 font-mono text-[10px] tracking-[1.5px] uppercase text-muted/60">
+    <div className="px-5 pt-4 pb-1 font-mono text-[10px] tracking-[1.5px] uppercase text-muted/60">
       {title}
     </div>
   );
@@ -28,13 +28,13 @@ function NavItem({ item, active }: { item: NavItem; active: boolean }) {
   return (
     <Link
       href={item.href}
-      className={`flex items-center gap-2.5 px-5 py-[7px] text-sm border-l-[3px] transition-colors ${
+      className={`flex items-center gap-2.5 px-5 py-[5px] text-sm border-l-[3px] transition-colors ${
         active
           ? 'ap-nav-active bg-surface-2 text-foreground border-l-[var(--color-role)]'
           : 'border-l-transparent text-muted hover:bg-surface hover:text-foreground'
       }`}
     >
-      <span className={`ap-nav-ic w-9 h-9 flex items-center justify-center text-2xl ${active ? '' : 'text-muted/60'}`}>
+      <span className={`ap-nav-ic w-7 h-7 flex items-center justify-center text-xl ${active ? '' : 'text-muted/60'}`}>
         {item.icon}
       </span>
       <span className="flex-1">{item.label}</span>
