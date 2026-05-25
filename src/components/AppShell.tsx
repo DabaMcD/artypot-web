@@ -25,7 +25,7 @@ function isAuthRoute(pathname: string) {
 }
 
 function inferRole(pathname: string, mode: string): 'fan' | 'creator' | 'council' {
-  if (pathname.startsWith('/admin') || pathname.startsWith('/overlord')) return 'council';
+  if (pathname.startsWith('/admin') || pathname.startsWith('/obelisk')) return 'council';
   if (pathname.startsWith('/creator')) return 'creator';
   // Bounty detail pages: inherit stored mode so a creator navigating from /creator/*
   // keeps the creator sidebar when viewing their own bounty. All other non-creator

@@ -137,7 +137,7 @@ export default function OverlordLogsPage() {
           <p className="text-muted text-sm mt-1">
             {meta ? `${meta.total.toLocaleString()} entries` : '—'}
             {' · '}
-            <Link href="/overlord" className="hover:underline text-muted">← Overlord</Link>
+            <Link href="/obelisk" className="hover:underline text-muted">← Overlord</Link>
           </p>
         </div>
       </div>
