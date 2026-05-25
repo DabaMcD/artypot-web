@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 
 interface ShareButtonProps {
@@ -86,6 +86,7 @@ export default function ShareButton({
   size = 'sm',
 }: ShareButtonProps) {
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   // Close when clicking outside the dropdown
@@ -106,6 +107,25 @@ export default function ShareButton({
     }
     return `https://artypot.com${path}`;
   };
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(getUrl());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback for browsers without clipboard API
+      const el = document.createElement('input');
+      el.value = getUrl();
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+    setOpen(false);
+  }, [path]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePlatform = (platform: 'twitter' | 'facebook' | 'whatsapp' | 'email') => {
     const url = getUrl();
@@ -142,23 +162,45 @@ export default function ShareButton({
         onClick={() => setOpen((o) => !o)}
         aria-label="Share"
         className={`inline-flex items-center justify-center rounded-lg border transition-colors ${sizeClasses} ${
-          open
-            ? 'border-foreground/30 text-foreground bg-white/5'
-            : 'border-border text-muted hover:text-foreground hover:border-foreground/30'
+          copied
+            ? 'border-good/50 text-good bg-good/10'
+            : open
+              ? 'border-foreground/30 text-foreground bg-white/5'
+              : 'border-border text-muted hover:text-foreground hover:border-foreground/30'
         }`}
       >
-        <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-          />
-        </svg>
+        {copied ? (
+          <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} aria-hidden>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        ) : (
+          <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+            />
+          </svg>
+        )}
       </button>
 
       {open && (
-        <div className="absolute top-full mt-1.5 right-0 bg-surface-2 border border-border rounded-xl shadow-xl p-1.5 z-30 flex flex-col min-w-[152px]">
+        <div className="absolute top-full mt-1.5 right-0 bg-surface-2 border border-border rounded-xl shadow-xl p-1.5 z-30 flex flex-col min-w-[160px]">
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted hover:text-foreground hover:bg-white/5 transition-colors w-full text-left"
+          >
+            <span className="text-muted">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+                <rect width="13" height="13" x="9" y="9" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+            </span>
+            Copy link
+          </button>
+          <div className="my-1 border-t border-border/50" />
           <PlatformRow
             label="Twitter / X"
             icon={<TwitterIcon />}
