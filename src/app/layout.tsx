@@ -32,7 +32,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Artypot — Fund the work. Then it gets made.',
+  title: 'Artypot — Tell the world what you want.',
   description:
     'Artypot is a crowdfund-commissioning platform where communities pool money into bounties that pay out directly to creators once they complete a specified public creative work.',
   icons: {
