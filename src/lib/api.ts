@@ -738,6 +738,30 @@ export const logs = {
     }),
 };
 
+// Overlord — sitewide metrics
+export const metrics = {
+  get: () =>
+    request<{
+      data: {
+        total_bounties:              number;
+        avg_bounty_amount:           number;
+        stddev_bounty_amount:        number;
+        total_pledged_amount:        number;
+        total_hard_pledges:          number;
+        avg_hard_pledge_amount:      number;
+        total_soft_pledges:          number;
+        avg_soft_pledge_amount:      number;
+        total_users:                 number;
+        total_creators:              number;
+        total_paid_by_fans:          number;
+        total_paid_out_to_creators:  number;
+        total_unpaid_to_creators:    number;
+        total_comments:              number;
+        reply_percentage:            number;
+      };
+    }>('/overlord/metrics'),
+};
+
 // Overlord — grant/revoke Council by email
 export const overlord = {
   listCouncil: () =>
