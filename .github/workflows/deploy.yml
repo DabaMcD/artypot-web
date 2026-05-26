@@ -25,5 +25,6 @@ jobs:
             git reset --hard origin/main
             npm ci
             npm run build
-            pm2 restart artypot-web || pm2 start npm --name artypot-web -- start
+            pm2 reload artypot-web --update-env || pm2 start npm --name artypot-web -- start
+            pm2 save
             echo "Deploy complete."
