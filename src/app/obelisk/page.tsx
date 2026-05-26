@@ -6,6 +6,7 @@ import { overlord as overlordApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import type { CouncilMember } from '@/lib/types';
+import Link from 'next/link';
 
 export default function OverlordPage() {
   const router = useRouter();
@@ -125,6 +126,10 @@ export default function OverlordPage() {
             Grant or revoke{' '}
             <span className="font-semibold" style={{ color: '#8A2BE2' }}>Council</span>
             {' '}permissions by email address.
+            {' · '}
+            <Link href="/obelisk/logs" className="hover:underline">Logs</Link>
+            {' · '}
+            <Link href="/obelisk/metrics" className="hover:underline">Metrics</Link>
           </p>
         </div>
 
