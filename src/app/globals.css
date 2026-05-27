@@ -272,8 +272,8 @@ body {
 
    .hash-highlighted: added/removed by HashHighlight.tsx (JS-driven — the CSS
    :target pseudo-class is unreliable with Next.js SPA pushState navigation).
-   Structure in settings pages is <div id="..."><Card>, so the class is placed
-   on the first child div (the rendered Card) by the component.
+   Applied to the <div id="..."> wrapper itself (stable across re-renders),
+   not its inner Card child.
 ──────────────────────────────────────────────────────────────────────────── */
 
 [id] {
@@ -295,5 +295,5 @@ body {
 
 .hash-highlighted {
   animation: hash-highlight 2.5s ease-out forwards;
-  border-radius: 0.75rem; /* matches Tailwind rounded-xl used by Card */
+  border-radius: 0.375rem; /* matches Tailwind rounded-xl used by Card */
 }
