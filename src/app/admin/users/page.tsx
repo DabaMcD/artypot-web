@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { admin as adminApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { useToast } from '@/lib/toast-context';
 import type { AdminUser, UserRole } from '@/lib/types';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
-import { Input } from '@/components/ui/Input';
+import { Input, FieldLabel } from '@/components/ui/Input';
 import { Empty } from '@/components/ui/Empty';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -26,7 +27,51 @@ function RoleBadge({ role }: { role: UserRole }) {
 
 // ── User detail modal ─────────────────────────────────────────────────────────
 
-function UserModal({ user, onClose }: { user: AdminUser; onClose: () => void }) {
+function UserModal({
+  user,
+  onClose,
+  onDeleted,
+}: {
+  user: AdminUser;
+  onClose: () => void;
+  onDeleted: (id: number) => void;
+}) {
+  const { toast } = useToast();
+  const { user: actor } = useAuth();
+
+  // Two-step delete: arming reveals the typed-confirmation block.
+  const [armed, setArmed]               = useState(false);
+  const [confirmName, setConfirmName]   = useState('');
+  const [deleting, setDeleting]         = useState(false);
+  const [deleteError, setDeleteError]   = useState<string | null>(null);
+
+  // Already soft-deleted? Hide the delete block entirely.
+  const alreadyDeleted = !!user.deleted_at;
+
+  // Backend restricts destructive action to the overlord; mirror that here so
+  // non-overlord council members don't see a button they can't use. `is_overlord`
+  // comes from /me (set by User::isOverlord() on the backend) — single source of truth.
+  const isOverlord = !!actor?.is_overlord;
+
+  const nameMatches = confirmName.trim() === (user.display_name ?? '').trim()
+    && confirmName.trim().length > 0;
+
+  const handleDelete = async () => {
+    if (!nameMatches || deleting) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await adminApi.deleteUser(user.id);
+      toast(`Deleted ${user.display_name}.`, 'success');
+      onDeleted(user.id);
+      onClose();
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      setDeleteError(e.message ?? 'Failed to delete user.');
+      setDeleting(false);
+    }
+  };
+
   return (
     <Modal title={user.display_name} onClose={onClose} lg>
       {/* Email */}
@@ -86,6 +131,69 @@ function UserModal({ user, onClose }: { user: AdminUser; onClose: () => void }) 
         </Card>
       ) : (
         <Empty message="No creator profile." />
+      )}
+
+      {/* ── Danger zone — overlord-only user deletion ─────────────────────── */}
+      {!alreadyDeleted && isOverlord && (
+        <div className="mt-6 pt-5 border-t border-dashed border-bad/40">
+          <SectionLabel className="text-bad mb-2">Danger zone</SectionLabel>
+
+          {!armed ? (
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-xs text-muted leading-snug">
+                Permanently scrub this user&apos;s PII, cancel pledges, revoke tokens, and soft-delete.
+              </p>
+              <Button
+                variant="default"
+                size="sm"
+                className="!border-bad !text-bad hover:!bg-bad-soft shrink-0"
+                onClick={() => { setArmed(true); setDeleteError(null); }}
+              >
+                Delete user
+              </Button>
+            </div>
+          ) : (
+            <div className="bg-bad-soft border border-bad/50 rounded p-4 space-y-3">
+              <p className="text-sm text-foreground leading-snug">
+                Type <span className="font-mono font-bold text-bad">{user.display_name}</span> to
+                confirm. This action is irreversible.
+              </p>
+              <div>
+                <FieldLabel>confirm display name</FieldLabel>
+                <Input
+                  type="text"
+                  value={confirmName}
+                  onChange={(e) => setConfirmName(e.target.value)}
+                  placeholder={user.display_name ?? ''}
+                  autoFocus
+                  disabled={deleting}
+                />
+              </div>
+              {deleteError && (
+                <div className="text-xs text-bad font-mono">{deleteError}</div>
+              )}
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={deleting}
+                  onClick={() => { setArmed(false); setConfirmName(''); setDeleteError(null); }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="!bg-bad hover:!bg-bad/90 !text-white"
+                  disabled={!nameMatches || deleting}
+                  onClick={handleDelete}
+                >
+                  {deleting ? 'Deleting…' : 'Permanently delete'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       )}
     </Modal>
   );
@@ -170,7 +278,13 @@ export default function AdminUsersPage() {
 
   return (
     <>
-      {selected && <UserModal user={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <UserModal
+          user={selected}
+          onClose={() => setSelected(null)}
+          onDeleted={() => fetchUsers(search, filter, page)}
+        />
+      )}
 
       <div className="space-y-6 pt-2 max-w-3xl">
         {/* Header */}

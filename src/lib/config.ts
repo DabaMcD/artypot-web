@@ -5,6 +5,15 @@ export const BILLING_GRACE_PERIOD_DAYS = Number(process.env.NEXT_PUBLIC_BILLING_
 export const PLATFORM_FEE_PCT = Number(process.env.NEXT_PUBLIC_PLATFORM_FEE_PCT ?? 20);
 
 /**
+ * When true, the login/register pages expose a phone-number signup option
+ * alongside email. While we iron out the phone-only signup UX (beta), keep
+ * this off so users only see the email path.
+ *
+ * Default OFF — set NEXT_PUBLIC_PHONE_SIGNUP_ENABLED=true to opt in.
+ */
+export const PHONE_SIGNUP_ENABLED = process.env.NEXT_PUBLIC_PHONE_SIGNUP_ENABLED === 'true';
+
+/**
  * When true, all day-based intervals are compressed to minutes for local testing.
  * Set via env NEXT_PUBLIC_WARP_SPEED=true. NEVER enable in production.
  */

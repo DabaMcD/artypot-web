@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { auth as authApi, phone as phoneApi } from '@/lib/api';
+import { PHONE_SIGNUP_ENABLED } from '@/lib/config';
 import { Button } from '@/components/ui/Button';
 import { Input, FieldLabel, FieldGrid2 } from '@/components/ui/Input';
 import { Toggle } from '@/components/ui/Toggle';
@@ -325,31 +326,33 @@ export default function RegisterPage() {
               <div className="flex-1 h-px bg-border" />
             </div>
 
-            {/* Email / Phone toggle */}
-            <div className="flex rounded-lg border border-border overflow-hidden mb-5 text-xs font-mono">
-              <button
-                type="button"
-                onClick={() => switchMode('email')}
-                className={`flex-1 py-2 transition-colors ${
-                  mode === 'email'
-                    ? 'bg-surface-2 text-foreground'
-                    : 'text-muted hover:text-foreground'
-                }`}
-              >
-                email
-              </button>
-              <button
-                type="button"
-                onClick={() => switchMode('phone')}
-                className={`flex-1 py-2 border-l border-border transition-colors ${
-                  mode === 'phone'
-                    ? 'bg-surface-2 text-foreground'
-                    : 'text-muted hover:text-foreground'
-                }`}
-              >
-                phone
-              </button>
-            </div>
+            {/* Email / Phone toggle — hidden while phone-only signup is in beta */}
+            {PHONE_SIGNUP_ENABLED && (
+              <div className="flex rounded-lg border border-border overflow-hidden mb-5 text-xs font-mono">
+                <button
+                  type="button"
+                  onClick={() => switchMode('email')}
+                  className={`flex-1 py-2 transition-colors ${
+                    mode === 'email'
+                      ? 'bg-surface-2 text-foreground'
+                      : 'text-muted hover:text-foreground'
+                  }`}
+                >
+                  email
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchMode('phone')}
+                  className={`flex-1 py-2 border-l border-border transition-colors ${
+                    mode === 'phone'
+                      ? 'bg-surface-2 text-foreground'
+                      : 'text-muted hover:text-foreground'
+                  }`}
+                >
+                  phone
+                </button>
+              </div>
+            )}
 
             {error && (
               <div className="bg-bad-soft border border-bad text-bad text-sm rounded px-4 py-3 mb-4">

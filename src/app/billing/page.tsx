@@ -11,9 +11,7 @@ import Link from 'next/link';
 import { BILLING_DAY, nextBillingInfo, WARP_SPEED, PLATFORM_FEE_PCT } from '@/lib/config';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
 import { ConfirmPaymentModal } from '@/components/ConfirmPaymentModal';
-import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
-import { Banner } from '@/components/ui/Banner';
 import { Timeline } from '@/components/ui/Timeline';
 
 export default function BillingPage() {
@@ -126,83 +124,59 @@ export default function BillingPage() {
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">upcoming charge</h1>
       </div>
 
-      {/* Outstanding balance */}
+      {/* What will be charged */}
       {!balanceLoading && hasOutstandingBalance && (
-        <Banner tone="warn">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div>
-              <div className="font-bold text-foreground">
-                ${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} outstanding
-              </div>
-              <div className="text-sm text-muted mt-0.5">
-                Charged automatically on the {BILLING_DAY}th — pay now to avoid the batch.
-              </div>
+        <Card>
+          <div className="flex items-baseline justify-between gap-4 mb-1">
+            <SectionLabel>what will be charged</SectionLabel>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+              {chargeDate} · 09:00 UTC
             </div>
-            <Button variant="primary" disabled={paying} onClick={handlePayNow}>
-              {paying ? 'Processing…' : `Pay $${outstandingAmount.toFixed(2)} Now`}
-            </Button>
           </div>
-        </Banner>
-      )}
-
-      {/* Per-bounty breakdown */}
-      {!balanceLoading && hasOutstandingBalance && lockedPledges.length > 0 && (
-        <Card>
-          <SectionLabel className="mb-4">what will be charged</SectionLabel>
-          <table className="w-full font-mono text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">Bounty</th>
-                <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">State</th>
-                <th className="pb-2 text-right text-[10px] uppercase tracking-widest text-muted font-normal">Your Pledge</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {lockedPledges.map((pledge) => (
-                <tr key={pledge.id}>
-                  <td className="py-3 pr-4">
-                    <Link href={`/bounties/${pledge.bounty_id}`} className="text-fan hover:underline line-clamp-2 leading-snug">
-                      {pledge.bounty?.title ?? `Bounty #${pledge.bounty_id}`}
-                    </Link>
-                  </td>
-                  <td className="py-3 pr-4">
-                    <BountyStatusBadge status={pledge.bounty?.status ?? 'completed'} />
-                  </td>
-                  <td className="py-3 text-right tabular-nums">${Number(pledge.amount).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      )}
-
-      {/* Charge breakdown */}
-      {!balanceLoading && hasOutstandingBalance && (
-        <Card>
-          <SectionLabel className="mb-4">charge breakdown</SectionLabel>
-          <table className="w-full font-mono text-sm">
-            <tbody>
-              <tr>
-                <td className="py-1.5 text-muted">approved pledges</td>
-                <td className="py-1.5 text-right tabular-nums">${outstandingAmount.toFixed(2)}</td>
-              </tr>
-              <tr className="border-t border-border">
-                <td className="py-1.5 font-bold text-foreground">total charged to card</td>
-                <td className="py-1.5 text-right font-bold tabular-nums">${outstandingAmount.toFixed(2)}</td>
-              </tr>
-              <tr>
-                <td className="py-1 text-[11px] text-muted">− platform fee ({PLATFORM_FEE_PCT}%)</td>
-                <td className="py-1 text-right text-[11px] text-muted tabular-nums">−${(outstandingAmount * PLATFORM_FEE_PCT / 100).toFixed(2)}</td>
-              </tr>
-              <tr className="border-t border-border">
-                <td className="py-1.5 text-creator font-bold">creators receive</td>
-                <td className="py-1.5 text-right text-creator font-bold tabular-nums">${(outstandingAmount * (1 - PLATFORM_FEE_PCT / 100)).toFixed(2)}</td>
-              </tr>
-            </tbody>
-          </table>
-          <p className="text-xs text-muted mt-3 pt-3 border-t border-dashed border-border">
-            The {PLATFORM_FEE_PCT}% platform fee covers all transaction costs. You are always charged your exact committed amount.
+          <p className="text-sm text-muted mb-4">
+            ${outstandingAmount.toFixed(2)} will be charged automatically on {chargeDate}. No action needed.
           </p>
+
+          {lockedPledges.length > 0 && (
+            <table className="w-full font-mono text-sm">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">Bounty</th>
+                  <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">State</th>
+                  <th className="pb-2 text-right text-[10px] uppercase tracking-widest text-muted font-normal">Your Pledge</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {lockedPledges.map((pledge) => (
+                  <tr key={pledge.id}>
+                    <td className="py-3 pr-4">
+                      <Link href={`/bounties/${pledge.bounty_id}`} className="text-fan hover:underline line-clamp-2 leading-snug">
+                        {pledge.bounty?.title ?? `Bounty #${pledge.bounty_id}`}
+                      </Link>
+                    </td>
+                    <td className="py-3 pr-4">
+                      <BountyStatusBadge status={pledge.bounty?.status ?? 'completed'} />
+                    </td>
+                    <td className="py-3 text-right tabular-nums">${Number(pledge.amount).toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          <div className="mt-4 pt-4 border-t border-dashed border-border flex items-center justify-between gap-3">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
+              prefer to clear now?
+            </span>
+            <button
+              type="button"
+              onClick={handlePayNow}
+              disabled={paying}
+              className="font-mono text-[11px] text-fan hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer"
+            >
+              {paying ? 'processing…' : `settle $${outstandingAmount.toFixed(2)} now →`}
+            </button>
+          </div>
         </Card>
       )}
 
