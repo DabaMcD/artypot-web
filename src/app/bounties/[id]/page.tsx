@@ -60,6 +60,22 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const [pledgeAmount, setPledgeAmount] = useState('');
   const [expireValue, setExpireValue] = useState('7');
   const [expireUnit, setExpireUnit] = useState<ExpireUnit>('years');
+
+  // Sync expiry defaults from the user's saved preference. The user-level
+  // preference stores singular units (e.g. 'month'); this page uses plural
+  // (e.g. 'months'). We normalize on read.
+  useEffect(() => {
+    if (!user) return;
+    if (user.default_expiry_value != null) {
+      setExpireValue(String(user.default_expiry_value));
+    }
+    if (user.default_expiry_unit) {
+      const u = user.default_expiry_unit;
+      const plural = (u.endsWith('s') ? u : `${u}s`) as ExpireUnit;
+      const allowed: ExpireUnit[] = ['years', 'months', 'weeks', 'days', 'hours', 'minutes'];
+      if (allowed.includes(plural)) setExpireUnit(plural);
+    }
+  }, [user]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [pledgeLoading, setPledgeLoading] = useState(false);
   const [pledgeError, setPledgeError] = useState<React.ReactNode | null>(null);
