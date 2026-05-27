@@ -4,7 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
-import { billing } from '@/lib/api';
+import { billing, pledges as pledgesApi } from '@/lib/api';
+import type { PublicUserPledge } from '@/lib/types';
+import { BountyStatusBadge } from '@/components/BountyStatusBadge';
+import Link from 'next/link';
 import { BILLING_DAY, nextBillingInfo, WARP_SPEED, PLATFORM_FEE_PCT } from '@/lib/config';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
 import { ConfirmPaymentModal } from '@/components/ConfirmPaymentModal';
@@ -20,6 +23,7 @@ export default function BillingPage() {
 
   const [balance, setBalance] = useState<number | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
+  const [lockedPledges, setLockedPledges] = useState<PublicUserPledge[]>([]);
   const [paying, setPaying] = useState(false);
   // 3DS / SCA modal — opens when payNow returns requires_action OR when the
   // PaymentAuthBanner triggers a deep link. We keep modal state local to the
@@ -32,9 +36,14 @@ export default function BillingPage() {
 
   useEffect(() => {
     if (!user) return;
-    billing
-      .cash()
-      .then((res) => setBalance(res.balance))
+    Promise.all([
+      billing.cash(),
+      pledgesApi.list({ bounty_status: 'completed', per_page: 100, sort: 'amount' }),
+    ])
+      .then(([cashRes, pledgeRes]) => {
+        setBalance(cashRes.balance);
+        setLockedPledges(pledgeRes.data);
+      })
       .catch(() => setBalance(null))
       .finally(() => setBalanceLoading(false));
   }, [user]);
@@ -134,6 +143,37 @@ export default function BillingPage() {
             </Button>
           </div>
         </Banner>
+      )}
+
+      {/* Per-bounty breakdown */}
+      {!balanceLoading && hasOutstandingBalance && lockedPledges.length > 0 && (
+        <Card>
+          <SectionLabel className="mb-4">what will be charged</SectionLabel>
+          <table className="w-full font-mono text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">Bounty</th>
+                <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">State</th>
+                <th className="pb-2 text-right text-[10px] uppercase tracking-widest text-muted font-normal">Your Pledge</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {lockedPledges.map((pledge) => (
+                <tr key={pledge.id}>
+                  <td className="py-3 pr-4">
+                    <Link href={`/bounties/${pledge.bounty_id}`} className="text-fan hover:underline line-clamp-2 leading-snug">
+                      {pledge.bounty?.title ?? `Bounty #${pledge.bounty_id}`}
+                    </Link>
+                  </td>
+                  <td className="py-3 pr-4">
+                    <BountyStatusBadge status={pledge.bounty?.status ?? 'completed'} />
+                  </td>
+                  <td className="py-3 text-right tabular-nums">${Number(pledge.amount).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
       )}
 
       {/* Charge breakdown */}

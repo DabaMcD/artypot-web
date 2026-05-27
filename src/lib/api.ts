@@ -473,7 +473,7 @@ export const featuredBounties = {
 
 // Pledges (authenticated user's own)
 export const pledges = {
-  list: (params?: { sort?: 'date' | 'amount'; page?: number }) => {
+  list: (params?: { sort?: 'date' | 'amount'; page?: number; bounty_status?: string; per_page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
