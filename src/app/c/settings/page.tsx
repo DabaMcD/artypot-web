@@ -146,8 +146,8 @@ export default function CreatorSettingsPage() {
         state_code: (countryCode && subdivisions(countryCode)) ? (stateCode || null) : null,
       });
       await refreshUser();
-      toast('Location saved.', 'success');
-    } catch { toast('Failed to save location.', 'error'); }
+      toast('Tax residence saved.', 'success');
+    } catch { toast('Failed to save tax residence.', 'error'); }
     finally { setLocationSaving(false); }
   };
 
@@ -296,11 +296,15 @@ export default function CreatorSettingsPage() {
         </div>
       </Card>
 
-      {/* Location of residence */}
+      {/* Tax residence */}
       <div id="location">
       <Card>
-        <SectionLabel className="mb-3">location of residence</SectionLabel>
-        <p className="text-sm text-muted mb-4">Required for tax and earnings reporting.</p>
+        <SectionLabel className="mb-3">tax residence</SectionLabel>
+        <p className="text-sm text-muted mb-4">
+          The country (and state, where applicable) where you pay tax on your Artypot earnings.
+          We use this to generate the right tax forms — 1099-NEC for US creators, 1042-S for non-US.
+          Changes are logged for compliance.
+        </p>
         <form onSubmit={handleSaveLocation} className="space-y-3">
           <div>
             <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">country</label>
@@ -339,7 +343,7 @@ export default function CreatorSettingsPage() {
             size="sm"
             disabled={locationSaving || !countryCode || (!!subdivisions(countryCode) && !stateCode)}
           >
-            {locationSaving ? 'Saving…' : 'Save Location'}
+            {locationSaving ? 'Saving…' : 'Save Tax Residence'}
           </Button>
         </form>
       </Card>
