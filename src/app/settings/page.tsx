@@ -535,7 +535,7 @@ export default function SettingsPage() {
                 <SectionLabel className="mb-1">profile picture</SectionLabel>
                 <p className="text-sm text-muted">Manage your creator profile picture.</p>
               </div>
-              <Link href="/creator/settings#picture"><Button variant="default" size="sm">Creator Settings →</Button></Link>
+              <Link href="/c/settings#picture"><Button variant="default" size="sm">Creator Settings →</Button></Link>
             </div>
           </Card>
         ) : (
@@ -590,7 +590,7 @@ export default function SettingsPage() {
                 <SectionLabel className="mb-1">display name</SectionLabel>
                 <p className="text-sm text-muted">Update your public name in creator settings.</p>
               </div>
-              <Link href="/creator/settings#display-name"><Button variant="default" size="sm">Creator Settings →</Button></Link>
+              <Link href="/c/settings#display-name"><Button variant="default" size="sm">Creator Settings →</Button></Link>
             </div>
           </Card>
         ) : (
@@ -795,7 +795,7 @@ export default function SettingsPage() {
               {/* Reset to defaults + creator cross-link */}
               <div className="mt-4 pt-3 border-border flex items-center justify-between gap-4">
                 {user.role === 'creator' ? (
-                  <Link href="/creator/settings#notifications" className="text-xs font-mono text-muted hover:text-foreground transition-colors">
+                  <Link href="/c/settings#notifications" className="text-xs font-mono text-muted hover:text-foreground transition-colors">
                     go to creator-related notifications →
                   </Link>
                 ) : (
@@ -837,7 +837,7 @@ export default function SettingsPage() {
                   <SectionLabel className="mb-1">location of residence</SectionLabel>
                   <p className="text-sm text-muted">Required for creator earnings reporting.</p>
                 </div>
-                <Link href="/creator/settings#location"><Button variant="default" size="sm">Creator Settings →</Button></Link>
+                <Link href="/c/settings#location"><Button variant="default" size="sm">Creator Settings →</Button></Link>
               </div>
             </Card>
           </div>
@@ -893,7 +893,7 @@ export default function SettingsPage() {
           </div>
         )}
 
-        {/* Handles — moved to /creator/handles for creators */}
+        {/* Handles — moved to /c/handles for creators */}
         {user.role === 'creator' && (
           <div id="handles">
             <Card>
@@ -902,7 +902,7 @@ export default function SettingsPage() {
                   <SectionLabel className="mb-1">handles</SectionLabel>
                   <p className="text-sm text-muted">Manage your verified social handles.</p>
                 </div>
-                <Link href="/creator/handles"><Button variant="default" size="sm">Manage Handles →</Button></Link>
+                <Link href="/c/handles"><Button variant="default" size="sm">Manage Handles →</Button></Link>
               </div>
             </Card>
           </div>

@@ -292,7 +292,7 @@ export default function CreatorSettingsPage() {
             <SectionLabel className="mb-1">handles</SectionLabel>
             <p className="text-sm text-muted">Manage your verified social accounts.</p>
           </div>
-          <Link href="/creator/handles"><Button variant="default" size="sm">Manage Handles →</Button></Link>
+          <Link href="/c/handles"><Button variant="default" size="sm">Manage Handles →</Button></Link>
         </div>
       </Card>
 

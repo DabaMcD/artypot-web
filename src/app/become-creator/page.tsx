@@ -260,7 +260,7 @@ export default function BecomeCreatorPage() {
 
   const handleActivated = useCallback(async () => {
     await refreshUser();
-    router.push('/creator');
+    router.push('/c');
   }, [refreshUser, router]);
 
   if (authLoading) return null;
@@ -286,7 +286,7 @@ export default function BecomeCreatorPage() {
           <p className="text-sm text-muted mb-4">
             Your creator account is active. Head to your creator dashboard to manage bounties, track earnings, and more.
           </p>
-          <Link href="/creator">
+          <Link href="/c">
             <Button variant="primary">Go to Dashboard →</Button>
           </Link>
         </Card>

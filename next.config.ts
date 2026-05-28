@@ -15,6 +15,14 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      // Legacy /creator/* URLs (old bookmarks, indexed pages, dispatched emails)
+      // permanently redirect to the shorter /c/* base.
+      { source: '/creator', destination: '/c', permanent: true },
+      { source: '/creator/:path*', destination: '/c/:path*', permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
