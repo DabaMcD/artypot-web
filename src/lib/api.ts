@@ -947,7 +947,33 @@ export const admin = {
     request<PaginatedResponse<ComplianceSanction>>(`/admin/compliance/sanctions/pending?page=${page}`),
 
   approveSanction: (id: number) =>
-    request<{ message: string }>(`/admin/compliance/sanctions/${id}/approve`, { method: 'POST' }),
+    request<{ message: string; sanction: ComplianceSanction; alerts_sent: number }>(`/admin/compliance/sanctions/${id}/approve`, { method: 'POST' }),
+
+  proposeSanction: (body: {
+    country_code: string;
+    subdivision_code?: string | null;
+    program_name: string;
+    severity: 'comprehensive_block' | 'sectoral' | 'list_based' | 'advisory';
+    applies_to: 'all_residents' | 'specific_entities' | 'specific_sectors';
+    source: string;
+    source_url?: string | null;
+    effective_date: string;
+    sunset_date?: string | null;
+    notes?: string | null;
+  }) =>
+    request<{
+      message: string;
+      sanction: ComplianceSanction;
+      impact: { affected_user_count: number; sample_user_ids: number[]; owned_open_bounties: number; backed_open_bounties: number };
+    }>('/admin/compliance/sanctions', { method: 'POST', body: JSON.stringify(body) }),
+
+  complianceDryRun: (body: { country_code: string; subdivision_code?: string | null; severity?: string }) =>
+    request<{
+      affected_user_count: number;
+      sample_user_ids: number[];
+      owned_open_bounties: number;
+      backed_open_bounties: number;
+    }>('/admin/compliance/dry-run', { method: 'POST', body: JSON.stringify(body) }),
 
   rejectSanction: (id: number, notes?: string) =>
     request<{ message: string }>(`/admin/compliance/sanctions/${id}/reject`, {
