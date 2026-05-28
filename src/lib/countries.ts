@@ -255,6 +255,39 @@ export const AU_STATES: Subdivision[] = [
   { code: 'VIC', name: 'Victoria' }, { code: 'WA', name: 'Western Australia' },
 ];
 
+// ISO 3166-2:UA oblast/region codes (suffix only — full code is "UA-{code}").
+// Required for OFAC sanctions screening: Crimea (43), Sevastopol (40), Donetsk (14),
+// Luhansk (09), Zaporizhzhia (23), and Kherson (65) are under comprehensive block.
+export const UA_OBLASTS: Subdivision[] = [
+  { code: '71', name: 'Cherkasy Oblast' },
+  { code: '74', name: 'Chernihiv Oblast' },
+  { code: '77', name: 'Chernivtsi Oblast' },
+  { code: '12', name: 'Dnipropetrovsk Oblast' },
+  { code: '14', name: 'Donetsk Oblast' },
+  { code: '26', name: 'Ivano-Frankivsk Oblast' },
+  { code: '63', name: 'Kharkiv Oblast' },
+  { code: '65', name: 'Kherson Oblast' },
+  { code: '68', name: 'Khmelnytskyi Oblast' },
+  { code: '32', name: 'Kyiv Oblast' },
+  { code: '30', name: 'Kyiv (city)' },
+  { code: '35', name: 'Kirovohrad Oblast' },
+  { code: '09', name: 'Luhansk Oblast' },
+  { code: '46', name: 'Lviv Oblast' },
+  { code: '48', name: 'Mykolaiv Oblast' },
+  { code: '51', name: 'Odesa Oblast' },
+  { code: '53', name: 'Poltava Oblast' },
+  { code: '56', name: 'Rivne Oblast' },
+  { code: '43', name: 'Crimea (Autonomous Republic)' },
+  { code: '40', name: 'Sevastopol (city)' },
+  { code: '59', name: 'Sumy Oblast' },
+  { code: '61', name: 'Ternopil Oblast' },
+  { code: '05', name: 'Vinnytsia Oblast' },
+  { code: '07', name: 'Volyn Oblast' },
+  { code: '23', name: 'Zaporizhzhia Oblast' },
+  { code: '21', name: 'Zakarpattia Oblast' },
+  { code: '18', name: 'Zhytomyr Oblast' },
+];
+
 /**
  * Returns the subdivision list for a country code (US states, CA provinces, AU states),
  * or null if no subdivision selector is needed for that country.
@@ -263,6 +296,7 @@ export function subdivisions(code: string | null | undefined): Subdivision[] | n
   if (code === 'US') return US_STATES;
   if (code === 'CA') return CA_PROVINCES;
   if (code === 'AU') return AU_STATES;
+  if (code === 'UA') return UA_OBLASTS;
   return null;
 }
 
@@ -271,5 +305,6 @@ export function subdivisionLabel(code: string | null | undefined): string {
   if (code === 'US') return 'State';
   if (code === 'CA') return 'Province / Territory';
   if (code === 'AU') return 'State / Territory';
+  if (code === 'UA') return 'Oblast / Region';
   return 'State / Region';
 }

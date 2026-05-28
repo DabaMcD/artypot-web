@@ -283,8 +283,14 @@ export default function SanctionsPage() {
   const handleApprove = async (sanction: ComplianceSanction) => {
     setApprovingId(sanction.id);
     try {
-      await adminApi.approveSanction(sanction.id);
-      toast('Sanction approved.', 'success');
+      const res = await adminApi.approveSanction(sanction.id);
+      const alerted = res.alerts_sent ?? 0;
+      toast(
+        alerted > 0
+          ? `Sanction approved. ${alerted} admin alert${alerted === 1 ? '' : 's'} queued for affected creator${alerted === 1 ? '' : 's'}.`
+          : 'Sanction approved. No existing creators matched.',
+        'success',
+      );
       fetchPending(pendingPage);
     } catch (err: unknown) {
       const e = err as { message?: string };
@@ -335,7 +341,12 @@ export default function SanctionsPage() {
               {tab === 'pending' ? `${pendingTotal} pending review` : `${allTotal} total`}
             </p>
           </div>
-          <Link href="/admin/compliance"><Button variant="ghost" size="sm">← Compliance</Button></Link>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link href="/admin/compliance/sanctions/new">
+              <Button variant="primary" size="sm">+ Propose new</Button>
+            </Link>
+            <Link href="/admin/compliance"><Button variant="ghost" size="sm">← Compliance</Button></Link>
+          </div>
         </div>
 
         {/* Tabs */}
