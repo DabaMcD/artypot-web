@@ -85,7 +85,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
     { sec: 'discover' },
     { id: 'fan-home',     label: 'My contributions',   icon: '◐', href: '/dashboard' },
     { id: 'fan-create',   label: 'Start a bounty',     icon: '+', href: '/bounties/new' },
-    { id: 'fan-search',   label: 'Search creators',    icon: '⌕', href: '/cs' },
+    { id: 'fan-search',   label: 'Search creators',    icon: '⌕', href: '/creators' },
     { sec: 'money' },
     { id: 'fan-billing',  label: 'Upcoming charge',    icon: '$', href: '/billing' },
     { id: 'fan-history',  label: 'History & receipts', icon: '⌗', href: '/pledges' },
@@ -96,27 +96,27 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
 
   const creatorItems: NavItem[] = [
     { sec: 'overview' },
-    { id: 'creator-dashboard',  label: 'Dashboard',          icon: '◐', href: '/c' },
-    { id: 'creator-onboarding', label: 'Setup',              icon: '◔', href: '/c/setup' },
+    { id: 'creator-dashboard',  label: 'Dashboard',          icon: '◐', href: '/creator' },
+    { id: 'creator-onboarding', label: 'Setup',              icon: '◔', href: '/creator/setup' },
     { sec: 'work' },
-    { id: 'creator-bounties',   label: 'Active bounties',    icon: '◇', href: '/c/bounties' },
-    { id: 'creator-queue',      label: 'Queued for me',      icon: '⌗', href: '/c/queue' },
-    { id: 'creator-mine',       label: 'My own bounties',    icon: '★', href: '/c/my-bounties' },
+    { id: 'creator-bounties',   label: 'Active bounties',    icon: '◇', href: '/creator/bounties' },
+    { id: 'creator-queue',      label: 'Queued for me',      icon: '⌗', href: '/creator/queue' },
+    { id: 'creator-mine',       label: 'My own bounties',    icon: '★', href: '/creator/my-bounties' },
     { sec: 'money' },
-    { id: 'creator-balance',    label: 'Balance',            icon: '$', href: '/c/balance' },
-    { id: 'creator-withdraw',   label: 'Withdraw',           icon: '↓', href: '/c/withdraw' },
-    { id: 'creator-ledger',     label: 'Ledger',             icon: '⌗', href: '/c/ledger' },
+    { id: 'creator-balance',    label: 'Balance',            icon: '$', href: '/creator/balance' },
+    { id: 'creator-withdraw',   label: 'Withdraw',           icon: '↓', href: '/creator/withdraw' },
+    { id: 'creator-ledger',     label: 'Ledger',             icon: '⌗', href: '/creator/ledger' },
     { sec: 'admin' },
     { id: 'creator-handles',    label: 'Handles',            icon: '@', href: '/settings#handles' },
-    { id: 'creator-tax',        label: 'Tax & compliance',   icon: '⚖', href: '/c/tax' },
-    { id: 'creator-settings',   label: 'Settings',           icon: '⚙', href: '/c/settings' },
+    { id: 'creator-tax',        label: 'Tax & compliance',   icon: '⚖', href: '/creator/tax' },
+    { id: 'creator-settings',   label: 'Settings',           icon: '⚙', href: '/creator/settings' },
   ];
 
   const councilItems: NavItem[] = [
     { sec: 'queues' },
     { id: 'council-completions',      label: 'Completion review',   icon: '✓', href: '/admin/completions' },
     { id: 'council-handles',          label: 'Handle verification', icon: '@', href: '/admin/handles' },
-    { id: 'council-ofac',             label: 'OFAC review',         icon: '!', href: '/admin/ofac' },
+    { id: 'council-compliance',       label: 'Compliance',          icon: '⚖', href: '/admin/compliance' },
     { sec: 'catalog' },
     { id: 'council-users',            label: 'Users',               icon: '◍', href: '/admin/users' },
     { id: 'council-creators',         label: 'Creators',            icon: '◐', href: '/admin/creators' },
@@ -171,9 +171,9 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
               item={item}
               active={(() => {
                 if (!item.href) return false;
-                // Section landing pages (e.g. /creator, /admin) must match exactly —
+                // Section landing pages (e.g. /c, /admin) must match exactly —
                 // otherwise they'd light up for every sub-route below them.
-                const EXACT_MATCH_ROUTES = new Set(['/creator', '/admin', '/dashboard']);
+                const EXACT_MATCH_ROUTES = new Set(['/c', '/creator', '/admin', '/dashboard']);
                 if (EXACT_MATCH_ROUTES.has(item.href)) return pathname === item.href;
                 // Sub-routes: active when on the exact page OR a deeper page beneath it.
                 return pathname === item.href || pathname.startsWith(item.href + '/');

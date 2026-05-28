@@ -33,6 +33,16 @@ import type {
   HandlePlatform,
   HandleClaim,
   HandleSearchResult,
+  ComplianceSource,
+  ComplianceSanction,
+  ComplianceSanctionEntity,
+  ComplianceMatchCandidate,
+  ComplianceTaxTreaty,
+  CompliancePaymentSupport,
+  ComplianceStateThreshold,
+  ComplianceContentRule,
+  ComplianceJobRun,
+  ComplianceAuditEntry,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -908,5 +918,113 @@ export const admin = {
       request<{ data: CreatorSearchResult[] }>(
         `/admin/external-payouts/creators?q=${encodeURIComponent(q)}`
       ),
+  },
+
+  // Compliance — extended
+  complianceDashboard: () =>
+    request<{
+      sources: ComplianceSource[];
+      pending_sanctions: number;
+      pending_matches: number;
+      annual_review_overdue: Record<string, number>;
+      recent_job_runs: ComplianceJobRun[];
+    }>('/admin/compliance/dashboard'),
+
+  complianceSanctions: (params?: { status?: string; country_code?: string; severity?: string; active_only?: boolean; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set('status', params.status);
+    if (params?.country_code) qs.set('country_code', params.country_code);
+    if (params?.severity) qs.set('severity', params.severity);
+    if (params?.active_only) qs.set('active_only', '1');
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<ComplianceSanction>>(`/admin/compliance/sanctions?${qs}`);
+  },
+
+  complianceSanctionEntities: (id: number) =>
+    request<{ sanction: ComplianceSanction; entities: ComplianceSanctionEntity[] }>(`/admin/compliance/sanctions/${id}/entities`),
+
+  compliancePendingSanctions: (page = 1) =>
+    request<PaginatedResponse<ComplianceSanction>>(`/admin/compliance/sanctions/pending?page=${page}`),
+
+  approveSanction: (id: number) =>
+    request<{ message: string }>(`/admin/compliance/sanctions/${id}/approve`, { method: 'POST' }),
+
+  rejectSanction: (id: number, notes?: string) =>
+    request<{ message: string }>(`/admin/compliance/sanctions/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+    }),
+
+  complianceMatches: (page = 1) =>
+    request<PaginatedResponse<ComplianceMatchCandidate>>(`/admin/compliance/sanctions/matches?page=${page}`),
+
+  complianceMatchHistory: (params?: { status?: string; q?: string; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set('status', params.status);
+    if (params?.q) qs.set('q', params.q);
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<ComplianceMatchCandidate>>(`/admin/compliance/matches/history?${qs}`);
+  },
+
+  reviewMatch: (id: number, status: string, review_notes?: string) =>
+    request<{ message: string }>(`/admin/compliance/sanctions/matches/${id}/review`, {
+      method: 'POST',
+      body: JSON.stringify({ status, review_notes }),
+    }),
+
+  complianceTreaties: (params?: { country_code?: string; requires_w8ben?: boolean; active_only?: boolean; overdue_review?: boolean; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.country_code) qs.set('country_code', params.country_code);
+    if (params?.requires_w8ben !== undefined) qs.set('requires_w8ben', params.requires_w8ben ? '1' : '0');
+    if (params?.active_only) qs.set('active_only', '1');
+    if (params?.overdue_review) qs.set('overdue_review', '1');
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<ComplianceTaxTreaty>>(`/admin/compliance/treaties?${qs}`);
+  },
+
+  compliancePaymentSupport: (params?: { provider?: string; supported?: boolean; country_code?: string; active_only?: boolean; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.provider) qs.set('provider', params.provider);
+    if (params?.supported !== undefined) qs.set('supported', params.supported ? '1' : '0');
+    if (params?.country_code) qs.set('country_code', params.country_code);
+    if (params?.active_only) qs.set('active_only', '1');
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<CompliancePaymentSupport>>(`/admin/compliance/payment-support?${qs}`);
+  },
+
+  complianceStateThresholds: (params?: { state_code?: string; tax_year?: number; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.state_code) qs.set('state_code', params.state_code);
+    if (params?.tax_year) qs.set('tax_year', String(params.tax_year));
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<ComplianceStateThreshold>>(`/admin/compliance/state-thresholds?${qs}`);
+  },
+
+  complianceContentRules: (params?: { country_code?: string; requires_age_verification?: boolean; requires_local_representative?: boolean; active_only?: boolean; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.country_code) qs.set('country_code', params.country_code);
+    if (params?.requires_age_verification !== undefined) qs.set('requires_age_verification', params.requires_age_verification ? '1' : '0');
+    if (params?.requires_local_representative !== undefined) qs.set('requires_local_representative', params.requires_local_representative ? '1' : '0');
+    if (params?.active_only) qs.set('active_only', '1');
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<ComplianceContentRule>>(`/admin/compliance/content-rules?${qs}`);
+  },
+
+  complianceCountries: () =>
+    request<{ data: { code_alpha2: string; code_alpha3: string; name_common: string; region: string }[] }>('/admin/compliance/countries'),
+
+  complianceSources: () =>
+    request<{ data: ComplianceSource[] }>('/admin/compliance/sources'),
+
+  complianceJobRuns: (page = 1) =>
+    request<{ data: ComplianceJobRun[] }>(`/admin/compliance/job-runs?page=${page}`),
+
+  complianceAuditLog: (params?: { table_name?: string; field?: string; q?: string; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.table_name) qs.set('table_name', params.table_name);
+    if (params?.field) qs.set('field', params.field);
+    if (params?.q) qs.set('q', params.q);
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<ComplianceAuditEntry>>(`/admin/compliance/audit-log?${qs}`);
   },
 };

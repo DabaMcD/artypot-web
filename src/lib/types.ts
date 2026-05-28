@@ -740,6 +740,158 @@ export interface AdminCreator {
 
 // ── Admin creator detail (single-creator modal) ────────────────────────────
 
+// ── Compliance admin types ────────────────────────────────────────────────
+
+export interface ComplianceSource {
+  id: number;
+  source_key: string;
+  description: string;
+  source_url: string | null;
+  refresh_cadence: string;
+  refresh_mode: string;
+  last_fetched_at: string | null;
+  last_verified_at: string | null;
+  next_refresh_due_at: string | null;
+  freshness: 'fresh' | 'aging' | 'stale' | 'critical';
+}
+
+export interface ComplianceSanction {
+  id: number;
+  country_code: string;
+  subdivision_code: string | null;
+  program_name: string;
+  severity: 'comprehensive_block' | 'sectoral' | 'list_based' | 'advisory';
+  applies_to: 'all_residents' | 'specific_entities' | 'specific_sectors';
+  status: 'pending_review' | 'active' | 'rejected' | 'superseded';
+  source: string;
+  source_url: string | null;
+  effective_date: string;
+  sunset_date: string | null;
+  verified_at: string | null;
+  notes: string | null;
+  created_at: string;
+  country?: { code_alpha2: string; name_common: string };
+}
+
+export interface ComplianceSanctionEntity {
+  id: number;
+  country_sanctions_id: number;
+  entity_name: string;
+  entity_aliases: string[];
+  entity_type: 'individual' | 'organization' | 'vessel' | 'aircraft';
+  address: string | null;
+  dob: string | null;
+  identifiers: Record<string, string>[];
+  match_strength_required: number;
+}
+
+export interface ComplianceMatchCandidate {
+  id: number;
+  country_sanctions_entity_id: number;
+  user_id: number;
+  match_strength: number;
+  matched_field: string;
+  status: 'pending' | 'confirmed_match' | 'false_positive' | 'dismissed';
+  reviewed_by_user_id: number | null;
+  reviewed_at: string | null;
+  review_notes: string | null;
+  created_at: string;
+  user?: { id: number; display_name: string; email: string; country_code: string | null };
+  entity?: { id: number; entity_name: string; entity_type: string; match_strength_required: number;
+             sanction?: { id: number; program_name: string; country_code: string; severity: string } };
+}
+
+export interface ComplianceTaxTreaty {
+  id: number;
+  country_code: string;
+  treaty_in_force_date: string;
+  withholding_rate_services: string;
+  withholding_rate_royalties: string;
+  withholding_rate_other: string | null;
+  requires_w8ben: boolean;
+  treaty_article_reference: string | null;
+  source: string;
+  effective_date: string;
+  sunset_date: string | null;
+  verified_at: string | null;
+  notes: string | null;
+  country?: { code_alpha2: string; name_common: string };
+}
+
+export interface CompliancePaymentSupport {
+  id: number;
+  country_code: string;
+  provider: 'stripe_charges' | 'stripe_connect' | 'plaid_payouts';
+  supported: boolean;
+  currency_codes: string[];
+  restrictions: Record<string, unknown> | null;
+  source: string;
+  effective_date: string;
+  sunset_date: string | null;
+  verified_at: string | null;
+  notes: string | null;
+  country?: { code_alpha2: string; name_common: string };
+}
+
+export interface ComplianceStateThreshold {
+  id: number;
+  state_code: string;
+  tax_year: number;
+  threshold_gross_payments: string | null;
+  threshold_transaction_count: number | null;
+  requires_separate_state_filing: boolean;
+  state_filing_method: string | null;
+  source: string;
+  effective_date: string;
+  sunset_date: string | null;
+  verified_at: string | null;
+  notes: string | null;
+}
+
+export interface ComplianceContentRule {
+  id: number;
+  country_code: string;
+  subdivision_code: string | null;
+  regulation_name: string;
+  requires_age_verification: boolean;
+  age_verification_threshold: number | null;
+  requires_local_representative: boolean;
+  requires_content_moderation_reports: boolean;
+  applies_to_us_based_platforms: boolean;
+  source: string;
+  effective_date: string;
+  sunset_date: string | null;
+  verified_at: string | null;
+  notes: string | null;
+  country?: { code_alpha2: string; name_common: string };
+}
+
+export interface ComplianceJobRun {
+  id: number;
+  command: string;
+  status: 'running' | 'success' | 'failure' | 'partial';
+  started_at: string;
+  finished_at: string | null;
+  records_processed: number;
+  records_added: number;
+  records_changed: number;
+  error_message: string | null;
+  output: string | null;
+  created_at: string;
+}
+
+export interface ComplianceAuditEntry {
+  id: number;
+  table_name: string;
+  record_id: number;
+  edited_by_user_id: number | null;
+  field: string;
+  old_value: string | null;
+  new_value: string | null;
+  created_at: string;
+  editor?: { id: number; display_name: string; email: string };
+}
+
 export interface AdminCreatorDetail extends AdminCreator {
   // Identity
   email: string;
