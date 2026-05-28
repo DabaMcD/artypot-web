@@ -152,6 +152,12 @@ export interface User {
   default_expiry_value?: number;
   /** Unit for default pledge expiry: 'day' | 'week' | 'month' | 'year'. */
   default_expiry_unit?: string;
+  /** Public bio shown on the creator profile. */
+  bio?: string | null;
+  /** Creator-set noun for their fans (singular), e.g. "patron". */
+  fan_name?: string | null;
+  /** Creator-set plural noun for their fans, e.g. "patrons". */
+  fan_name_plural?: string | null;
   creator?: Creator;
 }
 
@@ -184,6 +190,7 @@ export interface Creator {
   herald_total_pledge?: number;
   display_name: string;
   description?: string;
+  bio?: string | null;
   profile_picture?: string;
   fan_name?: string;
   fan_name_plural?: string;
@@ -667,6 +674,7 @@ export interface Comment {
 export type BountyHistoryEventType =
   | 'created'
   | 'pledge_added'
+  | 'pledge_updated'
   | 'pledge_revoked'
   | 'details_edited'
   | 'privilege_transfer'
@@ -679,6 +687,8 @@ export interface BountyHistoryEvent {
   at: string;
   user?: { id: number; display_name: string } | null;
   amount?: number | null;
+  /** Set only for `pledge_updated`: the previous pledge amount the user replaced. */
+  old_amount?: number | null;
   field?: string | null;
   old_value?: string | null;
   meta?: Record<string, unknown> | null;

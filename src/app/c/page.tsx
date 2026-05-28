@@ -274,7 +274,7 @@ function CreatorDashboardContent() {
               <li className={`flex items-center gap-2 ${!needsLocation ? 'line-through text-muted' : ''}`}>
                 <span>{!needsLocation ? '✓' : '1.'}</span>
                 Set your location
-                {needsLocation && <Link href={`/${user.slug}/edit`} className="ap-inline-link ml-1">edit profile →</Link>}
+                {needsLocation && <Link href="/c/settings#location" className="ap-inline-link ml-1">edit settings →</Link>}
               </li>
               <li className={`flex items-center gap-2 ${canWithdraw ? 'line-through text-muted' : ''}`}>
                 <span>{canWithdraw ? '✓' : '2.'}</span>
@@ -384,7 +384,7 @@ function CreatorDashboardContent() {
             {needsLocation ? (
               <div>
                 <p className="text-sm text-muted mb-3">Set your location before connecting a bank account.</p>
-                <Link href={`/${user.slug}/edit`}>
+                <Link href="/c/settings#location">
                   <Button variant="primary">Set Location →</Button>
                 </Link>
               </div>
@@ -590,7 +590,7 @@ function CreatorDashboardContent() {
               </div>
             </div>
             <div className="border-t border-border mt-3 pt-3">
-              <Link href={`/${user.slug}/edit`} className="ap-inline-link text-xs">Manage Profile →</Link>
+              <Link href="/c/settings" className="ap-inline-link text-xs">Manage Profile →</Link>
             </div>
           </Card>
 

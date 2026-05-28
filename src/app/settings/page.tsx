@@ -37,9 +37,9 @@ function MiniToggle({
       disabled={saving || disabled}
       onClick={() => !disabled && onChange(!checked)}
       className={`relative shrink-0 w-9 h-5 rounded-full transition-colors focus:outline-none cursor-pointer ${
-        disabled ? 'opacity-30' : dimmed ? 'opacity-50' : ''
+        disabled ? 'opacity-40' : dimmed ? 'opacity-50' : ''
       } ${
-        checked && !disabled ? 'bg-[var(--color-role)]' : 'bg-surface-2 border border-border'
+        checked ? 'bg-[var(--color-role)]' : 'bg-surface-2 border border-border'
       }`}
     >
       <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-4' : 'translate-x-0'}`} />
@@ -677,7 +677,7 @@ export default function SettingsPage() {
                 <SectionLabel className="mb-1">creator profile</SectionLabel>
                 <p className="text-sm text-muted">Edit your public creator page — display name, bio, handles.</p>
               </div>
-              <Link href={`/${user.slug}/edit`}><Button variant="default" size="sm">Edit Profile →</Button></Link>
+              <Link href="/c/settings"><Button variant="default" size="sm">Edit Profile →</Button></Link>
             </div>
           </Card>
         )}
@@ -734,6 +734,17 @@ export default function SettingsPage() {
             <div className="py-6 text-center font-mono text-xs text-muted">loading…</div>
           ) : (
             <>
+              {/* Column headers */}
+              <div className="grid gap-x-4 items-center mb-2" style={{ gridTemplateColumns: '1fr auto auto auto' }}>
+                <span />
+                {(['email', 'sms', 'bell'] as const).map((ch) => (
+                  <span key={ch} className={`font-mono text-[9px] uppercase w-9 text-center ${
+                    (ch === 'email' && !emailChannelAvailable) || (ch === 'sms' && !phoneVerified)
+                      ? 'text-muted/40' : 'text-muted'
+                  }`}>{ch}</span>
+                ))}
+              </div>
+
               {/* Notification rows */}
               {NOTIF_ROWS.map(({ label, desc, emailKey, emailRule, smsKey, smsRule, bellKey, bellRule }) => (
                 <div key={label} className="grid gap-x-4 items-center py-2.5 border-b border-border last:border-0" style={{ gridTemplateColumns: '1fr auto auto auto' }}>

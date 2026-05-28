@@ -35,9 +35,9 @@ function MiniToggle({
       disabled={saving || disabled}
       onClick={() => !disabled && onChange(!checked)}
       className={`relative shrink-0 w-9 h-5 rounded-full transition-colors focus:outline-none cursor-pointer ${
-        disabled ? 'opacity-30' : dimmed ? 'opacity-50' : ''
+        disabled ? 'opacity-40' : dimmed ? 'opacity-50' : ''
       } ${
-        checked && !disabled ? 'bg-[var(--color-role)]' : 'bg-surface-2 border border-border'
+        checked ? 'bg-[var(--color-role)]' : 'bg-surface-2 border border-border'
       }`}
     >
       <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-4' : 'translate-x-0'}`} />
@@ -95,6 +95,11 @@ export default function CreatorSettingsPage() {
   const [countryCode, setCountryCode] = useState('');
   const [stateCode, setStateCode] = useState('');
   const [locationSaving, setLocationSaving] = useState(false);
+  const [bioInput, setBioInput] = useState('');
+  const [bioSaving, setBioSaving] = useState(false);
+  const [fanName, setFanName] = useState('');
+  const [fanNamePlural, setFanNamePlural] = useState('');
+  const [fanNameSaving, setFanNameSaving] = useState(false);
   const [notifSettings, setNotifSettings] = useState<NotificationSettings | null>(null);
   const [notifSaving, setNotifSaving] = useState<Set<string>>(new Set());
   const [notifResetting, setNotifResetting] = useState(false);
@@ -108,6 +113,9 @@ export default function CreatorSettingsPage() {
     setNameInput(user.display_name ?? '');
     setCountryCode(user.country_code ?? '');
     setStateCode(user.state_code ?? '');
+    setBioInput(user.bio ?? '');
+    setFanName(user.fan_name ?? '');
+    setFanNamePlural(user.fan_name_plural ?? '');
     notifApi.get().then(setNotifSettings).catch(() => {});
   }, [user, authLoading, router]);
 
@@ -134,6 +142,33 @@ export default function CreatorSettingsPage() {
       toast('Profile picture updated!', 'success');
     } catch { toast('Failed to save picture.', 'error'); }
     finally { setPicSaving(false); }
+  };
+
+  const handleSaveBio = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setBioSaving(true);
+    try {
+      await usersApi.update(user.id, { bio: bioInput.trim() || null });
+      await refreshUser();
+      toast('Bio updated!', 'success');
+    } catch { toast('Failed to save bio.', 'error'); }
+    finally { setBioSaving(false); }
+  };
+
+  const handleSaveFanName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setFanNameSaving(true);
+    try {
+      await usersApi.update(user.id, {
+        fan_name: fanName.trim() || null,
+        fan_name_plural: fanNamePlural.trim() || null,
+      });
+      await refreshUser();
+      toast('Fan name updated!', 'success');
+    } catch { toast('Failed to save fan name.', 'error'); }
+    finally { setFanNameSaving(false); }
   };
 
   const handleSaveLocation = async (e: React.FormEvent) => {
@@ -284,6 +319,79 @@ export default function CreatorSettingsPage() {
 
       {/* Creator slug */}
       <CreatorSlugSection />
+
+      {/* Bio */}
+      <div id="bio">
+      <Card>
+        <SectionLabel className="mb-3">creator bio</SectionLabel>
+        <p className="text-sm text-muted mb-3">
+          A short public description shown on your creator profile.
+        </p>
+        <form onSubmit={handleSaveBio} className="space-y-3">
+          <textarea
+            value={bioInput}
+            onChange={(e) => setBioInput(e.target.value)}
+            rows={4}
+            placeholder="Who are you? What kind of work do you make?"
+            className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors resize-y placeholder:text-muted"
+          />
+          <Button
+            type="submit"
+            variant="default"
+            size="sm"
+            disabled={bioSaving || (bioInput ?? '') === (user.bio ?? '')}
+          >
+            {bioSaving ? 'Saving…' : 'Save Bio'}
+          </Button>
+        </form>
+      </Card>
+      </div>
+
+      {/* Fan name */}
+      <div id="fan-name">
+      <Card>
+        <SectionLabel className="mb-3">fan name</SectionLabel>
+        <p className="text-sm text-muted mb-3">
+          What you call your supporters. Shown on your bounty pages — e.g. &ldquo;supported by 12 <span className="text-foreground">{fanNamePlural || fanName || 'fans'}</span>&rdquo;. Leave blank to use the generic &ldquo;fan / fans&rdquo;.
+        </p>
+        <form onSubmit={handleSaveFanName} className="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">singular</label>
+            <Input
+              type="text"
+              value={fanName}
+              onChange={(e) => setFanName(e.target.value)}
+              maxLength={100}
+              placeholder="fan"
+            />
+          </div>
+          <div>
+            <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">plural</label>
+            <Input
+              type="text"
+              value={fanNamePlural}
+              onChange={(e) => setFanNamePlural(e.target.value)}
+              maxLength={100}
+              placeholder="fans"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Button
+              type="submit"
+              variant="default"
+              size="sm"
+              disabled={
+                fanNameSaving ||
+                ((fanName ?? '') === (user.fan_name ?? '') &&
+                 (fanNamePlural ?? '') === (user.fan_name_plural ?? ''))
+              }
+            >
+              {fanNameSaving ? 'Saving…' : 'Save Fan Name'}
+            </Button>
+          </div>
+        </form>
+      </Card>
+      </div>
 
       {/* Handles */}
       <Card>
