@@ -303,8 +303,8 @@ export default function SettingsPage() {
         state_code: (countryCode && subdivisions(countryCode)) ? (stateCode || null) : null,
       });
       await refreshUser();
-      toast('Location saved.', 'success');
-    } catch { toast('Failed to save location.', 'error'); }
+      toast('Tax residence saved.', 'success');
+    } catch { toast('Failed to save tax residence.', 'error'); }
     finally { setLocationSaving(false); }
   };
 
@@ -828,14 +828,14 @@ export default function SettingsPage() {
           </Card>
         )}
 
-        {/* Location of residence — moved to creator settings for creators */}
+        {/* Tax residence — moved to creator settings for creators */}
         {user.role === 'creator' ? (
           <div id="location">
             <Card>
               <div className="flex items-center justify-between">
                 <div>
-                  <SectionLabel className="mb-1">location of residence</SectionLabel>
-                  <p className="text-sm text-muted">Required for creator earnings reporting.</p>
+                  <SectionLabel className="mb-1">tax residence</SectionLabel>
+                  <p className="text-sm text-muted">Where you pay tax on your Artypot earnings.</p>
                 </div>
                 <Link href="/c/settings#location"><Button variant="default" size="sm">Creator Settings →</Button></Link>
               </div>
@@ -844,9 +844,10 @@ export default function SettingsPage() {
         ) : (
           <div id="location">
           <Card>
-            <SectionLabel className="mb-3">location of residence</SectionLabel>
+            <SectionLabel className="mb-3">tax residence</SectionLabel>
             <p className="text-sm text-muted mb-4">
-              Used for earnings reporting if you enable creator mode. Required to become a creator.
+              The country (and state, where applicable) where you&apos;ll pay tax on Artypot earnings.
+              Not required as a fan, but you&apos;ll need this set before you can become a creator.
             </p>
             <form onSubmit={handleSaveLocation} className="space-y-3">
               <div>
@@ -886,7 +887,7 @@ export default function SettingsPage() {
                 size="sm"
                 disabled={locationSaving || !countryCode || (!!subdivisions(countryCode) && !stateCode)}
               >
-                {locationSaving ? 'Saving…' : 'Save Location'}
+                {locationSaving ? 'Saving…' : 'Save Tax Residence'}
               </Button>
             </form>
           </Card>
