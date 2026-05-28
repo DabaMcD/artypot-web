@@ -18,7 +18,7 @@ export default function CreatorHandlesPage() {
       <HandlesSection />
 
       <p className="text-xs font-mono text-muted">
-        <Link href="/creator/settings" className="hover:text-foreground transition-colors">← back to creator settings</Link>
+        <Link href="/c/settings" className="hover:text-foreground transition-colors">← back to creator settings</Link>
       </p>
     </div>
   );

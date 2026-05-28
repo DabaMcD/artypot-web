@@ -433,7 +433,7 @@ function LedgerContent() {
 
             <div className="mt-5 space-y-2">
               {!balanceLoading && availableBalance > 0 && (
-                <Link href="/creator/withdraw">
+                <Link href="/c/withdraw">
                   <Button variant="primary" className="w-full justify-center">
                     Withdraw {fmt(availableBalance)} →
                   </Button>

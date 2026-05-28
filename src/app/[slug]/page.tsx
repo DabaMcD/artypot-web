@@ -568,11 +568,23 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                   )}
                 </div>
               ) : (
-                <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {bountiesData.data.map((bounty) => (
-                    <BountyCard key={bounty.id} bounty={bounty} />
-                  ))}
-                </div>
+                <>
+                  <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {bountiesData.data.map((bounty) => (
+                      <BountyCard key={bounty.id} bounty={bounty} />
+                    ))}
+                  </div>
+                  {(bountiesData.last_page ?? 1) > 1 && (
+                    <div className="mt-4 text-right">
+                      <Link
+                        href={`/${creator.slug ?? slug}/bounties`}
+                        className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
+                      >
+                        see all →
+                      </Link>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
