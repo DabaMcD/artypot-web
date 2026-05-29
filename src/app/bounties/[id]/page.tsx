@@ -684,7 +684,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           }
         >
           <p className="text-muted text-sm leading-relaxed">
-            You&apos;re the only {fanSingular} of this bounty. Backing out will leave it empty — it will be cleared automatically.
+            You&apos;re the only {fanSingular} supporting this bounty. Backing out will leave it empty — it will be cleared automatically.
           </p>
         </Modal>
       )}
@@ -849,7 +849,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <div className="flex items-center justify-between gap-2 mt-0.5">
             <div>
               <div className="text-muted text-sm">
-                supported by {activePledges.length} {activePledges.length === 1 ? 'fan' : 'fans'}
+                supported by {activePledges.length} {activePledges.length === 1 ? fanSingular : fanPlural}
               </div>
               {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5 tabular-nums">

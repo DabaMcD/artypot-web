@@ -138,6 +138,7 @@ function Step1({
   const [searching, setSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [addError, setAddError] = useState('');
+  const [activeIndex, setActiveIndex] = useState(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -203,6 +204,42 @@ function Step1({
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  // Reset highlight to first item whenever results or query change.
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [results, query]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showDropdown) return;
+    // Two dropdown modes: a list of results, or a single "+ add new" row when
+    // there are no results for a non-empty query. In both cases ArrowDown/Up
+    // wraps; Enter activates the current row.
+    if (results.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setActiveIndex((i) => (i + 1) % results.length);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setActiveIndex((i) => (i - 1 + results.length) % results.length);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const r = results[activeIndex];
+        if (r) selectResult(r);
+      } else if (e.key === 'Escape') {
+        setShowDropdown(false);
+      }
+    } else if (!searching && query.trim()) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        setShowDropdown(false);
+        onShowAddNew(true);
+        onNewDisplayName(query);
+      } else if (e.key === 'Escape') {
+        setShowDropdown(false);
+      }
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -276,6 +313,7 @@ function Step1({
                 value={query}
                 onChange={(e) => handleChange(e.target.value)}
                 onPaste={handlePaste}
+                onKeyDown={handleKeyDown}
                 onFocus={() => { if (results.length) setShowDropdown(true); }}
                 placeholder="e.g. @tomscott on YouTube"
                 autoComplete="off"
@@ -288,12 +326,15 @@ function Step1({
 
               {showDropdown && results.length > 0 && (
                 <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface border border-border rounded-lg overflow-hidden shadow-lg">
-                  {results.map((r) => (
+                  {results.map((r, idx) => (
                     <button
                       key={r.handle_id}
                       type="button"
                       onMouseDown={() => selectResult(r)}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-surface-2 transition-colors text-left border-b border-border last:border-0"
+                      onMouseEnter={() => setActiveIndex(idx)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 transition-colors text-left border-b border-border last:border-0 ${
+                        activeIndex === idx ? 'bg-surface-2' : 'hover:bg-surface-2'
+                      }`}
                     >
                       <AvatarOrUnknown avatarUrl={r.avatar_url} size="sm" />
                       <div className="flex-1 min-w-0">

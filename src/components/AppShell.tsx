@@ -5,7 +5,7 @@ import { ReactNode, useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
-import { useViewMode } from '@/lib/view-mode-context';
+import { bounties as bountiesApi } from '@/lib/api';
 import { Sidebar } from './Sidebar';
 import CreatorSearchWidget from './CreatorSearchWidget';
 import NotificationBell from './NotificationBell';
@@ -24,13 +24,31 @@ function isAuthRoute(pathname: string) {
   return AUTH_PATHS.includes(pathname) || AUTH_PREFIXES.some((p) => pathname.startsWith(p));
 }
 
-function inferRole(pathname: string, mode: string): 'fan' | 'creator' | 'council' {
+/**
+ * Returns the bounty id from a `/bounties/{id}` path, or null otherwise.
+ * Used to decide whether AppShell needs to fetch the bounty to determine sidebar role.
+ */
+function bountyIdFromPath(pathname: string): number | null {
+  const m = pathname.match(/^\/bounties\/(\d+)/);
+  return m ? Number(m[1]) : null;
+}
+
+function inferRole(
+  pathname: string,
+  ownSlug: string | null,
+  ownUserId: number | null,
+  bountyTargetUserId: number | null | undefined,
+): 'fan' | 'creator' | 'council' {
   if (pathname.startsWith('/admin') || pathname.startsWith('/obelisk')) return 'council';
   if (pathname.startsWith('/c/') || pathname === '/c') return 'creator';
-  // Bounty detail pages: inherit stored mode so a creator navigating from /c/*
-  // keeps the creator sidebar when viewing their own bounty. All other non-creator
-  // paths always resolve to fan regardless of mode.
-  if (/^\/bounties\/\d+/.test(pathname) && mode === 'creator') return 'creator';
+  // The logged-in creator viewing their own public profile (or any sub-page of it)
+  // gets the creator sidebar — they're "on their own turf."
+  if (ownSlug && (pathname === `/${ownSlug}` || pathname.startsWith(`/${ownSlug}/`))) return 'creator';
+  // Bounty detail pages: the sidebar follows ownership, not navigation history.
+  // If the bounty targets the logged-in user, they see the creator sidebar; otherwise fan.
+  if (bountyIdFromPath(pathname) !== null) {
+    return ownUserId !== null && bountyTargetUserId === ownUserId ? 'creator' : 'fan';
+  }
   return 'fan';
 }
 
@@ -41,9 +59,27 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
   const { user, loading } = useAuth();
-  const { mode } = useViewMode();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+
+  // For `/bounties/{id}` routes we look up the bounty so the sidebar can match
+  // ownership (creator-side iff target_user_id === user.id). On every other
+  // route this stays undefined and the lookup is skipped.
+  const bountyId = bountyIdFromPath(pathname);
+  const [bountyTargetUserId, setBountyTargetUserId] = useState<number | null | undefined>(undefined);
+
+  useEffect(() => {
+    if (bountyId === null) {
+      setBountyTargetUserId(undefined);
+      return;
+    }
+    let cancelled = false;
+    setBountyTargetUserId(undefined);
+    bountiesApi.get(bountyId)
+      .then((res) => { if (!cancelled) setBountyTargetUserId(res.data.target_user_id ?? null); })
+      .catch(() => { if (!cancelled) setBountyTargetUserId(null); });
+    return () => { cancelled = true; };
+  }, [bountyId]);
 
   // Close mobile drawer + mobile search whenever the route changes.
   useEffect(() => { setSidebarOpen(false); setSearchOpen(false); }, [pathname]);
@@ -73,7 +109,7 @@ export function AppShell({ children }: AppShellProps) {
   }
 
   // Authenticated: full sidebar layout
-  const role = inferRole(pathname, mode);
+  const role = inferRole(pathname, user.slug ?? null, user.id ?? null, bountyTargetUserId);
 
   return (
     <NudgeProvider>

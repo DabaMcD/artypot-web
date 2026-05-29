@@ -21,6 +21,10 @@ const nextConfig: NextConfig = {
       // permanently redirect to the shorter /c/* base.
       { source: '/creator', destination: '/c', permanent: true },
       { source: '/creator/:path*', destination: '/c/:path*', permanent: true },
+      // /admin has no landing page — every section lives in the council
+      // sidebar. Bounce to the canonical default queue. Non-council users
+      // get re-redirected away by the destination page's own auth gate.
+      { source: '/admin', destination: '/admin/completions', permanent: false },
     ];
   },
 };

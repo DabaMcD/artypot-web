@@ -57,6 +57,7 @@ export default function CreatorSearchWidget({
   const [results, setResults] = useState<Creator[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Debounced search
@@ -80,18 +81,51 @@ export default function CreatorSearchWidget({
     return () => clearTimeout(t);
   }, [search, selectedCreator]);
 
+  // Reset highlight to first item whenever the result set changes.
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [results, search]);
+
+  // Flat list of navigable items in render order: results, then optional "create new" row.
+  const navItemCount = results.length + (onCreateNew ? 1 : 0);
+  const isCreateNewRow = (idx: number) => !!onCreateNew && idx === results.length;
+
+  const activateIndex = (idx: number) => {
+    if (idx < 0 || idx >= navItemCount) return;
+    if (isCreateNewRow(idx)) {
+      onCreateNew?.(search.trim() || undefined);
+    } else {
+      handleSelect(results[idx]);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showDropdown || navItemCount === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex((i) => (i + 1) % navItemCount);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((i) => (i - 1 + navItemCount) % navItemCount);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      activateIndex(activeIndex);
+    } else if (e.key === 'Escape') {
+      setFocused(false);
+    }
+  };
+
   const handleSelect = (s: Creator) => {
     if (navigateOnSelect) {
       router.push(s.slug ? `/${s.slug}` : `/creators/${s.id}`);
-      setSearch('');
-      setResults([]);
-      setFocused(false);
     } else {
       onSelect?.(s);
-      setSearch('');
-      setResults([]);
-      setFocused(false);
     }
+    setSearch('');
+    setResults([]);
+    // Intentionally NOT setting `focused = false` — the input still owns DOM
+    // focus, so the user can type immediately to start a new search. A real
+    // blur (clicking away) clears `focused` via the input's onBlur handler.
   };
 
   const showDropdown =
@@ -135,6 +169,7 @@ export default function CreatorSearchWidget({
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
+        onKeyDown={handleKeyDown}
         onFocus={() => {
           if (blurTimer.current) clearTimeout(blurTimer.current);
           setFocused(true);
@@ -165,8 +200,14 @@ export default function CreatorSearchWidget({
           )}
 
           {/* Results */}
-          {!searchLoading && results.map((s) => (
-            <div key={s.id} className="flex items-center hover:bg-border transition-colors group">
+          {!searchLoading && results.map((s, idx) => (
+            <div
+              key={s.id}
+              className={`flex items-center transition-colors group ${
+                activeIndex === idx ? 'bg-border' : 'hover:bg-border'
+              }`}
+              onMouseEnter={() => setActiveIndex(idx)}
+            >
               <button
                 type="button"
                 onClick={() => handleSelect(s)}
@@ -201,7 +242,10 @@ export default function CreatorSearchWidget({
               <button
                 type="button"
                 onClick={() => onCreateNew(search.trim() || undefined)}
-                className="w-full text-left px-4 py-2.5 text-sm text-creator hover:bg-border transition-colors flex items-center gap-2"
+                onMouseEnter={() => setActiveIndex(results.length)}
+                className={`w-full text-left px-4 py-2.5 text-sm text-creator transition-colors flex items-center gap-2 ${
+                  activeIndex === results.length ? 'bg-border' : 'hover:bg-border'
+                }`}
               >
                 <span className="text-lg leading-none">+</span>
                 {search.trim()

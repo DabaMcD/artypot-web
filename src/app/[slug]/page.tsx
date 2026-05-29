@@ -280,7 +280,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   const handleEditClick = () => {
     if (!creator) return;
     if (creator.can_edit) {
-      router.push(`/${slug}/edit`);
+      router.push('/c/settings');
     } else {
       setShowHeraldModal(true);
     }
@@ -435,8 +435,8 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                     </p>
                   )}
 
-                  {creator.description && (
-                    <p className="text-muted text-sm leading-relaxed mt-2">{creator.description}</p>
+                  {creator.bio && (
+                    <p className="text-muted text-sm leading-relaxed mt-2 whitespace-pre-wrap">{creator.bio}</p>
                   )}
                 </div>
 
@@ -453,7 +453,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                     )}
                     {user && isClaimed && creator.can_edit && (
                       <Link
-                        href={`/${slug}/edit`}
+                        href="/c/settings"
                         className="bg-creator text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                       >
                         Edit Profile
