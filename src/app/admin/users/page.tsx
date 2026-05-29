@@ -87,6 +87,11 @@ function UserModal({
         {user.deleted_at && (
           <Badge tone="bad">deleted</Badge>
         )}
+        {user.broke_cooldown && (
+          <Badge tone="warn">
+            broke cooldown · until {new Date(user.broke_cooldown.ends_at).toLocaleDateString()}
+          </Badge>
+        )}
         {!user.email_verified_at && (
           <Badge tone="warn">email unverified</Badge>
         )}
@@ -363,6 +368,9 @@ export default function AdminUsersPage() {
                       )}
                       {u.deleted_at && (
                         <Badge tone="bad">deleted</Badge>
+                      )}
+                      {u.broke_cooldown && (
+                        <Badge tone="warn">broke cooldown</Badge>
                       )}
                     </div>
                     <p className="font-mono text-[10px] text-muted truncate">{u.email}</p>

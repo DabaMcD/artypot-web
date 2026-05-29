@@ -22,6 +22,7 @@ export default function BillingPage() {
   const [balance, setBalance] = useState<number | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
   const [lockedPledges, setLockedPledges] = useState<PublicUserPledge[]>([]);
+  const [brokeCooldown, setBrokeCooldown] = useState<{ ends_at: string; started_at: string } | null>(null);
   const [paying, setPaying] = useState(false);
   // 3DS / SCA modal — opens when payNow returns requires_action OR when the
   // PaymentAuthBanner triggers a deep link. We keep modal state local to the
@@ -41,6 +42,7 @@ export default function BillingPage() {
       .then(([cashRes, pledgeRes]) => {
         setBalance(cashRes.balance);
         setLockedPledges(pledgeRes.data);
+        setBrokeCooldown(cashRes.broke_cooldown);
       })
       .catch(() => setBalance(null))
       .finally(() => setBalanceLoading(false));
@@ -123,6 +125,19 @@ export default function BillingPage() {
         <SectionLabel>fan · billing</SectionLabel>
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">upcoming charge</h1>
       </div>
+
+      {brokeCooldown && (
+        <Card accent>
+          <SectionLabel className="mb-2 text-warn">broke cooldown in effect</SectionLabel>
+          <p className="text-sm text-muted leading-snug">
+            You declared broke on {new Date(brokeCooldown.started_at).toLocaleDateString()}.
+            New pledges are blocked until{' '}
+            <span className="font-mono text-foreground">
+              {new Date(brokeCooldown.ends_at).toLocaleString()}
+            </span>.
+          </p>
+        </Card>
+      )}
 
       {/* What will be charged */}
       {!balanceLoading && hasOutstandingBalance && (

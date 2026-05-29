@@ -429,6 +429,7 @@ export interface AdminBountyCompletion {
 export interface CashBalance {
   balance: number;
   available: PaginatedResponse<CashLedgerEntry>;
+  broke_cooldown: { ends_at: string; started_at: string } | null;
 }
 
 export interface CashLedgerEntry {
@@ -716,6 +717,7 @@ export interface AdminUser {
   phone_verified_at: string | null;
   created_at: string;
   deleted_at: string | null;
+  broke_cooldown: { ends_at: string; started_at?: string } | null;
   creator: {
     id: number;
     display_name: string;
