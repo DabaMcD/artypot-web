@@ -685,7 +685,7 @@ export interface BountyHistoryEvent {
   type: BountyHistoryEventType;
   /** ISO 8601 timestamp */
   at: string;
-  user?: { id: number; display_name: string } | null;
+  user?: { id: number; display_name: string; profile_picture?: string | null } | null;
   amount?: number | null;
   /** Set only for `pledge_updated`: the previous pledge amount the user replaced. */
   old_amount?: number | null;

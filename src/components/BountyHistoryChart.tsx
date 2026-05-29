@@ -1,7 +1,9 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 import type { BountyHistoryEvent } from '@/lib/types';
+import { normalizeAvatarUrl } from '@/lib/cloudinary';
 
 interface Props {
   events: BountyHistoryEvent[];
@@ -22,10 +24,10 @@ const EVENT_META: Record<
 > = {
   created:            { label: 'Initialized',           amountSign: 'pos'   },
   pledge_added:       { label: 'Backed',                amountSign: 'pos'   },
-  pledge_updated:     { label: 'Updated contribution',  amountSign: 'delta' },
+  pledge_updated:     { label: 'Synced their feelings', amountSign: 'delta' },
   pledge_revoked:     { label: 'Left',                  amountSign: 'neg'   },
-  details_edited:     { label: 'Details edited',        amountSign: 'none'  },
-  privilege_transfer: { label: 'Ownership transferred', amountSign: 'none'  },
+  details_edited:     { label: 'Edited details',        amountSign: 'none'  },
+  privilege_transfer: { label: 'Transferred ownership', amountSign: 'none'  },
   pending:            { label: 'Submitted for review',  amountSign: 'none'  },
   completed:          { label: 'Approved',              amountSign: 'none'  },
 };
@@ -86,6 +88,46 @@ export default function BountyHistoryChart({ events, selectedEvent, onSelect }: 
           );
         }
 
+        // Avatar: linked to the user's profile when known, anonymous-safe.
+        // event.user.id === 0 indicates a masked anonymous user.
+        const u           = event.user ?? null;
+        const isAnon      = !!u && u.id === 0;
+        const hasProfile  = !!u && !isAnon;
+        const avatarSrc   = hasProfile ? normalizeAvatarUrl(u!.profile_picture ?? null) : null;
+        const initial     = u?.display_name?.charAt(0).toUpperCase() ?? '·';
+
+        const avatarInner = avatarSrc ? (
+          <img
+            src={avatarSrc}
+            alt={u!.display_name}
+            className="w-7 h-7 rounded-full object-cover border border-border shrink-0"
+          />
+        ) : (
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center font-mono text-[11px] font-bold shrink-0 border border-border"
+            style={
+              hasProfile
+                ? { background: '#F5A623', color: '#0a0a0a' }
+                : { background: 'var(--surface-2)', color: 'var(--muted)' }
+            }
+          >
+            {hasProfile ? initial : '·'}
+          </div>
+        );
+
+        const avatarNode = hasProfile ? (
+          <Link
+            href={`/users/${u!.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="shrink-0 hover:opacity-80 transition-opacity"
+            aria-label={u!.display_name}
+          >
+            {avatarInner}
+          </Link>
+        ) : (
+          <div className="shrink-0">{avatarInner}</div>
+        );
+
         return (
           <li
             key={i}
@@ -94,22 +136,33 @@ export default function BountyHistoryChart({ events, selectedEvent, onSelect }: 
               onSelect(isSelected ? null : event);
             }}
             className={[
-              'group grid grid-cols-[1fr_auto] items-baseline gap-x-4 px-3 py-2.5 transition-colors',
+              'group grid grid-cols-[auto_1fr_auto] items-center gap-x-3 px-3 py-2.5 transition-colors',
               clickable ? 'cursor-pointer hover:bg-surface-2' : 'cursor-default',
               isSelected ? 'bg-fan/5' : '',
             ].filter(Boolean).join(' ')}
           >
-            {/* Left: label + user + (edit field, if any) */}
-            <div className="min-w-0">
+            {/* Left: avatar */}
+            {avatarNode}
+
+            {/* Middle: label + user + (edit field, if any) */}
+            <div className="min-w-0 self-center">
               <div className="flex items-baseline gap-x-2 flex-wrap">
                 <span className="font-mono text-[10px] uppercase tracking-widest text-foreground">
-                  {meta.label}
+                  {u && (
+                    hasProfile ? (
+                      <Link
+                        href={`/users/${u.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-muted/70 hover:text-foreground hover:underline"
+                      >
+                        {u.display_name}
+                      </Link>
+                    ) : (
+                      <span className="text-muted/60">{u.display_name}</span>
+                    )
+                  )}
+                  {u && ' '}{meta.label}
                 </span>
-                {event.user && (
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted/60 truncate">
-                    {event.user.display_name}
-                  </span>
-                )}
               </div>
               {event.field != null && event.old_value != null && (
                 <p className="font-mono text-[10px] text-muted/60 mt-1 truncate">
