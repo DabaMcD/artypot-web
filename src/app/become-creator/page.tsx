@@ -325,7 +325,7 @@ export default function BecomeCreatorPage() {
         {/* Gate 2 — location */}
         <GateRow
           step={2}
-          title="Add Your Location of Residence"
+          title="Add Your Tax Residence"
           description="We use this to know where to report your earnings later"
           status={gate2Complete ? 'complete' : 'active'}
           actionSlot={
