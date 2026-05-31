@@ -15,14 +15,6 @@ import { Empty } from '@/components/ui/Empty';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function ClaimedBadge({ claimed }: { claimed: boolean }) {
-  return claimed ? (
-    <Badge tone="good">claimed</Badge>
-  ) : (
-    <Badge tone="default">unclaimed</Badge>
-  );
-}
-
 function W9Badge({ status }: { status: CreatorW9Status | null }) {
   if (!status) return <span className="font-mono text-[10px] uppercase tracking-widest text-muted">no W-9</span>;
   const tones: Record<CreatorW9Status, 'warn' | 'info' | 'good' | 'bad'> = {
@@ -97,12 +89,25 @@ function CreatorModal({ creator, onClose }: { creator: CreatorDetail; onClose: (
 
   return (
     <Modal title={creator.display_name} onClose={onClose} lg>
-      {/* Top meta */}
-      <p className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">{creator.email}</p>
+      {/* Avatar + email */}
+      <div className="flex items-center gap-3 mb-3">
+        {creator.profile_picture ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={creator.profile_picture}
+            alt=""
+            className="w-14 h-14 rounded-full object-cover shrink-0 border border-border"
+          />
+        ) : (
+          <div className="w-14 h-14 rounded-full bg-creator/20 flex items-center justify-center text-creator font-mono text-base font-bold shrink-0 border border-border">
+            {creator.display_name?.charAt(0).toUpperCase() ?? '?'}
+          </div>
+        )}
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted">{creator.email}</p>
+      </div>
 
       {/* Status badges */}
       <div className="flex flex-wrap gap-2 mb-5">
-        <ClaimedBadge claimed={creator.claimed} />
         <W9Badge status={creator.w9_status} />
         <W8BENBadge status={creator.w8ben_status ?? null} />
         <PayoutCategoryBadge category={creator.payout_category ?? null} />
@@ -540,15 +545,23 @@ export default function AdminCreatorsPage() {
                   disabled={loadingDetail}
                   className="w-full text-left px-5 py-3.5 flex items-center gap-3 hover:bg-surface-2 transition-colors disabled:opacity-60"
                 >
-                  {/* Avatar initial */}
-                  <div className="w-8 h-8 rounded-full bg-creator/20 flex items-center justify-center text-creator font-mono text-xs font-bold shrink-0">
-                    {s.display_name?.charAt(0).toUpperCase() ?? '?'}
-                  </div>
+                  {/* Avatar — photo if set, otherwise role-tinted initial fallback */}
+                  {s.profile_picture ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={s.profile_picture}
+                      alt=""
+                      className="w-8 h-8 rounded-full object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-creator/20 flex items-center justify-center text-creator font-mono text-xs font-bold shrink-0">
+                      {s.display_name?.charAt(0).toUpperCase() ?? '?'}
+                    </div>
+                  )}
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-medium text-foreground text-sm truncate">{s.display_name}</span>
-                      <ClaimedBadge claimed={s.claimed} />
                       <W9Badge status={s.w9_status} />
                     </div>
                     {s.user && (

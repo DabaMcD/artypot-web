@@ -490,10 +490,16 @@ export interface PaymentMethod {
   last4: string;
   exp_month: number;
   exp_year: number;
-  /** True if the card has been used, added, or confirmed within the active window. */
-  is_active: boolean;
-  /** ISO timestamp of the most recent activity (added, charged, or confirmed). */
-  last_active_at: string | null;
+  /** True if the card has no invalidation stamp AND its expiry date is in the future. */
+  is_valid: boolean;
+  /** ISO timestamp of when validity was lost. Null while still valid. */
+  invalidated_at: string | null;
+  /**
+   * Why the card was invalidated. One of:
+   *   'expired' | 'detached_at_stripe' | 'replaced_by_updater' | 'billing_failure'
+   * Null while is_valid is true.
+   */
+  invalidation_reason: 'expired' | 'detached_at_stripe' | 'replaced_by_updater' | 'billing_failure' | null;
 }
 
 export interface CreatorBalance {
@@ -709,6 +715,7 @@ export interface AdminUser {
   id: number;
   display_name: string;
   email: string;
+  profile_picture?: string | null;
   slug?: string | null;
   role: UserRole;
   is_anonymous: boolean;
@@ -733,11 +740,21 @@ export interface AdminUser {
       tin_matched_at: string | null;
     } | null;
   } | null;
+  /** Active handle claims (verified + unverified). Only populated by /admin/users/{user}, not by the list endpoint. */
+  handles?: {
+    claim_id: number;
+    status: 'verified' | 'unverified';
+    verification_method: string | null;
+    verified_at: string | null;
+    handle: { platform: string; username: string; profile_url: string | null };
+    created_at: string;
+  }[];
 }
 
 export interface AdminCreator {
   id: number;
   display_name: string;
+  profile_picture?: string | null;
   /** Public URL slug (artypot.com/{slug}); null if creator has not picked one yet. */
   slug?: string | null;
   claimed: boolean;

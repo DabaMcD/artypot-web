@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { auth as authApi } from '@/lib/api';
+import { auth as authApi, users as usersApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { Card, SectionLabel } from '@/components/ui/Card';
@@ -11,6 +11,11 @@ import { Button } from '@/components/ui/Button';
 import { Banner } from '@/components/ui/Banner';
 import { FieldLabel } from '@/components/ui/Input';
 import SlugInput from '@/components/SlugInput';
+import HandlesSection from '@/components/HandlesSection';
+import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
+import type { HandleClaim, HandlePlatform } from '@/lib/types';
+import { platformLabel } from '@/lib/platforms';
+import { PLATFORM_HANDLE_CONFIG } from '@/components/ui/PlatformHandleInput';
 
 // ── Creator TOS text ─────────────────────────────────────────────────────────
 // Authoritative source: artypot-api/storage/legal/creator-tos.md
@@ -78,7 +83,7 @@ These Creator Terms of Service ("Creator Terms") govern your participation as a 
 
 7. GOVERNING LAW
 
-These Creator Terms are governed by the laws of the State of Florida. Disputes shall be resolved by binding arbitration in Miami-Dade County, Florida under AAA rules. You waive your right to participate in a class action.
+These Creator Terms are governed by the laws of the State of Florida. Disputes shall be resolved by binding arbitration in Hillsborough County, Florida under AAA rules. You waive your right to participate in a class action.
 
 Artypot LLC · Florida, USA · legal@artypot.com`;
 
@@ -192,6 +197,133 @@ function EmailVerificationGate({ hasEmail }: { hasEmail: boolean }) {
   );
 }
 
+// ── Tax residence form (inline in Gate 2) ─────────────────────────────────────
+
+function TaxResidenceForm({
+  initialCountry,
+  initialState,
+  onSaved,
+  onCancel,
+  showCancel,
+}: {
+  initialCountry: string;
+  initialState: string;
+  onSaved: () => void | Promise<void>;
+  onCancel: () => void;
+  showCancel: boolean;
+}) {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [countryCode, setCountryCode] = useState(initialCountry);
+  const [stateCode, setStateCode] = useState(initialState);
+  const [saving, setSaving] = useState(false);
+
+  const needsState = !!countryCode && !!subdivisions(countryCode);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !countryCode) return;
+    setSaving(true);
+    try {
+      await usersApi.update(user.id, {
+        country_code: countryCode || null,
+        state_code: needsState ? (stateCode || null) : null,
+      });
+      await onSaved();
+      toast('Tax residence saved.', 'success');
+    } catch {
+      toast('Failed to save tax residence.', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+      <div>
+        <FieldLabel>country</FieldLabel>
+        <select
+          value={countryCode}
+          onChange={(e) => { setCountryCode(e.target.value); setStateCode(''); }}
+          className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
+        >
+          <option value="">— select country —</option>
+          {COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+      {needsState && (
+        <div>
+          <FieldLabel>{subdivisionLabel(countryCode).toLowerCase()}</FieldLabel>
+          <select
+            value={stateCode}
+            onChange={(e) => setStateCode(e.target.value)}
+            className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
+            required
+          >
+            <option value="">— select {subdivisionLabel(countryCode).toLowerCase()} —</option>
+            {subdivisions(countryCode)!.map((s) => (
+              <option key={s.code} value={s.code}>{s.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
+      <div className="flex gap-2">
+        <Button
+          type="submit"
+          variant="default"
+          size="sm"
+          disabled={saving || !countryCode || (needsState && !stateCode)}
+        >
+          {saving ? 'Saving…' : 'Save Tax Residence'}
+        </Button>
+        {showCancel && (
+          <Button type="button" variant="ghost" size="sm" onClick={onCancel} disabled={saving}>
+            Cancel
+          </Button>
+        )}
+      </div>
+    </form>
+  );
+}
+
+// ── Verified handles preview (collapsed display for Gate 3) ───────────────────
+
+function VerifiedHandlesPreview({ refreshKey }: { refreshKey: number }) {
+  const [claims, setClaims] = useState<HandleClaim[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    authApi.myHandles()
+      .then((res) => { if (!cancelled) setClaims(res.data); })
+      .catch(() => { if (!cancelled) setClaims([]); });
+    return () => { cancelled = true; };
+  }, [refreshKey]);
+
+  if (claims === null) {
+    return <p className="text-xs font-mono text-muted mt-2">loading…</p>;
+  }
+
+  const verified = claims.filter((c) => c.status === 'verified');
+  if (verified.length === 0) return null;
+
+  return (
+    <ul className="mt-2 space-y-1">
+      {verified.map((claim) => {
+        const platform = claim.handle.platform as HandlePlatform;
+        const prefix = PLATFORM_HANDLE_CONFIG[platform]?.prefix ?? '@';
+        return (
+          <li key={claim.claim_id} className="text-sm font-mono text-foreground">
+            {prefix}{claim.handle.username}
+            <span className="text-muted ml-2">{platformLabel(platform)}</span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 // ── Gate row ──────────────────────────────────────────────────────────────────
 
 type GateStatus = 'complete' | 'active' | 'locked';
@@ -257,18 +389,38 @@ function GateRow({
 export default function BecomeCreatorPage() {
   const { user, loading: authLoading, refreshUser } = useAuth();
   const router = useRouter();
+  const [editingResidence, setEditingResidence] = useState(false);
+  const [editingHandles, setEditingHandles] = useState(false);
+  // Bumped whenever the user toggles the handles editor closed, so the
+  // collapsed preview re-fetches and reflects any newly-verified handles.
+  const [handlesRefreshKey, setHandlesRefreshKey] = useState(0);
 
   const handleActivated = useCallback(async () => {
     await refreshUser();
     router.push('/c');
   }, [refreshUser, router]);
 
-  if (authLoading) return null;
+  const handleResidenceSaved = useCallback(async () => {
+    await refreshUser();
+    setEditingResidence(false);
+  }, [refreshUser]);
 
-  if (!user) {
-    if (typeof window !== 'undefined') router.push('/login');
-    return null;
-  }
+  const handleDoneEditingHandles = useCallback(async () => {
+    await refreshUser();
+    setHandlesRefreshKey((k) => k + 1);
+    setEditingHandles(false);
+  }, [refreshUser]);
+
+  // Redirect logged-out users to /login from an effect — calling router.push
+  // during render schedules a setState on the Router and trips React's
+  // "cannot update a component while rendering a different component" warning.
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [authLoading, user, router]);
+
+  if (authLoading || !user) return null;
 
   // Already a creator
   if (user.role === 'creator' || user.creator) {
@@ -297,6 +449,11 @@ export default function BecomeCreatorPage() {
   const gate1Complete = !!user.email_verified_at;
   const gate2Complete = user.location_complete ?? false;
   const gate3Complete = user.has_verified_handle ?? false;
+  // Strict sequential unlock — only one step is actionable at any time. This
+  // funnels the user through email → residence → handle → TOS in order and
+  // avoids surfacing forms whose prerequisites aren't met yet.
+  const gate2Unlocked = gate1Complete;
+  const gate3Unlocked = gate1Complete && gate2Complete;
   const gate4Unlocked = gate1Complete && gate2Complete && gate3Complete;
 
   return (
@@ -322,29 +479,75 @@ export default function BecomeCreatorPage() {
           )}
         </GateRow>
 
-        {/* Gate 2 — location */}
-        <GateRow
-          step={2}
-          title="Add Your Tax Residence"
-          description="We use this to know where to report your earnings later"
-          status={gate2Complete ? 'complete' : 'active'}
-          actionSlot={
-            gate2Complete
-              ? <Link href="/settings#location"><Button variant="ghost" size="sm">Edit</Button></Link>
-              : <Link href="/settings#location"><Button variant="default" size="sm">Add Location →</Button></Link>
-          }
-        />
+        {/* Gate 2 — tax residence (inline form, collapses when complete) */}
+        {(() => {
+          const countryName = user.country_code
+            ? COUNTRIES.find((c) => c.code === user.country_code)?.name ?? user.country_code
+            : null;
+          const stateName = (user.country_code && user.state_code && subdivisions(user.country_code))
+            ? subdivisions(user.country_code)!.find((s) => s.code === user.state_code)?.name ?? user.state_code
+            : null;
+          const residenceDisplay = countryName
+            ? (stateName ? `${countryName} — ${stateName}` : countryName)
+            : null;
+          const showForm = gate2Unlocked && (!gate2Complete || editingResidence);
+          const gate2Status: GateStatus = !gate2Unlocked
+            ? 'locked'
+            : gate2Complete ? 'complete' : 'active';
+          return (
+            <GateRow
+              step={2}
+              title="Add Your Tax Residence"
+              description="We use this to know where to report your earnings later"
+              status={gate2Status}
+              lockText="Verify your email to unlock"
+              actionSlot={
+                gate2Complete && !editingResidence ? (
+                  <Button variant="ghost" size="sm" onClick={() => setEditingResidence(true)}>Edit</Button>
+                ) : undefined
+              }
+            >
+              {gate2Complete && !editingResidence && residenceDisplay && (
+                <p className="text-sm text-foreground mt-2 font-mono">{residenceDisplay}</p>
+              )}
+              {showForm && (
+                <TaxResidenceForm
+                  initialCountry={user.country_code ?? ''}
+                  initialState={user.state_code ?? ''}
+                  onSaved={handleResidenceSaved}
+                  onCancel={() => setEditingResidence(false)}
+                  showCancel={editingResidence && gate2Complete}
+                />
+              )}
+            </GateRow>
+          );
+        })()}
 
-        {/* Gate 3 — verified handle */}
+        {/* Gate 3 — verified handle (inline form, collapses when complete) */}
         <GateRow
           step={3}
           title="Verify a Handle"
           description="Link a social account so fans know you're the real deal"
-          status={gate3Complete ? 'complete' : 'active'}
-          actionSlot={!gate3Complete ? (
-            <Link href="/settings#handles"><Button variant="default" size="sm">Verify a Handle →</Button></Link>
-          ) : undefined}
-        />
+          status={!gate3Unlocked ? 'locked' : gate3Complete ? 'complete' : 'active'}
+          lockText="Add your tax residence to unlock"
+          actionSlot={
+            gate3Complete && !editingHandles ? (
+              <Button variant="ghost" size="sm" onClick={() => setEditingHandles(true)}>Edit</Button>
+            ) : gate3Complete && editingHandles ? (
+              <Button variant="ghost" size="sm" onClick={handleDoneEditingHandles}>Done</Button>
+            ) : undefined
+          }
+        >
+          {gate3Unlocked && (
+            gate3Complete && !editingHandles ? (
+              <VerifiedHandlesPreview refreshKey={handlesRefreshKey} />
+            ) : (
+              <div className="mt-4">
+                <HandlesSection bare />
+              </div>
+            )
+          )}
+        </GateRow>
 
         {/* Gate 4 — TOS + slug */}
         <GateRow

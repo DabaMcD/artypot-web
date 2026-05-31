@@ -11,7 +11,6 @@ import CreatorSearchWidget from './CreatorSearchWidget';
 import NotificationBell from './NotificationBell';
 import { NudgeBar } from '@/components/NudgeBar';
 import { NudgeProvider } from '@/lib/nudge-context';
-import { StaleCardBar } from '@/components/StaleCardBar';
 import { PaymentGraceBanner } from '@/components/PaymentGraceBanner';
 import { PaymentAuthBanner } from '@/components/PaymentAuthBanner';
 import { PublicHeader } from '@/components/PublicHeader';
@@ -229,7 +228,6 @@ export function AppShell({ children }: AppShellProps) {
             <NudgeBar />
             <PaymentAuthBanner />
             <PaymentGraceBanner />
-            <StaleCardBar />
             {children}
           </main>
         </div>

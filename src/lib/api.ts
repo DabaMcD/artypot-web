@@ -564,10 +564,6 @@ export const billing = {
   deletePaymentMethod: (id: string) =>
     request<DeletePaymentMethodResult>(`/billing/payment-methods/${id}`, { method: 'DELETE' }),
 
-  /** Confirm an existing card is still valid, resetting its 90-day activity window. */
-  confirmPaymentMethod: (id: string) =>
-    request<{ data: PaymentMethod }>(`/billing/payment-methods/${id}/confirm`, { method: 'POST' }),
-
   /**
    * Immediately charge the authenticated user's full negative available_cash balance.
    *

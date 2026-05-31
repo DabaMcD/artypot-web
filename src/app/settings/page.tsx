@@ -8,7 +8,6 @@ import { CldUploadWidget } from 'next-cloudinary';
 import type { CloudinaryUploadWidgetResults } from 'next-cloudinary';
 import { normalizeAvatarUrl, AVATAR_UPLOAD_OPTIONS } from '@/lib/cloudinary';
 import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi, pledges as pledgesApi } from '@/lib/api';
-import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 import { useToast } from '@/lib/toast-context';
@@ -172,11 +171,6 @@ export default function SettingsPage() {
   const [dangerMsg, setDangerMsg] = useState('');
   const [pledgeTotalAmount, setPledgeTotalAmount] = useState<number | null>(null);
 
-  // Location
-  const [countryCode, setCountryCode] = useState('');
-  const [stateCode, setStateCode] = useState('');
-  const [locationSaving, setLocationSaving] = useState(false);
-
   useEffect(() => {
     if (authLoading) return;
     if (!user) { router.replace('/login'); return; }
@@ -184,8 +178,6 @@ export default function SettingsPage() {
     setNameInput(user.display_name ?? '');
     setExpiryValue(String(user.default_expiry_value ?? 39));
     setExpiryUnit(user.default_expiry_unit ?? 'month');
-    setCountryCode(user.country_code ?? '');
-    setStateCode(user.state_code ?? '');
     notifApi.get().then(setNotifSettings).catch(() => {});
     pledgesApi.list().then((res) => setPledgeTotalAmount(res.total_active_amount)).catch(() => {});
   }, [user, authLoading, router]);
@@ -291,21 +283,6 @@ export default function SettingsPage() {
       toast('Default expiry saved.', 'success');
     } catch { toast('Failed to save expiry.', 'error'); }
     finally { setExpirySaving(false); }
-  };
-
-  const handleSaveLocation = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !countryCode) return;
-    setLocationSaving(true);
-    try {
-      await usersApi.update(user.id, {
-        country_code: countryCode || null,
-        state_code: (countryCode && subdivisions(countryCode)) ? (stateCode || null) : null,
-      });
-      await refreshUser();
-      toast('Tax residence saved.', 'success');
-    } catch { toast('Failed to save tax residence.', 'error'); }
-    finally { setLocationSaving(false); }
   };
 
   const handleSendCode = async () => {
@@ -575,7 +552,7 @@ export default function SettingsPage() {
                   </p>
                 )}
                 <p className="text-xs text-muted mt-2">
-                  Cropped to a square and optimized automatically — any size is fine.
+                  Upload any size
                 </p>
               </div>
             </div>
@@ -839,8 +816,8 @@ export default function SettingsPage() {
           </Card>
         )}
 
-        {/* Tax residence — moved to creator settings for creators */}
-        {user.role === 'creator' ? (
+        {/* Tax residence — creators manage in /c/settings; fans set it as part of the become-creator flow. */}
+        {user.role === 'creator' && (
           <div id="location">
             <Card>
               <div className="flex items-center justify-between">
@@ -851,57 +828,6 @@ export default function SettingsPage() {
                 <Link href="/c/settings#location"><Button variant="default" size="sm">Creator Settings →</Button></Link>
               </div>
             </Card>
-          </div>
-        ) : (
-          <div id="location">
-          <Card>
-            <SectionLabel className="mb-3">tax residence</SectionLabel>
-            <p className="text-sm text-muted mb-4">
-              The country (and state, where applicable) where you&apos;ll pay tax on Artypot earnings.
-              Not required as a fan, but you&apos;ll need this set before you can become a creator.
-            </p>
-            <form onSubmit={handleSaveLocation} className="space-y-3">
-              <div>
-                <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">country</label>
-                <select
-                  value={countryCode}
-                  onChange={(e) => { setCountryCode(e.target.value); setStateCode(''); }}
-                  className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
-                >
-                  <option value="">— select country —</option>
-                  {COUNTRIES.map((c) => (
-                    <option key={c.code} value={c.code}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-              {countryCode && subdivisions(countryCode) && (
-                <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">
-                    {subdivisionLabel(countryCode)}
-                  </label>
-                  <select
-                    value={stateCode}
-                    onChange={(e) => setStateCode(e.target.value)}
-                    className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
-                    required
-                  >
-                    <option value="">— select {subdivisionLabel(countryCode).toLowerCase()} —</option>
-                    {subdivisions(countryCode)!.map((s) => (
-                      <option key={s.code} value={s.code}>{s.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              <Button
-                type="submit"
-                variant="default"
-                size="sm"
-                disabled={locationSaving || !countryCode || (!!subdivisions(countryCode) && !stateCode)}
-              >
-                {locationSaving ? 'Saving…' : 'Save Tax Residence'}
-              </Button>
-            </form>
-          </Card>
           </div>
         )}
 

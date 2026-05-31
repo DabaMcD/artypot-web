@@ -63,7 +63,7 @@ export default function PayoutReadinessChecklist() {
     {
       label: 'Country / region set',
       done: user.location_complete === true,
-      href: '/settings#location',
+      href: '/c/settings#location',
     },
     {
       label: 'Handle claimed and approved',
