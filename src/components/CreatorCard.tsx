@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Creator } from '@/lib/types';
+import { Badge } from '@/components/ui/Badge';
 
 
 export default function CreatorCard({ creator }: { creator: Creator }) {
@@ -37,7 +38,7 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
               {creator.display_name}
             </Link>
           </div>
-          <div className="text-xs text-creator">Verified ✓</div>
+          <Badge tone="creator">Creator</Badge>
         </div>
 
       </div>

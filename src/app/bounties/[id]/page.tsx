@@ -198,6 +198,14 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const displayedDescription = snapshotView !== null ? snapshotView.description : bounty?.description;
   const displayedDisplayName = snapshotView !== null ? snapshotView.display_name : bounty?.display_name;
 
+  // The creator_assigned event marks the moment a verified creator was attached
+  // to a previously handle-only bounty. When the user is viewing a snapshot from
+  // before that moment, the "For" line must show the original handle + fan name
+  // as it stood then — the "For [creator]" attribution did not yet exist.
+  const creatorAssignedAt = historyEvents.find((e) => e.type === 'creator_assigned')?.at ?? null;
+  const viewingPreAssignment =
+    selectedEvent != null && creatorAssignedAt != null && selectedEvent.at < creatorAssignedAt;
+
   const handleBacking = async (e: FormEvent) => {
     e.preventDefault();
     const amount = parseFloat(backingAmount);
@@ -840,7 +848,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           {(bounty.owner_user || bounty.target_handle) && (
             <div>
               <span className="text-muted">For </span>
-              {bounty.owner_user ? (
+              {bounty.owner_user && !viewingPreAssignment ? (
                 <Link
                   href={bounty.owner_user.slug ? `/${bounty.owner_user.slug}` : `/users/${bounty.owner_user.id}`}
                   className="text-creator hover:underline font-medium cursor-pointer"
@@ -881,7 +889,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                       ({displayedDisplayName})
                     </span>
                   )}
-                  {bounty.target_handle.status !== 'verified' && (
+                  {(bounty.target_handle.status !== 'verified' || viewingPreAssignment) && (
                     <Badge tone="default">unverified</Badge>
                   )}
                 </span>

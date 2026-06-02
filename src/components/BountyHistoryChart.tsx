@@ -28,6 +28,7 @@ const EVENT_META: Record<
   backing_revoked:     { label: 'Left',                  amountSign: 'neg'   },
   details_edited:     { label: 'Edited details',        amountSign: 'none'  },
   privilege_transfer: { label: 'Transferred ownership', amountSign: 'none'  },
+  creator_assigned:   { label: 'Verified & claimed',    amountSign: 'none'  },
   pending:            { label: 'Submitted for review',  amountSign: 'none'  },
   completed:          { label: 'Approved',              amountSign: 'none'  },
 };
@@ -174,6 +175,22 @@ export default function BountyHistoryChart({ events, selectedEvent, onSelect }: 
               {event.field != null && event.old_value != null && (
                 <p className="font-mono text-[10px] text-muted/60 mt-1 truncate">
                   {FIELD_LABELS[event.field] ?? event.field}: &ldquo;{event.old_value}&rdquo;
+                </p>
+              )}
+              {event.type === 'creator_assigned' && event.meta != null && (
+                <p className="font-mono text-[10px] text-muted/60 mt-1 truncate">
+                  originally{' '}
+                  {typeof event.meta.handle_username === 'string' && (
+                    <span className="text-muted/80">
+                      {String(event.meta.handle_username)}
+                      {typeof event.meta.handle_platform === 'string'
+                        ? ` on ${String(event.meta.handle_platform)}`
+                        : ''}
+                    </span>
+                  )}
+                  {typeof event.meta.display_name === 'string' && event.meta.display_name && (
+                    <> &middot; &ldquo;{String(event.meta.display_name)}&rdquo;</>
+                  )}
                 </p>
               )}
               <p className="font-mono text-[10px] text-muted/50 tabular-nums mt-1">

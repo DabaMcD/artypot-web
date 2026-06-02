@@ -725,6 +725,7 @@ export type BountyHistoryEventType =
   | 'backing_revoked'
   | 'details_edited'
   | 'privilege_transfer'
+  | 'creator_assigned'
   | 'pending'
   | 'completed';
 

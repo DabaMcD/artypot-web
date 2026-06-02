@@ -9,6 +9,7 @@ import { sanitizeSnippet } from '@/lib/search/sanitizeSnippet';
 import { getRecentSearches, addRecentSearch } from '@/lib/search/recentSearches';
 import { moveActiveIndex, buildSearchHref } from '@/lib/search/navigation';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
+import { Badge } from '@/components/ui/Badge';
 
 const MIN_CHARS = 2;
 
@@ -388,13 +389,9 @@ function PersonRow({
         <span className="block text-[11px] text-muted truncate">{subline}</span>
         <MatchReasonNote kind={person.match_reason?.kind} value={person.match_reason?.value} />
       </span>
-      <span
-        className={`shrink-0 self-center font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded ${
-          person.type === 'creator' ? 'bg-creator/15 text-creator' : 'bg-border text-muted'
-        }`}
-      >
+      <Badge tone={person.type === 'creator' ? 'creator' : 'default'} className="shrink-0 self-center">
         {person.type === 'creator' ? 'creator' : 'unverified'}
-      </span>
+      </Badge>
     </button>
   );
 }
