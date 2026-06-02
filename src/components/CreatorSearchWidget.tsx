@@ -78,7 +78,7 @@ export default function CreatorSearchWidget({
   const [search, setSearch] = useState('');
   // Controlled mode (onSelect) searches creators. Navigate-on-select mode uses
   // the unified handle search — the same source as the /bounties/new target
-  // picker — so it surfaces verified creators, unclaimed handles, and the
+  // picker — so it surfaces verified creators, unverified handles, and the
   // bounties waiting on them, not just creator profiles.
   const [results, setResults] = useState<Creator[]>([]);
   const [handleResults, setHandleResults] = useState<HandleSearchResult[]>([]);
@@ -169,7 +169,7 @@ export default function CreatorSearchWidget({
 
   // Navigate-on-select handler for a unified handle-search result.
   //  - verified creator (has user_id) → their profile
-  //  - unclaimed/curated handle        → the public /{platform}/{handle} page
+  //  - unverified/curated handle        → the public /{platform}/{handle} page
   //  - 'other' or non-slug handle      → outbound profile link (new tab)
   const handleSelectResult = (r: HandleSearchResult) => {
     if (!r) return;

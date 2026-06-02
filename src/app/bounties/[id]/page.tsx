@@ -23,7 +23,7 @@ import { useAuth } from '@/lib/auth-context';
 import { useDefaultUpdatePrompt } from '@/lib/default-update-prompt-context';
 import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import { useViewMode } from '@/lib/view-mode-context';
-import type { Bounty, BountyBacking, BountyHistoryEvent } from '@/lib/types';
+import type { Bounty, BountyHistoryEvent } from '@/lib/types';
 import { handleLink, formatPlatformHandle } from '@/lib/platforms';
 import ShareButton from '@/components/ShareButton';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
@@ -103,6 +103,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const [showEditForm, setShowEditForm] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
+  const [editDisplayName, setEditDisplayName] = useState('');
   const [editLoading, setEditLoading] = useState(false);
 
   // Completion form
@@ -130,17 +131,24 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   /** Event the user has selected in the history list */
   const [selectedEvent, setSelectedEvent] = useState<BountyHistoryEvent | null>(null);
 
-  /** When set, the header shows the historical title/description for this snapshot */
-  const [snapshotView, setSnapshotView] = useState<{ title: string; description: string | null } | null>(null);
+  /** When set, the header shows the historical title/description/name for this snapshot */
+  const [snapshotView, setSnapshotView] = useState<{ title: string; description: string | null; display_name: string | null } | null>(null);
+
+  // Pull a fresh copy of the bounty (incl. total_backed, solid_total, and the
+  // full backings list) from the server. Used on initial load and after any
+  // mutation that changes the totals, so the info panel always reflects
+  // server-computed values rather than optimistic patches.
+  const refreshBounty = useCallback(
+    () => bountiesApi.get(Number(id)).then((res) => setBounty(res.data)),
+    [id],
+  );
 
   // Load bounty
   useEffect(() => {
-    bountiesApi
-      .get(Number(id))
-      .then((res) => setBounty(res.data))
+    refreshBounty()
       .catch(() => setError('Failed to load bounty.'))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [refreshBounty]);
 
   // Register the bounty's target with the view-mode context so the sidebar
   // flips to creator mode whenever the logged-in user is the target.
@@ -176,6 +184,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     : (bounty?.solid_total ?? Number(bounty?.total_backed ?? 0));
   const displayedTitle = snapshotView?.title ?? bounty?.title ?? '';
   const displayedDescription = snapshotView !== null ? snapshotView.description : bounty?.description;
+  const displayedDisplayName = snapshotView !== null ? snapshotView.display_name : bounty?.display_name;
 
   const handleBacking = async (e: FormEvent) => {
     e.preventDefault();
@@ -202,21 +211,10 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       dispatchPrompt(res.default_update_prompts);
       toast(isUpdate ? 'Updated!' : `You're in for $${amount.toFixed(2)}!`, 'success');
       setBackingAmount('');
-      setBounty((prev) => {
-        if (!prev) return prev;
-        const updatedBacking: BountyBacking = {
-          ...res.data,
-          user: user ? { id: user.id, display_name: user.display_name, profile_picture: user.profile_picture } : undefined,
-        };
-        const filteredBackings = (prev.backings ?? []).filter(
-          (v) => v.user_id !== user?.id || v.revoked_at,
-        );
-        return {
-          ...prev,
-          total_backed: res.data.bounty?.total_backed ?? prev.total_backed,
-          backings: [...filteredBackings, updatedBacking],
-        };
-      });
+      // Re-fetch the whole bounty so total_backed AND solid_total both reflect
+      // the new backing. An optimistic patch only bumped total_backed, which
+      // made the user's just-placed backing surface under "soft backings".
+      await refreshBounty();
     } catch (err: unknown) {
       const e = err as {
         message?: string;
@@ -265,20 +263,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         router.push('/bounties');
         return;
       }
-      setBounty((prev) => {
-        if (!prev) return prev;
-        const updated: Bounty = {
-          ...prev,
-          total_backed: prev.total_backed - userBacking.amount,
-          backings: (prev.backings ?? []).map((v) =>
-            v.id === userBacking.id ? { ...v, revoked_at: new Date().toISOString() } : v,
-          ),
-        };
-        if (result.new_initiator_id !== null) {
-          updated.initiator_user_id = result.new_initiator_id!;
-        }
-        return updated;
-      });
+      // Full refresh so total_backed, solid_total, the backings list, and any
+      // server-side initiator reassignment all stay in sync.
+      await refreshBounty();
       toast('Backed out.', 'success');
     } catch (err: unknown) {
       const e = err as { message?: string };
@@ -291,12 +278,16 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const handleEditSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setEditLoading(true);
+    // Only send display_name for owner-less (unverified-handle) bounties; the
+    // backend rejects it once a verified owner exists.
+    const canEditName = !bounty?.owner_user && !!bounty?.target_handle;
     try {
       const res = await bountiesApi.update(Number(id), {
         title: editTitle,
         description: editDescription || undefined,
+        ...(canEditName ? { display_name: editDisplayName.trim() || null } : {}),
       });
-      setBounty((prev) => (prev ? { ...prev, title: res.data.title, description: res.data.description } : prev));
+      setBounty((prev) => (prev ? { ...prev, title: res.data.title, description: res.data.description, display_name: res.data.display_name } : prev));
       toast('Bounty updated!', 'success');
       setShowEditForm(false);
       // Invalidate history cache so next open reflects the new edit
@@ -740,6 +731,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   onClick={() => {
                     setEditTitle(bounty.title);
                     setEditDescription(bounty.description ?? '');
+                    setEditDisplayName(bounty.display_name ?? '');
                     setShowEditForm(true);
                   }}
                   className="shrink-0 mt-1 cursor-pointer"
@@ -786,6 +778,21 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 rows={3}
               />
             </div>
+            {!bounty.owner_user && bounty.target_handle && (
+              <div>
+                <FieldLabel>Creator name</FieldLabel>
+                <Input
+                  type="text"
+                  value={editDisplayName}
+                  onChange={(e) => setEditDisplayName(e.target.value)}
+                  maxLength={255}
+                  placeholder={formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}
+                />
+                <FieldHint>
+                  A friendly name shown alongside the handle (e.g. “bbno$”). The verified handle is always shown — this is just a label.
+                </FieldHint>
+              </div>
+            )}
             <div className="flex gap-2">
               <Button
                 type="submit"
@@ -834,18 +841,16 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 // label a random handle "MrBeast" and mislead backers. The
                 // handle is the only verifiable identity here.
                 <span className="inline-flex items-center gap-x-2 gap-y-1 flex-wrap align-middle">
-                  {bounty.display_name && (
-                    <span className="text-creator font-medium">{bounty.display_name}</span>
-                  )}
                   {(() => {
                     const th = bounty.target_handle!;
                     const { href, external } = handleLink(th.platform, th.username);
-                    const label = formatPlatformHandle(th.platform, th.username);
-                    const cls = `font-mono cursor-pointer hover:underline break-all ${
-                      bounty.display_name
-                        ? 'text-xs text-muted hover:text-foreground'
-                        : 'text-creator font-medium'
-                    }`;
+                    // Primary, verifiable identity: `youtube/@bbnomoney`. The
+                    // platform-qualified handle is the only thing a fan can
+                    // actually trust, so it always leads.
+                    const label = th.platform === 'other'
+                      ? formatPlatformHandle(th.platform, th.username)
+                      : `${th.platform}/${formatPlatformHandle(th.platform, th.username)}`;
+                    const cls = 'text-creator font-medium font-mono cursor-pointer hover:underline break-all';
                     return external ? (
                       <a href={href} target="_blank" rel="noopener noreferrer nofollow" className={cls}>
                         {label}
@@ -856,6 +861,13 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                       </Link>
                     );
                   })()}
+                  {/* Fan-supplied display name is secondary context, never the
+                      headline. Reflects the historical value in snapshot view. */}
+                  {displayedDisplayName && (
+                    <span className={snapshotView !== null ? 'text-muted/60' : 'text-muted'}>
+                      ({displayedDisplayName})
+                    </span>
+                  )}
                   {bounty.target_handle.status !== 'verified' && (
                     <span className="font-mono text-[10px] uppercase tracking-widest text-muted bg-surface-2 border border-border px-1.5 py-0.5 rounded-full whitespace-nowrap">
                       unverified

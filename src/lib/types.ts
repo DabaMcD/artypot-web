@@ -180,6 +180,45 @@ export interface CouncilPage {
   per_page: number;
 }
 
+// ── Unified search (GET /v1/search) ────────────────────────────────────────
+
+export interface SearchMatchReason {
+  /** People: 'exact' | 'handle' | 'display_name' | 'alias'. Bounties: 'title' | 'description' | 'creator_name'. */
+  kind: string;
+  /** People match value, e.g. "@lordemusic" or an alias. */
+  value?: string | null;
+  /** Bounty description snippet with the matched term wrapped in <mark> (sanitized before render). */
+  snippet?: string | null;
+}
+
+export interface SearchPerson {
+  type: 'creator' | 'unverified_handle';
+  id: string;
+  display_name: string;
+  avatar_url: string | null;
+  verified_handle_count: number;
+  open_bounty_count: number;
+  total_backed_open: number;
+  match_reason: SearchMatchReason | null;
+  url: string | null;
+}
+
+export interface SearchBountyResult {
+  id: string;
+  title: string;
+  creator: { id: string | null; display_name: string | null; url: string | null };
+  amount_backed: number;
+  status: string;
+  match_reason: SearchMatchReason | null;
+  url: string;
+}
+
+export interface SearchResponse {
+  query: string;
+  people: SearchPerson[];
+  bounties: SearchBountyResult[];
+}
+
 export interface Creator {
   id: number;
   /** Public URL slug — `artypot.com/{slug}`. Present on full Creator objects; may be absent on embedded/minimal selects. */
@@ -235,7 +274,7 @@ export interface Creator {
   payout_minimum?: number | null;
   /** Timestamp of TOS agreement, stamped when the user activates creator mode. */
   creator_tos_agreed_at?: string | null;
-  claimed_at?: string;
+  verified_at?: string;
   merged_into_creator_id?: number;
 }
 
@@ -699,7 +738,7 @@ export interface BountyHistoryEvent {
   meta?: Record<string, unknown> | null;
   backing_id?: number | null;
   running_total: number;
-  snapshot: { title: string; description: string | null };
+  snapshot: { title: string; description: string | null; display_name: string | null };
 }
 
 export interface BountyHistory {
@@ -726,8 +765,8 @@ export interface AdminUser {
   creator: {
     id: number;
     display_name: string;
-    claimed: boolean;
-    claimed_at: string | null;
+    verified: boolean;
+    verified_at: string | null;
     amount_earned: number;
     projects_open: number;
     projects_finished: number;
@@ -755,8 +794,8 @@ export interface AdminCreator {
   profile_picture?: string | null;
   /** Public URL slug (artypot.com/{slug}); null if creator has not picked one yet. */
   slug?: string | null;
-  claimed: boolean;
-  claimed_at: string | null;
+  verified: boolean;
+  verified_at: string | null;
   user: { id: number; display_name: string; email: string } | null;
   w9_status: CreatorW9Status | null;
   amount_earned: number;

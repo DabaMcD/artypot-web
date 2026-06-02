@@ -3,7 +3,7 @@
 import { Badge } from './Badge';
 import { BILLING_DAY } from '@/lib/config';
 
-type BountyState = 'collecting' | 'creator-claimed' | 'submitted' | 'verified' | 'settled';
+type BountyState = 'collecting' | 'creator-verified' | 'submitted' | 'verified' | 'settled';
 
 interface BountyCardData {
   id: string;
@@ -24,7 +24,7 @@ interface BountyCardProps {
 
 const stateMap: Record<BountyState, { tone: 'default' | 'info' | 'warn' | 'pending' | 'good'; label: string }> = {
   'collecting':      { tone: 'default',  label: 'collecting' },
-  'creator-claimed': { tone: 'info',     label: 'creator claimed' },
+  'creator-verified': { tone: 'info',     label: 'creator verified' },
   'submitted':       { tone: 'warn',     label: 'submitted · council reviewing' },
   'verified':        { tone: 'pending',  label: `verified · bills on the ${BILLING_DAY}th` },
   'settled':         { tone: 'good',     label: 'settled' },

@@ -145,7 +145,7 @@ export function platformProfileUrl(slug: string, username: string): string {
  * Resolve where a handle's name should link.
  *
  * Curated platforms have a clean single-segment username and a first-party
- * unclaimed-handle page at /{platform}/{username} (see app/[slug]/[handle]).
+ * unverified-handle page at /{platform}/{username} (see app/[slug]/[handle]).
  *
  * The 'other' platform stores a full URL as its "username"
  * (e.g. `wikipedia.org/wiki/Brad_Pitt`). That has no internal page and can't be

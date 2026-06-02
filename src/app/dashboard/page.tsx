@@ -108,7 +108,7 @@ export default function DashboardPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <SectionLabel>fan · {user.display_name.split(' ')[0]}</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">my contributions</h1>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">dashboard</h1>
         </div>
         <Button variant="primary" onClick={() => router.push('/bounties/new')}>
           + Start a Bounty
@@ -255,7 +255,7 @@ export default function DashboardPage() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {myBounties.data.slice(0, 6).map((bounty) => {
-              const stateMap: Record<string, 'collecting' | 'creator-claimed' | 'submitted' | 'verified' | 'settled'> = {
+              const stateMap: Record<string, 'collecting' | 'creator-verified' | 'submitted' | 'verified' | 'settled'> = {
                 open: 'collecting',
                 completed: 'submitted',
                 approved: 'verified',

@@ -400,7 +400,7 @@ export default function AdminCreatorsPage() {
   const router = useRouter();
 
   const [search, setSearch]           = useState('');
-  const [claimedFilter, setClaimedFilter] = useState<ClaimedFilter>('all');
+  const [verifiedFilter, setClaimedFilter] = useState<ClaimedFilter>('all');
   const [creators, setCreators]       = useState<AdminCreator[]>([]);
   const [page, setPage]               = useState(1);
   const [lastPage, setLastPage]       = useState(1);
@@ -417,12 +417,12 @@ export default function AdminCreatorsPage() {
     }
   }, [authLoading, user, router]);
 
-  const fetchCreators = useCallback(async (q: string, claimed: ClaimedFilter, p: number) => {
+  const fetchCreators = useCallback(async (q: string, verified: ClaimedFilter, p: number) => {
     setLoading(true);
     try {
       const res = await adminApi.listCreators({
         q: q || undefined,
-        claimed: claimed !== 'all' ? claimed : 'all',
+        verified: verified !== 'all' ? verified : 'all',
         page: p,
       });
       setCreators(res.data);
@@ -447,7 +447,7 @@ export default function AdminCreatorsPage() {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(() => {
       setPage(1);
-      fetchCreators(val, claimedFilter, 1);
+      fetchCreators(val, verifiedFilter, 1);
     }, 350);
   };
 
@@ -512,7 +512,7 @@ export default function AdminCreatorsPage() {
                 type="button"
                 onClick={() => handleClaimedChange(value)}
                 className={`px-3 py-1 rounded font-mono text-[10px] uppercase tracking-wider transition-colors ${
-                  claimedFilter === value
+                  verifiedFilter === value
                     ? 'bg-[var(--color-role-soft)] text-[var(--color-role)]'
                     : 'text-muted hover:text-foreground'
                 }`}
@@ -586,7 +586,7 @@ export default function AdminCreatorsPage() {
               variant="default"
               size="sm"
               disabled={page === 1 || loading}
-              onClick={() => { const p = page - 1; fetchCreators(search, claimedFilter, p); }}
+              onClick={() => { const p = page - 1; fetchCreators(search, verifiedFilter, p); }}
             >
               ← Prev
             </Button>
@@ -597,7 +597,7 @@ export default function AdminCreatorsPage() {
               variant="default"
               size="sm"
               disabled={page === lastPage || loading}
-              onClick={() => { const p = page + 1; fetchCreators(search, claimedFilter, p); }}
+              onClick={() => { const p = page + 1; fetchCreators(search, verifiedFilter, p); }}
             >
               Next →
             </Button>

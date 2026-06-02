@@ -83,7 +83,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
 
   const fanItems: NavItem[] = [
     { sec: 'discover' },
-    { id: 'fan-home',     label: 'My contributions',   icon: '◐', href: '/dashboard' },
+    { id: 'fan-home',     label: 'Dashboard',   icon: '◐', href: '/dashboard' },
     { id: 'fan-create',   label: 'Start a bounty',     icon: '+', href: '/bounties/new' },
     { id: 'fan-search',   label: 'Search creators',    icon: '⌕', href: '/creators' },
     { sec: 'money' },

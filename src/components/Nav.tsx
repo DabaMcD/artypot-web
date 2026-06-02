@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth-context';
 import { useViewMode } from '@/lib/view-mode-context';
 import { useState, useEffect } from 'react';
 import NotificationBell from '@/components/NotificationBell';
-import CreatorSearchWidget from '@/components/CreatorSearchWidget';
+import HeaderSearch from '@/components/HeaderSearch';
 import { ROLE_LABELS } from '@/lib/theme';
 import type { RoleKey } from '@/lib/theme';
 
@@ -79,9 +79,8 @@ export default function Nav() {
                 Guide
               </Link>
               <div className="w-80 shrink-0">
-                <CreatorSearchWidget
-                  navigateOnSelect
-                  placeholder="Search creators…"
+                <HeaderSearch
+                  placeholder="search creators, bounties, handles…"
                   inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-1.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
                 />
               </div>
@@ -375,9 +374,8 @@ export default function Nav() {
         <div className="flex-1 overflow-y-auto py-2">
           {/* Search */}
           <div className="px-4 py-3">
-            <CreatorSearchWidget
-              navigateOnSelect
-              placeholder="Search creators…"
+            <HeaderSearch
+              placeholder="search creators, bounties, handles…"
               inputClassName="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors"
             />
           </div>

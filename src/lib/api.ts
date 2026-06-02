@@ -33,6 +33,8 @@ import type {
   HandlePlatform,
   HandleClaim,
   HandleSearchResult,
+  SearchResponse,
+  SearchBountyResult,
   ComplianceSource,
   ComplianceSanction,
   ComplianceSanctionEntity,
@@ -342,13 +344,13 @@ export const creators = {
 
   /**
    * GET /platform/{platform}/{handle}
-   *  - match === 'claimed'   → handle is verified by a creator; redirect client to /{user.slug}
-   *  - match === 'unclaimed' → no claim; returns bounties for share/recruitment UI
+   *  - match === 'verified'   → handle is verified by a creator; redirect client to /{user.slug}
+   *  - match === 'unverified' → no verified claim; returns bounties for share/recruitment UI
    */
   byPlatformHandle: (platform: string, handle: string) =>
     request<
-      | { match: 'claimed';   user: { id: number; display_name: string; slug: string; profile_picture: string | null } }
-      | { match: 'unclaimed'; handle: { id: number | null; platform: string; username: string }; bounties: Array<{ id: number; title: string; status: string; total_backed: string; created_at: string }> }
+      | { match: 'verified';   user: { id: number; display_name: string; slug: string; profile_picture: string | null } }
+      | { match: 'unverified'; handle: { id: number | null; platform: string; username: string }; bounties: Array<{ id: number; title: string; status: string; total_backed: string; created_at: string }> }
     >(`/platform/${encodeURIComponent(platform)}/${encodeURIComponent(handle)}`),
 
   create: (data: Partial<Creator>) =>
@@ -394,7 +396,7 @@ export const bounties = {
       { method: 'POST', body: JSON.stringify(data) },
     ),
 
-  update: (id: number, data: { title?: string; description?: string }) =>
+  update: (id: number, data: { title?: string; description?: string; display_name?: string | null }) =>
     request<{ data: Bounty }>(`/bounties/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
   backing: (
@@ -405,7 +407,8 @@ export const bounties = {
     expiry_unit?: string,
   ) =>
     request<{
-      data: BountyBacking & { bounty: { total_backed: number } };
+      data: BountyBacking;
+      bounty: { id: number; total_backed: number; solid_total: number };
       default_update_prompts?: import('./default-update-prompt-context').DefaultUpdatePrompts;
     }>(`/bounties/${bountyId}/backings`, {
       method: 'POST',
@@ -702,6 +705,33 @@ export const stripeConnect = {
     request<{ data: { disconnected: boolean } }>('/payout/stripe/account', { method: 'DELETE' }),
 };
 
+export const search = {
+  /**
+   * GET /search — unified header/global search (people + bounties).
+   * Pass an AbortSignal to cancel an in-flight request when the query changes.
+   */
+  query: (
+    params: {
+      q: string;
+      mode?: 'dropdown' | 'full';
+      limit_people?: number;
+      limit_bounties?: number;
+      include_completed?: boolean;
+    },
+    signal?: AbortSignal,
+  ) => {
+    const entries = Object.entries(params)
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<SearchResponse>(`/search?${qs}`, { signal });
+  },
+
+  /** GET /search/trending — top open bounties by recent backing velocity. */
+  trending: (signal?: AbortSignal) =>
+    request<{ data: SearchBountyResult[] }>(`/search/trending`, { signal }),
+};
+
 // Overlord — logs
 export const handles = {
   /** GET /handles/search?q=... — unified handle search for bounty targeting */
@@ -892,7 +922,7 @@ export const admin = {
     request<null>(`/admin/users/${id}`, { method: 'DELETE' }),
 
   // Creators
-  listCreators: (params?: { q?: string; claimed?: 'true' | 'false' | 'all'; page?: number }) => {
+  listCreators: (params?: { q?: string; verified?: 'true' | 'false' | 'all'; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null && v !== '' && v !== 'all')
       .map(([k, v]) => [k, String(v)]) as [string, string][];

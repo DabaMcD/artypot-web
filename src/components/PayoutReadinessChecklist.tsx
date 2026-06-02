@@ -66,7 +66,7 @@ export default function PayoutReadinessChecklist() {
       href: '/c/settings#location',
     },
     {
-      label: 'Handle claimed and approved',
+      label: 'Handle verified and approved',
       done: user.has_verified_handle === true,
       href: '/settings#handles',
     },

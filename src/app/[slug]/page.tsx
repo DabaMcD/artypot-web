@@ -250,7 +250,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   // ── Profile ────────────────────────────────────────────────────────────────
   // In the new system every creator page belongs to a verified creator user —
   // the backend returns 404 for any slug that isn't an enabled creator.
-  // There is no longer an "unclaimed creator profile" concept; unverified
+  // There is no longer an "unverified creator profile" concept; unverified
   // entities are Handles (separate system) not Creator pages.
   const isClaimed = true;
   const canClaim  = false;

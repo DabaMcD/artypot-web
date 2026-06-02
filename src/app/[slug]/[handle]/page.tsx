@@ -40,7 +40,7 @@ type SimpleBounty = { id: number; title: string; status: string; total_backed: s
 type ResolveResult =
   | { kind: 'loading' }
   | { kind: 'not-platform' }
-  | { kind: 'unclaimed'; handle: { id: number | null; platform: string; username: string }; bounties: SimpleBounty[] }
+  | { kind: 'unverified'; handle: { id: number | null; platform: string; username: string }; bounties: SimpleBounty[] }
   | { kind: 'error' };
 
 // ── Mini bounty card (simplified — handle bounties aren't full Bounty objects) ──
@@ -86,7 +86,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   // on /c/handles; everyone else goes through /become-creator, which hosts the
   // same HandlesSection (and won't bounce non-creators the way /c/* does).
   const handleClaim = useCallback(async () => {
-    if (state.kind !== 'unclaimed') return;
+    if (state.kind !== 'unverified') return;
     if (!user) {
       router.push('/login');
       return;
@@ -119,12 +119,12 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
         const res = await creatorsApi.byPlatformHandle(platform, handle);
         if (cancelled) return;
 
-        if (res.match === 'claimed') {
+        if (res.match === 'verified') {
           router.replace(`/${res.user.slug}`);
           return;
         }
 
-        setState({ kind: 'unclaimed', handle: res.handle, bounties: res.bounties });
+        setState({ kind: 'unverified', handle: res.handle, bounties: res.bounties });
       } catch (err) {
         if (cancelled) return;
         const status = (err as { status?: number }).status;
@@ -178,7 +178,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
     );
   }
 
-  // ── Unclaimed ──────────────────────────────────────────────────────────────
+  // ── Unverified ──────────────────────────────────────────────────────────────
   const platformKey = platform.toLowerCase() as HandlePlatform;
   const platformLabel = PLATFORM_LABELS[platformKey] ?? platform;
   const prefix = PLATFORM_HANDLE_CONFIG[platformKey]?.prefix ?? '@';

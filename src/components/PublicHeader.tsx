@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import CreatorSearchWidget from '@/components/CreatorSearchWidget';
+import HeaderSearch from '@/components/HeaderSearch';
 
 /**
  * Sticky public header shown on every page when the viewer is not logged in.
@@ -49,8 +49,7 @@ export function PublicHeader() {
               <circle cx="11" cy="11" r="8" />
               <path strokeLinecap="round" d="m21 21-4.35-4.35" />
             </svg>
-            <CreatorSearchWidget
-              navigateOnSelect
+            <HeaderSearch
               placeholder="find a creator, bounty, or handle…"
               inputClassName="w-full bg-surface-2 border border-border rounded-md px-3 py-1.5 pl-9 font-mono text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors"
             />
@@ -82,8 +81,7 @@ export function PublicHeader() {
                 <circle cx="11" cy="11" r="8" />
                 <path strokeLinecap="round" d="m21 21-4.35-4.35" />
               </svg>
-              <CreatorSearchWidget
-                navigateOnSelect
+              <HeaderSearch
                 autoFocus
                 placeholder="search…"
                 inputClassName="w-full bg-surface-2 border border-border rounded-md px-3 py-1.5 pl-9 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors"

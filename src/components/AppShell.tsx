@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
 import { bounties as bountiesApi } from '@/lib/api';
 import { Sidebar } from './Sidebar';
-import CreatorSearchWidget from './CreatorSearchWidget';
+import HeaderSearch from './HeaderSearch';
 import NotificationBell from './NotificationBell';
 import { NudgeBar } from '@/components/NudgeBar';
 import { NudgeProvider } from '@/lib/nudge-context';
@@ -161,8 +161,7 @@ export function AppShell({ children }: AppShellProps) {
                 <circle cx="11" cy="11" r="8" />
                 <path strokeLinecap="round" d="m21 21-4.35-4.35" />
               </svg>
-              <CreatorSearchWidget
-                navigateOnSelect
+              <HeaderSearch
                 placeholder="find a creator, bounty, or handle…"
                 inputClassName="w-full bg-surface-2 border border-border rounded-md px-3 py-1.5 pl-9 font-mono text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-[var(--color-role)] transition-colors"
               />
@@ -194,8 +193,7 @@ export function AppShell({ children }: AppShellProps) {
                   <circle cx="11" cy="11" r="8" />
                   <path strokeLinecap="round" d="m21 21-4.35-4.35" />
                 </svg>
-                <CreatorSearchWidget
-                  navigateOnSelect
+                <HeaderSearch
                   autoFocus
                   placeholder="search…"
                   inputClassName="w-full bg-surface-2 border border-border rounded-md px-3 py-1.5 pl-9 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-[var(--color-role)] transition-colors"

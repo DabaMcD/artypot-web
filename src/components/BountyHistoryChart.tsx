@@ -35,6 +35,13 @@ const EVENT_META: Record<
 // Clicking these event types snaps the header to the historical state
 const CLICKABLE_TYPES = new Set<string>(['created', 'details_edited']);
 
+// Friendly labels for edited fields; falls back to the raw field name.
+const FIELD_LABELS: Record<string, string> = {
+  title: 'title',
+  description: 'description',
+  display_name: 'creator name',
+};
+
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString('en-US', {
     month:  'short',
@@ -166,7 +173,7 @@ export default function BountyHistoryChart({ events, selectedEvent, onSelect }: 
               </div>
               {event.field != null && event.old_value != null && (
                 <p className="font-mono text-[10px] text-muted/60 mt-1 truncate">
-                  {event.field}: &ldquo;{event.old_value}&rdquo;
+                  {FIELD_LABELS[event.field] ?? event.field}: &ldquo;{event.old_value}&rdquo;
                 </p>
               )}
               <p className="font-mono text-[10px] text-muted/50 tabular-nums mt-1">

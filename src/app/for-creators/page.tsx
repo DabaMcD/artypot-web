@@ -156,7 +156,7 @@ export default function ForCreatorsPage() {
               </h2>
               <ul className="space-y-4">
                 {[
-                  ['Their card isn\'t charged until you deliver', 'No delivery means no payment. Ever. That makes pledging feel safe.'],
+                  ['Their card isn\'t charged until you deliver', 'No delivery means no payment. Ever. That makes backing feel safe.'],
                   ['They back one thing, not a monthly commitment', 'No subscription guilt. They put money toward a specific thing they want to exist.'],
                   ['They can back out any time before completion', 'Changed their mind? They withdraw their backing. No hard feelings, no money lost.'],
                 ].map(([title, detail]) => (

@@ -62,15 +62,15 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
                   {bounty.owner_user.display_name}
                 </div>
               ) : bounty.target_handle ? (
-                // No verified account owner — always surface the real handle so
-                // a fan-supplied display_name can't masquerade as someone else.
-                <div className="max-w-[140px]">
-                  {bounty.display_name && (
-                    <div className="text-sm text-creator font-medium truncate">{bounty.display_name}</div>
-                  )}
+                // No verified account owner — the platform-qualified handle is
+                // the only trustworthy identity, so it leads. A fan-supplied
+                // display_name is secondary and can't masquerade as someone else.
+                <div className="max-w-[150px]">
                   <div className="flex items-center justify-end gap-1">
-                    <span className={`font-mono truncate ${bounty.display_name ? 'text-[10px] text-muted' : 'text-sm text-creator font-medium'}`}>
-                      {formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}
+                    <span className="font-mono text-sm text-creator font-medium truncate">
+                      {bounty.target_handle.platform === 'other'
+                        ? formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)
+                        : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`}
                     </span>
                     {bounty.target_handle.status !== 'verified' && (
                       <span className="font-mono text-[9px] uppercase tracking-wider text-muted bg-surface-2 border border-border px-1 py-px rounded-full shrink-0">
@@ -78,6 +78,9 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
                       </span>
                     )}
                   </div>
+                  {bounty.display_name && (
+                    <div className="text-[11px] text-muted truncate">({bounty.display_name})</div>
+                  )}
                 </div>
               ) : (
                 <div className="text-sm text-creator font-medium truncate max-w-[120px]">
