@@ -167,8 +167,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const userBacking = user ? activeBackings.find((v) => v.user_id === user.id) : null;
 
   // Fan name terms set by the creator; fall back to generic labels.
-  const fanSingular = bounty?.owner_user?.fan_name || 'supporter';
-  const fanPlural   = bounty?.owner_user?.fan_name_plural || bounty?.owner_user?.fan_name || 'supporters';
+  const fanSingular = bounty?.owner_user?.fan_name || 'fan';
+  const fanPlural   = bounty?.owner_user?.fan_name_plural || bounty?.owner_user?.fan_name || 'fans';
 
   // ── Derived display values ────────────────────────────────────────────────
   const displayedTotal = selectedEvent
@@ -895,7 +895,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <div className="flex items-center justify-between gap-2 mt-0.5">
             <div>
               <div className="text-muted text-sm">
-                supported by {activeBackings.length} {activeBackings.length === 1 ? fanSingular : fanPlural}
+                backed by {activeBackings.length} {activeBackings.length === 1 ? fanSingular : fanPlural}
               </div>
               {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5 tabular-nums">
