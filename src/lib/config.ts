@@ -5,6 +5,14 @@ export const BILLING_GRACE_PERIOD_DAYS = Number(process.env.NEXT_PUBLIC_BILLING_
 export const PLATFORM_FEE_PCT = Number(process.env.NEXT_PUBLIC_PLATFORM_FEE_PCT ?? 20);
 
 /**
+ * Frontend fallback for the default backing amount when the user's
+ * `default_backing_amount` is null (existing rows before the column was
+ * introduced). New users get 5.00 from the DB column default; existing
+ * users read this constant until they set their own default.
+ */
+export const DEFAULT_BACKING_AMOUNT_FALLBACK = Number(process.env.NEXT_PUBLIC_DEFAULT_BACKING_AMOUNT ?? 5);
+
+/**
  * When true, the login/register pages expose a phone-number signup option
  * alongside email. While we iron out the phone-only signup UX (beta), keep
  * this off so users only see the email path.

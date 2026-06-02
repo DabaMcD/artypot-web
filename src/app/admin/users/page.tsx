@@ -152,7 +152,7 @@ function UserModal({
           <div className="flex items-center justify-between mb-2">
             <SectionLabel>Creator</SectionLabel>
             <Badge tone={user.creator.claimed ? 'good' : 'default'}>
-              {user.creator.claimed ? 'claimed' : 'unclaimed'}
+              {user.creator.claimed ? 'verified' : 'unverified'}
             </Badge>
           </div>
           <Link href={user.slug ? `/${user.slug}` : `/creators/${user.creator.id}`} className="font-medium text-creator hover:underline text-sm">

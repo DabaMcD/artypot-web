@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Bounty } from '@/lib/types';
+import { formatPlatformHandle } from '@/lib/platforms';
 import { AvatarOrUnknown } from './ui/AvatarOrUnknown';
 import { BountyStatusBadge } from './BountyStatusBadge';
 import ShareButton from './ShareButton';
@@ -54,11 +55,35 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
               avatarUrl={bounty.avatar_url ?? bounty.owner_user?.profile_picture ?? null}
               size="sm"
             />
-            <div className="text-right">
+            <div className="text-right min-w-0">
               <div className="text-xs text-muted">for</div>
-              <div className="text-sm text-creator font-medium truncate max-w-[100px]">
-                {bounty.owner_user?.display_name ?? bounty.display_name ?? (bounty.target_handle ? `${bounty.target_handle.platform}/${bounty.target_handle.username}` : null)}
-              </div>
+              {bounty.owner_user ? (
+                <div className="text-sm text-creator font-medium truncate max-w-[120px]">
+                  {bounty.owner_user.display_name}
+                </div>
+              ) : bounty.target_handle ? (
+                // No verified account owner — always surface the real handle so
+                // a fan-supplied display_name can't masquerade as someone else.
+                <div className="max-w-[140px]">
+                  {bounty.display_name && (
+                    <div className="text-sm text-creator font-medium truncate">{bounty.display_name}</div>
+                  )}
+                  <div className="flex items-center justify-end gap-1">
+                    <span className={`font-mono truncate ${bounty.display_name ? 'text-[10px] text-muted' : 'text-sm text-creator font-medium'}`}>
+                      {formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}
+                    </span>
+                    {bounty.target_handle.status !== 'verified' && (
+                      <span className="font-mono text-[9px] uppercase tracking-wider text-muted bg-surface-2 border border-border px-1 py-px rounded-full shrink-0">
+                        unverified
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-sm text-creator font-medium truncate max-w-[120px]">
+                  {bounty.display_name}
+                </div>
+              )}
             </div>
           </div>
         )}

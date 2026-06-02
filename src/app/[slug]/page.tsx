@@ -305,7 +305,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                       </span>
                     ) : (
                       <span className="text-xs font-medium bg-surface-2 text-muted border border-border px-2 py-0.5 rounded-full">
-                        Unclaimed
+                        Unverified
                       </span>
                     )}
                   </div>

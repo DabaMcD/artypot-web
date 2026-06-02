@@ -142,6 +142,30 @@ export function platformProfileUrl(slug: string, username: string): string {
 }
 
 /**
+ * Resolve where a handle's name should link.
+ *
+ * Curated platforms have a clean single-segment username and a first-party
+ * unclaimed-handle page at /{platform}/{username} (see app/[slug]/[handle]).
+ *
+ * The 'other' platform stores a full URL as its "username"
+ * (e.g. `wikipedia.org/wiki/Brad_Pitt`). That has no internal page and can't be
+ * a path segment — naïvely building `/other/{username}` produces a multi-segment
+ * 404 (`/other/wikipedia.org/wiki/Brad_Pitt`). So 'other' links straight out to
+ * the canonical website instead. The `username.includes('/')` guard is
+ * defence-in-depth: any username that isn't a clean slug links out too.
+ */
+export function handleLink(
+  slug: string,
+  username: string,
+): { href: string; external: boolean } {
+  const isCurated = slug !== OTHER_SLUG && KNOWN_PLATFORMS.has(slug);
+  if (isCurated && !username.includes('/')) {
+    return { href: `/${slug}/${username}`, external: false };
+  }
+  return { href: platformProfileUrl(slug, username), external: true };
+}
+
+/**
  * Format a handle for display — `@username`, `twitch.tv/streamer`, or the
  * canonical URL for 'other'. Mirrors `Platforms::label() + Platforms::prefix()`
  * on the backend.

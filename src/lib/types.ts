@@ -152,6 +152,8 @@ export interface User {
   default_expiry_value?: number;
   /** Unit for default backing expiry: 'day' | 'week' | 'month' | 'year'. */
   default_expiry_unit?: string;
+  /** Default backing amount prefilled in the backing form. Null → frontend env fallback. */
+  default_backing_amount?: number | null;
   /** Public bio shown on the creator profile. */
   bio?: string | null;
   /** Creator-set noun for their fans (singular), e.g. "patron". */

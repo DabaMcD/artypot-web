@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { creators as creatorsApi } from '@/lib/api';
+import { creators as creatorsApi, handles as handlesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { useToast } from '@/lib/toast-context';
 import { Button } from '@/components/ui/Button';
 import { SectionLabel } from '@/components/ui/Card';
 import ShareButton from '@/components/ShareButton';
@@ -76,7 +77,35 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   const { slug: platform, handle } = use(params);
   const router = useRouter();
   const { user } = useAuth();
-const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
+  const { toast } = useToast();
+  const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
+  const [claiming, setClaiming] = useState(false);
+
+  // "Is this you?" — create an unverified claim for the authenticated user,
+  // then drop them onto the handles section to verify ownership. Creators land
+  // on /c/handles; everyone else goes through /become-creator, which hosts the
+  // same HandlesSection (and won't bounce non-creators the way /c/* does).
+  const handleClaim = useCallback(async () => {
+    if (state.kind !== 'unclaimed') return;
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    setClaiming(true);
+    try {
+      const platformKey = platform.toLowerCase() as HandlePlatform;
+      await handlesApi.store(platformKey, state.handle.username);
+      toast('Handle claimed — verify it below to confirm ownership.', 'success');
+      const dest = user.role === 'creator' || user.role === 'council'
+        ? '/c/handles'
+        : '/become-creator';
+      router.push(dest);
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast(e.message ?? 'Could not claim this handle. Please try again.', 'error');
+      setClaiming(false);
+    }
+  }, [state, user, router, platform, toast]);
 
   useEffect(() => {
     let cancelled = false;
@@ -180,14 +209,26 @@ const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
                 <div className="flex items-center gap-3 flex-wrap mb-1">
                   <h1 className="text-2xl font-display font-bold text-foreground break-all">{fullHandle}</h1>
                   <span className="text-xs font-medium bg-surface-2 text-muted border border-border px-2 py-0.5 rounded-full">
-                    Unclaimed
+                    Unverified
                   </span>
                 </div>
                 <p className="text-sm text-muted mb-3">{platformLabel}</p>
                 <p className="text-muted text-sm leading-relaxed">
-                  <span className="font-mono text-creator">{fullHandle}</span> doesn&apos;t appear to have joined Artypot yet.
+                  <span className="font-mono text-creator">{fullHandle}</span>{' '}doesn&apos;t appear to have joined Artypot yet.
                   Tag them on social media to let them know there are fans queueing bounties.
                 </p>
+
+                {/* "Is this you?" — self-claim CTA for the handle's real owner */}
+                <div className="mt-4 flex items-center gap-3 flex-wrap">
+                  <Button variant="primary" size="sm" onClick={handleClaim} disabled={claiming}>
+                    {claiming ? 'Claiming…' : 'Is this you? Claim this handle →'}
+                  </Button>
+                  <span className="text-xs text-muted">
+                    {user
+                      ? 'We’ll add it to your account and help you verify it.'
+                      : 'Sign in to claim it as your own.'}
+                  </span>
+                </div>
               </div>
 
               <div className="shrink-0">
@@ -250,7 +291,7 @@ const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
               Spread the word
             </h3>
             <p className="text-xs text-muted leading-relaxed mb-4">
-              Help {fullHandle} discover their fans on Artypot. Share their page and tag them on {platformLabel}.
+              Help <span className="font-mono text-creator">{fullHandle}</span> discover their fans on Artypot. Share their page and tag them on {platformLabel}.
             </p>
             <div className="flex justify-end">
               <ShareButton

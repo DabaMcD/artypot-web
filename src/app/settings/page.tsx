@@ -16,6 +16,7 @@ import type { NotificationSettings } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input, FieldLabel } from '@/components/ui/Input';
+import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import { Toggle as ToggleUI } from '@/components/ui/Toggle';
 import { Modal } from '@/components/ui/Modal';
 import { Banner } from '@/components/ui/Banner';
@@ -161,6 +162,8 @@ export default function SettingsPage() {
   const [expiryValue, setExpiryValue] = useState('39');
   const [expiryUnit, setExpiryUnit] = useState('month');
   const [expirySaving, setExpirySaving] = useState(false);
+  const [backingAmountInput, setBackingAmountInput] = useState('5');
+  const [backingAmountSaving, setBackingAmountSaving] = useState(false);
   const [picSaving, setPicSaving] = useState(false);
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? 'artypot_profiles';
@@ -178,6 +181,7 @@ export default function SettingsPage() {
     setNameInput(user.display_name ?? '');
     setExpiryValue(String(user.default_expiry_value ?? 39));
     setExpiryUnit(user.default_expiry_unit ?? 'month');
+    setBackingAmountInput(String(user.default_backing_amount ?? DEFAULT_BACKING_AMOUNT_FALLBACK));
     notifApi.get().then(setNotifSettings).catch(() => {});
     backingsApi.list().then((res) => setBackingTotalAmount(res.total_active_amount)).catch(() => {});
   }, [user, authLoading, router]);
@@ -283,6 +287,20 @@ export default function SettingsPage() {
       toast('Default expiry saved.', 'success');
     } catch { toast('Failed to save expiry.', 'error'); }
     finally { setExpirySaving(false); }
+  };
+
+  const handleSaveBackingAmount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    const val = parseFloat(backingAmountInput);
+    if (isNaN(val) || val < 1 || val > 9999.99) return;
+    setBackingAmountSaving(true);
+    try {
+      await usersApi.update(user.id, { default_backing_amount: val });
+      await refreshUser();
+      toast('Default backing amount saved.', 'success');
+    } catch { toast('Failed to save default backing amount.', 'error'); }
+    finally { setBackingAmountSaving(false); }
   };
 
   const handleSendCode = async () => {
@@ -619,6 +637,35 @@ export default function SettingsPage() {
               disabled={expirySaving || !expiryValue || parseInt(expiryValue, 10) < 1}
             >
               {expirySaving ? 'Saving…' : 'Save'}
+            </Button>
+          </form>
+        </Card>
+
+        {/* Default backing amount */}
+        <Card>
+          <SectionLabel className="mb-1">default backing amount</SectionLabel>
+          <p className="text-sm text-muted mb-4">
+            Prefilled in the backing form. You can always override this per bounty.
+          </p>
+          <form onSubmit={handleSaveBackingAmount} className="flex gap-2 items-end">
+            <div className="flex-1">
+              <FieldLabel>amount ($)</FieldLabel>
+              <Input
+                type="number"
+                required
+                min={1}
+                max={9999.99}
+                step={0.01}
+                value={backingAmountInput}
+                onChange={(e) => setBackingAmountInput(e.target.value)}
+              />
+            </div>
+            <Button
+              type="submit"
+              variant="default"
+              disabled={backingAmountSaving || !backingAmountInput || parseFloat(backingAmountInput) < 1}
+            >
+              {backingAmountSaving ? 'Saving…' : 'Save'}
             </Button>
           </form>
         </Card>

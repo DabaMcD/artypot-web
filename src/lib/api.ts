@@ -384,19 +384,37 @@ export const bounties = {
     target_handle_id?: number;
     platform?: string;
     username?: string;
+    url?: string;
     display_name?: string;
     backing_expiry_value?: number;
     backing_expiry_unit?: string;
   }) =>
-    request<{ data: Bounty }>('/bounties', { method: 'POST', body: JSON.stringify(data) }),
+    request<{ data: Bounty; default_update_prompts?: import('./default-update-prompt-context').DefaultUpdatePrompts }>(
+      '/bounties',
+      { method: 'POST', body: JSON.stringify(data) },
+    ),
 
   update: (id: number, data: { title?: string; description?: string }) =>
     request<{ data: Bounty }>(`/bounties/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
-  backing: (bountyId: number, amount: number, expires_at?: string) =>
-    request<{ data: BountyBacking & { bounty: { total_backed: number } } }>(`/bounties/${bountyId}/backings`, {
+  backing: (
+    bountyId: number,
+    amount: number,
+    expires_at?: string,
+    expiry_value?: number,
+    expiry_unit?: string,
+  ) =>
+    request<{
+      data: BountyBacking & { bounty: { total_backed: number } };
+      default_update_prompts?: import('./default-update-prompt-context').DefaultUpdatePrompts;
+    }>(`/bounties/${bountyId}/backings`, {
       method: 'POST',
-      body: JSON.stringify({ amount, ...(expires_at ? { expires_at } : {}) }),
+      body: JSON.stringify({
+        amount,
+        ...(expires_at ? { expires_at } : {}),
+        ...(expiry_value !== undefined ? { backing_expiry_value: expiry_value } : {}),
+        ...(expiry_unit !== undefined ? { backing_expiry_unit: expiry_unit } : {}),
+      }),
     }),
 
   removeBacking: (bountyId: number, backingId: number) =>
@@ -423,7 +441,7 @@ export const users = {
   get: (id: number) =>
     request<{ data: PublicUser }>(`/users/${id}`),
 
-  update: (id: number, data: Partial<Pick<User, 'display_name' | 'profile_picture' | 'is_anonymous' | 'country_code' | 'state_code' | 'default_expiry_value' | 'default_expiry_unit' | 'bio' | 'fan_name' | 'fan_name_plural'>>) =>
+  update: (id: number, data: Partial<Pick<User, 'display_name' | 'profile_picture' | 'is_anonymous' | 'country_code' | 'state_code' | 'default_expiry_value' | 'default_expiry_unit' | 'default_backing_amount' | 'bio' | 'fan_name' | 'fan_name_plural'>>) =>
     request<{ data: User }>(`/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),

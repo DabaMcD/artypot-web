@@ -13,6 +13,8 @@ import { NudgeBar } from '@/components/NudgeBar';
 import { NudgeProvider } from '@/lib/nudge-context';
 import { PaymentGraceBanner } from '@/components/PaymentGraceBanner';
 import { PaymentAuthBanner } from '@/components/PaymentAuthBanner';
+import { DefaultUpdatePromptBar } from '@/components/DefaultUpdatePromptBar';
+import { DefaultUpdatePromptProvider } from '@/lib/default-update-prompt-context';
 import { PublicHeader } from '@/components/PublicHeader';
 import { PublicFooter } from '@/components/PublicFooter';
 
@@ -112,6 +114,7 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <NudgeProvider>
+    <DefaultUpdatePromptProvider>
     <div className="flex flex-col min-h-screen bg-background" data-role={role}>
 
       {/* ── Full-width top bar ─────────────────────────────────────────────── */}
@@ -228,12 +231,14 @@ export function AppShell({ children }: AppShellProps) {
             <NudgeBar />
             <PaymentAuthBanner />
             <PaymentGraceBanner />
+            <DefaultUpdatePromptBar />
             {children}
           </main>
         </div>
       </div>
 
     </div>
+    </DefaultUpdatePromptProvider>
     </NudgeProvider>
   );
 }

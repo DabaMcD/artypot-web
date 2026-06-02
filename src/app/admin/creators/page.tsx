@@ -472,9 +472,9 @@ export default function AdminCreatorsPage() {
   if (authLoading || !user || user.role !== 'council') return null;
 
   const CLAIMED_TABS: { label: string; value: ClaimedFilter }[] = [
-    { label: 'All',       value: 'all' },
-    { label: 'Claimed',   value: 'true' },
-    { label: 'Unclaimed', value: 'false' },
+    { label: 'All',        value: 'all' },
+    { label: 'Verified',   value: 'true' },
+    { label: 'Unverified', value: 'false' },
   ];
 
   return (

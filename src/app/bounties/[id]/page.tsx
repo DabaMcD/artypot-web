@@ -20,8 +20,11 @@ import Link from 'next/link';
 import { bounties as bountiesApi } from '@/lib/api';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { useAuth } from '@/lib/auth-context';
+import { useDefaultUpdatePrompt } from '@/lib/default-update-prompt-context';
+import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import { useViewMode } from '@/lib/view-mode-context';
 import type { Bounty, BountyBacking, BountyHistoryEvent } from '@/lib/types';
+import { handleLink, formatPlatformHandle } from '@/lib/platforms';
 import ShareButton from '@/components/ShareButton';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
 import CommentSection from '@/components/CommentSection';
@@ -49,6 +52,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const { user } = useAuth();
   const { setCurrentBountyTargetUserId } = useViewMode();
   const { toast } = useToast();
+  const { dispatch: dispatchPrompt } = useDefaultUpdatePrompt();
   const router = useRouter();
 
   const [bounty, setBounty] = useState<Bounty | null>(null);
@@ -56,12 +60,14 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const [error, setError] = useState('');
 
 
-  // Backing form
+  // Backing form. Initial empty string lets the placeholder show; once the
+  // user object loads, the amount input is seeded with the user's default
+  // (or env fallback when the column is null on existing rows).
   const [backingAmount, setBackingAmount] = useState('');
   const [expireValue, setExpireValue] = useState('7');
   const [expireUnit, setExpireUnit] = useState<ExpireUnit>('years');
 
-  // Sync expiry defaults from the user's saved preference. The user-level
+  // Sync defaults from the user's saved preference. The user-level expiry
   // preference stores singular units (e.g. 'month'); this page uses plural
   // (e.g. 'months'). We normalize on read.
   useEffect(() => {
@@ -74,6 +80,13 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       const plural = (u.endsWith('s') ? u : `${u}s`) as ExpireUnit;
       const allowed: ExpireUnit[] = ['years', 'months', 'weeks', 'days', 'hours', 'minutes'];
       if (allowed.includes(plural)) setExpireUnit(plural);
+    }
+    // Prefill the backing amount with the user's stored default; fall back
+    // to the env-driven constant when the column is null (existing rows
+    // pre-dating the default_backing_amount column).
+    const seededAmount = user.default_backing_amount ?? DEFAULT_BACKING_AMOUNT_FALLBACK;
+    if (seededAmount != null) {
+      setBackingAmount((prev) => prev === '' ? String(seededAmount) : prev);
     }
   }, [user]);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -177,11 +190,16 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       return;
     }
     const expiresAt = computeExpiresAt(expVal, expireUnit);
+    // Backend stores expiry as a singular-unit (value, unit) pair; this page
+    // works in plural form, so strip the trailing 's' before sending.
+    const expirySingular = expireUnit.endsWith('s') ? expireUnit.slice(0, -1) : expireUnit;
     const isUpdate = !!userBacking;
     setBackingLoading(true);
     setBackingError(null);
     try {
-      const res = await bountiesApi.backing(Number(id), amount, expiresAt);
+      const res = await bountiesApi.backing(Number(id), amount, expiresAt, expVal, expirySingular);
+      // Server-computed "update your default" prompt, if any.
+      dispatchPrompt(res.default_update_prompts);
       toast(isUpdate ? 'Updated!' : `You're in for $${amount.toFixed(2)}!`, 'success');
       setBackingAmount('');
       setBounty((prev) => {
@@ -810,12 +828,40 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   {bounty.owner_user.display_name}
                 </Link>
               ) : bounty.target_handle ? (
-                <Link
-                  href={`/${bounty.target_handle.platform}/${bounty.target_handle.username}`}
-                  className="text-creator hover:underline font-medium cursor-pointer"
-                >
-                  {bounty.display_name ?? `${bounty.target_handle.platform}/${bounty.target_handle.username}`}
-                </Link>
+                // Handle-targeted bounty with no verified account owner. The
+                // real platform handle is ALWAYS shown — a fan-supplied
+                // display_name must never stand in for it, or anyone could
+                // label a random handle "MrBeast" and mislead backers. The
+                // handle is the only verifiable identity here.
+                <span className="inline-flex items-center gap-x-2 gap-y-1 flex-wrap align-middle">
+                  {bounty.display_name && (
+                    <span className="text-creator font-medium">{bounty.display_name}</span>
+                  )}
+                  {(() => {
+                    const th = bounty.target_handle!;
+                    const { href, external } = handleLink(th.platform, th.username);
+                    const label = formatPlatformHandle(th.platform, th.username);
+                    const cls = `font-mono cursor-pointer hover:underline break-all ${
+                      bounty.display_name
+                        ? 'text-xs text-muted hover:text-foreground'
+                        : 'text-creator font-medium'
+                    }`;
+                    return external ? (
+                      <a href={href} target="_blank" rel="noopener noreferrer nofollow" className={cls}>
+                        {label}
+                      </a>
+                    ) : (
+                      <Link href={href} className={cls}>
+                        {label}
+                      </Link>
+                    );
+                  })()}
+                  {bounty.target_handle.status !== 'verified' && (
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-muted bg-surface-2 border border-border px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                      unverified
+                    </span>
+                  )}
+                </span>
               ) : null}
             </div>
           )}
