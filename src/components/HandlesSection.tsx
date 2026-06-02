@@ -76,7 +76,7 @@ function RequestReviewModal({
   };
 
   const platformLabel = PLATFORM_LABELS[claim.handle.platform as HandlePlatform] ?? claim.handle.platform;
-  const alreadySubmitted = claim.verification_method === 'admin' && !!claim.contact_message;
+  const alreadySubmitted = claim.pending_review;
 
   return (
     <Modal title={`verify @${claim.handle.username}`} onClose={onClose}>
@@ -212,7 +212,12 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
     setAdding(true);
     try {
       const res = await handlesApi.store(addPlatform, addUsername.trim());
-      toast('Handle added.', 'success');
+      toast(
+        res.already_claimed
+          ? 'You already have a claim on this handle.'
+          : 'Handle added.',
+        'success',
+      );
       setAddUsername('');
       setClaims((prev) => {
         const exists = prev.some((c) => c.claim_id === res.data.claim_id);
@@ -271,7 +276,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
               const platform = claim.handle.platform as HandlePlatform;
               const platformLabel = PLATFORM_LABELS[platform] ?? platform;
               const supportsOAuth = ENABLED_OAUTH_PLATFORMS.includes(platform);
-              const pendingReview = claim.status === 'unverified' && claim.verification_method === 'admin';
+              const pendingReview = claim.status === 'unverified' && claim.pending_review;
               const prefix = PLATFORM_HANDLE_CONFIG[platform]?.prefix ?? '@';
 
               return (

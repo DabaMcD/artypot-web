@@ -182,7 +182,7 @@ export default function DashboardPage() {
           </Card>
         ) : activeBackings.length === 0 ? (
           <Empty icon="◇" message="Not backing anything yet">
-            <Link href="/creators"><Button variant="default" size="sm">Find Creators →</Button></Link>
+            <Link href="/search"><Button variant="default" size="sm">Explore →</Button></Link>
           </Empty>
         ) : (
           <Card>

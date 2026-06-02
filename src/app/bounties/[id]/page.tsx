@@ -81,13 +81,6 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       const allowed: ExpireUnit[] = ['years', 'months', 'weeks', 'days', 'hours', 'minutes'];
       if (allowed.includes(plural)) setExpireUnit(plural);
     }
-    // Prefill the backing amount with the user's stored default; fall back
-    // to the env-driven constant when the column is null (existing rows
-    // pre-dating the default_backing_amount column).
-    const seededAmount = user.default_backing_amount ?? DEFAULT_BACKING_AMOUNT_FALLBACK;
-    if (seededAmount != null) {
-      setBackingAmount((prev) => prev === '' ? String(seededAmount) : prev);
-    }
   }, [user]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [backingLoading, setBackingLoading] = useState(false);
@@ -174,6 +167,25 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const activeBackings = bounty?.backings?.filter((v) => !v.revoked_at) ?? [];
   const userBacking = user ? activeBackings.find((v) => v.user_id === user.id) : null;
 
+  // Seed the amount input. When the fan already backs this bounty, the update
+  // field mirrors their *current* commitment — not the account default — so
+  // "update" starts from where they actually are. With no backing yet, fall
+  // back to the user's saved default (or the env constant for legacy rows).
+  // Keyed on the backing's id + amount (stable primitives) so it re-seeds on
+  // load and after a server refresh, but never clobbers what the user types.
+  const userBackingId = userBacking?.id ?? null;
+  const userBackingAmount = userBacking?.amount ?? null;
+  useEffect(() => {
+    if (userBackingId != null) {
+      setBackingAmount(String(Number(userBackingAmount)));
+      return;
+    }
+    const seededAmount = user?.default_backing_amount ?? DEFAULT_BACKING_AMOUNT_FALLBACK;
+    if (seededAmount != null) {
+      setBackingAmount((prev) => (prev === '' ? String(seededAmount) : prev));
+    }
+  }, [userBackingId, userBackingAmount, user]);
+
   // Fan name terms set by the creator; fall back to generic labels.
   const fanSingular = bounty?.owner_user?.fan_name || 'fan';
   const fanPlural   = bounty?.owner_user?.fan_name_plural || bounty?.owner_user?.fan_name || 'fans';
@@ -210,7 +222,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       // Server-computed "update your default" prompt, if any.
       dispatchPrompt(res.default_update_prompts);
       toast(isUpdate ? 'Updated!' : `You're in for $${amount.toFixed(2)}!`, 'success');
-      setBackingAmount('');
+      // Leave the amount field as-is; the seed effect re-syncs it to the
+      // fan's now-current backing once the refreshed bounty lands.
       // Re-fetch the whole bounty so total_backed AND solid_total both reflect
       // the new backing. An optimistic patch only bumped total_backed, which
       // made the user's just-placed backing surface under "soft backings".
@@ -693,7 +706,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           }
         >
           <p className="text-muted text-sm leading-relaxed">
-            You&apos;re the only {fanSingular} supporting this bounty. Backing out will leave it empty — it will be cleared automatically.
+            You&apos;re the only {fanSingular} backing this bounty. By leaving, this bounty will be queued for removal.
           </p>
         </Modal>
       )}
@@ -715,19 +728,19 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                       ✕ Back to current
                     </button>
                   </div>
-                  <h1 className="text-2xl font-display font-bold text-foreground/70 leading-snug flex-1 min-w-0">
+                  <h1 className="text-2xl font-display font-bold text-foreground/70 leading-snug flex-1 min-w-0 normal-case">
                     {displayedTitle}
                   </h1>
                 </div>
               ) : (
-                <h1 className="text-2xl font-display font-bold text-foreground leading-snug flex-1 min-w-0">
+                <h1 className="text-2xl font-display font-bold text-foreground leading-snug flex-1 min-w-0 normal-case">
                   {displayedTitle}
                 </h1>
               )}
               {isOwner && bounty.status === 'open' && !showEditForm && (
                 <Button
                   variant="default"
-                  size="xs"
+                  size="sm"
                   onClick={() => {
                     setEditTitle(bounty.title);
                     setEditDescription(bounty.description ?? '');
@@ -869,9 +882,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     </span>
                   )}
                   {bounty.target_handle.status !== 'verified' && (
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-muted bg-surface-2 border border-border px-1.5 py-0.5 rounded-full whitespace-nowrap">
-                      unverified
-                    </span>
+                    <Badge tone="default">unverified</Badge>
                   )}
                 </span>
               ) : null}

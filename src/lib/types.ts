@@ -31,6 +31,9 @@ export interface HandleClaim {
   status: 'unverified' | 'verified';
   /** 'oauth' = verified via OAuth; 'admin' = submitted for admin review or admin-approved; null = not yet submitted */
   verification_method: 'oauth' | 'admin' | null;
+  /** True only while an application is awaiting an admin decision. Flips back
+   *  to false once approved/denied/retracted, regardless of verification_method. */
+  pending_review: boolean;
   /** Message the creator left for admins when requesting review. */
   contact_message: string | null;
   verified_at: string | null;

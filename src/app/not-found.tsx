@@ -56,7 +56,7 @@ export default function NotFound() {
 
         {/* Cute audit footer */}
         <p className="font-mono text-[10px] uppercase tracking-widest text-muted/60 mt-10">
-          backed: 0 · supporters: 0 · status: missing
+          backed: 0 · fans: 0 · status: missing
         </p>
       </div>
     </div>

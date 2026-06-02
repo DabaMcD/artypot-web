@@ -35,7 +35,7 @@ export default function CreatorSetupPage() {
             detail: 'Verify at least one social handle or website to prove you\'re the real deal.',
             status: creator && (creator.youtube_handle || creator.twitter_handle || creator.tiktok_handle || creator.instagram_handle || creator.soundcloud_url || creator.bandcamp_url || creator.domain) ? 'done' : 'todo',
           }}
-          action={<Link href="/settings#handles"><Button variant="default" size="sm">Manage Handles →</Button></Link>}
+          action={<Link href="/c/handles"><Button variant="default" size="sm">Manage Handles →</Button></Link>}
         />
         <GateCard
           gate={{

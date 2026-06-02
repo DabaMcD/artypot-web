@@ -7,7 +7,7 @@ import type { SearchResponse, SearchPerson, SearchBountyResult } from '@/lib/typ
 import { useDebouncedSearch } from '@/lib/search/useDebouncedSearch';
 import { sanitizeSnippet } from '@/lib/search/sanitizeSnippet';
 import { getRecentSearches, addRecentSearch } from '@/lib/search/recentSearches';
-import { moveActiveIndex, buildSearchHref, buildCreateBountyHref } from '@/lib/search/navigation';
+import { moveActiveIndex, buildSearchHref } from '@/lib/search/navigation';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
 
 const MIN_CHARS = 2;
@@ -22,7 +22,6 @@ interface HeaderSearchProps {
 type NavItem =
   | { kind: 'person'; href: string | null; external: boolean }
   | { kind: 'bounty'; href: string }
-  | { kind: 'create'; href: string }
   | { kind: 'see-all'; href: string };
 
 const fmtMoney = (n: number) =>
@@ -112,15 +111,13 @@ export default function HeaderSearch({ placeholder = 'Search…', inputClassName
   if (queryActive) {
     people.forEach((p) => navItems.push({ kind: 'person', href: p.url, external: isExternal(p.url) }));
     bounties.forEach((b) => navItems.push({ kind: 'bounty', href: b.url }));
-    if (!loading && !hasResults) {
-      navItems.push({ kind: 'create', href: buildCreateBountyHref(trimmed) });
-    }
     navItems.push({ kind: 'see-all', href: buildSearchHref(trimmed) });
   }
 
-  // Reset the keyboard highlight whenever the visible set changes.
+  // Select the first row by default whenever the visible set changes, so a bare
+  // Enter (no arrow-key navigation) activates the top result.
   useEffect(() => {
-    setActiveIndex(-1);
+    setActiveIndex(0);
   }, [query, results]);
 
   const close = () => {
@@ -307,28 +304,12 @@ export default function HeaderSearch({ placeholder = 'Search…', inputClassName
               </div>
             )}
 
-            {/* Empty state CTA */}
-            {queryActive && !loading && !hasResults && (() => {
-              const idx = nextIndex();
-              return (
-                <div className="px-4 py-3">
-                  <p className="text-sm text-muted mb-2">
-                    No matches for &ldquo;{trimmed}&rdquo;.
-                  </p>
-                  <button
-                    type="button"
-                    onMouseEnter={() => setActiveIndex(idx)}
-                    onClick={() => go(buildCreateBountyHref(trimmed), false)}
-                    className={`w-full min-h-[44px] flex items-center gap-2 px-3 rounded-md text-sm font-medium text-creator border border-dashed border-creator/40 transition-colors ${
-                      activeIndex === idx ? 'bg-border' : 'hover:bg-border'
-                    }`}
-                  >
-                    <span className="text-lg leading-none">+</span>
-                    Create a bounty targeting &ldquo;{trimmed}&rdquo; →
-                  </button>
-                </div>
-              );
-            })()}
+            {/* Empty state */}
+            {queryActive && !loading && !hasResults && (
+              <div className="px-4 py-3">
+                <p className="text-sm text-muted">No matches for &ldquo;{trimmed}&rdquo;.</p>
+              </div>
+            )}
           </div>
 
           {/* Sticky footer — "see all" (always present while a query is active) */}
@@ -403,18 +384,16 @@ function PersonRow({
     >
       <PersonAvatar person={person} />
       <span className="flex-1 min-w-0">
-        <span className="flex items-center gap-2">
-          <span className="text-sm text-foreground truncate">{person.display_name}</span>
-          <span
-            className={`shrink-0 font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded ${
-              person.type === 'creator' ? 'bg-creator/15 text-creator' : 'bg-border text-muted'
-            }`}
-          >
-            {person.type === 'creator' ? 'creator' : 'unverified'}
-          </span>
-        </span>
+        <span className="block text-sm text-foreground truncate">{person.display_name}</span>
         <span className="block text-[11px] text-muted truncate">{subline}</span>
         <MatchReasonNote kind={person.match_reason?.kind} value={person.match_reason?.value} />
+      </span>
+      <span
+        className={`shrink-0 self-center font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded ${
+          person.type === 'creator' ? 'bg-creator/15 text-creator' : 'bg-border text-muted'
+        }`}
+      >
+        {person.type === 'creator' ? 'creator' : 'unverified'}
       </span>
     </button>
   );

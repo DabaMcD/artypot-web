@@ -13,6 +13,7 @@ import BountyCard from '@/components/BountyCard';
 import ShareButton from '@/components/ShareButton';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 
 const SOCIAL_LINKS: { key: keyof Creator; label: string; prefix: string }[] = [
   { key: 'youtube_handle',   label: 'YouTube',    prefix: 'https://youtube.com/@' },
@@ -229,7 +230,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
           </p>
         </div>
         <div className="flex gap-3">
-          <Link href="/creators"><Button variant="primary">Browse Creators</Button></Link>
+          <Link href="/search"><Button variant="primary">Explore Creators</Button></Link>
           <Link href="/"><Button variant="ghost">← Home</Button></Link>
         </div>
       </div>
@@ -296,17 +297,13 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                     <ShareButton
                       path={`/${slug}`}
                       title={creator.display_name}
-                      text={`Support ${creator.display_name} on artypot!`}
+                      text={`Support ${creator.display_name} on Artypot!`}
                       size="sm"
                     />
                     {isClaimed ? (
-                      <span className="text-xs font-medium bg-creator/10 text-creator border border-creator/30 px-2 py-0.5 rounded-full">
-                        Verified Creator
-                      </span>
+                      <Badge tone="creator" lg>Creator</Badge>
                     ) : (
-                      <span className="text-xs font-medium bg-surface-2 text-muted border border-border px-2 py-0.5 rounded-full">
-                        Unverified
-                      </span>
+                      <Badge tone="default" lg>Unverified</Badge>
                     )}
                   </div>
 

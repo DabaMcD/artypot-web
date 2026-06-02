@@ -323,7 +323,7 @@ function CreatorDashboardContent() {
           <Card>
             <div className="flex items-center justify-between mb-4">
               <SectionLabel>recent transactions</SectionLabel>
-              <Link href="/c/ledger" className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors">
+              <Link href="/c/money" className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors">
                 full ledger →
               </Link>
             </div>

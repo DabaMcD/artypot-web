@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { SectionLabel } from '@/components/ui/Card';
 import ShareButton from '@/components/ShareButton';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
+import { Badge } from '@/components/ui/Badge';
 import type { HandlePlatform } from '@/lib/types';
 import { PLATFORM_HANDLE_CONFIG } from '@/components/ui/PlatformHandleInput';
 
@@ -160,7 +161,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
           </p>
         </div>
         <div className="flex gap-3">
-          <Link href="/creators"><Button variant="primary">Browse Creators</Button></Link>
+          <Link href="/search"><Button variant="primary">Explore Creators</Button></Link>
           <Link href="/"><Button variant="ghost">← Home</Button></Link>
         </div>
       </div>
@@ -208,9 +209,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
 
                 <div className="flex items-center gap-3 flex-wrap mb-1">
                   <h1 className="text-2xl font-display font-bold text-foreground break-all">{fullHandle}</h1>
-                  <span className="text-xs font-medium bg-surface-2 text-muted border border-border px-2 py-0.5 rounded-full">
-                    Unverified
-                  </span>
+                  <Badge tone="default" lg>Unverified</Badge>
                 </div>
                 <p className="text-sm text-muted mb-3">{platformLabel}</p>
                 <p className="text-muted text-sm leading-relaxed">

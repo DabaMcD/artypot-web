@@ -3,12 +3,26 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { search as searchApi } from '@/lib/api';
-import type { SearchResponse, SearchPerson, SearchBountyResult } from '@/lib/types';
+import { search as searchApi, creators as creatorsApi } from '@/lib/api';
+import type {
+  SearchResponse,
+  SearchPerson,
+  SearchBountyResult,
+  Creator,
+  PaginatedResponse,
+} from '@/lib/types';
 import { sanitizeSnippet } from '@/lib/search/sanitizeSnippet';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
+import { Badge } from '@/components/ui/Badge';
+import CreatorCard from '@/components/CreatorCard';
+import { SectionLabel } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Empty } from '@/components/ui/Empty';
 
 type FilterType = 'all' | 'people' | 'bounties';
+type SortOption = 'newest' | 'most_backed' | 'most_completed';
+
+const MIN_CHARS = 2;
 
 const PEOPLE_MAX = 10;
 const BOUNTIES_MAX = 20;
@@ -24,18 +38,60 @@ const FILTER_TABS: { key: FilterType; label: string }[] = [
   { key: 'bounties', label: 'Bounties' },
 ];
 
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: 'newest', label: 'newest' },
+  { value: 'most_backed', label: 'most bounties' },
+  { value: 'most_completed', label: 'most completed' },
+];
+
+// A "pill row" toggle matching the app's mono idiom (shared by tabs + sort).
+function PillRow<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: T; label: string }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1 border border-border rounded p-1 bg-surface shrink-0">
+      {options.map(({ value: v, label }) => (
+        <button
+          key={v}
+          onClick={() => onChange(v)}
+          className={`px-3 py-1 font-mono text-[10px] uppercase tracking-wider rounded transition-colors cursor-pointer ${
+            value === v ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function SearchPageInner() {
   const params = useSearchParams();
   const router = useRouter();
 
   const query = (params.get('q') ?? '').trim();
   const type = (params.get('type') as FilterType) || 'all';
+  const browsing = query.length < MIN_CHARS;
 
+  // ── Query-results state ─────────────────────────────────────────────────────
   const [data, setData] = useState<SearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [peopleLimit, setPeopleLimit] = useState(PEOPLE_STEP);
   const [bountyLimit, setBountyLimit] = useState(BOUNTIES_STEP);
   const [includeCompleted, setIncludeCompleted] = useState(false);
+
+  // ── Browse state (no / too-short query) ─────────────────────────────────────
+  const [creators, setCreators] = useState<PaginatedResponse<Creator> | null>(null);
+  const [creatorSort, setCreatorSort] = useState<SortOption>('newest');
+  const [creatorPage, setCreatorPage] = useState(1);
+  const [browseLoading, setBrowseLoading] = useState(false);
+  const [trending, setTrending] = useState<SearchBountyResult[]>([]);
 
   // Reset paging when the query or completed-toggle changes. Done during render
   // (React's sanctioned "adjust state on input change" pattern) rather than in
@@ -48,8 +104,9 @@ function SearchPageInner() {
     setBountyLimit(BOUNTIES_STEP);
   }
 
+  // Load search results when a query is active.
   const load = useCallback(async () => {
-    if (query.length < 2) {
+    if (browsing) {
       setData(null);
       return;
     }
@@ -68,15 +125,42 @@ function SearchPageInner() {
     } finally {
       setLoading(false);
     }
-  }, [query, peopleLimit, bountyLimit, includeCompleted]);
+  }, [browsing, query, peopleLimit, bountyLimit, includeCompleted]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Load the browsable creator catalog when there's no active query.
+  const loadCreators = useCallback(async () => {
+    if (!browsing) return;
+    setBrowseLoading(true);
+    try {
+      const res = await creatorsApi.list({ sort: creatorSort, page: creatorPage });
+      setCreators(res);
+    } catch {
+      setCreators(null);
+    } finally {
+      setBrowseLoading(false);
+    }
+  }, [browsing, creatorSort, creatorPage]);
+
+  useEffect(() => { loadCreators(); }, [loadCreators]);
+
+  // Lazily load trending bounties once, the first time we're in browse mode.
+  useEffect(() => {
+    if (!browsing || trending.length > 0) return;
+    searchApi.trending().then((res) => setTrending(res.data ?? [])).catch(() => {});
+  }, [browsing, trending.length]);
 
   const setType = (next: FilterType) => {
     const sp = new URLSearchParams(params.toString());
     if (next === 'all') sp.delete('type');
     else sp.set('type', next);
     router.replace(`/search?${sp.toString()}`);
+  };
+
+  const setSort = (next: SortOption) => {
+    setCreatorSort(next);
+    setCreatorPage(1);
   };
 
   const people = data?.people ?? [];
@@ -90,37 +174,45 @@ function SearchPageInner() {
   const moreBounties = bountyLimit < BOUNTIES_MAX && bounties.length >= bountyLimit;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="font-display font-bold text-2xl text-foreground mb-1">
-        {query ? <>Results for <span className="text-creator">&ldquo;{query}&rdquo;</span></> : 'Search'}
-      </h1>
-      <p className="text-sm text-muted mb-6">Creators, bounties, and handles.</p>
-
-      {/* Filter tabs */}
-      <div className="flex items-center gap-2 mb-6">
-        {FILTER_TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setType(tab.key)}
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              type === tab.key ? 'bg-fan text-brand-dark' : 'bg-surface-2 text-muted hover:text-foreground'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+    <div className="space-y-6 pt-2">
+      {/* Header */}
+      <div>
+        <SectionLabel>discover</SectionLabel>
+        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">
+          {query
+            ? <>Results for <span className="text-creator">&ldquo;{query}&rdquo;</span></>
+            : 'Explore'}
+        </h1>
+        <p className="text-sm text-muted mt-1">
+          {query
+            ? 'Creators, bounties, and handles.'
+            : 'Browse creators and the bounties their communities are backing.'}
+        </p>
       </div>
 
-      {query.length < 2 ? (
-        <p className="text-muted text-sm">Enter at least 2 characters to search.</p>
+      {browsing ? (
+        <BrowseView
+          creators={creators}
+          loading={browseLoading}
+          sort={creatorSort}
+          onSortChange={setSort}
+          page={creatorPage}
+          onPageChange={setCreatorPage}
+          trending={trending}
+        />
       ) : (
         <>
+          {/* Filter tabs */}
+          <PillRow
+            options={FILTER_TABS.map((t) => ({ value: t.key, label: t.label }))}
+            value={type}
+            onChange={setType}
+          />
+
           {/* People */}
           {showPeople && (
-            <section className="mb-10">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="font-mono text-[11px] uppercase tracking-widest text-muted/70">People</h2>
-              </div>
+            <section className="space-y-3">
+              <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">People</h2>
               {people.length === 0 && !loading ? (
                 <EmptyNote>No people match this search.</EmptyNote>
               ) : (
@@ -136,9 +228,9 @@ function SearchPageInner() {
 
           {/* Bounties */}
           {showBounties && (
-            <section className="mb-10">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="font-mono text-[11px] uppercase tracking-widest text-muted/70">Bounties</h2>
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">Bounties</h2>
                 <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -172,13 +264,85 @@ function SearchPageInner() {
   );
 }
 
+// ── Browse (no-query) view ──────────────────────────────────────────────────────
+function BrowseView({
+  creators,
+  loading,
+  sort,
+  onSortChange,
+  page,
+  onPageChange,
+  trending,
+}: {
+  creators: PaginatedResponse<Creator> | null;
+  loading: boolean;
+  sort: SortOption;
+  onSortChange: (s: SortOption) => void;
+  page: number;
+  onPageChange: (updater: (p: number) => number) => void;
+  trending: SearchBountyResult[];
+}) {
+  return (
+    <div className="space-y-10">
+      {/* Creators */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">Creators</h2>
+          <PillRow options={SORT_OPTIONS} value={sort} onChange={onSortChange} />
+        </div>
+
+        {loading && !creators ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-36 bg-surface animate-pulse rounded-xl" />
+            ))}
+          </div>
+        ) : !creators || creators.data.length === 0 ? (
+          <Empty message="no verified creators yet" />
+        ) : (
+          <>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {creators.data.map((creator) => (
+                <CreatorCard key={creator.id} creator={creator} />
+              ))}
+            </div>
+            {creators.last_page > 1 && (
+              <div className="flex items-center justify-center gap-3 pt-1">
+                <Button variant="default" size="sm" onClick={() => onPageChange((p) => p - 1)} disabled={page === 1}>
+                  ← prev
+                </Button>
+                <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                  {creators.current_page} / {creators.last_page}
+                </span>
+                <Button variant="default" size="sm" onClick={() => onPageChange((p) => p + 1)} disabled={page === creators.last_page}>
+                  next →
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </section>
+
+      {/* Trending bounties */}
+      {trending.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">Trending bounties</h2>
+          <div className="flex flex-col gap-3">
+            {trending.map((b) => <BountyRow key={b.id} bounty={b} />)}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
 function EmptyNote({ children }: { children: React.ReactNode }) {
   return <p className="text-sm text-muted border border-dashed border-border rounded-xl px-4 py-6 text-center">{children}</p>;
 }
 
 function ShowMore({ onClick, loading }: { onClick: () => void; loading: boolean }) {
   return (
-    <div className="mt-3 text-center">
+    <div className="text-center">
       <button
         onClick={onClick}
         disabled={loading}
@@ -214,9 +378,9 @@ function PersonRow({ person }: { person: SearchPerson }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-foreground truncate">{person.display_name}</span>
-          <span className={`shrink-0 font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded ${person.type === 'creator' ? 'bg-creator/15 text-creator' : 'bg-border text-muted'}`}>
+          <Badge tone={person.type === 'creator' ? 'creator' : 'default'} className="shrink-0">
             {person.type === 'creator' ? 'creator' : 'unverified'}
-          </span>
+          </Badge>
         </div>
         <div className="text-xs text-muted truncate">{subline}</div>
         {person.match_reason?.value && (
@@ -263,7 +427,7 @@ function BountyRow({ bounty }: { bounty: SearchBountyResult }) {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="max-w-3xl mx-auto px-4 py-8 text-muted text-sm">Loading…</div>}>
+    <Suspense fallback={<div className="pt-2 text-muted text-sm">Loading…</div>}>
       <SearchPageInner />
     </Suspense>
   );

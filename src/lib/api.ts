@@ -752,7 +752,7 @@ export const handles = {
     const body = platform === 'other'
       ? { platform, url: value }
       : { platform, username: value };
-    return request<{ data: HandleClaim }>('/handles', {
+    return request<{ data: HandleClaim; already_claimed?: boolean }>('/handles', {
       method: 'POST',
       body: JSON.stringify(body),
     });

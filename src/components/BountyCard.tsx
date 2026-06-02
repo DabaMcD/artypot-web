@@ -3,6 +3,7 @@ import type { Bounty } from '@/lib/types';
 import { formatPlatformHandle } from '@/lib/platforms';
 import { AvatarOrUnknown } from './ui/AvatarOrUnknown';
 import { BountyStatusBadge } from './BountyStatusBadge';
+import { Badge } from '@/components/ui/Badge';
 import ShareButton from './ShareButton';
 
 export default function BountyCard({ bounty }: { bounty: Bounty }) {
@@ -73,9 +74,7 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
                         : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`}
                     </span>
                     {bounty.target_handle.status !== 'verified' && (
-                      <span className="font-mono text-[9px] uppercase tracking-wider text-muted bg-surface-2 border border-border px-1 py-px rounded-full shrink-0">
-                        unverified
-                      </span>
+                      <Badge tone="default" className="shrink-0">unverified</Badge>
                     )}
                   </div>
                   {bounty.display_name && (
