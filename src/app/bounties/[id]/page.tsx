@@ -1131,11 +1131,6 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               {bounty.status !== 'open' && (() => {
                 const creatorName = bounty.owner_user?.display_name ?? 'The creator';
                 const notices: Record<string, { heading: string; body: string; tone: 'default' | 'warn' | 'bad' | 'good' }> = {
-                  pending: {
-                    heading: 'Awaiting Council review',
-                    body: `${creatorName} has submitted their work and the Council is considering it. You can still back out — but it would be a bit of a dick move.`,
-                    tone: 'default',
-                  },
                   completed: {
                     heading: 'Completed — payout pending',
                     body: 'The Council has approved this bounty. Commitments are now locked — your card will be charged in the next billing cycle.',
