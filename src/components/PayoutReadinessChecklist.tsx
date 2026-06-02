@@ -68,7 +68,7 @@ export default function PayoutReadinessChecklist() {
     {
       label: 'Handle verified and approved',
       done: user.has_verified_handle === true,
-      href: '/settings#handles',
+      href: '/c/handles',
     },
     ...(creator.bank_connected !== undefined && !isManualPayoutRegion
       ? [

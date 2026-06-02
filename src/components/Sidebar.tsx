@@ -101,7 +101,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
     { sec: 'work' },
     { id: 'creator-bounties',   label: 'Bounties',           icon: '◇', href: '/c/bounties' },
     { sec: 'money' },
-    { id: 'creator-money',      label: 'Money',              icon: '$', href: '/c/money' },
+    { id: 'creator-money',      label: 'Cash ledger',              icon: '$', href: '/c/money' },
     { sec: 'admin' },
     { id: 'creator-handles',    label: 'Handles',            icon: '@', href: '/c/handles' },
     { id: 'creator-tax',        label: 'Tax & compliance',   icon: '⚖', href: '/c/tax' },

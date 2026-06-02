@@ -320,8 +320,8 @@ export default function HeaderSearch({ placeholder = 'Search…', inputClassName
                 type="button"
                 onMouseEnter={() => setActiveIndex(idx)}
                 onClick={() => go(buildSearchHref(trimmed), false)}
-                className={`sticky bottom-0 w-full min-h-[44px] flex items-center justify-center gap-1 px-4 text-sm font-medium text-fan border-t border-border bg-surface-2 transition-colors ${
-                  activeIndex === idx ? 'bg-border' : 'hover:bg-border'
+                className={`sticky bottom-0 w-full min-h-[44px] flex items-center justify-center gap-1 px-4 text-sm font-medium text-fan border-t border-border transition-colors ${
+                  activeIndex === idx ? 'bg-border' : 'bg-surface-2 hover:bg-border'
                 }`}
               >
                 See all results for &ldquo;{trimmed}&rdquo; →
