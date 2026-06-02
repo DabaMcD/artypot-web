@@ -29,99 +29,6 @@ function fmt(n: number | null | undefined) {
   return `$${Number(n ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-// ── Herald gate modal ─────────────────────────────────────────────────────────
-function HeraldGateModal({
-  creator,
-  userName,
-  onClose,
-}: {
-  creator: Creator;
-  userName: string;
-  onClose: () => void;
-}) {
-  const heraldName  = creator.herald?.display_name ?? 'The current Herald';
-  const heraldTotal = Number(creator.herald_total_backing ?? 0);
-  const userTotal   = Number(creator.user_aged_backing_total ?? 0);
-  const deficit     = Math.max(0, heraldTotal - userTotal);
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div className="bg-surface border border-border rounded-2xl w-full max-w-md p-6 shadow-2xl">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-bold text-foreground">Herald Protected</h2>
-            <p className="text-xs text-muted mt-0.5">{creator.display_name}</p>
-          </div>
-          <button onClick={onClose} className="text-muted hover:text-foreground transition-colors text-xl leading-none mt-0.5">✕</button>
-        </div>
-
-        <p className="text-sm text-muted leading-relaxed mb-5">
-          {creator.herald?.id ? (
-            <Link href={`/users/${creator.herald.id}`} onClick={onClose} className="text-fan font-semibold hover:underline">
-              {heraldName}
-            </Link>
-          ) : (
-            <span className="text-fan font-semibold">{heraldName}</span>
-          )}{' '}
-          is the current Herald for this unclaimed profile. The Herald is the top backer who earns
-          the right to keep this profile up to date. To take the edit seat, the total amount you&apos;ve
-          committed (24+ hours old) must exceed theirs.
-        </p>
-
-        <div className="bg-surface-2 border border-border rounded-xl overflow-hidden mb-5">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-creator uppercase tracking-wider">Herald</span>
-              {creator.herald?.id ? (
-                <Link href={`/users/${creator.herald.id}`} onClick={onClose} className="text-sm font-medium text-foreground hover:underline">
-                  {heraldName}
-                </Link>
-              ) : (
-                <span className="text-sm font-medium text-foreground">{heraldName}</span>
-              )}
-            </div>
-            <span className="text-sm font-bold text-fan">{fmt(heraldTotal)}*</span>
-          </div>
-          <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-muted uppercase tracking-wider">You</span>
-              <span className="text-sm font-medium text-foreground">{userName}</span>
-            </div>
-            <span className={`text-sm font-bold ${userTotal > 0 ? 'text-foreground' : 'text-muted'}`}>
-              {fmt(userTotal)}
-              <span className="text-xs text-muted font-normal ml-1">(24h+)</span>
-            </span>
-          </div>
-        </div>
-
-        {deficit > 0 && (
-          <p className="text-xs text-muted text-center mb-3">
-            You need{' '}
-            <span className="text-foreground font-semibold">{fmt(deficit)} more</span>
-            {' '}committed (aged over 24 hours) to take the Herald seat.
-          </p>
-        )}
-
-        <p className="text-xs text-muted/60 mb-5">
-          * {heraldName}&apos;s qualifying total is recorded at the time of their last edit to{' '}
-          {creator.display_name}&apos;s profile.
-        </p>
-
-        <Link
-          href={`/bounties?creator_id=${creator.id}`}
-          onClick={onClose}
-          className="block w-full text-center bg-fan text-black font-semibold text-sm py-2.5 rounded-lg hover:opacity-90 transition-opacity"
-        >
-          View bounties to back →
-        </Link>
-      </div>
-    </div>
-  );
-}
-
 // ── Claim confirmation modal ───────────────────────────────────────────────────
 function ClaimModal({
   creator,
@@ -226,7 +133,6 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   const [creator, setCreator] = useState<Creator | null>(null);
   const [bountiesData, setBountiesData] = useState<PaginatedResponse<Bounty> | null>(null);
   const [pageState, setPageState] = useState<'loading' | 'not-found' | 'error' | 'ready'>('loading');
-  const [showHeraldModal, setShowHeraldModal] = useState(false);
 
   // Claim state
   const [showClaimModal, setShowClaimModal] = useState(false);
@@ -276,15 +182,6 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
     })();
     return () => { cancelled = true; };
   }, [slug, router]);
-
-  const handleEditClick = () => {
-    if (!creator) return;
-    if (creator.can_edit) {
-      router.push('/c/settings');
-    } else {
-      setShowHeraldModal(true);
-    }
-  };
 
   const handleFollowToggle = async () => {
     if (!user || !creator) return;
@@ -358,18 +255,10 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   const isClaimed = true;
   const canClaim  = false;
   const isOwner   = user && creator.user_id === user.id;
-  const isHerald  = user && creator.herald_user_id === user.id;
   const socialLinks = SOCIAL_LINKS.filter(({ key }) => creator[key]);
 
   return (
     <>
-      {showHeraldModal && user && (
-        <HeraldGateModal
-          creator={creator}
-          userName={user.display_name}
-          onClose={() => setShowHeraldModal(false)}
-        />
-      )}
       {showClaimModal && creator && (
         <ClaimModal
           creator={creator}
@@ -443,14 +332,6 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                 {/* Action buttons — only visible in creator mode */}
                 {isCreatorMode && (
                   <div className="shrink-0 flex flex-col gap-2 items-end">
-                    {user && !isClaimed && (
-                      <button
-                        onClick={handleEditClick}
-                        className="bg-creator text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-                      >
-                        Edit Profile
-                      </button>
-                    )}
                     {user && isClaimed && creator.can_edit && (
                       <Link
                         href="/c/settings"

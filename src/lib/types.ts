@@ -184,10 +184,6 @@ export interface Creator {
   slug?: string | null;
   user_id?: number;
   user?: { id: number; display_name: string };
-  /** Herald of an unclaimed creator (has editing rights) */
-  herald?: { id: number; display_name: string };
-  herald_user_id?: number;
-  herald_total_backing?: number;
   display_name: string;
   description?: string;
   bio?: string | null;
