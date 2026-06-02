@@ -263,7 +263,7 @@ export default function RegisterPage() {
           account.
         </h1>
         <p className="text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
-          every artypot user starts as a fan — you can pledge to bounties, start new ones, and chip in on anything you want to see made.
+          every artypot user starts as a fan — you can back bounties, start new ones, and chip in on anything you want to see made.
         </p>
 
         <Card dashed className="max-w-[420px]">

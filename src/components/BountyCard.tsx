@@ -5,7 +5,7 @@ import { BountyStatusBadge } from './BountyStatusBadge';
 import ShareButton from './ShareButton';
 
 export default function BountyCard({ bounty }: { bounty: Bounty }) {
-  const backerCount = bounty.pledges?.filter((v) => !v.revoked_at).length ?? null;
+  const backerCount = bounty.backings?.filter((v) => !v.revoked_at).length ?? null;
   const fanSingular = bounty.owner_user?.fan_name || 'supporter';
   const fanPlural   = bounty.owner_user?.fan_name_plural || bounty.owner_user?.fan_name || 'supporters';
 
@@ -35,7 +35,7 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
       <div className="flex items-end justify-between mt-auto pt-3 border-t border-border">
         <div>
           <div className="text-fan font-bold text-lg">
-            ${Number(bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           {backerCount !== null && (
             <div className="text-xs text-muted mt-0.5">
@@ -44,7 +44,7 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
           )}
           {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
             <div className="text-xs text-muted mt-0.5">
-              ${bounty.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of ${Number(bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cleared
+              ${bounty.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cleared
             </div>
           )}
         </div>

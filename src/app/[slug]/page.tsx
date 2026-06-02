@@ -40,8 +40,8 @@ function HeraldGateModal({
   onClose: () => void;
 }) {
   const heraldName  = creator.herald?.display_name ?? 'The current Herald';
-  const heraldTotal = Number(creator.herald_total_pledge ?? 0);
-  const userTotal   = Number(creator.user_aged_pledge_total ?? 0);
+  const heraldTotal = Number(creator.herald_total_backing ?? 0);
+  const userTotal   = Number(creator.user_aged_backing_total ?? 0);
   const deficit     = Math.max(0, heraldTotal - userTotal);
 
   return (
@@ -513,10 +513,10 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                     <div className="text-muted text-xs">Total earned</div>
                   </div>
                 )}
-                {creator.total_pledge_sum != null && (
+                {creator.total_backing_sum != null && (
                   <div>
                     <div className="text-fan font-semibold text-lg">
-                      ${Number(creator.total_pledge_sum).toLocaleString()}
+                      ${Number(creator.total_backing_sum).toLocaleString()}
                     </div>
                     <div className="text-muted text-xs">Active backing</div>
                   </div>

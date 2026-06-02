@@ -72,9 +72,9 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  // Use server-computed total (all active unrevoked pledges) when available;
+  // Use server-computed total (all active unrevoked backings) when available;
   // fall back to summing the displayed top-10 slice only if not present.
-  const totalPledges = profile.total_pledge_amount ?? profile.pledges.reduce((sum, v) => sum + Number(v.amount), 0);
+  const totalBackings = profile.total_backing_amount ?? profile.backings.reduce((sum, v) => sum + Number(v.amount), 0);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
@@ -124,26 +124,26 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
         </div>
       </div>
 
-      {/* Pledges */}
+      {/* Backings */}
       <div className="bg-surface border border-border rounded-xl p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-semibold text-foreground">
-              Top Pledges
+              Top Backings
             </h2>
-            {!profile.is_anonymous && profile.pledges.length === 10 && (
+            {!profile.is_anonymous && profile.backings.length === 10 && (
               <p className="text-xs text-muted mt-0.5">Showing top 10 by amount</p>
             )}
           </div>
           <div className="flex items-center gap-3">
-            {profile.pledges.length > 0 && (
+            {profile.backings.length > 0 && (
               <span className="text-sm text-muted">
-                <span className="text-creator font-semibold">${totalPledges.toFixed(2)}</span>
+                <span className="text-creator font-semibold">${totalBackings.toFixed(2)}</span>
               </span>
             )}
             {isOwnProfile && (
               <Link
-                href="/pledges"
+                href="/backings"
                 className="text-xs text-fan hover:underline"
               >
                 View all →
@@ -154,36 +154,36 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
 
         {profile.is_anonymous && !isOwnProfile ? (
           <p className="text-muted text-sm">This user has chosen to remain anonymous.</p>
-        ) : profile.pledges.length === 0 ? (
+        ) : profile.backings.length === 0 ? (
           <p className="text-muted text-sm">
             {isOwnProfile ? "You're not backing anything yet." : 'Not backing anything.'}
           </p>
         ) : (
           <div className="space-y-2">
-            {profile.pledges.map((pledge) => (
+            {profile.backings.map((backing) => (
               <div
-                key={pledge.id}
+                key={backing.id}
                 className="flex items-center justify-between py-3 border-b border-border last:border-0"
               >
                 <div className="flex-1 min-w-0">
-                  {pledge.bounty ? (
+                  {backing.bounty ? (
                     <Link
-                      href={`/bounties/${pledge.bounty_id}`}
+                      href={`/bounties/${backing.bounty_id}`}
                       className="text-sm font-medium text-foreground hover:underline truncate block"
                     >
-                      {pledge.bounty.title}
+                      {backing.bounty.title}
                     </Link>
                   ) : (
-                    <span className="text-sm text-muted">Project #{pledge.bounty_id}</span>
+                    <span className="text-sm text-muted">Project #{backing.bounty_id}</span>
                   )}
-                  {pledge.expires_at && (
+                  {backing.expires_at && (
                     <p className="text-xs text-muted mt-0.5">
-                      Expires {formatExpiry(pledge.expires_at)}
+                      Expires {formatExpiry(backing.expires_at)}
                     </p>
                   )}
                 </div>
                 <span className="text-creator font-semibold text-sm ml-4">
-                  ${Number(pledge.amount).toFixed(2)}
+                  ${Number(backing.amount).toFixed(2)}
                 </span>
               </div>
             ))}

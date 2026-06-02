@@ -43,9 +43,9 @@ These Creator Terms of Service ("Creator Terms") govern your participation as a 
 
 2.1 Platform, not employer. Artypot is a platform that facilitates fan-funded commissions. Artypot is not your employer, client, agent, or partner. You are an independent creator.
 
-2.2 Payment intermediary. Artypot collects fan pledges, holds them per its billing and refund policies, and disburses net proceeds to creators after platform fees.
+2.2 Payment intermediary. Artypot collects fan backings, holds them per its billing and refund policies, and disburses net proceeds to creators after platform fees.
 
-2.3 No guarantee of earnings. Artypot does not guarantee that any bounty will reach any amount, that fans will fulfill pledges, or that any particular level of earnings will result.
+2.3 No guarantee of earnings. Artypot does not guarantee that any bounty will reach any amount, that fans will fulfill backings, or that any particular level of earnings will result.
 
 2.4 Council review. Bounty completion submissions are reviewed by the Artypot Council. Council decisions are final subject to the appeal process in the General Terms.
 
@@ -61,7 +61,7 @@ These Creator Terms of Service ("Creator Terms") govern your participation as a 
 
 4. REFUNDS AND REVOCATIONS
 
-4.1 Fan revocations. Fans may revoke open pledges at any time before a bounty is marked complete. You are not entitled to compensation for revoked pledges.
+4.1 Fan revocations. Fans may revoke open backings at any time before a bounty is marked complete. You are not entitled to compensation for revoked backings.
 
 4.2 Council rejection. If the Council rejects a submission, no funds are collected. You may resubmit after addressing the Council's feedback.
 
@@ -79,7 +79,7 @@ These Creator Terms of Service ("Creator Terms") govern your participation as a 
 
 6.1 Artypot may suspend or terminate your creator status if you breach these terms, engage in fraud, fail to deliver work after funds are collected, or violate applicable law.
 
-6.2 Upon termination, open bounties are closed, pledges are returned to fans, and any available creator balance will be disbursed to you subject to outstanding disputes and tax documentation requirements.
+6.2 Upon termination, open bounties are closed, backings are returned to fans, and any available creator balance will be disbursed to you subject to outstanding disputes and tax documentation requirements.
 
 7. GOVERNING LAW
 

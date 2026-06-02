@@ -32,10 +32,10 @@ function CreatorAvatar({ creator, size = 'sm' }: { creator: Pick<Creator, 'displ
 
 // ── Trending bounty card ───────────────────────────────────────────────────────
 function TrendingBountyCard({ bounty }: { bounty: Bounty }) {
-  const backerCount = bounty.pledges?.filter((v) => !v.revoked_at).length ?? 0;
-  const pledged = Number(bounty.total_pledged);
+  const backerCount = bounty.backings?.filter((v) => !v.revoked_at).length ?? 0;
+  const backed = Number(bounty.total_backed);
   // Rough goal proxy — show progress vs. a soft milestone (or just fill bar)
-  const barWidth = Math.min(100, pledged > 0 ? Math.min(100, (pledged / 500) * 100) : 0);
+  const barWidth = Math.min(100, backed > 0 ? Math.min(100, (backed / 500) * 100) : 0);
 
   return (
     <Link
@@ -68,8 +68,8 @@ function TrendingBountyCard({ bounty }: { bounty: Bounty }) {
       {/* Stats */}
       <div className="flex items-center justify-between text-sm">
         <span className="font-bold text-foreground">
-          ${pledged.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          <span className="text-xs text-muted font-normal ml-1">pledged</span>
+          ${backed.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <span className="text-xs text-muted font-normal ml-1">backed</span>
         </span>
         <span className="text-muted text-xs">
           {backerCount} {backerCount === 1 ? 'backer' : 'backers'}

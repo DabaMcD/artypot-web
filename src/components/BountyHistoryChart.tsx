@@ -23,9 +23,9 @@ const EVENT_META: Record<
   { label: string; amountSign: 'pos' | 'neg' | 'delta' | 'none' }
 > = {
   created:            { label: 'Initialized',           amountSign: 'pos'   },
-  pledge_added:       { label: 'Backed',                amountSign: 'pos'   },
-  pledge_updated:     { label: 'Synced their feelings', amountSign: 'delta' },
-  pledge_revoked:     { label: 'Left',                  amountSign: 'neg'   },
+  backing_added:       { label: 'Backed',                amountSign: 'pos'   },
+  backing_updated:     { label: 'Synced their feelings', amountSign: 'delta' },
+  backing_revoked:     { label: 'Left',                  amountSign: 'neg'   },
   details_edited:     { label: 'Edited details',        amountSign: 'none'  },
   privilege_transfer: { label: 'Transferred ownership', amountSign: 'none'  },
   pending:            { label: 'Submitted for review',  amountSign: 'none'  },
@@ -64,7 +64,7 @@ export default function BountyHistoryChart({ events, selectedEvent, onSelect }: 
         const isSelected =
           selectedEvent?.at === event.at && selectedEvent?.type === event.type;
 
-        // Render `pledge_updated` as a stacked pair: −$old above +$new.
+        // Render `backing_updated` as a stacked pair: −$old above +$new.
         // Other types render a single signed amount in the right column.
         let amountNode: ReactNode = null;
         if (meta.amountSign === 'delta' && event.amount != null && event.old_amount != null) {

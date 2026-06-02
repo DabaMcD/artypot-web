@@ -209,7 +209,7 @@ function UserModal({
           {!armed ? (
             <div className="flex items-center justify-between gap-3">
               <p className="text-xs text-muted leading-snug">
-                Permanently scrub this user&apos;s PII, cancel pledges, revoke tokens, and soft-delete.
+                Permanently scrub this user&apos;s PII, cancel backings, revoke tokens, and soft-delete.
               </p>
               <Button
                 variant="default"

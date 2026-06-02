@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Empty } from '@/components/ui/Empty';
 
-type SortOption = 'newest' | 'most_pledged' | 'most_completed';
+type SortOption = 'newest' | 'most_backed' | 'most_completed';
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'newest',         label: 'newest' },
-  { value: 'most_pledged',   label: 'most bounties' },
+  { value: 'most_backed',   label: 'most bounties' },
   { value: 'most_completed', label: 'most completed' },
 ];
 

@@ -7,16 +7,16 @@ import type {
   NotificationPage,
   Nudge,
   Bounty,
-  BountyPledge,
+  BountyBacking,
   BountyCompletion,
   BountyHistory,
   CreatorClaim,
   PaginatedResponse,
-  PledgePage,
+  BackingPage,
   CashBalance,
   PaymentMethod,
   BountyStatus,
-  RemovePledgeResult,
+  RemoveBackingResult,
   DeletePaymentMethodResult,
   CouncilMember,
   CouncilPage,
@@ -101,7 +101,7 @@ interface ApiError {
   status: number;
   message: string;
   requires_w9?: boolean;
-  /** 422 body reason code, e.g. 'pledge_cap_exceeded' | 'payment_grace_period' */
+  /** 422 body reason code, e.g. 'backing_cap_exceeded' | 'payment_grace_period' */
   reason?: string;
   /** Free-form body payload for 422 responses (cap, current_total, requested, grace_expires_at, etc.) */
   data?: Record<string, unknown>;
@@ -317,7 +317,7 @@ export const creators = {
   list: (params?: {
     q?: string;
     page?: number;
-    sort?: 'newest' | 'most_pledged' | 'most_completed';
+    sort?: 'newest' | 'most_backed' | 'most_completed';
   }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
@@ -348,7 +348,7 @@ export const creators = {
   byPlatformHandle: (platform: string, handle: string) =>
     request<
       | { match: 'claimed';   user: { id: number; display_name: string; slug: string; profile_picture: string | null } }
-      | { match: 'unclaimed'; handle: { id: number | null; platform: string; username: string }; bounties: Array<{ id: number; title: string; status: string; total_pledged: string; created_at: string }> }
+      | { match: 'unclaimed'; handle: { id: number | null; platform: string; username: string }; bounties: Array<{ id: number; title: string; status: string; total_backed: string; created_at: string }> }
     >(`/platform/${encodeURIComponent(platform)}/${encodeURIComponent(handle)}`),
 
   create: (data: Partial<Creator>) =>
@@ -379,28 +379,28 @@ export const bounties = {
   create: (data: {
     title: string;
     description?: string;
-    initial_pledge_amount?: number;
+    initial_backing_amount?: number;
     target_user_id?: number;
     target_handle_id?: number;
     platform?: string;
     username?: string;
     display_name?: string;
-    pledge_expiry_value?: number;
-    pledge_expiry_unit?: string;
+    backing_expiry_value?: number;
+    backing_expiry_unit?: string;
   }) =>
     request<{ data: Bounty }>('/bounties', { method: 'POST', body: JSON.stringify(data) }),
 
   update: (id: number, data: { title?: string; description?: string }) =>
     request<{ data: Bounty }>(`/bounties/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
-  pledge: (bountyId: number, amount: number, expires_at?: string) =>
-    request<{ data: BountyPledge & { bounty: { total_pledged: number } } }>(`/bounties/${bountyId}/pledges`, {
+  backing: (bountyId: number, amount: number, expires_at?: string) =>
+    request<{ data: BountyBacking & { bounty: { total_backed: number } } }>(`/bounties/${bountyId}/backings`, {
       method: 'POST',
       body: JSON.stringify({ amount, ...(expires_at ? { expires_at } : {}) }),
     }),
 
-  removePledge: (bountyId: number, pledgeId: number) =>
-    request<RemovePledgeResult>(`/bounties/${bountyId}/pledges/${pledgeId}`, { method: 'DELETE' }),
+  removeBacking: (bountyId: number, backingId: number) =>
+    request<RemoveBackingResult>(`/bounties/${bountyId}/backings/${backingId}`, { method: 'DELETE' }),
 
   submitCompletion: (bountyId: number, submission_url: string, submission_notes?: string) =>
     request<{ data: BountyCompletion }>(`/bounties/${bountyId}/completion`, {
@@ -481,14 +481,14 @@ export const featuredBounties = {
   list: () => request<{ data: Bounty[] }>('/featured-bounties'),
 };
 
-// Pledges (authenticated user's own)
-export const pledges = {
+// Backings (authenticated user's own)
+export const backings = {
   list: (params?: { sort?: 'date' | 'amount'; page?: number; bounty_status?: string; per_page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
     const qs = new URLSearchParams(entries).toString();
-    return request<PledgePage>(`/auth/pledges${qs ? `?${qs}` : ''}`);
+    return request<BackingPage>(`/auth/backings${qs ? `?${qs}` : ''}`);
   },
 };
 
@@ -752,11 +752,11 @@ export const metrics = {
         total_bounties:              number;
         avg_bounty_amount:           number;
         stddev_bounty_amount:        number;
-        total_pledged_amount:        number;
-        total_hard_pledges:          number;
-        avg_hard_pledge_amount:      number;
-        total_soft_pledges:          number;
-        avg_soft_pledge_amount:      number;
+        total_backed_amount:        number;
+        total_hard_backings:          number;
+        avg_hard_backing_amount:      number;
+        total_soft_backings:          number;
+        avg_soft_backing_amount:      number;
         total_users:                 number;
         total_creators:              number;
         total_paid_by_fans:          number;

@@ -531,7 +531,7 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
                     <option value="minute">minute(s)</option>
                   </Select>
                 </div>
-                <FieldHint>Your pledge will auto-expire after this period if the bounty is still open. Change your default in settings.</FieldHint>
+                <FieldHint>Your backing will auto-expire after this period if the bounty is still open. Change your default in settings.</FieldHint>
               </div>
             )}
           </div>
@@ -607,7 +607,7 @@ function Step3({ target, isSelfBounty, title, description, amount, displayName, 
           )}
           {!isSelfBounty && (
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">pledge expires after</div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">backing expires after</div>
               <div className="text-sm text-foreground font-medium font-mono">{expiryValue} {UNIT_LABELS[expiryUnit] ?? expiryUnit}</div>
             </div>
           )}
@@ -664,7 +664,7 @@ function NewBountyForm() {
   }, [user?.id]);
 
   // True when the logged-in creator is targeting their own profile.
-  // Self-bounties don't require an opening pledge — fans add onto them.
+  // Self-bounties don't require an opening backing — fans add onto them.
   const isSelfBounty = !!(target && target.kind === 'user' && user && target.userId === user.id);
 
   const handleSelectTarget = (t: TargetSelection) => {
@@ -692,9 +692,9 @@ function NewBountyForm() {
       const payload: Parameters<typeof bountiesApi.create>[0] = {
         title,
         description: description || undefined,
-        initial_pledge_amount: parseFloat(amount),
-        pledge_expiry_value: parseInt(expiryValue, 10),
-        pledge_expiry_unit: expiryUnit,
+        initial_backing_amount: parseFloat(amount),
+        backing_expiry_value: parseInt(expiryValue, 10),
+        backing_expiry_unit: expiryUnit,
       };
 
       if (target.kind === 'user') {

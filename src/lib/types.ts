@@ -133,7 +133,7 @@ export interface User {
   role: UserRole;
   profile_picture?: string;
   total_given?: number;
-  open_pledges_count?: number;
+  open_backings_count?: number;
   is_anonymous?: boolean;
   /** ISO-3166-1 alpha-2 country code, e.g. "US". Nullable. */
   country_code?: string | null;
@@ -148,9 +148,9 @@ export interface User {
   payment_failed_at?: string | null;
   /** ISO timestamp of when the post-failure grace period expires. Computed by backend. */
   payment_grace_expires_at?: string | null;
-  /** Default pledge expiry — number of units (e.g. 39) prefilled on the bounty creation form. */
+  /** Default backing expiry — number of units (e.g. 39) prefilled on the bounty creation form. */
   default_expiry_value?: number;
-  /** Unit for default pledge expiry: 'day' | 'week' | 'month' | 'year'. */
+  /** Unit for default backing expiry: 'day' | 'week' | 'month' | 'year'. */
   default_expiry_unit?: string;
   /** Public bio shown on the creator profile. */
   bio?: string | null;
@@ -187,7 +187,7 @@ export interface Creator {
   /** Herald of an unclaimed creator (has editing rights) */
   herald?: { id: number; display_name: string };
   herald_user_id?: number;
-  herald_total_pledge?: number;
+  herald_total_backing?: number;
   display_name: string;
   description?: string;
   bio?: string | null;
@@ -211,14 +211,14 @@ export interface Creator {
   projects_finished?: number;
   /** Confirmed earnings: sum of creator credits where Stripe has collected */
   amount_earned?: number;
-  /** Gross pledges on open/pending bounties (no charge written yet) */
-  total_pledge_sum?: number;
-  /** Gross pledge amounts locked on completed bounties, not yet charged via Stripe */
-  pending_pledge_total?: number;
+  /** Gross backings on open/pending bounties (no charge written yet) */
+  total_backing_sum?: number;
+  /** Gross backing amounts locked on completed bounties, not yet charged via Stripe */
+  pending_backing_total?: number;
   /** Whether the currently authenticated user can edit this creator */
   can_edit?: boolean;
-  /** The authenticated user's own 24h-aged pledge total across all bounties for this creator */
-  user_aged_pledge_total?: number | null;
+  /** The authenticated user's own 24h-aged backing total across all bounties for this creator */
+  user_aged_backing_total?: number | null;
   /** True when the creator has a Stripe Connect account (may still need onboarding) */
   bank_connected?: boolean;
   /** True when Stripe has placed a hold on payouts requiring additional KYC. */
@@ -261,8 +261,8 @@ export interface Bounty {
     fan_name?: string | null;
     fan_name_plural?: string | null;
   };
-  total_pledged: number;
-  /** Sum of pledges from fans with an active payment method. Appended by the backend on show(). */
+  total_backed: number;
+  /** Sum of backings from fans with an active payment method. Appended by the backend on show(). */
   solid_total?: number;
   target_handle_id?: number | null;
   target_user_id?: number | null;
@@ -275,11 +275,11 @@ export interface Bounty {
   paid_out_at?: string;
   /** Sum of fan charges already collected via billing for this bounty. */
   cleared_amount?: number;
-  pledges?: BountyPledge[];
+  backings?: BountyBacking[];
   completion?: BountyCompletion;
 }
 
-export interface BountyPledge {
+export interface BountyBacking {
   id: number;
   bounty_id: number;
   user_id: number;
@@ -290,7 +290,7 @@ export interface BountyPledge {
   expires_at?: string;
 }
 
-export interface PublicUserPledge {
+export interface PublicUserBacking {
   id: number;
   bounty_id: number;
   bounty?: Pick<Bounty, 'id' | 'title' | 'status'>;
@@ -299,8 +299,8 @@ export interface PublicUserPledge {
   created_at: string;
 }
 
-export interface PledgePage {
-  data: PublicUserPledge[];
+export interface BackingPage {
+  data: PublicUserBacking[];
   current_page: number;
   last_page: number;
   total: number;
@@ -323,9 +323,9 @@ export interface PublicUser {
   profile_picture?: string;
   is_anonymous: boolean;
   created_at: string;
-  pledges: PublicUserPledge[];
-  /** Server-computed sum of all active (unrevoked) pledges. Null for anonymous users viewed by others. */
-  total_pledge_amount?: number;
+  backings: PublicUserBacking[];
+  /** Server-computed sum of all active (unrevoked) backings. Null for anonymous users viewed by others. */
+  total_backing_amount?: number;
 }
 
 export interface BountyCompletion {
@@ -408,7 +408,7 @@ export interface AdminBountyCompletion {
   bounty: {
     id: number;
     title: string;
-    total_pledged: number;
+    total_backed: number;
     creator_id: number;
     status: BountyStatus;
     creator?: { id: number; display_name: string; slug?: string | null } | null;
@@ -503,11 +503,11 @@ export interface PaymentMethod {
 }
 
 export interface CreatorBalance {
-  /** All pledges on open bounties — no charge locked yet (solid + soft) */
-  open_pledges: number;
-  /** Subset of open_pledges from fans with an active payment method */
-  solid_open_pledges: number;
-  /** Pledges on bounties awaiting Council approval */
+  /** All backings on open bounties — no charge locked yet (solid + soft) */
+  open_backings: number;
+  /** Subset of open_backings from fans with an active payment method */
+  solid_open_backings: number;
+  /** Backings on bounties awaiting Council approval */
   pending_verification: number;
   /** Gross fan obligations locked on approved bounties, not yet billed */
   pending_payment: number;
@@ -650,7 +650,7 @@ export interface Nudge {
   dismissable: boolean;
 }
 
-export interface RemovePledgeResult {
+export interface RemoveBackingResult {
   bounty_deleted: boolean;
   new_initiator_id: number | null;
 }
@@ -680,9 +680,9 @@ export interface Comment {
 
 export type BountyHistoryEventType =
   | 'created'
-  | 'pledge_added'
-  | 'pledge_updated'
-  | 'pledge_revoked'
+  | 'backing_added'
+  | 'backing_updated'
+  | 'backing_revoked'
   | 'details_edited'
   | 'privilege_transfer'
   | 'pending'
@@ -694,19 +694,19 @@ export interface BountyHistoryEvent {
   at: string;
   user?: { id: number; display_name: string; profile_picture?: string | null } | null;
   amount?: number | null;
-  /** Set only for `pledge_updated`: the previous pledge amount the user replaced. */
+  /** Set only for `backing_updated`: the previous backing amount the user replaced. */
   old_amount?: number | null;
   field?: string | null;
   old_value?: string | null;
   meta?: Record<string, unknown> | null;
-  pledge_id?: number | null;
+  backing_id?: number | null;
   running_total: number;
   snapshot: { title: string; description: string | null };
 }
 
 export interface BountyHistory {
   events: BountyHistoryEvent[];
-  current: { title: string; description: string | null; total_pledged: number };
+  current: { title: string; description: string | null; total_backed: number };
 }
 
 // ── Admin: User & Creator search ─────────────────────────────────────────────
@@ -949,7 +949,7 @@ export interface AdminCreatorDetail extends AdminCreator {
   wallet: {
     available_balance: number;
     clearing_balance: number;
-    open_pledge_total: number;
+    open_backing_total: number;
     total_paid_out: number;
     amount_earned: number;
   };
@@ -1020,7 +1020,7 @@ export interface AdminCreatorDetail extends AdminCreator {
     id: number;
     title: string;
     status: BountyStatus;
-    total_pledged: number;
+    total_backed: number;
     created_at: string;
     completed_at: string | null;
   }>;

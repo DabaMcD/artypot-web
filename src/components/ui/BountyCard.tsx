@@ -13,7 +13,7 @@ interface BountyCardData {
   state: BountyState;
   fundedTotal: number;
   contributors: number;
-  yourPledge?: number;
+  yourBacking?: number;
 }
 
 interface BountyCardProps {
@@ -64,8 +64,8 @@ export function BountyCard({ b, onClick, hideTarget }: BountyCardProps) {
             <strong className="text-foreground">${b.fundedTotal.toLocaleString()}</strong>
             <span className="text-muted"> raised · {b.contributors} {b.contributors === 1 ? 'backer' : 'backers'}</span>
           </span>
-          {b.yourPledge != null && (
-            <span className="text-muted">your pledge ${b.yourPledge}</span>
+          {b.yourBacking != null && (
+            <span className="text-muted">your backing ${b.yourBacking}</span>
           )}
         </div>
       </div>

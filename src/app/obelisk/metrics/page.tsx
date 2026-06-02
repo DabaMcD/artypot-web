@@ -11,11 +11,11 @@ type MetricsData = {
   total_bounties:              number;
   avg_bounty_amount:           number;
   stddev_bounty_amount:        number;
-  total_pledged_amount:        number;
-  total_hard_pledges:          number;
-  avg_hard_pledge_amount:      number;
-  total_soft_pledges:          number;
-  avg_soft_pledge_amount:      number;
+  total_backed_amount:        number;
+  total_hard_backings:          number;
+  avg_hard_backing_amount:      number;
+  total_soft_backings:          number;
+  avg_soft_backing_amount:      number;
   total_users:                 number;
   total_creators:              number;
   total_paid_by_fans:          number;
@@ -134,35 +134,35 @@ export default function MetricsPage() {
               value={fmtN(data.total_bounties)}
             />
             <StatCard
-              label="Total pledged"
-              value={fmt$(data.total_pledged_amount)}
+              label="Total backed"
+              value={fmt$(data.total_backed_amount)}
               sub="across all bounties"
             />
             <StatCard
-              label="Average pledge"
+              label="Average backing"
               value={fmt$(data.avg_bounty_amount)}
               sub={`σ = ${fmt$(data.stddev_bounty_amount)}`}
             />
           </Section>
 
-          <Section title="Pledges">
+          <Section title="Backings">
             <StatCard
-              label="Hard pledges"
-              value={fmtN(data.total_hard_pledges)}
+              label="Hard backings"
+              value={fmtN(data.total_hard_backings)}
               sub="no expiry date"
             />
             <StatCard
-              label="Avg hard pledge"
-              value={fmt$(data.avg_hard_pledge_amount)}
+              label="Avg hard backing"
+              value={fmt$(data.avg_hard_backing_amount)}
             />
             <StatCard
-              label="Soft pledges"
-              value={fmtN(data.total_soft_pledges)}
+              label="Soft backings"
+              value={fmtN(data.total_soft_backings)}
               sub="expire in the future"
             />
             <StatCard
-              label="Avg soft pledge"
-              value={fmt$(data.avg_soft_pledge_amount)}
+              label="Avg soft backing"
+              value={fmt$(data.avg_soft_backing_amount)}
             />
           </Section>
 

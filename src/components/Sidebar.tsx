@@ -88,7 +88,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
     { id: 'fan-search',   label: 'Search creators',    icon: '⌕', href: '/creators' },
     { sec: 'money' },
     { id: 'fan-billing',  label: 'Billing',    icon: '$', href: '/billing' },
-    { id: 'fan-history',  label: 'History & receipts', icon: '⌗', href: '/pledges' },
+    { id: 'fan-history',  label: 'History & receipts', icon: '⌗', href: '/backings' },
     { sec: 'account' },
     { id: 'fan-settings', label: 'Settings',           icon: '⚙', href: '/settings' },
     { id: 'fan-become',   label: 'Become a creator',   icon: '✦', href: '/become-creator' },

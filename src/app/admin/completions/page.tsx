@@ -95,7 +95,7 @@ function ReviewModal({
           )}
           {' '}·{' '}
           <span className="text-foreground font-mono tabular-nums">
-            ${Number(completion.bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            ${Number(completion.bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </span>{' '}
           committed
         </p>
@@ -292,7 +292,7 @@ export default function AdminCompletionsPage() {
                         </Link>
                       )}
                       <span className="text-fan tabular-nums">
-                        ${Number(c.bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })} committed
+                        ${Number(c.bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2 })} committed
                       </span>
                       <span>by {c.submitted_by.display_name}</span>
                       <span>{new Date(c.created_at).toLocaleDateString()}</span>

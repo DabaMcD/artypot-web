@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { CldUploadWidget } from 'next-cloudinary';
 import type { CloudinaryUploadWidgetResults } from 'next-cloudinary';
 import { normalizeAvatarUrl, AVATAR_UPLOAD_OPTIONS } from '@/lib/cloudinary';
-import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi, pledges as pledgesApi } from '@/lib/api';
+import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi, backings as backingsApi } from '@/lib/api';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 import { useToast } from '@/lib/toast-context';
@@ -169,7 +169,7 @@ export default function SettingsPage() {
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
   const [dangerLoading, setDangerLoading] = useState(false);
   const [dangerMsg, setDangerMsg] = useState('');
-  const [pledgeTotalAmount, setPledgeTotalAmount] = useState<number | null>(null);
+  const [backingTotalAmount, setBackingTotalAmount] = useState<number | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -179,7 +179,7 @@ export default function SettingsPage() {
     setExpiryValue(String(user.default_expiry_value ?? 39));
     setExpiryUnit(user.default_expiry_unit ?? 'month');
     notifApi.get().then(setNotifSettings).catch(() => {});
-    pledgesApi.list().then((res) => setPledgeTotalAmount(res.total_active_amount)).catch(() => {});
+    backingsApi.list().then((res) => setBackingTotalAmount(res.total_active_amount)).catch(() => {});
   }, [user, authLoading, router]);
 
   const handleNotifToggle = async (key: keyof NotificationSettings, value: boolean) => {
@@ -417,8 +417,8 @@ export default function SettingsPage() {
           <p className="text-sm text-muted leading-relaxed mb-2">
             This will immediately <strong className="text-foreground">cancel all your active commitments</strong> and remove your backing from every project.
           </p>
-          {pledgeTotalAmount != null && pledgeTotalAmount > 0 && (
-            <p className="font-mono text-sm text-bad mb-2">${pledgeTotalAmount.toFixed(2)} in active commitments will be cancelled.</p>
+          {backingTotalAmount != null && backingTotalAmount > 0 && (
+            <p className="font-mono text-sm text-bad mb-2">${backingTotalAmount.toFixed(2)} in active commitments will be cancelled.</p>
           )}
           <p className="text-sm text-muted">This cannot easily be undone. You would need to back each project individually again.</p>
         </Modal>
@@ -582,11 +582,11 @@ export default function SettingsPage() {
           </Card>
         )}
 
-        {/* Default pledge expiry */}
+        {/* Default backing expiry */}
         <Card>
-          <SectionLabel className="mb-1">default pledge expiry</SectionLabel>
+          <SectionLabel className="mb-1">default backing expiry</SectionLabel>
           <p className="text-sm text-muted mb-4">
-            How long your pledge stays active when you back a new bounty. You can always override this per bounty.
+            How long your backing stays active when you back a new bounty. You can always override this per bounty.
           </p>
           <form onSubmit={handleSaveExpiry} className="flex gap-2 items-end">
             <div className="flex-1">

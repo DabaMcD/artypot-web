@@ -74,8 +74,8 @@ export function PaymentAuthBanner() {
           <span className="font-semibold">Your bank needs you to confirm a charge.</span>
           <span className="text-foreground/80">
             {dollars
-              ? <> Authorize the <strong>${dollars}</strong> pending payment to keep your pledges active.</>
-              : <> Authorize the pending payment to keep your pledges active.</>}
+              ? <> Authorize the <strong>${dollars}</strong> pending payment to keep your backings active.</>
+              : <> Authorize the pending payment to keep your backings active.</>}
           </span>
         </p>
         <button

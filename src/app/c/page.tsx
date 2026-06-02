@@ -219,9 +219,9 @@ function CreatorDashboardContent() {
   const isUS           = user.country_code === 'US';
   const needsLocation  = !user.location_complete;
 
-  const openPledges          = balance?.open_pledges ?? 0;
-  const solidOpenPledges     = balance?.solid_open_pledges ?? openPledges;
-  const softOpenPledges      = openPledges - solidOpenPledges;
+  const openBackings          = balance?.open_backings ?? 0;
+  const solidOpenBackings     = balance?.solid_open_backings ?? openBackings;
+  const softOpenBackings      = openBackings - solidOpenBackings;
   const pendingPayment       = balance?.pending_payment ?? 0;
   const solidPendingPayment  = balance?.solid_pending_payment ?? pendingPayment;
   const clearing           = balance?.clearing ?? 0;
@@ -306,10 +306,10 @@ function CreatorDashboardContent() {
           <div className="grid grid-cols-2 gap-4">
             <Card>
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">open backing</div>
-              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{fmt(solidOpenPledges)}</div>
-              <div className="font-mono text-[10px] text-muted mt-0.5">solid pledges (active payment method)</div>
-              {softOpenPledges > 0.005 && (
-                <div className="font-mono text-[10px] text-muted mt-0.5">+ {fmt(softOpenPledges)} soft (no payment method)</div>
+              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{fmt(solidOpenBackings)}</div>
+              <div className="font-mono text-[10px] text-muted mt-0.5">solid backings (active payment method)</div>
+              {softOpenBackings > 0.005 && (
+                <div className="font-mono text-[10px] text-muted mt-0.5">+ {fmt(softOpenBackings)} soft (no payment method)</div>
               )}
             </Card>
             <Card>

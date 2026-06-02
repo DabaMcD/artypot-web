@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { pledges as pledgesApi, billing } from '@/lib/api';
+import { backings as backingsApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { PublicUserPledge, CashBalance } from '@/lib/types';
+import type { PublicUserBacking, CashBalance } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Empty } from '@/components/ui/Empty';
@@ -15,11 +15,11 @@ import ShareButton from '@/components/ShareButton';
 
 type SortKey = 'date' | 'amount';
 
-export default function MyPledgesPage() {
+export default function MyBackingsPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
-  const [pledges, setPledges] = useState<PublicUserPledge[]>([]);
+  const [backings, setBackings] = useState<PublicUserBacking[]>([]);
   const [sort, setSort] = useState<SortKey>('date');
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -34,10 +34,10 @@ export default function MyPledgesPage() {
 
   const load = useCallback((s: SortKey, p: number) => {
     setLoading(true);
-    pledgesApi
+    backingsApi
       .list({ sort: s, page: p })
       .then((res) => {
-        setPledges(res.data);
+        setBackings(res.data);
         setLastPage(res.last_page);
         setTotal(res.total);
         setTotalActiveAmount(res.total_active_amount);
@@ -122,41 +122,41 @@ export default function MyPledgesPage() {
                 {[1,2,3,4,5].map(i => <div key={i} className="h-10 bg-surface-2 animate-pulse rounded" />)}
               </div>
             </Card>
-          ) : pledges.length === 0 ? (
-            <Empty icon="◇" message="No pledges yet">
+          ) : backings.length === 0 ? (
+            <Empty icon="◇" message="No backings yet">
               <Link href="/creators"><Button variant="default" size="sm">Find Creators →</Button></Link>
             </Empty>
           ) : (
             <Card>
               <div className="divide-y divide-border -mx-5 -my-4">
-                {pledges.map((pledge) => {
-                  const status = pledge.bounty?.status ?? 'open';
+                {backings.map((backing) => {
+                  const status = backing.bounty?.status ?? 'open';
                   return (
-                    <div key={pledge.id} className="flex items-center gap-3 px-5 py-3.5">
+                    <div key={backing.id} className="flex items-center gap-3 px-5 py-3.5">
                       <div className="flex-1 min-w-0">
-                        {pledge.bounty ? (
+                        {backing.bounty ? (
                           <Link
-                            href={`/bounties/${pledge.bounty_id}`}
+                            href={`/bounties/${backing.bounty_id}`}
                             className="text-sm text-foreground hover:text-fan transition-colors block truncate"
                           >
-                            {pledge.bounty.title}
+                            {backing.bounty.title}
                           </Link>
                         ) : (
-                          <span className="text-sm text-muted">bounty #{pledge.bounty_id}</span>
+                          <span className="text-sm text-muted">bounty #{backing.bounty_id}</span>
                         )}
                         <div className="font-mono text-[10px] text-muted mt-0.5">
-                          {new Date(pledge.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                          {pledge.expires_at && (
-                            <> · expires {new Date(pledge.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</>
+                          {new Date(backing.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {backing.expires_at && (
+                            <> · expires {new Date(backing.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</>
                           )}
                         </div>
                       </div>
                       <BountyStatusBadge status={status} />
-                      {pledge.bounty && (
-                        <ShareButton path={`/bounties/${pledge.bounty_id}`} title={pledge.bounty.title} />
+                      {backing.bounty && (
+                        <ShareButton path={`/bounties/${backing.bounty_id}`} title={backing.bounty.title} />
                       )}
                       <span className="font-mono text-sm font-medium text-fan tabular-nums shrink-0">
-                        ${Number(pledge.amount).toFixed(2)}
+                        ${Number(backing.amount).toFixed(2)}
                       </span>
                     </div>
                   );

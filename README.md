@@ -44,7 +44,7 @@ Three first-class roles. Each has a saturated colour and a dim variant for accen
 
 | Role | Hex | Dim | Used on |
 |---|---|---|---|
-| `fan` | `#ffd966` (warm yellow) | `#e69138` | Default for `/dashboard`, `/bounties/*`, `/settings`, `/pledges`, `/billing`. |
+| `fan` | `#ffd966` (warm yellow) | `#e69138` | Default for `/dashboard`, `/bounties/*`, `/settings`, `/backings`, `/billing`. |
 | `creator` | `#47DFD3` (teal) | `#2BA8A0` | All `/creator/*`. |
 | `council` | `#4d6aca` (indigo) | `#46509c` | All `/admin/*` and `/obelisk/*`. |
 
@@ -103,7 +103,7 @@ We use Tailwind size utilities heavily, but a handful of arbitrary values are in
 | Section subtitle (`SectionLabel`) | `font-mono text-[10px] tracking-[2px] uppercase text-muted` | Always preceded by the role-coloured bar (`.ap-section-label-bar`). |
 | Big numeric stat | `font-mono text-[24px] font-medium tabular-nums text-foreground` | Dashboard cards. Sometimes `text-[28px]`/`[32px]` for "hero" stats. |
 | Stat label | `font-mono text-[10px] uppercase tracking-widest text-muted mb-1` | Sits above the number. |
-| Tiny micro-copy line | `font-mono text-[10px] text-muted mt-0.5` | Sits below the number ("solid pledges", "soft pledges"…). |
+| Tiny micro-copy line | `font-mono text-[10px] text-muted mt-0.5` | Sits below the number ("solid backings", "soft backings"…). |
 | Inline-row list label | `text-sm text-foreground` / `text-sm text-muted` | Used inside `Card` row lists. |
 | Field label (`FieldLabel`) | `font-mono text-[10px] tracking-[0.8px] uppercase text-muted mb-1.5` | Above every form input. |
 | Field hint (`FieldHint`) | `font-mono text-[10px] tracking-[0.5px] text-muted/70 mt-1.5` | Below input. Used for "Publicly visible", "Minimum is $1", etc. |
@@ -461,7 +461,7 @@ The expanded card uses `!bg-surface-2` (the bang lets it win over the `bg-surfac
 
 Pick the right one:
 
-- **Toast-after** — silent destructive actions where you can `undo` later (revoke pledge, dismiss nudge).
+- **Toast-after** — silent destructive actions where you can `undo` later (revoke backing, dismiss nudge).
 - **Inline confirm row** — "are you sure?" two-button row that replaces the action, no modal. Used for "I'm Broke" → confirm row.
 - **`<Modal>`** — destructive actions with permanent consequences (delete account, remove bounty as creator).
 - **`<Banner tone="bad">`** with an explanatory paragraph + an "I understand" `<Toggle>` before the destructive button is enabled — for "this affects other people" actions like backing out as the last supporter.
@@ -527,7 +527,7 @@ These render in fixed order at the top of `<main>` for every authed page. Pages 
 | Order | Component | Renders when |
 |---|---|---|
 | 1 | `<NudgeBar />` | Backend returns an active "do this next" nudge — add contact method, verify email, add payment method, payout hold, setup bank, submit tax form, balance ready. Tone follows nudge type (`bad` / `warn` / `good`). Has a Set up now → CTA pointing to a hash anchor on the relevant page. |
-| 2 | `<PaymentAuthBanner />` | A pledge is in Stripe's "requires action" state (3DS challenge needed). |
+| 2 | `<PaymentAuthBanner />` | A backing is in Stripe's "requires action" state (3DS challenge needed). |
 | 3 | `<PaymentGraceBanner />` | The user's last charge failed and they're inside the grace window. Shows the deadline + "Update card →". |
 | 4 | `<StaleCardBar />` | The on-file card hasn't been added/charged/confirmed in 90 days. Asks "Is your [card] still yours?" with confirm/remove buttons. |
 
@@ -582,13 +582,13 @@ Container: `space-y-7 pt-2 max-w-[680px]`. Every editable section is its own `<C
 ```
 Header Card (banner-style): title + status badge + meta + share button
 [3-col grid: lg:grid-cols-3]:
-   col-span-1 (sidebar):  pledge form / call to action card + verification card
+   col-span-1 (sidebar):  backing form / call to action card + verification card
    col-span-2 (main):     description, history chart, backers/comments tabs
 ```
 
 ### 7.4 List page (paginated index)
 
-`/bounties`, `/creator/bounties`, `/pledges`, `/admin/handles`.
+`/bounties`, `/creator/bounties`, `/backings`, `/admin/handles`.
 
 ```
 SectionLabel + H1 + primary CTA + count "{total} bounties"
@@ -646,7 +646,7 @@ SectionLabel + H1 + primary CTA + count "{total} bounties"
 |---|---|
 | A new authenticated dashboard | `src/app/dashboard/page.tsx`, `src/app/creator/page.tsx` |
 | A settings-style form page | `src/app/settings/page.tsx`, `src/app/creator/settings/page.tsx` |
-| A paginated list page with filters | `src/app/creator/bounties/page.tsx`, `src/app/pledges/page.tsx` |
+| A paginated list page with filters | `src/app/creator/bounties/page.tsx`, `src/app/backings/page.tsx` |
 | A detail page with sidebar | `src/app/bounties/[id]/page.tsx` |
 | A multi-step onboarding | `src/app/become-creator/page.tsx`, `src/app/creator/setup/page.tsx` |
 | A public marketing page | `src/app/page.tsx`, `src/app/about/page.tsx` |

@@ -170,7 +170,7 @@ function CreatorModal({ creator, onClose }: { creator: CreatorDetail; onClose: (
             <dl className="space-y-2">
               <Row label="Available balance">{fmtMoney(creator.wallet.available_balance)}</Row>
               <Row label="Clearing balance">{fmtMoney(creator.wallet.clearing_balance)}</Row>
-              <Row label="Open pledge total">{fmtMoney(creator.wallet.open_pledge_total)}</Row>
+              <Row label="Open backing total">{fmtMoney(creator.wallet.open_backing_total)}</Row>
               <Row label="Total paid out">{fmtMoney(creator.wallet.total_paid_out)}</Row>
               <Row label="Lifetime earned">{fmtMoney(creator.wallet.amount_earned)}</Row>
             </dl>
@@ -253,7 +253,7 @@ function CreatorModal({ creator, onClose }: { creator: CreatorDetail; onClose: (
                   </div>
                   <div className="shrink-0 text-right">
                     <Badge tone={statusTone[b.status] ?? 'default'}>{b.status.replace('_', ' ')}</Badge>
-                    <p className="font-mono text-[10px] text-muted mt-0.5">{fmtMoney(b.total_pledged)}</p>
+                    <p className="font-mono text-[10px] text-muted mt-0.5">{fmtMoney(b.total_backed)}</p>
                   </div>
                 </div>
               </Card>

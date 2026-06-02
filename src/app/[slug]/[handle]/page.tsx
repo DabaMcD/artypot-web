@@ -34,7 +34,7 @@ const PLATFORM_LABELS: Record<string, string> = Object.fromEntries(
 
 const KNOWN_PLATFORMS = new Set<string>(CURATED_PLATFORMS);
 
-type SimpleBounty = { id: number; title: string; status: string; total_pledged: string; created_at: string };
+type SimpleBounty = { id: number; title: string; status: string; total_backed: string; created_at: string };
 
 type ResolveResult =
   | { kind: 'loading' }
@@ -64,7 +64,7 @@ function HandleBountyCard({ bounty }: { bounty: SimpleBounty }) {
       </div>
       <div className="pt-3 border-t border-border">
         <div className="text-fan font-bold text-lg">
-          ${Number(bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
       </div>
     </div>

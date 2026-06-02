@@ -256,8 +256,8 @@ function LedgerContent() {
   const clearing            = balance?.clearing             ?? 0;
   const availableBalance    = balance?.available_balance    ?? 0;
   const paidOut             = balance?.paid_out             ?? 0;
-  const openPledges         = balance?.open_pledges         ?? 0;
-  const solidOpenPledges    = balance?.solid_open_pledges   ?? openPledges;
+  const openBackings         = balance?.open_backings         ?? 0;
+  const solidOpenBackings    = balance?.solid_open_backings   ?? openBackings;
 
   return (
     <div className="space-y-7 pt-2">
@@ -409,10 +409,10 @@ function LedgerContent() {
                   ? <div className="h-5 w-16 bg-surface-2 animate-pulse rounded mt-1" />
                   : (
                     <>
-                      <div className="font-mono text-lg font-medium text-foreground tabular-nums">{fmt(solidOpenPledges)}</div>
-                      {solidOpenPledges < openPledges && (
+                      <div className="font-mono text-lg font-medium text-foreground tabular-nums">{fmt(solidOpenBackings)}</div>
+                      {solidOpenBackings < openBackings && (
                         <div className="font-mono text-[10px] text-muted mt-0.5">
-                          + {fmt(openPledges - solidOpenPledges)} soft
+                          + {fmt(openBackings - solidOpenBackings)} soft
                         </div>
                       )}
                     </>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { billing, pledges as pledgesApi } from '@/lib/api';
+import { billing, backings as backingsApi } from '@/lib/api';
 import type { PaymentMethod } from '@/lib/types';
 import { useToast } from '@/lib/toast-context';
 import { useNudgeContext } from '@/lib/nudge-context';
@@ -50,8 +50,8 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
   // modal's confirm button (or directly if the modal isn't needed).
   const [removeTarget, setRemoveTarget] = useState<PaymentMethod | null>(null);
 
-  // Total of the user's active pledges, used in the "last valid PM" warning.
-  const [pledgeTotalAmount, setPledgeTotalAmount] = useState(0);
+  // Total of the user's active backings, used in the "last valid PM" warning.
+  const [backingTotalAmount, setBackingTotalAmount] = useState(0);
 
   const fetchMethods = useCallback(async () => {
     setLoading(true);
@@ -68,7 +68,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
 
   useEffect(() => {
     fetchMethods();
-    pledgesApi.list().then((res) => setPledgeTotalAmount(res.total_active_amount)).catch(() => {});
+    backingsApi.list().then((res) => setBackingTotalAmount(res.total_active_amount)).catch(() => {});
   }, [fetchMethods]);
 
   const handleAdded = async () => {
@@ -87,7 +87,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
       const updated = methods.filter((m) => m.id !== targetId);
       setMethods(updated);
       onMethodsChange?.(updated);
-      // The legacy "immediately revoke pledges on last-PM removal" path is
+      // The legacy "immediately revoke backings on last-PM removal" path is
       // gone — revoked_count will always be 0 here. We keep the toast for the
       // case where a future server change re-introduces some kind of inline
       // revocation; otherwise it's silent.
@@ -158,12 +158,12 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
               <ul className="list-disc pl-5 space-y-1.5">
                 <li>
                   Your{' '}
-                  <strong className="text-foreground">${pledgeTotalAmount.toFixed(2)}</strong>{' '}
-                  in active pledges will be marked soft and revoked at the next billing cycle on{' '}
+                  <strong className="text-foreground">${backingTotalAmount.toFixed(2)}</strong>{' '}
+                  in active backings will be marked soft and revoked at the next billing cycle on{' '}
                   <strong className="text-foreground">{nextChargeLabel}</strong>.
                 </li>
-                <li>You can add a new payment method any time before then to keep your pledges active.</li>
-                <li>You can add a new payment method after revocation, but you&apos;ll need to re-pledge any bounties you want to support.</li>
+                <li>You can add a new payment method any time before then to keep your backings active.</li>
+                <li>You can add a new payment method after revocation, but you&apos;ll need to re-back any bounties you want to support.</li>
               </ul>
             </div>
             <div className="flex gap-3">
