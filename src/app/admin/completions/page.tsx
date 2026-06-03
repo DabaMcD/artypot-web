@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { admin as adminApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
+import { toExternalUrl } from '@/lib/url';
 import type { AdminBountyCompletion, BountyCompletionStatus } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -105,7 +106,7 @@ function ReviewModal({
             <div>
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">submission url</div>
               <a
-                href={completion.submission_url}
+                href={toExternalUrl(completion.submission_url)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-fan hover:underline break-all"
@@ -298,7 +299,7 @@ export default function AdminCompletionsPage() {
                       <span>{new Date(c.created_at).toLocaleDateString()}</span>
                     </div>
                     <a
-                      href={c.submission_url}
+                      href={toExternalUrl(c.submission_url)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-[10px] text-fan hover:underline truncate block"

@@ -19,6 +19,7 @@ import { useToast } from '@/lib/toast-context';
 import Link from 'next/link';
 import { bounties as bountiesApi } from '@/lib/api';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
+import { toExternalUrl, urlHost, submissionLinkLabel } from '@/lib/url';
 import { useAuth } from '@/lib/auth-context';
 import { useDefaultUpdatePrompt } from '@/lib/default-update-prompt-context';
 import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
@@ -1215,16 +1216,36 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     : bounty.completion.status}
                 </Badge>
               </div>
+              {/* Prominent CTA — the submitted work is the payoff of the whole
+                  bounty, so it gets a full-width, can't-miss button out to the
+                  video/stream rather than a thin inline link. */}
               <a
-                href={bounty.completion.submission_url}
+                href={toExternalUrl(bounty.completion.submission_url)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-fan hover:underline text-sm break-all cursor-pointer"
+                className="group flex items-center gap-4 w-full rounded-lg border border-creator/40 bg-creator/10 px-4 py-4 transition-colors hover:bg-creator/20 hover:border-creator"
               >
-                {bounty.completion.submission_url}
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-creator text-brand-dark">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <path d="M15 3h6v6" />
+                    <path d="M10 14 21 3" />
+                  </svg>
+                </span>
+                <span className="flex flex-col min-w-0 flex-1">
+                  <span className="font-semibold text-foreground text-base leading-tight">
+                    {submissionLinkLabel(bounty.completion.submission_url)}
+                  </span>
+                  <span className="font-mono text-[11px] text-muted truncate mt-0.5">
+                    {urlHost(bounty.completion.submission_url) || bounty.completion.submission_url}
+                  </span>
+                </span>
+                <span className="shrink-0 text-creator text-xl transition-transform group-hover:translate-x-0.5" aria-hidden>
+                  →
+                </span>
               </a>
               {bounty.completion.submission_notes && (
-                <p className="text-muted text-sm mt-2">{bounty.completion.submission_notes}</p>
+                <p className="text-muted text-sm mt-3">{bounty.completion.submission_notes}</p>
               )}
               {bounty.completion.council_notes && (
                 <div className="mt-3 pt-3 border-t border-border">

@@ -172,7 +172,7 @@ export default function HomePage() {
       >
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground mb-12">
-            how it works
+            what's the big idea?
           </h2>
 
           <div className="grid sm:grid-cols-3 gap-10 sm:gap-6">
@@ -185,7 +185,7 @@ export default function HomePage() {
                 1
               </div>
               <p className="text-foreground font-medium text-base leading-snug font-sans">
-                Ask for your favorite creator to do something
+                Ask for your favorite creator to do something cool or stupid.
               </p>
             </div>
 
@@ -198,7 +198,7 @@ export default function HomePage() {
                 2
               </div>
               <p className="text-foreground font-medium text-base leading-snug font-sans">
-                Fans chip in until the bounty can't be ignored
+                Like-minded fans chip in until the bounty can't be ignored.
               </p>
             </div>
 
@@ -211,7 +211,7 @@ export default function HomePage() {
                 3
               </div>
               <p className="text-foreground font-medium text-base leading-snug font-sans">
-                The creator delivers, the fans pay them
+                The creator delivers, the fans pay them. Spam Ws in chat.
               </p>
             </div>
           </div>
