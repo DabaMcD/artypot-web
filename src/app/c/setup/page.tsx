@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { GateCard } from '@/components/ui/GateCard';
 import { Button } from '@/components/ui/Button';
+import { PLATFORM_FEE_PCT } from '@/lib/config';
 import Link from 'next/link';
 
 export default function CreatorSetupPage() {
@@ -51,22 +52,22 @@ export default function CreatorSetupPage() {
             detail: 'Submit your W-9 (US) or W-8BEN (international) once your annual payouts reach the threshold.',
             status: 'todo',
           }}
-          action={<Link href="/creator"><Button variant="default" size="sm">Go to Dashboard →</Button></Link>}
+          action={<Link href="/c"><Button variant="default" size="sm">Go to Dashboard →</Button></Link>}
         />
         <GateCard
           gate={{
             label: 'Bank Account',
-            detail: 'Connect a Stripe-verified bank account for direct payouts.',
+            detail: `Connect a Stripe-verified bank account for direct payouts. You keep ${100 - PLATFORM_FEE_PCT}% of each bounty — Artypot's ${PLATFORM_FEE_PCT}% fee is deducted only from completed payouts.`,
             status: creator?.bank_connected ? 'done' : 'todo',
           }}
-          action={<Link href="/creator"><Button variant="default" size="sm">Connect Bank →</Button></Link>}
+          action={<Link href="/c"><Button variant="default" size="sm">Connect Bank →</Button></Link>}
         />
       </div>
 
       <Card dashed>
         <p className="text-sm text-muted">
           Gates 3 and 4 are handled from your{' '}
-          <Link href="/creator" className="ap-inline-link">main dashboard</Link>.
+          <Link href="/c" className="ap-inline-link">main dashboard</Link>.
         </p>
       </Card>
     </div>

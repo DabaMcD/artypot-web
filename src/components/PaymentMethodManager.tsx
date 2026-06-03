@@ -159,11 +159,11 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
                 <li>
                   Your{' '}
                   <strong className="text-foreground">${backingTotalAmount.toFixed(2)}</strong>{' '}
-                  in active backings will be marked soft and revoked at the next billing cycle on{' '}
+                  in active backings will be marked "soft" until you add a new payment method. Please do so before the next billing cycle on{' '}
                   <strong className="text-foreground">{nextChargeLabel}</strong>.
                 </li>
                 <li>You can add a new payment method any time before then to keep your backings active.</li>
-                <li>You can add a new payment method after revocation, but you&apos;ll need to re-back any bounties you want to support.</li>
+                <li>If you miss a billing cycle, your backings will be automatically revoked and you&apos;ll need to re-back any bounties you want to support.</li>
               </ul>
             </div>
             <div className="flex gap-3">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, use, useCallback } from 'react';
+import { useEffect, useState, use, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { creators as creatorsApi, handles as handlesApi } from '@/lib/api';
@@ -81,6 +81,8 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   const { toast } = useToast();
   const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
   const [claiming, setClaiming] = useState(false);
+  // Guards the auto-resume so we only fire one claim per ?claim=1 arrival.
+  const autoClaimFired = useRef(false);
 
   // "Is this you?" — create an unverified claim for the authenticated user,
   // then drop them onto the handles section to verify ownership. Creators land
@@ -89,7 +91,11 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   const handleClaim = useCallback(async () => {
     if (state.kind !== 'unverified') return;
     if (!user) {
-      router.push('/login');
+      // Send them to sign up / log in, then bring them right back here with a
+      // flag that auto-resumes the claim — so the CTA they clicked actually
+      // completes instead of dead-ending on the dashboard.
+      const next = `/${platform}/${handle}?claim=1`;
+      router.push(`/register?next=${encodeURIComponent(next)}`);
       return;
     }
     setClaiming(true);
@@ -106,7 +112,21 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
       toast(e.message ?? 'Could not claim this handle. Please try again.', 'error');
       setClaiming(false);
     }
-  }, [state, user, router, platform, toast]);
+  }, [state, user, router, platform, handle, toast]);
+
+  // Resume a claim that was interrupted by the login round-trip: a logged-out
+  // visitor who clicked "Claim this handle" lands back here as ?claim=1 once
+  // authenticated, and we fire the claim automatically.
+  useEffect(() => {
+    if (autoClaimFired.current) return;
+    if (state.kind !== 'unverified' || !user) return;
+    if (new URLSearchParams(window.location.search).get('claim') !== '1') return;
+    autoClaimFired.current = true;
+    // Deliberate one-shot side effect: resume the interrupted claim (an API
+    // call) now that auth is present. Guarded by autoClaimFired so it can't loop.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    handleClaim();
+  }, [state, user, handleClaim]);
 
   useEffect(() => {
     let cancelled = false;
@@ -268,7 +288,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
                     Create the first one
                   </Link>
                 ) : (
-                  <Link href="/login" className="text-fan hover:underline">
+                  <Link href={`/login?next=${encodeURIComponent(`/${platform}/${handle}`)}`} className="text-fan hover:underline">
                     Sign in to start one
                   </Link>
                 )}

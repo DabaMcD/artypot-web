@@ -138,8 +138,8 @@ export default function LoginPage() {
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">after work verified</div>
           </div>
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">platform fee</div>
-            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">{PLATFORM_FEE_PCT}%</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">creators keep</div>
+            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">{100 - PLATFORM_FEE_PCT}%</div>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">no sales tax</div>
           </div>
         </div>

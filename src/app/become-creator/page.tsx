@@ -16,6 +16,9 @@ import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
 import type { HandleClaim, HandlePlatform } from '@/lib/types';
 import { platformLabel } from '@/lib/platforms';
 import { PLATFORM_HANDLE_CONFIG } from '@/components/ui/PlatformHandleInput';
+import { PLATFORM_FEE_PCT } from '@/lib/config';
+
+const CREATOR_KEEP_PCT = 100 - PLATFORM_FEE_PCT;
 
 // ── Creator TOS text ─────────────────────────────────────────────────────────
 // Authoritative source: artypot-api/storage/legal/creator-tos.md
@@ -55,7 +58,7 @@ These Creator Terms of Service ("Creator Terms") govern your participation as a 
 
 3.2 Minimum payout threshold. Payouts are subject to a minimum balance (currently $10.00 USD). Balances below this threshold accumulate until the threshold is met.
 
-3.3 Platform fee. Artypot deducts a platform fee from each payout as specified in your creator dashboard. Fees are subject to change with 30 days' notice.
+3.3 Platform fee. Artypot deducts a ${PLATFORM_FEE_PCT}% platform fee from each payout; you keep the remaining ${CREATOR_KEEP_PCT}%. Fees are subject to change with 30 days' notice.
 
 3.4 Hold period. Funds are subject to a 7-day hold before becoming available for withdrawal.
 
@@ -446,15 +449,16 @@ export default function BecomeCreatorPage() {
     );
   }
 
-  const gate1Complete = !!user.email_verified_at;
-  const gate2Complete = user.location_complete ?? false;
-  const gate3Complete = user.has_verified_handle ?? false;
-  // Strict sequential unlock — only one step is actionable at any time. This
-  // funnels the user through email → residence → handle → TOS in order and
-  // avoids surfacing forms whose prerequisites aren't met yet.
-  const gate2Unlocked = gate1Complete;
-  const gate3Unlocked = gate1Complete && gate2Complete;
-  const gate4Unlocked = gate1Complete && gate2Complete && gate3Complete;
+  const emailComplete     = !!user.email_verified_at;
+  const handleComplete    = user.has_verified_handle ?? false;
+  const residenceComplete = user.location_complete ?? false;
+  // Strict sequential unlock — only one step is actionable at any time. We lead
+  // with handle verification (the motivating, identity-affirming step) and defer
+  // the compliance-flavored tax-residence ask until after the creator is
+  // invested: email → handle → tax residence → TOS.
+  const handleUnlocked    = emailComplete;
+  const residenceUnlocked = emailComplete && handleComplete;
+  const tosUnlocked       = emailComplete && handleComplete && residenceComplete;
 
   return (
     <div className="space-y-7 pt-2 max-w-[600px]">
@@ -466,20 +470,71 @@ export default function BecomeCreatorPage() {
         </p>
       </div>
 
+      {/* Up-front economics. The platform fee is a material term for the person
+          making this decision, so it's stated plainly here — not buried — and
+          framed as what you keep, since {CREATOR_KEEP_PCT}% beats every major
+          streaming platform a creator is comparing us against. */}
+      <Card>
+        <div className="flex items-baseline gap-3">
+          <span className="font-mono font-bold tabular-nums text-[34px] leading-none text-[var(--color-role)]">
+            {CREATOR_KEEP_PCT}%
+          </span>
+          <div>
+            <p className="font-bold text-foreground leading-tight">You keep {CREATOR_KEEP_PCT}% of every bounty.</p>
+            <p className="text-sm text-muted leading-snug mt-0.5">
+              Artypot&apos;s {PLATFORM_FEE_PCT}% covers card processing &amp; fraud protection, hosting,
+              and the Council review that guarantees fans only pay for delivered work.
+            </p>
+          </div>
+        </div>
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted mt-3 pt-3 border-t border-border">
+          no signup fee · no monthly fee · no sales tax · deducted only from completed payouts
+        </p>
+      </Card>
+
       <div className="space-y-3">
         {/* Gate 1 — email verification */}
         <GateRow
           step={1}
           title="Verify Your Email Address"
           description="A verified email is required to receive creator notifications and tax communications"
-          status={gate1Complete ? 'complete' : 'active'}
+          status={emailComplete ? 'complete' : 'active'}
         >
-          {!gate1Complete && (
+          {!emailComplete && (
             <EmailVerificationGate hasEmail={!!user.email} />
           )}
         </GateRow>
 
-        {/* Gate 2 — tax residence (inline form, collapses when complete) */}
+        {/* Gate 2 — verified handle (inline form, collapses when complete). Led
+            with deliberately: it's the motivating "yes, this is really me" step
+            and the cheapest to complete, so it hooks the creator before any
+            compliance ask. */}
+        <GateRow
+          step={2}
+          title="Verify a Handle"
+          description="Link a social account so fans know you're the real deal"
+          status={!handleUnlocked ? 'locked' : handleComplete ? 'complete' : 'active'}
+          lockText="Verify your email to unlock"
+          actionSlot={
+            handleComplete && !editingHandles ? (
+              <Button variant="ghost" size="sm" onClick={() => setEditingHandles(true)}>Edit</Button>
+            ) : handleComplete && editingHandles ? (
+              <Button variant="ghost" size="sm" onClick={handleDoneEditingHandles}>Done</Button>
+            ) : undefined
+          }
+        >
+          {handleUnlocked && (
+            handleComplete && !editingHandles ? (
+              <VerifiedHandlesPreview refreshKey={handlesRefreshKey} />
+            ) : (
+              <div className="mt-4">
+                <HandlesSection bare />
+              </div>
+            )
+          )}
+        </GateRow>
+
+        {/* Gate 3 — tax residence (inline form, collapses when complete) */}
         {(() => {
           const countryName = user.country_code
             ? COUNTRIES.find((c) => c.code === user.country_code)?.name ?? user.country_code
@@ -490,24 +545,24 @@ export default function BecomeCreatorPage() {
           const residenceDisplay = countryName
             ? (stateName ? `${countryName} — ${stateName}` : countryName)
             : null;
-          const showForm = gate2Unlocked && (!gate2Complete || editingResidence);
-          const gate2Status: GateStatus = !gate2Unlocked
+          const showForm = residenceUnlocked && (!residenceComplete || editingResidence);
+          const residenceStatus: GateStatus = !residenceUnlocked
             ? 'locked'
-            : gate2Complete ? 'complete' : 'active';
+            : residenceComplete ? 'complete' : 'active';
           return (
             <GateRow
-              step={2}
+              step={3}
               title="Add Your Tax Residence"
               description="We use this to know where to report your earnings later"
-              status={gate2Status}
-              lockText="Verify your email to unlock"
+              status={residenceStatus}
+              lockText="Verify a handle to unlock"
               actionSlot={
-                gate2Complete && !editingResidence ? (
+                residenceComplete && !editingResidence ? (
                   <Button variant="ghost" size="sm" onClick={() => setEditingResidence(true)}>Edit</Button>
                 ) : undefined
               }
             >
-              {gate2Complete && !editingResidence && residenceDisplay && (
+              {residenceComplete && !editingResidence && residenceDisplay && (
                 <p className="text-sm text-foreground mt-2 font-mono">{residenceDisplay}</p>
               )}
               {showForm && (
@@ -516,48 +571,22 @@ export default function BecomeCreatorPage() {
                   initialState={user.state_code ?? ''}
                   onSaved={handleResidenceSaved}
                   onCancel={() => setEditingResidence(false)}
-                  showCancel={editingResidence && gate2Complete}
+                  showCancel={editingResidence && residenceComplete}
                 />
               )}
             </GateRow>
           );
         })()}
 
-        {/* Gate 3 — verified handle (inline form, collapses when complete) */}
-        <GateRow
-          step={3}
-          title="Verify a Handle"
-          description="Link a social account so fans know you're the real deal"
-          status={!gate3Unlocked ? 'locked' : gate3Complete ? 'complete' : 'active'}
-          lockText="Add your tax residence to unlock"
-          actionSlot={
-            gate3Complete && !editingHandles ? (
-              <Button variant="ghost" size="sm" onClick={() => setEditingHandles(true)}>Edit</Button>
-            ) : gate3Complete && editingHandles ? (
-              <Button variant="ghost" size="sm" onClick={handleDoneEditingHandles}>Done</Button>
-            ) : undefined
-          }
-        >
-          {gate3Unlocked && (
-            gate3Complete && !editingHandles ? (
-              <VerifiedHandlesPreview refreshKey={handlesRefreshKey} />
-            ) : (
-              <div className="mt-4">
-                <HandlesSection bare />
-              </div>
-            )
-          )}
-        </GateRow>
-
         {/* Gate 4 — TOS + slug */}
         <GateRow
           step={4}
           title="Agree to Creator TOS and Choose Your Primary Handle"
           description="Accept the creator terms and lock in your artypot.com/[slug] URL"
-          status={!gate4Unlocked ? 'locked' : 'active'}
+          status={!tosUnlocked ? 'locked' : 'active'}
           lockText="Complete steps 1–3 to unlock"
         >
-          {gate4Unlocked && <TosGate onActivated={handleActivated} />}
+          {tosUnlocked && <TosGate onActivated={handleActivated} />}
         </GateRow>
       </div>
 

@@ -385,7 +385,7 @@ function PersonRow({
     >
       <PersonAvatar person={person} />
       <span className="flex-1 min-w-0">
-        <span className="block text-sm text-foreground truncate">{person.display_name}</span>
+        <span className={`block text-sm text-foreground truncate ${active ? 'underline underline-offset-2' : ''}`}>{person.display_name}</span>
         {person.type === 'creator' && person.primary_handle && (
           <span className="block font-mono text-[11px] text-muted/80 truncate">{person.primary_handle.label}</span>
         )}
@@ -426,7 +426,7 @@ function BountyRow({
       className={`w-full min-h-[44px] flex flex-col gap-0.5 px-4 py-2 text-left transition-colors ${active ? 'bg-border' : 'hover:bg-border'}`}
     >
       <span className="flex items-center justify-between gap-3">
-        <span className="text-sm text-foreground truncate">{bounty.title}</span>
+        <span className={`text-sm text-foreground truncate ${active ? 'underline underline-offset-2' : ''}`}>{bounty.title}</span>
         {bounty.creator.display_name && (
           <span className="shrink-0 text-[11px] text-muted truncate max-w-[40%]">{bounty.creator.display_name}</span>
         )}
