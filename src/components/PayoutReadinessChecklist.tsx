@@ -96,7 +96,7 @@ export default function PayoutReadinessChecklist({
           {
             label: 'Bank account connected',
             done: creator.bank_connected === true,
-            href: '/c#bank-account',
+            href: '/c/payouts#bank-account',
           } as ChecklistItem,
         ]
       : isManualPayoutRegion
@@ -113,7 +113,7 @@ export default function PayoutReadinessChecklist({
           {
             label: `Tax form submitted (${taxFormLabel})`,
             done: taxFormDone,
-            href: '/c#tax',
+            href: '/c/tax',
           } as ChecklistItem,
         ]
       : []),
@@ -139,7 +139,7 @@ export default function PayoutReadinessChecklist({
               Identity verification required by Stripe
             </span>
             <Link
-              href="/c#payout-hold"
+              href="/c/payouts#payout-hold"
               className="ml-2 text-xs text-bad underline underline-offset-2 hover:opacity-80 transition-opacity"
             >
               Complete now →
