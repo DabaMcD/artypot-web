@@ -203,6 +203,10 @@ export interface SearchPerson {
   open_bounty_count: number;
   total_backed_open: number;
   match_reason: SearchMatchReason | null;
+  // The verified handle that anchors a creator's identity in the row, e.g.
+  // { platform: 'youtube', username: 'mrbeast', label: 'youtube/@mrbeast' }.
+  // Null for unverified handles (their display_name is already the handle).
+  primary_handle?: { platform: string; username: string; label: string } | null;
   url: string | null;
 }
 

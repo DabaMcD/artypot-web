@@ -97,15 +97,22 @@ export function AppShell({ children }: AppShellProps) {
 
   // Unauthenticated on non-auth route: render the public header + footer
   // around the page content. Pages own their internal padding.
+  //
+  // The provider must wrap this branch too: public pages like /bounties/{id}
+  // call useDefaultUpdatePrompt(), so the context has to exist even when logged
+  // out. There's no banner here (logged-out users can't back bounties), so
+  // dispatch is effectively a no-op — but the hook must not throw.
   if (!user) {
     return (
-      <div className="flex flex-col min-h-screen bg-background">
-        <PublicHeader />
-        <main className="flex-1 min-w-0">
-          {children}
-        </main>
-        <PublicFooter />
-      </div>
+      <DefaultUpdatePromptProvider>
+        <div className="flex flex-col min-h-screen bg-background">
+          <PublicHeader />
+          <main className="flex-1 min-w-0">
+            {children}
+          </main>
+          <PublicFooter />
+        </div>
+      </DefaultUpdatePromptProvider>
     );
   }
 

@@ -382,10 +382,13 @@ function PersonRow({ person }: { person: SearchPerson }) {
             {person.type === 'creator' ? 'creator' : 'unverified'}
           </Badge>
         </div>
+        {person.type === 'creator' && person.primary_handle && (
+          <div className="font-mono text-[11px] text-muted/80 truncate">{person.primary_handle.label}</div>
+        )}
         <div className="text-xs text-muted truncate">{subline}</div>
-        {person.match_reason?.value && (
+        {person.match_reason?.kind === 'alias' && person.match_reason.value && (
           <div className="text-[11px] text-muted/70 truncate">
-            {person.match_reason.kind === 'alias' ? 'matched alias' : 'matched'}: {person.match_reason.value}
+            matched alias: {person.match_reason.value}
           </div>
         )}
       </div>

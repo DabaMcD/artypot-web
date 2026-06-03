@@ -898,7 +898,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           )}
           {bounty.initiator && (
             <div>
-              <span className="text-muted">Created by </span>
+              <span className="text-muted">Started by </span>
               {bounty.initiator.id === 0 ? (
                 <span className="text-foreground font-medium">{bounty.initiator.display_name}</span>
               ) : (
@@ -1115,15 +1115,48 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             <>
               {renderBackingPanel()}
 
-              {/* Not logged in */}
+              {/* Not logged in — this is the one shot to explain the model to a
+                  first-time visitor. They already sense the crowdfunding from the
+                  backer list and the running total; what converts is the risk
+                  reversal: you only ever pay if the work actually gets made. Lead
+                  with that, reassure, then send them to sign up (not just log in). */}
               {!user && bounty.status === 'open' && (
-                <Card className="text-center">
-                  <p className="text-muted text-sm mb-3">Log in to back this bounty</p>
-                  <Link href="/login" className="block w-full cursor-pointer">
+                <Card>
+                  <SectionLabel>How this works</SectionLabel>
+                  <p className="text-foreground font-semibold text-[15px] leading-snug mt-3 mb-2">
+                    You only pay if it gets made.
+                  </p>
+                  <p className="text-muted text-sm leading-relaxed mb-4">
+                    Pledge what this is worth to you. Your card is charged{' '}
+                    <strong className="text-foreground font-medium">only if the work is delivered and approved</strong>
+                    {' '}— nothing happens today, and you can back out anytime before then.
+                  </p>
+
+                  <div className="space-y-1.5 mb-5">
+                    {['Nothing charged today', 'Billed only after delivery', 'Back out anytime'].map((line) => (
+                      <div
+                        key={line}
+                        className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted"
+                      >
+                        <span className="text-fan">✓</span>
+                        {line}
+                      </div>
+                    ))}
+                  </div>
+
+                  <Link href="/register" className="block w-full cursor-pointer">
                     <Button variant="primary" className="w-full justify-center">
-                      Log in
+                      {activeBackings.length > 0
+                        ? 'Back this bounty →'
+                        : 'Be the first to back this →'}
                     </Button>
                   </Link>
+                  <p className="text-center text-xs text-muted mt-3">
+                    Already have an account?{' '}
+                    <Link href="/login" className="text-fan hover:underline cursor-pointer">
+                      Log in
+                    </Link>
+                  </p>
                 </Card>
               )}
 
