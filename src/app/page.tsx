@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import CreatorSearchWidget from '@/components/CreatorSearchWidget';
+import HeaderSearch from '@/components/HeaderSearch';
 import { featuredBounties } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { Creator, Bounty } from '@/lib/types';
@@ -81,9 +80,7 @@ function TrendingBountyCard({ bounty }: { bounty: Bounty }) {
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function HomePage() {
-  const router = useRouter();
   const { user } = useAuth();
-  const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
   const [trendingBounties, setTrendingBounties] = useState<Bounty[]>([]);
   const [bountiesLoading, setBountiesLoading] = useState(true);
 
@@ -109,22 +106,21 @@ export default function HomePage() {
             Search for any creator, artist, or public figure — start a bounty and let the community fund it.
           </p>
 
-          <div className="w-full">
-            <CreatorSearchWidget
-              selectedCreator={selectedCreator}
-              onSelect={setSelectedCreator}
-              onClear={() => setSelectedCreator(null)}
-              placeholder="Search for a creator, artist, or public figure…"
-            />
-
-            {selectedCreator && (
-              <button
-                onClick={() => router.push(selectedCreator.slug ? `/${selectedCreator.slug}` : `/creators/${selectedCreator.id}`)}
-                className="mt-3 w-full bg-creator text-brand-dark font-semibold py-3 rounded-lg hover:brightness-110 transition-all text-sm"
+          <div className="w-full text-left">
+            <div className="relative">
+              <svg
+                className="absolute left-4 top-[1.15rem] w-4 h-4 text-muted pointer-events-none z-10"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
               >
-                See Bounties →
-              </button>
-            )}
+                <circle cx="11" cy="11" r="8" />
+                <path strokeLinecap="round" d="m21 21-4.35-4.35" />
+              </svg>
+              <HeaderSearch
+                autoFocus
+                placeholder="Search for a creator, artist, or public figure…"
+                inputClassName="w-full bg-surface-2 border border-border rounded-xl pl-11 pr-4 py-3.5 text-base text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -189,7 +185,7 @@ export default function HomePage() {
                 1
               </div>
               <p className="text-foreground font-medium text-base leading-snug font-sans">
-                Find a creator and start a bounty
+                Ask for your favorite creator to do something
               </p>
             </div>
 
@@ -202,7 +198,7 @@ export default function HomePage() {
                 2
               </div>
               <p className="text-foreground font-medium text-base leading-snug font-sans">
-                Fans chip in if they want it too
+                Fans chip in until the bounty can't be ignored
               </p>
             </div>
 
@@ -215,7 +211,7 @@ export default function HomePage() {
                 3
               </div>
               <p className="text-foreground font-medium text-base leading-snug font-sans">
-                Creator delivers, gets paid out
+                The creator delivers, the fans pay them
               </p>
             </div>
           </div>
