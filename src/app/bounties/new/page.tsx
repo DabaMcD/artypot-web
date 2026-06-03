@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { handles as handlesApi, bounties as bountiesApi } from '@/lib/api';
+import { handles as handlesApi, bounties as bountiesApi, creators as creatorsApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { useDefaultUpdatePrompt } from '@/lib/default-update-prompt-context';
@@ -18,6 +18,8 @@ import { PlatformHandleInput, formatPlatformHandle } from '@/components/ui/Platf
 import { Banner } from '@/components/ui/Banner';
 import { Stepper } from '@/components/ui/Stepper';
 import { ALL_PLATFORMS, OTHER_SLUG, platformLabel } from '@/lib/platforms';
+import { useDebouncedSearch } from '@/lib/search/useDebouncedSearch';
+import { moveActiveIndex } from '@/lib/search/navigation';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -136,33 +138,33 @@ function Step1({
   newUsername, onNewUsername,
 }: Step1Props) {
   const { toast } = useToast();
-  const [results, setResults] = useState<HandleSearchResult[]>([]);
-  const [searching, setSearching] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [addError, setAddError] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const runSearch = useCallback(async (q: string) => {
-    if (!q.trim()) { setResults([]); setShowDropdown(false); return; }
-    setSearching(true);
-    try {
-      const res = await handlesApi.search(q);
-      setResults((res.data as unknown) as HandleSearchResult[]);
-      setShowDropdown(true);
-    } catch {
-      // silently ignore search errors
-    } finally {
-      setSearching(false);
-    }
-  }, []);
+  // Debounced + abortable search. Mirrors HeaderSearch: 2-char minimum,
+  // 250ms debounce, stale responses are dropped via AbortController.
+  const fetcher = useCallback(
+    (q: string, signal: AbortSignal) =>
+      handlesApi.search(q, signal).then((r) => (r.data as unknown) as HandleSearchResult[]),
+    [],
+  );
+  const { results: rawResults, loading: searching, setResults } = useDebouncedSearch<HandleSearchResult[]>({
+    query,
+    fetcher,
+    enabled: focused && !showAddNew,
+    minChars: 2,
+    delay: 250,
+  });
+  const results = rawResults ?? [];
+
+  const trimmed = query.trim();
+  const queryActive = trimmed.length >= 2;
 
   const handleChange = (value: string) => {
     onQuery(value);
     onShowAddNew(false);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => runSearch(value), 250);
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -172,15 +174,18 @@ function Step1({
     if (parsed) {
       e.preventDefault();
       toast(`Detected ${parsed.label} handle from URL`, 'success');
-      const handle = parsed.username;
-      onQuery(handle);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      runSearch(handle);
+      onQuery(parsed.username);
     }
   };
 
+  const close = () => {
+    setFocused(false);
+    setActiveIndex(-1);
+  };
+
   const selectResult = (r: HandleSearchResult) => {
-    setShowDropdown(false);
+    close();
+    setResults(null);
     if (r.type === 'user' && r.user_id !== null) {
       onSelect({ kind: 'user', userId: r.user_id, handleId: r.handle_id, displayName: r.display_name, avatarUrl: r.avatar_url, platform: r.platform, username: r.username });
     } else {
@@ -198,57 +203,51 @@ function Step1({
     onSelect({ kind: 'new', platform: newPlatform, username: newUsername.trim(), displayName: newDisplayName.trim(), avatarUrl: null });
   };
 
-  // Close dropdown on outside click
+  // Top row pre-selected so a bare Enter activates the first result.
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  // Reset highlight to first item whenever results or query change.
-  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setActiveIndex(0);
-  }, [results, query]);
+  }, [query, rawResults]);
 
   // The dropdown surfaces live results followed by a pinned "+ add new creator"
-  // row as the final navigable item. It's open whenever the user has typed
-  // (even with zero matches) or we already have results to show.
-  const dropdownOpen = showDropdown && !searching && (query.trim().length > 0 || results.length > 0);
+  // row as the final navigable item. Open whenever focused and the user has
+  // typed something (even below min-chars, so the empty/short states render).
+  const dropdownOpen = focused && !showAddNew && trimmed.length > 0;
 
   const openAddNew = () => {
-    setShowDropdown(false);
+    close();
+    setResults(null);
     onShowAddNew(true);
     // Pre-seed the handle field — the search box is handle-oriented.
-    onNewUsername(query.trim());
+    onNewUsername(trimmed);
   };
 
+  // Navigable items = results + pinned "+ add new creator". Add-new sits at
+  // index `results.length`. ArrowUp/ArrowDown wrap via the shared util.
+  const navCount = results.length + 1;
+  const addNewIndex = results.length;
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      close();
+      return;
+    }
     if (!dropdownOpen) return;
-    // Navigable items: every result, then the pinned add-new row at index
-    // results.length. ArrowDown/Up wraps across all of them; Enter activates
-    // whichever row is highlighted.
-    const addNewIndex = results.length;
-    const itemCount = results.length + 1;
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setActiveIndex((i) => (i + 1) % itemCount);
+      setActiveIndex((i) => moveActiveIndex(i < 0 ? -1 : i, 1, navCount));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setActiveIndex((i) => (i - 1 + itemCount) % itemCount);
+      setActiveIndex((i) => moveActiveIndex(i < 0 ? 0 : i, -1, navCount));
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (activeIndex === addNewIndex) {
+      const idx = activeIndex >= 0 ? activeIndex : 0;
+      if (idx === addNewIndex) {
         openAddNew();
       } else {
-        const r = results[activeIndex];
+        const r = results[idx];
         if (r) selectResult(r);
       }
-    } else if (e.key === 'Escape') {
-      setShowDropdown(false);
     }
   };
 
@@ -277,7 +276,7 @@ function Step1({
               <span className="font-mono text-[10px] uppercase tracking-widest text-creator">add new creator</span>
 
               <div>
-                <FieldLabel>platform - where they're active</FieldLabel>
+                <FieldLabel>platform - where they&apos;re active</FieldLabel>
                 <Select value={newPlatform} onChange={(e) => { onNewPlatform(e.target.value as HandlePlatform | ''); onNewUsername(''); }} autoFocus>
                   <option value="" disabled>— select a platform —</option>
                   {PLATFORMS.map(({ value, label }) => (
@@ -327,81 +326,117 @@ function Step1({
         ) : (
           <>
             <FieldLabel>creator handle or name</FieldLabel>
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative">
               <Input
                 type="text"
                 value={query}
                 onChange={(e) => handleChange(e.target.value)}
                 onPaste={handlePaste}
                 onKeyDown={handleKeyDown}
-                onFocus={() => { if (results.length || query.trim()) setShowDropdown(true); }}
+                onFocus={() => {
+                  if (blurTimer.current) clearTimeout(blurTimer.current);
+                  setFocused(true);
+                }}
+                onBlur={() => {
+                  blurTimer.current = setTimeout(() => setFocused(false), 150);
+                }}
                 placeholder="e.g. @tomscott on YouTube"
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck={false}
+                role="combobox"
+                aria-expanded={dropdownOpen}
+                aria-controls="bounty-target-listbox"
+                aria-autocomplete="list"
               />
-              {searching && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted">searching…</span>
-              )}
 
               {dropdownOpen && (
-                <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-surface border border-border rounded-lg overflow-hidden shadow-lg">
-                  {results.map((r, idx) => (
+                <div
+                  id="bounty-target-listbox"
+                  className="absolute top-full left-0 right-0 mt-1 bg-surface-2 border border-border rounded-lg shadow-xl z-50 flex flex-col max-h-[60vh] overflow-hidden"
+                  onMouseDown={(e) => e.preventDefault()}
+                  role="listbox"
+                >
+                  <div className="overflow-y-auto">
+                    {/* Too-short hint */}
+                    {!queryActive && trimmed.length > 0 && (
+                      <div className="px-4 py-3 text-sm text-muted">Keep typing — at least 2 characters.</div>
+                    )}
+
+                    {/* Loading state */}
+                    {queryActive && searching && results.length === 0 && (
+                      <div className="flex items-center gap-2 px-4 py-3 text-sm text-muted">
+                        <svg className="w-3.5 h-3.5 animate-spin shrink-0" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                        </svg>
+                        Searching…
+                      </div>
+                    )}
+
+                    {/* Results (no section header — only one section) */}
+                    {queryActive && results.length > 0 && (
+                      <div>
+                        {results.map((r, idx) => {
+                          const active = activeIndex === idx;
+                          const handleLabel = `${PLATFORM_LABELS[r.platform] ?? r.platform}/${formatPlatformHandle(r.platform, r.username)}`;
+                          return (
+                            <button
+                              key={r.handle_id}
+                              type="button"
+                              role="option"
+                              aria-selected={active}
+                              onClick={() => selectResult(r)}
+                              onMouseEnter={() => setActiveIndex(idx)}
+                              className={`w-full min-h-[44px] flex items-center gap-3 px-4 py-2 text-left transition-colors ${active ? 'bg-border' : 'hover:bg-border'}`}
+                            >
+                              <AvatarOrUnknown avatarUrl={r.avatar_url} size="sm" />
+                              <span className="flex-1 min-w-0">
+                                <span className={`block text-sm text-foreground truncate ${active ? 'underline underline-offset-2' : ''}`}>{r.display_name}</span>
+                                <span className="block font-mono text-[11px] text-muted/80 truncate">{handleLabel}</span>
+                              </span>
+                              <span className="flex flex-col items-end gap-0.5 shrink-0 self-center">
+                                <Badge tone={r.verified ? 'good' : 'default'}>{r.verified ? 'verified' : 'unverified'}</Badge>
+                                {!r.verified && r.pending_bounty_count > 0 && (
+                                  <span className="text-[10px] font-mono text-muted">
+                                    {r.pending_bounty_count} {r.pending_bounty_count === 1 ? 'bounty' : 'bounties'} waiting
+                                  </span>
+                                )}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Empty state */}
+                    {queryActive && !searching && results.length === 0 && (
+                      <div className="px-4 py-3">
+                        <p className="text-sm text-muted">No matches for &ldquo;{trimmed}&rdquo;.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Sticky footer — always the last navigable item, replacing
+                      the "see all results" row from the header search. */}
+                  {queryActive && (
                     <button
-                      key={r.handle_id}
                       type="button"
-                      onMouseDown={() => selectResult(r)}
-                      onMouseEnter={() => setActiveIndex(idx)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 transition-colors text-left border-b border-border ${
-                        activeIndex === idx ? 'bg-surface-2' : 'hover:bg-surface-2'
+                      onMouseEnter={() => setActiveIndex(addNewIndex)}
+                      onClick={openAddNew}
+                      className={`sticky bottom-0 w-full min-h-[44px] flex items-center justify-center gap-2 px-4 text-sm font-medium text-creator border-t border-border transition-colors ${
+                        activeIndex === addNewIndex ? 'bg-border' : 'bg-surface-2 hover:bg-border'
                       }`}
                     >
-                      <AvatarOrUnknown avatarUrl={r.avatar_url} size="sm" />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-foreground truncate">{r.display_name}</div>
-                        <div className="text-xs text-muted font-mono">
-                          {PLATFORM_LABELS[r.platform]} · {formatPlatformHandle(r.platform, r.username)}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-0.5 shrink-0">
-                        {r.verified ? (
-                          <Badge tone="good">verified</Badge>
-                        ) : (
-                          <>
-                            <Badge tone="default">unverified</Badge>
-                            {r.pending_bounty_count > 0 && (
-                              <span className="text-[10px] font-mono text-muted">
-                                {r.pending_bounty_count} {r.pending_bounty_count === 1 ? 'bounty' : 'bounties'} waiting
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </div>
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full border border-dashed border-creator/50 text-creator text-xs">+</span>
+                      add new creator
                     </button>
-                  ))}
-
-                  {results.length === 0 && query.trim() && (
-                    <p className="px-3 pt-3 pb-1 text-sm text-muted">no results for &ldquo;{query}&rdquo;</p>
                   )}
-
-                  {/* Pinned final row — always the last navigable item, so fans
-                      can add a brand-new creator even when results are showing. */}
-                  <button
-                    type="button"
-                    onMouseDown={openAddNew}
-                    onMouseEnter={() => setActiveIndex(results.length)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${
-                      activeIndex === results.length ? 'bg-surface-2' : 'hover:bg-surface-2'
-                    }`}
-                  >
-                    <span className="flex items-center justify-center w-7 h-7 rounded-full border border-dashed border-creator/50 text-creator text-sm shrink-0">+</span>
-                    <span className="text-sm text-creator font-medium">add new creator</span>
-                  </button>
                 </div>
               )}
             </div>
 
-            {!dropdownOpen && !searching && (
+            {!dropdownOpen && (
               <button
                 type="button"
                 onClick={() => onShowAddNew(true)}
@@ -663,6 +698,7 @@ function Step3({ target, isSelfBounty, title, description, amount, displayName, 
 function NewBountyForm() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const { dispatch: dispatchPrompt } = useDefaultUpdatePrompt();
 
@@ -685,6 +721,75 @@ function NewBountyForm() {
   const [s1NewDisplayName, setS1NewDisplayName] = useState('');
   const [s1NewPlatform, setS1NewPlatform] = useState<HandlePlatform | ''>('');
   const [s1NewUsername, setS1NewUsername] = useState('');
+
+  // Deep-link prefill. Other pages link here with a pre-chosen target so the
+  // fan skips the search step entirely:
+  //   ?creator_id=62               → a known creator (user id)
+  //   ?platform=youtube&handle=…   → a specific platform handle
+  //   ?handle=…                    → seed the search box only (ambiguous, stays on step 1)
+  // Runs once on mount; failures fall back to the normal search on step 1.
+  const prefillDone = useRef(false);
+  useEffect(() => {
+    if (prefillDone.current) return;
+    const creatorId = searchParams.get('creator_id');
+    const platform  = searchParams.get('platform');
+    const handle    = searchParams.get('handle');
+
+    // Bare handle (no platform): just seed the search field, don't auto-advance.
+    if (!creatorId && !platform && handle) {
+      prefillDone.current = true;
+      setS1Query(handle);
+      return;
+    }
+    if (!creatorId && !(platform && handle)) return; // nothing to prefill
+
+    prefillDone.current = true;
+    const norm = (s: string) => s.replace(/^@/, '').toLowerCase();
+
+    (async () => {
+      try {
+        if (creatorId) {
+          const id = parseInt(creatorId, 10);
+          if (isNaN(id)) return;
+          const { data: c } = await creatorsApi.get(id);
+          // A creator's identity is anchored by a verified handle claim; use the
+          // first as their primary handle for the targeting card.
+          const h = (c.handle_claims ?? []).find((cl) => cl.handle)?.handle ?? null;
+          setTarget({
+            kind: 'user',
+            userId: c.id,
+            handleId: h?.id ?? 0,
+            displayName: c.display_name,
+            avatarUrl: c.profile_picture ?? null,
+            platform: h?.platform ?? OTHER_SLUG,
+            username: h?.username ?? '',
+          });
+          setStep(2);
+          return;
+        }
+
+        // platform + handle — resolve against the same source as the live search.
+        const res = await handlesApi.search(handle!);
+        const list = (res.data as unknown) as HandleSearchResult[];
+        const onPlatform = list.filter((r) => r.platform === platform);
+        const match = onPlatform.find((r) => norm(r.username) === norm(handle!)) ?? onPlatform[0];
+
+        if (match && match.type === 'user' && match.user_id !== null) {
+          setTarget({ kind: 'user', userId: match.user_id, handleId: match.handle_id, displayName: match.display_name, avatarUrl: match.avatar_url, platform: match.platform, username: match.username });
+        } else if (match) {
+          setTarget({ kind: 'handle', handleId: match.handle_id, displayName: match.display_name, avatarUrl: null, platform: match.platform, username: match.username });
+        } else {
+          // No existing handle row — let the fan create a brand-new target.
+          setTarget({ kind: 'new', platform: platform as HandlePlatform, username: handle!, displayName: '', avatarUrl: null });
+        }
+        setStep(2);
+      } catch {
+        // Resolution failed — leave the fan on step 1 to search manually.
+      }
+    })();
+  // searchParams is stable for a given URL; prefillDone guards re-runs.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Sync expiry + amount defaults from user once auth loads (useState
   // initial runs before user is available). Amount falls back to the env

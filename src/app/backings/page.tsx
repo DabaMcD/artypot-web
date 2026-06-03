@@ -81,8 +81,8 @@ export default function MyBackingsPage() {
     <div className="space-y-7 pt-2">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <SectionLabel>fan · history</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">history & receipts</h1>
+          <SectionLabel>fan · backings</SectionLabel>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">my backings</h1>
           <p className="text-sm text-muted mt-1">
             {total} {total !== 1 ? 'commitments' : 'commitment'}
             {totalActiveAmount !== null && totalActiveAmount > 0 && (
@@ -203,6 +203,10 @@ export default function MyBackingsPage() {
           <Card>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">payment method</div>
             <Link href="/billing" className="ap-inline-link text-sm">manage billing →</Link>
+          </Card>
+          <Card>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">payments</div>
+            <Link href="/history" className="ap-inline-link text-sm">payment history →</Link>
           </Card>
         </div>
       </div>

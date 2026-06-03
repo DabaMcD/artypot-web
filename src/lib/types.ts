@@ -86,6 +86,8 @@ export interface CreatorW9Record {
 export interface FormW9StatusResponse {
   tax_year: number;
   ytd_withdrawals: number;
+  /** Paid out this year + currently-available funds — the "earned" figure. */
+  ytd_earnings: number;
   threshold: number;
   requires_w9: boolean;
   record: CreatorW9Record | null;
@@ -105,6 +107,8 @@ export interface CreatorW8BENRecord {
 export interface FormW8BENStatusResponse {
   tax_year: number;
   ytd_withdrawals: number;
+  /** Paid out this year + currently-available funds — the "earned" figure. */
+  ytd_earnings: number;
   threshold: number;
   requires_w8ben: boolean;
   record: CreatorW8BENRecord | null;
@@ -282,6 +286,18 @@ export interface Creator {
   creator_tos_agreed_at?: string | null;
   verified_at?: string;
   merged_into_creator_id?: number;
+  /**
+   * Verified handle claims, returned by `GET /creators/{user}`. Each claim's
+   * `handle` carries just `id`/`platform`/`username` (the backend selects only
+   * those columns). Used to derive a creator's primary handle for display, e.g.
+   * when deep-linking into `/bounties/new?creator_id=…`.
+   */
+  handle_claims?: Array<{
+    id: number;
+    handle_id: number;
+    status: string;
+    handle: { id: number; platform: HandlePlatform; username: string } | null;
+  }>;
 }
 
 export interface Bounty {
@@ -349,6 +365,27 @@ export interface BackingPage {
   total: number;
   per_page: number;
   total_active_amount: number;
+}
+
+// ── Payment history (past fan charges) ──────────────────────────────────────
+
+export type FanPaymentStatus = 'pending' | 'requires_action' | 'failed' | 'completed';
+
+export interface FanPaymentItem {
+  bounty_id: number;
+  bounty: { id: number; title: string } | null;
+  /** Serialized as a decimal string by the API; coerce with Number() at render. */
+  amount: number | string;
+}
+
+export interface FanPaymentSummary {
+  id: number;
+  status: FanPaymentStatus;
+  /** Total charged. Serialized as a decimal string by the API. */
+  gross_paid: number | string;
+  charged_at: string;             // ISO 8601 (UTC)
+  billing_run_date: string | null; // null for a manual pay-now
+  items: FanPaymentItem[];
 }
 
 export interface DeletePaymentMethodResult {
@@ -501,6 +538,148 @@ export interface CreatorSearchResult {
   email: string | null;
   country_code: string | null;
   available_balance: number;
+}
+
+// ── Country Tiers (admin · read-only, derived from compliance data) ──────────
+
+export type CountryTier = 'full' | 'manual_payout' | 'restricted' | 'blocked';
+
+/** How a creator in this country is paid out. */
+export type CountryPayoutMode = 'automated' | 'manual' | 'blocked';
+
+export interface CountryTierSanction {
+  program_name: string;
+  severity: string | null;
+  subdivision_code: string | null;
+}
+
+export interface CountryTierRow {
+  code: string;          // ISO 3166-1 alpha-2
+  code3: string;
+  name: string;
+  region: string | null;
+  tier: CountryTier;
+  tier_rank: number;     // 1 = lowest friction … 4 = blocked
+  charges_supported: boolean;  // can fans in this country be billed (Stripe charges)
+  connect_supported: boolean;  // is automated Stripe Connect payout available
+  payout_mode: CountryPayoutMode;
+  sanction_block: boolean;
+  sanctions: CountryTierSanction[];
+  reason: string;
+}
+
+export interface CountryTierDefinition {
+  tier: CountryTier;
+  rank: number;
+  label: string;
+  description: string;
+}
+
+export interface CountryTiersResponse {
+  data: CountryTierRow[];
+  summary: Record<CountryTier, number>;
+  definitions: CountryTierDefinition[];
+}
+
+// ── Billing Runs (admin) ────────────────────────────────────────────────────
+
+export type BillingRunStatus = 'pending' | 'running' | 'completed' | 'failed';
+
+/** A minimal user reference attached to billing-run detail rows. */
+export interface BillingRunUserRef {
+  id: number;
+  display_name: string;
+  email: string | null;
+}
+
+/**
+ * Live, webhook-derived rollup for one billing run. The run row's own
+ * total_collected/total_fees are *attempted* (dispatch-time) figures; these
+ * fields reflect confirmed reality.
+ */
+export interface BillingRunSummary {
+  collected_count: number;
+  collected_amount: number;
+  failed_count: number;
+  failed_amount: number;
+  pending_action_count: number;
+  pending_action_amount: number;
+  in_flight_count: number;
+  in_flight_amount: number;
+  failed_attempts: number;
+  charged_users: number;
+  dropped_backings: number;
+  chargeback_count: number;
+  chargeback_amount: number;
+}
+
+export interface BillingRun {
+  id: number;
+  run_date: string;            // YYYY-MM-DD
+  status: BillingRunStatus;
+  /** Attempted (dispatch-time) totals — decimal strings from the API. */
+  total_collected: number | string;
+  total_paid_out: number | string;
+  total_fees: number | string;
+  soft_backings_cancelled: number;
+  started_at: string | null;
+  completed_at: string | null;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+  summary: BillingRunSummary;
+}
+
+/** A failed fan-payment annotated with the latest Stripe decline detail. */
+export interface BillingRunFailedPayment {
+  id: number;
+  user: BillingRunUserRef | null;
+  gross_paid: number;
+  attempts: number;
+  decline_code: string | null;
+  error_code: string | null;
+  error_message: string | null;
+  last_attempt_at: string | null;
+}
+
+/** A payment stuck awaiting 3DS / SCA authentication. */
+export interface BillingRunPendingAction {
+  id: number;
+  user: BillingRunUserRef | null;
+  gross_paid: number;
+  requires_action_at: string | null;
+}
+
+/** A chargeback / dispute against a payment collected in this run. */
+export interface BillingRunChargeback {
+  id: number;
+  user: BillingRunUserRef | null;
+  fan_payment_id: number | null;
+  amount: number;
+  reason: string | null;
+  status: string | null;
+  status_label: string | null;
+  is_terminal: boolean;
+  /** null = chargeback on unknown charge; true = creator clawed back; false = platform absorbed. */
+  pre_clearing: boolean | null;
+  clawback_amount: number | null;
+  created_at: string;
+}
+
+/** A backing dropped before charging because the fan had no valid card. */
+export interface BillingRunDroppedBacking {
+  id: number;
+  user: BillingRunUserRef | null;
+  bounty: { id: number; title: string } | null;
+  amount: number;
+  revoked_at: string | null;
+}
+
+export interface BillingRunDetail extends BillingRun {
+  failed_payments: BillingRunFailedPayment[];
+  pending_action: BillingRunPendingAction[];
+  chargebacks: BillingRunChargeback[];
+  dropped_backings: BillingRunDroppedBacking[];
 }
 
 export interface PaymentMethod {
@@ -788,6 +967,46 @@ export interface AdminCreator {
 }
 
 // ── Admin creator detail (single-creator modal) ────────────────────────────
+
+// ── Admin audit log (read-only feed of admin/council actions) ───────────────
+
+export type AuditLogCategory = 'accounts' | 'compliance' | 'money' | 'content' | 'governance';
+
+export interface AuditLogActor {
+  id: number;
+  display_name: string;
+}
+
+export interface AuditLogEntry {
+  /** Stable composite key, e.g. "payout_reversed:42". */
+  id: string;
+  source: string;
+  event: string;
+  category: AuditLogCategory;
+  occurred_at: string;        // ISO 8601
+  actor: AuditLogActor | null;
+  target_user: AuditLogActor | null;
+  subject: string | null;     // e.g. "bounty #7", "country_payment_support #3"
+  field: string | null;
+  old_value: string | null;
+  new_value: string | null;
+  note: string | null;
+}
+
+export interface AuditLogSource {
+  key: string;
+  label: string;
+  category: AuditLogCategory;
+}
+
+export interface AuditLogResponse {
+  data: AuditLogEntry[];
+  current_page: number;
+  per_page: number;
+  total: number;
+  last_page: number;
+  sources: AuditLogSource[];
+}
 
 // ── Compliance admin types ────────────────────────────────────────────────
 

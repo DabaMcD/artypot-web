@@ -12,6 +12,8 @@ import type {
   BountyHistory,
   PaginatedResponse,
   BackingPage,
+  FanPaymentSummary,
+  FanPaymentStatus,
   CashBalance,
   PaymentMethod,
   BountyStatus,
@@ -42,6 +44,10 @@ import type {
   ComplianceContentRule,
   ComplianceJobRun,
   ComplianceAuditEntry,
+  BillingRun,
+  BillingRunDetail,
+  CountryTiersResponse,
+  AuditLogResponse,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -610,6 +616,15 @@ export const billing = {
       requires_action_at?: string;
       expires_at?: string;
     }>('/billing/pending-action'),
+
+  /** Paginated history of the fan's past charges, each itemized by the backings it settled. */
+  payments: (params?: { page?: number; status?: FanPaymentStatus }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null)
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<PaginatedResponse<FanPaymentSummary>>(`/billing/payments${qs ? `?${qs}` : ''}`);
+  },
 };
 
 // Cash (creator-specific endpoints)
@@ -726,9 +741,10 @@ export const search = {
 // Overlord — logs
 export const handles = {
   /** GET /handles/search?q=... — unified handle search for bounty targeting */
-  search: (q: string) =>
+  search: (q: string, signal?: AbortSignal) =>
     request<{ data: HandleSearchResult }>(
-      `/handles/search?q=${encodeURIComponent(q)}`
+      `/handles/search?q=${encodeURIComponent(q)}`,
+      { signal }
     ),
 
   /**
@@ -915,6 +931,31 @@ export const admin = {
 
   getCreator: (id: number) =>
     request<{ data: import('./types').AdminCreatorDetail }>(`/admin/creators/${id}`),
+
+  // Billing Runs (monthly fan-charge cycles + their failure/chargeback fallout)
+  billingRuns: {
+    list: (page = 1) =>
+      request<PaginatedResponse<BillingRun>>(`/admin/billing-runs?page=${page}`),
+
+    get: (id: number) =>
+      request<{ data: BillingRunDetail }>(`/admin/billing-runs/${id}`),
+
+    trigger: () =>
+      request<{ message: string }>('/admin/billing-runs/trigger', { method: 'POST' }),
+  },
+
+  // Country tiers (read-only, derived live from compliance data)
+  countryTiers: () =>
+    request<CountryTiersResponse>('/admin/country-tiers'),
+
+  // Platform audit log (read-only feed of admin/council actions)
+  auditLog: (params?: { source?: string; category?: string; actor_id?: number; from?: string; to?: string; page?: number; per_page?: number }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<AuditLogResponse>(`/admin/audit-log${qs ? `?${qs}` : ''}`);
+  },
 
   // External Payouts (off-Stripe payouts: Wise, PayPal, wire, check, etc.)
   externalPayouts: {

@@ -11,7 +11,9 @@ const TONE_CLASSES: Record<string, string> = {
   payout_hold:          'bg-bad-soft  border-bad  text-foreground',
   setup_bank:           'bg-warn-soft border-warn text-foreground',
   request_admin_payout: 'bg-warn-soft border-warn text-foreground',
-  submit_tax_form:      'bg-warn-soft border-warn text-foreground',
+  // Urgent: only fires once earnings cross the reporting threshold, at which
+  // point the missing form will block the creator's next payout.
+  submit_tax_form:      'bg-bad-soft  border-bad  text-foreground',
   balance_ready:        'bg-good-soft border-good text-foreground',
 };
 
@@ -22,7 +24,7 @@ const ICON_CLASSES: Record<string, string> = {
   payout_hold:          'border-bad  text-bad',
   setup_bank:           'border-warn text-warn',
   request_admin_payout: 'border-warn text-warn',
-  submit_tax_form:      'border-warn text-warn',
+  submit_tax_form:      'border-bad  text-bad',
   balance_ready:        'border-good text-good',
 };
 

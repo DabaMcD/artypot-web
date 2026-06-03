@@ -120,7 +120,7 @@ export default function OverlordPage() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-1">
             <span className="text-2xl">👁️</span>
-            <h1 className="text-2xl font-display font-bold text-foreground">The Overlord Obelisk</h1>
+            <h1 className="text-2xl font-display font-bold text-foreground">Welcome to your Obelisk, overlord</h1>
           </div>
           <p className="text-sm text-muted">
             Grant or revoke{' '}

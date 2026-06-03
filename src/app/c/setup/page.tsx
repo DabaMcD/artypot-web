@@ -26,7 +26,7 @@ export default function CreatorSetupPage() {
       <div>
         <SectionLabel>creator · setup</SectionLabel>
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">creator gates</h1>
-        <p className="text-sm text-muted mt-1">Complete all four gates to unlock withdrawals.</p>
+        <p className="text-sm text-muted mt-1">Complete all three gates to unlock withdrawals.</p>
       </div>
 
       <div className="space-y-3">
@@ -34,7 +34,10 @@ export default function CreatorSetupPage() {
           gate={{
             label: 'Handle Verification',
             detail: 'Verify at least one social handle or website to prove you\'re the real deal.',
-            status: creator && (creator.youtube_handle || creator.twitter_handle || creator.tiktok_handle || creator.instagram_handle || creator.soundcloud_url || creator.bandcamp_url || creator.domain) ? 'done' : 'todo',
+            // Authoritative signal: the user has at least one *verified* handle
+            // claim. The denormalized creator.*_handle fields aren't returned by
+            // /me, and a handle merely being set isn't the same as verified.
+            status: user.has_verified_handle ? 'done' : 'todo',
           }}
           action={<Link href="/c/handles"><Button variant="default" size="sm">Manage Handles →</Button></Link>}
         />
@@ -48,14 +51,6 @@ export default function CreatorSetupPage() {
         />
         <GateCard
           gate={{
-            label: 'Tax Compliance',
-            detail: 'Submit your W-9 (US) or W-8BEN (international) once your annual payouts reach the threshold.',
-            status: 'todo',
-          }}
-          action={<Link href="/c"><Button variant="default" size="sm">Go to Dashboard →</Button></Link>}
-        />
-        <GateCard
-          gate={{
             label: 'Bank Account',
             detail: `Connect a Stripe-verified bank account for direct payouts. You keep ${100 - PLATFORM_FEE_PCT}% of each bounty — Artypot's ${PLATFORM_FEE_PCT}% fee is deducted only from completed payouts.`,
             status: creator?.bank_connected ? 'done' : 'todo',
@@ -66,8 +61,20 @@ export default function CreatorSetupPage() {
 
       <Card dashed>
         <p className="text-sm text-muted">
-          Gates 3 and 4 are handled from your{' '}
+          Gate 3 is handled from your{' '}
           <Link href="/c" className="ap-inline-link">main dashboard</Link>.
+        </p>
+      </Card>
+
+      <Card dashed>
+        <SectionLabel className="mb-2">tax forms — later</SectionLabel>
+        <p className="text-sm text-muted leading-relaxed">
+          Tax forms aren&apos;t a setup gate. You can take your first payout without one.
+          We&apos;ll only ask for a W-9 (US) or W-8BEN (international) once your annual
+          payouts approach the IRS reporting threshold — and we&apos;ll prompt you from
+          your{' '}
+          <Link href="/c#tax" className="ap-inline-link">dashboard</Link>{' '}
+          when that time comes.
         </p>
       </Card>
     </div>

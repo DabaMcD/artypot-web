@@ -205,9 +205,9 @@ export default function AdminCouncilPage() {
       <p className="font-mono text-[10px] uppercase tracking-widest text-muted text-center">
         To grant or revoke council access, use the{' '}
         {user.is_overlord ? (
-          <Link href="/obelisk" className="text-[#8A2BE2] hover:underline">Overlord obelisk</Link>
+          <Link href="/obelisk" className="text-[#8A2BE2] hover:underline">OBELISK</Link>
         ) : (
-          <span className="text-foreground">Overlord obelisk</span>
+          <span className="text-foreground">OBELISK</span>
         )}
         .
       </p>
