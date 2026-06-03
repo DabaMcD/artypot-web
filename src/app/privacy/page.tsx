@@ -70,14 +70,14 @@ export default function PrivacyPage() {
 
           <Section id="controller" title="1. Who Controls Your Data">
             <p>
-              Artypot is operated by Harry Baldwig (&quot;I,&quot; &quot;me,&quot; &quot;us&quot;). For questions about this policy, contact{' '}
-              <a href="mailto:baldwig@artypot.com" className="text-fan hover:underline">baldwig@artypot.com</a>.
+              Artypot is operated by Artypot LLC, a Florida limited liability company (&quot;Artypot,&quot; &quot;we,&quot; &quot;us,&quot; &quot;our&quot;). For questions about this policy, contact{' '}
+              <a href="mailto:legal@artypot.com" className="text-fan hover:underline">legal@artypot.com</a>.
             </p>
           </Section>
 
           <Section id="collected" title="2. What We Collect">
             <p><strong className="text-foreground">Account information:</strong> Your name, email address, and password (hashed — we can&apos;t read it). Optionally: a profile picture and phone number for verification purposes.</p>
-            <p><strong className="text-foreground">Financial information:</strong> For backers: payment method details (processed by Stripe — see Section 5). For creators receiving payouts: bank account information (processed by Stripe Connect), Tax ID for 1099 reporting.</p>
+            <p><strong className="text-foreground">Financial information:</strong> For backers: payment method details (processed by Stripe — see Section 5). For creators receiving payouts: bank account or payout-method information (processed by Stripe Connect or an alternative payout provider), and tax identification details for tax reporting (W-9 and 1099 for US creators; W-8BEN and 1042-S for creators outside the US).</p>
             <p><strong className="text-foreground">Activity data:</strong> Bounties you&apos;ve created, bounties you&apos;ve backed, bounties you&apos;ve fulfilled, notifications you&apos;ve received.</p>
             <p><strong className="text-foreground">Usage data:</strong> Standard server logs — IP addresses, browser type, pages visited, timestamps. We use this to diagnose problems, not to build marketing profiles.</p>
             <p><strong className="text-foreground">Communications:</strong> If you contact us via the support form or email, we retain those messages to resolve your request.</p>
@@ -100,7 +100,7 @@ export default function PrivacyPage() {
             <ul className="list-disc list-inside space-y-1 pl-2">
               <li><strong className="text-foreground">Stripe</strong> — payment processing and creator payouts</li>
               <li><strong className="text-foreground">Stripe Connect</strong> — bank account verification and creator payouts</li>
-              <li><strong className="text-foreground">TaxBandits / similar</strong> — 1099 filing where required</li>
+              <li><strong className="text-foreground">TaxBandits / similar</strong> — 1099 and 1042-S filing where required</li>
               <li><strong className="text-foreground">Email service provider</strong> — transactional email delivery</li>
               <li><strong className="text-foreground">Hosting / infrastructure providers</strong> — servers and databases</li>
             </ul>
@@ -134,7 +134,7 @@ export default function PrivacyPage() {
               To exercise these rights,{' '}
               <Link href="/support" className="text-fan hover:underline">contact us</Link>{' '}
               or email{' '}
-              <a href="mailto:baldwig@artypot.com" className="text-fan hover:underline">baldwig@artypot.com</a>.
+              <a href="mailto:legal@artypot.com" className="text-fan hover:underline">legal@artypot.com</a>.
               We will respond within 30 days.
             </p>
             <p>If you are in the EU/EEA or California, you may have additional rights under GDPR or CCPA. We&apos;ll honour those requests even if you don&apos;t cite the specific regulation.</p>
@@ -167,7 +167,7 @@ export default function PrivacyPage() {
               Privacy questions or requests?{' '}
               <Link href="/support" className="text-fan hover:underline">Contact us here</Link>{' '}
               or email{' '}
-              <a href="mailto:baldwig@artypot.com" className="text-fan hover:underline">baldwig@artypot.com</a>.
+              <a href="mailto:legal@artypot.com" className="text-fan hover:underline">legal@artypot.com</a>.
             </p>
           </Section>
 

@@ -31,10 +31,10 @@ export default function ToSPage() {
         <div className="bg-fan/5 border border-fan/30 rounded-xl p-6 mb-12">
           <p className="text-xs font-mono text-fan uppercase tracking-wider mb-3 font-semibold">TL;DR — plain English</p>
           <ul className="space-y-2 text-sm text-foreground">
-            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>No money moves when you back a bounty</strong> — not even a hold. Your card is only charged after The Council confirms a bounty complete.</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>No money moves when you back a bounty</strong> — not even a hold. Your card is only charged after The Council confirms a bounty complete, and charges are collected together in a monthly billing run.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>You can back out any time</strong> before a bounty completes, for free. No questions asked.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Artypot takes a 20% platform fee</strong>, deducted from the creator&apos;s payout. This fee covers all transaction costs including payment processing — backers are charged their committed amount in full, creators receive 80%.</span></li>
-            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Payouts go to US-based creators only</strong> for now. Fans anywhere in the world can back bounties.</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Creators around the world can get paid</strong> — via direct bank payouts where supported, and alternative methods elsewhere. Fans anywhere can back bounties. A few countries are restricted by law.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>If a bounty never completes, no money moves.</strong> Ever.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>No NSFW requests.</strong> Artypot is an all-ages platform. You may not use bounties to commission sexually explicit, graphic, or adult-only content. This applies equally to bounty descriptions, submissions, comments, and profiles.</span></li>
           </ul>
@@ -73,7 +73,7 @@ export default function ToSPage() {
         <div className="space-y-0">
 
           <Section id="acceptance" title="1. Acceptance of Terms">
-            <p>By accessing or using Artypot (&quot;the Platform,&quot; &quot;we,&quot; &quot;us&quot;), you agree to be bound by these Terms of Service. If you do not agree, do not use the Platform.</p>
+            <p>Artypot (&quot;the Platform,&quot; &quot;we,&quot; &quot;us&quot;) is operated by Artypot LLC, a Florida limited liability company. By accessing or using Artypot, you agree to be bound by these Terms of Service. If you do not agree, do not use the Platform.</p>
             <p>You must be at least 18 years old to create an account or back a bounty. By using the Platform, you represent that you meet this requirement.</p>
           </Section>
 
@@ -96,9 +96,9 @@ export default function ToSPage() {
           </Section>
 
           <Section id="backing" title="5. Backing and Payments">
-            <p><strong className="text-foreground">Backing vs. charge:</strong> When you back a bounty, no money moves and no authorization hold is placed on your card. Your card is only charged after The Council confirms a bounty is complete.</p>
+            <p><strong className="text-foreground">Backing vs. charge:</strong> When you back a bounty, no money moves and no authorization hold is placed on your card. Your card is only charged after The Council confirms a bounty is complete. Confirmed charges are collected together in a monthly billing run (on the 24th of each month), not instantly at the moment of approval.</p>
             <p><strong className="text-foreground">Backing out:</strong> You may back out at any time before a bounty is confirmed completed by Council, even during the &quot;pending review&quot; stage.</p>
-            <p><strong className="text-foreground">Failed charges:</strong> If your card cannot be charged when a bounty completes (expired card, insufficient funds, etc.), the charge will fail and you will be notified. You will not be able to back new bounties until the payment method is resolved.</p>
+            <p><strong className="text-foreground">Failed charges:</strong> If your card cannot be charged when payment is due (expired card, insufficient funds, etc.), the charge fails and you will be notified. You then have a short grace period to update your payment method. While a failed payment is unresolved you cannot back new bounties, and if it remains unresolved your affected backings will be cancelled.</p>
             <p><strong className="text-foreground">No completed-bounty refunds:</strong> Once a bounty has been approved by The Council and charges have been processed, payments are final and non-refundable. You had the opportunity to back out before completion.</p>
             <p><strong className="text-foreground">Uncompleted bounties:</strong> If a bounty is closed or revoked before completion, no charges are made. Nothing was ever held against your card.</p>
             <p>Payments are processed by Stripe, Inc. By backing a bounty, you also agree to <a href="https://stripe.com/legal" target="_blank" rel="noopener noreferrer" className="text-fan hover:underline">Stripe&apos;s Terms of Service</a>.</p>
@@ -108,7 +108,7 @@ export default function ToSPage() {
           <Section id="creators" title="6. Creator Obligations">
             <p>Creators who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith, as understood by their community.</p>
             <p>Submission of a completion claim constitutes a representation that the submitted work satisfies the bounty description. Fraudulent submissions — submitting work that does not fulfil the bounty, or submitting work you do not own the rights to — may result in account termination and, where applicable, legal action.</p>
-            <p>Creators receiving payouts must be based in the United States and must provide accurate payment and tax information (including a completed W-9 where required). Artypot will issue 1099s where required by law.</p>
+            <p>Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Payouts are available in most countries — via direct bank payout where supported and alternative methods elsewhere — but are unavailable in countries we are legally restricted from serving. Artypot issues 1099 or 1042-S forms where required by law.</p>
           </Section>
 
           <Section id="council" title="7. The Council">
@@ -171,7 +171,7 @@ export default function ToSPage() {
               Questions about these Terms?{' '}
               <Link href="/support" className="text-fan hover:underline">Contact us here</Link>{' '}
               or email{' '}
-              <a href="mailto:baldwig@artypot.com" className="text-fan hover:underline">baldwig@artypot.com</a>.
+              <a href="mailto:legal@artypot.com" className="text-fan hover:underline">legal@artypot.com</a>.
             </p>
           </Section>
 
