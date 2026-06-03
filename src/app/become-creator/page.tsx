@@ -12,6 +12,7 @@ import { Banner } from '@/components/ui/Banner';
 import { FieldLabel } from '@/components/ui/Input';
 import SlugInput from '@/components/SlugInput';
 import HandlesSection from '@/components/HandlesSection';
+import CreatorTosTldr from '@/components/CreatorTosTldr';
 import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
 import type { HandleClaim, HandlePlatform } from '@/lib/types';
 import { platformLabel } from '@/lib/platforms';
@@ -19,76 +20,6 @@ import { PLATFORM_HANDLE_CONFIG } from '@/components/ui/PlatformHandleInput';
 import { PLATFORM_FEE_PCT } from '@/lib/config';
 
 const CREATOR_KEEP_PCT = 100 - PLATFORM_FEE_PCT;
-
-// ── Creator TOS text ─────────────────────────────────────────────────────────
-// Authoritative source: artypot-api/storage/legal/creator-tos.md
-// DRAFT — pending legal review.
-
-const CREATOR_TOS = `DRAFT — pending legal review.
-
-ARTYPOT CREATOR TERMS OF SERVICE
-
-These Creator Terms of Service ("Creator Terms") govern your participation as a creator on the Artypot platform. By enabling creator mode you form a binding agreement with Artypot LLC, a Florida limited liability company.
-
-1. CREATOR'S COMMITMENTS
-
-1.1 Deliver commissioned work. When a bounty reaches completion and is approved by the Artypot Council, you commit to delivering the work described in good faith within a reasonable timeframe.
-
-1.2 Maintain accurate handle information. The social handles and websites you verify through Artypot must genuinely represent your identity. You must not impersonate another person or misrepresent your affiliation with any platform account.
-
-1.3 Provide accurate tax information when requested. When your cumulative annual payouts reach IRS reporting thresholds (or equivalent local thresholds), you agree to provide a W-9 (US persons) or W-8BEN (non-US persons) upon request. Failure to provide required tax documentation will result in a hard block on payouts.
-
-1.4 Keep your location of residence current. You must maintain an accurate country (and US state/territory if applicable) in your profile for earnings reporting and tax compliance.
-
-1.5 Comply with all applicable laws. You are solely responsible for complying with all laws applicable to your activities on Artypot.
-
-2. ARTYPOT'S ROLE
-
-2.1 Platform, not employer. Artypot is a platform that facilitates fan-funded commissions. Artypot is not your employer, client, agent, or partner. You are an independent creator.
-
-2.2 Payment intermediary. Artypot collects fan backings, holds them per its billing and refund policies, and disburses net proceeds to creators after platform fees.
-
-2.3 No guarantee of earnings. Artypot does not guarantee that any bounty will reach any amount, that fans will fulfill backings, or that any particular level of earnings will result.
-
-2.4 Council review. Bounty completion submissions are reviewed by the Artypot Council. Council decisions are final subject to the appeal process in the General Terms.
-
-3. PAYOUTS AND FEES
-
-3.1 Payout eligibility. To receive a payout you must have: (a) a verified location on file; (b) a connected Stripe bank account; and (c) required tax documentation (W-9 or W-8BEN).
-
-3.2 Minimum payout threshold. Payouts are subject to a minimum balance (currently $10.00 USD). Balances below this threshold accumulate until the threshold is met.
-
-3.3 Platform fee. Artypot deducts a ${PLATFORM_FEE_PCT}% platform fee from each payout; you keep the remaining ${CREATOR_KEEP_PCT}%. Fees are subject to change with 30 days' notice.
-
-3.4 Hold period. Funds are subject to a 7-day hold before becoming available for withdrawal.
-
-4. REFUNDS AND REVOCATIONS
-
-4.1 Fan revocations. Fans may revoke open backings at any time before a bounty is marked complete. You are not entitled to compensation for revoked backings.
-
-4.2 Council rejection. If the Council rejects a submission, no funds are collected. You may resubmit after addressing the Council's feedback.
-
-4.3 Post-collection disputes. Artypot reserves the right to claw back disbursed funds in cases of verified fraud or material misrepresentation.
-
-5. CONTENT RULES
-
-5.1 No IP infringement. You must not submit work that infringes the copyrights, trademarks, or other intellectual property rights of any third party.
-
-5.2 No prohibited content. You must not submit content that is illegal, depicts minors sexually, constitutes harassment or hate speech, contains malware, or violates Artypot's Community Guidelines.
-
-5.3 Your rights. You retain all ownership rights in your creative work. Nothing in these terms transfers copyright to Artypot or to any fan.
-
-6. TERMINATION
-
-6.1 Artypot may suspend or terminate your creator status if you breach these terms, engage in fraud, fail to deliver work after funds are collected, or violate applicable law.
-
-6.2 Upon termination, open bounties are closed, backings are returned to fans, and any available creator balance will be disbursed to you subject to outstanding disputes and tax documentation requirements.
-
-7. GOVERNING LAW
-
-These Creator Terms are governed by the laws of the State of Florida. Disputes shall be resolved by binding arbitration in Hillsborough County, Florida under AAA rules. You waive your right to participate in a class action.
-
-Artypot LLC · Florida, USA · legal@artypot.com`;
 
 // ── TOS + slug + activation form ──────────────────────────────────────────────
 
@@ -127,14 +58,21 @@ function TosGate({ onActivated }: { onActivated: () => void }) {
         onValidityChange={setSlugError}
       />
 
-      {/* Scrollable TOS */}
+      {/* Creator TOS summary + link to the full terms */}
       <div>
         <FieldLabel>creator terms of service</FieldLabel>
-        <div className="border border-border rounded-md bg-surface-2 h-48 overflow-y-auto p-4">
-          <pre className="font-mono text-[10px] leading-relaxed text-muted whitespace-pre-wrap break-words">
-            {CREATOR_TOS}
-          </pre>
-        </div>
+        <CreatorTosTldr
+          className="mt-1"
+          footnote="This TL;DR is a helpful summary, not a substitute for the full terms."
+        />
+        <Link
+          href="/creator-tos"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block mt-3 text-sm text-[var(--color-role)] hover:underline"
+        >
+          Read the full Creator Terms of Service →
+        </Link>
       </div>
 
       <label className="flex items-start gap-3 cursor-pointer group">
@@ -145,7 +83,10 @@ function TosGate({ onActivated }: { onActivated: () => void }) {
           className="mt-0.5 flex-shrink-0 w-4 h-4 accent-[var(--color-role)] cursor-pointer"
         />
         <span className="text-sm text-foreground leading-snug">
-          I have read and agree to the Artypot Creator Terms of Service
+          I have read and agree to the{' '}
+          <Link href="/creator-tos" target="_blank" rel="noopener noreferrer" className="text-[var(--color-role)] hover:underline">
+            Artypot Creator Terms of Service
+          </Link>
         </span>
       </label>
 

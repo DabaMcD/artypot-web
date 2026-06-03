@@ -67,7 +67,6 @@ export interface HandleSearchResult {
 
 export type BountyStatus = 'open' | 'pending' | 'completed' | 'paid_out' | 'revoked';
 export type BountyType = 'direct';
-export type CreatorClaimStatus = 'pending' | 'approved' | 'rejected';
 export type BountyCompletionStatus = 'pending_review' | 'approved' | 'rejected';
 export type WithdrawalStatus = 'pending' | 'processing' | 'paid' | 'failed';
 export type CreatorW9Status = 'initiated' | 'completed' | 'tin_matched' | 'tin_failed';
@@ -382,15 +381,6 @@ export interface BountyCompletion {
   verified_at?: string;
 }
 
-export interface CreatorClaim {
-  id: number;
-  user_id: number;
-  creator_id: number;
-  creator?: Pick<Creator, 'id' | 'display_name'>;
-  status: CreatorClaimStatus;
-  council_notes?: string;
-}
-
 export interface PaginatedResponse<T> {
   data: T[];
   from: number;
@@ -429,21 +419,6 @@ export interface HandleVerificationApplicationRow {
     status: string;
     handle: { id: number; platform: HandlePlatform; username: string; status: HandleStatus };
   };
-}
-
-export interface AdminCreatorClaim {
-  id: number;
-  user_id: number;
-  user: { id: number; display_name: string; email: string };
-  creator_id: number;
-  creator: { id: number; display_name: string; slug?: string | null };
-  contact_info: string;
-  status: CreatorClaimStatus;
-  council_notes?: string | null;
-  reviewed_by?: number | null;
-  reviewer?: { id: number; display_name: string } | null;
-  reviewed_at?: string | null;
-  created_at: string;
 }
 
 export interface AdminBountyCompletion {

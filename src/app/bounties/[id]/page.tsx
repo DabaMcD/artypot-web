@@ -244,8 +244,6 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         data?: { cap?: number; current_total?: number; requested?: number; grace_expires_at?: string };
       };
       if (e.status === 422 && e.reason === 'backing_cap_exceeded') {
-        const cap = e.data?.cap ?? 0;
-        const current = e.data?.current_total ?? 0;
         setBackingError(
           <>
             You&apos;ve reached your good faith limit.{' '}

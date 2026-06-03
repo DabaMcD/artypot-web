@@ -64,7 +64,7 @@ interface SidebarProps {
 
 export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps) {
   const { user, logout } = useAuth();
-  const { mode, canSwitch, switchTo } = useViewMode();
+  const { canSwitch, switchTo } = useViewMode();
   const router = useRouter();
 
   // Which role buttons should appear in the bottom widget?

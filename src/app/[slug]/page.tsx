@@ -11,7 +11,7 @@ import { useViewMode } from '@/lib/view-mode-context';
 import type { Creator, PaginatedResponse, Bounty } from '@/lib/types';
 import BountyCard from '@/components/BountyCard';
 import ShareButton from '@/components/ShareButton';
-import { Card, SectionLabel } from '@/components/ui/Card';
+import { SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 
@@ -26,102 +26,6 @@ const SOCIAL_LINKS: { key: keyof Creator; label: string; prefix: string }[] = [
   { key: 'domain',           label: 'Website',    prefix: '' },
 ];
 
-function fmt(n: number | null | undefined) {
-  return `$${Number(n ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-// ── Claim confirmation modal ───────────────────────────────────────────────────
-function ClaimModal({
-  creator,
-  onClose,
-  onSuccess,
-}: {
-  creator: Creator;
-  onClose: () => void;
-  onSuccess: () => void;
-}) {
-  const [contactInfo, setContactInfo] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (contactInfo.trim().length < 10) {
-      setError('Please provide a bit more detail (at least 10 characters).');
-      return;
-    }
-    setSubmitting(true);
-    setError('');
-    try {
-      await creatorsApi.claim(creator.id, contactInfo.trim());
-      onSuccess();
-    } catch (err: unknown) {
-      const e = err as { message?: string };
-      setError(e.message ?? 'Failed to submit claim.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div className="bg-surface border border-border rounded-2xl w-full max-w-md p-6 shadow-2xl">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-bold text-foreground">Claim this Profile</h2>
-            <p className="text-xs text-muted mt-0.5">{creator.display_name}</p>
-          </div>
-          <button onClick={onClose} className="text-muted hover:text-foreground transition-colors text-xl leading-none mt-0.5">✕</button>
-        </div>
-
-        <p className="text-sm text-muted leading-relaxed mb-5">
-          The council will review your claim and verify your identity before approving. Let us know
-          the best way to contact or verify you.
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">
-              How can the council verify your identity?
-            </label>
-            <textarea
-              value={contactInfo}
-              onChange={(e) => setContactInfo(e.target.value)}
-              placeholder="e.g. My YouTube channel is linked on this page. You can also reach me at manager@example.com or DM @myhandle on X."
-              rows={4}
-              maxLength={1000}
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator/60 resize-none"
-            />
-            <p className="text-xs text-muted mt-1 text-right">{contactInfo.length}/1000</p>
-          </div>
-
-          {error && <p className="text-red-400 text-sm">{error}</p>}
-
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 border border-border text-foreground text-sm font-medium py-2.5 rounded-lg hover:border-foreground/30 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submitting || contactInfo.trim().length < 10}
-              className="flex-1 bg-creator text-black text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-40"
-            >
-              {submitting ? 'Submitting…' : 'Submit Claim'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function CreatorSlugPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -134,10 +38,6 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   const [creator, setCreator] = useState<Creator | null>(null);
   const [bountiesData, setBountiesData] = useState<PaginatedResponse<Bounty> | null>(null);
   const [pageState, setPageState] = useState<'loading' | 'not-found' | 'error' | 'ready'>('loading');
-
-  // Claim state
-  const [showClaimModal, setShowClaimModal] = useState(false);
-  const [claimSuccess, setClaimSuccess] = useState(false);
 
   // Follow state
   const [isFollowing, setIsFollowing] = useState(false);
@@ -250,25 +150,13 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
 
   // ── Profile ────────────────────────────────────────────────────────────────
   // In the new system every creator page belongs to a verified creator user —
-  // the backend returns 404 for any slug that isn't an enabled creator.
-  // There is no longer an "unverified creator profile" concept; unverified
+  // the backend returns 404 for any slug that isn't an enabled creator. There
+  // is no longer an "unverified creator profile" / claim concept; unverified
   // entities are Handles (separate system) not Creator pages.
-  const isClaimed = true;
-  const canClaim  = false;
-  const isOwner   = user && creator.user_id === user.id;
   const socialLinks = SOCIAL_LINKS.filter(({ key }) => creator[key]);
 
   return (
-    <>
-      {showClaimModal && creator && (
-        <ClaimModal
-          creator={creator}
-          onClose={() => setShowClaimModal(false)}
-          onSuccess={() => { setShowClaimModal(false); setClaimSuccess(true); }}
-        />
-      )}
-
-      <div className="max-w-6xl mx-auto px-4 py-10">
+    <div className="max-w-6xl mx-auto px-4 py-10">
         <div className="flex flex-col lg:flex-row gap-8">
 
           {/* ── Main column ────────────────────────────────────────────────── */}
@@ -300,11 +188,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                       text={`Support ${creator.display_name} on Artypot!`}
                       size="sm"
                     />
-                    {isClaimed ? (
-                      <Badge tone="creator" lg>Creator</Badge>
-                    ) : (
-                      <Badge tone="default" lg>Unverified</Badge>
-                    )}
+                    <Badge tone="creator" lg>Creator</Badge>
                   </div>
 
                   {creator.fan_name && (
@@ -329,7 +213,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                 {/* Action buttons — only visible in creator mode */}
                 {isCreatorMode && (
                   <div className="shrink-0 flex flex-col gap-2 items-end">
-                    {user && isClaimed && creator.can_edit && (
+                    {user && creator.can_edit && (
                       <Link
                         href="/c/settings"
                         className="bg-creator text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
@@ -352,20 +236,6 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                       {followLoading ? '…' : isFollowing ? 'Unfollow' : 'Follow'}
                     </Button>
                   </div>
-                )}
-
-                {canClaim && !claimSuccess && (
-                  <div className="shrink-0">
-                    <button
-                      onClick={() => setShowClaimModal(true)}
-                      className="bg-surface-2 border border-creator/40 text-creator text-sm font-semibold px-4 py-2 rounded-lg hover:border-creator transition-colors"
-                    >
-                      Claim this profile
-                    </button>
-                  </div>
-                )}
-                {claimSuccess && (
-                  <p className="text-creator text-sm shrink-0">Claim submitted! The council will review it shortly.</p>
                 )}
               </div>
 
@@ -469,6 +339,5 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
 
         </div>
       </div>
-    </>
   );
 }

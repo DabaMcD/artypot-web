@@ -1,7 +1,10 @@
 export const BILLING_DAY = Number(process.env.NEXT_PUBLIC_BILLING_DAY ?? 24);
 export const PAYOUT_MINIMUM_AUTOMATED = Number(process.env.NEXT_PUBLIC_PAYOUT_MINIMUM_AUTOMATED ?? 1);
 export const PAYOUT_MINIMUM_MANUAL = Number(process.env.NEXT_PUBLIC_PAYOUT_MINIMUM_MANUAL ?? 50);
-export const BILLING_GRACE_PERIOD_DAYS = Number(process.env.NEXT_PUBLIC_BILLING_GRACE_PERIOD_DAYS ?? 7);
+// Must match the backend default (config/artypot.php → billing_grace_period_days,
+// env BILLING_GRACE_PERIOD_DAYS). The PaymentGraceBanner computes the grace-expiry
+// date client-side from this value, so a mismatch would show the wrong deadline.
+export const BILLING_GRACE_PERIOD_DAYS = Number(process.env.NEXT_PUBLIC_BILLING_GRACE_PERIOD_DAYS ?? 14);
 export const PLATFORM_FEE_PCT = Number(process.env.NEXT_PUBLIC_PLATFORM_FEE_PCT ?? 20);
 
 /**

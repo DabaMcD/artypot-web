@@ -10,7 +10,6 @@ import type {
   BountyBacking,
   BountyCompletion,
   BountyHistory,
-  CreatorClaim,
   PaginatedResponse,
   BackingPage,
   CashBalance,
@@ -20,7 +19,6 @@ import type {
   DeletePaymentMethodResult,
   CouncilMember,
   CouncilPage,
-  AdminCreatorClaim,
   AdminBountyCompletion,
   HandleVerificationApplicationRow,
   HandleVerificationApplicationStatus,
@@ -29,7 +27,6 @@ import type {
   CreatorEarning,
   CreatorBalance,
   Comment,
-  UserHandle,
   HandlePlatform,
   HandleClaim,
   HandleSearchResult,
@@ -358,12 +355,6 @@ export const creators = {
 
   update: (id: number, data: Partial<Creator>) =>
     request<{ data: Creator }>(`/creators/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-
-  claim: (creator_id: number, contact_info: string) =>
-    request<{ data: CreatorClaim }>('/creator-claims', {
-      method: 'POST',
-      body: JSON.stringify({ creator_id, contact_info }),
-    }),
 };
 
 // Bounties
@@ -868,16 +859,6 @@ export const admin = {
     request<{ data: unknown }>(`/admin/handles/${handleId}/reject`, {
       method: 'POST',
       body: JSON.stringify(decisionNotes ? { decision_notes: decisionNotes } : {}),
-    }),
-
-  // Creator Claims
-  listClaims: (status: 'pending' | 'approved' | 'rejected' | 'all' = 'pending', page = 1) =>
-    request<PaginatedResponse<AdminCreatorClaim>>(`/admin/creator-claims?status=${status}&page=${page}`),
-
-  reviewClaim: (claimId: number, data: { status: 'approved' | 'rejected'; council_notes?: string }) =>
-    request<{ data: AdminCreatorClaim }>(`/admin/creator-claims/${claimId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
     }),
 
   // Bounty Completions

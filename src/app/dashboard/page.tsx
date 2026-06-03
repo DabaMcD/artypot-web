@@ -94,7 +94,7 @@ export default function DashboardPage() {
   const balanceIsNegative = balance < 0;
   const outstandingAmount = balanceIsNegative ? Math.abs(balance) : 0;
 
-  const { date: nextBilling, label: nextBillingStr } = nextBillingInfo();
+  const { label: nextBillingStr } = nextBillingInfo();
 
   const activeBackings = myBackings.filter((v) => v.bounty?.status !== 'revoked' && v.bounty?.status !== 'paid_out');
   const awaitingBilling = myBackings.filter((v) => v.bounty?.status === 'pending');

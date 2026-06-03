@@ -678,7 +678,7 @@ export default function SettingsPage() {
               <div className="text-sm font-medium text-foreground mb-0.5">Anonymous mode <span className="font-mono text-[9px] uppercase text-muted">(beta)</span></div>
               <p className="text-xs text-muted">Hide your backing from your public profile. Your name appears as [anonymous] on supporter lists.</p>
             </div>
-            <ToggleUI on={isAnonymous} onChange={(val) => handleToggle('is_anonymous', val)} label="" />
+            <ToggleUI on={isAnonymous} onChange={(val) => handleToggle('is_anonymous', val)} label="" disabled={saving} />
           </div>
         </Card>
 

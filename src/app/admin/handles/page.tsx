@@ -7,7 +7,6 @@ import { admin as adminApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import type {
-  HandlePlatform,
   HandleVerificationApplicationRow,
   HandleVerificationApplicationStatus,
 } from '@/lib/types';

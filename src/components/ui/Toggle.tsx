@@ -5,15 +5,17 @@ interface ToggleProps {
   onChange: (val: boolean) => void;
   label?: string;
   className?: string;
+  disabled?: boolean;
 }
 
-export function Toggle({ on, onChange, label, className = '' }: ToggleProps) {
+export function Toggle({ on, onChange, label, className = '', disabled = false }: ToggleProps) {
   return (
     <div
       role="switch"
       aria-checked={on}
-      className={`inline-flex items-center gap-2.5 cursor-pointer text-sm text-foreground select-none ${className}`}
-      onClick={() => onChange(!on)}
+      aria-disabled={disabled}
+      className={`inline-flex items-center gap-2.5 select-none text-sm text-foreground ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
+      onClick={() => { if (!disabled) onChange(!on); }}
     >
       {/* Track */}
       <div

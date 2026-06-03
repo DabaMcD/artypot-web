@@ -36,7 +36,7 @@ export default function ToSPage() {
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Artypot takes a 20% platform fee</strong>, deducted from the creator&apos;s payout. This fee covers all transaction costs including payment processing — backers are charged their committed amount in full, creators receive 80%.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Creators around the world can get paid</strong> — via direct bank payouts where supported, and alternative methods elsewhere. Fans anywhere can back bounties. A few countries are restricted by law.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>If a bounty never completes, no money moves.</strong> Ever.</span></li>
-            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>No NSFW requests.</strong> Artypot is an all-ages platform. You may not use bounties to commission sexually explicit, graphic, or adult-only content. This applies equally to bounty descriptions, submissions, comments, and profiles.</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Keep Artypot all-ages.</strong> Everything posted to the Platform — bounty text, profiles, comments, completion notes — must be PG, and you can&apos;t use a bounty to fund adult content (our payment partners forbid it). Nothing illegal, and nothing that sexualises or exploits minors, ever. What a creator makes and hosts elsewhere is their own business.</span></li>
           </ul>
           <p className="text-xs text-muted mt-4">This TL;DR is a helpful summary, not a substitute for the full terms below.</p>
         </div>
@@ -124,13 +124,14 @@ export default function ToSPage() {
           </Section>
 
           <Section id="content" title="9. Content Policy">
-            <p>Artypot is an all-ages platform. You may not use Artypot to <strong className="text-foreground">request</strong> NSFW or adult content. The following is prohibited in bounty descriptions, completion submissions, comments, profile text, and any other content you post to the Platform:</p>
+            <p><strong className="text-foreground">The Artypot surface is all-ages.</strong> Anything you publish or post to the Platform itself — bounty titles and descriptions, profile text, display names, verified handles, comments, and the notes or links you attach to a completion — is hosted and publicly displayed by us and must be suitable for a general audience. It may not contain sexually explicit material, nudity, pornography, or gratuitous shock content. This is a rule about what appears on Artypot; it is not a judgment about the lawful creative work a creator produces and hosts elsewhere.</p>
+            <p><strong className="text-foreground">No adult-content commerce.</strong> You may not use a bounty to request, commission, coordinate, or fund sexually explicit or pornographic work, whether or not the finished work is delivered off-platform. Artypot is the merchant of record for every charge, and our payment partners (including the card networks and Stripe) prohibit processing payments for adult content. A bounty whose purpose is to fund adult content is therefore not permitted, regardless of where the work is hosted.</p>
+            <p><strong className="text-foreground">Absolute prohibitions.</strong> The following are never permitted on the Platform or in any work funded through it, and apply regardless of where the work is hosted:</p>
             <ul className="list-disc list-inside space-y-1 pl-2">
-              <li>Sexually explicit material, nudity, or pornography of any kind</li>
-              <li>Graphic violence, gore, or content designed to shock or disturb</li>
               <li>Content that sexualises, exploits, or endangers minors in any way</li>
               <li>Content that is illegal under US federal or state law</li>
               <li>Harassment, credible threats, or targeted hate speech</li>
+              <li>Malware, malicious code, or attempts to compromise the Platform or its users</li>
             </ul>
             <p>We reserve the right to remove any content and suspend or terminate any account that violates this policy, at our sole discretion and without prior notice.</p>
           </Section>
