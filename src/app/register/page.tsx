@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { auth as authApi, phone as phoneApi } from '@/lib/api';
+import { nextTarget, readNextFromLocation, OAUTH_NEXT_KEY } from '@/lib/next-redirect';
 import { PHONE_SIGNUP_ENABLED } from '@/lib/config';
 import { Button } from '@/components/ui/Button';
 import { Input, FieldLabel, FieldGrid2 } from '@/components/ui/Input';
@@ -171,8 +172,17 @@ export default function RegisterPage() {
   // After phone registration, show the OTP step instead of redirecting
   const [awaitingOtp, setAwaitingOtp] = useState(false);
 
+  // Querystring to preserve `next` on the link over to /login. Populated in a
+  // mount effect (not at render) so SSR and first client render agree — reading
+  // window.location during render would cause a hydration mismatch.
+  const [nextQuery, setNextQuery] = useState('');
   useEffect(() => {
-    if (!authLoading && user) router.replace('/dashboard');
+    const next = readNextFromLocation();
+    setNextQuery(next ? `?next=${encodeURIComponent(next)}` : '');
+  }, []);
+
+  useEffect(() => {
+    if (!authLoading && user) router.replace(nextTarget(readNextFromLocation()));
   }, [authLoading, user, router]);
 
   if (authLoading || user) return null;
@@ -185,6 +195,11 @@ export default function RegisterPage() {
       // was initiated from this browser, preventing token injection attacks.
       const nonce = crypto.randomUUID();
       sessionStorage.setItem('oauth_nonce', nonce);
+      // Carry `next` across the provider round-trip so the callback can return
+      // the user to where they started instead of /dashboard.
+      const next = readNextFromLocation();
+      if (next) sessionStorage.setItem(OAUTH_NEXT_KEY, next);
+      else sessionStorage.removeItem(OAUTH_NEXT_KEY);
       const { url } = await authApi.oauthRedirect(provider);
       window.location.href = url;
     } catch (err: unknown) {
@@ -220,7 +235,7 @@ export default function RegisterPage() {
       if (result.phone_verification_required) {
         setAwaitingOtp(true);
       } else {
-        router.push('/dashboard');
+        router.push(nextTarget(readNextFromLocation()));
       }
     } catch (err: unknown) {
       const e = err as { status?: number; message?: string };
@@ -293,7 +308,7 @@ export default function RegisterPage() {
         {/* ── OTP verification step ───────────────────────────────────────── */}
         {awaitingOtp ? (
           <OtpStep
-            onVerified={() => router.push('/dashboard')}
+            onVerified={() => router.push(nextTarget(readNextFromLocation()))}
             onResend={handleResendOtp}
           />
         ) : (
@@ -449,7 +464,7 @@ export default function RegisterPage() {
             <div className="border-t border-dashed border-border my-5" />
             <p className="text-sm text-muted text-center">
               Already have one?{' '}
-              <Link href="/login" className="ap-inline-link">Sign In →</Link>
+              <Link href={`/login${nextQuery}`} className="ap-inline-link">Sign In →</Link>
             </p>
           </>
         )}

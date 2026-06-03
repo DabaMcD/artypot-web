@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { auth as authApi } from '@/lib/api';
+import { nextTarget, readNextFromLocation, withNext, OAUTH_NEXT_KEY } from '@/lib/next-redirect';
 import { PLATFORM_FEE_PCT, PHONE_SIGNUP_ENABLED } from '@/lib/config';
 import { Button } from '@/components/ui/Button';
 import { Input, FieldLabel } from '@/components/ui/Input';
@@ -46,7 +47,7 @@ export default function LoginPage() {
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && user) router.replace('/dashboard');
+    if (!authLoading && user) router.replace(nextTarget(readNextFromLocation()));
   }, [authLoading, user, router]);
 
   if (authLoading || user) return null;
@@ -69,7 +70,7 @@ export default function LoginPage() {
     const identifier = mode === 'email' ? emailInput.trim() : (phoneInput ?? '');
     try {
       await login(identifier, password);
-      router.push('/dashboard');
+      router.push(nextTarget(readNextFromLocation()));
     } catch (err: unknown) {
       const e = err as { status?: number; message?: string };
       setError(e.message ?? 'Login failed. Please try again.');
@@ -86,6 +87,11 @@ export default function LoginPage() {
       // was initiated from this browser, preventing token injection attacks.
       const nonce = crypto.randomUUID();
       sessionStorage.setItem('oauth_nonce', nonce);
+      // Carry `next` across the provider round-trip so the callback can return
+      // the user to where they started instead of /dashboard.
+      const next = readNextFromLocation();
+      if (next) sessionStorage.setItem(OAUTH_NEXT_KEY, next);
+      else sessionStorage.removeItem(OAUTH_NEXT_KEY);
       const { url } = await authApi.oauthRedirect(provider);
       window.location.href = url;
     } catch (err: unknown) {
@@ -266,7 +272,7 @@ export default function LoginPage() {
         <Button
           variant="default"
           className="w-full justify-center"
-          onClick={() => router.push('/register')}
+          onClick={() => router.push(withNext('/register'))}
         >
           Create an Account
         </Button>

@@ -1144,7 +1144,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     ))}
                   </div>
 
-                  <Link href="/register" className="block w-full cursor-pointer">
+                  <Link href={`/register?next=${encodeURIComponent(`/bounties/${id}`)}`} className="block w-full cursor-pointer">
                     <Button variant="primary" className="w-full justify-center">
                       {activeBackings.length > 0
                         ? 'Back this bounty →'
@@ -1153,7 +1153,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   </Link>
                   <p className="text-center text-xs text-muted mt-3">
                     Already have an account?{' '}
-                    <Link href="/login" className="text-fan hover:underline cursor-pointer">
+                    <Link href={`/login?next=${encodeURIComponent(`/bounties/${id}`)}`} className="text-fan hover:underline cursor-pointer">
                       Log in
                     </Link>
                   </p>
