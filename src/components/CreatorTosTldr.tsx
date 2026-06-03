@@ -43,6 +43,14 @@ export default function CreatorTosTldr({
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
+            <strong>Bounties fund public work, not private perks.</strong>{' '}Your deliverable
+            goes out to everyone equally. You can&apos;t trade backings for private access,
+            physical goods, meetups, or rewards — a public thank-you is the only perk allowed.
+          </span>
+        </li>
+        <li className="flex gap-2">
+          <span className="text-creator shrink-0 mt-0.5">✓</span>
+          <span>
             <strong>Act in good faith.</strong>{' '}Misleading comments, disingenuous
             submissions, identity deception, and other bad-faith behavior is not tolerated.
           </span>
