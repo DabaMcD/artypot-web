@@ -16,6 +16,7 @@ import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Banner } from '@/components/ui/Banner';
+import { Modal } from '@/components/ui/Modal';
 import CreatorSlugSection from '@/components/CreatorSlugSection';
 
 // ── Inline toggle (same as fan settings) ─────────────────────────────────────
@@ -95,6 +96,7 @@ export default function CreatorSettingsPage() {
   const [countryCode, setCountryCode] = useState('');
   const [stateCode, setStateCode] = useState('');
   const [locationSaving, setLocationSaving] = useState(false);
+  const [showLocationConfirm, setShowLocationConfirm] = useState(false);
   const [bioInput, setBioInput] = useState('');
   const [bioSaving, setBioSaving] = useState(false);
   const [fanName, setFanName] = useState('');
@@ -171,8 +173,22 @@ export default function CreatorSettingsPage() {
     finally { setFanNameSaving(false); }
   };
 
-  const handleSaveLocation = async (e: React.FormEvent) => {
+  // Confirmation gate. Tax residence is a compliance-sensitive field — country
+  // changes (especially US ↔ non-US) can trigger Stripe Connect re-verification
+  // and re-collection of W-9 / W-8BEN. We require an explicit "yes I mean it"
+  // before persisting so creators don't casually click through.
+  const handleRequestSaveLocation = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user || !countryCode) return;
+    if (locationSaving) return;
+    const noChange =
+      (user.country_code ?? '') === countryCode &&
+      (user.state_code ?? '') === (subdivisions(countryCode) ? stateCode : '');
+    if (noChange) return;
+    setShowLocationConfirm(true);
+  };
+
+  const handleConfirmSaveLocation = async () => {
     if (!user || !countryCode) return;
     setLocationSaving(true);
     try {
@@ -182,6 +198,7 @@ export default function CreatorSettingsPage() {
       });
       await refreshUser();
       toast('Tax residence saved.', 'success');
+      setShowLocationConfirm(false);
     } catch { toast('Failed to save tax residence.', 'error'); }
     finally { setLocationSaving(false); }
   };
@@ -297,7 +314,7 @@ export default function CreatorSettingsPage() {
               </p>
             )}
             <p className="text-xs text-muted mt-2">
-              Cropped to a square and optimized automatically — any size is fine.
+              Upload any size
             </p>
           </div>
         </div>
@@ -413,7 +430,7 @@ export default function CreatorSettingsPage() {
           We use this to generate the right tax forms — 1099-NEC for US creators, 1042-S for non-US.
           Changes are logged for compliance.
         </p>
-        <form onSubmit={handleSaveLocation} className="space-y-3">
+        <form onSubmit={handleRequestSaveLocation} className="space-y-3">
           <div>
             <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">country</label>
             <select
@@ -449,13 +466,69 @@ export default function CreatorSettingsPage() {
             type="submit"
             variant="default"
             size="sm"
-            disabled={locationSaving || !countryCode || (!!subdivisions(countryCode) && !stateCode)}
+            disabled={
+              locationSaving ||
+              !countryCode ||
+              (!!subdivisions(countryCode) && !stateCode) ||
+              ((user?.country_code ?? '') === countryCode &&
+                (user?.state_code ?? '') === (subdivisions(countryCode) ? stateCode : ''))
+            }
           >
             {locationSaving ? 'Saving…' : 'Save Tax Residence'}
           </Button>
         </form>
       </Card>
       </div>
+
+      {/* Tax residence confirm */}
+      {showLocationConfirm && (() => {
+        const oldCountry = user?.country_code
+          ? COUNTRIES.find((c) => c.code === user.country_code)?.name ?? user.country_code
+          : '—';
+        const newCountry = COUNTRIES.find((c) => c.code === countryCode)?.name ?? countryCode;
+        const oldState = (user?.country_code && user.state_code && subdivisions(user.country_code))
+          ? subdivisions(user.country_code)!.find((s) => s.code === user.state_code)?.name ?? user.state_code
+          : null;
+        const newState = (countryCode && stateCode && subdivisions(countryCode))
+          ? subdivisions(countryCode)!.find((s) => s.code === stateCode)?.name ?? stateCode
+          : null;
+        const oldDisplay = oldState ? `${oldCountry} — ${oldState}` : oldCountry;
+        const newDisplay = newState ? `${newCountry} — ${newState}` : newCountry;
+        const crossingCountry = (user?.country_code ?? '') !== countryCode;
+        return (
+          <Modal
+            title="Update Tax Residence?"
+            onClose={() => !locationSaving && setShowLocationConfirm(false)}
+            actions={
+              <>
+                <Button variant="ghost" onClick={() => setShowLocationConfirm(false)} disabled={locationSaving}>
+                  Cancel
+                </Button>
+                <Button variant="primary" onClick={handleConfirmSaveLocation} disabled={locationSaving}>
+                  {locationSaving ? 'Saving…' : 'Yes, Update'}
+                </Button>
+              </>
+            }
+          >
+            <p className="text-sm text-muted leading-relaxed mb-3">
+              You&apos;re about to change your tax residence from{' '}
+              <strong className="text-foreground">{oldDisplay}</strong> to{' '}
+              <strong className="text-foreground">{newDisplay}</strong>.
+            </p>
+            <p className="text-sm text-muted leading-relaxed mb-3">
+              This is the address we&apos;ll use for tax reporting (1099-NEC for US, 1042-S for non-US).
+              <strong className="text-foreground">
+                {crossingCountry
+                  ? ' Because the country is changing, we may ask you to re-submit tax documentation (W-9 or W-8BEN) and run a brief compliance review — payouts can be paused while that completes.'
+                  : ' Significant changes can trigger a brief compliance review; payouts may be paused while that completes.'}
+              </strong>
+            </p>
+            <p className="text-sm text-muted leading-relaxed">
+              The change is logged for compliance. Please only update if your actual legal residence has changed.
+            </p>
+          </Modal>
+        );
+      })()}
 
       {/* Creator notifications */}
       <div id="notifications">

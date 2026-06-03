@@ -202,7 +202,7 @@ function LedgerSkeleton() {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
-function LedgerContent() {
+function MoneyContent() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -256,8 +256,8 @@ function LedgerContent() {
   const clearing            = balance?.clearing             ?? 0;
   const availableBalance    = balance?.available_balance    ?? 0;
   const paidOut             = balance?.paid_out             ?? 0;
-  const openPledges         = balance?.open_pledges         ?? 0;
-  const solidOpenPledges    = balance?.solid_open_pledges   ?? openPledges;
+  const openBackings         = balance?.open_backings         ?? 0;
+  const solidOpenBackings    = balance?.solid_open_backings   ?? openBackings;
 
   return (
     <div className="space-y-7 pt-2">
@@ -266,13 +266,13 @@ function LedgerContent() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <SectionLabel>creator · money</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">Earnings Ledger</h1>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">Money</h1>
           <p className="text-sm text-muted mt-1 max-w-[480px]">
-            Every credit and debit on your creator account, newest first.
+            Your balances and every credit and debit on your creator account, newest first.
           </p>
         </div>
         <Link
-          href="/creator"
+          href="/c"
           className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors shrink-0 pt-1"
         >
           ← overview
@@ -409,10 +409,10 @@ function LedgerContent() {
                   ? <div className="h-5 w-16 bg-surface-2 animate-pulse rounded mt-1" />
                   : (
                     <>
-                      <div className="font-mono text-lg font-medium text-foreground tabular-nums">{fmt(solidOpenPledges)}</div>
-                      {solidOpenPledges < openPledges && (
+                      <div className="font-mono text-lg font-medium text-foreground tabular-nums">{fmt(solidOpenBackings)}</div>
+                      {solidOpenBackings < openBackings && (
                         <div className="font-mono text-[10px] text-muted mt-0.5">
-                          + {fmt(openPledges - solidOpenPledges)} soft
+                          + {fmt(openBackings - solidOpenBackings)} soft
                         </div>
                       )}
                     </>
@@ -433,13 +433,13 @@ function LedgerContent() {
 
             <div className="mt-5 space-y-2">
               {!balanceLoading && availableBalance > 0 && (
-                <Link href="/c/withdraw">
+                <Link href="/c">
                   <Button variant="primary" className="w-full justify-center">
                     Withdraw {fmt(availableBalance)} →
                   </Button>
                 </Link>
               )}
-              <Link href="/creator">
+              <Link href="/c">
                 <Button variant="default" className="w-full justify-center">
                   Back to overview
                 </Button>
@@ -472,10 +472,10 @@ function LedgerContent() {
   );
 }
 
-export default function LedgerPage() {
+export default function MoneyPage() {
   return (
     <Suspense>
-      <LedgerContent />
+      <MoneyContent />
     </Suspense>
   );
 }

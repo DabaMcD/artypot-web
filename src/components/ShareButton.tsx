@@ -160,7 +160,7 @@ export default function ShareButton({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        aria-label="Share"
+        aria-label={label}
         className={`inline-flex items-center justify-center rounded-lg border transition-colors ${sizeClasses} ${
           copied
             ? 'border-good/50 text-good bg-good/10'

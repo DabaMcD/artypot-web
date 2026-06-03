@@ -7,13 +7,14 @@ import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
 import { bounties as bountiesApi } from '@/lib/api';
 import { Sidebar } from './Sidebar';
-import CreatorSearchWidget from './CreatorSearchWidget';
+import HeaderSearch from './HeaderSearch';
 import NotificationBell from './NotificationBell';
 import { NudgeBar } from '@/components/NudgeBar';
 import { NudgeProvider } from '@/lib/nudge-context';
-import { StaleCardBar } from '@/components/StaleCardBar';
 import { PaymentGraceBanner } from '@/components/PaymentGraceBanner';
 import { PaymentAuthBanner } from '@/components/PaymentAuthBanner';
+import { DefaultUpdatePromptBar } from '@/components/DefaultUpdatePromptBar';
+import { DefaultUpdatePromptProvider } from '@/lib/default-update-prompt-context';
 import { PublicHeader } from '@/components/PublicHeader';
 import { PublicFooter } from '@/components/PublicFooter';
 
@@ -96,15 +97,22 @@ export function AppShell({ children }: AppShellProps) {
 
   // Unauthenticated on non-auth route: render the public header + footer
   // around the page content. Pages own their internal padding.
+  //
+  // The provider must wrap this branch too: public pages like /bounties/{id}
+  // call useDefaultUpdatePrompt(), so the context has to exist even when logged
+  // out. There's no banner here (logged-out users can't back bounties), so
+  // dispatch is effectively a no-op — but the hook must not throw.
   if (!user) {
     return (
-      <div className="flex flex-col min-h-screen bg-background">
-        <PublicHeader />
-        <main className="flex-1 min-w-0">
-          {children}
-        </main>
-        <PublicFooter />
-      </div>
+      <DefaultUpdatePromptProvider>
+        <div className="flex flex-col min-h-screen bg-background">
+          <PublicHeader />
+          <main className="flex-1 min-w-0">
+            {children}
+          </main>
+          <PublicFooter />
+        </div>
+      </DefaultUpdatePromptProvider>
     );
   }
 
@@ -113,6 +121,7 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <NudgeProvider>
+    <DefaultUpdatePromptProvider>
     <div className="flex flex-col min-h-screen bg-background" data-role={role}>
 
       {/* ── Full-width top bar ─────────────────────────────────────────────── */}
@@ -159,8 +168,7 @@ export function AppShell({ children }: AppShellProps) {
                 <circle cx="11" cy="11" r="8" />
                 <path strokeLinecap="round" d="m21 21-4.35-4.35" />
               </svg>
-              <CreatorSearchWidget
-                navigateOnSelect
+              <HeaderSearch
                 placeholder="find a creator, bounty, or handle…"
                 inputClassName="w-full bg-surface-2 border border-border rounded-md px-3 py-1.5 pl-9 font-mono text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-[var(--color-role)] transition-colors"
               />
@@ -192,8 +200,7 @@ export function AppShell({ children }: AppShellProps) {
                   <circle cx="11" cy="11" r="8" />
                   <path strokeLinecap="round" d="m21 21-4.35-4.35" />
                 </svg>
-                <CreatorSearchWidget
-                  navigateOnSelect
+                <HeaderSearch
                   autoFocus
                   placeholder="search…"
                   inputClassName="w-full bg-surface-2 border border-border rounded-md px-3 py-1.5 pl-9 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-[var(--color-role)] transition-colors"
@@ -229,13 +236,14 @@ export function AppShell({ children }: AppShellProps) {
             <NudgeBar />
             <PaymentAuthBanner />
             <PaymentGraceBanner />
-            <StaleCardBar />
+            <DefaultUpdatePromptBar />
             {children}
           </main>
         </div>
       </div>
 
     </div>
+    </DefaultUpdatePromptProvider>
     </NudgeProvider>
   );
 }

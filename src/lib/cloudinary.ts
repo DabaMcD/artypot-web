@@ -16,8 +16,20 @@
  * their CDN — the original is never sent to the browser.
  */
 
-/** Square avatar: user's custom crop box from the upload widget, resized to 512², auto quality + auto format. */
-const AVATAR_TRANSFORM = 'c_crop,g_custom,w_512,h_512,q_auto,f_auto';
+/**
+ * Square avatar delivery transform — applied as a *chained* (two-step) transform.
+ *
+ *   1. `c_crop,g_custom` — crop to the user's custom crop box (the coordinates
+ *      the upload widget stored with the asset). No w_/h_ here: adding explicit
+ *      dimensions to a `c_crop` makes Cloudinary carve out a fixed-size region
+ *      positioned by gravity instead of honoring the box the user drew, which
+ *      is why a single-component `c_crop,...,w_512,h_512` ignored the crop size.
+ *   2. `c_fill,w_512,h_512` — resize the cropped region to a standard 512²
+ *      derivative (q_auto + f_auto for delivery optimization).
+ *
+ * The two steps are separated by `/` so Cloudinary applies them in sequence.
+ */
+const AVATAR_TRANSFORM = 'c_crop,g_custom/c_fill,w_512,h_512,q_auto,f_auto';
 
 /**
  * CldUploadWidget options for avatar uploads — defense-in-depth so a giant

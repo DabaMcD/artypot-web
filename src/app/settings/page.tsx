@@ -7,8 +7,7 @@ import Image from 'next/image';
 import { CldUploadWidget } from 'next-cloudinary';
 import type { CloudinaryUploadWidgetResults } from 'next-cloudinary';
 import { normalizeAvatarUrl, AVATAR_UPLOAD_OPTIONS } from '@/lib/cloudinary';
-import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi, pledges as pledgesApi } from '@/lib/api';
-import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
+import { users as usersApi, auth as authApi, notificationSettings as notifApi, phone as phoneApi, backings as backingsApi } from '@/lib/api';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 import { useToast } from '@/lib/toast-context';
@@ -17,6 +16,7 @@ import type { NotificationSettings } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input, FieldLabel } from '@/components/ui/Input';
+import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import { Toggle as ToggleUI } from '@/components/ui/Toggle';
 import { Modal } from '@/components/ui/Modal';
 import { Banner } from '@/components/ui/Banner';
@@ -162,6 +162,8 @@ export default function SettingsPage() {
   const [expiryValue, setExpiryValue] = useState('39');
   const [expiryUnit, setExpiryUnit] = useState('month');
   const [expirySaving, setExpirySaving] = useState(false);
+  const [backingAmountInput, setBackingAmountInput] = useState('5');
+  const [backingAmountSaving, setBackingAmountSaving] = useState(false);
   const [picSaving, setPicSaving] = useState(false);
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? 'artypot_profiles';
@@ -170,12 +172,7 @@ export default function SettingsPage() {
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
   const [dangerLoading, setDangerLoading] = useState(false);
   const [dangerMsg, setDangerMsg] = useState('');
-  const [pledgeTotalAmount, setPledgeTotalAmount] = useState<number | null>(null);
-
-  // Location
-  const [countryCode, setCountryCode] = useState('');
-  const [stateCode, setStateCode] = useState('');
-  const [locationSaving, setLocationSaving] = useState(false);
+  const [backingTotalAmount, setBackingTotalAmount] = useState<number | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -184,10 +181,9 @@ export default function SettingsPage() {
     setNameInput(user.display_name ?? '');
     setExpiryValue(String(user.default_expiry_value ?? 39));
     setExpiryUnit(user.default_expiry_unit ?? 'month');
-    setCountryCode(user.country_code ?? '');
-    setStateCode(user.state_code ?? '');
+    setBackingAmountInput(String(user.default_backing_amount ?? DEFAULT_BACKING_AMOUNT_FALLBACK));
     notifApi.get().then(setNotifSettings).catch(() => {});
-    pledgesApi.list().then((res) => setPledgeTotalAmount(res.total_active_amount)).catch(() => {});
+    backingsApi.list().then((res) => setBackingTotalAmount(res.total_active_amount)).catch(() => {});
   }, [user, authLoading, router]);
 
   const handleNotifToggle = async (key: keyof NotificationSettings, value: boolean) => {
@@ -293,19 +289,18 @@ export default function SettingsPage() {
     finally { setExpirySaving(false); }
   };
 
-  const handleSaveLocation = async (e: React.FormEvent) => {
+  const handleSaveBackingAmount = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !countryCode) return;
-    setLocationSaving(true);
+    if (!user) return;
+    const val = parseFloat(backingAmountInput);
+    if (isNaN(val) || val < 1 || val > 9999.99) return;
+    setBackingAmountSaving(true);
     try {
-      await usersApi.update(user.id, {
-        country_code: countryCode || null,
-        state_code: (countryCode && subdivisions(countryCode)) ? (stateCode || null) : null,
-      });
+      await usersApi.update(user.id, { default_backing_amount: val });
       await refreshUser();
-      toast('Tax residence saved.', 'success');
-    } catch { toast('Failed to save tax residence.', 'error'); }
-    finally { setLocationSaving(false); }
+      toast('Default backing amount saved.', 'success');
+    } catch { toast('Failed to save default backing amount.', 'error'); }
+    finally { setBackingAmountSaving(false); }
   };
 
   const handleSendCode = async () => {
@@ -440,8 +435,8 @@ export default function SettingsPage() {
           <p className="text-sm text-muted leading-relaxed mb-2">
             This will immediately <strong className="text-foreground">cancel all your active commitments</strong> and remove your backing from every project.
           </p>
-          {pledgeTotalAmount != null && pledgeTotalAmount > 0 && (
-            <p className="font-mono text-sm text-bad mb-2">${pledgeTotalAmount.toFixed(2)} in active commitments will be cancelled.</p>
+          {backingTotalAmount != null && backingTotalAmount > 0 && (
+            <p className="font-mono text-sm text-bad mb-2">${backingTotalAmount.toFixed(2)} in active commitments will be cancelled.</p>
           )}
           <p className="text-sm text-muted">This cannot easily be undone. You would need to back each project individually again.</p>
         </Modal>
@@ -575,7 +570,7 @@ export default function SettingsPage() {
                   </p>
                 )}
                 <p className="text-xs text-muted mt-2">
-                  Cropped to a square and optimized automatically — any size is fine.
+                  Upload any size
                 </p>
               </div>
             </div>
@@ -605,11 +600,11 @@ export default function SettingsPage() {
           </Card>
         )}
 
-        {/* Default pledge expiry */}
+        {/* Default backing expiry */}
         <Card>
-          <SectionLabel className="mb-1">default pledge expiry</SectionLabel>
+          <SectionLabel className="mb-1">default backing expiry</SectionLabel>
           <p className="text-sm text-muted mb-4">
-            How long your pledge stays active when you back a new bounty. You can always override this per bounty.
+            How long your backing stays active when you back a new bounty. You can always override this per bounty.
           </p>
           <form onSubmit={handleSaveExpiry} className="flex gap-2 items-end">
             <div className="flex-1">
@@ -646,6 +641,35 @@ export default function SettingsPage() {
           </form>
         </Card>
 
+        {/* Default backing amount */}
+        <Card>
+          <SectionLabel className="mb-1">default backing amount</SectionLabel>
+          <p className="text-sm text-muted mb-4">
+            Prefilled in the backing form. You can always override this per bounty.
+          </p>
+          <form onSubmit={handleSaveBackingAmount} className="flex gap-2 items-end">
+            <div className="flex-1">
+              <FieldLabel>amount ($)</FieldLabel>
+              <Input
+                type="number"
+                required
+                min={1}
+                max={9999.99}
+                step={0.01}
+                value={backingAmountInput}
+                onChange={(e) => setBackingAmountInput(e.target.value)}
+              />
+            </div>
+            <Button
+              type="submit"
+              variant="default"
+              disabled={backingAmountSaving || !backingAmountInput || parseFloat(backingAmountInput) < 1}
+            >
+              {backingAmountSaving ? 'Saving…' : 'Save'}
+            </Button>
+          </form>
+        </Card>
+
         {/* Privacy */}
         <Card>
           <SectionLabel className="mb-4">privacy</SectionLabel>
@@ -654,7 +678,7 @@ export default function SettingsPage() {
               <div className="text-sm font-medium text-foreground mb-0.5">Anonymous mode <span className="font-mono text-[9px] uppercase text-muted">(beta)</span></div>
               <p className="text-xs text-muted">Hide your backing from your public profile. Your name appears as [anonymous] on supporter lists.</p>
             </div>
-            <ToggleUI on={isAnonymous} onChange={(val) => handleToggle('is_anonymous', val)} label="" />
+            <ToggleUI on={isAnonymous} onChange={(val) => handleToggle('is_anonymous', val)} label="" disabled={saving} />
           </div>
         </Card>
 
@@ -839,8 +863,8 @@ export default function SettingsPage() {
           </Card>
         )}
 
-        {/* Tax residence — moved to creator settings for creators */}
-        {user.role === 'creator' ? (
+        {/* Tax residence — creators manage in /c/settings; fans set it as part of the become-creator flow. */}
+        {user.role === 'creator' && (
           <div id="location">
             <Card>
               <div className="flex items-center justify-between">
@@ -851,57 +875,6 @@ export default function SettingsPage() {
                 <Link href="/c/settings#location"><Button variant="default" size="sm">Creator Settings →</Button></Link>
               </div>
             </Card>
-          </div>
-        ) : (
-          <div id="location">
-          <Card>
-            <SectionLabel className="mb-3">tax residence</SectionLabel>
-            <p className="text-sm text-muted mb-4">
-              The country (and state, where applicable) where you&apos;ll pay tax on Artypot earnings.
-              Not required as a fan, but you&apos;ll need this set before you can become a creator.
-            </p>
-            <form onSubmit={handleSaveLocation} className="space-y-3">
-              <div>
-                <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">country</label>
-                <select
-                  value={countryCode}
-                  onChange={(e) => { setCountryCode(e.target.value); setStateCode(''); }}
-                  className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
-                >
-                  <option value="">— select country —</option>
-                  {COUNTRIES.map((c) => (
-                    <option key={c.code} value={c.code}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-              {countryCode && subdivisions(countryCode) && (
-                <div>
-                  <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">
-                    {subdivisionLabel(countryCode)}
-                  </label>
-                  <select
-                    value={stateCode}
-                    onChange={(e) => setStateCode(e.target.value)}
-                    className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
-                    required
-                  >
-                    <option value="">— select {subdivisionLabel(countryCode).toLowerCase()} —</option>
-                    {subdivisions(countryCode)!.map((s) => (
-                      <option key={s.code} value={s.code}>{s.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              <Button
-                type="submit"
-                variant="default"
-                size="sm"
-                disabled={locationSaving || !countryCode || (!!subdivisions(countryCode) && !stateCode)}
-              >
-                {locationSaving ? 'Saving…' : 'Save Tax Residence'}
-              </Button>
-            </form>
-          </Card>
           </div>
         )}
 

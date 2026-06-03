@@ -11,7 +11,7 @@ const QUIPS = [
   'No bounty here. Yet.',
   'This URL is unclaimed. Try a real one?',
   'You’ve found the void. It’s pretty quiet.',
-  'Nothing to pledge to on this page.',
+  'Nothing to back to on this page.',
   'Even the search creators couldn’t find this.',
   'Either you typo’d this, or we did. Probably us.',
   '404: page missed its delivery deadline.',
@@ -56,7 +56,7 @@ export default function NotFound() {
 
         {/* Cute audit footer */}
         <p className="font-mono text-[10px] uppercase tracking-widest text-muted/60 mt-10">
-          pledged: 0 · supporters: 0 · status: missing
+          backed: 0 · fans: 0 · status: missing
         </p>
       </div>
     </div>

@@ -76,7 +76,7 @@ function RequestReviewModal({
   };
 
   const platformLabel = PLATFORM_LABELS[claim.handle.platform as HandlePlatform] ?? claim.handle.platform;
-  const alreadySubmitted = claim.verification_method === 'admin' && !!claim.contact_message;
+  const alreadySubmitted = claim.pending_review;
 
   return (
     <Modal title={`verify @${claim.handle.username}`} onClose={onClose}>
@@ -148,7 +148,7 @@ function OAuthConnectModal({
     <Modal title={`connect ${platformLabel}`} onClose={onClose}>
       <div className="space-y-4">
         <p className="text-sm text-muted">
-          Connect your <span className="text-foreground">{platformLabel}</span> account via OAuth for instant verification.
+          Connect your <span className="text-foreground">{platformLabel}</span>{' '}account via OAuth for instant verification.
           You&apos;ll be redirected to {platformLabel} to authorize the connection, then brought back here.
         </p>
         <Banner tone="default">
@@ -167,7 +167,7 @@ function OAuthConnectModal({
 
 // ── Main handles section ──────────────────────────────────────────────────────
 
-export default function HandlesSection() {
+export default function HandlesSection({ bare = false }: { bare?: boolean } = {}) {
   const { toast } = useToast();
 
   const [claims, setClaims] = useState<HandleClaim[]>([]);
@@ -212,7 +212,12 @@ export default function HandlesSection() {
     setAdding(true);
     try {
       const res = await handlesApi.store(addPlatform, addUsername.trim());
-      toast('Handle added.', 'success');
+      toast(
+        res.already_claimed
+          ? 'You already have a claim on this handle.'
+          : 'Handle added.',
+        'success',
+      );
       setAddUsername('');
       setClaims((prev) => {
         const exists = prev.some((c) => c.claim_id === res.data.claim_id);
@@ -260,24 +265,18 @@ export default function HandlesSection() {
     setReviewingClaim(null);
   };
 
-  return (
-    <div id="handles">
-      <Card>
-        <SectionLabel className="mb-3">handles</SectionLabel>
-        <p className="text-sm text-muted mb-4">
-          Connect your social accounts to verify your identity as a creator.
-        </p>
-
+  const body = (
+    <>
         {/* Existing handle list */}
         {loading ? (
           <div className="text-sm text-muted font-mono mb-4">loading handles…</div>
         ) : claims.length > 0 ? (
-          <ul className="divide-y divide-border -mx-5 mb-4 border-y border-border">
+          <ul className={`divide-y divide-border mb-4 border-y border-border ${bare ? '' : '-mx-5'}`}>
             {claims.map((claim) => {
               const platform = claim.handle.platform as HandlePlatform;
               const platformLabel = PLATFORM_LABELS[platform] ?? platform;
               const supportsOAuth = ENABLED_OAUTH_PLATFORMS.includes(platform);
-              const pendingReview = claim.status === 'unverified' && claim.verification_method === 'admin';
+              const pendingReview = claim.status === 'unverified' && claim.pending_review;
               const prefix = PLATFORM_HANDLE_CONFIG[platform]?.prefix ?? '@';
 
               return (
@@ -358,7 +357,20 @@ export default function HandlesSection() {
             {adding ? 'Adding…' : 'Add Handle →'}
           </Button>
         </form>
-      </Card>
+    </>
+  );
+
+  return (
+    <div id="handles">
+      {bare ? body : (
+        <Card>
+          <SectionLabel className="mb-3">handles</SectionLabel>
+          <p className="text-sm text-muted mb-4">
+            Connect your social accounts to verify your identity as a creator.
+          </p>
+          {body}
+        </Card>
+      )}
 
       {/* Admin review request modal */}
       {reviewingClaim && (
@@ -383,8 +395,9 @@ export default function HandlesSection() {
           <div className="space-y-4">
             {removeTarget.status === 'verified' && (
               <Banner tone="warn">
-                Removing a verified handle will disconnect it from your account. If any bounty
-                currently targets this handle, removal requires admin assistance.
+                This action cannot be undone. To add this handle back in the future,
+                you will need to go through the verification process again.
+                If any bounty currently targets this handle, removal requires admin assistance.
               </Banner>
             )}
             <p className="text-sm text-muted">

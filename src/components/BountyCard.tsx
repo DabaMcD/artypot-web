@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import type { Bounty } from '@/lib/types';
+import { formatPlatformHandle } from '@/lib/platforms';
 import { AvatarOrUnknown } from './ui/AvatarOrUnknown';
 import { BountyStatusBadge } from './BountyStatusBadge';
+import { Badge } from '@/components/ui/Badge';
 import ShareButton from './ShareButton';
 
 export default function BountyCard({ bounty }: { bounty: Bounty }) {
-  const backerCount = bounty.pledges?.filter((v) => !v.revoked_at).length ?? null;
+  const backerCount = bounty.backings?.filter((v) => !v.revoked_at).length ?? null;
   const fanSingular = bounty.owner_user?.fan_name || 'supporter';
   const fanPlural   = bounty.owner_user?.fan_name_plural || bounty.owner_user?.fan_name || 'supporters';
 
@@ -35,7 +37,7 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
       <div className="flex items-end justify-between mt-auto pt-3 border-t border-border">
         <div>
           <div className="text-fan font-bold text-lg">
-            ${Number(bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           {backerCount !== null && (
             <div className="text-xs text-muted mt-0.5">
@@ -44,7 +46,7 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
           )}
           {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
             <div className="text-xs text-muted mt-0.5">
-              ${bounty.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of ${Number(bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cleared
+              ${bounty.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cleared
             </div>
           )}
         </div>
@@ -54,11 +56,36 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
               avatarUrl={bounty.avatar_url ?? bounty.owner_user?.profile_picture ?? null}
               size="sm"
             />
-            <div className="text-right">
+            <div className="text-right min-w-0">
               <div className="text-xs text-muted">for</div>
-              <div className="text-sm text-creator font-medium truncate max-w-[100px]">
-                {bounty.owner_user?.display_name ?? bounty.display_name ?? (bounty.target_handle ? `${bounty.target_handle.platform}/${bounty.target_handle.username}` : null)}
-              </div>
+              {bounty.owner_user ? (
+                <div className="text-sm text-creator font-medium truncate max-w-[120px]">
+                  {bounty.owner_user.display_name}
+                </div>
+              ) : bounty.target_handle ? (
+                // No verified account owner — the platform-qualified handle is
+                // the only trustworthy identity, so it leads. A fan-supplied
+                // display_name is secondary and can't masquerade as someone else.
+                <div className="max-w-[150px]">
+                  <div className="flex items-center justify-end gap-1">
+                    <span className="font-mono text-sm text-creator font-medium truncate">
+                      {bounty.target_handle.platform === 'other'
+                        ? formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)
+                        : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`}
+                    </span>
+                    {bounty.target_handle.status !== 'verified' && (
+                      <Badge tone="default" className="shrink-0">unverified</Badge>
+                    )}
+                  </div>
+                  {bounty.display_name && (
+                    <div className="text-[11px] text-muted truncate">({bounty.display_name})</div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-sm text-creator font-medium truncate max-w-[120px]">
+                  {bounty.display_name}
+                </div>
+              )}
             </div>
           </div>
         )}

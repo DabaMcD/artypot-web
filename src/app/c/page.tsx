@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Banner } from '@/components/ui/Banner';
 import { BalancePipeline } from '@/components/ui/Pipeline';
 import { Input } from '@/components/ui/Input';
+import { Modal } from '@/components/ui/Modal';
 import PayoutReadinessChecklist from '@/components/PayoutReadinessChecklist';
 
 type StripeAccountStatus = {
@@ -36,6 +37,7 @@ function CreatorDashboardContent() {
   const [stripeStatus, setStripeStatus] = useState<StripeAccountStatus | null>(null);
   const [stripeLoading, setStripeLoading] = useState(false);
   const [bankConnectedOverride, setBankConnectedOverride] = useState<boolean | null>(null);
+  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [withdrawConfirm, setWithdrawConfirm] = useState(false);
@@ -131,12 +133,12 @@ function CreatorDashboardContent() {
 
   const handleDisconnect = useCallback(async () => {
     if (stripeLoading) return;
-    if (!window.confirm('Disconnect your bank account? You will need to re-link to withdraw funds.')) return;
     setStripeLoading(true);
     try {
       await stripeConnectApi.disconnect();
       setStripeStatus(null);
       setBankConnectedOverride(false);
+      setShowDisconnectConfirm(false);
       toast('Bank account disconnected.', 'success');
     } catch {
       toast('Failed to disconnect. Please try again.', 'error');
@@ -219,9 +221,9 @@ function CreatorDashboardContent() {
   const isUS           = user.country_code === 'US';
   const needsLocation  = !user.location_complete;
 
-  const openPledges          = balance?.open_pledges ?? 0;
-  const solidOpenPledges     = balance?.solid_open_pledges ?? openPledges;
-  const softOpenPledges      = openPledges - solidOpenPledges;
+  const openBackings          = balance?.open_backings ?? 0;
+  const solidOpenBackings     = balance?.solid_open_backings ?? openBackings;
+  const softOpenBackings      = openBackings - solidOpenBackings;
   const pendingPayment       = balance?.pending_payment ?? 0;
   const solidPendingPayment  = balance?.solid_pending_payment ?? pendingPayment;
   const clearing           = balance?.clearing ?? 0;
@@ -233,8 +235,8 @@ function CreatorDashboardContent() {
 
   const needsW9    = isUS && !!(w9Status?.requires_w9 && !w9Status?.record?.tin_matched);
   const needsW8BEN = !isUS && !!(w8benStatus?.requires_w8ben && !w8benStatus?.record?.qualifies);
-  const taxFormOnFile   = isUS ? !!w9Status?.record?.tin_matched : !!w8benStatus?.record?.qualifies;
   const taxFormRequired = needsW9 || needsW8BEN;
+  const taxFormDone     = isUS ? !!w9Status?.record?.tin_matched : !!w8benStatus?.record?.qualifies;
 
   return (
     <div className="space-y-7 pt-2">
@@ -253,7 +255,7 @@ function CreatorDashboardContent() {
       <div id="payout-hold">
         {payoutHold && (
           <Banner tone="bad" action={
-            <Link href="/creator#payout-hold">
+            <Link href="/c#payout-hold">
               <Button variant="primary" size="sm">Complete verification →</Button>
             </Link>
           }>
@@ -280,10 +282,16 @@ function CreatorDashboardContent() {
                 <span>{canWithdraw ? '✓' : '2.'}</span>
                 Connect a bank account
               </li>
-              <li className={`flex items-center gap-2 ${taxFormOnFile ? 'line-through text-muted' : ''}`}>
-                <span>{taxFormOnFile ? '✓' : '3.'}</span>
-                Submit your {isUS ? 'W-9' : 'W-8BEN'}
-              </li>
+              {/* Tax forms aren't a first-payout gate — a US creator can withdraw
+                  well before hitting the W-9 threshold. Only list it here once it's
+                  genuinely blocking a withdrawal; otherwise the informational
+                  "tax compliance" Card below carries the heads-up. */}
+              {taxFormRequired && (
+                <li className="flex items-center gap-2">
+                  <span>3.</span>
+                  Submit your {isUS ? 'W-9' : 'W-8BEN'}
+                </li>
+              )}
             </ul>
           </div>
         </Banner>
@@ -306,10 +314,10 @@ function CreatorDashboardContent() {
           <div className="grid grid-cols-2 gap-4">
             <Card>
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">open backing</div>
-              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{fmt(solidOpenPledges)}</div>
-              <div className="font-mono text-[10px] text-muted mt-0.5">solid pledges (active payment method)</div>
-              {softOpenPledges > 0.005 && (
-                <div className="font-mono text-[10px] text-muted mt-0.5">+ {fmt(softOpenPledges)} soft (no payment method)</div>
+              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{fmt(solidOpenBackings)}</div>
+              <div className="font-mono text-[10px] text-muted mt-0.5">solid backings (active payment method)</div>
+              {softOpenBackings > 0.005 && (
+                <div className="font-mono text-[10px] text-muted mt-0.5">+ {fmt(softOpenBackings)} soft (no payment method)</div>
               )}
             </Card>
             <Card>
@@ -323,7 +331,7 @@ function CreatorDashboardContent() {
           <Card>
             <div className="flex items-center justify-between mb-4">
               <SectionLabel>recent transactions</SectionLabel>
-              <Link href="/c/ledger" className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors">
+              <Link href="/c/money" className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors">
                 full ledger →
               </Link>
             </div>
@@ -400,8 +408,8 @@ function CreatorDashboardContent() {
                 <p className="text-xs text-warn mt-2">Bank connection pending — complete Stripe setup to enable withdrawals.</p>
               </div>
             ) : (
-              <Button variant="ghost" size="sm" disabled={stripeLoading} onClick={handleDisconnect}>
-                {stripeLoading ? 'Disconnecting…' : 'Disconnect Bank'}
+              <Button variant="danger" size="sm" disabled={stripeLoading} onClick={() => setShowDisconnectConfirm(true)}>
+                Disconnect Bank
               </Button>
             )}
           </Card>
@@ -430,8 +438,8 @@ function CreatorDashboardContent() {
                 {w9Status.record?.tin_matched
                   ? `Your W-9 is complete and your SSN/TIN has been verified.`
                   : w9Status.requires_w9
-                    ? `Your ${w9Status.tax_year} payouts have reached $${w9Status.ytd_withdrawals.toFixed(2)}. A W-9 is required before withdrawing.`
-                    : `You've earned $${w9Status.ytd_withdrawals.toFixed(2)} this year. Artypot requires a W-9 once you hit $${w9Status.threshold.toFixed(0)}.`}
+                    ? `Your ${w9Status.tax_year} earnings have reached $${w9Status.ytd_earnings.toFixed(2)}. A W-9 is required before your next withdrawal.`
+                    : `You've earned $${w9Status.ytd_earnings.toFixed(2)} this year. Artypot requires a W-9 once you hit $${w9Status.threshold.toFixed(0)}.`}
               </p>
               {!w9Status.record?.tin_matched && (
                 <>
@@ -468,8 +476,8 @@ function CreatorDashboardContent() {
                 {w8benStatus.record?.status === 'completed'
                   ? `Your W-8BEN has been submitted and confirmed.`
                   : w8benStatus.requires_w8ben
-                    ? `Your ${w8benStatus.tax_year} payouts have reached $${w8benStatus.ytd_withdrawals.toFixed(2)}. A W-8BEN is required before withdrawing.`
-                    : `You've earned $${w8benStatus.ytd_withdrawals.toFixed(2)} this year. Artypot requires a W-8BEN once you hit $${w8benStatus.threshold.toFixed(0)}.`}
+                    ? `You've earned $${w8benStatus.ytd_earnings.toFixed(2)} this year. A W-8BEN is required before your next withdrawal.`
+                    : `You've earned $${w8benStatus.ytd_earnings.toFixed(2)} this year. Artypot requires a W-8BEN once you hit $${w8benStatus.threshold.toFixed(0)}.`}
               </p>
               {!w8benStatus.record?.qualifies && (
                 <>
@@ -506,7 +514,7 @@ function CreatorDashboardContent() {
             {payoutHold ? (
               <p className="text-sm text-bad">
                 Payouts are on hold — complete Stripe verification to withdraw.{' '}
-                <Link href="/creator" className="underline underline-offset-2 hover:opacity-80">Resolve now →</Link>
+                <Link href="/c#payout-hold" className="underline underline-offset-2 hover:opacity-80">Resolve now →</Link>
               </p>
             ) : !canWithdraw ? (
               <p className="text-sm text-muted">
@@ -597,7 +605,7 @@ function CreatorDashboardContent() {
           {/* First payout checklist */}
           <Card>
             <SectionLabel className="mb-3">first payout</SectionLabel>
-            <PayoutReadinessChecklist />
+            <PayoutReadinessChecklist taxFormRequired={taxFormRequired} taxFormDone={taxFormDone} />
           </Card>
 
           {/* Quick links */}
@@ -611,6 +619,27 @@ function CreatorDashboardContent() {
           </Card>
         </div>
       </div>
+
+      {/* Disconnect bank confirm */}
+      {showDisconnectConfirm && (
+        <Modal
+          title="Disconnect bank account?"
+          onClose={() => { if (!stripeLoading) setShowDisconnectConfirm(false); }}
+          actions={
+            <>
+              <Button variant="ghost" onClick={() => setShowDisconnectConfirm(false)} disabled={stripeLoading}>Cancel</Button>
+              <Button variant="danger" onClick={handleDisconnect} disabled={stripeLoading}>
+                {stripeLoading ? 'Disconnecting…' : 'Yes, Disconnect Bank'}
+              </Button>
+            </>
+          }
+        >
+          <p className="text-sm text-muted leading-relaxed">
+            This removes your linked bank account from Artypot. You won&apos;t be able to
+            withdraw funds until you re-link and complete setup again.
+          </p>
+        </Modal>
+      )}
     </div>
   );
 }

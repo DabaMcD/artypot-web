@@ -7,20 +7,20 @@ import type {
   NotificationPage,
   Nudge,
   Bounty,
-  BountyPledge,
+  BountyBacking,
   BountyCompletion,
   BountyHistory,
-  CreatorClaim,
   PaginatedResponse,
-  PledgePage,
+  BackingPage,
+  FanPaymentSummary,
+  FanPaymentStatus,
   CashBalance,
   PaymentMethod,
   BountyStatus,
-  RemovePledgeResult,
+  RemoveBackingResult,
   DeletePaymentMethodResult,
   CouncilMember,
   CouncilPage,
-  AdminCreatorClaim,
   AdminBountyCompletion,
   HandleVerificationApplicationRow,
   HandleVerificationApplicationStatus,
@@ -29,10 +29,11 @@ import type {
   CreatorEarning,
   CreatorBalance,
   Comment,
-  UserHandle,
   HandlePlatform,
   HandleClaim,
   HandleSearchResult,
+  SearchResponse,
+  SearchBountyResult,
   ComplianceSource,
   ComplianceSanction,
   ComplianceSanctionEntity,
@@ -43,6 +44,10 @@ import type {
   ComplianceContentRule,
   ComplianceJobRun,
   ComplianceAuditEntry,
+  BillingRun,
+  BillingRunDetail,
+  CountryTiersResponse,
+  AuditLogResponse,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -101,7 +106,7 @@ interface ApiError {
   status: number;
   message: string;
   requires_w9?: boolean;
-  /** 422 body reason code, e.g. 'pledge_cap_exceeded' | 'payment_grace_period' */
+  /** 422 body reason code, e.g. 'backing_cap_exceeded' | 'payment_grace_period' */
   reason?: string;
   /** Free-form body payload for 422 responses (cap, current_total, requested, grace_expires_at, etc.) */
   data?: Record<string, unknown>;
@@ -317,7 +322,7 @@ export const creators = {
   list: (params?: {
     q?: string;
     page?: number;
-    sort?: 'newest' | 'most_pledged' | 'most_completed';
+    sort?: 'newest' | 'most_backed' | 'most_completed';
   }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
@@ -342,13 +347,13 @@ export const creators = {
 
   /**
    * GET /platform/{platform}/{handle}
-   *  - match === 'claimed'   → handle is verified by a creator; redirect client to /{user.slug}
-   *  - match === 'unclaimed' → no claim; returns bounties for share/recruitment UI
+   *  - match === 'verified'   → handle is verified by a creator; redirect client to /{user.slug}
+   *  - match === 'unverified' → no verified claim; returns bounties for share/recruitment UI
    */
   byPlatformHandle: (platform: string, handle: string) =>
     request<
-      | { match: 'claimed';   user: { id: number; display_name: string; slug: string; profile_picture: string | null } }
-      | { match: 'unclaimed'; handle: { id: number | null; platform: string; username: string }; bounties: Array<{ id: number; title: string; status: string; total_pledged: string; created_at: string }> }
+      | { match: 'verified';   user: { id: number; display_name: string; slug: string; profile_picture: string | null } }
+      | { match: 'unverified'; handle: { id: number | null; platform: string; username: string }; bounties: Array<{ id: number; title: string; status: string; total_backed: string; created_at: string }> }
     >(`/platform/${encodeURIComponent(platform)}/${encodeURIComponent(handle)}`),
 
   create: (data: Partial<Creator>) =>
@@ -356,12 +361,6 @@ export const creators = {
 
   update: (id: number, data: Partial<Creator>) =>
     request<{ data: Creator }>(`/creators/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-
-  claim: (creator_id: number, contact_info: string) =>
-    request<{ data: CreatorClaim }>('/creator-claims', {
-      method: 'POST',
-      body: JSON.stringify({ creator_id, contact_info }),
-    }),
 };
 
 // Bounties
@@ -379,28 +378,47 @@ export const bounties = {
   create: (data: {
     title: string;
     description?: string;
-    initial_pledge_amount?: number;
+    initial_backing_amount?: number;
     target_user_id?: number;
     target_handle_id?: number;
     platform?: string;
     username?: string;
+    url?: string;
     display_name?: string;
-    pledge_expiry_value?: number;
-    pledge_expiry_unit?: string;
+    backing_expiry_value?: number;
+    backing_expiry_unit?: string;
   }) =>
-    request<{ data: Bounty }>('/bounties', { method: 'POST', body: JSON.stringify(data) }),
+    request<{ data: Bounty; default_update_prompts?: import('./default-update-prompt-context').DefaultUpdatePrompts }>(
+      '/bounties',
+      { method: 'POST', body: JSON.stringify(data) },
+    ),
 
-  update: (id: number, data: { title?: string; description?: string }) =>
+  update: (id: number, data: { title?: string; description?: string; display_name?: string | null }) =>
     request<{ data: Bounty }>(`/bounties/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
-  pledge: (bountyId: number, amount: number, expires_at?: string) =>
-    request<{ data: BountyPledge & { bounty: { total_pledged: number } } }>(`/bounties/${bountyId}/pledges`, {
+  backing: (
+    bountyId: number,
+    amount: number,
+    expires_at?: string,
+    expiry_value?: number,
+    expiry_unit?: string,
+  ) =>
+    request<{
+      data: BountyBacking;
+      bounty: { id: number; total_backed: number; solid_total: number };
+      default_update_prompts?: import('./default-update-prompt-context').DefaultUpdatePrompts;
+    }>(`/bounties/${bountyId}/backings`, {
       method: 'POST',
-      body: JSON.stringify({ amount, ...(expires_at ? { expires_at } : {}) }),
+      body: JSON.stringify({
+        amount,
+        ...(expires_at ? { expires_at } : {}),
+        ...(expiry_value !== undefined ? { backing_expiry_value: expiry_value } : {}),
+        ...(expiry_unit !== undefined ? { backing_expiry_unit: expiry_unit } : {}),
+      }),
     }),
 
-  removePledge: (bountyId: number, pledgeId: number) =>
-    request<RemovePledgeResult>(`/bounties/${bountyId}/pledges/${pledgeId}`, { method: 'DELETE' }),
+  removeBacking: (bountyId: number, backingId: number) =>
+    request<RemoveBackingResult>(`/bounties/${bountyId}/backings/${backingId}`, { method: 'DELETE' }),
 
   submitCompletion: (bountyId: number, submission_url: string, submission_notes?: string) =>
     request<{ data: BountyCompletion }>(`/bounties/${bountyId}/completion`, {
@@ -423,7 +441,7 @@ export const users = {
   get: (id: number) =>
     request<{ data: PublicUser }>(`/users/${id}`),
 
-  update: (id: number, data: Partial<Pick<User, 'display_name' | 'profile_picture' | 'is_anonymous' | 'country_code' | 'state_code' | 'default_expiry_value' | 'default_expiry_unit' | 'bio' | 'fan_name' | 'fan_name_plural'>>) =>
+  update: (id: number, data: Partial<Pick<User, 'display_name' | 'profile_picture' | 'is_anonymous' | 'country_code' | 'state_code' | 'default_expiry_value' | 'default_expiry_unit' | 'default_backing_amount' | 'bio' | 'fan_name' | 'fan_name_plural'>>) =>
     request<{ data: User }>(`/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -481,14 +499,14 @@ export const featuredBounties = {
   list: () => request<{ data: Bounty[] }>('/featured-bounties'),
 };
 
-// Pledges (authenticated user's own)
-export const pledges = {
+// Backings (authenticated user's own)
+export const backings = {
   list: (params?: { sort?: 'date' | 'amount'; page?: number; bounty_status?: string; per_page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
     const qs = new URLSearchParams(entries).toString();
-    return request<PledgePage>(`/auth/pledges${qs ? `?${qs}` : ''}`);
+    return request<BackingPage>(`/auth/backings${qs ? `?${qs}` : ''}`);
   },
 };
 
@@ -564,10 +582,6 @@ export const billing = {
   deletePaymentMethod: (id: string) =>
     request<DeletePaymentMethodResult>(`/billing/payment-methods/${id}`, { method: 'DELETE' }),
 
-  /** Confirm an existing card is still valid, resetting its 90-day activity window. */
-  confirmPaymentMethod: (id: string) =>
-    request<{ data: PaymentMethod }>(`/billing/payment-methods/${id}/confirm`, { method: 'POST' }),
-
   /**
    * Immediately charge the authenticated user's full negative available_cash balance.
    *
@@ -602,6 +616,15 @@ export const billing = {
       requires_action_at?: string;
       expires_at?: string;
     }>('/billing/pending-action'),
+
+  /** Paginated history of the fan's past charges, each itemized by the backings it settled. */
+  payments: (params?: { page?: number; status?: FanPaymentStatus }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null)
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<PaginatedResponse<FanPaymentSummary>>(`/billing/payments${qs ? `?${qs}` : ''}`);
+  },
 };
 
 // Cash (creator-specific endpoints)
@@ -688,12 +711,40 @@ export const stripeConnect = {
     request<{ data: { disconnected: boolean } }>('/payout/stripe/account', { method: 'DELETE' }),
 };
 
+export const search = {
+  /**
+   * GET /search — unified header/global search (people + bounties).
+   * Pass an AbortSignal to cancel an in-flight request when the query changes.
+   */
+  query: (
+    params: {
+      q: string;
+      mode?: 'dropdown' | 'full';
+      limit_people?: number;
+      limit_bounties?: number;
+      include_completed?: boolean;
+    },
+    signal?: AbortSignal,
+  ) => {
+    const entries = Object.entries(params)
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<SearchResponse>(`/search?${qs}`, { signal });
+  },
+
+  /** GET /search/trending — top open bounties by recent backing velocity. */
+  trending: (signal?: AbortSignal) =>
+    request<{ data: SearchBountyResult[] }>(`/search/trending`, { signal }),
+};
+
 // Overlord — logs
 export const handles = {
   /** GET /handles/search?q=... — unified handle search for bounty targeting */
-  search: (q: string) =>
+  search: (q: string, signal?: AbortSignal) =>
     request<{ data: HandleSearchResult }>(
-      `/handles/search?q=${encodeURIComponent(q)}`
+      `/handles/search?q=${encodeURIComponent(q)}`,
+      { signal }
     ),
 
   /**
@@ -708,7 +759,7 @@ export const handles = {
     const body = platform === 'other'
       ? { platform, url: value }
       : { platform, username: value };
-    return request<{ data: HandleClaim }>('/handles', {
+    return request<{ data: HandleClaim; already_claimed?: boolean }>('/handles', {
       method: 'POST',
       body: JSON.stringify(body),
     });
@@ -756,11 +807,11 @@ export const metrics = {
         total_bounties:              number;
         avg_bounty_amount:           number;
         stddev_bounty_amount:        number;
-        total_pledged_amount:        number;
-        total_hard_pledges:          number;
-        avg_hard_pledge_amount:      number;
-        total_soft_pledges:          number;
-        avg_soft_pledge_amount:      number;
+        total_backed_amount:        number;
+        total_hard_backings:          number;
+        avg_hard_backing_amount:      number;
+        total_soft_backings:          number;
+        avg_soft_backing_amount:      number;
         total_users:                 number;
         total_creators:              number;
         total_paid_by_fans:          number;
@@ -826,16 +877,6 @@ export const admin = {
       body: JSON.stringify(decisionNotes ? { decision_notes: decisionNotes } : {}),
     }),
 
-  // Creator Claims
-  listClaims: (status: 'pending' | 'approved' | 'rejected' | 'all' = 'pending', page = 1) =>
-    request<PaginatedResponse<AdminCreatorClaim>>(`/admin/creator-claims?status=${status}&page=${page}`),
-
-  reviewClaim: (claimId: number, data: { status: 'approved' | 'rejected'; council_notes?: string }) =>
-    request<{ data: AdminCreatorClaim }>(`/admin/creator-claims/${claimId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    }),
-
   // Bounty Completions
   listCompletions: (status: 'pending_review' | 'approved' | 'rejected' | 'all' = 'pending_review', page = 1) =>
     request<PaginatedResponse<AdminBountyCompletion>>(`/admin/bounty-completions?status=${status}&page=${page}`),
@@ -878,7 +919,7 @@ export const admin = {
     request<null>(`/admin/users/${id}`, { method: 'DELETE' }),
 
   // Creators
-  listCreators: (params?: { q?: string; claimed?: 'true' | 'false' | 'all'; page?: number }) => {
+  listCreators: (params?: { q?: string; verified?: 'true' | 'false' | 'all'; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null && v !== '' && v !== 'all')
       .map(([k, v]) => [k, String(v)]) as [string, string][];
@@ -890,6 +931,31 @@ export const admin = {
 
   getCreator: (id: number) =>
     request<{ data: import('./types').AdminCreatorDetail }>(`/admin/creators/${id}`),
+
+  // Billing Runs (monthly fan-charge cycles + their failure/chargeback fallout)
+  billingRuns: {
+    list: (page = 1) =>
+      request<PaginatedResponse<BillingRun>>(`/admin/billing-runs?page=${page}`),
+
+    get: (id: number) =>
+      request<{ data: BillingRunDetail }>(`/admin/billing-runs/${id}`),
+
+    trigger: () =>
+      request<{ message: string }>('/admin/billing-runs/trigger', { method: 'POST' }),
+  },
+
+  // Country tiers (read-only, derived live from compliance data)
+  countryTiers: () =>
+    request<CountryTiersResponse>('/admin/country-tiers'),
+
+  // Platform audit log (read-only feed of admin/council actions)
+  auditLog: (params?: { source?: string; category?: string; actor_id?: number; from?: string; to?: string; page?: number; per_page?: number }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<AuditLogResponse>(`/admin/audit-log${qs ? `?${qs}` : ''}`);
+  },
 
   // External Payouts (off-Stripe payouts: Wise, PayPal, wire, check, etc.)
   externalPayouts: {

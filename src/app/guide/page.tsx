@@ -62,19 +62,6 @@ export default function GuidePage() {
           </div>
         </div>
 
-        {/* The Herald */}
-        <div className="bg-surface border border-fan/30 rounded-xl p-6">
-          <div className="flex items-start gap-4">
-            <span className="text-2xl">📯</span>
-            <div>
-              <h2 className="text-lg font-bold text-fan mb-1">The Herald</h2>
-              <p className="text-foreground text-sm leading-relaxed">
-                When a Creator profile is yet unclaimed, it is up to loyal fans to take on the role of Herald — the caretaker of that Creator&apos;s unclaimed presence on Artypot.
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* The Overlord */}
         <div className="bg-surface border border-black/30 rounded-xl p-6">
           <div className="flex items-start gap-4">

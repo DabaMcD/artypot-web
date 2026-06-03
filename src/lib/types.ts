@@ -31,6 +31,9 @@ export interface HandleClaim {
   status: 'unverified' | 'verified';
   /** 'oauth' = verified via OAuth; 'admin' = submitted for admin review or admin-approved; null = not yet submitted */
   verification_method: 'oauth' | 'admin' | null;
+  /** True only while an application is awaiting an admin decision. Flips back
+   *  to false once approved/denied/retracted, regardless of verification_method. */
+  pending_review: boolean;
   /** Message the creator left for admins when requesting review. */
   contact_message: string | null;
   verified_at: string | null;
@@ -64,7 +67,6 @@ export interface HandleSearchResult {
 
 export type BountyStatus = 'open' | 'pending' | 'completed' | 'paid_out' | 'revoked';
 export type BountyType = 'direct';
-export type CreatorClaimStatus = 'pending' | 'approved' | 'rejected';
 export type BountyCompletionStatus = 'pending_review' | 'approved' | 'rejected';
 export type WithdrawalStatus = 'pending' | 'processing' | 'paid' | 'failed';
 export type CreatorW9Status = 'initiated' | 'completed' | 'tin_matched' | 'tin_failed';
@@ -84,6 +86,8 @@ export interface CreatorW9Record {
 export interface FormW9StatusResponse {
   tax_year: number;
   ytd_withdrawals: number;
+  /** Paid out this year + currently-available funds — the "earned" figure. */
+  ytd_earnings: number;
   threshold: number;
   requires_w9: boolean;
   record: CreatorW9Record | null;
@@ -103,6 +107,8 @@ export interface CreatorW8BENRecord {
 export interface FormW8BENStatusResponse {
   tax_year: number;
   ytd_withdrawals: number;
+  /** Paid out this year + currently-available funds — the "earned" figure. */
+  ytd_earnings: number;
   threshold: number;
   requires_w8ben: boolean;
   record: CreatorW8BENRecord | null;
@@ -133,7 +139,7 @@ export interface User {
   role: UserRole;
   profile_picture?: string;
   total_given?: number;
-  open_pledges_count?: number;
+  open_backings_count?: number;
   is_anonymous?: boolean;
   /** ISO-3166-1 alpha-2 country code, e.g. "US". Nullable. */
   country_code?: string | null;
@@ -148,10 +154,12 @@ export interface User {
   payment_failed_at?: string | null;
   /** ISO timestamp of when the post-failure grace period expires. Computed by backend. */
   payment_grace_expires_at?: string | null;
-  /** Default pledge expiry — number of units (e.g. 39) prefilled on the bounty creation form. */
+  /** Default backing expiry — number of units (e.g. 39) prefilled on the bounty creation form. */
   default_expiry_value?: number;
-  /** Unit for default pledge expiry: 'day' | 'week' | 'month' | 'year'. */
+  /** Unit for default backing expiry: 'day' | 'week' | 'month' | 'year'. */
   default_expiry_unit?: string;
+  /** Default backing amount prefilled in the backing form. Null → frontend env fallback. */
+  default_backing_amount?: number | null;
   /** Public bio shown on the creator profile. */
   bio?: string | null;
   /** Creator-set noun for their fans (singular), e.g. "patron". */
@@ -178,16 +186,55 @@ export interface CouncilPage {
   per_page: number;
 }
 
+// ── Unified search (GET /v1/search) ────────────────────────────────────────
+
+export interface SearchMatchReason {
+  /** People: 'exact' | 'handle' | 'display_name' | 'alias'. Bounties: 'title' | 'description' | 'creator_name'. */
+  kind: string;
+  /** People match value, e.g. "@lordemusic" or an alias. */
+  value?: string | null;
+  /** Bounty description snippet with the matched term wrapped in <mark> (sanitized before render). */
+  snippet?: string | null;
+}
+
+export interface SearchPerson {
+  type: 'creator' | 'unverified_handle';
+  id: string;
+  display_name: string;
+  avatar_url: string | null;
+  verified_handle_count: number;
+  open_bounty_count: number;
+  total_backed_open: number;
+  match_reason: SearchMatchReason | null;
+  // The verified handle that anchors a creator's identity in the row, e.g.
+  // { platform: 'youtube', username: 'mrbeast', label: 'youtube/@mrbeast' }.
+  // Null for unverified handles (their display_name is already the handle).
+  primary_handle?: { platform: string; username: string; label: string } | null;
+  url: string | null;
+}
+
+export interface SearchBountyResult {
+  id: string;
+  title: string;
+  creator: { id: string | null; display_name: string | null; url: string | null };
+  amount_backed: number;
+  status: string;
+  match_reason: SearchMatchReason | null;
+  url: string;
+}
+
+export interface SearchResponse {
+  query: string;
+  people: SearchPerson[];
+  bounties: SearchBountyResult[];
+}
+
 export interface Creator {
   id: number;
   /** Public URL slug — `artypot.com/{slug}`. Present on full Creator objects; may be absent on embedded/minimal selects. */
   slug?: string | null;
   user_id?: number;
   user?: { id: number; display_name: string };
-  /** Herald of an unclaimed creator (has editing rights) */
-  herald?: { id: number; display_name: string };
-  herald_user_id?: number;
-  herald_total_pledge?: number;
   display_name: string;
   description?: string;
   bio?: string | null;
@@ -211,14 +258,14 @@ export interface Creator {
   projects_finished?: number;
   /** Confirmed earnings: sum of creator credits where Stripe has collected */
   amount_earned?: number;
-  /** Gross pledges on open/pending bounties (no charge written yet) */
-  total_pledge_sum?: number;
-  /** Gross pledge amounts locked on completed bounties, not yet charged via Stripe */
-  pending_pledge_total?: number;
+  /** Gross backings on open/pending bounties (no charge written yet) */
+  total_backing_sum?: number;
+  /** Gross backing amounts locked on completed bounties, not yet charged via Stripe */
+  pending_backing_total?: number;
   /** Whether the currently authenticated user can edit this creator */
   can_edit?: boolean;
-  /** The authenticated user's own 24h-aged pledge total across all bounties for this creator */
-  user_aged_pledge_total?: number | null;
+  /** The authenticated user's own 24h-aged backing total across all bounties for this creator */
+  user_aged_backing_total?: number | null;
   /** True when the creator has a Stripe Connect account (may still need onboarding) */
   bank_connected?: boolean;
   /** True when Stripe has placed a hold on payouts requiring additional KYC. */
@@ -237,8 +284,20 @@ export interface Creator {
   payout_minimum?: number | null;
   /** Timestamp of TOS agreement, stamped when the user activates creator mode. */
   creator_tos_agreed_at?: string | null;
-  claimed_at?: string;
+  verified_at?: string;
   merged_into_creator_id?: number;
+  /**
+   * Verified handle claims, returned by `GET /creators/{user}`. Each claim's
+   * `handle` carries just `id`/`platform`/`username` (the backend selects only
+   * those columns). Used to derive a creator's primary handle for display, e.g.
+   * when deep-linking into `/bounties/new?creator_id=…`.
+   */
+  handle_claims?: Array<{
+    id: number;
+    handle_id: number;
+    status: string;
+    handle: { id: number; platform: HandlePlatform; username: string } | null;
+  }>;
 }
 
 export interface Bounty {
@@ -261,8 +320,8 @@ export interface Bounty {
     fan_name?: string | null;
     fan_name_plural?: string | null;
   };
-  total_pledged: number;
-  /** Sum of pledges from fans with an active payment method. Appended by the backend on show(). */
+  total_backed: number;
+  /** Sum of backings from fans with an active payment method. Appended by the backend on show(). */
   solid_total?: number;
   target_handle_id?: number | null;
   target_user_id?: number | null;
@@ -275,11 +334,11 @@ export interface Bounty {
   paid_out_at?: string;
   /** Sum of fan charges already collected via billing for this bounty. */
   cleared_amount?: number;
-  pledges?: BountyPledge[];
+  backings?: BountyBacking[];
   completion?: BountyCompletion;
 }
 
-export interface BountyPledge {
+export interface BountyBacking {
   id: number;
   bounty_id: number;
   user_id: number;
@@ -290,7 +349,7 @@ export interface BountyPledge {
   expires_at?: string;
 }
 
-export interface PublicUserPledge {
+export interface PublicUserBacking {
   id: number;
   bounty_id: number;
   bounty?: Pick<Bounty, 'id' | 'title' | 'status'>;
@@ -299,13 +358,34 @@ export interface PublicUserPledge {
   created_at: string;
 }
 
-export interface PledgePage {
-  data: PublicUserPledge[];
+export interface BackingPage {
+  data: PublicUserBacking[];
   current_page: number;
   last_page: number;
   total: number;
   per_page: number;
   total_active_amount: number;
+}
+
+// ── Payment history (past fan charges) ──────────────────────────────────────
+
+export type FanPaymentStatus = 'pending' | 'requires_action' | 'failed' | 'completed';
+
+export interface FanPaymentItem {
+  bounty_id: number;
+  bounty: { id: number; title: string } | null;
+  /** Serialized as a decimal string by the API; coerce with Number() at render. */
+  amount: number | string;
+}
+
+export interface FanPaymentSummary {
+  id: number;
+  status: FanPaymentStatus;
+  /** Total charged. Serialized as a decimal string by the API. */
+  gross_paid: number | string;
+  charged_at: string;             // ISO 8601 (UTC)
+  billing_run_date: string | null; // null for a manual pay-now
+  items: FanPaymentItem[];
 }
 
 export interface DeletePaymentMethodResult {
@@ -323,9 +403,9 @@ export interface PublicUser {
   profile_picture?: string;
   is_anonymous: boolean;
   created_at: string;
-  pledges: PublicUserPledge[];
-  /** Server-computed sum of all active (unrevoked) pledges. Null for anonymous users viewed by others. */
-  total_pledge_amount?: number;
+  backings: PublicUserBacking[];
+  /** Server-computed sum of all active (unrevoked) backings. Null for anonymous users viewed by others. */
+  total_backing_amount?: number;
 }
 
 export interface BountyCompletion {
@@ -336,15 +416,6 @@ export interface BountyCompletion {
   status: BountyCompletionStatus;
   council_notes?: string;
   verified_at?: string;
-}
-
-export interface CreatorClaim {
-  id: number;
-  user_id: number;
-  creator_id: number;
-  creator?: Pick<Creator, 'id' | 'display_name'>;
-  status: CreatorClaimStatus;
-  council_notes?: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -387,28 +458,13 @@ export interface HandleVerificationApplicationRow {
   };
 }
 
-export interface AdminCreatorClaim {
-  id: number;
-  user_id: number;
-  user: { id: number; display_name: string; email: string };
-  creator_id: number;
-  creator: { id: number; display_name: string; slug?: string | null };
-  contact_info: string;
-  status: CreatorClaimStatus;
-  council_notes?: string | null;
-  reviewed_by?: number | null;
-  reviewer?: { id: number; display_name: string } | null;
-  reviewed_at?: string | null;
-  created_at: string;
-}
-
 export interface AdminBountyCompletion {
   id: number;
   bounty_id: number;
   bounty: {
     id: number;
     title: string;
-    total_pledged: number;
+    total_backed: number;
     creator_id: number;
     status: BountyStatus;
     creator?: { id: number; display_name: string; slug?: string | null } | null;
@@ -429,6 +485,7 @@ export interface AdminBountyCompletion {
 export interface CashBalance {
   balance: number;
   available: PaginatedResponse<CashLedgerEntry>;
+  broke_cooldown: { ends_at: string; started_at: string } | null;
 }
 
 export interface CashLedgerEntry {
@@ -483,24 +540,172 @@ export interface CreatorSearchResult {
   available_balance: number;
 }
 
+// ── Country Tiers (admin · read-only, derived from compliance data) ──────────
+
+export type CountryTier = 'full' | 'manual_payout' | 'restricted' | 'blocked';
+
+/** How a creator in this country is paid out. */
+export type CountryPayoutMode = 'automated' | 'manual' | 'blocked';
+
+export interface CountryTierSanction {
+  program_name: string;
+  severity: string | null;
+  subdivision_code: string | null;
+}
+
+export interface CountryTierRow {
+  code: string;          // ISO 3166-1 alpha-2
+  code3: string;
+  name: string;
+  region: string | null;
+  tier: CountryTier;
+  tier_rank: number;     // 1 = lowest friction … 4 = blocked
+  charges_supported: boolean;  // can fans in this country be billed (Stripe charges)
+  connect_supported: boolean;  // is automated Stripe Connect payout available
+  payout_mode: CountryPayoutMode;
+  sanction_block: boolean;
+  sanctions: CountryTierSanction[];
+  reason: string;
+}
+
+export interface CountryTierDefinition {
+  tier: CountryTier;
+  rank: number;
+  label: string;
+  description: string;
+}
+
+export interface CountryTiersResponse {
+  data: CountryTierRow[];
+  summary: Record<CountryTier, number>;
+  definitions: CountryTierDefinition[];
+}
+
+// ── Billing Runs (admin) ────────────────────────────────────────────────────
+
+export type BillingRunStatus = 'pending' | 'running' | 'completed' | 'failed';
+
+/** A minimal user reference attached to billing-run detail rows. */
+export interface BillingRunUserRef {
+  id: number;
+  display_name: string;
+  email: string | null;
+}
+
+/**
+ * Live, webhook-derived rollup for one billing run. The run row's own
+ * total_collected/total_fees are *attempted* (dispatch-time) figures; these
+ * fields reflect confirmed reality.
+ */
+export interface BillingRunSummary {
+  collected_count: number;
+  collected_amount: number;
+  failed_count: number;
+  failed_amount: number;
+  pending_action_count: number;
+  pending_action_amount: number;
+  in_flight_count: number;
+  in_flight_amount: number;
+  failed_attempts: number;
+  charged_users: number;
+  dropped_backings: number;
+  chargeback_count: number;
+  chargeback_amount: number;
+}
+
+export interface BillingRun {
+  id: number;
+  run_date: string;            // YYYY-MM-DD
+  status: BillingRunStatus;
+  /** Attempted (dispatch-time) totals — decimal strings from the API. */
+  total_collected: number | string;
+  total_paid_out: number | string;
+  total_fees: number | string;
+  soft_backings_cancelled: number;
+  started_at: string | null;
+  completed_at: string | null;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+  summary: BillingRunSummary;
+}
+
+/** A failed fan-payment annotated with the latest Stripe decline detail. */
+export interface BillingRunFailedPayment {
+  id: number;
+  user: BillingRunUserRef | null;
+  gross_paid: number;
+  attempts: number;
+  decline_code: string | null;
+  error_code: string | null;
+  error_message: string | null;
+  last_attempt_at: string | null;
+}
+
+/** A payment stuck awaiting 3DS / SCA authentication. */
+export interface BillingRunPendingAction {
+  id: number;
+  user: BillingRunUserRef | null;
+  gross_paid: number;
+  requires_action_at: string | null;
+}
+
+/** A chargeback / dispute against a payment collected in this run. */
+export interface BillingRunChargeback {
+  id: number;
+  user: BillingRunUserRef | null;
+  fan_payment_id: number | null;
+  amount: number;
+  reason: string | null;
+  status: string | null;
+  status_label: string | null;
+  is_terminal: boolean;
+  /** null = chargeback on unknown charge; true = creator clawed back; false = platform absorbed. */
+  pre_clearing: boolean | null;
+  clawback_amount: number | null;
+  created_at: string;
+}
+
+/** A backing dropped before charging because the fan had no valid card. */
+export interface BillingRunDroppedBacking {
+  id: number;
+  user: BillingRunUserRef | null;
+  bounty: { id: number; title: string } | null;
+  amount: number;
+  revoked_at: string | null;
+}
+
+export interface BillingRunDetail extends BillingRun {
+  failed_payments: BillingRunFailedPayment[];
+  pending_action: BillingRunPendingAction[];
+  chargebacks: BillingRunChargeback[];
+  dropped_backings: BillingRunDroppedBacking[];
+}
+
 export interface PaymentMethod {
   id: string;
   brand: string;
   last4: string;
   exp_month: number;
   exp_year: number;
-  /** True if the card has been used, added, or confirmed within the active window. */
-  is_active: boolean;
-  /** ISO timestamp of the most recent activity (added, charged, or confirmed). */
-  last_active_at: string | null;
+  /** True if the card has no invalidation stamp AND its expiry date is in the future. */
+  is_valid: boolean;
+  /** ISO timestamp of when validity was lost. Null while still valid. */
+  invalidated_at: string | null;
+  /**
+   * Why the card was invalidated. One of:
+   *   'expired' | 'detached_at_stripe' | 'replaced_by_updater' | 'billing_failure'
+   * Null while is_valid is true.
+   */
+  invalidation_reason: 'expired' | 'detached_at_stripe' | 'replaced_by_updater' | 'billing_failure' | null;
 }
 
 export interface CreatorBalance {
-  /** All pledges on open bounties — no charge locked yet (solid + soft) */
-  open_pledges: number;
-  /** Subset of open_pledges from fans with an active payment method */
-  solid_open_pledges: number;
-  /** Pledges on bounties awaiting Council approval */
+  /** All backings on open bounties — no charge locked yet (solid + soft) */
+  open_backings: number;
+  /** Subset of open_backings from fans with an active payment method */
+  solid_open_backings: number;
+  /** Backings on bounties awaiting Council approval */
   pending_verification: number;
   /** Gross fan obligations locked on approved bounties, not yet billed */
   pending_payment: number;
@@ -643,7 +848,7 @@ export interface Nudge {
   dismissable: boolean;
 }
 
-export interface RemovePledgeResult {
+export interface RemoveBackingResult {
   bounty_deleted: boolean;
   new_initiator_id: number | null;
 }
@@ -673,11 +878,12 @@ export interface Comment {
 
 export type BountyHistoryEventType =
   | 'created'
-  | 'pledge_added'
-  | 'pledge_updated'
-  | 'pledge_revoked'
+  | 'backing_added'
+  | 'backing_updated'
+  | 'backing_revoked'
   | 'details_edited'
   | 'privilege_transfer'
+  | 'creator_assigned'
   | 'pending'
   | 'completed';
 
@@ -687,19 +893,19 @@ export interface BountyHistoryEvent {
   at: string;
   user?: { id: number; display_name: string; profile_picture?: string | null } | null;
   amount?: number | null;
-  /** Set only for `pledge_updated`: the previous pledge amount the user replaced. */
+  /** Set only for `backing_updated`: the previous backing amount the user replaced. */
   old_amount?: number | null;
   field?: string | null;
   old_value?: string | null;
   meta?: Record<string, unknown> | null;
-  pledge_id?: number | null;
+  backing_id?: number | null;
   running_total: number;
-  snapshot: { title: string; description: string | null };
+  snapshot: { title: string; description: string | null; display_name: string | null };
 }
 
 export interface BountyHistory {
   events: BountyHistoryEvent[];
-  current: { title: string; description: string | null; total_pledged: number };
+  current: { title: string; description: string | null; total_backed: number };
 }
 
 // ── Admin: User & Creator search ─────────────────────────────────────────────
@@ -708,6 +914,7 @@ export interface AdminUser {
   id: number;
   display_name: string;
   email: string;
+  profile_picture?: string | null;
   slug?: string | null;
   role: UserRole;
   is_anonymous: boolean;
@@ -716,11 +923,12 @@ export interface AdminUser {
   phone_verified_at: string | null;
   created_at: string;
   deleted_at: string | null;
+  broke_cooldown: { ends_at: string; started_at?: string } | null;
   creator: {
     id: number;
     display_name: string;
-    claimed: boolean;
-    claimed_at: string | null;
+    verified: boolean;
+    verified_at: string | null;
     amount_earned: number;
     projects_open: number;
     projects_finished: number;
@@ -731,15 +939,25 @@ export interface AdminUser {
       tin_matched_at: string | null;
     } | null;
   } | null;
+  /** Active handle claims (verified + unverified). Only populated by /admin/users/{user}, not by the list endpoint. */
+  handles?: {
+    claim_id: number;
+    status: 'verified' | 'unverified';
+    verification_method: string | null;
+    verified_at: string | null;
+    handle: { platform: string; username: string; profile_url: string | null };
+    created_at: string;
+  }[];
 }
 
 export interface AdminCreator {
   id: number;
   display_name: string;
+  profile_picture?: string | null;
   /** Public URL slug (artypot.com/{slug}); null if creator has not picked one yet. */
   slug?: string | null;
-  claimed: boolean;
-  claimed_at: string | null;
+  verified: boolean;
+  verified_at: string | null;
   user: { id: number; display_name: string; email: string } | null;
   w9_status: CreatorW9Status | null;
   amount_earned: number;
@@ -749,6 +967,46 @@ export interface AdminCreator {
 }
 
 // ── Admin creator detail (single-creator modal) ────────────────────────────
+
+// ── Admin audit log (read-only feed of admin/council actions) ───────────────
+
+export type AuditLogCategory = 'accounts' | 'compliance' | 'money' | 'content' | 'governance';
+
+export interface AuditLogActor {
+  id: number;
+  display_name: string;
+}
+
+export interface AuditLogEntry {
+  /** Stable composite key, e.g. "payout_reversed:42". */
+  id: string;
+  source: string;
+  event: string;
+  category: AuditLogCategory;
+  occurred_at: string;        // ISO 8601
+  actor: AuditLogActor | null;
+  target_user: AuditLogActor | null;
+  subject: string | null;     // e.g. "bounty #7", "country_payment_support #3"
+  field: string | null;
+  old_value: string | null;
+  new_value: string | null;
+  note: string | null;
+}
+
+export interface AuditLogSource {
+  key: string;
+  label: string;
+  category: AuditLogCategory;
+}
+
+export interface AuditLogResponse {
+  data: AuditLogEntry[];
+  current_page: number;
+  per_page: number;
+  total: number;
+  last_page: number;
+  sources: AuditLogSource[];
+}
 
 // ── Compliance admin types ────────────────────────────────────────────────
 
@@ -930,7 +1188,7 @@ export interface AdminCreatorDetail extends AdminCreator {
   wallet: {
     available_balance: number;
     clearing_balance: number;
-    open_pledge_total: number;
+    open_backing_total: number;
     total_paid_out: number;
     amount_earned: number;
   };
@@ -1001,7 +1259,7 @@ export interface AdminCreatorDetail extends AdminCreator {
     id: number;
     title: string;
     status: BountyStatus;
-    total_pledged: number;
+    total_backed: number;
     created_at: string;
     completed_at: string | null;
   }>;

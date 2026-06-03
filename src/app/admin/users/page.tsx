@@ -28,7 +28,7 @@ function RoleBadge({ role }: { role: UserRole }) {
 // ── User detail modal ─────────────────────────────────────────────────────────
 
 function UserModal({
-  user,
+  user: initialUser,
   onClose,
   onDeleted,
 }: {
@@ -38,6 +38,17 @@ function UserModal({
 }) {
   const { toast } = useToast();
   const { user: actor } = useAuth();
+
+  // List rows don't include handles; fetch the full record so we can render
+  // them. Until it arrives we render the list-row data we already have.
+  const [user, setUser] = useState<AdminUser>(initialUser);
+  useEffect(() => {
+    let cancelled = false;
+    adminApi.getUser(initialUser.id)
+      .then((res) => { if (!cancelled) setUser(res.data); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [initialUser.id]);
 
   // Two-step delete: arming reveals the typed-confirmation block.
   const [armed, setArmed]               = useState(false);
@@ -74,8 +85,22 @@ function UserModal({
 
   return (
     <Modal title={user.display_name} onClose={onClose} lg>
-      {/* Email */}
-      <p className="font-mono text-[10px] uppercase tracking-widest text-muted mb-4">{user.email}</p>
+      {/* Avatar + email */}
+      <div className="flex items-center gap-3 mb-4">
+        {user.profile_picture ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={user.profile_picture}
+            alt=""
+            className="w-14 h-14 rounded-full object-cover shrink-0 border border-border"
+          />
+        ) : (
+          <div className="w-14 h-14 rounded-full bg-fan/20 flex items-center justify-center text-fan font-mono text-base font-bold shrink-0 border border-border">
+            {user.display_name?.charAt(0).toUpperCase() ?? '?'}
+          </div>
+        )}
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted">{user.email}</p>
+      </div>
 
       {/* Meta badges */}
       <div className="flex flex-wrap gap-2 mb-5">
@@ -86,6 +111,11 @@ function UserModal({
         )}
         {user.deleted_at && (
           <Badge tone="bad">deleted</Badge>
+        )}
+        {user.broke_cooldown && (
+          <Badge tone="warn">
+            broke cooldown · until {new Date(user.broke_cooldown.ends_at).toLocaleDateString()}
+          </Badge>
         )}
         {!user.email_verified_at && (
           <Badge tone="warn">email unverified</Badge>
@@ -116,13 +146,13 @@ function UserModal({
         </dl>
       </Card>
 
-      {/* Creator profile — name + claimed status + link only */}
+      {/* Creator profile — name + verified status + link only */}
       {user.creator ? (
         <Card accent>
           <div className="flex items-center justify-between mb-2">
             <SectionLabel>Creator</SectionLabel>
-            <Badge tone={user.creator.claimed ? 'good' : 'default'}>
-              {user.creator.claimed ? 'claimed' : 'unclaimed'}
+            <Badge tone={user.creator.verified ? 'good' : 'default'}>
+              {user.creator.verified ? 'verified' : 'unverified'}
             </Badge>
           </div>
           <Link href={user.slug ? `/${user.slug}` : `/creators/${user.creator.id}`} className="font-medium text-creator hover:underline text-sm">
@@ -133,6 +163,44 @@ function UserModal({
         <Empty message="No creator profile." />
       )}
 
+      {/* Handles — verified + unverified claims. Hidden when the user has none. */}
+      {user.handles && user.handles.length > 0 && (
+        <Card accent className="mt-4">
+          <SectionLabel className="mb-3">Handles</SectionLabel>
+          <ul className="divide-y divide-border -mx-5">
+            {user.handles.map((claim) => (
+              <li key={claim.claim_id} className="px-5 py-2.5 flex items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {claim.handle.profile_url ? (
+                      <a
+                        href={claim.handle.profile_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-sm text-foreground hover:underline truncate"
+                      >
+                        @{claim.handle.username}
+                      </a>
+                    ) : (
+                      <span className="font-mono text-sm text-foreground truncate">@{claim.handle.username}</span>
+                    )}
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-muted">{claim.handle.platform}</span>
+                    <Badge tone={claim.status === 'verified' ? 'good' : 'warn'}>
+                      {claim.status}
+                    </Badge>
+                    {claim.verification_method && (
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                        via {claim.verification_method}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
       {/* ── Danger zone — overlord-only user deletion ─────────────────────── */}
       {!alreadyDeleted && isOverlord && (
         <div className="mt-6 pt-5 border-t border-dashed border-bad/40">
@@ -141,7 +209,7 @@ function UserModal({
           {!armed ? (
             <div className="flex items-center justify-between gap-3">
               <p className="text-xs text-muted leading-snug">
-                Permanently scrub this user&apos;s PII, cancel pledges, revoke tokens, and soft-delete.
+                Permanently scrub this user&apos;s PII, cancel backings, revoke tokens, and soft-delete.
               </p>
               <Button
                 variant="default"
@@ -349,9 +417,18 @@ export default function AdminUsersPage() {
                   onClick={() => setSelected(u)}
                   className="w-full text-left px-5 py-3.5 flex items-center gap-3 hover:bg-surface-2 transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-full bg-fan/20 flex items-center justify-center text-fan font-mono text-xs font-bold shrink-0">
-                    {u.display_name?.charAt(0).toUpperCase() ?? '?'}
-                  </div>
+                  {u.profile_picture ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={u.profile_picture}
+                      alt=""
+                      className="w-8 h-8 rounded-full object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-fan/20 flex items-center justify-center text-fan font-mono text-xs font-bold shrink-0">
+                      {u.display_name?.charAt(0).toUpperCase() ?? '?'}
+                    </div>
+                  )}
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -363,6 +440,9 @@ export default function AdminUsersPage() {
                       )}
                       {u.deleted_at && (
                         <Badge tone="bad">deleted</Badge>
+                      )}
+                      {u.broke_cooldown && (
+                        <Badge tone="warn">broke cooldown</Badge>
                       )}
                     </div>
                     <p className="font-mono text-[10px] text-muted truncate">{u.email}</p>

@@ -90,8 +90,7 @@ export default function CreatorSlugSection() {
       <Card>
         <SectionLabel className="mb-3">creator URL</SectionLabel>
         <p className="text-sm text-muted mb-4">
-          Your public creator page lives at this URL. You can change it once every {info.cooldown_days} days,
-          and old URLs will keep redirecting here.
+          Your public creator page lives at this URL.
         </p>
 
         {view === 'show' && (

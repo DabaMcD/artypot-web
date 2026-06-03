@@ -20,8 +20,11 @@ import Link from 'next/link';
 import { bounties as bountiesApi } from '@/lib/api';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { useAuth } from '@/lib/auth-context';
+import { useDefaultUpdatePrompt } from '@/lib/default-update-prompt-context';
+import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import { useViewMode } from '@/lib/view-mode-context';
-import type { Bounty, BountyPledge, BountyHistoryEvent } from '@/lib/types';
+import type { Bounty, BountyHistoryEvent } from '@/lib/types';
+import { handleLink, formatPlatformHandle } from '@/lib/platforms';
 import ShareButton from '@/components/ShareButton';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
 import CommentSection from '@/components/CommentSection';
@@ -49,6 +52,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const { user } = useAuth();
   const { setCurrentBountyTargetUserId } = useViewMode();
   const { toast } = useToast();
+  const { dispatch: dispatchPrompt } = useDefaultUpdatePrompt();
   const router = useRouter();
 
   const [bounty, setBounty] = useState<Bounty | null>(null);
@@ -56,12 +60,14 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const [error, setError] = useState('');
 
 
-  // Pledge form
-  const [pledgeAmount, setPledgeAmount] = useState('');
+  // Backing form. Initial empty string lets the placeholder show; once the
+  // user object loads, the amount input is seeded with the user's default
+  // (or env fallback when the column is null on existing rows).
+  const [backingAmount, setBackingAmount] = useState('');
   const [expireValue, setExpireValue] = useState('7');
   const [expireUnit, setExpireUnit] = useState<ExpireUnit>('years');
 
-  // Sync expiry defaults from the user's saved preference. The user-level
+  // Sync defaults from the user's saved preference. The user-level expiry
   // preference stores singular units (e.g. 'month'); this page uses plural
   // (e.g. 'months'). We normalize on read.
   useEffect(() => {
@@ -77,11 +83,11 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     }
   }, [user]);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [pledgeLoading, setPledgeLoading] = useState(false);
-  const [pledgeError, setPledgeError] = useState<React.ReactNode | null>(null);
+  const [backingLoading, setBackingLoading] = useState(false);
+  const [backingError, setBackingError] = useState<React.ReactNode | null>(null);
 
-  // Last-pledge confirm dialog
-  const [showLastPledgeConfirm, setShowLastPledgeConfirm] = useState(false);
+  // Last-backing confirm dialog
+  const [showLastBackingConfirm, setShowLastBackingConfirm] = useState(false);
 
   // Pending-bounty revoke warning (shown when bounty.status === 'pending')
   const [showPendingRevokeWarning, setShowPendingRevokeWarning] = useState(false);
@@ -90,6 +96,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const [showEditForm, setShowEditForm] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
+  const [editDisplayName, setEditDisplayName] = useState('');
   const [editLoading, setEditLoading] = useState(false);
 
   // Completion form
@@ -105,7 +112,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const [removeLoading, setRemoveLoading]       = useState(false);
 
   // Backers / Comments tab
-  const [activeTab, setActiveTab]       = useState<'pledges' | 'comments'>('pledges');
+  const [activeTab, setActiveTab]       = useState<'backings' | 'comments'>('backings');
   const [commentCount, setCommentCount] = useState<number | null>(null);
 
   // ── History ──────────────────────────────────────────────────────────────────
@@ -117,17 +124,24 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   /** Event the user has selected in the history list */
   const [selectedEvent, setSelectedEvent] = useState<BountyHistoryEvent | null>(null);
 
-  /** When set, the header shows the historical title/description for this snapshot */
-  const [snapshotView, setSnapshotView] = useState<{ title: string; description: string | null } | null>(null);
+  /** When set, the header shows the historical title/description/name for this snapshot */
+  const [snapshotView, setSnapshotView] = useState<{ title: string; description: string | null; display_name: string | null } | null>(null);
+
+  // Pull a fresh copy of the bounty (incl. total_backed, solid_total, and the
+  // full backings list) from the server. Used on initial load and after any
+  // mutation that changes the totals, so the info panel always reflects
+  // server-computed values rather than optimistic patches.
+  const refreshBounty = useCallback(
+    () => bountiesApi.get(Number(id)).then((res) => setBounty(res.data)),
+    [id],
+  );
 
   // Load bounty
   useEffect(() => {
-    bountiesApi
-      .get(Number(id))
-      .then((res) => setBounty(res.data))
+    refreshBounty()
       .catch(() => setError('Failed to load bounty.'))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [refreshBounty]);
 
   // Register the bounty's target with the view-mode context so the sidebar
   // flips to creator mode whenever the logged-in user is the target.
@@ -150,23 +164,51 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       .finally(() => setHistoryLoading(false));
   }, [showHistory, id, toast]);
 
-  const activePledges = bounty?.pledges?.filter((v) => !v.revoked_at) ?? [];
-  const userPledge = user ? activePledges.find((v) => v.user_id === user.id) : null;
+  const activeBackings = bounty?.backings?.filter((v) => !v.revoked_at) ?? [];
+  const userBacking = user ? activeBackings.find((v) => v.user_id === user.id) : null;
+
+  // Seed the amount input. When the fan already backs this bounty, the update
+  // field mirrors their *current* commitment — not the account default — so
+  // "update" starts from where they actually are. With no backing yet, fall
+  // back to the user's saved default (or the env constant for legacy rows).
+  // Keyed on the backing's id + amount (stable primitives) so it re-seeds on
+  // load and after a server refresh, but never clobbers what the user types.
+  const userBackingId = userBacking?.id ?? null;
+  const userBackingAmount = userBacking?.amount ?? null;
+  useEffect(() => {
+    if (userBackingId != null) {
+      setBackingAmount(String(Number(userBackingAmount)));
+      return;
+    }
+    const seededAmount = user?.default_backing_amount ?? DEFAULT_BACKING_AMOUNT_FALLBACK;
+    if (seededAmount != null) {
+      setBackingAmount((prev) => (prev === '' ? String(seededAmount) : prev));
+    }
+  }, [userBackingId, userBackingAmount, user]);
 
   // Fan name terms set by the creator; fall back to generic labels.
-  const fanSingular = bounty?.owner_user?.fan_name || 'supporter';
-  const fanPlural   = bounty?.owner_user?.fan_name_plural || bounty?.owner_user?.fan_name || 'supporters';
+  const fanSingular = bounty?.owner_user?.fan_name || 'fan';
+  const fanPlural   = bounty?.owner_user?.fan_name_plural || bounty?.owner_user?.fan_name || 'fans';
 
   // ── Derived display values ────────────────────────────────────────────────
   const displayedTotal = selectedEvent
     ? selectedEvent.running_total
-    : (bounty?.solid_total ?? Number(bounty?.total_pledged ?? 0));
+    : (bounty?.solid_total ?? Number(bounty?.total_backed ?? 0));
   const displayedTitle = snapshotView?.title ?? bounty?.title ?? '';
   const displayedDescription = snapshotView !== null ? snapshotView.description : bounty?.description;
+  const displayedDisplayName = snapshotView !== null ? snapshotView.display_name : bounty?.display_name;
 
-  const handlePledge = async (e: FormEvent) => {
+  // The creator_assigned event marks the moment a verified creator was attached
+  // to a previously handle-only bounty. When the user is viewing a snapshot from
+  // before that moment, the "For" line must show the original handle + fan name
+  // as it stood then — the "For [creator]" attribution did not yet exist.
+  const creatorAssignedAt = historyEvents.find((e) => e.type === 'creator_assigned')?.at ?? null;
+  const viewingPreAssignment =
+    selectedEvent != null && creatorAssignedAt != null && selectedEvent.at < creatorAssignedAt;
+
+  const handleBacking = async (e: FormEvent) => {
     e.preventDefault();
-    const amount = parseFloat(pledgeAmount);
+    const amount = parseFloat(backingAmount);
     if (isNaN(amount) || amount < 1) {
       toast('Minimum is $1.00', 'error');
       return;
@@ -177,28 +219,23 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       return;
     }
     const expiresAt = computeExpiresAt(expVal, expireUnit);
-    const isUpdate = !!userPledge;
-    setPledgeLoading(true);
-    setPledgeError(null);
+    // Backend stores expiry as a singular-unit (value, unit) pair; this page
+    // works in plural form, so strip the trailing 's' before sending.
+    const expirySingular = expireUnit.endsWith('s') ? expireUnit.slice(0, -1) : expireUnit;
+    const isUpdate = !!userBacking;
+    setBackingLoading(true);
+    setBackingError(null);
     try {
-      const res = await bountiesApi.pledge(Number(id), amount, expiresAt);
+      const res = await bountiesApi.backing(Number(id), amount, expiresAt, expVal, expirySingular);
+      // Server-computed "update your default" prompt, if any.
+      dispatchPrompt(res.default_update_prompts);
       toast(isUpdate ? 'Updated!' : `You're in for $${amount.toFixed(2)}!`, 'success');
-      setPledgeAmount('');
-      setBounty((prev) => {
-        if (!prev) return prev;
-        const updatedPledge: BountyPledge = {
-          ...res.data,
-          user: user ? { id: user.id, display_name: user.display_name, profile_picture: user.profile_picture } : undefined,
-        };
-        const filteredPledges = (prev.pledges ?? []).filter(
-          (v) => v.user_id !== user?.id || v.revoked_at,
-        );
-        return {
-          ...prev,
-          total_pledged: res.data.bounty?.total_pledged ?? prev.total_pledged,
-          pledges: [...filteredPledges, updatedPledge],
-        };
-      });
+      // Leave the amount field as-is; the seed effect re-syncs it to the
+      // fan's now-current backing once the refreshed bounty lands.
+      // Re-fetch the whole bounty so total_backed AND solid_total both reflect
+      // the new backing. An optimistic patch only bumped total_backed, which
+      // made the user's just-placed backing surface under "soft backings".
+      await refreshBounty();
     } catch (err: unknown) {
       const e = err as {
         message?: string;
@@ -206,10 +243,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         reason?: string;
         data?: { cap?: number; current_total?: number; requested?: number; grace_expires_at?: string };
       };
-      if (e.status === 422 && e.reason === 'pledge_cap_exceeded') {
-        const cap = e.data?.cap ?? 0;
-        const current = e.data?.current_total ?? 0;
-        setPledgeError(
+      if (e.status === 422 && e.reason === 'backing_cap_exceeded') {
+        setBackingError(
           <>
             You&apos;ve reached your good faith limit.{' '}
             <Link href="/billing#payment-method" className="underline underline-offset-2 font-semibold">
@@ -219,9 +254,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           </>,
         );
       } else if (e.status === 422 && e.reason === 'payment_grace_period') {
-        setPledgeError(
+        setBackingError(
           <>
-            New pledges are paused while you resolve a failed payment.{' '}
+            New backings are paused while you resolve a failed payment.{' '}
             <Link href="/billing#payment-method" className="underline underline-offset-2 font-semibold">
               Update your card
             </Link>{' '}
@@ -232,53 +267,46 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         toast(e.message ?? 'Failed to submit.', 'error');
       }
     } finally {
-      setPledgeLoading(false);
+      setBackingLoading(false);
     }
   };
 
-  const handleRevokePledge = async () => {
-    if (!userPledge) return;
-    setPledgeLoading(true);
-    setShowLastPledgeConfirm(false);
+  const handleRevokeBacking = async () => {
+    if (!userBacking) return;
+    setBackingLoading(true);
+    setShowLastBackingConfirm(false);
     try {
-      const result = await bountiesApi.removePledge(Number(id), userPledge.id);
+      const result = await bountiesApi.removeBacking(Number(id), userBacking.id);
       if (result.bounty_deleted) {
         toast('You backed out — the bounty was deleted.', 'success');
         router.push('/bounties');
         return;
       }
-      setBounty((prev) => {
-        if (!prev) return prev;
-        const updated: Bounty = {
-          ...prev,
-          total_pledged: prev.total_pledged - userPledge.amount,
-          pledges: (prev.pledges ?? []).map((v) =>
-            v.id === userPledge.id ? { ...v, revoked_at: new Date().toISOString() } : v,
-          ),
-        };
-        if (result.new_initiator_id !== null) {
-          updated.initiator_user_id = result.new_initiator_id!;
-        }
-        return updated;
-      });
+      // Full refresh so total_backed, solid_total, the backings list, and any
+      // server-side initiator reassignment all stay in sync.
+      await refreshBounty();
       toast('Backed out.', 'success');
     } catch (err: unknown) {
       const e = err as { message?: string };
       toast(e.message ?? 'Failed to back out.', 'error');
     } finally {
-      setPledgeLoading(false);
+      setBackingLoading(false);
     }
   };
 
   const handleEditSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setEditLoading(true);
+    // Only send display_name for owner-less (unverified-handle) bounties; the
+    // backend rejects it once a verified owner exists.
+    const canEditName = !bounty?.owner_user && !!bounty?.target_handle;
     try {
       const res = await bountiesApi.update(Number(id), {
         title: editTitle,
         description: editDescription || undefined,
+        ...(canEditName ? { display_name: editDisplayName.trim() || null } : {}),
       });
-      setBounty((prev) => (prev ? { ...prev, title: res.data.title, description: res.data.description } : prev));
+      setBounty((prev) => (prev ? { ...prev, title: res.data.title, description: res.data.description, display_name: res.data.display_name } : prev));
       toast('Bounty updated!', 'success');
       setShowEditForm(false);
       // Invalidate history cache so next open reflects the new edit
@@ -393,16 +421,16 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     user &&
     bounty.owner_user?.id === user.id &&
     (user.role === 'creator' || user.role === 'council');
-  // Creators cannot pledge on their own bounty
+  // Creators cannot back their own bounty
   const canVote = user && bounty.status === 'open' && !isCreator;
-  // Fans can back out during council review, but only if they already have a pledge.
-  const canRevokeDuringReview = user && bounty.status === 'pending' && !!userPledge;
+  // Fans can back out during council review, but only if they already have a backing.
+  const canRevokeDuringReview = user && bounty.status === 'pending' && !!userBacking;
   const isPayoutBlocked = user?.creator?.payout_category === 3;
   const canSubmitCompletion = isCreator && bounty.status === 'open' && !isPayoutBlocked;
   const canCreatorRemove = isCreator && bounty.status === 'open';
 
-  // ── Pledge panel content ────────────────────────────────────────────────────
-  const renderPledgePanel = () => {
+  // ── Backing panel content ────────────────────────────────────────────────────
+  const renderBackingPanel = () => {
     if (!canVote && !canRevokeDuringReview) return null;
 
     // When the bounty is pending review, show a stripped-down panel — just
@@ -415,13 +443,13 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             <div>
               You&apos;re in for{' '}
               <span className="text-fan font-mono font-semibold tabular-nums">
-                ${Number(userPledge!.amount).toFixed(2)}
+                ${Number(userBacking!.amount).toFixed(2)}
               </span>
             </div>
-            {userPledge!.expires_at && (
+            {userBacking!.expires_at && (
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5">
                 Expires{' '}
-                {new Date(userPledge!.expires_at).toLocaleDateString('en-US', {
+                {new Date(userBacking!.expires_at).toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',
                   year: 'numeric',
@@ -433,7 +461,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             variant="ghost"
             size="sm"
             onClick={() => setShowPendingRevokeWarning(true)}
-            disabled={pledgeLoading}
+            disabled={backingLoading}
             className="w-full justify-center text-muted hover:text-bad cursor-pointer"
           >
             Back out
@@ -459,19 +487,19 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           </span>
         </div>
 
-        {userPledge ? (
+        {userBacking ? (
           <div className="space-y-3">
             <div className="bg-fan/10 border border-fan/30 rounded px-4 py-3 text-sm">
               <div>
                 You&apos;re in for{' '}
                 <span className="text-fan font-mono font-semibold tabular-nums">
-                  ${Number(userPledge.amount).toFixed(2)}
+                  ${Number(userBacking.amount).toFixed(2)}
                 </span>
               </div>
-              {userPledge.expires_at && (
+              {userBacking.expires_at && (
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5">
                   Expires{' '}
-                  {new Date(userPledge.expires_at).toLocaleDateString('en-US', {
+                  {new Date(userBacking.expires_at).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric',
@@ -482,10 +510,10 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             <p className="text-xs text-muted">
               Change how much you&apos;re in for by entering a new amount and expiry.
             </p>
-            <form onSubmit={handlePledge} className="space-y-2">
-              {pledgeError && (
+            <form onSubmit={handleBacking} className="space-y-2">
+              {backingError && (
                 <div className="bg-bad-soft border border-bad text-foreground rounded px-3 py-2 text-sm">
-                  {pledgeError}
+                  {backingError}
                 </div>
               )}
               <div className="flex items-stretch border border-border rounded bg-background">
@@ -497,8 +525,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     max="999999.99"
                     step="0.01"
                     mono
-                    value={pledgeAmount}
-                    onChange={(e) => setPledgeAmount(e.target.value)}
+                    value={backingAmount}
+                    onChange={(e) => setBackingAmount(e.target.value)}
                     placeholder="New amount"
                     className="border-0 rounded-none rounded-r focus:border-0"
                   />
@@ -508,7 +536,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               <Button
                 type="submit"
                 variant="primary"
-                disabled={pledgeLoading}
+                disabled={backingLoading}
                 className="w-full justify-center"
               >
                 Update
@@ -520,23 +548,23 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               onClick={() => {
                 if (bounty?.status === 'pending') {
                   setShowPendingRevokeWarning(true);
-                } else if (activePledges.length === 1) {
-                  setShowLastPledgeConfirm(true);
+                } else if (activeBackings.length === 1) {
+                  setShowLastBackingConfirm(true);
                 } else {
-                  handleRevokePledge();
+                  handleRevokeBacking();
                 }
               }}
-              disabled={pledgeLoading}
+              disabled={backingLoading}
               className="w-full justify-center text-muted hover:text-bad cursor-pointer"
             >
               Back out
             </Button>
           </div>
         ) : (
-          <form onSubmit={handlePledge} className="space-y-3">
-            {pledgeError && (
+          <form onSubmit={handleBacking} className="space-y-3">
+            {backingError && (
               <div className="bg-bad-soft border border-bad text-foreground rounded px-3 py-2 text-sm">
-                {pledgeError}
+                {backingError}
               </div>
             )}
             <div className="flex items-stretch border border-border rounded bg-background">
@@ -548,8 +576,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   max="999999.99"
                   step="0.01"
                   mono
-                  value={pledgeAmount}
-                  onChange={(e) => setPledgeAmount(e.target.value)}
+                  value={backingAmount}
+                  onChange={(e) => setBackingAmount(e.target.value)}
                   placeholder="Amount"
                   className="border-0 rounded-none rounded-r focus:border-0"
                 />
@@ -559,10 +587,10 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             <Button
               type="submit"
               variant="primary"
-              disabled={pledgeLoading}
+              disabled={backingLoading}
               className="w-full justify-center"
             >
-              {pledgeLoading ? 'Backing…' : 'Back This Bounty'}
+              {backingLoading ? 'Backing…' : 'Back This Bounty'}
             </Button>
           </form>
         )}
@@ -574,7 +602,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     <div className="max-w-4xl mx-auto px-4 py-10">
 
       {/* Pending-bounty revoke warning */}
-      {showPendingRevokeWarning && userPledge && (
+      {showPendingRevokeWarning && userBacking && (
         <Modal
           title={`Hold on, ${user?.display_name.split(' ')[0]}.`}
           onClose={() => setShowPendingRevokeWarning(false)}
@@ -584,13 +612,13 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 variant="danger"
                 onClick={() => {
                   setShowPendingRevokeWarning(false);
-                  if (activePledges.length === 1) {
-                    setShowLastPledgeConfirm(true);
+                  if (activeBackings.length === 1) {
+                    setShowLastBackingConfirm(true);
                   } else {
-                    handleRevokePledge();
+                    handleRevokeBacking();
                   }
                 }}
-                disabled={pledgeLoading}
+                disabled={backingLoading}
                 className="cursor-pointer"
               >
                 Proceed anyway
@@ -598,7 +626,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               <Button
                 variant="default"
                 onClick={() => setShowPendingRevokeWarning(false)}
-                disabled={pledgeLoading}
+                disabled={backingLoading}
                 className="cursor-pointer"
               >
                 Never mind
@@ -657,25 +685,25 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </Modal>
       )}
 
-      {/* Last-pledge confirm dialog */}
-      {showLastPledgeConfirm && (
+      {/* Last-backing confirm dialog */}
+      {showLastBackingConfirm && (
         <Modal
           title="Back out completely?"
-          onClose={() => setShowLastPledgeConfirm(false)}
+          onClose={() => setShowLastBackingConfirm(false)}
           actions={
             <>
               <Button
                 variant="danger"
-                onClick={handleRevokePledge}
-                disabled={pledgeLoading}
+                onClick={handleRevokeBacking}
+                disabled={backingLoading}
                 className="cursor-pointer"
               >
-                {pledgeLoading ? 'Removing…' : 'Yes, back out'}
+                {backingLoading ? 'Removing…' : 'Yes, back out'}
               </Button>
               <Button
                 variant="default"
-                onClick={() => setShowLastPledgeConfirm(false)}
-                disabled={pledgeLoading}
+                onClick={() => setShowLastBackingConfirm(false)}
+                disabled={backingLoading}
                 className="cursor-pointer"
               >
                 Cancel
@@ -684,7 +712,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           }
         >
           <p className="text-muted text-sm leading-relaxed">
-            You&apos;re the only {fanSingular} supporting this bounty. Backing out will leave it empty — it will be cleared automatically.
+            You&apos;re the only {fanSingular} backing this bounty. By leaving, this bounty will be queued for removal.
           </p>
         </Modal>
       )}
@@ -706,22 +734,23 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                       ✕ Back to current
                     </button>
                   </div>
-                  <h1 className="text-2xl font-display font-bold text-foreground/70 leading-snug flex-1 min-w-0">
+                  <h1 className="text-2xl font-display font-bold text-foreground/70 leading-snug flex-1 min-w-0 normal-case">
                     {displayedTitle}
                   </h1>
                 </div>
               ) : (
-                <h1 className="text-2xl font-display font-bold text-foreground leading-snug flex-1 min-w-0">
+                <h1 className="text-2xl font-display font-bold text-foreground leading-snug flex-1 min-w-0 normal-case">
                   {displayedTitle}
                 </h1>
               )}
               {isOwner && bounty.status === 'open' && !showEditForm && (
                 <Button
                   variant="default"
-                  size="xs"
+                  size="sm"
                   onClick={() => {
                     setEditTitle(bounty.title);
                     setEditDescription(bounty.description ?? '');
+                    setEditDisplayName(bounty.display_name ?? '');
                     setShowEditForm(true);
                   }}
                   className="shrink-0 mt-1 cursor-pointer"
@@ -768,6 +797,21 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 rows={3}
               />
             </div>
+            {!bounty.owner_user && bounty.target_handle && (
+              <div>
+                <FieldLabel>Creator name</FieldLabel>
+                <Input
+                  type="text"
+                  value={editDisplayName}
+                  onChange={(e) => setEditDisplayName(e.target.value)}
+                  maxLength={255}
+                  placeholder={formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}
+                />
+                <FieldHint>
+                  A friendly name shown alongside the handle (e.g. “bbno$”). The verified handle is always shown — this is just a label.
+                </FieldHint>
+              </div>
+            )}
             <div className="flex gap-2">
               <Button
                 type="submit"
@@ -802,7 +846,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           {(bounty.owner_user || bounty.target_handle) && (
             <div>
               <span className="text-muted">For </span>
-              {bounty.owner_user ? (
+              {bounty.owner_user && !viewingPreAssignment ? (
                 <Link
                   href={bounty.owner_user.slug ? `/${bounty.owner_user.slug}` : `/users/${bounty.owner_user.id}`}
                   className="text-creator hover:underline font-medium cursor-pointer"
@@ -810,18 +854,49 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   {bounty.owner_user.display_name}
                 </Link>
               ) : bounty.target_handle ? (
-                <Link
-                  href={`/${bounty.target_handle.platform}/${bounty.target_handle.username}`}
-                  className="text-creator hover:underline font-medium cursor-pointer"
-                >
-                  {bounty.display_name ?? `${bounty.target_handle.platform}/${bounty.target_handle.username}`}
-                </Link>
+                // Handle-targeted bounty with no verified account owner. The
+                // real platform handle is ALWAYS shown — a fan-supplied
+                // display_name must never stand in for it, or anyone could
+                // label a random handle "MrBeast" and mislead backers. The
+                // handle is the only verifiable identity here.
+                <span className="inline-flex items-center gap-x-2 gap-y-1 flex-wrap align-middle">
+                  {(() => {
+                    const th = bounty.target_handle!;
+                    const { href, external } = handleLink(th.platform, th.username);
+                    // Primary, verifiable identity: `youtube/@bbnomoney`. The
+                    // platform-qualified handle is the only thing a fan can
+                    // actually trust, so it always leads.
+                    const label = th.platform === 'other'
+                      ? formatPlatformHandle(th.platform, th.username)
+                      : `${th.platform}/${formatPlatformHandle(th.platform, th.username)}`;
+                    const cls = 'text-creator font-medium font-mono cursor-pointer hover:underline break-all';
+                    return external ? (
+                      <a href={href} target="_blank" rel="noopener noreferrer nofollow" className={cls}>
+                        {label}
+                      </a>
+                    ) : (
+                      <Link href={href} className={cls}>
+                        {label}
+                      </Link>
+                    );
+                  })()}
+                  {/* Fan-supplied display name is secondary context, never the
+                      headline. Reflects the historical value in snapshot view. */}
+                  {displayedDisplayName && (
+                    <span className={snapshotView !== null ? 'text-muted/60' : 'text-muted'}>
+                      ({displayedDisplayName})
+                    </span>
+                  )}
+                  {(bounty.target_handle.status !== 'verified' || viewingPreAssignment) && (
+                    <Badge tone="default">unverified</Badge>
+                  )}
+                </span>
               ) : null}
             </div>
           )}
           {bounty.initiator && (
             <div>
-              <span className="text-muted">Created by </span>
+              <span className="text-muted">Started by </span>
               {bounty.initiator.id === 0 ? (
                 <span className="text-foreground font-medium">{bounty.initiator.display_name}</span>
               ) : (
@@ -836,24 +911,24 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           )}
         </div>
 
-        {/* Total pledged + history toggle */}
+        {/* Total backed + history toggle */}
         <div className="mt-5 pt-5 border-t border-border">
           <div className="text-fan font-mono font-bold tabular-nums text-3xl">
             ${displayedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </div>
-          {!selectedEvent && bounty?.solid_total !== undefined && (Number(bounty.total_pledged) - bounty.solid_total) > 0.005 && (
+          {!selectedEvent && bounty?.solid_total !== undefined && (Number(bounty.total_backed) - bounty.solid_total) > 0.005 && (
             <div className="font-mono text-[10px] text-muted tabular-nums mt-0.5">
-              + ${(Number(bounty.total_pledged) - bounty.solid_total).toLocaleString('en-US', { minimumFractionDigits: 2 })} in soft pledges
+              + ${(Number(bounty.total_backed) - bounty.solid_total).toLocaleString('en-US', { minimumFractionDigits: 2 })} in soft backings
             </div>
           )}
           <div className="flex items-center justify-between gap-2 mt-0.5">
             <div>
               <div className="text-muted text-sm">
-                supported by {activePledges.length} {activePledges.length === 1 ? fanSingular : fanPlural}
+                backed by {activeBackings.length} {activeBackings.length === 1 ? fanSingular : fanPlural}
               </div>
               {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5 tabular-nums">
-                  ${bounty.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2 })} of ${Number(bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })} cleared
+                  ${bounty.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2 })} of ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2 })} cleared
                 </div>
               )}
               {selectedEvent && (
@@ -1036,17 +1111,50 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           ) : (
             // ── Fan view: chip in + status notices ─────────────────────────
             <>
-              {renderPledgePanel()}
+              {renderBackingPanel()}
 
-              {/* Not logged in */}
+              {/* Not logged in — this is the one shot to explain the model to a
+                  first-time visitor. They already sense the crowdfunding from the
+                  backer list and the running total; what converts is the risk
+                  reversal: you only ever pay if the work actually gets made. Lead
+                  with that, reassure, then send them to sign up (not just log in). */}
               {!user && bounty.status === 'open' && (
-                <Card className="text-center">
-                  <p className="text-muted text-sm mb-3">Log in to back this bounty</p>
-                  <Link href="/login" className="block w-full cursor-pointer">
+                <Card>
+                  <SectionLabel>How this works</SectionLabel>
+                  <p className="text-foreground font-semibold text-[15px] leading-snug mt-3 mb-2">
+                    You only pay if it gets made.
+                  </p>
+                  <p className="text-muted text-sm leading-relaxed mb-4">
+                    Pledge what this is worth to you. Your card is charged{' '}
+                    <strong className="text-foreground font-medium">only if the work is delivered and approved</strong>
+                    {' '}— nothing happens today, and you can back out anytime before then.
+                  </p>
+
+                  <div className="space-y-1.5 mb-5">
+                    {['Nothing charged today', 'Billed only after delivery', 'Back out anytime'].map((line) => (
+                      <div
+                        key={line}
+                        className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted"
+                      >
+                        <span className="text-fan">✓</span>
+                        {line}
+                      </div>
+                    ))}
+                  </div>
+
+                  <Link href={`/register?next=${encodeURIComponent(`/bounties/${id}`)}`} className="block w-full cursor-pointer">
                     <Button variant="primary" className="w-full justify-center">
-                      Log in
+                      {activeBackings.length > 0
+                        ? 'Back this bounty →'
+                        : 'Be the first to back this →'}
                     </Button>
                   </Link>
+                  <p className="text-center text-xs text-muted mt-3">
+                    Already have an account?{' '}
+                    <Link href={`/login?next=${encodeURIComponent(`/bounties/${id}`)}`} className="text-fan hover:underline cursor-pointer">
+                      Log in
+                    </Link>
+                  </p>
                 </Card>
               )}
 
@@ -1054,11 +1162,6 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               {bounty.status !== 'open' && (() => {
                 const creatorName = bounty.owner_user?.display_name ?? 'The creator';
                 const notices: Record<string, { heading: string; body: string; tone: 'default' | 'warn' | 'bad' | 'good' }> = {
-                  pending: {
-                    heading: 'Awaiting Council review',
-                    body: `${creatorName} has submitted their work and the Council is considering it. You can still back out — but it would be a bit of a dick move.`,
-                    tone: 'default',
-                  },
                   completed: {
                     heading: 'Completed — payout pending',
                     body: 'The Council has approved this bounty. Commitments are now locked — your card will be charged in the next billing cycle.',
@@ -1139,16 +1242,16 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             {/* Tab bar */}
             <div className="flex border-b border-border">
               <button
-                onClick={() => setActiveTab('pledges')}
+                onClick={() => setActiveTab('backings')}
                 className={`flex-1 py-3 font-mono text-[10px] uppercase tracking-widest transition-colors cursor-pointer ${
-                  activeTab === 'pledges'
+                  activeTab === 'backings'
                     ? 'text-foreground border-b-2 border-fan -mb-px bg-transparent'
                     : 'text-muted hover:text-foreground'
                 }`}
               >
                 {fanPlural}{' '}
-                <span className={activeTab === 'pledges' ? 'text-muted font-normal' : ''}>
-                  ({activePledges.length})
+                <span className={activeTab === 'backings' ? 'text-muted font-normal' : ''}>
+                  ({activeBackings.length})
                 </span>
               </button>
               <button
@@ -1166,23 +1269,23 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               </button>
             </div>
 
-            {/* Pledges panel */}
-            <div className={`p-5 ${activeTab !== 'pledges' ? 'hidden' : ''}`}>
-              {activePledges.length === 0 ? (
+            {/* Backings panel */}
+            <div className={`p-5 ${activeTab !== 'backings' ? 'hidden' : ''}`}>
+              {activeBackings.length === 0 ? (
                 <p className="text-muted text-sm">No {fanPlural} yet. Be the first!</p>
               ) : (
                 <div className="space-y-2">
-                  {activePledges.map((pledge) => {
-                    const isAnon = pledge.user_id === 0;
-                    const displayName = isAnon ? '[anonymous]' : (pledge.user?.display_name ?? 'Unknown');
-                    const initial = isAnon ? '?' : (pledge.user?.display_name?.charAt(0).toUpperCase() ?? '?');
-                    const expiryDate = pledge.expires_at
-                      ? new Date(pledge.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                  {activeBackings.map((backing) => {
+                    const isAnon = backing.user_id === 0;
+                    const displayName = isAnon ? '[anonymous]' : (backing.user?.display_name ?? 'Unknown');
+                    const initial = isAnon ? '?' : (backing.user?.display_name?.charAt(0).toUpperCase() ?? '?');
+                    const expiryDate = backing.expires_at
+                      ? new Date(backing.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
                       : null;
-                    const avatarSrc = !isAnon ? normalizeAvatarUrl(pledge.user?.profile_picture ?? null) : null;
+                    const avatarSrc = !isAnon ? normalizeAvatarUrl(backing.user?.profile_picture ?? null) : null;
                     return (
                       <div
-                        key={pledge.id}
+                        key={backing.id}
                         className="flex items-center justify-between py-2 border-b border-border last:border-0"
                       >
                         <div className="flex items-center gap-2">
@@ -1205,13 +1308,13 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                               <span className="text-sm text-muted">{displayName}</span>
                             ) : (
                               <Link
-                                href={`/users/${pledge.user_id}`}
+                                href={`/users/${backing.user_id}`}
                                 className="text-sm text-foreground hover:underline cursor-pointer"
                               >
                                 {displayName}
                               </Link>
                             )}
-                            {user && pledge.user_id === user.id && (
+                            {user && backing.user_id === user.id && (
                               <span className="font-mono text-[10px] uppercase tracking-widest text-muted ml-1">(you)</span>
                             )}
                             {expiryDate && (
@@ -1220,7 +1323,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                           </div>
                         </div>
                         <span className="text-fan font-mono text-sm font-semibold tabular-nums">
-                          ${Number(pledge.amount).toFixed(2)}
+                          ${Number(backing.amount).toFixed(2)}
                         </span>
                       </div>
                     );

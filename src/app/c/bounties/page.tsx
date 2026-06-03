@@ -126,9 +126,9 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
 
   // Metadata line
   const metaParts: string[] = [
-    `$${Number(bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2 })} pledged`,
+    `$${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2 })} backed`,
   ];
-  const backerCount = bounty.pledges?.filter((p) => !p.revoked_at).length;
+  const backerCount = bounty.backings?.filter((p) => !p.revoked_at).length;
   if (backerCount !== undefined) {
     const fanSingular = bounty.owner_user?.fan_name || 'supporter';
     const fanPlural = bounty.owner_user?.fan_name_plural || bounty.owner_user?.fan_name || 'supporters';
@@ -263,7 +263,7 @@ export default function CreatorBountiesPage() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [stats, setStats] = useState<{
     open: number;
-    pledged: number;
+    backed: number;
     inReview: number;
     completed: number;
   } | null>(null);
@@ -281,7 +281,7 @@ export default function CreatorBountiesPage() {
         const data = res.data;
         setStats({
           open: data.filter((b) => b.status === 'open').length,
-          pledged: data.reduce((sum, b) => sum + Number(b.total_pledged), 0),
+          backed: data.reduce((sum, b) => sum + Number(b.total_backed), 0),
           inReview: data.filter((b) => b.status === 'pending').length,
           completed: data.filter((b) => b.status === 'completed' || b.status === 'paid_out').length,
         });
@@ -377,8 +377,8 @@ export default function CreatorBountiesPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCell label="open bounties" value={stats?.open ?? '—'} />
         <StatCell
-          label="total pledged"
-          value={stats !== null ? fmt$(stats.pledged) : '—'}
+          label="total backed"
+          value={stats !== null ? fmt$(stats.backed) : '—'}
         />
         <StatCell label="in review" value={stats?.inReview ?? '—'} />
         <StatCell label="completed" value={stats?.completed ?? '—'} />

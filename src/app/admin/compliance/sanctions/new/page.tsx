@@ -40,7 +40,7 @@ const SEVERITY_OPTIONS: { value: Severity; label: string; blurb: string }[] = [
   {
     value: 'comprehensive_block',
     label: 'Comprehensive block',
-    blurb: 'No transactions of any kind. Blocks pledge, payout, account creation, and handle claiming. Use for OFAC-listed regions and full embargo countries.',
+    blurb: 'No transactions of any kind. Blocks backing, payout, account creation, and handle claiming. Use for OFAC-listed regions and full embargo countries.',
   },
   {
     value: 'sectoral',

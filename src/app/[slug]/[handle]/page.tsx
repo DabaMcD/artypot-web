@@ -1,14 +1,16 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { creators as creatorsApi } from '@/lib/api';
+import { creators as creatorsApi, handles as handlesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { useToast } from '@/lib/toast-context';
 import { Button } from '@/components/ui/Button';
 import { SectionLabel } from '@/components/ui/Card';
 import ShareButton from '@/components/ShareButton';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
+import { Badge } from '@/components/ui/Badge';
 import type { HandlePlatform } from '@/lib/types';
 import { PLATFORM_HANDLE_CONFIG } from '@/components/ui/PlatformHandleInput';
 
@@ -34,12 +36,12 @@ const PLATFORM_LABELS: Record<string, string> = Object.fromEntries(
 
 const KNOWN_PLATFORMS = new Set<string>(CURATED_PLATFORMS);
 
-type SimpleBounty = { id: number; title: string; status: string; total_pledged: string; created_at: string };
+type SimpleBounty = { id: number; title: string; status: string; total_backed: string; created_at: string };
 
 type ResolveResult =
   | { kind: 'loading' }
   | { kind: 'not-platform' }
-  | { kind: 'unclaimed'; handle: { id: number | null; platform: string; username: string }; bounties: SimpleBounty[] }
+  | { kind: 'unverified'; handle: { id: number | null; platform: string; username: string }; bounties: SimpleBounty[] }
   | { kind: 'error' };
 
 // ── Mini bounty card (simplified — handle bounties aren't full Bounty objects) ──
@@ -64,7 +66,7 @@ function HandleBountyCard({ bounty }: { bounty: SimpleBounty }) {
       </div>
       <div className="pt-3 border-t border-border">
         <div className="text-fan font-bold text-lg">
-          ${Number(bounty.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
       </div>
     </div>
@@ -76,7 +78,55 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   const { slug: platform, handle } = use(params);
   const router = useRouter();
   const { user } = useAuth();
-const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
+  const { toast } = useToast();
+  const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
+  const [claiming, setClaiming] = useState(false);
+  // Guards the auto-resume so we only fire one claim per ?claim=1 arrival.
+  const autoClaimFired = useRef(false);
+
+  // "Is this you?" — create an unverified claim for the authenticated user,
+  // then drop them onto the handles section to verify ownership. Creators land
+  // on /c/handles; everyone else goes through /become-creator, which hosts the
+  // same HandlesSection (and won't bounce non-creators the way /c/* does).
+  const handleClaim = useCallback(async () => {
+    if (state.kind !== 'unverified') return;
+    if (!user) {
+      // Send them to sign up / log in, then bring them right back here with a
+      // flag that auto-resumes the claim — so the CTA they clicked actually
+      // completes instead of dead-ending on the dashboard.
+      const next = `/${platform}/${handle}?claim=1`;
+      router.push(`/register?next=${encodeURIComponent(next)}`);
+      return;
+    }
+    setClaiming(true);
+    try {
+      const platformKey = platform.toLowerCase() as HandlePlatform;
+      await handlesApi.store(platformKey, state.handle.username);
+      toast('Handle claimed — verify it below to confirm ownership.', 'success');
+      const dest = user.role === 'creator' || user.role === 'council'
+        ? '/c/handles'
+        : '/become-creator';
+      router.push(dest);
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast(e.message ?? 'Could not claim this handle. Please try again.', 'error');
+      setClaiming(false);
+    }
+  }, [state, user, router, platform, handle, toast]);
+
+  // Resume a claim that was interrupted by the login round-trip: a logged-out
+  // visitor who clicked "Claim this handle" lands back here as ?claim=1 once
+  // authenticated, and we fire the claim automatically.
+  useEffect(() => {
+    if (autoClaimFired.current) return;
+    if (state.kind !== 'unverified' || !user) return;
+    if (new URLSearchParams(window.location.search).get('claim') !== '1') return;
+    autoClaimFired.current = true;
+    // Deliberate one-shot side effect: resume the interrupted claim (an API
+    // call) now that auth is present. Guarded by autoClaimFired so it can't loop.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    handleClaim();
+  }, [state, user, handleClaim]);
 
   useEffect(() => {
     let cancelled = false;
@@ -90,12 +140,12 @@ const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
         const res = await creatorsApi.byPlatformHandle(platform, handle);
         if (cancelled) return;
 
-        if (res.match === 'claimed') {
+        if (res.match === 'verified') {
           router.replace(`/${res.user.slug}`);
           return;
         }
 
-        setState({ kind: 'unclaimed', handle: res.handle, bounties: res.bounties });
+        setState({ kind: 'unverified', handle: res.handle, bounties: res.bounties });
       } catch (err) {
         if (cancelled) return;
         const status = (err as { status?: number }).status;
@@ -131,7 +181,7 @@ const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
           </p>
         </div>
         <div className="flex gap-3">
-          <Link href="/creators"><Button variant="primary">Browse Creators</Button></Link>
+          <Link href="/search"><Button variant="primary">Explore Creators</Button></Link>
           <Link href="/"><Button variant="ghost">← Home</Button></Link>
         </div>
       </div>
@@ -149,7 +199,7 @@ const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
     );
   }
 
-  // ── Unclaimed ──────────────────────────────────────────────────────────────
+  // ── Unverified ──────────────────────────────────────────────────────────────
   const platformKey = platform.toLowerCase() as HandlePlatform;
   const platformLabel = PLATFORM_LABELS[platformKey] ?? platform;
   const prefix = PLATFORM_HANDLE_CONFIG[platformKey]?.prefix ?? '@';
@@ -179,15 +229,25 @@ const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
 
                 <div className="flex items-center gap-3 flex-wrap mb-1">
                   <h1 className="text-2xl font-display font-bold text-foreground break-all">{fullHandle}</h1>
-                  <span className="text-xs font-medium bg-surface-2 text-muted border border-border px-2 py-0.5 rounded-full">
-                    Unclaimed
-                  </span>
+                  <Badge tone="default" lg>Unverified</Badge>
                 </div>
                 <p className="text-sm text-muted mb-3">{platformLabel}</p>
                 <p className="text-muted text-sm leading-relaxed">
-                  <span className="font-mono text-creator">{fullHandle}</span> doesn&apos;t appear to have joined Artypot yet.
+                  <span className="font-mono text-creator">{fullHandle}</span>{' '}doesn&apos;t appear to have joined Artypot yet.
                   Tag them on social media to let them know there are fans queueing bounties.
                 </p>
+
+                {/* "Is this you?" — self-claim CTA for the handle's real owner */}
+                <div className="mt-4 flex items-center gap-3 flex-wrap">
+                  <Button variant="primary" size="sm" onClick={handleClaim} disabled={claiming}>
+                    {claiming ? 'Claiming…' : 'Is this you? Claim this handle →'}
+                  </Button>
+                  <span className="text-xs text-muted">
+                    {user
+                      ? 'We’ll add it to your account and help you verify it.'
+                      : 'Sign in to claim it as your own.'}
+                  </span>
+                </div>
               </div>
 
               <div className="shrink-0">
@@ -228,7 +288,7 @@ const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
                     Create the first one
                   </Link>
                 ) : (
-                  <Link href="/login" className="text-fan hover:underline">
+                  <Link href={`/login?next=${encodeURIComponent(`/${platform}/${handle}`)}`} className="text-fan hover:underline">
                     Sign in to start one
                   </Link>
                 )}
@@ -250,7 +310,7 @@ const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
               Spread the word
             </h3>
             <p className="text-xs text-muted leading-relaxed mb-4">
-              Help {fullHandle} discover their fans on Artypot. Share their page and tag them on {platformLabel}.
+              Help <span className="font-mono text-creator">{fullHandle}</span> discover their fans on Artypot. Share their page and tag them on {platformLabel}.
             </p>
             <div className="flex justify-end">
               <ShareButton

@@ -188,7 +188,7 @@ export default function FeaturedBountiesAdminPage() {
                     {' · '}
                     <span className="capitalize">{String(slot.preview.status).replace('_', ' ')}</span>
                     {' · '}
-                    <span className="tabular-nums">${Number(slot.preview.total_pledged).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    <span className="tabular-nums">${Number(slot.preview.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </p>
                 </div>
               )}

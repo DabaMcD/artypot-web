@@ -66,10 +66,10 @@ export default function AboutPage() {
               Browse Bounties
             </Link>
             <Link
-              href="/creators"
+              href="/search"
               className="bg-surface border border-border text-foreground font-semibold px-6 py-3 rounded-lg hover:border-creator/50 hover:text-creator transition-colors"
             >
-              Find a Creator
+              Explore Creators
             </Link>
           </div>
           <a href="#how-it-works" className="text-sm text-muted hover:text-foreground transition-colors">

@@ -43,7 +43,7 @@ export default function DeleteAccountPage() {
         <div className="bg-surface border border-border rounded-xl p-6 mb-12 space-y-3 text-sm text-muted leading-relaxed">
           <p className="font-semibold text-foreground text-base">What happens when you delete</p>
           <ul className="space-y-2">
-            <li className="flex gap-2"><span className="text-bad shrink-0 mt-0.5">×</span><span>All your active commitments (pledges) are cancelled immediately.</span></li>
+            <li className="flex gap-2"><span className="text-bad shrink-0 mt-0.5">×</span><span>All your active commitments (backings) are cancelled immediately.</span></li>
             <li className="flex gap-2"><span className="text-bad shrink-0 mt-0.5">×</span><span>Your profile, display name, and personal data are removed from our active systems within 30 days.</span></li>
             <li className="flex gap-2"><span className="text-bad shrink-0 mt-0.5">×</span><span>You are logged out of all devices.</span></li>
             <li className="flex gap-2"><span className="text-bad shrink-0 mt-0.5">×</span><span>If you are a creator, your public profile and all associated handles are deactivated.</span></li>

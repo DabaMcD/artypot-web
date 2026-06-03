@@ -57,7 +57,7 @@ function CreatorAutocomplete({ value, onChange }: CreatorAutocompleteProps) {
       setLoading(true);
       try {
         const res = await adminApi.externalPayouts.searchCreators(q);
-        setResults(res.data);
+        setResults(res.data ?? []);
         setOpen(true);
       } catch {
         setResults([]);

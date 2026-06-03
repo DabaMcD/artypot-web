@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { creators as creatorsApi, bounties as bountiesApi } from '@/lib/api';
 import type { Bounty, BountyStatus, Creator, PaginatedResponse } from '@/lib/types';
 import BountyCard from '@/components/BountyCard';
-import { Card, SectionLabel } from '@/components/ui/Card';
+import { SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
 type FilterStatus = BountyStatus | '';

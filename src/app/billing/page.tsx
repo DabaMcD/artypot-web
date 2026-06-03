@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
-import { billing, pledges as pledgesApi } from '@/lib/api';
-import type { PublicUserPledge } from '@/lib/types';
+import { billing, backings as backingsApi } from '@/lib/api';
+import type { PublicUserBacking } from '@/lib/types';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
 import Link from 'next/link';
 import { BILLING_DAY, nextBillingInfo, WARP_SPEED, PLATFORM_FEE_PCT } from '@/lib/config';
@@ -21,7 +21,8 @@ export default function BillingPage() {
 
   const [balance, setBalance] = useState<number | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
-  const [lockedPledges, setLockedPledges] = useState<PublicUserPledge[]>([]);
+  const [lockedBackings, setLockedBackings] = useState<PublicUserBacking[]>([]);
+  const [brokeCooldown, setBrokeCooldown] = useState<{ ends_at: string; started_at: string } | null>(null);
   const [paying, setPaying] = useState(false);
   // 3DS / SCA modal — opens when payNow returns requires_action OR when the
   // PaymentAuthBanner triggers a deep link. We keep modal state local to the
@@ -36,11 +37,12 @@ export default function BillingPage() {
     if (!user) return;
     Promise.all([
       billing.cash(),
-      pledgesApi.list({ bounty_status: 'completed', per_page: 100, sort: 'amount' }),
+      backingsApi.list({ bounty_status: 'completed', per_page: 100, sort: 'amount' }),
     ])
-      .then(([cashRes, pledgeRes]) => {
+      .then(([cashRes, backingRes]) => {
         setBalance(cashRes.balance);
-        setLockedPledges(pledgeRes.data);
+        setLockedBackings(backingRes.data);
+        setBrokeCooldown(cashRes.broke_cooldown);
       })
       .catch(() => setBalance(null))
       .finally(() => setBalanceLoading(false));
@@ -124,6 +126,19 @@ export default function BillingPage() {
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">upcoming charge</h1>
       </div>
 
+      {brokeCooldown && (
+        <Card accent>
+          <SectionLabel className="mb-2 text-warn">broke cooldown in effect</SectionLabel>
+          <p className="text-sm text-muted leading-snug">
+            You declared broke on {new Date(brokeCooldown.started_at).toLocaleDateString()}.
+            New backings are blocked until{' '}
+            <span className="font-mono text-foreground">
+              {new Date(brokeCooldown.ends_at).toLocaleString()}
+            </span>.
+          </p>
+        </Card>
+      )}
+
       {/* What will be charged */}
       {!balanceLoading && hasOutstandingBalance && (
         <Card>
@@ -137,27 +152,27 @@ export default function BillingPage() {
             ${outstandingAmount.toFixed(2)} will be charged automatically on {chargeDate}. No action needed.
           </p>
 
-          {lockedPledges.length > 0 && (
+          {lockedBackings.length > 0 && (
             <table className="w-full font-mono text-sm">
               <thead>
                 <tr className="border-b border-border">
                   <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">Bounty</th>
                   <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">State</th>
-                  <th className="pb-2 text-right text-[10px] uppercase tracking-widest text-muted font-normal">Your Pledge</th>
+                  <th className="pb-2 text-right text-[10px] uppercase tracking-widest text-muted font-normal">Your Backing</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {lockedPledges.map((pledge) => (
-                  <tr key={pledge.id}>
+                {lockedBackings.map((backing) => (
+                  <tr key={backing.id}>
                     <td className="py-3 pr-4">
-                      <Link href={`/bounties/${pledge.bounty_id}`} className="text-fan hover:underline line-clamp-2 leading-snug">
-                        {pledge.bounty?.title ?? `Bounty #${pledge.bounty_id}`}
+                      <Link href={`/bounties/${backing.bounty_id}`} className="text-fan hover:underline line-clamp-2 leading-snug">
+                        {backing.bounty?.title ?? `Bounty #${backing.bounty_id}`}
                       </Link>
                     </td>
                     <td className="py-3 pr-4">
-                      <BountyStatusBadge status={pledge.bounty?.status ?? 'completed'} />
+                      <BountyStatusBadge status={backing.bounty?.status ?? 'completed'} />
                     </td>
-                    <td className="py-3 text-right tabular-nums">${Number(pledge.amount).toFixed(2)}</td>
+                    <td className="py-3 text-right tabular-nums">${Number(backing.amount).toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -211,7 +226,7 @@ export default function BillingPage() {
         <SectionLabel className="mb-4">this month&apos;s timeline</SectionLabel>
         <Timeline
           items={[
-            { when: 'now', what: 'approved pledges are locked in', done: true },
+            { when: 'now', what: 'approved backings are locked in', done: true },
             { when: previewDate, what: 'billing preview sent to your inbox' },
             { when: `${chargeDate} · 09:00 UTC`, what: 'your card is charged' },
             { when: '7 days after charge', what: 'funds clear and creators can withdraw' },

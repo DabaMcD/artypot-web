@@ -64,7 +64,7 @@ interface SidebarProps {
 
 export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps) {
   const { user, logout } = useAuth();
-  const { mode, canSwitch, switchTo } = useViewMode();
+  const { canSwitch, switchTo } = useViewMode();
   const router = useRouter();
 
   // Which role buttons should appear in the bottom widget?
@@ -83,12 +83,13 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
 
   const fanItems: NavItem[] = [
     { sec: 'discover' },
-    { id: 'fan-home',     label: 'My contributions',   icon: '◐', href: '/dashboard' },
+    { id: 'fan-home',     label: 'Dashboard',   icon: '◐', href: '/dashboard' },
     { id: 'fan-create',   label: 'Start a bounty',     icon: '+', href: '/bounties/new' },
-    { id: 'fan-search',   label: 'Search creators',    icon: '⌕', href: '/creators' },
+    { id: 'fan-search',   label: 'Explore',            icon: '⌕', href: '/search' },
     { sec: 'money' },
-    { id: 'fan-billing',  label: 'Upcoming charge',    icon: '$', href: '/billing' },
-    { id: 'fan-history',  label: 'History & receipts', icon: '⌗', href: '/pledges' },
+    { id: 'fan-billing',   label: 'Billing',         icon: '$', href: '/billing' },
+    { id: 'fan-backings',  label: 'My backings',     icon: '◇', href: '/backings' },
+    { id: 'fan-payments',  label: 'Payment history', icon: '◷', href: '/history' },
     { sec: 'account' },
     { id: 'fan-settings', label: 'Settings',           icon: '⚙', href: '/settings' },
     { id: 'fan-become',   label: 'Become a creator',   icon: '✦', href: '/become-creator' },
@@ -96,20 +97,16 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
 
   const creatorItems: NavItem[] = [
     { sec: 'overview' },
-    { id: 'creator-dashboard',  label: 'Dashboard',          icon: '◐', href: '/creator' },
-    { id: 'creator-onboarding', label: 'Setup',              icon: '◔', href: '/creator/setup' },
+    { id: 'creator-dashboard',  label: 'Dashboard',          icon: '◐', href: '/c' },
+    { id: 'creator-onboarding', label: 'Setup',              icon: '◔', href: '/c/setup' },
     { sec: 'work' },
-    { id: 'creator-bounties',   label: 'Active bounties',    icon: '◇', href: '/creator/bounties' },
-    { id: 'creator-queue',      label: 'Queued for me',      icon: '⌗', href: '/creator/queue' },
-    { id: 'creator-mine',       label: 'My own bounties',    icon: '★', href: '/creator/my-bounties' },
+    { id: 'creator-bounties',   label: 'Bounties',           icon: '◇', href: '/c/bounties' },
     { sec: 'money' },
-    { id: 'creator-balance',    label: 'Balance',            icon: '$', href: '/creator/balance' },
-    { id: 'creator-withdraw',   label: 'Withdraw',           icon: '↓', href: '/creator/withdraw' },
-    { id: 'creator-ledger',     label: 'Ledger',             icon: '⌗', href: '/creator/ledger' },
+    { id: 'creator-money',      label: 'Cash ledger',              icon: '$', href: '/c/money' },
     { sec: 'admin' },
-    { id: 'creator-handles',    label: 'Handles',            icon: '@', href: '/settings#handles' },
-    { id: 'creator-tax',        label: 'Tax & compliance',   icon: '⚖', href: '/creator/tax' },
-    { id: 'creator-settings',   label: 'Settings',           icon: '⚙', href: '/creator/settings' },
+    { id: 'creator-handles',    label: 'Handles',            icon: '@', href: '/c/handles' },
+    { id: 'creator-tax',        label: 'Tax & compliance',   icon: '⚖', href: '/c/tax' },
+    { id: 'creator-settings',   label: 'Settings',           icon: '⚙', href: '/c/settings' },
   ];
 
   const councilItems: NavItem[] = [
