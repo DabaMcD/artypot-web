@@ -55,14 +55,14 @@ export default function CreatorSetupPage() {
             detail: `Connect a Stripe-verified bank account for direct payouts. You keep ${100 - PLATFORM_FEE_PCT}% of each bounty — Artypot's ${PLATFORM_FEE_PCT}% fee is deducted only from completed payouts.`,
             status: creator?.bank_connected ? 'done' : 'todo',
           }}
-          action={<Link href="/c"><Button variant="default" size="sm">Connect Bank →</Button></Link>}
+          action={<Link href="/c/payouts"><Button variant="default" size="sm">Connect Bank →</Button></Link>}
         />
       </div>
 
       <Card dashed>
         <p className="text-sm text-muted">
           Gate 3 is handled from your{' '}
-          <Link href="/c" className="ap-inline-link">main dashboard</Link>.
+          <Link href="/c/payouts" className="ap-inline-link">Payouts page</Link>.
         </p>
       </Card>
 
@@ -73,7 +73,7 @@ export default function CreatorSetupPage() {
           We&apos;ll only ask for a W-9 (US) or W-8BEN (international) once your annual
           payouts approach the IRS reporting threshold — and we&apos;ll prompt you from
           your{' '}
-          <Link href="/c#tax" className="ap-inline-link">dashboard</Link>{' '}
+          <Link href="/c/tax" className="ap-inline-link">Tax &amp; compliance page</Link>{' '}
           when that time comes.
         </p>
       </Card>

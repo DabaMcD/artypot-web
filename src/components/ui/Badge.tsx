@@ -8,6 +8,8 @@ type BadgeTone =
 interface BadgeProps {
   tone?: BadgeTone;
   lg?: boolean;
+  /** Extra-compact size for dense inline contexts (e.g. search rows). */
+  xs?: boolean;
   className?: string;
   children: ReactNode;
 }
@@ -28,12 +30,17 @@ const toneClasses: Record<BadgeTone, string> = {
   available: 'bg-good-soft text-good border-good',
 };
 
-export function Badge({ tone = 'default', lg, className = '', children }: BadgeProps) {
+export function Badge({ tone = 'default', lg, xs, className = '', children }: BadgeProps) {
+  const size = lg
+    ? 'text-[11px] px-2.5 py-0.5'
+    : xs
+      ? 'text-[8px] px-1.5 py-0 leading-[1.5] tracking-normal'
+      : 'text-[10px] px-2 py-px';
   return (
     <span
       className={`
         inline-flex items-center gap-1 border rounded-full font-mono uppercase tracking-wide whitespace-nowrap
-        ${lg ? 'text-[11px] px-2.5 py-0.5' : 'text-[10px] px-2 py-px'}
+        ${size}
         ${tone === 'role' ? 'bg-[var(--color-role-soft)]' : ''}
         ${toneClasses[tone]}
         ${className}

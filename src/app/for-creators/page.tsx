@@ -78,9 +78,9 @@ export default function ForCreatorsPage() {
           </h1>
 
           <p className="text-xl text-muted max-w-xl leading-relaxed mb-10">
-            Artypot is a bounty platform. You open one for a specific project, share it with
-            your audience, and they put money toward it. You make the thing, you get paid.
-            No subscriptions. No paywalls. No delivery, no charge.
+            Artypot is a bounty platform. Create a bounty for a specific project, share it with
+            your audience, and they put money toward it. No subscriptions. No paywalls. You do
+            the thing, you get paid. If you don't deliver, credit cards are never touched.
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -109,8 +109,8 @@ export default function ForCreatorsPage() {
               <br /><span className="text-creator">A funded project request.</span>
             </h2>
             <p className="text-lg text-muted">
-              You already know what your audience wants. Artypot turns that into a number
-              with a dollar sign in front of it.
+              You already know what your audience wants... but how much do they want it? Artypot turns their
+              "plz do X" comments into a number with a dollar sign in front of it.
             </p>
           </div>
 

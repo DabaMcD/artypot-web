@@ -77,7 +77,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
 
   const switchHandlers: Record<'fan' | 'creator' | 'council', () => void> = {
     fan:     () => { switchTo('fan');     router.push('/dashboard'); },
-    creator: () => { switchTo('creator'); router.push('/creator'); },
+    creator: () => { switchTo('creator'); router.push('/c'); },
     council: () => { router.push('/admin'); },
   };
 
@@ -102,10 +102,11 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
     { sec: 'work' },
     { id: 'creator-bounties',   label: 'Bounties',           icon: '◇', href: '/c/bounties' },
     { sec: 'money' },
-    { id: 'creator-money',      label: 'Cash ledger',              icon: '$', href: '/c/money' },
+    { id: 'creator-payouts',    label: 'Payouts',            icon: '↗', href: '/c/payouts' },
+    { id: 'creator-tax',        label: 'Tax & compliance',   icon: '⚖', href: '/c/tax' },
+    { id: 'creator-money',      label: 'Cash ledger',        icon: '$', href: '/c/money' },
     { sec: 'admin' },
     { id: 'creator-handles',    label: 'Handles',            icon: '@', href: '/c/handles' },
-    { id: 'creator-tax',        label: 'Tax & compliance',   icon: '⚖', href: '/c/tax' },
     { id: 'creator-settings',   label: 'Settings',           icon: '⚙', href: '/c/settings' },
   ];
 

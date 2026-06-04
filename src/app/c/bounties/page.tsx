@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { bounties as bountiesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
+import { toExternalUrl } from '@/lib/url';
 import type { Bounty, BountyStatus } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -174,7 +175,7 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
         <div className="mt-2 pl-3 border-l-2 border-border space-y-0.5">
           <div className="flex items-center gap-2">
             <a
-              href={completion.submission_url}
+              href={toExternalUrl(completion.submission_url)}
               target="_blank"
               rel="noopener noreferrer"
               className="font-mono text-[11px] text-fan hover:underline truncate max-w-xs"

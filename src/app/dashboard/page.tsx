@@ -6,12 +6,13 @@ import { useRouter } from 'next/navigation';
 import { bounties as bountiesApi, billing, backings as backingsApi } from '@/lib/api';
 import { nextBillingInfo } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
-import type { Bounty, CashBalance, PaginatedResponse, PublicUserBacking } from '@/lib/types';
+import type { Bounty, CashBalance, FanStats, PaginatedResponse, PublicUserBacking } from '@/lib/types';
 import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
+import { InfoDot } from '@/components/ui/InfoDot';
 import { Banner } from '@/components/ui/Banner';
-import { BountyCard } from '@/components/ui/BountyCard';
+import BountyCard from '@/components/BountyCard';
 import { Empty } from '@/components/ui/Empty';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
 import ShareButton from '@/components/ShareButton';
@@ -23,12 +24,13 @@ export default function DashboardPage() {
   const [myBounties, setMyBounties] = useState<PaginatedResponse<Bounty> | null>(null);
   const [cash, setCash] = useState<CashBalance | null>(null);
   const [myBackings, setMyBackings] = useState<PublicUserBacking[]>([]);
-  const [totalActiveBackingAmount, setTotalActiveBackingAmount] = useState<number>(0);
+  const [fanStats, setFanStats] = useState<FanStats | null>(null);
   const [revoking, setRevoking] = useState<Set<number>>(new Set());
 
   const [bountiesLoading, setBountiesLoading] = useState(true);
   const [cashLoading, setCashLoading] = useState(true);
   const [backingsLoading, setBackingsLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/login');
@@ -40,7 +42,6 @@ export default function DashboardPage() {
       .list({ sort: 'date', page: 1 })
       .then((res) => {
         setMyBackings(res.data);
-        setTotalActiveBackingAmount(res.total_active_amount ?? 0);
       })
       .catch(() => {})
       .finally(() => setBackingsLoading(false));
@@ -61,6 +62,12 @@ export default function DashboardPage() {
       .catch(() => {})
       .finally(() => setCashLoading(false));
 
+    backingsApi
+      .stats()
+      .then(setFanStats)
+      .catch(() => {})
+      .finally(() => setStatsLoading(false));
+
     loadBackings();
   }, [user, loadBackings]);
 
@@ -71,6 +78,7 @@ export default function DashboardPage() {
       await bountiesApi.removeBacking(backing.bounty_id, backing.id);
       loadBackings();
       billing.cash().then(setCash).catch(() => {});
+      backingsApi.stats().then(setFanStats).catch(() => {});
     } catch {
       // ignore
     } finally {
@@ -97,8 +105,6 @@ export default function DashboardPage() {
   const { label: nextBillingStr } = nextBillingInfo();
 
   const activeBackings = myBackings.filter((v) => v.bounty?.status !== 'revoked' && v.bounty?.status !== 'paid_out');
-  const awaitingBilling = myBackings.filter((v) => v.bounty?.status === 'pending');
-  const awaitingCreator = myBackings.filter((v) => v.bounty?.status === 'completed');
 
   return (
     <div className="space-y-7 pt-2">
@@ -111,7 +117,7 @@ export default function DashboardPage() {
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">dashboard</h1>
         </div>
         <Button variant="primary" onClick={() => router.push('/bounties/new')}>
-          + Start a Bounty
+          + New Bounty
         </Button>
       </div>
 
@@ -133,35 +139,76 @@ export default function DashboardPage() {
 
       {/* 4-stat grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Bounties joined — breadth of involvement */}
         <Card>
-          <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">active backings</div>
-          <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
-            {backingsLoading ? '—' : activeBackings.length}
+          <div className="flex items-center gap-1 mb-1">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">bounties joined</span>
+            <InfoDot>Bounties you&apos;re actively backing or have already helped deliver. The subline counts the ones you started yourself.</InfoDot>
           </div>
-          <div className="font-mono text-[10px] text-fan mt-0.5">
-            {backingsLoading ? '' : `$${totalActiveBackingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} committed`}
+          <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
+            {statsLoading || !fanStats ? '—' : fanStats.bounties_supported}
+          </div>
+          <div className="font-mono text-[10px] text-muted mt-0.5">
+            {statsLoading || !fanStats
+              ? ''
+              : `${fanStats.bounties_started} you started`}
           </div>
         </Card>
+
+        {/* Creators petitioned — breadth, with how many actually delivered */}
         <Card>
-          <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">awaiting billing</div>
-          <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
-            {backingsLoading ? '—' : awaitingBilling.length}
+          <div className="flex items-center gap-1 mb-1">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">creators petitioned</span>
+            <InfoDot>Distinct creators handles you&apos;ve backed a bounty for. The subline is how many came through — delivered a bounty you backed and got paid by you.</InfoDot>
           </div>
-          <div className="font-mono text-[10px] text-warn mt-0.5">next charge {nextBillingStr}</div>
+          <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
+            {statsLoading || !fanStats ? '—' : fanStats.creators_supported}
+          </div>
+          <div className="font-mono text-[10px] text-good mt-0.5">
+            {statsLoading || !fanStats
+              ? ''
+              : `${fanStats.creators_paid} delivered`}
+          </div>
         </Card>
+
+        {/* Next charge — actionable */}
         <Card>
-          <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">awaiting creator</div>
-          <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
-            {backingsLoading ? '—' : awaitingCreator.length}
+          <div className="flex items-center gap-1 mb-1">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">next charge</span>
+            <InfoDot>What you&apos;ll be billed on the next billing date, covering bounties that were completed and approved since your last charge.</InfoDot>
           </div>
-          <div className="font-mono text-[10px] text-muted mt-0.5">submitted, under review</div>
+          <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
+            {cashLoading
+              ? '—'
+              : outstandingAmount === 0
+                ? 'Nothing due'
+                : `$${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+          </div>
+          <div className={`font-mono text-[10px] mt-0.5 ${outstandingAmount > 0 ? 'text-warn' : 'text-muted'}`}>
+            {cashLoading
+              ? ''
+              : outstandingAmount === 0
+                ? "you're all settled up"
+                : `charged ${nextBillingStr}`}
+          </div>
         </Card>
+
+        {/* Lifetime paid — the "your card isn't touched" reassurance */}
         <Card>
-          <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">lifetime backed</div>
-          <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
-            ${Number(user.total_given ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          <div className="flex items-center gap-1 mb-1">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">lifetime paid</span>
+            <InfoDot>What you&apos;ve actually been charged, ever. It stays $0 until a bounty you backed is delivered and approved — your card is never touched until bounty completion.</InfoDot>
           </div>
-          <div className="font-mono text-[10px] text-muted mt-0.5">total paid out</div>
+          <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
+            {statsLoading || !fanStats
+              ? '—'
+              : `$${fanStats.lifetime_paid.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+          </div>
+          <div className="font-mono text-[10px] text-muted mt-0.5">
+            {statsLoading || !fanStats
+              ? ''
+              : `$${fanStats.total_backed.toLocaleString('en-US', { minimumFractionDigits: 2 })} total backed`}
+          </div>
         </Card>
       </div>
 
@@ -254,30 +301,9 @@ export default function DashboardPage() {
           </Empty>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {myBounties.data.slice(0, 6).map((bounty) => {
-              const stateMap: Record<string, 'collecting' | 'creator-verified' | 'submitted' | 'verified' | 'settled'> = {
-                open: 'collecting',
-                completed: 'submitted',
-                approved: 'verified',
-                paid_out: 'settled',
-                revoked: 'settled',
-              };
-              const creator = (bounty as unknown as { creator?: { display_name: string } }).creator;
-              return (
-                <BountyCard
-                  key={bounty.id}
-                  b={{
-                    id: String(bounty.id),
-                    title: bounty.title,
-                    state: stateMap[bounty.status] ?? 'collecting',
-                    fundedTotal: Number(bounty.total_backed ?? 0),
-                    contributors: bounty.backings?.length ?? 0,
-                    targetHandle: creator ? { platform: '@', username: creator.display_name } : undefined,
-                  }}
-                  onClick={() => router.push(`/bounties/${bounty.id}`)}
-                />
-              );
-            })}
+            {myBounties.data.slice(0, 6).map((bounty) => (
+              <BountyCard key={bounty.id} bounty={bounty} />
+            ))}
           </div>
         )}
       </div>
