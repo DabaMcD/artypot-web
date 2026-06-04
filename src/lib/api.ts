@@ -12,6 +12,7 @@ import type {
   BountyHistory,
   PaginatedResponse,
   BackingPage,
+  FanStats,
   FanPaymentSummary,
   FanPaymentStatus,
   CashBalance,
@@ -508,6 +509,7 @@ export const backings = {
     const qs = new URLSearchParams(entries).toString();
     return request<BackingPage>(`/auth/backings${qs ? `?${qs}` : ''}`);
   },
+  stats: () => request<FanStats>('/auth/backings/stats'),
 };
 
 // Notification settings

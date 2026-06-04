@@ -216,7 +216,10 @@ export interface SearchPerson {
 export interface SearchBountyResult {
   id: string;
   title: string;
-  creator: { id: string | null; display_name: string | null; url: string | null };
+  // `handle` is the platform-qualified identity anchor (e.g. "youtube/@mrbeast")
+  // — the target handle for unclaimed bounties, or the owner's matching handle
+  // (same logic as a person's primary_handle). Null when none applies.
+  creator: { id: string | null; display_name: string | null; handle?: string | null; url: string | null };
   amount_backed: number;
   status: string;
   match_reason: SearchMatchReason | null;
@@ -365,6 +368,20 @@ export interface BackingPage {
   total: number;
   per_page: number;
   total_active_amount: number;
+}
+
+/** At-a-glance fan stats for the dashboard (GET /auth/backings/stats). */
+export interface FanStats {
+  /** Distinct paid-out bounties the fan was charged for (helped bring to life). */
+  bounties_delivered: number;
+  /** Total the fan actually contributed to those delivered bounties. */
+  delivered_amount: number;
+  /** Distinct creators/handles the fan actively backs or helped deliver. */
+  creators_supported: number;
+  /** Money currently committed across active (open/pending) backings. */
+  committed_amount: number;
+  /** Distinct bounties the fan is currently committed to. */
+  committed_bounties: number;
 }
 
 // ── Payment history (past fan charges) ──────────────────────────────────────

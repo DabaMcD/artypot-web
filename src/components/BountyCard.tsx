@@ -54,24 +54,11 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
         <p className="text-sm text-muted line-clamp-2 mb-4">{bounty.description}</p>
       )}
 
-      <div className="flex items-end justify-between mt-auto pt-3 border-t border-border">
-        <div>
-          <div className="text-fan font-bold text-lg">
-            ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-          {backerCount !== null && (
-            <div className="text-xs text-muted mt-0.5">
-              {backerCount} {backerCount === 1 ? fanSingular : fanPlural}
-            </div>
-          )}
-          {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
-            <div className="text-xs text-muted mt-0.5">
-              ${bounty.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cleared
-            </div>
-          )}
-        </div>
+      <div className="mt-auto pt-3 border-t border-border">
+        {/* Target identity — spans the full card width and is free to wrap onto
+            multiple lines, pushing the amount below it down as needed. */}
         {(bounty.avatar_url !== undefined || bounty.owner_user) && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-start gap-2 mb-3">
             {bounty.owner_user ? (
               // Registered creator: real picture if they have one, otherwise their
               // initial on the creator-colored chip. The "?" placeholder is only
@@ -94,34 +81,48 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
             ) : (
               <AvatarOrUnknown avatarUrl={bounty.avatar_url ?? null} size="sm" />
             )}
-            <div className="text-right min-w-0">
-              <div className="text-xs text-muted">for</div>
+            <div className="min-w-0 flex-1">
+              <div className="text-xs text-muted leading-none mb-0.5">for</div>
               {bounty.owner_user ? (
-                <div className="text-sm text-creator font-medium truncate max-w-[120px]">
+                <div className="text-sm text-creator font-medium break-words">
                   {bounty.owner_user.display_name}
                 </div>
               ) : bounty.target_handle ? (
                 // No verified account owner — the platform-qualified handle is
                 // the only trustworthy identity, so it leads. A fan-supplied
                 // display_name is secondary and can't masquerade as someone else.
-                <div className="max-w-[150px]">
-                  <div className="flex items-center justify-end gap-1">
-                    <span className="font-mono text-sm text-creator font-medium truncate">
-                      {bounty.target_handle.platform === 'other'
-                        ? formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)
-                        : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`}
-                    </span>
-                  </div>
+                <>
+                  <WrappableName
+                    text={bounty.target_handle.platform === 'other'
+                      ? formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)
+                      : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`}
+                    className="block font-mono text-sm text-creator font-medium"
+                  />
                   {bounty.display_name && (
                     <div className="text-[11px] text-muted truncate">({bounty.display_name})</div>
                   )}
-                </div>
+                </>
               ) : (
-                <div className="text-sm text-creator font-medium truncate max-w-[120px]">
+                <div className="text-sm text-creator font-medium break-words">
                   {bounty.display_name}
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Amount */}
+        <div className="text-fan font-bold text-lg">
+          ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </div>
+        {backerCount !== null && (
+          <div className="text-xs text-muted mt-0.5">
+            {backerCount} {backerCount === 1 ? fanSingular : fanPlural}
+          </div>
+        )}
+        {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
+          <div className="text-xs text-muted mt-0.5">
+            ${bounty.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cleared
           </div>
         )}
       </div>

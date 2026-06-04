@@ -77,6 +77,9 @@ export default function HeaderSearch({ placeholder = 'Search…', size = 'sm', a
   const [trending, setTrending] = useState<SearchBountyResult[]>([]);
   const trendingLoaded = useRef(false);
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Scroll container for the results list, so keyboard navigation can keep the
+  // active option in view.
+  const listRef = useRef<HTMLDivElement | null>(null);
 
   const trimmed = query.trim();
   const queryActive = trimmed.length >= MIN_CHARS;
@@ -126,6 +129,15 @@ export default function HeaderSearch({ placeholder = 'Search…', size = 'sm', a
   useEffect(() => {
     setActiveIndex(0);
   }, [query, results]);
+
+  // Keep the active option scrolled into view as the user arrows up/down past
+  // the edges of the (scrollable) dropdown. `block: 'nearest'` only moves the
+  // list when the option is actually out of view, so no jitter on small moves.
+  useEffect(() => {
+    if (activeIndex < 0) return;
+    const el = listRef.current?.querySelector<HTMLElement>('[aria-selected="true"]');
+    el?.scrollIntoView({ block: 'nearest' });
+  }, [activeIndex]);
 
   const close = () => {
     setFocused(false);
@@ -233,7 +245,7 @@ export default function HeaderSearch({ placeholder = 'Search…', size = 'sm', a
           onMouseDown={(e) => e.preventDefault()}
           role="listbox"
         >
-          <div className="overflow-y-auto">
+          <div ref={listRef} className="overflow-y-auto">
             {/* Too-short hint */}
             {!queryActive && trimmed.length > 0 && (
               <div className="px-4 py-3 text-sm text-muted">Keep typing — at least {MIN_CHARS} characters.</div>
@@ -447,16 +459,24 @@ function BountyRow({
       onClick={onActivate}
       className={`w-full min-h-[44px] flex flex-col gap-0.5 px-4 py-2 text-left transition-colors ${active ? 'bg-border' : 'hover:bg-border'}`}
     >
+      {/* Title (left) + tiny status & amount (upper right). */}
       <span className="flex items-center justify-between gap-3">
         <span className={`text-sm text-foreground truncate ${active ? 'underline underline-offset-2' : ''}`}>{bounty.title}</span>
-        {bounty.creator.display_name && (
-          <span className="shrink-0 text-[11px] text-muted truncate max-w-[40%]">{bounty.creator.display_name}</span>
-        )}
+        <span className="shrink-0 flex items-center gap-1.5">
+          <BountyStatusBadge status={bounty.status} xs />
+          <span className="text-fan font-semibold text-xs">{fmtMoney(bounty.amount_backed)}</span>
+        </span>
       </span>
-      <span className="flex items-center gap-2">
-        <span className="text-fan font-semibold text-xs">{fmtMoney(bounty.amount_backed)}</span>
-        <BountyStatusBadge status={bounty.status} />
-      </span>
+      {/* Matching handle, right below the title. */}
+      {bounty.creator.handle && (
+        <span className="block font-mono text-[11px] text-muted/80 truncate">› {bounty.creator.handle}</span>
+      )}
+      {/* Creator/handle title (lower right). */}
+      {bounty.creator.display_name && (
+        <span className="flex justify-end">
+          <span className="text-[11px] text-muted truncate max-w-[70%]">{bounty.creator.display_name}</span>
+        </span>
+      )}
       {snippet && (
         <span
           className="block text-[11px] text-muted truncate [&_mark]:bg-fan/25 [&_mark]:text-foreground [&_mark]:rounded-sm [&_mark]:px-0.5"

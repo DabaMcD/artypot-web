@@ -32,6 +32,7 @@ import CommentSection from '@/components/CommentSection';
 import { BOUNTY_STATUS_LABELS as STATUS_LABELS, BOUNTY_STATUS_TONES as STATUS_TONES } from '@/components/BountyStatusBadge';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
+import { InfoDot } from '@/components/ui/InfoDot';
 import { Badge } from '@/components/ui/Badge';
 import { Input, Textarea, Select, FieldLabel, FieldHint } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
@@ -475,17 +476,11 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       <Card>
         <div className="flex items-center gap-2 mb-4">
           <SectionLabel>Chip in</SectionLabel>
-          <span className="relative group cursor-default">
-            <span className="font-mono text-[10px] text-muted w-4 h-4 rounded-full border border-muted/40 inline-flex items-center justify-center leading-none select-none hover:border-foreground/40 hover:text-foreground transition-colors cursor-pointer">
-              i
-            </span>
-            <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-surface-2 border border-border rounded-md p-3 shadow-xl text-xs text-muted leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-20">
-              <p className="text-foreground font-semibold mb-1.5">How does backing work?</p>
-              <p className="mb-2">You&apos;re committing to pay <strong className="text-foreground">only if this bounty gets completed</strong> and approved by The Council.</p>
-              <p className="mb-2">Nothing happens to your card right now. Charges are billed monthly for approved completions.</p>
-              <p>Most bounties are never completed, so most commitments are never charged. You can back out at any time.</p>
-            </div>
-          </span>
+          <InfoDot heading="How does backing work?">
+            <p className="mb-2">You&apos;re committing to <strong className="text-foreground">pay only if this bounty gets completed</strong> and approved by The Council.</p>
+            <p className="mb-2">Nothing happens to your card right now. Charges are billed monthly for approved completions.</p>
+            <p>Most bounties are never completed, so most commitments are never charged. You can back out at any time.</p>
+          </InfoDot>
         </div>
 
         {userBacking ? (
