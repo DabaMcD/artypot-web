@@ -424,7 +424,7 @@ export default function BecomeCreatorPage() {
             <p className="font-bold text-foreground leading-tight">You keep {CREATOR_KEEP_PCT}% of every bounty.</p>
             <p className="text-sm text-muted leading-snug mt-0.5">
               Artypot&apos;s {PLATFORM_FEE_PCT}% covers card processing &amp; fraud protection, hosting,
-              and the Council review that guarantees fans only pay for delivered work.
+              support, and organic veggies for the council members that moderate everything.
             </p>
           </div>
         </div>
