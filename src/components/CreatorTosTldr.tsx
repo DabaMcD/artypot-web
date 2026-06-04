@@ -29,8 +29,8 @@ export default function CreatorTosTldr({
           <span>
             <strong>You keep {CREATOR_KEEP_PCT}% of fan payments.</strong>{' '}Artypot deducts a{' '}
             {PLATFORM_FEE_PCT}% platform fee which covers card
-            processing, fraud protection, hosting, and Council review. No signup fee, no
-            monthly fee.
+            processing, fraud protection, hosting, support, and organic veggies for the council
+            members that moderate everything. No signup fee, no monthly fee.
           </span>
         </li>
         <li className="flex gap-2">
