@@ -3,8 +3,28 @@ import type { Bounty } from '@/lib/types';
 import { formatPlatformHandle } from '@/lib/platforms';
 import { AvatarOrUnknown } from './ui/AvatarOrUnknown';
 import { BountyStatusBadge } from './BountyStatusBadge';
-import { Badge } from '@/components/ui/Badge';
 import ShareButton from './ShareButton';
+
+/**
+ * Renders an identity string that may wrap. If it contains a "/", the preferred
+ * wrap point is right after the *first* slash so platform-qualified handles
+ * break cleanly onto two lines (e.g. "youtube/" + "@mrbeast", or
+ * "wikipedia.org/" + "wiki/Brad_Pitt") instead of mid-word. `break-words` is the
+ * fallback for any single segment that's still too wide for the card.
+ */
+function WrappableName({ text, className = '' }: { text: string; className?: string }) {
+  const slash = text.indexOf('/');
+  if (slash === -1) {
+    return <span className={`break-words ${className}`}>{text}</span>;
+  }
+  return (
+    <span className={`break-words ${className}`}>
+      {text.slice(0, slash + 1)}
+      <wbr />
+      {text.slice(slash + 1)}
+    </span>
+  );
+}
 
 export default function BountyCard({ bounty }: { bounty: Bounty }) {
   const backerCount = bounty.backings?.filter((v) => !v.revoked_at).length ?? null;
@@ -52,10 +72,28 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
         </div>
         {(bounty.avatar_url !== undefined || bounty.owner_user) && (
           <div className="flex items-center gap-2">
-            <AvatarOrUnknown
-              avatarUrl={bounty.avatar_url ?? bounty.owner_user?.profile_picture ?? null}
-              size="sm"
-            />
+            {bounty.owner_user ? (
+              // Registered creator: real picture if they have one, otherwise their
+              // initial on the creator-colored chip. The "?" placeholder is only
+              // for unclaimed handles (the branch below), never a real account.
+              bounty.owner_user.profile_picture ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={bounty.owner_user.profile_picture}
+                  alt=""
+                  className="w-7 h-7 rounded-full object-cover shrink-0"
+                />
+              ) : (
+                <div
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                  style={{ background: 'var(--color-creator)', color: 'var(--color-brand-dark)' }}
+                >
+                  {bounty.owner_user.display_name?.charAt(0).toUpperCase() ?? '?'}
+                </div>
+              )
+            ) : (
+              <AvatarOrUnknown avatarUrl={bounty.avatar_url ?? null} size="sm" />
+            )}
             <div className="text-right min-w-0">
               <div className="text-xs text-muted">for</div>
               {bounty.owner_user ? (
@@ -73,9 +111,6 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
                         ? formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)
                         : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`}
                     </span>
-                    {bounty.target_handle.status !== 'verified' && (
-                      <Badge tone="default" className="shrink-0">unverified</Badge>
-                    )}
                   </div>
                   {bounty.display_name && (
                     <div className="text-[11px] text-muted truncate">({bounty.display_name})</div>

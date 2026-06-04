@@ -165,19 +165,7 @@ export function AppShell({ children }: AppShellProps) {
           {/* Desktop (≥sm): fixed-width search bar always visible (suppressed on landing) */}
           {!isLanding && (
           <div className="hidden sm:block w-64 lg:w-[340px] xl:w-[420px] shrink-0">
-            <div className="relative">
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted pointer-events-none z-10"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path strokeLinecap="round" d="m21 21-4.35-4.35" />
-              </svg>
-              <HeaderSearch
-                placeholder="find a creator, bounty, or handle…"
-                inputClassName="w-full bg-surface-2 border border-border rounded-md px-3 py-1.5 pl-9 font-mono text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-[var(--color-role)] transition-colors"
-              />
-            </div>
+            <HeaderSearch placeholder="find a creator, bounty, or handle…" />
           </div>
           )}
 
@@ -198,20 +186,7 @@ export function AppShell({ children }: AppShellProps) {
           {/* Mobile (<sm): expanded search bar */}
           {!isLanding && searchOpen && (
             <div className="sm:hidden flex items-center gap-2 flex-1 min-w-0">
-              <div className="relative flex-1 min-w-0">
-                <svg
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted pointer-events-none z-10"
-                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path strokeLinecap="round" d="m21 21-4.35-4.35" />
-                </svg>
-                <HeaderSearch
-                  autoFocus
-                  placeholder="search…"
-                  inputClassName="w-full bg-surface-2 border border-border rounded-md px-3 py-1.5 pl-9 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-[var(--color-role)] transition-colors"
-                />
-              </div>
+              <HeaderSearch autoFocus placeholder="search…" className="flex-1 min-w-0" />
               <button
                 onClick={() => setSearchOpen(false)}
                 className="shrink-0 font-mono text-xs text-muted hover:text-foreground transition-colors"
