@@ -32,10 +32,13 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export function Input({ mono, className = '', ...props }: InputProps) {
+  // Search fields get a monospaced hint (placeholder) to match the header
+  // search box, without forcing typed text into mono.
+  const searchHint = props.type === 'search' ? 'placeholder:font-mono' : '';
   return (
     <input
       {...props}
-      className={`${fieldBase} ${mono ? 'font-mono text-sm' : ''} ${className}`}
+      className={`${fieldBase} ${mono ? 'font-mono text-sm' : ''} ${searchHint} ${className}`}
     />
   );
 }

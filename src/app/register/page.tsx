@@ -278,18 +278,30 @@ export default function RegisterPage() {
           account.
         </h1>
         <p className="text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
-          every artypot user starts as a fan — you can back bounties, start new ones, and chip in on anything you want to see made.
+          every artypot account starts as a fan — back the bounties you want to
+          see made, or start your own and ask a creator to make something specific.
         </p>
 
         <Card dashed className="max-w-[420px]">
-          <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-2">why this order?</div>
-          <p className="text-sm text-foreground leading-relaxed mb-3">
-            artypot uses a <strong className="text-fan">no-claim</strong> model — bounties are posted for public work, so there&apos;s nothing to claim in advance.
-          </p>
-          <p className="text-sm text-muted leading-relaxed">
-            once you&apos;re in as a fan, you can verify a creator handle and complete the tax + payout gates to unlock the creator view.
-          </p>
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">how a bounty works</div>
+          <ul className="space-y-2.5">
+            {[
+              'Back a bounty you want to exist — or open a new one. Nothing is charged up front.',
+              "Fans pile on until the creator decides it's worth making, then they submit the finished work.",
+              "Once it's verified as delivered, your card is charged — never before.",
+            ].map((line) => (
+              <li key={line} className="flex gap-2.5 text-sm text-foreground leading-snug">
+                <span className="text-fan mt-0.5 shrink-0" aria-hidden>✓</span>
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
         </Card>
+
+        <p className="text-sm text-muted leading-relaxed max-w-[420px] mt-6 pl-5 relative before:content-['→'] before:absolute before:left-0 before:text-fan">
+          want to get paid for your own work? become a creator after signing up —
+          verify a handle, then clear the tax + payout steps.
+        </p>
       </div>
 
       {/* Right — form */}

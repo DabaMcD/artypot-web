@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { auth as authApi } from '@/lib/api';
 import { nextTarget, readNextFromLocation, withNext, OAUTH_NEXT_KEY } from '@/lib/next-redirect';
-import { PLATFORM_FEE_PCT, PHONE_SIGNUP_ENABLED } from '@/lib/config';
+import { PLATFORM_FEE_PCT, PHONE_SIGNUP_ENABLED, BILLING_GRACE_PERIOD_DAYS } from '@/lib/config';
 import { Button } from '@/components/ui/Button';
 import { Input, FieldLabel } from '@/components/ui/Input';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
@@ -133,9 +133,9 @@ export default function LoginPage() {
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">only after delivery</div>
           </div>
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">complaint</div>
-            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">7 days</div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">after work verified</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">disputes</div>
+            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">{BILLING_GRACE_PERIOD_DAYS} days</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">to flag a charge</div>
           </div>
           <div>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted">creators keep</div>
