@@ -53,7 +53,7 @@ const PAYOUT_STEPS: { label: string; sub: string; color: string }[] = [
   },
   {
     label: 'Withdraw to your bank',
-    sub: `You keep ${creatorReceivesPct}% of what was backed. Transfer it to your bank via Stripe Connect — US bank accounts only for now.`,
+    sub: `You keep ${creatorReceivesPct}% of what fans paid. Transfer it to your bank via Stripe Global Payouts.`,
     color: 'bg-creator',
   },
 ];
