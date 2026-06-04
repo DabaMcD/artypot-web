@@ -376,8 +376,10 @@ export interface FanStats {
   bounties_supported: number;
   /** Bounties the fan themselves initiated (and hasn't had revoked). */
   bounties_started: number;
-  /** Distinct creators/handles behind the bounties the fan supports. */
+  /** Distinct creators/handles the fan has petitioned (backed) or helped deliver. */
   creators_supported: number;
+  /** Distinct creators the fan has actually paid (from delivered bounties). */
+  creators_paid: number;
   /** Lifetime amount actually charged ($0 until a backed bounty is delivered). */
   lifetime_paid: number;
   /** Everything pledged: active commitments + delivered. */

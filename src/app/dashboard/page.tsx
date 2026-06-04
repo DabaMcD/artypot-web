@@ -139,10 +139,10 @@ export default function DashboardPage() {
 
       {/* 4-stat grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Bounties supported — breadth of involvement */}
+        {/* Bounties joined — breadth of involvement */}
         <Card>
           <div className="flex items-center gap-1 mb-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">bounties supported</span>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">bounties joined</span>
             <InfoDot>Bounties you&apos;re actively backing or have already helped deliver. The subline counts the ones you started yourself.</InfoDot>
           </div>
           <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
@@ -155,33 +155,19 @@ export default function DashboardPage() {
           </div>
         </Card>
 
-        {/* Creators supported — breadth */}
+        {/* Creators petitioned — breadth, with how many actually delivered */}
         <Card>
           <div className="flex items-center gap-1 mb-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">creators supported</span>
-            <InfoDot>Distinct creators and unclaimed handles you&apos;re currently backing or have helped deliver a bounty for.</InfoDot>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">creators petitioned</span>
+            <InfoDot>Distinct creators handles you&apos;ve backed a bounty for. The subline is how many came through — delivered a bounty you backed and got paid by you.</InfoDot>
           </div>
           <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
             {statsLoading || !fanStats ? '—' : fanStats.creators_supported}
           </div>
-          <div className="font-mono text-[10px] text-muted mt-0.5">creators &amp; handles you back</div>
-        </Card>
-
-        {/* Lifetime paid — the "your card isn't touched" reassurance */}
-        <Card>
-          <div className="flex items-center gap-1 mb-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">lifetime paid</span>
-            <InfoDot>What you&apos;ve actually been charged, ever. It stays $0 until a bounty you backed is delivered and approved — your card is never touched up front. The subline is everything you&apos;ve pledged.</InfoDot>
-          </div>
-          <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
-            {statsLoading || !fanStats
-              ? '—'
-              : `$${fanStats.lifetime_paid.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
-          </div>
-          <div className="font-mono text-[10px] text-muted mt-0.5">
+          <div className="font-mono text-[10px] text-good mt-0.5">
             {statsLoading || !fanStats
               ? ''
-              : `$${fanStats.total_backed.toLocaleString('en-US', { minimumFractionDigits: 2 })} total backed`}
+              : `${fanStats.creators_paid} delivered`}
           </div>
         </Card>
 
@@ -204,6 +190,24 @@ export default function DashboardPage() {
               : outstandingAmount === 0
                 ? "you're all settled up"
                 : `charged ${nextBillingStr}`}
+          </div>
+        </Card>
+
+        {/* Lifetime paid — the "your card isn't touched" reassurance */}
+        <Card>
+          <div className="flex items-center gap-1 mb-1">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">lifetime paid</span>
+            <InfoDot>What you&apos;ve actually been charged, ever. It stays $0 until a bounty you backed is delivered and approved — your card is never touched until bounty completion.</InfoDot>
+          </div>
+          <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
+            {statsLoading || !fanStats
+              ? '—'
+              : `$${fanStats.lifetime_paid.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+          </div>
+          <div className="font-mono text-[10px] text-muted mt-0.5">
+            {statsLoading || !fanStats
+              ? ''
+              : `$${fanStats.total_backed.toLocaleString('en-US', { minimumFractionDigits: 2 })} total backed`}
           </div>
         </Card>
       </div>
