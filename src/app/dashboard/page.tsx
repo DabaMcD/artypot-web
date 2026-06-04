@@ -139,19 +139,19 @@ export default function DashboardPage() {
 
       {/* 4-stat grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Bounties brought to life — impact */}
+        {/* Bounties supported — breadth of involvement */}
         <Card>
           <div className="flex items-center gap-1 mb-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">brought to life</span>
-            <InfoDot>Bounties you backed that the creator delivered, the Council approved, and you were actually charged for — things that exist partly because of you.</InfoDot>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">bounties supported</span>
+            <InfoDot>Bounties you&apos;re actively backing or have already helped deliver. The subline counts the ones you started yourself.</InfoDot>
           </div>
           <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
-            {statsLoading || !fanStats ? '—' : fanStats.bounties_delivered}
+            {statsLoading || !fanStats ? '—' : fanStats.bounties_supported}
           </div>
-          <div className="font-mono text-[10px] text-good mt-0.5">
+          <div className="font-mono text-[10px] text-muted mt-0.5">
             {statsLoading || !fanStats
               ? ''
-              : `$${fanStats.delivered_amount.toLocaleString('en-US', { minimumFractionDigits: 2 })} you chipped in`}
+              : `${fanStats.bounties_started} you started`}
           </div>
         </Card>
 
@@ -167,21 +167,21 @@ export default function DashboardPage() {
           <div className="font-mono text-[10px] text-muted mt-0.5">creators &amp; handles you back</div>
         </Card>
 
-        {/* Committed now — skin in the game */}
+        {/* Lifetime paid — the "your card isn't touched" reassurance */}
         <Card>
           <div className="flex items-center gap-1 mb-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">committed now</span>
-            <InfoDot>Money you&apos;ve pledged to bounties that are still collecting. You&apos;re only charged if a bounty is completed and approved — and you can withdraw a pledge anytime before then.</InfoDot>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">lifetime paid</span>
+            <InfoDot>What you&apos;ve actually been charged, ever. It stays $0 until a bounty you backed is delivered and approved — your card is never touched up front. The subline is everything you&apos;ve pledged.</InfoDot>
           </div>
           <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
             {statsLoading || !fanStats
               ? '—'
-              : `$${fanStats.committed_amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+              : `$${fanStats.lifetime_paid.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
           </div>
-          <div className="font-mono text-[10px] text-fan mt-0.5">
+          <div className="font-mono text-[10px] text-muted mt-0.5">
             {statsLoading || !fanStats
               ? ''
-              : `${fanStats.committed_bounties} ${fanStats.committed_bounties === 1 ? 'bounty' : 'bounties'} · until they deliver`}
+              : `$${fanStats.total_backed.toLocaleString('en-US', { minimumFractionDigits: 2 })} total backed`}
           </div>
         </Card>
 

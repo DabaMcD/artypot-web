@@ -372,16 +372,16 @@ export interface BackingPage {
 
 /** At-a-glance fan stats for the dashboard (GET /auth/backings/stats). */
 export interface FanStats {
-  /** Distinct paid-out bounties the fan was charged for (helped bring to life). */
-  bounties_delivered: number;
-  /** Total the fan actually contributed to those delivered bounties. */
-  delivered_amount: number;
-  /** Distinct creators/handles the fan actively backs or helped deliver. */
+  /** Distinct bounties the fan actively backs or helped deliver. */
+  bounties_supported: number;
+  /** Bounties the fan themselves initiated (and hasn't had revoked). */
+  bounties_started: number;
+  /** Distinct creators/handles behind the bounties the fan supports. */
   creators_supported: number;
-  /** Money currently committed across active (open/pending) backings. */
-  committed_amount: number;
-  /** Distinct bounties the fan is currently committed to. */
-  committed_bounties: number;
+  /** Lifetime amount actually charged ($0 until a backed bounty is delivered). */
+  lifetime_paid: number;
+  /** Everything pledged: active commitments + delivered. */
+  total_backed: number;
 }
 
 // ── Payment history (past fan charges) ──────────────────────────────────────
