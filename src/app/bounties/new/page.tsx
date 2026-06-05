@@ -198,7 +198,7 @@ function Step1({
     if (!newUsername.trim()) { setAddError(newPlatform === OTHER_SLUG ? 'Website URL is required.' : 'Handle is required.'); return; }
     // A human name is only required for 'other' (off-platform) links, where the
     // identifier is a raw URL and would otherwise read terribly on the bounty.
-    if (newPlatform === OTHER_SLUG && !newDisplayName.trim()) { setAddError('Creator name is required for off-platform links.'); return; }
+    if (newPlatform === OTHER_SLUG && !newDisplayName.trim()) { setAddError('Creator display name is required for off-platform links.'); return; }
     setAddError('');
     onSelect({ kind: 'new', platform: newPlatform, username: newUsername.trim(), displayName: newDisplayName.trim(), avatarUrl: null });
   };
@@ -293,7 +293,7 @@ function Step1({
 
               <div>
                 <FieldLabel>
-                  creator name{' '}
+                  creator display name{' '}
                   {newPlatform === OTHER_SLUG
                     ? <span className="text-bad">*</span>
                     : <span className="text-muted font-normal">(optional)</span>}
@@ -502,7 +502,7 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
       {target.kind === 'handle' && (
         <Card>
           <SectionLabel className="mb-3">
-            creator name{target.platform === OTHER_SLUG ? '' : ' (optional)'}
+            creator display name{target.platform === OTHER_SLUG ? '' : ' (optional)'}
           </SectionLabel>
           <Input
             type="text"
@@ -649,7 +649,7 @@ function Step3({ target, isSelfBounty, title, description, amount, displayName, 
         <div className="space-y-3">
           {target.kind === 'handle' && displayName.trim() && (
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">creator name</div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">creator display name</div>
               <div className="text-sm text-foreground font-medium">{displayName}</div>
             </div>
           )}
@@ -809,7 +809,7 @@ function NewBountyForm() {
 
   const handleSelectTarget = (t: TargetSelection) => {
     setTarget(t);
-    // The creator name is now optional (required only for 'other' links), so we
+    // The creator display name is now optional (required only for 'other' links), so we
     // start it blank rather than pre-seeding it with the bare handle.
     setDisplayName('');
     setStep(2);

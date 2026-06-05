@@ -346,7 +346,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
           </ul>
         ) : null}
 
-        {/* Add handle form — shown up-front only when no handles exist yet.
+        {/* Add handle form — shown upfront only when no handles exist yet.
             Once at least one claim is on file, collapse behind a button so
             creators are nudged toward verifying the handle they just added
             rather than mindlessly piling on more. */}

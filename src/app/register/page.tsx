@@ -286,7 +286,7 @@ export default function RegisterPage() {
           <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">how a bounty works</div>
           <ul className="space-y-2.5">
             {[
-              'Back a bounty you want to exist — or open a new one. Nothing is charged up front.',
+              'Back a bounty you want to exist — or open a new one. Nothing is charged upfront.',
               "Fans pile on until the creator decides it's worth making, then they submit the finished work.",
               "Once it's verified as delivered, your card is charged — never before.",
             ].map((line) => (

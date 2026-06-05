@@ -56,6 +56,15 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
           return;
         }
 
+        // Canonical-URL redirect: the slug resolved, but the URL may be a
+        // case or separator variant of the creator's canonical slug
+        // (e.g. /JaneDoe or /jane-doe → /jane_doe). Fold it to the stored
+        // form so every variant settles on one canonical, lowercase URL.
+        if (res.user.slug && res.user.slug !== slug) {
+          router.replace(`/${res.user.slug}`);
+          return;
+        }
+
         // res.match === 'current' — load full profile data
         const userId = res.user.id;
         const [creatorRes, bountiesRes] = await Promise.all([

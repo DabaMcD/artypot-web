@@ -428,7 +428,7 @@ export default function BecomeCreatorPage() {
         </p>
       </div>
 
-      {/* Up-front economics. The platform fee is a material term for the person
+      {/* Upfront economics. The platform fee is a material term for the person
           making this decision, so it's stated plainly here — not buried — and
           framed as what you keep, since {CREATOR_KEEP_PCT}% beats every major
           streaming platform a creator is comparing us against. */}

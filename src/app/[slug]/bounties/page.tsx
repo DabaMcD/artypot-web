@@ -44,6 +44,14 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
           return;
         }
 
+        // Canonical-URL redirect: fold case/separator variants of the slug
+        // (/JaneDoe/bounties, /jane-doe/bounties) to the creator's stored
+        // canonical, lowercase form so the URL settles on one address.
+        if (res.user.slug && res.user.slug !== slug) {
+          router.replace(`/${res.user.slug}/bounties`);
+          return;
+        }
+
         const userId = res.user.id;
         const creatorRes = await creatorsApi.get(userId);
         if (cancelled) return;
