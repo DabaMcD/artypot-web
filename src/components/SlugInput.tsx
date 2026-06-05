@@ -98,9 +98,11 @@ export default function SlugInput({
     };
   }, [value, formatError]);
 
-  // Forgiving paste handling — strip an accidental leading '/', '@', or whitespace.
+  // Forgiving paste/typing handling — lowercase live (slugs are case-insensitive
+  // and the format validator only accepts [a-z]) and strip an accidental
+  // leading '/', '@', or whitespace.
   const handleChange = (raw: string) => {
-    const cleaned = raw.trim().replace(/^[/@]+/, '');
+    const cleaned = raw.trim().replace(/^[/@]+/, '').toLowerCase();
     onChange(cleaned);
   };
 
