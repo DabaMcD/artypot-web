@@ -455,6 +455,10 @@ export const comments = {
   list: (bountyId: number, page = 1) =>
     request<PaginatedResponse<Comment>>(`/bounties/${bountyId}/comments?page=${page}`),
 
+  /** A single comment by id — used for deep-linking (notification/email). */
+  get: (commentId: number) =>
+    request<{ data: Comment }>(`/comments/${commentId}`),
+
   /** All direct replies to a top-level comment (not paginated). */
   replies: (commentId: number) =>
     request<{ data: Comment[] }>(`/comments/${commentId}/replies`),

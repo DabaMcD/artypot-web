@@ -118,8 +118,7 @@ export default function LoginPage() {
         </Link>
 
         <h1 className="font-display font-bold text-[54px] leading-[1.05] tracking-tight text-foreground mb-5">
-          put your money where your{' '}
-          <span className="ap-sketch-u text-fan">mouth</span> is.
+          <span className="ap-sketch-u text-fan">money</span> talks.
         </h1>
         <p className="text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
           start a bounty for a creator to make a public, free piece of work.

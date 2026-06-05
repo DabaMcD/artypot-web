@@ -43,7 +43,7 @@ export default function AboutPage() {
 
             <div className="inline-flex items-center gap-2 bg-fan/10 border border-fan/30 text-fan text-xs font-medium px-3 py-1.5 rounded-full mb-2">
               <span className="w-1.5 h-1.5 rounded-full bg-fan animate-pulse" />
-              Artypot is communication device -- a demand coordinator.
+              Artypot is a communication device. A demand coordinator.
             </div>
           </div>
 
@@ -55,7 +55,8 @@ export default function AboutPage() {
 
           <p className="text-xl text-muted max-w-xl leading-relaxed mb-10">
             Fans pool money for specific requests from public entities.
-            Wallets are untouched until the work is done. No risk. Guaranteed results.
+            Wallets are untouched until the work is done. No risk. A wish,
+            multiplied, becomes an offer no one can ignore.
           </p>
 
           <div className="flex flex-wrap gap-3 mb-5">
