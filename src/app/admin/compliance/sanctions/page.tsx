@@ -14,6 +14,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Empty } from '@/components/ui/Empty';
 import { Select, FieldLabel } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Input';
+import { Toggle } from '@/components/ui/Toggle';
 import { Banner } from '@/components/ui/Banner';
 
 type Tab = 'pending' | 'all';
@@ -474,10 +475,7 @@ export default function SanctionsPage() {
                     ))}
                   </Select>
                 </div>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={activeOnly} onChange={(e) => setActiveOnly(e.target.checked)} className="accent-[var(--color-role)]" />
-                  <span className="text-sm text-muted">Active only</span>
-                </label>
+                <Toggle on={activeOnly} onChange={setActiveOnly} label="Active only" className="text-sm text-muted" />
               </div>
             </div>
 

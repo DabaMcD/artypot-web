@@ -92,7 +92,7 @@ function RequestReviewModal({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={4}
-            placeholder="e.g. DM me on Discord @username, or call me in the next 3 hours at (555) 123-4567"
+            placeholder="DM me on Discord @username, or call me in the next 3 hours at (555) 555-5555"
             autoFocus
           />
           <FieldHint>This is only visible to Artypot admins.</FieldHint>
@@ -425,7 +425,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
                 <a href="tel:+17273701237" className="underline text-foreground">+1 (727) 370-1237</a>.
                 He&apos;ll never admit it, but he&apos;s lonely af. He&apos;s never so much as
                 walked hand in hand with a woman before. If you&apos;re a guy, you should
-                definitely call him, but if you&apos;re a girl you should also definitely call him.
+                definitely call him, but if you&apos;re a girl you should DEFINITELY call him.
               </Banner>
             ) : (
               <Banner tone="warn">

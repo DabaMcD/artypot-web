@@ -9,6 +9,7 @@ import { useToast } from '@/lib/toast-context';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Banner } from '@/components/ui/Banner';
+import { Toggle } from '@/components/ui/Toggle';
 import { FieldLabel } from '@/components/ui/Input';
 import SlugInput from '@/components/SlugInput';
 import HandlesSection from '@/components/HandlesSection';
@@ -75,20 +76,17 @@ function TosGate({ onActivated }: { onActivated: () => void }) {
         </Link>
       </div>
 
-      <label className="flex items-start gap-3 cursor-pointer group">
-        <input
-          type="checkbox"
-          checked={agreed}
-          onChange={(e) => setAgreed(e.target.checked)}
-          className="mt-0.5 flex-shrink-0 w-4 h-4 accent-[var(--color-role)] cursor-pointer"
-        />
+      <div className="flex items-start gap-3">
+        <div className="pt-0.5">
+          <Toggle on={agreed} onChange={setAgreed} />
+        </div>
         <span className="text-sm text-foreground leading-snug">
           I have read and agree to the{' '}
           <Link href="/creator-tos" target="_blank" rel="noopener noreferrer" className="text-[var(--color-role)] hover:underline">
             Artypot Creator Terms of Service
           </Link>
         </span>
-      </label>
+      </div>
 
       <Button type="submit" variant="primary" disabled={!canSubmit} className="w-full">
         {submitting ? 'Activating…' : 'Enable Creator Mode →'}
@@ -363,6 +361,25 @@ export default function BecomeCreatorPage() {
       router.push('/login');
     }
   }, [authLoading, user, router]);
+
+  // While the creator is still on step 1 (email) or step 2 (handle), the
+  // completing action often happens *outside* this tab — clicking an email
+  // verification link, or an admin approving a handle review. Poll the user
+  // record every 10s so those steps flip to complete without a manual refresh.
+  // Gated on tab visibility: we only fetch when this tab is actually focused,
+  // never for a backgrounded tab.
+  const onEarlyStep =
+    !!user && !(!!user.email_verified_at && (user.has_verified_handle ?? false));
+  useEffect(() => {
+    if (!onEarlyStep) return;
+    const poll = () => {
+      if (document.visibilityState === 'visible') {
+        refreshUser();
+      }
+    };
+    const id = setInterval(poll, 10_000);
+    return () => clearInterval(id);
+  }, [onEarlyStep, refreshUser]);
 
   if (authLoading || !user) return null;
 
