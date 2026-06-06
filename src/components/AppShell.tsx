@@ -25,6 +25,72 @@ function isAuthRoute(pathname: string) {
   return AUTH_PATHS.includes(pathname) || AUTH_PREFIXES.some((p) => pathname.startsWith(p));
 }
 
+// ── Page padding archetype ────────────────────────────────────────────────────
+//
+// The app has two kinds of pages:
+//
+//   • "App" pages (/search, /dashboard, /settings, …) render a bare
+//     `space-y-* pt-2` root and rely on the shell to supply the outer gutter.
+//   • "Full-bleed" pages (the public marketing/legal surface and every creator
+//     profile under /{slug}) render their OWN centered `mx-auto px-4` container.
+//
+// `isFullBleed` lets the shell pick the right <main> padding so a page looks
+// identical whether the visitor is logged in or out — full-bleed pages must NOT
+// get a second gutter (it double-indents them), and app pages MUST get one (or
+// they sit flush against the edge). The decision is applied to both the
+// authenticated and public branches below so the two states never diverge.
+
+// Static routes whose page component owns its horizontal padding + max-width.
+const FULL_BLEED_EXACT = new Set([
+  '/',                 // landing hero
+  '/about',
+  '/for-creators',
+  '/support',
+  '/guide',
+  '/privacy',
+  '/tos',
+  '/creator-tos',
+  '/bounties',         // browse index — note /bounties/new is app-padded (below)
+  '/cash',
+  '/obelisk',          // /obelisk/* children covered by the prefix below
+  '/settings/password',
+]);
+
+// Prefix matches for the same archetype (dynamic children of the above).
+// The whole /obelisk admin surface centers its own column; /admin/* does not.
+const FULL_BLEED_PREFIXES = ['/privacy/', '/users/', '/obelisk/'];
+
+// App-padded routes that would otherwise be swept up by a broader rule.
+const APP_PADDED_EXACT = new Set(['/bounties/new']);
+
+// Every known static top-level segment. A path whose first segment is NOT one of
+// these is treated as a creator slug (/{slug}, /{slug}/{handle}, /{slug}/bounties)
+// — the public creator surface, which is full-bleed. Keep this in sync when a new
+// top-level route folder is added under src/app.
+const RESERVED_TOP_SEGMENTS = new Set([
+  'about', 'admin', 'backings', 'billing', 'bounties', 'c', 'cash',
+  'creator-tos', 'creators', 'dashboard', 'email', 'for-creators',
+  'forgot-password', 'guide', 'history', 'login', 'oauth', 'obelisk',
+  'privacy', 'register', 'reset-password', 'search', 'settings', 'support',
+  'tos', 'users',
+]);
+
+function isFullBleed(pathname: string): boolean {
+  if (APP_PADDED_EXACT.has(pathname)) return false;
+  if (FULL_BLEED_EXACT.has(pathname)) return true;
+  if (FULL_BLEED_PREFIXES.some((p) => pathname.startsWith(p))) return true;
+  // Bounty detail pages center their own column; /bounties/new does not.
+  if (/^\/bounties\/\d+/.test(pathname)) return true;
+
+  // Anything rooted at an unknown top-level segment is a creator slug → the
+  // public profile surface, which is full-bleed in all its sub-pages.
+  const segments = pathname.split('/').filter(Boolean);
+  if (segments.length >= 1 && !RESERVED_TOP_SEGMENTS.has(segments[0])) {
+    return true;
+  }
+  return false;
+}
+
 /**
  * Returns the bounty id from a `/bounties/{id}` path, or null otherwise.
  * Used to decide whether AppShell needs to fetch the bounty to determine sidebar role.
@@ -107,11 +173,16 @@ export function AppShell({ children }: AppShellProps) {
   // out. There's no banner here (logged-out users can't back bounties), so
   // dispatch is effectively a no-op — but the hook must not throw.
   if (!user) {
+    // Full-bleed pages own their padding; app pages get the shell gutter
+    // (centered here, since there's no sidebar to offset them).
+    const publicMainClass = isFullBleed(pathname)
+      ? 'flex-1 min-w-0'
+      : 'flex-1 px-7 py-7 pb-28 w-full max-w-[1400px] mx-auto';
     return (
       <DefaultUpdatePromptProvider>
         <div className="flex flex-col min-h-screen bg-background">
           <PublicHeader />
-          <main className="flex-1 min-w-0">
+          <main className={publicMainClass}>
             {children}
           </main>
           <PublicFooter />
@@ -122,6 +193,7 @@ export function AppShell({ children }: AppShellProps) {
 
   // Authenticated: full sidebar layout
   const role = inferRole(pathname, user.slug ?? null, user.id ?? null, bountyTargetUserId);
+  const fullBleed = isFullBleed(pathname);
 
   return (
     <NudgeProvider>
@@ -218,7 +290,7 @@ export function AppShell({ children }: AppShellProps) {
           onClose={() => setSidebarOpen(false)}
         />
         <div className="flex-1 min-w-0 flex flex-col">
-          <main className="flex-1 px-7 py-7 pb-28 max-w-[1400px] w-full">
+          <main className={fullBleed ? 'flex-1 min-w-0' : 'flex-1 px-7 py-7 pb-28 max-w-[1400px] w-full'}>
             <NudgeBar />
             <PaymentAuthBanner />
             <PaymentGraceBanner />

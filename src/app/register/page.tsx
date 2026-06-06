@@ -273,9 +273,8 @@ export default function RegisterPage() {
         </Link>
 
         <h1 className="font-display font-bold text-[54px] leading-[1.05] tracking-tight text-foreground mb-5">
-          start with a{' '}
-          <span className="ap-sketch-u text-fan">fan</span>{' '}
-          account.
+          money talks louder when it's still{' '}
+          <span className="ap-sketch-u text-fan">in your pocket</span>
         </h1>
         <p className="text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
           every artypot account starts as a fan — back the bounties you want to

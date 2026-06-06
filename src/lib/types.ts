@@ -244,6 +244,8 @@ export interface Creator {
   profile_picture?: string;
   fan_name?: string;
   fan_name_plural?: string;
+  /** Distinct count of people who have backed this creator's bounties (active + paid-out + locked). */
+  supporter_count?: number;
   youtube_handle?: string;
   twitter_handle?: string;
   tiktok_handle?: string;

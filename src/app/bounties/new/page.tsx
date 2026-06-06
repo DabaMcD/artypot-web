@@ -340,7 +340,7 @@ function Step1({
                 onBlur={() => {
                   blurTimer.current = setTimeout(() => setFocused(false), 150);
                 }}
-                placeholder="e.g. @tomscott on YouTube"
+                placeholder="e.g. mrbeast"
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck={false}
