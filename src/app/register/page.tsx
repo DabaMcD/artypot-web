@@ -273,9 +273,8 @@ export default function RegisterPage() {
         </Link>
 
         <h1 className="font-display font-bold text-[54px] leading-[1.05] tracking-tight text-foreground mb-5">
-          start with a{' '}
-          <span className="ap-sketch-u text-fan">fan</span>{' '}
-          account.
+          money talks louder when it's still{' '}
+          <span className="ap-sketch-u text-fan">in your pocket</span>
         </h1>
         <p className="text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
           every artypot account starts as a fan — back the bounties you want to
@@ -286,7 +285,7 @@ export default function RegisterPage() {
           <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">how a bounty works</div>
           <ul className="space-y-2.5">
             {[
-              'Back a bounty you want to exist — or open a new one. Nothing is charged up front.',
+              'Back a bounty you want to exist — or open a new one. Nothing is charged upfront.',
               "Fans pile on until the creator decides it's worth making, then they submit the finished work.",
               "Once it's verified as delivered, your card is charged — never before.",
             ].map((line) => (

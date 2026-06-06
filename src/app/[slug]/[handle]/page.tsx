@@ -172,7 +172,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   // ── Not found ──────────────────────────────────────────────────────────────
   if (state.kind === 'not-platform') {
     return (
-      <div className="space-y-6 pt-2 max-w-xl">
+      <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
         <div>
           <SectionLabel>platform handle</SectionLabel>
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">page not found</h1>
@@ -191,7 +191,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   // ── Error ──────────────────────────────────────────────────────────────────
   if (state.kind === 'error') {
     return (
-      <div className="space-y-6 pt-2 max-w-xl">
+      <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
         <p className="text-sm text-bad">
           something went wrong looking that up. try again in a moment.
         </p>

@@ -44,6 +44,14 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
           return;
         }
 
+        // Canonical-URL redirect: fold case/separator variants of the slug
+        // (/JaneDoe/bounties, /jane-doe/bounties) to the creator's stored
+        // canonical, lowercase form so the URL settles on one address.
+        if (res.user.slug && res.user.slug !== slug) {
+          router.replace(`/${res.user.slug}/bounties`);
+          return;
+        }
+
         const userId = res.user.id;
         const creatorRes = await creatorsApi.get(userId);
         if (cancelled) return;
@@ -81,9 +89,9 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
   }, []);
 
   useEffect(() => {
-    if (!creator?.user_id) return;
-    fetchBounties(creator.user_id, statusFilter, page);
-  }, [creator?.user_id, statusFilter, page, fetchBounties]);
+    if (!creator?.id) return;
+    fetchBounties(creator.id, statusFilter, page);
+  }, [creator?.id, statusFilter, page, fetchBounties]);
 
   const handleFilterChange = (f: FilterStatus) => {
     setStatusFilter(f);
@@ -92,7 +100,7 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
 
   if (pageState === 'loading') {
     return (
-      <div className="space-y-7 pt-2">
+      <div className="max-w-6xl mx-auto px-4 py-10 space-y-7">
         <div className="h-8 w-48 bg-surface animate-pulse rounded" />
         <div className="h-32 bg-surface animate-pulse rounded" />
       </div>
@@ -101,7 +109,7 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
 
   if (pageState === 'not_found') {
     return (
-      <div className="space-y-6 pt-2 max-w-[600px]">
+      <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
         <div>
           <SectionLabel>not found</SectionLabel>
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">creator not found</h1>
@@ -116,7 +124,7 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
 
   if (pageState === 'error' || !creator) {
     return (
-      <div className="space-y-6 pt-2 max-w-[600px]">
+      <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
         <h1 className="font-display font-bold text-[28px] text-foreground">Something went wrong</h1>
         <p className="text-sm text-muted">Couldn&apos;t load this creator&apos;s bounties.</p>
       </div>
@@ -130,7 +138,7 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
     : 'No bounties yet for this creator.';
 
   return (
-    <div className="space-y-7 pt-2">
+    <div className="max-w-6xl mx-auto px-4 py-10 space-y-7">
       <div>
         <h1 className="font-display font-bold text-[28px] text-foreground">bounties</h1>
         <Link

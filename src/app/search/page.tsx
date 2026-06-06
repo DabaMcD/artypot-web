@@ -18,6 +18,7 @@ import CreatorCard from '@/components/CreatorCard';
 import { SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Empty } from '@/components/ui/Empty';
+import { Toggle } from '@/components/ui/Toggle';
 
 type FilterType = 'all' | 'people' | 'bounties';
 type SortOption = 'newest' | 'most_backed' | 'most_completed';
@@ -231,15 +232,7 @@ function SearchPageInner() {
             <section className="space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">Bounties</h2>
-                <label className="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={includeCompleted}
-                    onChange={(e) => setIncludeCompleted(e.target.checked)}
-                    className="accent-fan"
-                  />
-                  include completed
-                </label>
+                <Toggle on={includeCompleted} onChange={setIncludeCompleted} label="include completed" className="text-xs text-muted" />
               </div>
               {bounties.length === 0 && !loading ? (
                 <EmptyNote>

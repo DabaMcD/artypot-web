@@ -118,14 +118,17 @@ body {
   margin-right: 8px;
 }
 
-/* Toggle on state */
+/* Toggle on state — track filled with role color for vivid on-ness */
 .ap-toggle-track-on {
-  background: var(--color-role-soft) !important;
+  background: var(--color-role) !important;
   border-color: var(--color-role) !important;
 }
 .ap-toggle-thumb-on {
-  background: var(--color-role) !important;
-  transform: translateX(21px);
+  background: var(--color-background) !important;
+}
+/* Toggle off state — themed border keeps the control visible against dark bg */
+.ap-toggle-track-off {
+  border-color: var(--color-role) !important;
 }
 
 /* Inline link role color */

@@ -43,8 +43,10 @@ interface SlugInputProps {
 /**
  * Slug picker with live format + availability validation.
  *
- * Strips leading `@`/`/` and uppercase chars from input so creators get
- * forgiving paste behavior. Debounces availability checks against the API.
+ * Strips leading `@`/`/` and lowercases input so creators get forgiving
+ * paste/typing behavior. Slugs are lowercase-canonical: URLs always resolve
+ * to lowercase (see App\Support\CreatorSlug), and stylized identity lives in
+ * `display_name`. Debounces availability checks against the API.
  */
 export default function SlugInput({
   value,
@@ -98,9 +100,11 @@ export default function SlugInput({
     };
   }, [value, formatError]);
 
-  // Forgiving paste handling — strip an accidental leading '/', '@', or whitespace.
+  // Forgiving paste/typing handling — lowercase live (slugs are
+  // lowercase-canonical) and strip an accidental leading '/', '@', or
+  // whitespace. Stylized casing belongs in `display_name`, not the URL slug.
   const handleChange = (raw: string) => {
-    const cleaned = raw.trim().replace(/^[/@]+/, '');
+    const cleaned = raw.trim().replace(/^[/@]+/, '').toLowerCase();
     onChange(cleaned);
   };
 

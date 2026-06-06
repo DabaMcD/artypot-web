@@ -10,6 +10,7 @@ import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Empty } from '@/components/ui/Empty';
 import { Select, FieldLabel } from '@/components/ui/Input';
+import { Toggle } from '@/components/ui/Toggle';
 
 function fmt(d: string | null) {
   if (!d) return '—';
@@ -109,10 +110,7 @@ export default function ContentRulesPage() {
             { label: 'Local rep required', value: filterLocalRep, set: setFilterLocalRep },
             { label: 'Active only', value: activeOnly, set: setActiveOnly },
           ].map(({ label, value, set }) => (
-            <label key={label} className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={value} onChange={(e) => set(e.target.checked)} className="accent-[var(--color-role)]" />
-              <span className="text-sm text-muted">{label}</span>
-            </label>
+            <Toggle key={label} on={value} onChange={set} label={label} className="text-sm text-muted" />
           ))}
         </div>
       </div>

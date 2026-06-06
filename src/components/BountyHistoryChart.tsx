@@ -40,7 +40,7 @@ const CLICKABLE_TYPES = new Set<string>(['created', 'details_edited']);
 const FIELD_LABELS: Record<string, string> = {
   title: 'title',
   description: 'description',
-  display_name: 'creator name',
+  display_name: 'creator display name',
 };
 
 function formatDate(iso: string): string {

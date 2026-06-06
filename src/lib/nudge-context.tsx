@@ -14,6 +14,13 @@ interface NudgeContextValue {
 
 const NudgeContext = createContext<NudgeContextValue | null>(null);
 
+// Poll cadence for nudge-bar updates. A focused tab refreshes briskly so a
+// freshly-resolved nudge (e.g. a verified handle, a settled balance) clears
+// within a minute; a backgrounded tab falls back to the same slow cadence the
+// notification poller uses, to avoid hammering the API for a hidden page.
+const FOCUSED_POLL_INTERVAL = 60 * 1000;        // 60s while the tab is focused
+const BACKGROUND_POLL_INTERVAL = 5 * 60 * 1000; // 5min while the tab is hidden
+
 export function NudgeProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [nudge, setNudge] = useState<Nudge | null>(null);
@@ -35,6 +42,35 @@ export function NudgeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  // Keep the nudge bar fresh without a manual reload. The cadence tracks tab
+  // visibility: 60s while focused, 5min while hidden. We also refresh
+  // immediately on regaining focus so a user returning to the tab sees an
+  // up-to-date bar at once rather than waiting out the interval.
+  useEffect(() => {
+    if (!user) return;
+    let interval: ReturnType<typeof setInterval> | undefined;
+
+    const start = () => {
+      if (interval) clearInterval(interval);
+      const period = document.visibilityState === 'visible'
+        ? FOCUSED_POLL_INTERVAL
+        : BACKGROUND_POLL_INTERVAL;
+      interval = setInterval(refresh, period);
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') refresh();
+      start(); // re-arm the interval at the cadence for the new visibility state
+    };
+
+    start();
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      if (interval) clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [user, refresh]);
 
   const dismiss = useCallback(async (type: string) => {
     setNudge(null); // Optimistic

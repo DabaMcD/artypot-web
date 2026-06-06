@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { auth as authApi } from '@/lib/api';
 import { nextTarget, readNextFromLocation, withNext, OAUTH_NEXT_KEY } from '@/lib/next-redirect';
-import { PLATFORM_FEE_PCT, PHONE_SIGNUP_ENABLED, BILLING_GRACE_PERIOD_DAYS } from '@/lib/config';
+import { PLATFORM_FEE_PCT, PHONE_SIGNUP_ENABLED, PAYOUT_MINIMUM_AUTOMATED } from '@/lib/config';
 import { Button } from '@/components/ui/Button';
 import { Input, FieldLabel } from '@/components/ui/Input';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
@@ -118,8 +118,7 @@ export default function LoginPage() {
         </Link>
 
         <h1 className="font-display font-bold text-[54px] leading-[1.05] tracking-tight text-foreground mb-5">
-          put your money where your{' '}
-          <span className="ap-sketch-u text-fan">mouth</span> is.
+          <span className="ap-sketch-u text-fan">money</span> talks.
         </h1>
         <p className="text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
           start a bounty for a creator to make a public, free piece of work.
@@ -133,14 +132,14 @@ export default function LoginPage() {
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">only after delivery</div>
           </div>
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">disputes</div>
-            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">{BILLING_GRACE_PERIOD_DAYS} days</div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">to flag a charge</div>
-          </div>
-          <div>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted">creators keep</div>
             <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">{100 - PLATFORM_FEE_PCT}%</div>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">no sales tax</div>
+          </div>
+          <div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">payouts</div>
+            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">${PAYOUT_MINIMUM_AUTOMATED} min</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">to 50+ countries</div>
           </div>
         </div>
       </div>

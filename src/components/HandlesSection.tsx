@@ -82,9 +82,8 @@ function RequestReviewModal({
     <Modal title={`verify @${claim.handle.username}`} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <p className="text-sm text-muted">
-          Leave a message telling admins how they can confirm you own this{' '}
-          <span className="text-foreground">{platformLabel}</span> account.
-          For example, an email address, a DM handle on another platform, or a link to a post you can make.
+          How can we quickly get in touch? Let&apos;s chat so we can verify your{' '}
+          <span className="text-foreground">{platformLabel}</span> account ownership.
         </p>
 
         <div>
@@ -93,7 +92,7 @@ function RequestReviewModal({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={4}
-            placeholder="e.g. DM me on Discord @username, or email me at hello@example.com"
+            placeholder="DM me on Discord @username, or call me in the next 3 hours at (555) 555-5555"
             autoFocus
           />
           <FieldHint>This is only visible to Artypot admins.</FieldHint>
@@ -173,10 +172,16 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
   const [claims, setClaims] = useState<HandleClaim[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Add handle inline form
-  const [addPlatform, setAddPlatform] = useState<HandlePlatform>('twitter');
+  // Add handle inline form. Platform starts unset so the dropdown reads
+  // "Select a platform" instead of pre-committing the creator to Twitter.
+  const [addPlatform, setAddPlatform] = useState<HandlePlatform | ''>('');
   const [addUsername, setAddUsername] = useState('');
   const [adding, setAdding] = useState(false);
+  // When the creator already has at least one claim, collapse the add form
+  // behind a "+ add another handle" button. Without this gate, creators tend
+  // to keep filling out fields without realizing they still need to click
+  // "request admin review" on the handle they just added.
+  const [showAddForm, setShowAddForm] = useState(false);
 
   // Modals
   const [reviewingClaim, setReviewingClaim] = useState<HandleClaim | null>(null);
@@ -208,7 +213,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!addUsername.trim()) return;
+    if (!addPlatform || !addUsername.trim()) return;
     setAdding(true);
     try {
       const res = await handlesApi.store(addPlatform, addUsername.trim());
@@ -219,6 +224,8 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
         'success',
       );
       setAddUsername('');
+      setAddPlatform('');
+      setShowAddForm(false);
       setClaims((prev) => {
         const exists = prev.some((c) => c.claim_id === res.data.claim_id);
         return exists ? prev : [res.data, ...prev];
@@ -319,7 +326,16 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
                           Connect via {platformLabel} →
                         </Button>
                       )}
-                      <Button size="sm" variant="default" onClick={() => setReviewingClaim(claim)}>
+                      {/* If OAuth is available, it's the preferred path — keep
+                          admin review as the secondary (default) option. If no
+                          OAuth path exists, admin review is the *only* way to
+                          verify, so promote it to the primary button so the
+                          creator can't miss it. */}
+                      <Button
+                        size="sm"
+                        variant={supportsOAuth ? 'default' : 'primary'}
+                        onClick={() => setReviewingClaim(claim)}
+                      >
                         {pendingReview ? 'Update Review Request' : 'Request Admin Review'}
                       </Button>
                     </div>
@@ -330,33 +346,95 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
           </ul>
         ) : null}
 
-        {/* Add handle inline form */}
-        <form onSubmit={handleAdd} className="space-y-3">
-          <div>
-            <FieldLabel>platform</FieldLabel>
-            <Select value={addPlatform} onChange={(e) => setAddPlatform(e.target.value as HandlePlatform)}>
-              {PLATFORMS.map(({ value, label }) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </Select>
-          </div>
+        {/* Add handle form — shown upfront only when no handles exist yet.
+            Once at least one claim is on file, collapse behind a button so
+            creators are nudged toward verifying the handle they just added
+            rather than mindlessly piling on more. */}
+        {claims.length === 0 || showAddForm ? (
+          <form onSubmit={handleAdd} className="space-y-3">
+            <div>
+              <FieldLabel>platform</FieldLabel>
+              <Select
+                value={addPlatform}
+                onChange={(e) => setAddPlatform(e.target.value as HandlePlatform | '')}
+              >
+                <option value="">Select a platform</option>
+                {PLATFORMS.map(({ value, label }) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </Select>
+            </div>
 
-          <PlatformHandleInput
-            platform={addPlatform}
-            value={addUsername}
-            onChange={setAddUsername}
-            disabled={adding}
-          />
+            {addPlatform && (
+              <PlatformHandleInput
+                platform={addPlatform}
+                value={addUsername}
+                onChange={setAddUsername}
+                disabled={adding}
+              />
+            )}
 
+            <div className="flex gap-2">
+              <Button
+                type="submit"
+                variant="default"
+                size="sm"
+                disabled={adding || !addPlatform || !addUsername.trim()}
+              >
+                {adding ? 'Adding…' : 'Add Handle →'}
+              </Button>
+              {claims.length > 0 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShowAddForm(false);
+                    setAddPlatform('');
+                    setAddUsername('');
+                  }}
+                  disabled={adding}
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
+          </form>
+        ) : (
           <Button
-            type="submit"
-            variant="default"
+            type="button"
+            variant="ghost"
             size="sm"
-            disabled={adding || !addUsername.trim()}
+            onClick={() => setShowAddForm(true)}
           >
-            {adding ? 'Adding…' : 'Add Handle →'}
+            + add another handle
           </Button>
-        </form>
+        )}
+
+        {/* Verification nudge — eye-catching so a lost creator can't miss it.
+            Copy flips once any unverified claim has been submitted for admin
+            review: stops asking them to "go verify it" and instead reassures
+            them that the request is in flight. */}
+        {claims.some((c) => c.status === 'unverified') && (
+          <div className="mt-4">
+            {claims.some((c) => c.status === 'unverified' && c.pending_review) ? (
+              <Banner tone="default">
+                <span className="font-bold text-foreground">Review request submitted.</span>{' '}
+                Please be patient, and Baldwig will reach out as soon as possible!
+                Or you can try your luck and call Baldwig directly at{' '}
+                <a href="tel:+17273701237" className="underline text-foreground">+1 (727) 370-1237</a>.
+                He&apos;ll never admit it, but he&apos;s lonely af. He&apos;s never so much as
+                walked hand in hand with a woman before. If you&apos;re a guy, you should
+                definitely call him, but if you&apos;re a girl you should DEFINITELY call him.
+              </Banner>
+            ) : (
+              <Banner tone="warn">
+                <span className="font-bold text-foreground">You&apos;ve added a handle — now verify it.</span>{' '}
+                Connect via OAuth or request admin review using the buttons above.
+              </Banner>
+            )}
+          </div>
+        )}
     </>
   );
 

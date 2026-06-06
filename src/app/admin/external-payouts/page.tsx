@@ -17,6 +17,7 @@ import { Card, SectionLabel } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Input, Select, Textarea, FieldLabel, FieldHint } from '@/components/ui/Input';
 import { Empty } from '@/components/ui/Empty';
+import { Toggle } from '@/components/ui/Toggle';
 
 const METHODS: ExternalPayoutMethod[] = ['wise', 'paypal', 'wire', 'check', 'other'];
 
@@ -484,15 +485,9 @@ export default function AdminExternalPayoutsPage() {
             <FieldLabel>Filter by creator</FieldLabel>
             <CreatorAutocomplete value={creatorFilter} onChange={setCreatorFilter} />
           </div>
-          <label className="flex items-center gap-2 mt-1 sm:mt-7 font-mono text-[10px] uppercase tracking-wider text-muted cursor-pointer">
-            <input
-              type="checkbox"
-              checked={includeReversed}
-              onChange={(e) => setIncludeReversed(e.target.checked)}
-              className="accent-[var(--color-role)]"
-            />
-            include reversed
-          </label>
+          <div className="mt-1 sm:mt-7">
+            <Toggle on={includeReversed} onChange={setIncludeReversed} label="include reversed" className="font-mono text-[10px] uppercase tracking-wider text-muted" />
+          </div>
           <div className="flex-1" />
           <Button variant="primary" onClick={() => setShowNew(true)} className="mt-1 sm:mt-6">
             + Record new payout

@@ -56,6 +56,15 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
           return;
         }
 
+        // Canonical-URL redirect: the slug resolved, but the URL may be a
+        // case or separator variant of the creator's canonical slug
+        // (e.g. /JaneDoe or /jane-doe → /jane_doe). Fold it to the stored
+        // form so every variant settles on one canonical, lowercase URL.
+        if (res.user.slug && res.user.slug !== slug) {
+          router.replace(`/${res.user.slug}`);
+          return;
+        }
+
         // res.match === 'current' — load full profile data
         const userId = res.user.id;
         const [creatorRes, bountiesRes] = await Promise.all([
@@ -72,7 +81,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
         if (user) {
           followingApi.index().then((f) => {
             if (cancelled) return;
-            setIsFollowing(f.users.includes(creatorRes.data.user_id ?? -1));
+            setIsFollowing(f.users.includes(creatorRes.data.id));
           }).catch(() => {});
         }
       } catch (err) {
@@ -89,11 +98,11 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
     setFollowLoading(true);
     try {
       if (isFollowing) {
-        await followingApi.unfollow('user', creator.user_id!);
+        await followingApi.unfollow('user', creator.id);
         setIsFollowing(false);
         toast('Unfollowed.', 'success');
       } else {
-        await followingApi.follow('user', creator.user_id!);
+        await followingApi.follow('user', creator.id);
         setIsFollowing(true);
         toast('Following!', 'success');
       }
@@ -121,7 +130,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   // ── Not found ──────────────────────────────────────────────────────────────
   if (pageState === 'not-found') {
     return (
-      <div className="space-y-6 pt-2 max-w-xl">
+      <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
         <div>
           <SectionLabel>creator</SectionLabel>
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">no creator at /{slug}</h1>
@@ -140,7 +149,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   // ── Error ──────────────────────────────────────────────────────────────────
   if (pageState === 'error' || !creator) {
     return (
-      <div className="space-y-6 pt-2 max-w-xl">
+      <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
         <p className="text-sm text-bad">
           something went wrong looking that up. try again in a moment.
         </p>
@@ -191,12 +200,15 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                     <Badge tone="creator" lg>Creator</Badge>
                   </div>
 
-                  {creator.fan_name && (
-                    <p className="text-sm text-muted mb-2">
-                      Fans called:{' '}
-                      <span className="text-foreground">{creator.fan_name_plural ?? creator.fan_name}</span>
-                    </p>
-                  )}
+                  <p className="text-sm text-muted mb-2">
+                    Supported by{' '}
+                    <span className="text-foreground">{(creator.supporter_count ?? 0).toLocaleString()}</span>{' '}
+                    <span className="text-foreground">
+                      {creator.supporter_count === 1
+                        ? (creator.fan_name ?? 'fan')
+                        : (creator.fan_name_plural ?? creator.fan_name ?? 'fans')}
+                    </span>
+                  </p>
 
                   {creator.country_code && (
                     <p className="text-sm text-muted mb-2">
@@ -225,7 +237,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                 )}
 
                 {/* Follow button — shown to any logged-in user who isn't the creator */}
-                {user && user.id !== (creator.user_id ?? -1) && (
+                {user && user.id !== creator.id && (
                   <div className="shrink-0">
                     <Button
                       variant="default"

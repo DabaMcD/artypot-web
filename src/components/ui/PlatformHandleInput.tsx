@@ -67,9 +67,7 @@ export function PlatformHandleInput({ platform, value, onChange, disabled }: Pla
 
     return (
       <div>
-        <FieldLabel>
-          Website URL <span className="text-bad">*</span>
-        </FieldLabel>
+        <FieldLabel>Website URL</FieldLabel>
         <div className={`flex items-center w-full px-3 py-2.5 bg-background border rounded transition-colors text-base ${
           showError ? 'border-bad/60' : 'border-border focus-within:border-[var(--color-role)]'
         }`}>
@@ -103,9 +101,7 @@ export function PlatformHandleInput({ platform, value, onChange, disabled }: Pla
 
   return (
     <div>
-      <FieldLabel>
-        {cfg.label} <span className="text-bad">*</span>
-      </FieldLabel>
+      <FieldLabel>{cfg.label}</FieldLabel>
       <div className="flex items-center w-full px-3 py-2.5 bg-background border border-border rounded focus-within:border-[var(--color-role)] transition-colors text-base">
         <span className="text-foreground select-none shrink-0 pointer-events-none">{cfg.prefix}</span>
         <input

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, use, FormEvent, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 type ExpireUnit = 'years' | 'months' | 'weeks' | 'days' | 'hours' | 'minutes';
 
@@ -116,6 +116,17 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   // Backers / Comments tab
   const [activeTab, setActiveTab]       = useState<'backings' | 'comments'>('backings');
   const [commentCount, setCommentCount] = useState<number | null>(null);
+
+  // Deep-link to a specific comment (?commentId=) — from a notification or email.
+  // When present, open the comments tab so the linked comment is visible.
+  const searchParams = useSearchParams();
+  const commentIdParam = searchParams.get('commentId');
+  const highlightCommentId = commentIdParam ? Number(commentIdParam) : undefined;
+  useEffect(() => {
+    if (highlightCommentId && !Number.isNaN(highlightCommentId)) {
+      setActiveTab('comments');
+    }
+  }, [highlightCommentId]);
 
   // ── History ──────────────────────────────────────────────────────────────────
   const [showHistory, setShowHistory] = useState(false);
@@ -1350,7 +1361,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
 
             {/* Comments panel — always mounted so it silently fetches the count */}
             <div className={`p-5 ${activeTab !== 'comments' ? 'hidden' : ''}`}>
-              <CommentSection bountyId={bounty.id} inline onTotalChange={setCommentCount} />
+              <CommentSection
+                bountyId={bounty.id}
+                inline
+                onTotalChange={setCommentCount}
+                highlightCommentId={highlightCommentId && !Number.isNaN(highlightCommentId) ? highlightCommentId : undefined}
+              />
             </div>
 
           </Card>
