@@ -214,6 +214,66 @@ export interface TreasurySummary {
   as_of: string;
 }
 
+// ── Overlord Data Integrity ─────────────────────────────────────────────────
+
+export type IntegrityStatus = 'ok' | 'warn' | 'fail';
+
+export interface IntegrityCheck {
+  key: string;
+  label: string;
+  description: string;
+  severity: 'warn' | 'fail';
+  status: IntegrityStatus;
+  count: number;
+  sample: string[];
+}
+
+export interface IntegrityReport {
+  summary: { ok: number; warn: number; fail: number };
+  checks: IntegrityCheck[];
+  as_of: string;
+}
+
+// ── Overlord System ops (crons, queues, failed jobs) ────────────────────────
+
+export interface ScheduledTask {
+  name: string;
+  type: 'command' | 'job';
+  expression: string;
+  description: string | null;
+  next_run_at: string | null;
+  timezone: string;
+}
+
+export interface QueueDepth {
+  queue: string;
+  total: number;
+  reserved: number;
+  ready: number;
+  oldest_available_at: string | null;
+}
+
+export interface FailedJob {
+  uuid: string;
+  name: string;
+  queue: string;
+  connection: string;
+  exception: string;
+  failed_at: string;
+}
+
+export interface SystemSnapshot {
+  warp_speed: boolean;
+  queue_driver: string;
+  scheduled: ScheduledTask[];
+  queues: QueueDepth[];
+  failed: {
+    total: number;
+    recent: FailedJob[];
+  };
+  as_of: string;
+}
+
 export interface CouncilPage {
   data: CouncilMember[];
   current_page: number;

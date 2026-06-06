@@ -25,6 +25,8 @@ import type {
   TreasurySummary,
   PlatformWithdrawal,
   PlatformWithdrawalCategory,
+  SystemSnapshot,
+  IntegrityReport,
   AdminBountyCompletion,
   HandleVerificationApplicationRow,
   HandleVerificationApplicationStatus,
@@ -876,6 +878,26 @@ export const overlord = {
         method: 'POST',
         body: JSON.stringify({ reason }),
       }),
+  },
+
+  integrity: () =>
+    request<{ data: IntegrityReport }>('/overlord/integrity'),
+
+  system: {
+    get: () =>
+      request<{ data: SystemSnapshot }>('/overlord/system'),
+
+    retryFailed: (uuid: string) =>
+      request<{ message: string }>(`/overlord/system/failed-jobs/${uuid}/retry`, { method: 'POST' }),
+
+    forgetFailed: (uuid: string) =>
+      request<{ message: string }>(`/overlord/system/failed-jobs/${uuid}`, { method: 'DELETE' }),
+
+    retryAllFailed: () =>
+      request<{ message: string }>('/overlord/system/failed-jobs/retry-all', { method: 'POST' }),
+
+    flushFailed: () =>
+      request<{ message: string }>('/overlord/system/failed-jobs', { method: 'DELETE' }),
   },
 };
 
