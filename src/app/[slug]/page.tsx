@@ -116,7 +116,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   // ── Loading ────────────────────────────────────────────────────────────────
   if (pageState === 'loading') {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-10">
+      <div className="max-w-6xl mx-auto px-7 py-10">
         <div className="h-48 bg-surface border border-border rounded-xl animate-pulse mb-6" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -130,7 +130,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   // ── Not found ──────────────────────────────────────────────────────────────
   if (pageState === 'not-found') {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
+      <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
         <div>
           <SectionLabel>creator</SectionLabel>
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">no creator at /{slug}</h1>
@@ -149,7 +149,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   // ── Error ──────────────────────────────────────────────────────────────────
   if (pageState === 'error' || !creator) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
+      <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
         <p className="text-sm text-bad">
           something went wrong looking that up. try again in a moment.
         </p>
@@ -165,7 +165,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   const socialLinks = SOCIAL_LINKS.filter(({ key }) => creator[key]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
+    <div className="max-w-6xl mx-auto px-7 py-10">
         <div className="flex flex-col lg:flex-row gap-8">
 
           {/* ── Main column ────────────────────────────────────────────────── */}

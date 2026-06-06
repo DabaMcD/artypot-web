@@ -178,6 +178,42 @@ export interface CouncilMember {
   appointed_by: { id: number; display_name: string; email: string } | null;
 }
 
+/** Overlord Treasury — platform-wide financial reconciliation. */
+export interface TreasurySummary {
+  /** Live USD platform balance (available + pending) from Stripe. Null if unreachable. */
+  stripe_balance: number | null;
+  /** What the ledger says Stripe should be holding (owed_to_creators + platform_float). */
+  expected_balance: number;
+  /** Whether stripe_balance matches expected within tolerance. Null if balance unavailable. */
+  reconciled: boolean | null;
+  /** stripe_balance − expected_balance. Null if balance unavailable. */
+  discrepancy: number | null;
+  /** Total un-withdrawn creator earnings (our liability). */
+  owed_to_creators: number;
+  /** Portion of owed_to_creators that is withdrawable now. */
+  owed_available: number;
+  /** Portion of owed_to_creators still inside the payout hold window. */
+  owed_clearing: number;
+  /** Our own accumulated fee revenue still in the platform account. */
+  platform_float: number;
+  /** Platform fee revenue collected month-to-date. */
+  fee_revenue_mtd: number;
+  /** Platform fee revenue collected all-time. */
+  platform_fees_total: number;
+  /** Gross collected from fans all-time (net + stripe fees + platform fees). */
+  gross_collected: number;
+  /** Stripe processing fees paid all-time. */
+  stripe_fees_total: number;
+  /** Total ever paid out to creators (withdrawals + external payouts). */
+  paid_out_to_creators: number;
+  /** Rail fees Artypot has absorbed on manual payouts (non-reversed). Reduces the float. */
+  absorbed_payout_fees: number;
+  /** Lifetime platform funds swept out of Stripe for business use (non-reversed). Reduces the float. */
+  business_withdrawals_total: number;
+  /** ISO timestamp the snapshot was computed. */
+  as_of: string;
+}
+
 export interface CouncilPage {
   data: CouncilMember[];
   current_page: number;
@@ -538,11 +574,40 @@ export interface ExternalPayout {
   creator_id: number;
   creator?: { id: number; display_name: string; email?: string };
   amount: number;
+  /** Rail fee (Wise/PayPal/wire/etc.) absorbed by Artypot. Not deducted from the creator. */
+  transaction_fee: number;
   method: ExternalPayoutMethod;
   external_reference_id: string | null;
   sent_at: string;          // YYYY-MM-DD
   notes: string | null;
   receipt_path: string | null;
+  recorded_by_admin_id: number;
+  recorded_by?: { id: number; display_name: string };
+  reversed_at: string | null;
+  reversed_by_admin_id: number | null;
+  reversed_by?: { id: number; display_name: string };
+  reversal_reason: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type PlatformWithdrawalCategory =
+  | 'business_expense'
+  | 'payroll'
+  | 'tax'
+  | 'owner_draw'
+  | 'transfer'
+  | 'other';
+
+/** A withdrawal of platform funds from Stripe for non-creator purposes. */
+export interface PlatformWithdrawal {
+  id: number;
+  amount: number;
+  category: PlatformWithdrawalCategory;
+  destination: string;
+  external_reference_id: string | null;
+  withdrawn_at: string;       // YYYY-MM-DD
+  notes: string | null;
   recorded_by_admin_id: number;
   recorded_by?: { id: number; display_name: string };
   reversed_at: string | null;

@@ -100,7 +100,7 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
 
   if (pageState === 'loading') {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-10 space-y-7">
+      <div className="max-w-6xl mx-auto px-7 py-10 space-y-7">
         <div className="h-8 w-48 bg-surface animate-pulse rounded" />
         <div className="h-32 bg-surface animate-pulse rounded" />
       </div>
@@ -109,7 +109,7 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
 
   if (pageState === 'not_found') {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
+      <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
         <div>
           <SectionLabel>not found</SectionLabel>
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">creator not found</h1>
@@ -124,7 +124,7 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
 
   if (pageState === 'error' || !creator) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
+      <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
         <h1 className="font-display font-bold text-[28px] text-foreground">Something went wrong</h1>
         <p className="text-sm text-muted">Couldn&apos;t load this creator&apos;s bounties.</p>
       </div>
@@ -138,7 +138,7 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
     : 'No bounties yet for this creator.';
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10 space-y-7">
+    <div className="max-w-6xl mx-auto px-7 py-10 space-y-7">
       <div>
         <h1 className="font-display font-bold text-[28px] text-foreground">bounties</h1>
         <Link

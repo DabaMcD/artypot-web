@@ -68,8 +68,8 @@ const APP_PADDED_EXACT = new Set(['/bounties/new']);
 // — the public creator surface, which is full-bleed. Keep this in sync when a new
 // top-level route folder is added under src/app.
 const RESERVED_TOP_SEGMENTS = new Set([
-  'about', 'admin', 'backings', 'billing', 'bounties', 'c', 'cash',
-  'creator-tos', 'creators', 'dashboard', 'email', 'for-creators',
+  'about', 'admin', 'backings', 'become-creator', 'billing', 'bounties', 'c',
+  'cash', 'creator-tos', 'creators', 'dashboard', 'email', 'for-creators',
   'forgot-password', 'guide', 'history', 'login', 'oauth', 'obelisk',
   'privacy', 'register', 'reset-password', 'search', 'settings', 'support',
   'tos', 'users',
@@ -291,10 +291,17 @@ export function AppShell({ children }: AppShellProps) {
         />
         <div className="flex-1 min-w-0 flex flex-col">
           <main className={fullBleed ? 'flex-1 min-w-0' : 'flex-1 px-7 py-7 pb-28 max-w-[1400px] w-full'}>
-            <NudgeBar />
-            <PaymentAuthBanner />
-            <PaymentGraceBanner />
-            <DefaultUpdatePromptBar />
+            {/* On full-bleed pages <main> supplies no padding, so the banner
+                stack would otherwise sit flush to the viewport edges. Wrap it in
+                the same centered column the profile pages use. `:not(:empty)`
+                keeps the top gutter from adding dead space when no banner is
+                active (each banner renders null when it has nothing to show). */}
+            <div className={fullBleed ? '[&:not(:empty)]:pt-7 max-w-6xl mx-auto px-7' : ''}>
+              <NudgeBar />
+              <PaymentAuthBanner />
+              <PaymentGraceBanner />
+              <DefaultUpdatePromptBar />
+            </div>
             {children}
           </main>
         </div>

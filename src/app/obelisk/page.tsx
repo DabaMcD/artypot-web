@@ -24,6 +24,12 @@ const NAV_ITEMS = [
     title: 'Metrics',
     desc: 'Platform-wide stats on users, bounties, and backings.',
   },
+  {
+    href: '/obelisk/treasury',
+    icon: '💰',
+    title: 'Treasury',
+    desc: 'The Float — Stripe balance vs. ledger, and who the money belongs to.',
+  },
 ] as const;
 
 export default function OverlordPage() {

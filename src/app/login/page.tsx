@@ -9,7 +9,7 @@ import { auth as authApi } from '@/lib/api';
 import { nextTarget, readNextFromLocation, withNext, OAUTH_NEXT_KEY } from '@/lib/next-redirect';
 import { PLATFORM_FEE_PCT, PHONE_SIGNUP_ENABLED, PAYOUT_MINIMUM_AUTOMATED } from '@/lib/config';
 import { Button } from '@/components/ui/Button';
-import { Input, FieldLabel } from '@/components/ui/Input';
+import { Input, PasswordInput, FieldLabel } from '@/components/ui/Input';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 
 /** All OAuth providers the backend supports, in preferred display order. */
@@ -242,8 +242,7 @@ export default function LoginPage() {
 
           <div>
             <FieldLabel>password</FieldLabel>
-            <Input
-              type="password"
+            <PasswordInput
               required
               autoComplete="current-password"
               value={password}

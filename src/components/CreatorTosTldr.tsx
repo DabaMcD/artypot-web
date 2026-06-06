@@ -84,9 +84,8 @@ export default function CreatorTosTldr({
           <span>
             <strong>Artypot is family friendly.</strong>{' '}Your bounty text, profile,
             handles, and completion notes are public and must be PG. You also can&apos;t use a
-            bounty to fund adult content (our payment partners forbid it). Nothing illegal, and
-            nothing that sexualizes or exploits minors — ever. What you make and host elsewhere
-            is your business.
+            bounty to fund adult content (our payment partners forbid it). Nothing illegal.
+            What you make and host elsewhere is your business.
           </span>
         </li>
       </ul>

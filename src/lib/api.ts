@@ -22,6 +22,9 @@ import type {
   DeletePaymentMethodResult,
   CouncilMember,
   CouncilPage,
+  TreasurySummary,
+  PlatformWithdrawal,
+  PlatformWithdrawalCategory,
   AdminBountyCompletion,
   HandleVerificationApplicationRow,
   HandleVerificationApplicationStatus,
@@ -842,6 +845,38 @@ export const overlord = {
 
   revokeCouncil: (councilId: number) =>
     request<void>(`/overlord/council/${councilId}`, { method: 'DELETE' }),
+
+  treasury: () =>
+    request<{ data: TreasurySummary }>('/overlord/treasury'),
+
+  withdrawals: {
+    list: (params?: { include_reversed?: boolean; page?: number }) => {
+      const qs = new URLSearchParams();
+      if (params?.include_reversed) qs.set('include_reversed', 'true');
+      if (params?.page) qs.set('page', String(params.page));
+      const s = qs.toString();
+      return request<PaginatedResponse<PlatformWithdrawal>>(`/overlord/treasury/withdrawals${s ? `?${s}` : ''}`);
+    },
+
+    create: (body: {
+      amount: number;
+      category: PlatformWithdrawalCategory;
+      destination?: string;
+      external_reference_id?: string;
+      withdrawn_at: string;
+      notes?: string;
+    }) =>
+      request<{ data: PlatformWithdrawal }>('/overlord/treasury/withdrawals', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+
+    reverse: (id: number, reason: string) =>
+      request<{ data: PlatformWithdrawal }>(`/overlord/treasury/withdrawals/${id}/reverse`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      }),
+  },
 };
 
 // Admin (Council only)

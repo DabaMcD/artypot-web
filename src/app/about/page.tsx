@@ -27,7 +27,7 @@ export default function AboutPage() {
     <div className="min-h-screen">
 
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-4 pt-24 pb-20">
+      <section className="max-w-6xl mx-auto px-7 pt-24 pb-20">
         <div className="max-w-3xl">
           {/* TODO: Fix this styling! I wrote it badly, I'm bad at CSS ---> */}
           <div className="mb-6 flex-col items-center gap-2">
@@ -81,7 +81,7 @@ export default function AboutPage() {
 
       {/* Creator Psychology */}
       <section className="bg-surface border-t border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 py-24">
+        <div className="max-w-6xl mx-auto px-7 py-24">
 
           <div className="max-w-3xl mx-auto text-center mb-16">
             <p className="text-3xl sm:text-4xl font-bold text-foreground leading-snug mb-4">
@@ -122,7 +122,7 @@ export default function AboutPage() {
 
       {/* How it works */}
       <section id="how-it-works" className="border-t border-border">
-        <div className="max-w-6xl mx-auto px-4 py-20">
+        <div className="max-w-6xl mx-auto px-7 py-20">
           <h2 className="text-3xl font-display font-bold text-foreground mb-2">How it works</h2>
           <p className="text-muted mb-12">Three steps. Smart people usually have it by step two.</p>
 
@@ -140,7 +140,7 @@ export default function AboutPage() {
 
       {/* Who's in the room */}
       <section className="border-t border-border">
-        <div className="max-w-6xl mx-auto px-4 py-20">
+        <div className="max-w-6xl mx-auto px-7 py-20">
           <h2 className="text-3xl font-display font-bold text-foreground mb-2">Who&apos;s in the room where it happens?</h2>
           <p className="text-muted mb-12">Three kinds of people. You&apos;re probably one of them.</p>
 
@@ -177,7 +177,7 @@ export default function AboutPage() {
 
       {/* Money + Freedom of Expression */}
       <section className="border-t border-border">
-        <div className="max-w-6xl mx-auto px-4 py-20">
+        <div className="max-w-6xl mx-auto px-7 py-20">
           <div className="grid sm:grid-cols-2 gap-12 items-start">
             <div>
               <h2 className="text-3xl font-display font-bold text-foreground mb-4">
@@ -265,7 +265,7 @@ export default function AboutPage() {
 
       {/* CTA */}
       <section className="border-t border-border">
-        <div className="max-w-6xl mx-auto px-4 py-24 text-center">
+        <div className="max-w-6xl mx-auto px-7 py-24 text-center">
           <h2 className="text-3xl font-display font-bold text-foreground mb-4">
             There&apos;s probably already a bounty
             <br />
