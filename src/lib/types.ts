@@ -242,7 +242,15 @@ export interface ScheduledTask {
   expression: string;
   description: string | null;
   next_run_at: string | null;
+  /** Previous scheduled fire boundary (next − interval). Anchors the cooldown bar. */
+  prev_run_at: string | null;
   timezone: string;
+  /** When the task last actually finished executing. Null if never recorded. */
+  last_run_at: string | null;
+  /** Duration of the last execution in ms. Null if unknown / failed. */
+  last_duration_ms: number | null;
+  /** Whether the most recent recorded run failed. */
+  last_failed: boolean;
 }
 
 export interface QueueDepth {

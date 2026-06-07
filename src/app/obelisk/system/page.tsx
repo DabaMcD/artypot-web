@@ -5,25 +5,56 @@ import { useRouter } from 'next/navigation';
 import { overlord as overlordApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
-import type { SystemSnapshot, FailedJob } from '@/lib/types';
+import type { SystemSnapshot, FailedJob, ScheduledTask } from '@/lib/types';
 import Link from 'next/link';
 
 const PURPLE = '#8A2BE2';
 const POLL_MS = 15000;
 
-function rel(iso: string | null): string {
+function rel(iso: string | null, nowMs: number = Date.now()): string {
   if (!iso) return '—';
-  const ms = new Date(iso).getTime() - Date.now();
+  const ms = new Date(iso).getTime() - nowMs;
   const abs = Math.abs(ms);
   const mins = Math.round(abs / 60000);
   const hrs = Math.round(abs / 3600000);
   const days = Math.round(abs / 86400000);
   let s: string;
-  if (abs < 60000) s = 'under a min';
+  if (abs < 60000) s = `${Math.round(abs / 1000)}s`;
   else if (mins < 60) s = `${mins} min`;
   else if (hrs < 48) s = `${hrs} hr`;
   else s = `${days} d`;
   return ms >= 0 ? `in ${s}` : `${s} ago`;
+}
+
+/** Human-format a millisecond duration. */
+function dur(ms: number | null): string {
+  if (ms === null || ms === undefined) return '—';
+  if (ms < 1000) return `${ms}ms`;
+  if (ms < 60000) return `${(ms / 1000).toFixed(ms < 10000 ? 2 : 1)}s`;
+  return `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`;
+}
+
+/** A live cooldown bar from the previous fire boundary to the next run. */
+function CooldownBar({ task, nowMs }: { task: ScheduledTask; nowMs: number }) {
+  const prev = task.prev_run_at ? new Date(task.prev_run_at).getTime() : null;
+  const next = task.next_run_at ? new Date(task.next_run_at).getTime() : null;
+
+  let pct = 0;
+  if (prev !== null && next !== null && next > prev) {
+    pct = Math.min(1, Math.max(0, (nowMs - prev) / (next - prev)));
+  }
+  // Bar "fills up" as the next run approaches; flip to a warm color near the top.
+  const imminent = pct >= 0.85;
+  const color = imminent ? '#f59e0b' : PURPLE;
+
+  return (
+    <div className="mt-1.5 h-1.5 w-full rounded-full bg-surface-2 overflow-hidden">
+      <div
+        className="h-full rounded-full transition-[width] duration-1000 ease-linear"
+        style={{ width: `${(pct * 100).toFixed(1)}%`, background: color }}
+      />
+    </div>
+  );
 }
 
 export default function OverlordSystemPage() {
@@ -34,7 +65,15 @@ export default function OverlordSystemPage() {
   const [data, setData] = useState<SystemSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [nowMs, setNowMs] = useState(() => Date.now());
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Tick once a second so cooldown bars and relative times animate live
+  // between the 15s data polls.
+  useEffect(() => {
+    const t = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   const fetchSnapshot = useCallback(async (showSpinner = false) => {
     if (showSpinner) setLoading(true);
@@ -137,7 +176,7 @@ export default function OverlordSystemPage() {
                     <div className="min-w-0">
                       <div className="text-sm font-mono text-foreground">{q.queue}</div>
                       <div className="text-xs text-muted mt-0.5">
-                        oldest queued {rel(q.oldest_available_at)}
+                        oldest queued {rel(q.oldest_available_at, nowMs)}
                       </div>
                     </div>
                     <div className="flex items-center gap-4 shrink-0 font-mono tabular-nums text-sm">
@@ -228,19 +267,40 @@ export default function OverlordSystemPage() {
             </h2>
             <div className="divide-y divide-border">
               {data.scheduled.map((t, i) => (
-                <div key={`${t.name}-${i}`} className="flex items-center justify-between gap-4 py-2.5">
-                  <div className="min-w-0">
-                    <div className="text-sm font-mono text-foreground truncate">
-                      {t.name}
-                      <span className="ml-2 text-[10px] uppercase tracking-wide text-muted/70 align-middle">
-                        {t.type}
-                      </span>
+                <div key={`${t.name}-${i}`} className="py-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="text-sm font-mono text-foreground truncate">
+                        {t.name}
+                        <span className="ml-2 text-[10px] uppercase tracking-wide text-muted/70 align-middle">
+                          {t.type}
+                        </span>
+                        {t.last_failed && (
+                          <span className="ml-2 text-[10px] uppercase tracking-wide text-red-400 align-middle">
+                            ⚠ failed
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted mt-0.5 font-mono">{t.expression}</div>
                     </div>
-                    <div className="text-xs text-muted mt-0.5 font-mono">{t.expression}</div>
+                    <div className="shrink-0 text-right">
+                      <div className="text-sm font-mono tabular-nums text-foreground">{rel(t.next_run_at, nowMs)}</div>
+                      <div className="text-[10px] text-muted/60 font-mono">next run</div>
+                    </div>
                   </div>
-                  <div className="shrink-0 text-right">
-                    <div className="text-sm font-mono tabular-nums text-foreground">{rel(t.next_run_at)}</div>
-                    <div className="text-[10px] text-muted/60 font-mono">next run</div>
+
+                  <CooldownBar task={t} nowMs={nowMs} />
+
+                  <div className="flex items-center justify-between gap-4 mt-1.5 text-[11px] font-mono text-muted">
+                    <span>
+                      last ran {t.last_run_at ? rel(t.last_run_at, nowMs) : 'never'}
+                    </span>
+                    <span className={t.last_failed ? 'text-red-400' : 'text-muted'}>
+                      took{' '}
+                      <span className={t.last_failed ? '' : 'text-foreground'}>
+                        {t.last_failed ? 'failed' : dur(t.last_duration_ms)}
+                      </span>
+                    </span>
                   </div>
                 </div>
               ))}

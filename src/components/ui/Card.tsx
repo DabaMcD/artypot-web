@@ -42,7 +42,7 @@ interface SectionLabelProps {
 
 export function SectionLabel({ children, className = '' }: SectionLabelProps) {
   return (
-    <div className={`ap-section-label-bar font-mono text-[10px] tracking-[2px] uppercase text-muted flex items-center ${className}`}>
+    <div className={`ap-section-label-bar font-mono text-xs tracking-[2px] uppercase text-muted flex items-center ${className}`}>
       {children}
     </div>
   );
