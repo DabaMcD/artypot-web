@@ -11,6 +11,7 @@ import { users as usersApi, notificationSettings as notifApi } from '@/lib/api';
 import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
+import { SMS_ENABLED } from '@/lib/features';
 import type { NotificationSettings } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -536,8 +537,8 @@ export default function CreatorSettingsPage() {
         <SectionLabel className="mb-4">notifications</SectionLabel>
         <p className="text-sm text-muted mb-4">Creator-specific notification preferences.</p>
 
-        {/* SMS unavailable banner */}
-        {!phoneVerified && (
+        {/* SMS unavailable banner — hidden while SMS is disabled platform-wide (see lib/features.ts). */}
+        {SMS_ENABLED && !phoneVerified && (
           <Banner tone="warn" className="mb-4">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <span>
@@ -552,10 +553,10 @@ export default function CreatorSettingsPage() {
           </Banner>
         )}
 
-        {/* Column headers */}
-        <div className="grid gap-x-4 items-center mb-2" style={{ gridTemplateColumns: '1fr auto auto auto' }}>
+        {/* Column headers. SMS column hidden while SMS is disabled (see lib/features.ts). */}
+        <div className="grid gap-x-4 items-center mb-2" style={{ gridTemplateColumns: SMS_ENABLED ? '1fr auto auto auto' : '1fr auto auto' }}>
           <span />
-          {(['email', 'sms', 'bell'] as const).map((ch) => (
+          {(['email', 'sms', 'bell'] as const).filter((ch) => SMS_ENABLED || ch !== 'sms').map((ch) => (
             <span key={ch} className={`font-mono text-[9px] uppercase w-9 text-center ${
               (ch === 'email' && !emailChannelAvailable) || (ch === 'sms' && !phoneVerified)
                 ? 'text-muted/40' : 'text-muted'
@@ -568,7 +569,7 @@ export default function CreatorSettingsPage() {
         ) : (
           <>
             {CREATOR_NOTIF_ROWS.map(({ label, desc, emailKey, emailRule, smsKey, smsRule, bellKey, bellRule }) => (
-              <div key={label} className="grid gap-x-4 items-center py-2.5 border-b border-border last:border-0" style={{ gridTemplateColumns: '1fr auto auto auto' }}>
+              <div key={label} className="grid gap-x-4 items-center py-2.5 border-b border-border last:border-0" style={{ gridTemplateColumns: SMS_ENABLED ? '1fr auto auto auto' : '1fr auto auto' }}>
                 <div>
                   <p className="text-sm text-foreground">{label}</p>
                   <p className="text-xs text-muted mt-0.5">{desc}</p>
@@ -588,18 +589,20 @@ export default function CreatorSettingsPage() {
                   />
                 )}
 
-                {/* SMS */}
-                {smsRule === 'mandatory_on' ? (
-                  <MiniToggle checked={true} onChange={() => {}} saving={false} label={`sms: ${label} (always on)`} disabled={true} />
-                ) : (
-                  <MiniToggle
-                    checked={!!(smsKey && notifSettings[smsKey])}
-                    onChange={(val) => smsKey && handleNotifToggle(smsKey, val)}
-                    saving={!!smsKey && notifSaving.has(smsKey)}
-                    label={`sms: ${label}`}
-                    disabled={!phoneVerified}
-                    dimmed={phoneVerified && !notifSettings.sms_master}
-                  />
+                {/* SMS — hidden while SMS is disabled platform-wide (see lib/features.ts). */}
+                {SMS_ENABLED && (
+                  smsRule === 'mandatory_on' ? (
+                    <MiniToggle checked={true} onChange={() => {}} saving={false} label={`sms: ${label} (always on)`} disabled={true} />
+                  ) : (
+                    <MiniToggle
+                      checked={!!(smsKey && notifSettings[smsKey])}
+                      onChange={(val) => smsKey && handleNotifToggle(smsKey, val)}
+                      saving={!!smsKey && notifSaving.has(smsKey)}
+                      label={`sms: ${label}`}
+                      disabled={!phoneVerified}
+                      dimmed={phoneVerified && !notifSettings.sms_master}
+                    />
+                  )
                 )}
 
                 {/* Bell */}
