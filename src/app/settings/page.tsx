@@ -12,6 +12,7 @@ import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 import { useToast } from '@/lib/toast-context';
 import { useAuth } from '@/lib/auth-context';
+import { SMS_ENABLED } from '@/lib/features';
 import type { NotificationSettings } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -706,7 +707,8 @@ export default function SettingsPage() {
           </Card>
         )}
 
-        {/* Phone number */}
+        {/* Phone number — hidden while SMS is disabled platform-wide (see lib/features.ts). */}
+        {SMS_ENABLED && (
         <div id="phone">
         <Card>
           <SectionLabel className="mb-2">phone number</SectionLabel>
@@ -742,6 +744,7 @@ export default function SettingsPage() {
           )}
         </Card>
         </div>
+        )}
 
         {/* Notifications */}
         <div id="notifications">
@@ -749,7 +752,8 @@ export default function SettingsPage() {
           <SectionLabel className="mb-4">notifications</SectionLabel>
           {!hasEmail && <Banner tone="warn" className="mb-3">Add an email address above to enable email notifications.</Banner>}
           {hasEmail && !emailVerified && <Banner tone="warn" className="mb-3">Verify your email to enable email notifications.</Banner>}
-          {!phoneVerified && (
+          {/* SMS disabled platform-wide (see lib/features.ts) — no phone prompt. */}
+          {SMS_ENABLED && !phoneVerified && (
             <Banner tone="warn" className="mb-3">
               {user.phone_number ? 'Verify your phone number to enable SMS notifications.' : 'Add and verify your phone number to enable SMS notifications.'}
             </Banner>
@@ -758,10 +762,11 @@ export default function SettingsPage() {
             <div className="py-6 text-center font-mono text-xs text-muted">loading…</div>
           ) : (
             <>
-              {/* Column headers */}
-              <div className="grid gap-x-4 items-center mb-2" style={{ gridTemplateColumns: '1fr auto auto auto' }}>
+              {/* Column headers. SMS column is hidden while SMS is disabled
+                  platform-wide (see lib/features.ts). */}
+              <div className="grid gap-x-4 items-center mb-2" style={{ gridTemplateColumns: SMS_ENABLED ? '1fr auto auto auto' : '1fr auto auto' }}>
                 <span />
-                {(['email', 'sms', 'bell'] as const).map((ch) => (
+                {(['email', 'sms', 'bell'] as const).filter((ch) => SMS_ENABLED || ch !== 'sms').map((ch) => (
                   <span key={ch} className={`font-mono text-[9px] uppercase w-9 text-center ${
                     (ch === 'email' && !emailChannelAvailable) || (ch === 'sms' && !phoneVerified)
                       ? 'text-muted/40' : 'text-muted'
@@ -771,7 +776,7 @@ export default function SettingsPage() {
 
               {/* Notification rows */}
               {NOTIF_ROWS.map(({ label, desc, emailKey, emailRule, smsKey, smsRule, bellKey, bellRule }) => (
-                <div key={label} className="grid gap-x-4 items-center py-2.5 border-b border-border last:border-0" style={{ gridTemplateColumns: '1fr auto auto auto' }}>
+                <div key={label} className="grid gap-x-4 items-center py-2.5 border-b border-border last:border-0" style={{ gridTemplateColumns: SMS_ENABLED ? '1fr auto auto auto' : '1fr auto auto' }}>
                   <div>
                     <p className="text-sm text-foreground">{label}</p>
                     <p className="text-xs text-muted mt-0.5">{desc}</p>
@@ -793,20 +798,22 @@ export default function SettingsPage() {
                     />
                   )}
 
-                  {/* SMS cell */}
-                  {smsRule === 'mandatory_on' ? (
-                    <MiniToggle checked={true} onChange={() => {}} saving={false} label={`sms: ${label} (always on)`} disabled={true} />
-                  ) : smsRule === 'mandatory_off' ? (
-                    <span title="Not available" className="w-9 flex justify-center text-muted text-xs font-mono">—</span>
-                  ) : (
-                    <MiniToggle
-                      checked={!!(smsKey && notifSettings[smsKey])}
-                      onChange={(val) => smsKey && handleNotifToggle(smsKey, val)}
-                      saving={!!smsKey && notifSaving.has(smsKey)}
-                      label={`sms: ${label}`}
-                      disabled={!phoneVerified}
-                      dimmed={phoneVerified && !notifSettings.sms_master}
-                    />
+                  {/* SMS cell — hidden while SMS is disabled platform-wide (see lib/features.ts). */}
+                  {SMS_ENABLED && (
+                    smsRule === 'mandatory_on' ? (
+                      <MiniToggle checked={true} onChange={() => {}} saving={false} label={`sms: ${label} (always on)`} disabled={true} />
+                    ) : smsRule === 'mandatory_off' ? (
+                      <span title="Not available" className="w-9 flex justify-center text-muted text-xs font-mono">—</span>
+                    ) : (
+                      <MiniToggle
+                        checked={!!(smsKey && notifSettings[smsKey])}
+                        onChange={(val) => smsKey && handleNotifToggle(smsKey, val)}
+                        saving={!!smsKey && notifSaving.has(smsKey)}
+                        label={`sms: ${label}`}
+                        disabled={!phoneVerified}
+                        dimmed={phoneVerified && !notifSettings.sms_master}
+                      />
+                    )
                   )}
 
                   {/* Bell cell */}

@@ -33,7 +33,7 @@ export default function HomePage() {
     <>
       {/* ── HERO ────────────────────────────────────────────────────────────── */}
       {/* z-20 keeps the search dropdown stacked above the sections below it. */}
-      <section className="relative z-20 px-4 pt-20 pb-20 sm:pt-28">
+      <section className="relative z-20 px-7 pt-20 pb-20 sm:pt-28">
         {/* soft creator glow behind the hero — clipped in its own overflow-hidden
             layer so it never bleeds horizontally, while the search dropdown
             (which escapes the hero downward) is NOT clipped. */}
@@ -84,7 +84,7 @@ export default function HomePage() {
 
       {/* ── TRENDING BOUNTIES ───────────────────────────────────────────────── */}
       <section className="border-t border-border bg-surface/40">
-        <div className="max-w-6xl mx-auto px-4 py-16 sm:py-20">
+        <div className="max-w-6xl mx-auto px-7 py-16 sm:py-20">
           <div className="flex items-end justify-between mb-8 gap-4">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[2px] text-muted mb-2">trending now</p>
@@ -125,7 +125,7 @@ export default function HomePage() {
 
       {/* ── HOW IT WORKS ────────────────────────────────────────────────────── */}
       <section id="how-it-works" className="border-t border-border">
-        <div className="max-w-5xl mx-auto px-4 py-16 sm:py-24 text-center">
+        <div className="max-w-5xl mx-auto px-7 py-16 sm:py-24 text-center">
           <p className="font-mono text-[10px] uppercase tracking-[2px] text-muted mb-2">the gist</p>
           <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-14">
             what&apos;s the big idea?
@@ -149,7 +149,7 @@ export default function HomePage() {
       {/* ── CLOSING CTA (logged-out only) ───────────────────────────────────── */}
       {!user && (
         <section className="border-t border-border bg-surface">
-          <div className="max-w-3xl mx-auto px-4 py-20 text-center">
+          <div className="max-w-3xl mx-auto px-7 py-20 text-center">
             <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-4 leading-tight">
               what do you want to see made?
             </h2>

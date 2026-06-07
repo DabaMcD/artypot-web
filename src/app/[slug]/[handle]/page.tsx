@@ -158,7 +158,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   // ── Loading ────────────────────────────────────────────────────────────────
   if (state.kind === 'loading') {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-10">
+      <div className="max-w-6xl mx-auto px-7 py-10">
         <div className="h-48 bg-surface border border-border rounded-xl animate-pulse mb-6" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -172,7 +172,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   // ── Not found ──────────────────────────────────────────────────────────────
   if (state.kind === 'not-platform') {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
+      <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
         <div>
           <SectionLabel>platform handle</SectionLabel>
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">page not found</h1>
@@ -191,7 +191,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   // ── Error ──────────────────────────────────────────────────────────────────
   if (state.kind === 'error') {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-10 space-y-6">
+      <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
         <p className="text-sm text-bad">
           something went wrong looking that up. try again in a moment.
         </p>
@@ -208,7 +208,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   const shareText = `${fullHandle} on ${platformLabel} — fans are queueing bounties for them on Artypot. Help get their attention!`;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
+    <div className="max-w-6xl mx-auto px-7 py-10">
       <div className="flex flex-col lg:flex-row gap-8">
 
         {/* ── Main column ──────────────────────────────────────────────────── */}

@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #1A1812;
-  --color-surface: #27180F;
-  --color-surface-2: #321F16;
-  --color-border: #4A2D1E;
+  --color-background: #0F0E0D;
+  --color-surface: #171614;
+  --color-surface-2: #201E1B;
+  --color-border: #332F2B;
   --color-foreground: #F2EFE6;
   --color-muted: #BFB0A9; /* previously #8C7468 */
 
@@ -20,7 +20,7 @@
      Same values as background/foreground today — kept separate because they
      express intent, not color. @theme inline can't resolve nested var()
      references, so the hex values must be repeated here explicitly. */
-  --color-brand-dark: #1A1812;
+  --color-brand-dark: #0F0E0D;
   --color-brand-light: #F2EFE6;
 
   /* Status colors (from design) */

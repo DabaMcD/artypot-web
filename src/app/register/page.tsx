@@ -9,7 +9,7 @@ import { auth as authApi, phone as phoneApi } from '@/lib/api';
 import { nextTarget, readNextFromLocation, OAUTH_NEXT_KEY } from '@/lib/next-redirect';
 import { PHONE_SIGNUP_ENABLED } from '@/lib/config';
 import { Button } from '@/components/ui/Button';
-import { Input, FieldLabel, FieldGrid2 } from '@/components/ui/Input';
+import { Input, PasswordInput, FieldLabel, FieldGrid2 } from '@/components/ui/Input';
 import { Toggle } from '@/components/ui/Toggle';
 import { Card } from '@/components/ui/Card';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
@@ -425,8 +425,7 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <FieldLabel>password</FieldLabel>
-                  <Input
-                    type="password"
+                  <PasswordInput
                     required
                     autoComplete="new-password"
                     value={password}
@@ -438,8 +437,7 @@ export default function RegisterPage() {
 
               <div>
                 <FieldLabel>confirm password</FieldLabel>
-                <Input
-                  type="password"
+                <PasswordInput
                   required
                   autoComplete="new-password"
                   value={confirm}

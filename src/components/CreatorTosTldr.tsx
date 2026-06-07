@@ -43,6 +43,14 @@ export default function CreatorTosTldr({
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
+            <strong>Completed charges are final.</strong>{' '}Once the Council confirms your
+            completion and fans are charged, those payments are final and non-refundable —
+            barring a chargeback or verified fraud.
+          </span>
+        </li>
+        <li className="flex gap-2">
+          <span className="text-creator shrink-0 mt-0.5">✓</span>
+          <span>
             <strong>Bounties fund public work, not private perks.</strong>{' '}Your deliverable
             goes out to everyone equally. You can&apos;t trade backings for private access,
             physical goods, meetups, or rewards — a public thank-you is the only perk allowed.
@@ -84,9 +92,8 @@ export default function CreatorTosTldr({
           <span>
             <strong>Artypot is family friendly.</strong>{' '}Your bounty text, profile,
             handles, and completion notes are public and must be PG. You also can&apos;t use a
-            bounty to fund adult content (our payment partners forbid it). Nothing illegal, and
-            nothing that sexualizes or exploits minors — ever. What you make and host elsewhere
-            is your business.
+            bounty to fund adult content (our payment partners forbid it). Nothing illegal.
+            What you make and host elsewhere is your business.
           </span>
         </li>
       </ul>

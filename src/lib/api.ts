@@ -22,6 +22,11 @@ import type {
   DeletePaymentMethodResult,
   CouncilMember,
   CouncilPage,
+  TreasurySummary,
+  PlatformWithdrawal,
+  PlatformWithdrawalCategory,
+  SystemSnapshot,
+  IntegrityReport,
   AdminBountyCompletion,
   HandleVerificationApplicationRow,
   HandleVerificationApplicationStatus,
@@ -842,6 +847,58 @@ export const overlord = {
 
   revokeCouncil: (councilId: number) =>
     request<void>(`/overlord/council/${councilId}`, { method: 'DELETE' }),
+
+  treasury: () =>
+    request<{ data: TreasurySummary }>('/overlord/treasury'),
+
+  withdrawals: {
+    list: (params?: { include_reversed?: boolean; page?: number }) => {
+      const qs = new URLSearchParams();
+      if (params?.include_reversed) qs.set('include_reversed', 'true');
+      if (params?.page) qs.set('page', String(params.page));
+      const s = qs.toString();
+      return request<PaginatedResponse<PlatformWithdrawal>>(`/overlord/treasury/withdrawals${s ? `?${s}` : ''}`);
+    },
+
+    create: (body: {
+      amount: number;
+      category: PlatformWithdrawalCategory;
+      destination?: string;
+      external_reference_id?: string;
+      withdrawn_at: string;
+      notes?: string;
+    }) =>
+      request<{ data: PlatformWithdrawal }>('/overlord/treasury/withdrawals', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+
+    reverse: (id: number, reason: string) =>
+      request<{ data: PlatformWithdrawal }>(`/overlord/treasury/withdrawals/${id}/reverse`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      }),
+  },
+
+  integrity: () =>
+    request<{ data: IntegrityReport }>('/overlord/integrity'),
+
+  system: {
+    get: () =>
+      request<{ data: SystemSnapshot }>('/overlord/system'),
+
+    retryFailed: (uuid: string) =>
+      request<{ message: string }>(`/overlord/system/failed-jobs/${uuid}/retry`, { method: 'POST' }),
+
+    forgetFailed: (uuid: string) =>
+      request<{ message: string }>(`/overlord/system/failed-jobs/${uuid}`, { method: 'DELETE' }),
+
+    retryAllFailed: () =>
+      request<{ message: string }>('/overlord/system/failed-jobs/retry-all', { method: 'POST' }),
+
+    flushFailed: () =>
+      request<{ message: string }>('/overlord/system/failed-jobs', { method: 'DELETE' }),
+  },
 };
 
 // Admin (Council only)

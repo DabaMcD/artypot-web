@@ -24,6 +24,24 @@ const NAV_ITEMS = [
     title: 'Metrics',
     desc: 'Platform-wide stats on users, bounties, and backings.',
   },
+  {
+    href: '/obelisk/treasury',
+    icon: '💰',
+    title: 'Treasury',
+    desc: 'The Float — Stripe balance vs. ledger, and who the money belongs to.',
+  },
+  {
+    href: '/obelisk/system',
+    icon: '⚙️',
+    title: 'System',
+    desc: 'Scheduled tasks, queue depth, and failed jobs.',
+  },
+  {
+    href: '/obelisk/integrity',
+    icon: '🧮',
+    title: 'Data Integrity',
+    desc: 'Reconciliation sweeps — ledger drift, orphaned rows, stuck states.',
+  },
 ] as const;
 
 export default function OverlordPage() {
