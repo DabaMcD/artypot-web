@@ -267,6 +267,7 @@ export default function OverlordTreasuryPage() {
             </h2>
             <div className="divide-y divide-border">
               <Stat label="Platform fees (all-time)" value={usd(data.platform_fees_total)} />
+              <Stat label="Less: Stripe processing fees" value={`−${usd(data.stripe_fees_total)}`} />
               <Stat label="Less: payout fees absorbed" value={`−${usd(data.absorbed_payout_fees)}`} />
               <Stat label="Less: swept to Mercury" value={`−${usd(data.business_withdrawals_total)}`} />
               <Stat label="Platform float" value={usd(data.platform_float)} accent />
