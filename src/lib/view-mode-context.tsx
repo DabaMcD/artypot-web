@@ -17,6 +17,13 @@ interface ViewModeContextType {
    * perspective. Pass `null` on unmount or when no bounty is in view.
    */
   setCurrentBountyTargetUserId: (userId: number | null) => void;
+  /**
+   * Called by the [slug] page to signal whether the slug resolved to a real
+   * creator. `null` = unknown/loading, `true` = valid creator, `false` = 404.
+   * AppShell uses this to fall back to fan-side chrome on bad slugs.
+   */
+  currentSlugIsCreator: boolean | null;
+  setCurrentSlugIsCreator: (valid: boolean | null) => void;
 }
 
 const ViewModeContext = createContext<ViewModeContextType>({
@@ -24,6 +31,8 @@ const ViewModeContext = createContext<ViewModeContextType>({
   canSwitch: false,
   switchTo: () => {},
   setCurrentBountyTargetUserId: () => {},
+  currentSlugIsCreator: null,
+  setCurrentSlugIsCreator: () => {},
 });
 
 export function ViewModeProvider({ children }: { children: ReactNode }) {
@@ -31,6 +40,7 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
   const canSwitch = !!(user?.creator && (user.role === 'creator' || user.role === 'council'));
   const [storedMode, setStoredMode] = useState<ViewMode>('fan');
   const [currentBountyTargetUserId, setCurrentBountyTargetUserIdState] = useState<number | null>(null);
+  const [currentSlugIsCreator, setCurrentSlugIsCreatorState] = useState<boolean | null>(null);
 
   // Restore from localStorage once we know whether the user can switch
   useEffect(() => {
@@ -60,6 +70,10 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
     setCurrentBountyTargetUserIdState(userId);
   }, []);
 
+  const setCurrentSlugIsCreator = useCallback((valid: boolean | null) => {
+    setCurrentSlugIsCreatorState(valid);
+  }, []);
+
   // Bounties targeting the logged-in user are always shown in creator mode,
   // overriding the stored preference. Bounties for other creators fall back
   // to the user's stored mode (typically fan).
@@ -72,7 +86,7 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
   const mode: ViewMode = isOwnBounty ? 'creator' : storedMode;
 
   return (
-    <ViewModeContext.Provider value={{ mode, canSwitch, switchTo, setCurrentBountyTargetUserId }}>
+    <ViewModeContext.Provider value={{ mode, canSwitch, switchTo, setCurrentBountyTargetUserId, currentSlugIsCreator, setCurrentSlugIsCreator }}>
       {children}
     </ViewModeContext.Provider>
   );

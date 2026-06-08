@@ -16,8 +16,20 @@
  * their CDN — the original is never sent to the browser.
  */
 
-/** Square avatar: 512×512, face-aware crop, auto quality + auto format (WebP/AVIF). */
-const AVATAR_TRANSFORM = 'c_fill,g_face,w_512,h_512,q_auto,f_auto';
+/**
+ * Square avatar delivery transform — applied as a *chained* (two-step) transform.
+ *
+ *   1. `c_crop,g_custom` — crop to the user's custom crop box (the coordinates
+ *      the upload widget stored with the asset). No w_/h_ here: adding explicit
+ *      dimensions to a `c_crop` makes Cloudinary carve out a fixed-size region
+ *      positioned by gravity instead of honoring the box the user drew, which
+ *      is why a single-component `c_crop,...,w_512,h_512` ignored the crop size.
+ *   2. `c_fill,w_512,h_512` — resize the cropped region to a standard 512²
+ *      derivative (q_auto + f_auto for delivery optimization).
+ *
+ * The two steps are separated by `/` so Cloudinary applies them in sequence.
+ */
+const AVATAR_TRANSFORM = 'c_crop,g_custom/c_fill,w_512,h_512,q_auto,f_auto';
 
 /**
  * CldUploadWidget options for avatar uploads — defense-in-depth so a giant
@@ -67,20 +79,19 @@ export function normalizeAvatarUrl(url: string | null | undefined): string | nul
   const prefix = url.slice(0, idx + marker.length);
   let rest = url.slice(idx + marker.length);
 
-  // Drop an existing transformation segment if present. Cloudinary puts the
-  // version (`v123…`) or the asset path next; a transformation segment is the
-  // one that contains transformation tokens (it has commas / known prefixes
-  // and is NOT the version segment).
-  const firstSlash = rest.indexOf('/');
-  if (firstSlash !== -1) {
-    const firstSeg = rest.slice(0, firstSlash);
-    const isVersion = /^v\d+$/.test(firstSeg);
+  // Drop any existing transformation segments. Cloudinary supports chained
+  // transforms (`t1/t2/.../v123/path`), so strip leading segments until we
+  // hit the version (`v123…`) or the asset path.
+  while (true) {
+    const slash = rest.indexOf('/');
+    if (slash === -1) break;
+    const seg = rest.slice(0, slash);
+    const isVersion = /^v\d+$/.test(seg);
     const looksLikeTransform =
-      firstSeg.includes(',') ||
-      /(^|,)(c_|w_|h_|q_|f_|g_|e_|ar_|dpr_)/.test(firstSeg);
-    if (!isVersion && looksLikeTransform) {
-      rest = rest.slice(firstSlash + 1);
-    }
+      seg.includes(',') ||
+      /(^|,)(c_|w_|h_|q_|f_|g_|e_|ar_|dpr_)/.test(seg);
+    if (isVersion || !looksLikeTransform) break;
+    rest = rest.slice(slash + 1);
   }
 
   return `${prefix}${AVATAR_TRANSFORM}/${rest}`;

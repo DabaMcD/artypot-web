@@ -6,9 +6,10 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { auth as authApi } from '@/lib/api';
-import { PLATFORM_FEE_PCT } from '@/lib/config';
+import { nextTarget, readNextFromLocation, withNext, OAUTH_NEXT_KEY } from '@/lib/next-redirect';
+import { PLATFORM_FEE_PCT, PHONE_SIGNUP_ENABLED, PAYOUT_MINIMUM_AUTOMATED } from '@/lib/config';
 import { Button } from '@/components/ui/Button';
-import { Input, FieldLabel } from '@/components/ui/Input';
+import { Input, PasswordInput, FieldLabel } from '@/components/ui/Input';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 
 /** All OAuth providers the backend supports, in preferred display order. */
@@ -46,7 +47,7 @@ export default function LoginPage() {
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && user) router.replace('/dashboard');
+    if (!authLoading && user) router.replace(nextTarget(readNextFromLocation()));
   }, [authLoading, user, router]);
 
   if (authLoading || user) return null;
@@ -69,7 +70,7 @@ export default function LoginPage() {
     const identifier = mode === 'email' ? emailInput.trim() : (phoneInput ?? '');
     try {
       await login(identifier, password);
-      router.push('/dashboard');
+      router.push(nextTarget(readNextFromLocation()));
     } catch (err: unknown) {
       const e = err as { status?: number; message?: string };
       setError(e.message ?? 'Login failed. Please try again.');
@@ -86,6 +87,11 @@ export default function LoginPage() {
       // was initiated from this browser, preventing token injection attacks.
       const nonce = crypto.randomUUID();
       sessionStorage.setItem('oauth_nonce', nonce);
+      // Carry `next` across the provider round-trip so the callback can return
+      // the user to where they started instead of /dashboard.
+      const next = readNextFromLocation();
+      if (next) sessionStorage.setItem(OAUTH_NEXT_KEY, next);
+      else sessionStorage.removeItem(OAUTH_NEXT_KEY);
       const { url } = await authApi.oauthRedirect(provider);
       window.location.href = url;
     } catch (err: unknown) {
@@ -112,8 +118,7 @@ export default function LoginPage() {
         </Link>
 
         <h1 className="font-display font-bold text-[54px] leading-[1.05] tracking-tight text-foreground mb-5">
-          put your money where your{' '}
-          <span className="ap-sketch-u text-fan">mouth</span> is.
+          <span className="ap-sketch-u text-fan">money</span> talks.
         </h1>
         <p className="text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
           start a bounty for a creator to make a public, free piece of work.
@@ -127,14 +132,14 @@ export default function LoginPage() {
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">only after delivery</div>
           </div>
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">complaint</div>
-            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">7 days</div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">after work verified</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">creators keep</div>
+            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">{100 - PLATFORM_FEE_PCT}%</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">no sales tax</div>
           </div>
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">platform fee</div>
-            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">{PLATFORM_FEE_PCT}%</div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">no sales tax</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">payouts</div>
+            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">${PAYOUT_MINIMUM_AUTOMATED} min</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">to 50+ countries</div>
           </div>
         </div>
       </div>
@@ -180,27 +185,29 @@ export default function LoginPage() {
           <div className="flex-1 h-px bg-border" />
         </div>
 
-        {/* Email / Phone toggle */}
-        <div className="flex rounded-lg border border-border overflow-hidden mb-5 text-xs font-mono">
-          <button
-            type="button"
-            onClick={() => switchMode('email')}
-            className={`flex-1 py-2 transition-colors ${
-              mode === 'email' ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
-            }`}
-          >
-            email
-          </button>
-          <button
-            type="button"
-            onClick={() => switchMode('phone')}
-            className={`flex-1 py-2 border-l border-border transition-colors ${
-              mode === 'phone' ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
-            }`}
-          >
-            phone
-          </button>
-        </div>
+        {/* Email / Phone toggle — hidden while phone-only signup is in beta */}
+        {PHONE_SIGNUP_ENABLED && (
+          <div className="flex rounded-lg border border-border overflow-hidden mb-5 text-xs font-mono">
+            <button
+              type="button"
+              onClick={() => switchMode('email')}
+              className={`flex-1 py-2 transition-colors ${
+                mode === 'email' ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
+              }`}
+            >
+              email
+            </button>
+            <button
+              type="button"
+              onClick={() => switchMode('phone')}
+              className={`flex-1 py-2 border-l border-border transition-colors ${
+                mode === 'phone' ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
+              }`}
+            >
+              phone
+            </button>
+          </div>
+        )}
 
         {error && (
           <div className="bg-bad-soft border border-bad text-bad text-sm rounded px-4 py-3 mb-4">
@@ -235,8 +242,7 @@ export default function LoginPage() {
 
           <div>
             <FieldLabel>password</FieldLabel>
-            <Input
-              type="password"
+            <PasswordInput
               required
               autoComplete="current-password"
               value={password}
@@ -264,7 +270,7 @@ export default function LoginPage() {
         <Button
           variant="default"
           className="w-full justify-center"
-          onClick={() => router.push('/register')}
+          onClick={() => router.push(withNext('/register'))}
         >
           Create an Account
         </Button>

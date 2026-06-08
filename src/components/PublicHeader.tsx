@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import CreatorSearchWidget from '@/components/CreatorSearchWidget';
+import HeaderSearch from '@/components/HeaderSearch';
 
 /**
  * Sticky public header shown on every page when the viewer is not logged in.
@@ -15,6 +15,10 @@ import CreatorSearchWidget from '@/components/CreatorSearchWidget';
 export function PublicHeader() {
   const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
+
+  // The landing page hosts its own large search field in the hero, so the
+  // header search is suppressed there. Every other page keeps it.
+  const isLanding = pathname === '/';
 
   // Close the mobile search whenever the route changes.
   useEffect(() => { setSearchOpen(false); }, [pathname]);
@@ -39,26 +43,15 @@ export function PublicHeader() {
           />
         </Link>
 
-        {/* Desktop (≥sm): fixed-width search bar always visible */}
+        {/* Desktop (≥sm): fixed-width search bar always visible (suppressed on landing) */}
+        {!isLanding && (
         <div className="hidden sm:block w-64 lg:w-[340px] xl:w-[420px] shrink-0">
-          <div className="relative">
-            <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted pointer-events-none z-10"
-              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path strokeLinecap="round" d="m21 21-4.35-4.35" />
-            </svg>
-            <CreatorSearchWidget
-              navigateOnSelect
-              placeholder="find a creator, bounty, or handle…"
-              inputClassName="w-full bg-surface-2 border border-border rounded-md px-3 py-1.5 pl-9 font-mono text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors"
-            />
-          </div>
+          <HeaderSearch placeholder="find a creator, bounty, or handle…" />
         </div>
+        )}
 
-        {/* Mobile (<sm): search icon — collapses to full bar when tapped */}
-        {!searchOpen && (
+        {/* Mobile (<sm): search icon — collapses to full bar when tapped (suppressed on landing) */}
+        {!isLanding && !searchOpen && (
           <button
             className="sm:hidden ml-auto p-2 rounded-md text-muted hover:text-foreground hover:bg-surface-2 transition-colors shrink-0"
             onClick={() => setSearchOpen(true)}
@@ -72,23 +65,9 @@ export function PublicHeader() {
         )}
 
         {/* Mobile (<sm): expanded search bar */}
-        {searchOpen && (
+        {!isLanding && searchOpen && (
           <div className="sm:hidden flex items-center gap-2 flex-1 min-w-0">
-            <div className="relative flex-1 min-w-0">
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted pointer-events-none z-10"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path strokeLinecap="round" d="m21 21-4.35-4.35" />
-              </svg>
-              <CreatorSearchWidget
-                navigateOnSelect
-                autoFocus
-                placeholder="search…"
-                inputClassName="w-full bg-surface-2 border border-border rounded-md px-3 py-1.5 pl-9 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-creator transition-colors"
-              />
-            </div>
+            <HeaderSearch autoFocus placeholder="search…" className="flex-1 min-w-0" />
             <button
               onClick={() => setSearchOpen(false)}
               className="shrink-0 font-mono text-xs text-muted hover:text-foreground transition-colors"
@@ -103,7 +82,7 @@ export function PublicHeader() {
 
         {/* Right nav — hidden on mobile while the search bar is expanded */}
         {!searchOpen && (
-          <nav className="flex items-center gap-1 sm:gap-3 shrink-0">
+          <nav className="flex items-center gap-1 sm:gap-3 shrink-0 ml-auto sm:ml-0">
             <Link
               href="/login"
               className="text-sm text-muted hover:text-foreground transition-colors px-2 py-1"

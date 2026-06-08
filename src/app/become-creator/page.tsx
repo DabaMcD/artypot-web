@@ -1,86 +1,26 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { auth as authApi } from '@/lib/api';
+import { auth as authApi, users as usersApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Banner } from '@/components/ui/Banner';
+import { Toggle } from '@/components/ui/Toggle';
 import { FieldLabel } from '@/components/ui/Input';
 import SlugInput from '@/components/SlugInput';
+import HandlesSection from '@/components/HandlesSection';
+import CreatorTosTldr from '@/components/CreatorTosTldr';
+import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
+import type { HandleClaim, HandlePlatform } from '@/lib/types';
+import { platformLabel } from '@/lib/platforms';
+import { PLATFORM_HANDLE_CONFIG } from '@/components/ui/PlatformHandleInput';
+import { PLATFORM_FEE_PCT } from '@/lib/config';
 
-// ── Creator TOS text ─────────────────────────────────────────────────────────
-// Authoritative source: artypot-api/storage/legal/creator-tos.md
-// DRAFT — pending legal review.
-
-const CREATOR_TOS = `DRAFT — pending legal review.
-
-ARTYPOT CREATOR TERMS OF SERVICE
-
-These Creator Terms of Service ("Creator Terms") govern your participation as a creator on the Artypot platform. By enabling creator mode you form a binding agreement with Artypot LLC, a Florida limited liability company.
-
-1. CREATOR'S COMMITMENTS
-
-1.1 Deliver commissioned work. When a bounty reaches completion and is approved by the Artypot Council, you commit to delivering the work described in good faith within a reasonable timeframe.
-
-1.2 Maintain accurate handle information. The social handles and websites you verify through Artypot must genuinely represent your identity. You must not impersonate another person or misrepresent your affiliation with any platform account.
-
-1.3 Provide accurate tax information when requested. When your cumulative annual payouts reach IRS reporting thresholds (or equivalent local thresholds), you agree to provide a W-9 (US persons) or W-8BEN (non-US persons) upon request. Failure to provide required tax documentation will result in a hard block on payouts.
-
-1.4 Keep your location of residence current. You must maintain an accurate country (and US state/territory if applicable) in your profile for earnings reporting and tax compliance.
-
-1.5 Comply with all applicable laws. You are solely responsible for complying with all laws applicable to your activities on Artypot.
-
-2. ARTYPOT'S ROLE
-
-2.1 Platform, not employer. Artypot is a platform that facilitates fan-funded commissions. Artypot is not your employer, client, agent, or partner. You are an independent creator.
-
-2.2 Payment intermediary. Artypot collects fan pledges, holds them per its billing and refund policies, and disburses net proceeds to creators after platform fees.
-
-2.3 No guarantee of earnings. Artypot does not guarantee that any bounty will reach any amount, that fans will fulfill pledges, or that any particular level of earnings will result.
-
-2.4 Council review. Bounty completion submissions are reviewed by the Artypot Council. Council decisions are final subject to the appeal process in the General Terms.
-
-3. PAYOUTS AND FEES
-
-3.1 Payout eligibility. To receive a payout you must have: (a) a verified location on file; (b) a connected Stripe bank account; and (c) required tax documentation (W-9 or W-8BEN).
-
-3.2 Minimum payout threshold. Payouts are subject to a minimum balance (currently $10.00 USD). Balances below this threshold accumulate until the threshold is met.
-
-3.3 Platform fee. Artypot deducts a platform fee from each payout as specified in your creator dashboard. Fees are subject to change with 30 days' notice.
-
-3.4 Hold period. Funds are subject to a 7-day hold before becoming available for withdrawal.
-
-4. REFUNDS AND REVOCATIONS
-
-4.1 Fan revocations. Fans may revoke open pledges at any time before a bounty is marked complete. You are not entitled to compensation for revoked pledges.
-
-4.2 Council rejection. If the Council rejects a submission, no funds are collected. You may resubmit after addressing the Council's feedback.
-
-4.3 Post-collection disputes. Artypot reserves the right to claw back disbursed funds in cases of verified fraud or material misrepresentation.
-
-5. CONTENT RULES
-
-5.1 No IP infringement. You must not submit work that infringes the copyrights, trademarks, or other intellectual property rights of any third party.
-
-5.2 No prohibited content. You must not submit content that is illegal, depicts minors sexually, constitutes harassment or hate speech, contains malware, or violates Artypot's Community Guidelines.
-
-5.3 Your rights. You retain all ownership rights in your creative work. Nothing in these terms transfers copyright to Artypot or to any fan.
-
-6. TERMINATION
-
-6.1 Artypot may suspend or terminate your creator status if you breach these terms, engage in fraud, fail to deliver work after funds are collected, or violate applicable law.
-
-6.2 Upon termination, open bounties are closed, pledges are returned to fans, and any available creator balance will be disbursed to you subject to outstanding disputes and tax documentation requirements.
-
-7. GOVERNING LAW
-
-These Creator Terms are governed by the laws of the State of Florida. Disputes shall be resolved by binding arbitration in Miami-Dade County, Florida under AAA rules. You waive your right to participate in a class action.
-
-Artypot LLC · Florida, USA · legal@artypot.com`;
+const CREATOR_KEEP_PCT = 100 - PLATFORM_FEE_PCT;
 
 // ── TOS + slug + activation form ──────────────────────────────────────────────
 
@@ -119,27 +59,34 @@ function TosGate({ onActivated }: { onActivated: () => void }) {
         onValidityChange={setSlugError}
       />
 
-      {/* Scrollable TOS */}
+      {/* Creator TOS summary + link to the full terms */}
       <div>
         <FieldLabel>creator terms of service</FieldLabel>
-        <div className="border border-border rounded-md bg-surface-2 h-48 overflow-y-auto p-4">
-          <pre className="font-mono text-[10px] leading-relaxed text-muted whitespace-pre-wrap break-words">
-            {CREATOR_TOS}
-          </pre>
-        </div>
+        <CreatorTosTldr
+          className="mt-1"
+          footnote="This TL;DR is a helpful summary, not a substitute for the full terms."
+        />
+        <Link
+          href="/creator-tos"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block mt-3 text-sm text-[var(--color-role)] hover:underline"
+        >
+          Read the full Creator Terms of Service →
+        </Link>
       </div>
 
-      <label className="flex items-start gap-3 cursor-pointer group">
-        <input
-          type="checkbox"
-          checked={agreed}
-          onChange={(e) => setAgreed(e.target.checked)}
-          className="mt-0.5 flex-shrink-0 w-4 h-4 accent-[var(--color-role)] cursor-pointer"
-        />
+      <div className="flex items-start gap-3">
+        <div className="pt-0.5">
+          <Toggle on={agreed} onChange={setAgreed} />
+        </div>
         <span className="text-sm text-foreground leading-snug">
-          I have read and agree to the Artypot Creator Terms of Service
+          I have read and agree to the{' '}
+          <Link href="/creator-tos" target="_blank" rel="noopener noreferrer" className="text-[var(--color-role)] hover:underline">
+            Artypot Creator Terms of Service
+          </Link>
         </span>
-      </label>
+      </div>
 
       <Button type="submit" variant="primary" disabled={!canSubmit} className="w-full">
         {submitting ? 'Activating…' : 'Enable Creator Mode →'}
@@ -189,6 +136,133 @@ function EmailVerificationGate({ hasEmail }: { hasEmail: boolean }) {
         </Button>
       </div>
     </div>
+  );
+}
+
+// ── Tax residence form (inline in Gate 2) ─────────────────────────────────────
+
+function TaxResidenceForm({
+  initialCountry,
+  initialState,
+  onSaved,
+  onCancel,
+  showCancel,
+}: {
+  initialCountry: string;
+  initialState: string;
+  onSaved: () => void | Promise<void>;
+  onCancel: () => void;
+  showCancel: boolean;
+}) {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [countryCode, setCountryCode] = useState(initialCountry);
+  const [stateCode, setStateCode] = useState(initialState);
+  const [saving, setSaving] = useState(false);
+
+  const needsState = !!countryCode && !!subdivisions(countryCode);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !countryCode) return;
+    setSaving(true);
+    try {
+      await usersApi.update(user.id, {
+        country_code: countryCode || null,
+        state_code: needsState ? (stateCode || null) : null,
+      });
+      await onSaved();
+      toast('Tax residence saved.', 'success');
+    } catch {
+      toast('Failed to save tax residence.', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+      <div>
+        <FieldLabel>country</FieldLabel>
+        <select
+          value={countryCode}
+          onChange={(e) => { setCountryCode(e.target.value); setStateCode(''); }}
+          className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
+        >
+          <option value="">— select country —</option>
+          {COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>{c.name}</option>
+          ))}
+        </select>
+      </div>
+      {needsState && (
+        <div>
+          <FieldLabel>{subdivisionLabel(countryCode).toLowerCase()}</FieldLabel>
+          <select
+            value={stateCode}
+            onChange={(e) => setStateCode(e.target.value)}
+            className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
+            required
+          >
+            <option value="">— select {subdivisionLabel(countryCode).toLowerCase()} —</option>
+            {subdivisions(countryCode)!.map((s) => (
+              <option key={s.code} value={s.code}>{s.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
+      <div className="flex gap-2">
+        <Button
+          type="submit"
+          variant="default"
+          size="sm"
+          disabled={saving || !countryCode || (needsState && !stateCode)}
+        >
+          {saving ? 'Saving…' : 'Save Tax Residence'}
+        </Button>
+        {showCancel && (
+          <Button type="button" variant="ghost" size="sm" onClick={onCancel} disabled={saving}>
+            Cancel
+          </Button>
+        )}
+      </div>
+    </form>
+  );
+}
+
+// ── Verified handles preview (collapsed display for Gate 3) ───────────────────
+
+function VerifiedHandlesPreview({ refreshKey }: { refreshKey: number }) {
+  const [claims, setClaims] = useState<HandleClaim[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    authApi.myHandles()
+      .then((res) => { if (!cancelled) setClaims(res.data); })
+      .catch(() => { if (!cancelled) setClaims([]); });
+    return () => { cancelled = true; };
+  }, [refreshKey]);
+
+  if (claims === null) {
+    return <p className="text-xs font-mono text-muted mt-2">loading…</p>;
+  }
+
+  const verified = claims.filter((c) => c.status === 'verified');
+  if (verified.length === 0) return null;
+
+  return (
+    <ul className="mt-2 space-y-1">
+      {verified.map((claim) => {
+        const platform = claim.handle.platform as HandlePlatform;
+        const prefix = PLATFORM_HANDLE_CONFIG[platform]?.prefix ?? '@';
+        return (
+          <li key={claim.claim_id} className="text-sm font-mono text-foreground">
+            {prefix}{claim.handle.username}
+            <span className="text-muted ml-2">{platformLabel(platform)}</span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -257,18 +331,57 @@ function GateRow({
 export default function BecomeCreatorPage() {
   const { user, loading: authLoading, refreshUser } = useAuth();
   const router = useRouter();
+  const [editingResidence, setEditingResidence] = useState(false);
+  const [editingHandles, setEditingHandles] = useState(false);
+  // Bumped whenever the user toggles the handles editor closed, so the
+  // collapsed preview re-fetches and reflects any newly-verified handles.
+  const [handlesRefreshKey, setHandlesRefreshKey] = useState(0);
 
   const handleActivated = useCallback(async () => {
     await refreshUser();
-    router.push('/creator');
+    router.push('/c');
   }, [refreshUser, router]);
 
-  if (authLoading) return null;
+  const handleResidenceSaved = useCallback(async () => {
+    await refreshUser();
+    setEditingResidence(false);
+  }, [refreshUser]);
 
-  if (!user) {
-    if (typeof window !== 'undefined') router.push('/login');
-    return null;
-  }
+  const handleDoneEditingHandles = useCallback(async () => {
+    await refreshUser();
+    setHandlesRefreshKey((k) => k + 1);
+    setEditingHandles(false);
+  }, [refreshUser]);
+
+  // Redirect logged-out users to /login from an effect — calling router.push
+  // during render schedules a setState on the Router and trips React's
+  // "cannot update a component while rendering a different component" warning.
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [authLoading, user, router]);
+
+  // While the creator is still on step 1 (email) or step 2 (handle), the
+  // completing action often happens *outside* this tab — clicking an email
+  // verification link, or an admin approving a handle review. Poll the user
+  // record every 10s so those steps flip to complete without a manual refresh.
+  // Gated on tab visibility: we only fetch when this tab is actually focused,
+  // never for a backgrounded tab.
+  const onEarlyStep =
+    !!user && !(!!user.email_verified_at && (user.has_verified_handle ?? false));
+  useEffect(() => {
+    if (!onEarlyStep) return;
+    const poll = () => {
+      if (document.visibilityState === 'visible') {
+        refreshUser();
+      }
+    };
+    const id = setInterval(poll, 10_000);
+    return () => clearInterval(id);
+  }, [onEarlyStep, refreshUser]);
+
+  if (authLoading || !user) return null;
 
   // Already a creator
   if (user.role === 'creator' || user.creator) {
@@ -286,7 +399,7 @@ export default function BecomeCreatorPage() {
           <p className="text-sm text-muted mb-4">
             Your creator account is active. Head to your creator dashboard to manage bounties, track earnings, and more.
           </p>
-          <Link href="/creator">
+          <Link href="/c">
             <Button variant="primary">Go to Dashboard →</Button>
           </Link>
         </Card>
@@ -294,10 +407,16 @@ export default function BecomeCreatorPage() {
     );
   }
 
-  const gate1Complete = !!user.email_verified_at;
-  const gate2Complete = user.location_complete ?? false;
-  const gate3Complete = user.has_verified_handle ?? false;
-  const gate4Unlocked = gate1Complete && gate2Complete && gate3Complete;
+  const emailComplete     = !!user.email_verified_at;
+  const handleComplete    = user.has_verified_handle ?? false;
+  const residenceComplete = user.location_complete ?? false;
+  // Strict sequential unlock — only one step is actionable at any time. We lead
+  // with handle verification (the motivating, identity-affirming step) and defer
+  // the compliance-flavored tax-residence ask until after the creator is
+  // invested: email → handle → tax residence → TOS.
+  const handleUnlocked    = emailComplete;
+  const residenceUnlocked = emailComplete && handleComplete;
+  const tosUnlocked       = emailComplete && handleComplete && residenceComplete;
 
   return (
     <div className="space-y-7 pt-2 max-w-[600px]">
@@ -309,52 +428,123 @@ export default function BecomeCreatorPage() {
         </p>
       </div>
 
+      {/* Upfront economics. The platform fee is a material term for the person
+          making this decision, so it's stated plainly here — not buried — and
+          framed as what you keep, since {CREATOR_KEEP_PCT}% beats every major
+          streaming platform a creator is comparing us against. */}
+      <Card>
+        <div className="flex items-baseline gap-3">
+          <span className="font-mono font-bold tabular-nums text-[34px] leading-none text-[var(--color-role)]">
+            {CREATOR_KEEP_PCT}%
+          </span>
+          <div>
+            <p className="font-bold text-foreground leading-tight">You keep {CREATOR_KEEP_PCT}% of every bounty.</p>
+            <p className="text-sm text-muted leading-snug mt-0.5">
+              Artypot&apos;s {PLATFORM_FEE_PCT}% covers card processing &amp; fraud protection, hosting,
+              support, and organic veggies for the council members that moderate everything.
+            </p>
+          </div>
+        </div>
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted mt-3 pt-3 border-t border-border">
+          no signup fee · no monthly fee · no sales tax · deducted only from completed payouts
+        </p>
+      </Card>
+
       <div className="space-y-3">
         {/* Gate 1 — email verification */}
         <GateRow
           step={1}
           title="Verify Your Email Address"
           description="A verified email is required to receive creator notifications and tax communications"
-          status={gate1Complete ? 'complete' : 'active'}
+          status={emailComplete ? 'complete' : 'active'}
         >
-          {!gate1Complete && (
+          {!emailComplete && (
             <EmailVerificationGate hasEmail={!!user.email} />
           )}
         </GateRow>
 
-        {/* Gate 2 — location */}
+        {/* Gate 2 — verified handle (inline form, collapses when complete). Led
+            with deliberately: it's the motivating "yes, this is really me" step
+            and the cheapest to complete, so it hooks the creator before any
+            compliance ask. */}
         <GateRow
           step={2}
-          title="Add Your Location of Residence"
-          description="We use this to know where to report your earnings later"
-          status={gate2Complete ? 'complete' : 'active'}
-          actionSlot={
-            gate2Complete
-              ? <Link href="/settings#location"><Button variant="ghost" size="sm">Edit</Button></Link>
-              : <Link href="/settings#location"><Button variant="default" size="sm">Add Location →</Button></Link>
-          }
-        />
-
-        {/* Gate 3 — verified handle */}
-        <GateRow
-          step={3}
           title="Verify a Handle"
           description="Link a social account so fans know you're the real deal"
-          status={gate3Complete ? 'complete' : 'active'}
-          actionSlot={!gate3Complete ? (
-            <Link href="/settings#handles"><Button variant="default" size="sm">Verify a Handle →</Button></Link>
-          ) : undefined}
-        />
+          status={!handleUnlocked ? 'locked' : handleComplete ? 'complete' : 'active'}
+          lockText="Verify your email to unlock"
+          actionSlot={
+            handleComplete && !editingHandles ? (
+              <Button variant="ghost" size="sm" onClick={() => setEditingHandles(true)}>Edit</Button>
+            ) : handleComplete && editingHandles ? (
+              <Button variant="ghost" size="sm" onClick={handleDoneEditingHandles}>Done</Button>
+            ) : undefined
+          }
+        >
+          {handleUnlocked && (
+            handleComplete && !editingHandles ? (
+              <VerifiedHandlesPreview refreshKey={handlesRefreshKey} />
+            ) : (
+              <div className="mt-4">
+                <HandlesSection bare />
+              </div>
+            )
+          )}
+        </GateRow>
+
+        {/* Gate 3 — tax residence (inline form, collapses when complete) */}
+        {(() => {
+          const countryName = user.country_code
+            ? COUNTRIES.find((c) => c.code === user.country_code)?.name ?? user.country_code
+            : null;
+          const stateName = (user.country_code && user.state_code && subdivisions(user.country_code))
+            ? subdivisions(user.country_code)!.find((s) => s.code === user.state_code)?.name ?? user.state_code
+            : null;
+          const residenceDisplay = countryName
+            ? (stateName ? `${countryName} — ${stateName}` : countryName)
+            : null;
+          const showForm = residenceUnlocked && (!residenceComplete || editingResidence);
+          const residenceStatus: GateStatus = !residenceUnlocked
+            ? 'locked'
+            : residenceComplete ? 'complete' : 'active';
+          return (
+            <GateRow
+              step={3}
+              title="Add Your Tax Residence"
+              description="We use this to know where to report your earnings later"
+              status={residenceStatus}
+              lockText="Verify a handle to unlock"
+              actionSlot={
+                residenceComplete && !editingResidence ? (
+                  <Button variant="ghost" size="sm" onClick={() => setEditingResidence(true)}>Edit</Button>
+                ) : undefined
+              }
+            >
+              {residenceComplete && !editingResidence && residenceDisplay && (
+                <p className="text-sm text-foreground mt-2 font-mono">{residenceDisplay}</p>
+              )}
+              {showForm && (
+                <TaxResidenceForm
+                  initialCountry={user.country_code ?? ''}
+                  initialState={user.state_code ?? ''}
+                  onSaved={handleResidenceSaved}
+                  onCancel={() => setEditingResidence(false)}
+                  showCancel={editingResidence && residenceComplete}
+                />
+              )}
+            </GateRow>
+          );
+        })()}
 
         {/* Gate 4 — TOS + slug */}
         <GateRow
           step={4}
           title="Agree to Creator TOS and Choose Your Primary Handle"
           description="Accept the creator terms and lock in your artypot.com/[slug] URL"
-          status={!gate4Unlocked ? 'locked' : 'active'}
+          status={!tosUnlocked ? 'locked' : 'active'}
           lockText="Complete steps 1–3 to unlock"
         >
-          {gate4Unlocked && <TosGate onActivated={handleActivated} />}
+          {tosUnlocked && <TosGate onActivated={handleActivated} />}
         </GateRow>
       </div>
 

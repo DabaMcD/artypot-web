@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { setToken } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { nextTarget, OAUTH_NEXT_KEY } from '@/lib/next-redirect';
 
 function OAuthCallbackContent() {
   const searchParams = useSearchParams();
@@ -23,14 +24,20 @@ function OAuthCallbackContent() {
       // originate from a legitimate handleOAuth call in this tab.
       const nonce = sessionStorage.getItem('oauth_nonce');
       if (!nonce) {
+        sessionStorage.removeItem(OAUTH_NEXT_KEY);
         router.replace('/login?error=invalid_oauth_state');
         return;
       }
       sessionStorage.removeItem('oauth_nonce');
 
+      // Where to land after auth: the `next` stashed when the flow was started
+      // (sanitized again here as defence in depth), else /dashboard.
+      const dest = nextTarget(sessionStorage.getItem(OAUTH_NEXT_KEY));
+      sessionStorage.removeItem(OAUTH_NEXT_KEY);
+
       setToken(token);
       refreshUser()
-        .then(() => router.replace('/dashboard'))
+        .then(() => router.replace(dest))
         .catch(() => setError('Failed to load your account. Please try logging in again.'));
     } else if (err === 'provider_not_configured') {
       // Backend dropped us back because credentials for this provider aren't

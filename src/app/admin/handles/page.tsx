@@ -7,7 +7,6 @@ import { admin as adminApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import type {
-  HandlePlatform,
   HandleVerificationApplicationRow,
   HandleVerificationApplicationStatus,
 } from '@/lib/types';
@@ -406,7 +405,7 @@ export default function AdminHandlesPage() {
                             <Badge tone="warn">pending</Badge>
                           </div>
                           <p className="text-sm text-muted">
-                            claimed by{' '}
+                            approved by{' '}
                             <span className="text-foreground">{row.user.display_name}</span>
                             {' '}<span className="text-muted/70 font-mono text-[10px]">{row.user.email}</span>
                           </p>

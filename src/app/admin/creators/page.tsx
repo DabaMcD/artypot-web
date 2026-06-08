@@ -15,14 +15,6 @@ import { Empty } from '@/components/ui/Empty';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function ClaimedBadge({ claimed }: { claimed: boolean }) {
-  return claimed ? (
-    <Badge tone="good">claimed</Badge>
-  ) : (
-    <Badge tone="default">unclaimed</Badge>
-  );
-}
-
 function W9Badge({ status }: { status: CreatorW9Status | null }) {
   if (!status) return <span className="font-mono text-[10px] uppercase tracking-widest text-muted">no W-9</span>;
   const tones: Record<CreatorW9Status, 'warn' | 'info' | 'good' | 'bad'> = {
@@ -97,12 +89,25 @@ function CreatorModal({ creator, onClose }: { creator: CreatorDetail; onClose: (
 
   return (
     <Modal title={creator.display_name} onClose={onClose} lg>
-      {/* Top meta */}
-      <p className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">{creator.email}</p>
+      {/* Avatar + email */}
+      <div className="flex items-center gap-3 mb-3">
+        {creator.profile_picture ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={creator.profile_picture}
+            alt=""
+            className="w-14 h-14 rounded-full object-cover shrink-0 border border-border"
+          />
+        ) : (
+          <div className="w-14 h-14 rounded-full bg-creator/20 flex items-center justify-center text-creator font-mono text-base font-bold shrink-0 border border-border">
+            {creator.display_name?.charAt(0).toUpperCase() ?? '?'}
+          </div>
+        )}
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted">{creator.email}</p>
+      </div>
 
       {/* Status badges */}
       <div className="flex flex-wrap gap-2 mb-5">
-        <ClaimedBadge claimed={creator.claimed} />
         <W9Badge status={creator.w9_status} />
         <W8BENBadge status={creator.w8ben_status ?? null} />
         <PayoutCategoryBadge category={creator.payout_category ?? null} />
@@ -165,7 +170,7 @@ function CreatorModal({ creator, onClose }: { creator: CreatorDetail; onClose: (
             <dl className="space-y-2">
               <Row label="Available balance">{fmtMoney(creator.wallet.available_balance)}</Row>
               <Row label="Clearing balance">{fmtMoney(creator.wallet.clearing_balance)}</Row>
-              <Row label="Open pledge total">{fmtMoney(creator.wallet.open_pledge_total)}</Row>
+              <Row label="Open backing total">{fmtMoney(creator.wallet.open_backing_total)}</Row>
               <Row label="Total paid out">{fmtMoney(creator.wallet.total_paid_out)}</Row>
               <Row label="Lifetime earned">{fmtMoney(creator.wallet.amount_earned)}</Row>
             </dl>
@@ -248,7 +253,7 @@ function CreatorModal({ creator, onClose }: { creator: CreatorDetail; onClose: (
                   </div>
                   <div className="shrink-0 text-right">
                     <Badge tone={statusTone[b.status] ?? 'default'}>{b.status.replace('_', ' ')}</Badge>
-                    <p className="font-mono text-[10px] text-muted mt-0.5">{fmtMoney(b.total_pledged)}</p>
+                    <p className="font-mono text-[10px] text-muted mt-0.5">{fmtMoney(b.total_backed)}</p>
                   </div>
                 </div>
               </Card>
@@ -395,7 +400,7 @@ export default function AdminCreatorsPage() {
   const router = useRouter();
 
   const [search, setSearch]           = useState('');
-  const [claimedFilter, setClaimedFilter] = useState<ClaimedFilter>('all');
+  const [verifiedFilter, setClaimedFilter] = useState<ClaimedFilter>('all');
   const [creators, setCreators]       = useState<AdminCreator[]>([]);
   const [page, setPage]               = useState(1);
   const [lastPage, setLastPage]       = useState(1);
@@ -412,12 +417,12 @@ export default function AdminCreatorsPage() {
     }
   }, [authLoading, user, router]);
 
-  const fetchCreators = useCallback(async (q: string, claimed: ClaimedFilter, p: number) => {
+  const fetchCreators = useCallback(async (q: string, verified: ClaimedFilter, p: number) => {
     setLoading(true);
     try {
       const res = await adminApi.listCreators({
         q: q || undefined,
-        claimed: claimed !== 'all' ? claimed : 'all',
+        verified: verified !== 'all' ? verified : 'all',
         page: p,
       });
       setCreators(res.data);
@@ -442,7 +447,7 @@ export default function AdminCreatorsPage() {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(() => {
       setPage(1);
-      fetchCreators(val, claimedFilter, 1);
+      fetchCreators(val, verifiedFilter, 1);
     }, 350);
   };
 
@@ -467,9 +472,9 @@ export default function AdminCreatorsPage() {
   if (authLoading || !user || user.role !== 'council') return null;
 
   const CLAIMED_TABS: { label: string; value: ClaimedFilter }[] = [
-    { label: 'All',       value: 'all' },
-    { label: 'Claimed',   value: 'true' },
-    { label: 'Unclaimed', value: 'false' },
+    { label: 'All',        value: 'all' },
+    { label: 'Verified',   value: 'true' },
+    { label: 'Unverified', value: 'false' },
   ];
 
   return (
@@ -507,7 +512,7 @@ export default function AdminCreatorsPage() {
                 type="button"
                 onClick={() => handleClaimedChange(value)}
                 className={`px-3 py-1 rounded font-mono text-[10px] uppercase tracking-wider transition-colors ${
-                  claimedFilter === value
+                  verifiedFilter === value
                     ? 'bg-[var(--color-role-soft)] text-[var(--color-role)]'
                     : 'text-muted hover:text-foreground'
                 }`}
@@ -540,15 +545,23 @@ export default function AdminCreatorsPage() {
                   disabled={loadingDetail}
                   className="w-full text-left px-5 py-3.5 flex items-center gap-3 hover:bg-surface-2 transition-colors disabled:opacity-60"
                 >
-                  {/* Avatar initial */}
-                  <div className="w-8 h-8 rounded-full bg-creator/20 flex items-center justify-center text-creator font-mono text-xs font-bold shrink-0">
-                    {s.display_name?.charAt(0).toUpperCase() ?? '?'}
-                  </div>
+                  {/* Avatar — photo if set, otherwise role-tinted initial fallback */}
+                  {s.profile_picture ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={s.profile_picture}
+                      alt=""
+                      className="w-8 h-8 rounded-full object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-creator/20 flex items-center justify-center text-creator font-mono text-xs font-bold shrink-0">
+                      {s.display_name?.charAt(0).toUpperCase() ?? '?'}
+                    </div>
+                  )}
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-medium text-foreground text-sm truncate">{s.display_name}</span>
-                      <ClaimedBadge claimed={s.claimed} />
                       <W9Badge status={s.w9_status} />
                     </div>
                     {s.user && (
@@ -573,7 +586,7 @@ export default function AdminCreatorsPage() {
               variant="default"
               size="sm"
               disabled={page === 1 || loading}
-              onClick={() => { const p = page - 1; fetchCreators(search, claimedFilter, p); }}
+              onClick={() => { const p = page - 1; fetchCreators(search, verifiedFilter, p); }}
             >
               ← Prev
             </Button>
@@ -584,7 +597,7 @@ export default function AdminCreatorsPage() {
               variant="default"
               size="sm"
               disabled={page === lastPage || loading}
-              onClick={() => { const p = page + 1; fetchCreators(search, claimedFilter, p); }}
+              onClick={() => { const p = page + 1; fetchCreators(search, verifiedFilter, p); }}
             >
               Next →
             </Button>

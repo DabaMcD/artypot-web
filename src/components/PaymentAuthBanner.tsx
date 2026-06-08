@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { ConfirmPaymentModal } from './ConfirmPaymentModal';
@@ -74,8 +73,8 @@ export function PaymentAuthBanner() {
           <span className="font-semibold">Your bank needs you to confirm a charge.</span>
           <span className="text-foreground/80">
             {dollars
-              ? <> Authorize the <strong>${dollars}</strong> pending payment to keep your pledges active.</>
-              : <> Authorize the pending payment to keep your pledges active.</>}
+              ? <> Authorize the <strong>${dollars}</strong> pending payment to keep your backings active.</>
+              : <> Authorize the pending payment to keep your backings active.</>}
           </span>
         </p>
         <button

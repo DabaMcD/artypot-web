@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { auth as authApi } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
-import { Input, FieldLabel } from '@/components/ui/Input';
+import { Input, PasswordInput, FieldLabel } from '@/components/ui/Input';
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -93,8 +93,7 @@ function ResetPasswordForm() {
 
         <div>
           <FieldLabel>new password</FieldLabel>
-          <Input
-            type="password"
+          <PasswordInput
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -107,8 +106,7 @@ function ResetPasswordForm() {
 
         <div>
           <FieldLabel>confirm new password</FieldLabel>
-          <Input
-            type="password"
+          <PasswordInput
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
             required

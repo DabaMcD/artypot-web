@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
           <div className="bg-surface border border-border rounded p-6 space-y-4">
             <div className="font-mono text-[10px] uppercase tracking-widest text-good mb-1">sent</div>
             <p className="text-sm text-muted leading-relaxed">
-              If <span className="font-mono text-foreground">{email}</span> is registered, you&apos;ll receive the link shortly.
+              If <span className="font-mono text-foreground">{email}</span>{" "}is registered, you&apos;ll receive the link shortly.
             </p>
             <Link href="/login" className="ap-inline-link text-sm">
               ← Back to Sign In

@@ -17,9 +17,9 @@ export default function CreatorIdRedirectPage({ params }: { params: Promise<{ id
   useEffect(() => {
     creatorsApi.get(Number(id)).then((res) => {
       const slug = res.data.slug;
-      router.replace(slug ? `/${slug}` : '/creators');
+      router.replace(slug ? `/${slug}` : '/search');
     }).catch(() => {
-      router.replace('/creators');
+      router.replace('/search');
     });
   }, [id, router]);
 

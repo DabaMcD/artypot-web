@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
@@ -98,6 +98,8 @@ function ReactionButton({
 interface CommentRowProps {
   comment: Comment;
   isReply?: boolean;
+  /** Visually emphasise this row — used for the deep-linked target comment. */
+  highlighted?: boolean;
   currentUserId?: number;
   isCouncil?: boolean;
   replies?: Comment[] | 'loading';
@@ -117,6 +119,7 @@ interface CommentRowProps {
 function CommentRow({
   comment,
   isReply = false,
+  highlighted = false,
   currentUserId,
   isCouncil,
   replies,
@@ -137,7 +140,13 @@ function CommentRow({
   const showReplyBox = replyText !== undefined && !isReply;
 
   return (
-    <div className={isReply ? 'flex gap-3' : 'flex gap-3 py-4 border-b border-border last:border-0'}>
+    <div
+      id={isReply ? undefined : `comment-${comment.id}`}
+      className={
+        (isReply ? 'flex gap-3' : 'flex gap-3 py-4 border-b border-border last:border-0') +
+        (highlighted ? ' bg-fan/5 ring-1 ring-fan/30 rounded-lg px-3 -mx-3 scroll-mt-24' : '')
+      }
+    >
       <UserAvatar user={comment.deleted ? null : comment.user} size={isReply ? 7 : 8} />
 
       <div className="flex-1 min-w-0">
@@ -337,9 +346,15 @@ interface CommentSectionProps {
   inline?: boolean;
   /** Called whenever the total comment count changes (useful for tab labels). */
   onTotalChange?: (total: number) => void;
+  /**
+   * Deep-link target (from a notification/email). If this comment isn't on the
+   * first page it's fetched on its own and pinned to the top, then highlighted
+   * and scrolled into view.
+   */
+  highlightCommentId?: number;
 }
 
-export default function CommentSection({ bountyId, inline = false, onTotalChange }: CommentSectionProps) {
+export default function CommentSection({ bountyId, inline = false, onTotalChange, highlightCommentId }: CommentSectionProps) {
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -367,7 +382,13 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
   const loadComments = useCallback(async (pageNum: number, append = false) => {
     try {
       const res = await commentsApi.list(bountyId, pageNum);
-      setCommentList((prev) => (append ? [...prev, ...res.data] : res.data));
+      setCommentList((prev) => {
+        if (!append) return res.data;
+        // Drop any rows already present (e.g. a pinned deep-linked comment) so
+        // loading more pages never duplicates them.
+        const seen = new Set(prev.map((c) => c.id));
+        return [...prev, ...res.data.filter((c) => !seen.has(c.id))];
+      });
       setPage(res.current_page);
       setLastPage(res.last_page);
       setTotal(res.total);
@@ -383,6 +404,57 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
   useEffect(() => {
     loadComments(1);
   }, [loadComments]);
+
+  // Deep-link: once the first page is in, make sure the targeted comment is
+  // present and pinned to the top. If it isn't on page 1, fetch it on its own.
+  // Guarded so it runs at most once per target.
+  const fetchedHighlightRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (!highlightCommentId || loading) return;
+    if (fetchedHighlightRef.current === highlightCommentId) return;
+
+    const present = commentList.some((c) => c.id === highlightCommentId);
+    if (present) {
+      fetchedHighlightRef.current = highlightCommentId;
+      // Reorder so the linked comment sits at the top.
+      setCommentList((prev) => {
+        const target = prev.find((c) => c.id === highlightCommentId);
+        if (!target) return prev;
+        return [target, ...prev.filter((c) => c.id !== highlightCommentId)];
+      });
+      return;
+    }
+
+    fetchedHighlightRef.current = highlightCommentId;
+    commentsApi
+      .get(highlightCommentId)
+      .then((res) => {
+        setCommentList((prev) =>
+          prev.some((c) => c.id === res.data.id) ? prev : [res.data, ...prev]
+        );
+      })
+      .catch(() => {
+        // Comment may have been deleted — silently fall back to the normal list.
+      });
+  }, [highlightCommentId, loading, commentList]);
+
+  // Scroll the linked comment into view once it's rendered (and the tab is
+  // visible). Runs once per target.
+  const scrolledHighlightRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (!highlightCommentId) return;
+    if (scrolledHighlightRef.current === highlightCommentId) return;
+    if (!commentList.some((c) => c.id === highlightCommentId)) return;
+
+    const raf = requestAnimationFrame(() => {
+      const el = document.getElementById(`comment-${highlightCommentId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        scrolledHighlightRef.current = highlightCommentId;
+      }
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [highlightCommentId, commentList]);
 
   const loadMore = async () => {
     if (page >= lastPage || loadingMore) return;
@@ -635,6 +707,7 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
               <CommentRow
                 key={comment.id}
                 comment={comment}
+                highlighted={comment.id === highlightCommentId}
                 currentUserId={user?.id}
                 isCouncil={user?.role === 'council'}
                 replies={repliesMap[comment.id]}

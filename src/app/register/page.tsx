@@ -6,8 +6,10 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { auth as authApi, phone as phoneApi } from '@/lib/api';
+import { nextTarget, readNextFromLocation, OAUTH_NEXT_KEY } from '@/lib/next-redirect';
+import { PHONE_SIGNUP_ENABLED } from '@/lib/config';
 import { Button } from '@/components/ui/Button';
-import { Input, FieldLabel, FieldGrid2 } from '@/components/ui/Input';
+import { Input, PasswordInput, FieldLabel, FieldGrid2 } from '@/components/ui/Input';
 import { Toggle } from '@/components/ui/Toggle';
 import { Card } from '@/components/ui/Card';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
@@ -170,8 +172,17 @@ export default function RegisterPage() {
   // After phone registration, show the OTP step instead of redirecting
   const [awaitingOtp, setAwaitingOtp] = useState(false);
 
+  // Querystring to preserve `next` on the link over to /login. Populated in a
+  // mount effect (not at render) so SSR and first client render agree — reading
+  // window.location during render would cause a hydration mismatch.
+  const [nextQuery, setNextQuery] = useState('');
   useEffect(() => {
-    if (!authLoading && user) router.replace('/dashboard');
+    const next = readNextFromLocation();
+    setNextQuery(next ? `?next=${encodeURIComponent(next)}` : '');
+  }, []);
+
+  useEffect(() => {
+    if (!authLoading && user) router.replace(nextTarget(readNextFromLocation()));
   }, [authLoading, user, router]);
 
   if (authLoading || user) return null;
@@ -184,6 +195,11 @@ export default function RegisterPage() {
       // was initiated from this browser, preventing token injection attacks.
       const nonce = crypto.randomUUID();
       sessionStorage.setItem('oauth_nonce', nonce);
+      // Carry `next` across the provider round-trip so the callback can return
+      // the user to where they started instead of /dashboard.
+      const next = readNextFromLocation();
+      if (next) sessionStorage.setItem(OAUTH_NEXT_KEY, next);
+      else sessionStorage.removeItem(OAUTH_NEXT_KEY);
       const { url } = await authApi.oauthRedirect(provider);
       window.location.href = url;
     } catch (err: unknown) {
@@ -219,7 +235,7 @@ export default function RegisterPage() {
       if (result.phone_verification_required) {
         setAwaitingOtp(true);
       } else {
-        router.push('/dashboard');
+        router.push(nextTarget(readNextFromLocation()));
       }
     } catch (err: unknown) {
       const e = err as { status?: number; message?: string };
@@ -257,23 +273,34 @@ export default function RegisterPage() {
         </Link>
 
         <h1 className="font-display font-bold text-[54px] leading-[1.05] tracking-tight text-foreground mb-5">
-          start with a{' '}
-          <span className="ap-sketch-u text-fan">fan</span>{' '}
-          account.
+          money talks louder when it's still{' '}
+          <span className="ap-sketch-u text-fan">in your pocket</span>
         </h1>
         <p className="text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
-          every artypot user starts as a fan — you can pledge to bounties, start new ones, and chip in on anything you want to see made.
+          every artypot account starts as a fan — back the bounties you want to
+          see made, or start your own and ask a creator to make something specific.
         </p>
 
         <Card dashed className="max-w-[420px]">
-          <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-2">why this order?</div>
-          <p className="text-sm text-foreground leading-relaxed mb-3">
-            artypot uses a <strong className="text-fan">no-claim</strong> model — bounties are posted for public work, so there&apos;s nothing to claim in advance.
-          </p>
-          <p className="text-sm text-muted leading-relaxed">
-            once you&apos;re in as a fan, you can verify a creator handle and complete the tax + payout gates to unlock the creator view.
-          </p>
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">how a bounty works</div>
+          <ul className="space-y-2.5">
+            {[
+              'Back a bounty you want to exist — or open a new one. Nothing is charged upfront.',
+              "Fans pile on until the creator decides it's worth making, then they submit the finished work.",
+              "Once it's verified as delivered, your card is charged — never before.",
+            ].map((line) => (
+              <li key={line} className="flex gap-2.5 text-sm text-foreground leading-snug">
+                <span className="text-fan mt-0.5 shrink-0" aria-hidden>✓</span>
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
         </Card>
+
+        <p className="text-sm text-muted leading-relaxed max-w-[420px] mt-6 pl-5 relative before:content-['→'] before:absolute before:left-0 before:text-fan">
+          want to get paid for your own work? become a creator after signing up —
+          verify a handle, then clear the tax + payout steps.
+        </p>
       </div>
 
       {/* Right — form */}
@@ -292,7 +319,7 @@ export default function RegisterPage() {
         {/* ── OTP verification step ───────────────────────────────────────── */}
         {awaitingOtp ? (
           <OtpStep
-            onVerified={() => router.push('/dashboard')}
+            onVerified={() => router.push(nextTarget(readNextFromLocation()))}
             onResend={handleResendOtp}
           />
         ) : (
@@ -325,31 +352,33 @@ export default function RegisterPage() {
               <div className="flex-1 h-px bg-border" />
             </div>
 
-            {/* Email / Phone toggle */}
-            <div className="flex rounded-lg border border-border overflow-hidden mb-5 text-xs font-mono">
-              <button
-                type="button"
-                onClick={() => switchMode('email')}
-                className={`flex-1 py-2 transition-colors ${
-                  mode === 'email'
-                    ? 'bg-surface-2 text-foreground'
-                    : 'text-muted hover:text-foreground'
-                }`}
-              >
-                email
-              </button>
-              <button
-                type="button"
-                onClick={() => switchMode('phone')}
-                className={`flex-1 py-2 border-l border-border transition-colors ${
-                  mode === 'phone'
-                    ? 'bg-surface-2 text-foreground'
-                    : 'text-muted hover:text-foreground'
-                }`}
-              >
-                phone
-              </button>
-            </div>
+            {/* Email / Phone toggle — hidden while phone-only signup is in beta */}
+            {PHONE_SIGNUP_ENABLED && (
+              <div className="flex rounded-lg border border-border overflow-hidden mb-5 text-xs font-mono">
+                <button
+                  type="button"
+                  onClick={() => switchMode('email')}
+                  className={`flex-1 py-2 transition-colors ${
+                    mode === 'email'
+                      ? 'bg-surface-2 text-foreground'
+                      : 'text-muted hover:text-foreground'
+                  }`}
+                >
+                  email
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchMode('phone')}
+                  className={`flex-1 py-2 border-l border-border transition-colors ${
+                    mode === 'phone'
+                      ? 'bg-surface-2 text-foreground'
+                      : 'text-muted hover:text-foreground'
+                  }`}
+                >
+                  phone
+                </button>
+              </div>
+            )}
 
             {error && (
               <div className="bg-bad-soft border border-bad text-bad text-sm rounded px-4 py-3 mb-4">
@@ -396,8 +425,7 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <FieldLabel>password</FieldLabel>
-                  <Input
-                    type="password"
+                  <PasswordInput
                     required
                     autoComplete="new-password"
                     value={password}
@@ -409,8 +437,7 @@ export default function RegisterPage() {
 
               <div>
                 <FieldLabel>confirm password</FieldLabel>
-                <Input
-                  type="password"
+                <PasswordInput
                   required
                   autoComplete="new-password"
                   value={confirm}
@@ -446,7 +473,7 @@ export default function RegisterPage() {
             <div className="border-t border-dashed border-border my-5" />
             <p className="text-sm text-muted text-center">
               Already have one?{' '}
-              <Link href="/login" className="ap-inline-link">Sign In →</Link>
+              <Link href={`/login${nextQuery}`} className="ap-inline-link">Sign In →</Link>
             </p>
           </>
         )}

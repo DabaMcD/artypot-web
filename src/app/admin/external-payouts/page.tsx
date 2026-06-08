@@ -17,6 +17,7 @@ import { Card, SectionLabel } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
 import { Input, Select, Textarea, FieldLabel, FieldHint } from '@/components/ui/Input';
 import { Empty } from '@/components/ui/Empty';
+import { Toggle } from '@/components/ui/Toggle';
 
 const METHODS: ExternalPayoutMethod[] = ['wise', 'paypal', 'wire', 'check', 'other'];
 
@@ -57,7 +58,7 @@ function CreatorAutocomplete({ value, onChange }: CreatorAutocompleteProps) {
       setLoading(true);
       try {
         const res = await adminApi.externalPayouts.searchCreators(q);
-        setResults(res.data);
+        setResults(res.data ?? []);
         setOpen(true);
       } catch {
         setResults([]);
@@ -127,6 +128,7 @@ function NewPayoutModal({ onClose, onCreated }: { onClose: () => void; onCreated
   const today = new Date().toISOString().slice(0, 10);
   const [creator, setCreator] = useState<CreatorSearchResult | null>(null);
   const [amount, setAmount] = useState('');
+  const [fee, setFee] = useState('');
   const [method, setMethod] = useState<ExternalPayoutMethod>('wise');
   const [refId, setRefId] = useState('');
   const [sentAt, setSentAt] = useState(today);
@@ -150,6 +152,7 @@ function NewPayoutModal({ onClose, onCreated }: { onClose: () => void; onCreated
     const form = new FormData();
     form.append('creator_id', String(creator.id));
     form.append('amount', String(numericAmount));
+    if (fee.trim() && parseFloat(fee) > 0) form.append('transaction_fee', String(parseFloat(fee)));
     form.append('method', method);
     if (refId.trim()) form.append('external_reference_id', refId.trim());
     form.append('sent_at', sentAt);
@@ -207,6 +210,22 @@ function NewPayoutModal({ onClose, onCreated }: { onClose: () => void; onCreated
 
         <div className="grid grid-cols-2 gap-3">
           <div>
+            <FieldLabel>Transaction fee (covered by Artypot)</FieldLabel>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={fee}
+              onChange={(e) => setFee(e.target.value)}
+              placeholder="0.00"
+            />
+            <FieldHint>Rail fee Artypot absorbs. Not deducted from the creator.</FieldHint>
+          </div>
+          <div aria-hidden />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
             <FieldLabel>External Reference ID</FieldLabel>
             <Input
               type="text"
@@ -227,7 +246,7 @@ function NewPayoutModal({ onClose, onCreated }: { onClose: () => void; onCreated
         </div>
 
         <div>
-          <FieldLabel>Notes</FieldLabel>
+          <FieldLabel>Notes (sent to creator)</FieldLabel>
           <Textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -347,6 +366,12 @@ function DetailModal({ payout, onClose }: { payout: ExternalPayout; onClose: () 
             <dt className="text-muted">Amount</dt>
             <dd className="font-mono tabular-nums text-foreground">{fmtMoney(payout.amount)}</dd>
           </div>
+          {Number(payout.transaction_fee) > 0 && (
+            <div className="flex justify-between">
+              <dt className="text-muted">Fee (absorbed by Artypot)</dt>
+              <dd className="font-mono tabular-nums text-muted">{fmtMoney(payout.transaction_fee)}</dd>
+            </div>
+          )}
           <div className="flex justify-between">
             <dt className="text-muted">Reference</dt>
             <dd className="font-mono text-foreground">{payout.external_reference_id ?? '—'}</dd>
@@ -484,15 +509,9 @@ export default function AdminExternalPayoutsPage() {
             <FieldLabel>Filter by creator</FieldLabel>
             <CreatorAutocomplete value={creatorFilter} onChange={setCreatorFilter} />
           </div>
-          <label className="flex items-center gap-2 mt-1 sm:mt-7 font-mono text-[10px] uppercase tracking-wider text-muted cursor-pointer">
-            <input
-              type="checkbox"
-              checked={includeReversed}
-              onChange={(e) => setIncludeReversed(e.target.checked)}
-              className="accent-[var(--color-role)]"
-            />
-            include reversed
-          </label>
+          <div className="mt-1 sm:mt-7">
+            <Toggle on={includeReversed} onChange={setIncludeReversed} label="include reversed" className="font-mono text-[10px] uppercase tracking-wider text-muted" />
+          </div>
           <div className="flex-1" />
           <Button variant="primary" onClick={() => setShowNew(true)} className="mt-1 sm:mt-6">
             + Record new payout

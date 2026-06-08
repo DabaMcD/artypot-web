@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
-import { billing } from '@/lib/api';
+import { billing, backings as backingsApi } from '@/lib/api';
+import type { PublicUserBacking } from '@/lib/types';
+import { BountyStatusBadge } from '@/components/BountyStatusBadge';
+import Link from 'next/link';
 import { BILLING_DAY, nextBillingInfo, WARP_SPEED, PLATFORM_FEE_PCT } from '@/lib/config';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
 import { ConfirmPaymentModal } from '@/components/ConfirmPaymentModal';
-import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
-import { Banner } from '@/components/ui/Banner';
 import { Timeline } from '@/components/ui/Timeline';
 
 export default function BillingPage() {
@@ -20,6 +21,8 @@ export default function BillingPage() {
 
   const [balance, setBalance] = useState<number | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
+  const [lockedBackings, setLockedBackings] = useState<PublicUserBacking[]>([]);
+  const [brokeCooldown, setBrokeCooldown] = useState<{ ends_at: string; started_at: string } | null>(null);
   const [paying, setPaying] = useState(false);
   // 3DS / SCA modal — opens when payNow returns requires_action OR when the
   // PaymentAuthBanner triggers a deep link. We keep modal state local to the
@@ -32,9 +35,15 @@ export default function BillingPage() {
 
   useEffect(() => {
     if (!user) return;
-    billing
-      .cash()
-      .then((res) => setBalance(res.balance))
+    Promise.all([
+      billing.cash(),
+      backingsApi.list({ bounty_status: 'completed', per_page: 100, sort: 'amount' }),
+    ])
+      .then(([cashRes, backingRes]) => {
+        setBalance(cashRes.balance);
+        setLockedBackings(backingRes.data);
+        setBrokeCooldown(cashRes.broke_cooldown);
+      })
       .catch(() => setBalance(null))
       .finally(() => setBalanceLoading(false));
   }, [user]);
@@ -117,52 +126,72 @@ export default function BillingPage() {
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">upcoming charge</h1>
       </div>
 
-      {/* Outstanding balance */}
-      {!balanceLoading && hasOutstandingBalance && (
-        <Banner tone="warn">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div>
-              <div className="font-bold text-foreground">
-                ${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} outstanding
-              </div>
-              <div className="text-sm text-muted mt-0.5">
-                Charged automatically on the {BILLING_DAY}th — pay now to avoid the batch.
-              </div>
-            </div>
-            <Button variant="primary" disabled={paying} onClick={handlePayNow}>
-              {paying ? 'Processing…' : `Pay $${outstandingAmount.toFixed(2)} Now`}
-            </Button>
-          </div>
-        </Banner>
+      {brokeCooldown && (
+        <Card accent>
+          <SectionLabel className="mb-2 text-warn">broke cooldown in effect</SectionLabel>
+          <p className="text-sm text-muted leading-snug">
+            You declared broke on {new Date(brokeCooldown.started_at).toLocaleDateString()}.
+            New backings are blocked until{' '}
+            <span className="font-mono text-foreground">
+              {new Date(brokeCooldown.ends_at).toLocaleString()}
+            </span>.
+          </p>
+        </Card>
       )}
 
-      {/* Charge breakdown */}
+      {/* What will be charged */}
       {!balanceLoading && hasOutstandingBalance && (
         <Card>
-          <SectionLabel className="mb-4">charge breakdown</SectionLabel>
-          <table className="w-full font-mono text-sm">
-            <tbody>
-              <tr>
-                <td className="py-1.5 text-muted">approved pledges</td>
-                <td className="py-1.5 text-right tabular-nums">${outstandingAmount.toFixed(2)}</td>
-              </tr>
-              <tr className="border-t border-border">
-                <td className="py-1.5 font-bold text-foreground">total charged to card</td>
-                <td className="py-1.5 text-right font-bold tabular-nums">${outstandingAmount.toFixed(2)}</td>
-              </tr>
-              <tr>
-                <td className="py-1 text-[11px] text-muted">− platform fee ({PLATFORM_FEE_PCT}%)</td>
-                <td className="py-1 text-right text-[11px] text-muted tabular-nums">−${(outstandingAmount * PLATFORM_FEE_PCT / 100).toFixed(2)}</td>
-              </tr>
-              <tr className="border-t border-border">
-                <td className="py-1.5 text-creator font-bold">creators receive</td>
-                <td className="py-1.5 text-right text-creator font-bold tabular-nums">${(outstandingAmount * (1 - PLATFORM_FEE_PCT / 100)).toFixed(2)}</td>
-              </tr>
-            </tbody>
-          </table>
-          <p className="text-xs text-muted mt-3 pt-3 border-t border-dashed border-border">
-            The {PLATFORM_FEE_PCT}% platform fee covers all transaction costs. You are always charged your exact committed amount.
+          <div className="flex items-baseline justify-between gap-4 mb-1">
+            <SectionLabel>what will be charged</SectionLabel>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+              {chargeDate} · 09:00 UTC
+            </div>
+          </div>
+          <p className="text-sm text-muted mb-4">
+            ${outstandingAmount.toFixed(2)} will be charged automatically on {chargeDate}. No action needed.
           </p>
+
+          {lockedBackings.length > 0 && (
+            <table className="w-full font-mono text-sm">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">Bounty</th>
+                  <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">State</th>
+                  <th className="pb-2 text-right text-[10px] uppercase tracking-widest text-muted font-normal">Your Backing</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {lockedBackings.map((backing) => (
+                  <tr key={backing.id}>
+                    <td className="py-3 pr-4">
+                      <Link href={`/bounties/${backing.bounty_id}`} className="text-fan hover:underline line-clamp-2 leading-snug">
+                        {backing.bounty?.title ?? `Bounty #${backing.bounty_id}`}
+                      </Link>
+                    </td>
+                    <td className="py-3 pr-4">
+                      <BountyStatusBadge status={backing.bounty?.status ?? 'completed'} />
+                    </td>
+                    <td className="py-3 text-right tabular-nums">${Number(backing.amount).toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          <div className="mt-4 pt-4 border-t border-dashed border-border flex items-center justify-between gap-3">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
+              prefer to clear now?
+            </span>
+            <button
+              type="button"
+              onClick={handlePayNow}
+              disabled={paying}
+              className="font-mono text-[11px] text-fan hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer"
+            >
+              {paying ? 'processing…' : `settle $${outstandingAmount.toFixed(2)} now →`}
+            </button>
+          </div>
         </Card>
       )}
 
@@ -197,7 +226,7 @@ export default function BillingPage() {
         <SectionLabel className="mb-4">this month&apos;s timeline</SectionLabel>
         <Timeline
           items={[
-            { when: 'now', what: 'approved pledges are locked in', done: true },
+            { when: 'now', what: 'approved backings are locked in', done: true },
             { when: previewDate, what: 'billing preview sent to your inbox' },
             { when: `${chargeDate} · 09:00 UTC`, what: 'your card is charged' },
             { when: '7 days after charge', what: 'funds clear and creators can withdraw' },

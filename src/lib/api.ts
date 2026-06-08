@@ -7,20 +7,26 @@ import type {
   NotificationPage,
   Nudge,
   Bounty,
-  BountyPledge,
+  BountyBacking,
   BountyCompletion,
   BountyHistory,
-  CreatorClaim,
   PaginatedResponse,
-  PledgePage,
+  BackingPage,
+  FanStats,
+  FanPaymentSummary,
+  FanPaymentStatus,
   CashBalance,
   PaymentMethod,
   BountyStatus,
-  RemovePledgeResult,
+  RemoveBackingResult,
   DeletePaymentMethodResult,
   CouncilMember,
   CouncilPage,
-  AdminCreatorClaim,
+  TreasurySummary,
+  PlatformWithdrawal,
+  PlatformWithdrawalCategory,
+  SystemSnapshot,
+  IntegrityReport,
   AdminBountyCompletion,
   HandleVerificationApplicationRow,
   HandleVerificationApplicationStatus,
@@ -29,10 +35,25 @@ import type {
   CreatorEarning,
   CreatorBalance,
   Comment,
-  UserHandle,
   HandlePlatform,
   HandleClaim,
   HandleSearchResult,
+  SearchResponse,
+  SearchBountyResult,
+  ComplianceSource,
+  ComplianceSanction,
+  ComplianceSanctionEntity,
+  ComplianceMatchCandidate,
+  ComplianceTaxTreaty,
+  CompliancePaymentSupport,
+  ComplianceStateThreshold,
+  ComplianceContentRule,
+  ComplianceJobRun,
+  ComplianceAuditEntry,
+  BillingRun,
+  BillingRunDetail,
+  CountryTiersResponse,
+  AuditLogResponse,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -91,7 +112,7 @@ interface ApiError {
   status: number;
   message: string;
   requires_w9?: boolean;
-  /** 422 body reason code, e.g. 'pledge_cap_exceeded' | 'payment_grace_period' */
+  /** 422 body reason code, e.g. 'backing_cap_exceeded' | 'payment_grace_period' */
   reason?: string;
   /** Free-form body payload for 422 responses (cap, current_total, requested, grace_expires_at, etc.) */
   data?: Record<string, unknown>;
@@ -307,7 +328,7 @@ export const creators = {
   list: (params?: {
     q?: string;
     page?: number;
-    sort?: 'newest' | 'most_pledged' | 'most_completed';
+    sort?: 'newest' | 'most_backed' | 'most_completed';
   }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
@@ -332,13 +353,13 @@ export const creators = {
 
   /**
    * GET /platform/{platform}/{handle}
-   *  - match === 'claimed'   → handle is verified by a creator; redirect client to /{user.slug}
-   *  - match === 'unclaimed' → no claim; returns bounties for share/recruitment UI
+   *  - match === 'verified'   → handle is verified by a creator; redirect client to /{user.slug}
+   *  - match === 'unverified' → no verified claim; returns bounties for share/recruitment UI
    */
   byPlatformHandle: (platform: string, handle: string) =>
     request<
-      | { match: 'claimed';   user: { id: number; display_name: string; slug: string; profile_picture: string | null } }
-      | { match: 'unclaimed'; handle: { id: number | null; platform: string; username: string }; bounties: Array<{ id: number; title: string; status: string; total_pledged: string; created_at: string }> }
+      | { match: 'verified';   user: { id: number; display_name: string; slug: string; profile_picture: string | null } }
+      | { match: 'unverified'; handle: { id: number | null; platform: string; username: string }; bounties: Array<{ id: number; title: string; status: string; total_backed: string; created_at: string }> }
     >(`/platform/${encodeURIComponent(platform)}/${encodeURIComponent(handle)}`),
 
   create: (data: Partial<Creator>) =>
@@ -346,12 +367,6 @@ export const creators = {
 
   update: (id: number, data: Partial<Creator>) =>
     request<{ data: Creator }>(`/creators/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-
-  claim: (creator_id: number, contact_info: string) =>
-    request<{ data: CreatorClaim }>('/creator-claims', {
-      method: 'POST',
-      body: JSON.stringify({ creator_id, contact_info }),
-    }),
 };
 
 // Bounties
@@ -369,28 +384,47 @@ export const bounties = {
   create: (data: {
     title: string;
     description?: string;
-    initial_pledge_amount?: number;
+    initial_backing_amount?: number;
     target_user_id?: number;
     target_handle_id?: number;
     platform?: string;
     username?: string;
+    url?: string;
     display_name?: string;
-    pledge_expiry_value?: number;
-    pledge_expiry_unit?: string;
+    backing_expiry_value?: number;
+    backing_expiry_unit?: string;
   }) =>
-    request<{ data: Bounty }>('/bounties', { method: 'POST', body: JSON.stringify(data) }),
+    request<{ data: Bounty; default_update_prompts?: import('./default-update-prompt-context').DefaultUpdatePrompts }>(
+      '/bounties',
+      { method: 'POST', body: JSON.stringify(data) },
+    ),
 
-  update: (id: number, data: { title?: string; description?: string }) =>
+  update: (id: number, data: { title?: string; description?: string; display_name?: string | null }) =>
     request<{ data: Bounty }>(`/bounties/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
-  pledge: (bountyId: number, amount: number, expires_at?: string) =>
-    request<{ data: BountyPledge & { bounty: { total_pledged: number } } }>(`/bounties/${bountyId}/pledges`, {
+  backing: (
+    bountyId: number,
+    amount: number,
+    expires_at?: string,
+    expiry_value?: number,
+    expiry_unit?: string,
+  ) =>
+    request<{
+      data: BountyBacking;
+      bounty: { id: number; total_backed: number; solid_total: number };
+      default_update_prompts?: import('./default-update-prompt-context').DefaultUpdatePrompts;
+    }>(`/bounties/${bountyId}/backings`, {
       method: 'POST',
-      body: JSON.stringify({ amount, ...(expires_at ? { expires_at } : {}) }),
+      body: JSON.stringify({
+        amount,
+        ...(expires_at ? { expires_at } : {}),
+        ...(expiry_value !== undefined ? { backing_expiry_value: expiry_value } : {}),
+        ...(expiry_unit !== undefined ? { backing_expiry_unit: expiry_unit } : {}),
+      }),
     }),
 
-  removePledge: (bountyId: number, pledgeId: number) =>
-    request<RemovePledgeResult>(`/bounties/${bountyId}/pledges/${pledgeId}`, { method: 'DELETE' }),
+  removeBacking: (bountyId: number, backingId: number) =>
+    request<RemoveBackingResult>(`/bounties/${bountyId}/backings/${backingId}`, { method: 'DELETE' }),
 
   submitCompletion: (bountyId: number, submission_url: string, submission_notes?: string) =>
     request<{ data: BountyCompletion }>(`/bounties/${bountyId}/completion`, {
@@ -413,7 +447,7 @@ export const users = {
   get: (id: number) =>
     request<{ data: PublicUser }>(`/users/${id}`),
 
-  update: (id: number, data: Partial<Pick<User, 'display_name' | 'profile_picture' | 'is_anonymous' | 'country_code' | 'state_code' | 'default_expiry_value' | 'default_expiry_unit'>>) =>
+  update: (id: number, data: Partial<Pick<User, 'display_name' | 'profile_picture' | 'is_anonymous' | 'country_code' | 'state_code' | 'default_expiry_value' | 'default_expiry_unit' | 'default_backing_amount' | 'bio' | 'fan_name' | 'fan_name_plural'>>) =>
     request<{ data: User }>(`/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -425,6 +459,10 @@ export const comments = {
   /** Paginated top-level comments for a bounty. */
   list: (bountyId: number, page = 1) =>
     request<PaginatedResponse<Comment>>(`/bounties/${bountyId}/comments?page=${page}`),
+
+  /** A single comment by id — used for deep-linking (notification/email). */
+  get: (commentId: number) =>
+    request<{ data: Comment }>(`/comments/${commentId}`),
 
   /** All direct replies to a top-level comment (not paginated). */
   replies: (commentId: number) =>
@@ -471,15 +509,16 @@ export const featuredBounties = {
   list: () => request<{ data: Bounty[] }>('/featured-bounties'),
 };
 
-// Pledges (authenticated user's own)
-export const pledges = {
-  list: (params?: { sort?: 'date' | 'amount'; page?: number }) => {
+// Backings (authenticated user's own)
+export const backings = {
+  list: (params?: { sort?: 'date' | 'amount'; page?: number; bounty_status?: string; per_page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
     const qs = new URLSearchParams(entries).toString();
-    return request<PledgePage>(`/auth/pledges${qs ? `?${qs}` : ''}`);
+    return request<BackingPage>(`/auth/backings${qs ? `?${qs}` : ''}`);
   },
+  stats: () => request<FanStats>('/auth/backings/stats'),
 };
 
 // Notification settings
@@ -554,10 +593,6 @@ export const billing = {
   deletePaymentMethod: (id: string) =>
     request<DeletePaymentMethodResult>(`/billing/payment-methods/${id}`, { method: 'DELETE' }),
 
-  /** Confirm an existing card is still valid, resetting its 90-day activity window. */
-  confirmPaymentMethod: (id: string) =>
-    request<{ data: PaymentMethod }>(`/billing/payment-methods/${id}/confirm`, { method: 'POST' }),
-
   /**
    * Immediately charge the authenticated user's full negative available_cash balance.
    *
@@ -592,6 +627,15 @@ export const billing = {
       requires_action_at?: string;
       expires_at?: string;
     }>('/billing/pending-action'),
+
+  /** Paginated history of the fan's past charges, each itemized by the backings it settled. */
+  payments: (params?: { page?: number; status?: FanPaymentStatus }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null)
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<PaginatedResponse<FanPaymentSummary>>(`/billing/payments${qs ? `?${qs}` : ''}`);
+  },
 };
 
 // Cash (creator-specific endpoints)
@@ -678,12 +722,40 @@ export const stripeConnect = {
     request<{ data: { disconnected: boolean } }>('/payout/stripe/account', { method: 'DELETE' }),
 };
 
+export const search = {
+  /**
+   * GET /search — unified header/global search (people + bounties).
+   * Pass an AbortSignal to cancel an in-flight request when the query changes.
+   */
+  query: (
+    params: {
+      q: string;
+      mode?: 'dropdown' | 'full';
+      limit_people?: number;
+      limit_bounties?: number;
+      include_completed?: boolean;
+    },
+    signal?: AbortSignal,
+  ) => {
+    const entries = Object.entries(params)
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<SearchResponse>(`/search?${qs}`, { signal });
+  },
+
+  /** GET /search/trending — top open bounties by recent backing velocity. */
+  trending: (signal?: AbortSignal) =>
+    request<{ data: SearchBountyResult[] }>(`/search/trending`, { signal }),
+};
+
 // Overlord — logs
 export const handles = {
   /** GET /handles/search?q=... — unified handle search for bounty targeting */
-  search: (q: string) =>
+  search: (q: string, signal?: AbortSignal) =>
     request<{ data: HandleSearchResult }>(
-      `/handles/search?q=${encodeURIComponent(q)}`
+      `/handles/search?q=${encodeURIComponent(q)}`,
+      { signal }
     ),
 
   /**
@@ -698,7 +770,7 @@ export const handles = {
     const body = platform === 'other'
       ? { platform, url: value }
       : { platform, username: value };
-    return request<{ data: HandleClaim }>('/handles', {
+    return request<{ data: HandleClaim; already_claimed?: boolean }>('/handles', {
       method: 'POST',
       body: JSON.stringify(body),
     });
@@ -746,11 +818,11 @@ export const metrics = {
         total_bounties:              number;
         avg_bounty_amount:           number;
         stddev_bounty_amount:        number;
-        total_pledged_amount:        number;
-        total_hard_pledges:          number;
-        avg_hard_pledge_amount:      number;
-        total_soft_pledges:          number;
-        avg_soft_pledge_amount:      number;
+        total_backed_amount:        number;
+        total_hard_backings:          number;
+        avg_hard_backing_amount:      number;
+        total_soft_backings:          number;
+        avg_soft_backing_amount:      number;
         total_users:                 number;
         total_creators:              number;
         total_paid_by_fans:          number;
@@ -775,6 +847,58 @@ export const overlord = {
 
   revokeCouncil: (councilId: number) =>
     request<void>(`/overlord/council/${councilId}`, { method: 'DELETE' }),
+
+  treasury: () =>
+    request<{ data: TreasurySummary }>('/overlord/treasury'),
+
+  withdrawals: {
+    list: (params?: { include_reversed?: boolean; page?: number }) => {
+      const qs = new URLSearchParams();
+      if (params?.include_reversed) qs.set('include_reversed', 'true');
+      if (params?.page) qs.set('page', String(params.page));
+      const s = qs.toString();
+      return request<PaginatedResponse<PlatformWithdrawal>>(`/overlord/treasury/withdrawals${s ? `?${s}` : ''}`);
+    },
+
+    create: (body: {
+      amount: number;
+      category: PlatformWithdrawalCategory;
+      destination?: string;
+      external_reference_id?: string;
+      withdrawn_at: string;
+      notes?: string;
+    }) =>
+      request<{ data: PlatformWithdrawal }>('/overlord/treasury/withdrawals', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+
+    reverse: (id: number, reason: string) =>
+      request<{ data: PlatformWithdrawal }>(`/overlord/treasury/withdrawals/${id}/reverse`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      }),
+  },
+
+  integrity: () =>
+    request<{ data: IntegrityReport }>('/overlord/integrity'),
+
+  system: {
+    get: () =>
+      request<{ data: SystemSnapshot }>('/overlord/system'),
+
+    retryFailed: (uuid: string) =>
+      request<{ message: string }>(`/overlord/system/failed-jobs/${uuid}/retry`, { method: 'POST' }),
+
+    forgetFailed: (uuid: string) =>
+      request<{ message: string }>(`/overlord/system/failed-jobs/${uuid}`, { method: 'DELETE' }),
+
+    retryAllFailed: () =>
+      request<{ message: string }>('/overlord/system/failed-jobs/retry-all', { method: 'POST' }),
+
+    flushFailed: () =>
+      request<{ message: string }>('/overlord/system/failed-jobs', { method: 'DELETE' }),
+  },
 };
 
 // Admin (Council only)
@@ -814,16 +938,6 @@ export const admin = {
     request<{ data: unknown }>(`/admin/handles/${handleId}/reject`, {
       method: 'POST',
       body: JSON.stringify(decisionNotes ? { decision_notes: decisionNotes } : {}),
-    }),
-
-  // Creator Claims
-  listClaims: (status: 'pending' | 'approved' | 'rejected' | 'all' = 'pending', page = 1) =>
-    request<PaginatedResponse<AdminCreatorClaim>>(`/admin/creator-claims?status=${status}&page=${page}`),
-
-  reviewClaim: (claimId: number, data: { status: 'approved' | 'rejected'; council_notes?: string }) =>
-    request<{ data: AdminCreatorClaim }>(`/admin/creator-claims/${claimId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
     }),
 
   // Bounty Completions
@@ -868,7 +982,7 @@ export const admin = {
     request<null>(`/admin/users/${id}`, { method: 'DELETE' }),
 
   // Creators
-  listCreators: (params?: { q?: string; claimed?: 'true' | 'false' | 'all'; page?: number }) => {
+  listCreators: (params?: { q?: string; verified?: 'true' | 'false' | 'all'; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null && v !== '' && v !== 'all')
       .map(([k, v]) => [k, String(v)]) as [string, string][];
@@ -880,6 +994,31 @@ export const admin = {
 
   getCreator: (id: number) =>
     request<{ data: import('./types').AdminCreatorDetail }>(`/admin/creators/${id}`),
+
+  // Billing Runs (monthly fan-charge cycles + their failure/chargeback fallout)
+  billingRuns: {
+    list: (page = 1) =>
+      request<PaginatedResponse<BillingRun>>(`/admin/billing-runs?page=${page}`),
+
+    get: (id: number) =>
+      request<{ data: BillingRunDetail }>(`/admin/billing-runs/${id}`),
+
+    trigger: () =>
+      request<{ message: string }>('/admin/billing-runs/trigger', { method: 'POST' }),
+  },
+
+  // Country tiers (read-only, derived live from compliance data)
+  countryTiers: () =>
+    request<CountryTiersResponse>('/admin/country-tiers'),
+
+  // Platform audit log (read-only feed of admin/council actions)
+  auditLog: (params?: { source?: string; category?: string; actor_id?: number; from?: string; to?: string; page?: number; per_page?: number }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<AuditLogResponse>(`/admin/audit-log${qs ? `?${qs}` : ''}`);
+  },
 
   // External Payouts (off-Stripe payouts: Wise, PayPal, wire, check, etc.)
   externalPayouts: {
@@ -908,5 +1047,139 @@ export const admin = {
       request<{ data: CreatorSearchResult[] }>(
         `/admin/external-payouts/creators?q=${encodeURIComponent(q)}`
       ),
+  },
+
+  // Compliance — extended
+  complianceDashboard: () =>
+    request<{
+      sources: ComplianceSource[];
+      pending_sanctions: number;
+      pending_matches: number;
+      annual_review_overdue: Record<string, number>;
+      recent_job_runs: ComplianceJobRun[];
+    }>('/admin/compliance/dashboard'),
+
+  complianceSanctions: (params?: { status?: string; country_code?: string; severity?: string; active_only?: boolean; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set('status', params.status);
+    if (params?.country_code) qs.set('country_code', params.country_code);
+    if (params?.severity) qs.set('severity', params.severity);
+    if (params?.active_only) qs.set('active_only', '1');
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<ComplianceSanction>>(`/admin/compliance/sanctions?${qs}`);
+  },
+
+  complianceSanctionEntities: (id: number) =>
+    request<{ sanction: ComplianceSanction; entities: ComplianceSanctionEntity[] }>(`/admin/compliance/sanctions/${id}/entities`),
+
+  compliancePendingSanctions: (page = 1) =>
+    request<PaginatedResponse<ComplianceSanction>>(`/admin/compliance/sanctions/pending?page=${page}`),
+
+  approveSanction: (id: number) =>
+    request<{ message: string; sanction: ComplianceSanction; alerts_sent: number }>(`/admin/compliance/sanctions/${id}/approve`, { method: 'POST' }),
+
+  proposeSanction: (body: {
+    country_code: string;
+    subdivision_code?: string | null;
+    program_name: string;
+    severity: 'comprehensive_block' | 'sectoral' | 'list_based' | 'advisory';
+    applies_to: 'all_residents' | 'specific_entities' | 'specific_sectors';
+    source: string;
+    source_url?: string | null;
+    effective_date: string;
+    sunset_date?: string | null;
+    notes?: string | null;
+  }) =>
+    request<{
+      message: string;
+      sanction: ComplianceSanction;
+      impact: { affected_user_count: number; sample_user_ids: number[]; owned_open_bounties: number; backed_open_bounties: number };
+    }>('/admin/compliance/sanctions', { method: 'POST', body: JSON.stringify(body) }),
+
+  complianceDryRun: (body: { country_code: string; subdivision_code?: string | null; severity?: string }) =>
+    request<{
+      affected_user_count: number;
+      sample_user_ids: number[];
+      owned_open_bounties: number;
+      backed_open_bounties: number;
+    }>('/admin/compliance/dry-run', { method: 'POST', body: JSON.stringify(body) }),
+
+  rejectSanction: (id: number, notes?: string) =>
+    request<{ message: string }>(`/admin/compliance/sanctions/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+    }),
+
+  complianceMatches: (page = 1) =>
+    request<PaginatedResponse<ComplianceMatchCandidate>>(`/admin/compliance/sanctions/matches?page=${page}`),
+
+  complianceMatchHistory: (params?: { status?: string; q?: string; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set('status', params.status);
+    if (params?.q) qs.set('q', params.q);
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<ComplianceMatchCandidate>>(`/admin/compliance/matches/history?${qs}`);
+  },
+
+  reviewMatch: (id: number, status: string, review_notes?: string) =>
+    request<{ message: string }>(`/admin/compliance/sanctions/matches/${id}/review`, {
+      method: 'POST',
+      body: JSON.stringify({ status, review_notes }),
+    }),
+
+  complianceTreaties: (params?: { country_code?: string; requires_w8ben?: boolean; active_only?: boolean; overdue_review?: boolean; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.country_code) qs.set('country_code', params.country_code);
+    if (params?.requires_w8ben !== undefined) qs.set('requires_w8ben', params.requires_w8ben ? '1' : '0');
+    if (params?.active_only) qs.set('active_only', '1');
+    if (params?.overdue_review) qs.set('overdue_review', '1');
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<ComplianceTaxTreaty>>(`/admin/compliance/treaties?${qs}`);
+  },
+
+  compliancePaymentSupport: (params?: { provider?: string; supported?: boolean; country_code?: string; active_only?: boolean; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.provider) qs.set('provider', params.provider);
+    if (params?.supported !== undefined) qs.set('supported', params.supported ? '1' : '0');
+    if (params?.country_code) qs.set('country_code', params.country_code);
+    if (params?.active_only) qs.set('active_only', '1');
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<CompliancePaymentSupport>>(`/admin/compliance/payment-support?${qs}`);
+  },
+
+  complianceStateThresholds: (params?: { state_code?: string; tax_year?: number; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.state_code) qs.set('state_code', params.state_code);
+    if (params?.tax_year) qs.set('tax_year', String(params.tax_year));
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<ComplianceStateThreshold>>(`/admin/compliance/state-thresholds?${qs}`);
+  },
+
+  complianceContentRules: (params?: { country_code?: string; requires_age_verification?: boolean; requires_local_representative?: boolean; active_only?: boolean; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.country_code) qs.set('country_code', params.country_code);
+    if (params?.requires_age_verification !== undefined) qs.set('requires_age_verification', params.requires_age_verification ? '1' : '0');
+    if (params?.requires_local_representative !== undefined) qs.set('requires_local_representative', params.requires_local_representative ? '1' : '0');
+    if (params?.active_only) qs.set('active_only', '1');
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<ComplianceContentRule>>(`/admin/compliance/content-rules?${qs}`);
+  },
+
+  complianceCountries: () =>
+    request<{ data: { code_alpha2: string; code_alpha3: string; name_common: string; region: string }[] }>('/admin/compliance/countries'),
+
+  complianceSources: () =>
+    request<{ data: ComplianceSource[] }>('/admin/compliance/sources'),
+
+  complianceJobRuns: (page = 1) =>
+    request<{ data: ComplianceJobRun[] }>(`/admin/compliance/job-runs?page=${page}`),
+
+  complianceAuditLog: (params?: { table_name?: string; field?: string; q?: string; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.table_name) qs.set('table_name', params.table_name);
+    if (params?.field) qs.set('field', params.field);
+    if (params?.q) qs.set('q', params.q);
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<ComplianceAuditEntry>>(`/admin/compliance/audit-log?${qs}`);
   },
 };

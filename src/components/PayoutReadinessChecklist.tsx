@@ -31,7 +31,23 @@ function CheckIcon({ done, error }: { done: boolean; error?: boolean }) {
   );
 }
 
-export default function PayoutReadinessChecklist() {
+interface PayoutReadinessChecklistProps {
+  /**
+   * Whether the creator has actually crossed the W-9 / W-8BEN threshold and
+   * the form is now blocking withdrawals. Tax forms are NOT a first-payout
+   * gate — a creator can withdraw well before hitting the IRS reporting
+   * threshold — so we only surface the tax line here once it genuinely
+   * applies (or once it's already been submitted, shown as a ✓).
+   */
+  taxFormRequired?: boolean;
+  /** Whether a valid tax form is already on file (verified / qualifying). */
+  taxFormDone?: boolean;
+}
+
+export default function PayoutReadinessChecklist({
+  taxFormRequired,
+  taxFormDone: taxFormDoneProp,
+}: PayoutReadinessChecklistProps = {}) {
   const { user } = useAuth();
 
   if (!user || !user.creator) return null;
@@ -47,7 +63,12 @@ export default function PayoutReadinessChecklist() {
   const meetsMinimum = amountEarned >= payoutMin;
 
   const taxFormLabel = isUS ? 'W-9' : 'W-8BEN';
-  const taxFormDone = (user as unknown as Record<string, unknown>).tax_form_status === 'completed';
+  const taxFormDone = taxFormDoneProp ?? ((user as unknown as Record<string, unknown>).tax_form_status === 'completed');
+  // Only treat the tax form as a checklist line when it's genuinely required
+  // (threshold crossed) or already satisfied. Below the threshold it's not a
+  // first-payout blocker, so we keep it off the readiness list entirely — the
+  // dashboard's "tax compliance" Card carries the informational heads-up.
+  const showTaxForm = (taxFormRequired ?? false) || taxFormDone;
 
   const items: ChecklistItem[] = [
     {
@@ -58,24 +79,24 @@ export default function PayoutReadinessChecklist() {
     {
       label: 'Creator TOS agreed',
       done: (user as unknown as Record<string, unknown>).creator_tos_accepted_at != null,
-      href: '/creator',
+      href: '/c',
     },
     {
       label: 'Country / region set',
       done: user.location_complete === true,
-      href: '/settings#location',
+      href: '/c/settings#location',
     },
     {
-      label: 'Handle claimed and approved',
+      label: 'Handle verified and approved',
       done: user.has_verified_handle === true,
-      href: '/settings#handles',
+      href: '/c/handles',
     },
     ...(creator.bank_connected !== undefined && !isManualPayoutRegion
       ? [
           {
             label: 'Bank account connected',
             done: creator.bank_connected === true,
-            href: '/creator#bank-account',
+            href: '/c/payouts#bank-account',
           } as ChecklistItem,
         ]
       : isManualPayoutRegion
@@ -87,11 +108,15 @@ export default function PayoutReadinessChecklist() {
             } as ChecklistItem,
           ]
         : []),
-    {
-      label: `Tax form submitted (${taxFormLabel})`,
-      done: taxFormDone,
-      href: '/creator#tax',
-    },
+    ...(showTaxForm
+      ? [
+          {
+            label: `Tax form submitted (${taxFormLabel})`,
+            done: taxFormDone,
+            href: '/c/tax',
+          } as ChecklistItem,
+        ]
+      : []),
     {
       label: `Minimum balance reached ($${payoutMin} required, $${amountEarned.toFixed(2)} earned)`,
       done: meetsMinimum,
@@ -114,7 +139,7 @@ export default function PayoutReadinessChecklist() {
               Identity verification required by Stripe
             </span>
             <Link
-              href="/creator#payout-hold"
+              href="/c/payouts#payout-hold"
               className="ml-2 text-xs text-bad underline underline-offset-2 hover:opacity-80 transition-opacity"
             >
               Complete now →

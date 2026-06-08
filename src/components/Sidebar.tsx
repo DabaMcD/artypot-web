@@ -64,7 +64,7 @@ interface SidebarProps {
 
 export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps) {
   const { user, logout } = useAuth();
-  const { mode, canSwitch, switchTo } = useViewMode();
+  const { canSwitch, switchTo } = useViewMode();
   const router = useRouter();
 
   // Which role buttons should appear in the bottom widget?
@@ -77,18 +77,19 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
 
   const switchHandlers: Record<'fan' | 'creator' | 'council', () => void> = {
     fan:     () => { switchTo('fan');     router.push('/dashboard'); },
-    creator: () => { switchTo('creator'); router.push('/creator'); },
+    creator: () => { switchTo('creator'); router.push('/c'); },
     council: () => { router.push('/admin'); },
   };
 
   const fanItems: NavItem[] = [
     { sec: 'discover' },
-    { id: 'fan-home',     label: 'My contributions',   icon: '◐', href: '/dashboard' },
+    { id: 'fan-home',     label: 'Dashboard',   icon: '◐', href: '/dashboard' },
     { id: 'fan-create',   label: 'Start a bounty',     icon: '+', href: '/bounties/new' },
-    { id: 'fan-search',   label: 'Search creators',    icon: '⌕', href: '/creators' },
+    { id: 'fan-search',   label: 'Explore',            icon: '⌕', href: '/search' },
     { sec: 'money' },
-    { id: 'fan-billing',  label: 'Upcoming charge',    icon: '$', href: '/billing' },
-    { id: 'fan-history',  label: 'History & receipts', icon: '⌗', href: '/pledges' },
+    { id: 'fan-billing',   label: 'Billing',         icon: '$', href: '/billing' },
+    { id: 'fan-backings',  label: 'My backings',     icon: '◇', href: '/backings' },
+    { id: 'fan-payments',  label: 'Payment history', icon: '◷', href: '/history' },
     { sec: 'account' },
     { id: 'fan-settings', label: 'Settings',           icon: '⚙', href: '/settings' },
     { id: 'fan-become',   label: 'Become a creator',   icon: '✦', href: '/become-creator' },
@@ -96,27 +97,24 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
 
   const creatorItems: NavItem[] = [
     { sec: 'overview' },
-    { id: 'creator-dashboard',  label: 'Dashboard',          icon: '◐', href: '/creator' },
-    { id: 'creator-onboarding', label: 'Setup',              icon: '◔', href: '/creator/setup' },
+    { id: 'creator-dashboard',  label: 'Dashboard',          icon: '◐', href: '/c' },
+    { id: 'creator-onboarding', label: 'Setup',              icon: '◔', href: '/c/setup' },
     { sec: 'work' },
-    { id: 'creator-bounties',   label: 'Active bounties',    icon: '◇', href: '/creator/bounties' },
-    { id: 'creator-queue',      label: 'Queued for me',      icon: '⌗', href: '/creator/queue' },
-    { id: 'creator-mine',       label: 'My own bounties',    icon: '★', href: '/creator/my-bounties' },
+    { id: 'creator-bounties',   label: 'Bounties',           icon: '◇', href: '/c/bounties' },
     { sec: 'money' },
-    { id: 'creator-balance',    label: 'Balance',            icon: '$', href: '/creator/balance' },
-    { id: 'creator-withdraw',   label: 'Withdraw',           icon: '↓', href: '/creator/withdraw' },
-    { id: 'creator-ledger',     label: 'Ledger',             icon: '⌗', href: '/creator/ledger' },
+    { id: 'creator-payouts',    label: 'Payouts',            icon: '↗', href: '/c/payouts' },
+    { id: 'creator-tax',        label: 'Tax & compliance',   icon: '⚖', href: '/c/tax' },
+    { id: 'creator-money',      label: 'Cash ledger',        icon: '$', href: '/c/money' },
     { sec: 'admin' },
-    { id: 'creator-handles',    label: 'Handles',            icon: '@', href: '/settings#handles' },
-    { id: 'creator-tax',        label: 'Tax & compliance',   icon: '⚖', href: '/creator/tax' },
-    { id: 'creator-settings',   label: 'Settings',           icon: '⚙', href: '/creator/settings' },
+    { id: 'creator-handles',    label: 'Handles',            icon: '@', href: '/c/handles' },
+    { id: 'creator-settings',   label: 'Settings',           icon: '⚙', href: '/c/settings' },
   ];
 
   const councilItems: NavItem[] = [
     { sec: 'queues' },
     { id: 'council-completions',      label: 'Completion review',   icon: '✓', href: '/admin/completions' },
     { id: 'council-handles',          label: 'Handle verification', icon: '@', href: '/admin/handles' },
-    { id: 'council-ofac',             label: 'OFAC review',         icon: '!', href: '/admin/ofac' },
+    { id: 'council-compliance',       label: 'Compliance',          icon: '⚖', href: '/admin/compliance' },
     { sec: 'catalog' },
     { id: 'council-users',            label: 'Users',               icon: '◍', href: '/admin/users' },
     { id: 'council-creators',         label: 'Creators',            icon: '◐', href: '/admin/creators' },
@@ -155,13 +153,20 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
           'fixed top-0 bottom-0 left-0 z-50',
           'transition-transform duration-200 ease-in-out',
           open ? 'translate-x-0' : '-translate-x-full',
-          // Desktop: always-visible sticky column below the top bar
-          'lg:sticky lg:top-12 lg:bottom-auto lg:left-auto lg:z-auto',
-          'lg:translate-x-0 lg:h-[calc(100vh-3rem)]',
+          // Desktop: always-visible sticky column below the top bar. The bar is
+          // h-16 (4rem), so the sticky offset and height must subtract 4rem —
+          // using 3rem left the column 16px taller than the viewport, which is
+          // what caused the slight, content-fits-anyway scroll.
+          'lg:sticky lg:top-16 lg:bottom-auto lg:left-auto lg:z-auto',
+          'lg:translate-x-0 lg:h-[calc(100vh-4rem)]',
+          // Scroll the whole column only when its content genuinely overflows.
+          // (A nested scroll container on the nav alone left it a few pixels
+          // short of its content, producing a spurious tiny scrollbar.)
+          'overflow-y-auto',
         ].join(' ')}
       >
-      {/* Nav — internally scrollable so the role widget + user card stay pinned to the bottom */}
-      <nav className="flex-1 py-1 overflow-y-auto min-h-0">
+      {/* Nav at natural height; the bottom group below is pinned with mt-auto. */}
+      <nav className="py-1">
         {items.map((item, i) =>
           item.sec ? (
             <NavSection key={`s-${i}`} title={item.sec} />
@@ -171,9 +176,9 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
               item={item}
               active={(() => {
                 if (!item.href) return false;
-                // Section landing pages (e.g. /creator, /admin) must match exactly —
+                // Section landing pages (e.g. /c, /admin) must match exactly —
                 // otherwise they'd light up for every sub-route below them.
-                const EXACT_MATCH_ROUTES = new Set(['/creator', '/admin', '/dashboard']);
+                const EXACT_MATCH_ROUTES = new Set(['/c', '/creator', '/admin', '/dashboard']);
                 if (EXACT_MATCH_ROUTES.has(item.href)) return pathname === item.href;
                 // Sub-routes: active when on the exact page OR a deeper page beneath it.
                 return pathname === item.href || pathname.startsWith(item.href + '/');
@@ -183,6 +188,10 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
         )}
       </nav>
 
+      {/* Bottom group — pinned to the bottom of the column via mt-auto when the
+          nav doesn't fill the height; scrolls along with everything else when
+          it does. */}
+      <div className="mt-auto">
       {/* Role switcher — only renders when at least 2 roles are available, and only the
           available roles are listed. */}
       {showRoleSwitcher && (
@@ -236,14 +245,16 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
               {user.display_name}
             </Link>
           )}
-          <div className="font-mono text-[9px] uppercase tracking-wide text-muted/60">{role}</div>
+          <div className="flex items-center justify-between gap-2 mt-0.5">
+            <div className="font-mono text-[9px] uppercase tracking-wide text-muted/60">{role}</div>
+            <button
+              onClick={handleLogout}
+              className="shrink-0 font-mono text-[9px] uppercase text-muted/50 hover:text-muted transition-colors cursor-pointer"
+            >
+              logout →
+            </button>
+          </div>
         </div>
-        <button
-          onClick={handleLogout}
-          className="font-mono text-[9px] uppercase text-muted/50 hover:text-muted transition-colors px-1.5 py-0.5 border border-border rounded text-[8px] cursor-pointer"
-        >
-          out
-        </button>
       </div>
 
       {/* Legal links — distributed evenly across the sidebar width */}
@@ -262,6 +273,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
             {label}
           </Link>
         ))}
+      </div>
       </div>
     </aside>
     </>

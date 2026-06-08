@@ -1,51 +1,83 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
-import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 
 /**
- * Adds a `.hash-highlighted` class to the first child of the element whose
- * id matches the current URL hash. The class triggers a CSS keyframe animation
- * (defined in globals.css) that briefly flashes an amber ring then fades —
- * giving visual feedback when a hash link scrolls the user to a section.
+ * Scrolls to and highlights the element whose id matches the URL hash.
  *
- * Covers two navigation patterns:
- *   • Cross-page navigation  (/creator/settings → /settings#phone):
- *     caught by the useEffect on `pathname` change.
- *   • Same-page navigation   (already on /settings, clicking #phone):
- *     caught by the `hashchange` DOM event.
+ * Implementation
+ * --------------
+ * A single setInterval at 250 ms. Polling covers every case — warm nav,
+ * cold load, SPA navigation, URL-bar, back/forward, async DOM mounts after
+ * auth resolves — without any event wiring. `apply()` is cheap enough that
+ * 4× per second is fine.
+ *
+ * `apply()` is cheap (one getElementById, one classList check) and
+ * idempotent — calling it 1× or 100× from different triggers produces
+ * the same visible result.
+ *
+ * Two more details that matter
+ * ----------------------------
+ * • Class is applied to the wrapper `<div id="...">` itself, not its first
+ *   child. Pages frequently swap their inner Card when async data resolves
+ *   (e.g. /settings#email renders different Cards depending on whether the
+ *   user has a verified email). The wrapper is stable; the Card is not.
+ *
+ * • After applying the class we re-scroll on the next 10 ticks (~1 s) using
+ *   instant scroll. Pages load multiple async data sources after auth
+ *   (notif settings, balances, etc.) — each one re-renders and shifts
+ *   layout. Without re-scrolling, the user lands above or below the target
+ *   even though the highlight fired. Instant scroll avoids fighting an
+ *   in-flight smooth animation.
  */
 export function HashHighlight() {
-  const pathname = usePathname();
+  useEffect(() => {
+    let trackedHash = '';
+    let highlightedEl: HTMLElement | null = null;
+    let scrollTicksLeft = 0;
 
-  const triggerHighlight = useCallback(() => {
-    const hash = window.location.hash.slice(1);
-    if (!hash) return;
+    const apply = () => {
+      const hash = window.location.hash.slice(1);
 
-    const wrapper = document.getElementById(hash);
-    if (!wrapper) return;
+      // Hash changed since last apply → clear previous, reset tracking.
+      if (hash !== trackedHash) {
+        if (highlightedEl) {
+          highlightedEl.classList.remove('hash-highlighted');
+          highlightedEl = null;
+        }
+        trackedHash = hash;
+        scrollTicksLeft = 0;
+      }
+      if (!hash) return;
 
-    // Target the first visible child (the rendered Card) or the wrapper itself
-    const target = (wrapper.firstElementChild as HTMLElement | null) ?? wrapper;
+      const el = document.getElementById(hash);
+      if (!el) return;
 
-    // Remove then force-reflow then re-add to restart animation if already playing
-    target.classList.remove('hash-highlighted');
-    void target.offsetWidth;
-    target.classList.add('hash-highlighted');
+      const isNew = el !== highlightedEl || !el.classList.contains('hash-highlighted');
+
+      if (isNew) {
+        // Restart the keyframe animation: remove → reflow → re-add.
+        el.classList.remove('hash-highlighted');
+        void el.offsetWidth;
+        el.classList.add('hash-highlighted');
+        highlightedEl = el;
+        // Re-scroll over the next ~1 s to absorb late layout shifts.
+        scrollTicksLeft = 10;
+      }
+
+      if (scrollTicksLeft > 0) {
+        // Instant scroll so repeated calls don't fight a smooth animation.
+        el.scrollIntoView({ block: 'start', behavior: 'instant' as ScrollBehavior });
+        scrollTicksLeft -= 1;
+      }
+    };
+
+    const intervalId = window.setInterval(apply, 250);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
   }, []);
-
-  // Cross-page: wait a tick for React to commit the new page's DOM, then highlight
-  useEffect(() => {
-    if (!window.location.hash) return;
-    const id = setTimeout(triggerHighlight, 80);
-    return () => clearTimeout(id);
-  }, [pathname, triggerHighlight]);
-
-  // Same-page: browser fires hashchange when only the fragment changes
-  useEffect(() => {
-    window.addEventListener('hashchange', triggerHighlight);
-    return () => window.removeEventListener('hashchange', triggerHighlight);
-  }, [triggerHighlight]);
 
   return null;
 }

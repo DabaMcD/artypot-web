@@ -26,13 +26,15 @@ interface BountyStatusBadgeProps {
   status: string;
   /** Use the larger badge size — matches the bounty detail page header. */
   lg?: boolean;
+  /** Extra-compact size for dense inline contexts (e.g. search rows). */
+  xs?: boolean;
 }
 
-export function BountyStatusBadge({ status, lg }: BountyStatusBadgeProps) {
+export function BountyStatusBadge({ status, lg, xs }: BountyStatusBadgeProps) {
   const label = BOUNTY_STATUS_LABELS[status] ?? status;
   const tone  = BOUNTY_STATUS_TONES[status]  ?? 'default';
   return (
-    <Badge tone={tone} lg={lg}>
+    <Badge tone={tone} lg={lg} xs={xs}>
       {label}
     </Badge>
   );

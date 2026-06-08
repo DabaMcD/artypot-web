@@ -26,8 +26,8 @@ const PLATFORM_FORM_OVERRIDES: Record<string, PlatformFormConfig> = {
   twitter:   { label: 'Handle',         placeholder: 'zachking' },
   tiktok:    { label: 'Username',       placeholder: 'zachking' },
   twitch:    { label: 'Channel Name',   placeholder: 'pokimane' },
-  bluesky:   { label: 'Handle',         placeholder: 'zachking.bsky.social' },
-  kick:      { label: 'Channel Name',   placeholder: 'pokimane' },
+  bluesky:   { label: 'Handle',         placeholder: 'markhamillofficial.bsky.social' },
+  kick:      { label: 'Channel Name',   placeholder: 'xqc' },
 };
 
 /**
@@ -67,9 +67,7 @@ export function PlatformHandleInput({ platform, value, onChange, disabled }: Pla
 
     return (
       <div>
-        <FieldLabel>
-          Profile URL <span className="text-bad">*</span>
-        </FieldLabel>
+        <FieldLabel>Website URL</FieldLabel>
         <div className={`flex items-center w-full px-3 py-2.5 bg-background border rounded transition-colors text-base ${
           showError ? 'border-bad/60' : 'border-border focus-within:border-[var(--color-role)]'
         }`}>
@@ -77,7 +75,7 @@ export function PlatformHandleInput({ platform, value, onChange, disabled }: Pla
             type="url"
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            placeholder="https://linkedin.com/in/zachking"
+            placeholder="https://wikipedia.org/wiki/Brad_Pitt"
             disabled={disabled}
             autoCapitalize="off"
             autoCorrect="off"
@@ -103,9 +101,7 @@ export function PlatformHandleInput({ platform, value, onChange, disabled }: Pla
 
   return (
     <div>
-      <FieldLabel>
-        {cfg.label} <span className="text-bad">*</span>
-      </FieldLabel>
+      <FieldLabel>{cfg.label}</FieldLabel>
       <div className="flex items-center w-full px-3 py-2.5 bg-background border border-border rounded focus-within:border-[var(--color-role)] transition-colors text-base">
         <span className="text-foreground select-none shrink-0 pointer-events-none">{cfg.prefix}</span>
         <input

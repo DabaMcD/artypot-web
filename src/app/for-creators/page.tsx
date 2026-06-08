@@ -23,11 +23,11 @@ const PAYOUT_STEPS: { label: string; sub: string; color: string }[] = [
   },
   {
     label: 'Share the link with your audience',
-    sub: 'Post it wherever your fans are. They can back it in two clicks — no account required to pledge, though they\'ll need one to pay.',
+    sub: 'Post it wherever your fans are. They can back it in two clicks — no account required to back, though they\'ll need one to pay.',
     color: 'bg-creator',
   },
   {
-    label: 'Pledges come in (no money moves yet)',
+    label: 'Backings come in (no money moves yet)',
     sub: 'Fans commit amounts. Nothing is charged. You can watch the total grow in real time. Decide when you\'re happy with the return.',
     color: 'bg-creator',
   },
@@ -43,7 +43,7 @@ const PAYOUT_STEPS: { label: string; sub: string; color: string }[] = [
   },
   {
     label: 'Fans get charged',
-    sub: `Cards are charged on the ${BILLING_DAY}th of the month following approval. Backers who pledged get notified before it hits.`,
+    sub: `Cards are charged on the ${BILLING_DAY}th of the month following approval. Backers who backed get notified before it hits.`,
     color: 'bg-fan',
   },
   {
@@ -53,7 +53,7 @@ const PAYOUT_STEPS: { label: string; sub: string; color: string }[] = [
   },
   {
     label: 'Withdraw to your bank',
-    sub: `You keep ${creatorReceivesPct}% of what was pledged. Transfer it to your bank via Stripe Connect — US bank accounts only for now.`,
+    sub: `You keep ${creatorReceivesPct}% of what fans paid. Transfer it to your bank via Stripe Global Payouts.`,
     color: 'bg-creator',
   },
 ];
@@ -78,9 +78,9 @@ export default function ForCreatorsPage() {
           </h1>
 
           <p className="text-xl text-muted max-w-xl leading-relaxed mb-10">
-            Artypot is a bounty platform. You open one for a specific project, share it with
-            your audience, and they pledge money toward it. You make the thing, you get paid.
-            No subscriptions. No paywalls. No delivery, no charge.
+            Artypot is a bounty platform. Create a bounty for a specific project, share it with
+            your audience, and they put money toward it. No subscriptions. No paywalls. You do
+            the thing, you get paid. If you don't deliver, credit cards are never touched.
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -109,8 +109,8 @@ export default function ForCreatorsPage() {
               <br /><span className="text-creator">A funded project request.</span>
             </h2>
             <p className="text-lg text-muted">
-              You already know what your audience wants. Artypot turns that into a number
-              with a dollar sign in front of it.
+              You already know what your audience wants... but how much do they want it? Artypot turns their
+              "plz do X" comments into a number with a dollar sign in front of it.
             </p>
           </div>
 
@@ -134,7 +134,7 @@ export default function ForCreatorsPage() {
             <div className="bg-surface border border-creator/30 rounded-xl p-6">
               <p className="text-xs font-mono text-creator uppercase tracking-wider mb-3">Artypot</p>
               <p className="text-foreground text-sm leading-relaxed">
-                Fans pledge toward one specific thing you want to make. Nothing moves until
+                Fans put money toward one specific thing you want to make. Nothing moves until
                 it&apos;s done. You only get paid when you deliver — which is exactly why fans
                 are comfortable putting real money in.
               </p>
@@ -156,9 +156,9 @@ export default function ForCreatorsPage() {
               </h2>
               <ul className="space-y-4">
                 {[
-                  ['Their card isn\'t charged until you deliver', 'No delivery means no payment. Ever. That makes pledging feel safe.'],
+                  ['Their card isn\'t charged until you deliver', 'No delivery means no payment. Ever. That makes backing feel safe.'],
                   ['They back one thing, not a monthly commitment', 'No subscription guilt. They put money toward a specific thing they want to exist.'],
-                  ['They can back out any time before completion', 'Changed their mind? They withdraw their pledge. No hard feelings, no money lost.'],
+                  ['They can back out any time before completion', 'Changed their mind? They withdraw their backing. No hard feelings, no money lost.'],
                 ].map(([title, detail]) => (
                   <li key={title as string} className="flex gap-3">
                     <span className="text-creator mt-1 shrink-0">✓</span>
@@ -179,7 +179,7 @@ export default function ForCreatorsPage() {
               </h2>
               <ul className="space-y-4">
                 {[
-                  ['Know if it\'s worth making before you make it', 'Open the bounty. Share it. If pledges don\'t justify the work, nothing happens and nobody lost money.'],
+                  ['Know if it\'s worth making before you make it', 'Open the bounty. Share it. If backings don\'t justify the work, nothing happens and nobody lost money.'],
                   ['Your content stays public', 'This isn\'t a paywall. Backers don\'t get exclusive access — they get the same thing everyone else gets, plus the satisfaction of having made it happen.'],
                   ['No platform decides your payout schedule', `You withdraw when you want. The ${BILLING_DAY}th is when fans are charged — after that, funds clear in ${BILLING_GRACE_PERIOD_DAYS} days.`],
                 ].map(([title, detail]) => (
@@ -252,7 +252,7 @@ export default function ForCreatorsPage() {
                 never completes. You only pay when you get paid.
               </p>
               <p className="text-muted leading-relaxed">
-                Backers are charged their exact pledged amount. The fee comes out of your
+                Backers are charged their exact backed amount. The fee comes out of your
                 side only, not theirs.
               </p>
             </div>
@@ -263,7 +263,7 @@ export default function ForCreatorsPage() {
               </div>
               <div className="divide-y divide-border">
                 <div className="flex items-center justify-between px-5 py-4">
-                  <span className="text-muted text-sm">Total pledged by fans</span>
+                  <span className="text-muted text-sm">Total backed by fans</span>
                   <span className="font-mono font-bold text-foreground">$2,000.00</span>
                 </div>
                 <div className="flex items-center justify-between px-5 py-4">

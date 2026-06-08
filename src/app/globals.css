@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #1A1812;
-  --color-surface: #27180F;
-  --color-surface-2: #321F16;
-  --color-border: #4A2D1E;
+  --color-background: #0F0E0D;
+  --color-surface: #171614;
+  --color-surface-2: #201E1B;
+  --color-border: #332F2B;
   --color-foreground: #F2EFE6;
   --color-muted: #BFB0A9; /* previously #8C7468 */
 
@@ -20,7 +20,7 @@
      Same values as background/foreground today — kept separate because they
      express intent, not color. @theme inline can't resolve nested var()
      references, so the hex values must be repeated here explicitly. */
-  --color-brand-dark: #1A1812;
+  --color-brand-dark: #0F0E0D;
   --color-brand-light: #F2EFE6;
 
   /* Status colors (from design) */
@@ -118,14 +118,17 @@ body {
   margin-right: 8px;
 }
 
-/* Toggle on state */
+/* Toggle on state — track filled with role color for vivid on-ness */
 .ap-toggle-track-on {
-  background: var(--color-role-soft) !important;
+  background: var(--color-role) !important;
   border-color: var(--color-role) !important;
 }
 .ap-toggle-thumb-on {
-  background: var(--color-role) !important;
-  transform: translateX(21px);
+  background: var(--color-background) !important;
+}
+/* Toggle off state — themed border keeps the control visible against dark bg */
+.ap-toggle-track-off {
+  border-color: var(--color-role) !important;
 }
 
 /* Inline link role color */
@@ -272,8 +275,8 @@ body {
 
    .hash-highlighted: added/removed by HashHighlight.tsx (JS-driven — the CSS
    :target pseudo-class is unreliable with Next.js SPA pushState navigation).
-   Structure in settings pages is <div id="..."><Card>, so the class is placed
-   on the first child div (the rendered Card) by the component.
+   Applied to the <div id="..."> wrapper itself (stable across re-renders),
+   not its inner Card child.
 ──────────────────────────────────────────────────────────────────────────── */
 
 [id] {
@@ -295,5 +298,55 @@ body {
 
 .hash-highlighted {
   animation: hash-highlight 2.5s ease-out forwards;
-  border-radius: 0.75rem; /* matches Tailwind rounded-xl used by Card */
+  border-radius: 0.375rem; /* matches Tailwind rounded-xl used by Card */
+}
+
+/* Draining timer strip — used by DefaultUpdatePromptBar to show how much
+   time is left before the banner self-dismisses. Width animates from 100%
+   down to 0 over the duration set inline via the `animation` shorthand
+   (animating width is more dependable than transform: scaleX in this
+   layout, where Tailwind's transform utilities can override us). */
+@keyframes ap-drain {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
+/* Banner mount + dismiss animations. The DefaultUpdatePromptBar toggles
+   between -in (on mount / when a new prompt takes over) and -out (when the
+   user clicks a button or the auto-dismiss timer fires). The -out keyframe
+   collapses max-height + margin + padding so the layout below smoothly
+   reflows up. */
+@keyframes ap-banner-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ap-anim-banner-in {
+  animation: ap-banner-in 200ms ease-out;
+}
+
+@keyframes ap-banner-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 200px;
+    margin-bottom: 1.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    border-width: 1px;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+    max-height: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-width: 0;
+  }
+}
+
+.ap-anim-banner-out {
+  animation: ap-banner-out 280ms ease-in forwards;
+  overflow: hidden;
 }

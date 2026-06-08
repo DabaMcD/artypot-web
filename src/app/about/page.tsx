@@ -27,7 +27,7 @@ export default function AboutPage() {
     <div className="min-h-screen">
 
       {/* Hero */}
-      <section className="max-w-6xl mx-auto px-4 pt-24 pb-20">
+      <section className="max-w-6xl mx-auto px-7 pt-24 pb-20">
         <div className="max-w-3xl">
           {/* TODO: Fix this styling! I wrote it badly, I'm bad at CSS ---> */}
           <div className="mb-6 flex-col items-center gap-2">
@@ -43,7 +43,7 @@ export default function AboutPage() {
 
             <div className="inline-flex items-center gap-2 bg-fan/10 border border-fan/30 text-fan text-xs font-medium px-3 py-1.5 rounded-full mb-2">
               <span className="w-1.5 h-1.5 rounded-full bg-fan animate-pulse" />
-              Artypot is communication device -- a demand coordinator.
+              Artypot is a communication device. A demand coordinator.
             </div>
           </div>
 
@@ -55,7 +55,8 @@ export default function AboutPage() {
 
           <p className="text-xl text-muted max-w-xl leading-relaxed mb-10">
             Fans pool money for specific requests from public entities.
-            Wallets are untouched until the work is done. No risk. Guaranteed results.
+            Wallets are untouched until the work is done. No risk. A wish,
+            multiplied, becomes an offer no one can ignore.
           </p>
 
           <div className="flex flex-wrap gap-3 mb-5">
@@ -66,10 +67,10 @@ export default function AboutPage() {
               Browse Bounties
             </Link>
             <Link
-              href="/creators"
+              href="/search"
               className="bg-surface border border-border text-foreground font-semibold px-6 py-3 rounded-lg hover:border-creator/50 hover:text-creator transition-colors"
             >
-              Find a Creator
+              Explore Creators
             </Link>
           </div>
           <a href="#how-it-works" className="text-sm text-muted hover:text-foreground transition-colors">
@@ -80,7 +81,7 @@ export default function AboutPage() {
 
       {/* Creator Psychology */}
       <section className="bg-surface border-t border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 py-24">
+        <div className="max-w-6xl mx-auto px-7 py-24">
 
           <div className="max-w-3xl mx-auto text-center mb-16">
             <p className="text-3xl sm:text-4xl font-bold text-foreground leading-snug mb-4">
@@ -121,7 +122,7 @@ export default function AboutPage() {
 
       {/* How it works */}
       <section id="how-it-works" className="border-t border-border">
-        <div className="max-w-6xl mx-auto px-4 py-20">
+        <div className="max-w-6xl mx-auto px-7 py-20">
           <h2 className="text-3xl font-display font-bold text-foreground mb-2">How it works</h2>
           <p className="text-muted mb-12">Three steps. Smart people usually have it by step two.</p>
 
@@ -139,7 +140,7 @@ export default function AboutPage() {
 
       {/* Who's in the room */}
       <section className="border-t border-border">
-        <div className="max-w-6xl mx-auto px-4 py-20">
+        <div className="max-w-6xl mx-auto px-7 py-20">
           <h2 className="text-3xl font-display font-bold text-foreground mb-2">Who&apos;s in the room where it happens?</h2>
           <p className="text-muted mb-12">Three kinds of people. You&apos;re probably one of them.</p>
 
@@ -176,7 +177,7 @@ export default function AboutPage() {
 
       {/* Money + Freedom of Expression */}
       <section className="border-t border-border">
-        <div className="max-w-6xl mx-auto px-4 py-20">
+        <div className="max-w-6xl mx-auto px-7 py-20">
           <div className="grid sm:grid-cols-2 gap-12 items-start">
             <div>
               <h2 className="text-3xl font-display font-bold text-foreground mb-4">
@@ -264,7 +265,7 @@ export default function AboutPage() {
 
       {/* CTA */}
       <section className="border-t border-border">
-        <div className="max-w-6xl mx-auto px-4 py-24 text-center">
+        <div className="max-w-6xl mx-auto px-7 py-24 text-center">
           <h2 className="text-3xl font-display font-bold text-foreground mb-4">
             There&apos;s probably already a bounty
             <br />

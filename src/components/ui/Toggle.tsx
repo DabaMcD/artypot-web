@@ -5,24 +5,27 @@ interface ToggleProps {
   onChange: (val: boolean) => void;
   label?: string;
   className?: string;
+  disabled?: boolean;
 }
 
-export function Toggle({ on, onChange, label, className = '' }: ToggleProps) {
+export function Toggle({ on, onChange, label, className = '', disabled = false }: ToggleProps) {
   return (
     <div
       role="switch"
       aria-checked={on}
-      className={`inline-flex items-center gap-2.5 cursor-pointer text-sm text-foreground select-none ${className}`}
-      onClick={() => onChange(!on)}
+      aria-disabled={disabled}
+      className={`inline-flex items-center gap-2.5 select-none text-sm text-foreground ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} ${className}`}
+      onClick={() => { if (!disabled) onChange(!on); }}
     >
-      {/* Track */}
+      {/* Track — 42×22 outer, 1px border → 40×20 inner padding box */}
       <div
-        className={`relative w-[42px] h-[22px] border rounded-xl transition-colors duration-150 flex-shrink-0 ${on ? 'ap-toggle-track-on border-[var(--color-role)] bg-[var(--color-role-soft)]' : 'border-border bg-background'}`}
+        className={`relative w-[42px] h-[22px] border rounded-full transition-colors duration-150 flex-shrink-0 ${on ? 'ap-toggle-track-on' : 'ap-toggle-track-off bg-background'}`}
       >
-        {/* Thumb */}
+        {/* Thumb — 14px circle, centered: (20-14)/2 = 3px inset on every side.
+            On-position slides 20px right (40-14-3-3) to keep an equal 3px gap. */}
         <div
-          className={`absolute top-0.5 left-0.5 w-3.5 h-3.5 rounded-full transition-all duration-150 ${on ? 'ap-toggle-thumb-on' : 'bg-muted'}`}
-          style={on ? { transform: 'translateX(20px)', background: 'var(--color-role)' } : {}}
+          className={`absolute w-3.5 h-3.5 rounded-full transition-transform duration-150 ${on ? 'ap-toggle-thumb-on' : 'bg-muted'}`}
+          style={{ top: 3, left: 3, transform: on ? 'translateX(20px)' : 'translateX(0)' }}
         />
       </div>
       {label && <span>{label}</span>}
