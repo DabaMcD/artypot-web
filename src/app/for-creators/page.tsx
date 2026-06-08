@@ -65,11 +65,6 @@ export default function ForCreatorsPage() {
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 pt-24 pb-20">
         <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 bg-creator/10 border border-creator/30 text-creator text-xs font-medium px-3 py-1.5 rounded-full mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-creator animate-pulse" />
-            For creators
-          </div>
-
           <h1 className="text-5xl sm:text-6xl font-display font-bold tracking-tight text-foreground leading-tight mb-6">
             Tell your fans
             <br />
@@ -295,7 +290,7 @@ export default function ForCreatorsPage() {
           </h2>
           <p className="text-muted mb-8 max-w-sm mx-auto leading-relaxed">
             If your audience wants it, the money will show up.
-            If they don&apos;t, nobody pays anything.
+            If there&apos;s not enough support or you don&apos;t deliver, nobody pays anything.
           </p>
           <Link
             href="/register"

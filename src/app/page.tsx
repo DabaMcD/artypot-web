@@ -45,12 +45,6 @@ export default function HomePage() {
         </div>
 
         <div className="max-w-2xl mx-auto text-center">
-          {/* Eyebrow pill */}
-          <div className="inline-flex items-center gap-2 bg-creator/10 border border-creator/30 text-creator text-xs font-medium px-3 py-1.5 rounded-full mb-7">
-            <span className="w-1.5 h-1.5 rounded-full bg-creator animate-pulse" />
-            crowd-funded creator bounties
-          </div>
-
           <h1 className="font-display font-bold text-5xl sm:text-6xl text-foreground tracking-tight mb-4 leading-[1.05]">
             tell the world
             <br />
