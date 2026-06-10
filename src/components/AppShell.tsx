@@ -12,6 +12,7 @@ import NotificationBell from './NotificationBell';
 import { NudgeBar } from '@/components/NudgeBar';
 import { NudgeProvider } from '@/lib/nudge-context';
 import { PaymentGraceBanner } from '@/components/PaymentGraceBanner';
+import { FanMarketBanner } from '@/components/FanMarketBanner';
 import { PaymentAuthBanner } from '@/components/PaymentAuthBanner';
 import { DefaultUpdatePromptBar } from '@/components/DefaultUpdatePromptBar';
 import { DefaultUpdatePromptProvider } from '@/lib/default-update-prompt-context';
@@ -298,6 +299,7 @@ export function AppShell({ children }: AppShellProps) {
                 active (each banner renders null when it has nothing to show). */}
             <div className={fullBleed ? '[&:not(:empty)]:pt-7 max-w-6xl mx-auto px-7' : ''}>
               <NudgeBar />
+              <FanMarketBanner />
               <PaymentAuthBanner />
               <PaymentGraceBanner />
               <DefaultUpdatePromptBar />

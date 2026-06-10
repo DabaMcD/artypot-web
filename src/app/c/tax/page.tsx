@@ -63,7 +63,7 @@ function TaxContent() {
           <Card dashed>
             <SectionLabel className="mb-2">tax documents</SectionLabel>
             <p className="text-xs text-muted leading-relaxed">
-              Your annual tax forms — {isUS ? '1099-NEC' : '1042-S'} — will appear here
+              Your annual tax forms — {isUS ? '1099-K' : '1042-S'} — will appear here
               once the tax year closes and your earnings reach the reporting threshold.
             </p>
           </Card>

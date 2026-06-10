@@ -41,6 +41,7 @@ const TABLE_LINKS: Record<string, string> = {
   country_tax_treaties:    '/admin/compliance/treaties',
   country_payment_support: '/admin/compliance/payment-support',
   us_state_tax_thresholds: '/admin/compliance/state-thresholds',
+  platform_fee_tax_rates:  '/admin/compliance/platform-fee-tax-rates',
   country_content_rules:   '/admin/compliance/content-rules',
 };
 
@@ -49,6 +50,7 @@ const TABLE_LABELS: Record<string, string> = {
   country_tax_treaties:    'Tax Treaties',
   country_payment_support: 'Payment Support',
   us_state_tax_thresholds: 'State Thresholds',
+  platform_fee_tax_rates:  'Platform Fee Tax',
   country_content_rules:   'Content Rules',
 };
 
@@ -58,6 +60,7 @@ const NAV_CARDS = [
   { href: '/admin/compliance/treaties',         label: 'Tax Treaties',     desc: 'US tax treaty withholding rates by country' },
   { href: '/admin/compliance/payment-support',  label: 'Payment Support',  desc: 'Stripe & Plaid coverage by country' },
   { href: '/admin/compliance/state-thresholds', label: 'State Thresholds', desc: 'US state 1099-K filing thresholds' },
+  { href: '/admin/compliance/platform-fee-tax-rates', label: 'Platform Fee Tax', desc: 'US sales tax on the platform commission' },
   { href: '/admin/compliance/content-rules',    label: 'Content Rules',    desc: 'Country content regulation requirements' },
   { href: '/admin/compliance/sources',          label: 'Data Sources',     desc: 'Source freshness and refresh schedules' },
   { href: '/admin/compliance/job-runs',         label: 'Job Runs',         desc: 'Compliance automation run history' },

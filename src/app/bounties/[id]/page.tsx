@@ -276,6 +276,13 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             to continue.
           </>,
         );
+      } else if (e.status === 422 && e.reason === 'market_unavailable') {
+        setBackingError(
+          <>
+            Backing isn&apos;t available in your country yet. Artypot is currently US-only — we hope
+            to support your country soon.
+          </>,
+        );
       } else {
         toast(e.message ?? 'Failed to submit.', 'error');
       }
@@ -439,7 +446,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   // Fans can back out during council review, but only if they already have a backing.
   const canRevokeDuringReview = user && bounty.status === 'pending' && !!userBacking;
   const isPayoutBlocked = user?.creator?.payout_category === 3;
-  const canSubmitCompletion = isCreator && bounty.status === 'open' && !isPayoutBlocked;
+  // Phase 1 US-only gate: creators outside an open market can't submit completions.
+  const creatorMarketClosed = user?.creator?.creator_market_open === false;
+  const canSubmitCompletion = isCreator && bounty.status === 'open' && !isPayoutBlocked && !creatorMarketClosed;
   const canCreatorRemove = isCreator && bounty.status === 'open';
 
   // ── Backing panel content ────────────────────────────────────────────────────
@@ -1011,6 +1020,17 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 <Banner tone="warn">
                   <div className="font-semibold text-foreground text-sm mb-1">Payout blocked</div>
                   <div className="text-muted text-sm">Your account is not eligible for payouts. Contact support to resolve this.</div>
+                </Banner>
+              )}
+
+              {/* Phase 1 US-only creator gate */}
+              {isCreator && bounty.status === 'open' && !isPayoutBlocked && creatorMarketClosed && (
+                <Banner tone="warn">
+                  <div className="font-semibold text-foreground text-sm mb-1">Not available in your country yet</div>
+                  <div className="text-muted text-sm">
+                    Artypot is currently US-only, so you can&apos;t submit completions yet. We&apos;ll email you
+                    the moment we roll out support for your country.
+                  </div>
                 </Banner>
               )}
 

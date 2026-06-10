@@ -47,6 +47,7 @@ import type {
   ComplianceTaxTreaty,
   CompliancePaymentSupport,
   ComplianceStateThreshold,
+  CompliancePlatformFeeTaxRate,
   ComplianceContentRule,
   ComplianceJobRun,
   ComplianceAuditEntry,
@@ -1154,6 +1155,49 @@ export const admin = {
     if (params?.page) qs.set('page', String(params.page));
     return request<PaginatedResponse<ComplianceStateThreshold>>(`/admin/compliance/state-thresholds?${qs}`);
   },
+
+  compliancePlatformFeeTaxRates: (params?: { state_code?: string; active_only?: boolean; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.state_code) qs.set('state_code', params.state_code);
+    if (params?.active_only) qs.set('active_only', '1');
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<CompliancePlatformFeeTaxRate>>(`/admin/compliance/platform-fee-tax-rates?${qs}`);
+  },
+
+  createPlatformFeeTaxRate: (body: {
+    state_code: string;
+    subdivision_code?: string | null;
+    rate: number;
+    source: string;
+    source_url?: string | null;
+    effective_date: string;
+    sunset_date?: string | null;
+    notes?: string | null;
+  }) =>
+    request<{ message: string; rate: CompliancePlatformFeeTaxRate }>('/admin/compliance/platform-fee-tax-rates', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  updatePlatformFeeTaxRate: (id: number, body: {
+    subdivision_code?: string | null;
+    rate: number;
+    source: string;
+    source_url?: string | null;
+    effective_date: string;
+    sunset_date?: string | null;
+    notes?: string | null;
+  }) =>
+    request<{ message: string; rate: CompliancePlatformFeeTaxRate }>(`/admin/compliance/platform-fee-tax-rates/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+
+  sunsetPlatformFeeTaxRate: (id: number, body?: { sunset_date?: string }) =>
+    request<{ message: string; rate: CompliancePlatformFeeTaxRate }>(`/admin/compliance/platform-fee-tax-rates/${id}/sunset`, {
+      method: 'POST',
+      body: JSON.stringify(body ?? {}),
+    }),
 
   complianceContentRules: (params?: { country_code?: string; requires_age_verification?: boolean; requires_local_representative?: boolean; active_only?: boolean; page?: number }) => {
     const qs = new URLSearchParams();

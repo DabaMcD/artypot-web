@@ -150,6 +150,12 @@ export interface User {
   location_complete?: boolean;
   /** Server-computed: user has at least one council-verified handle. Included in /me response only. */
   has_verified_handle?: boolean;
+  /**
+   * Phase 1 US-only gate for fans. False when the user's country isn't a supported
+   * fan market yet — existing backings render soft and activity is paused. Drives
+   * the FanMarketBanner. Included in /me response only.
+   */
+  fan_market_open?: boolean;
   /** ISO timestamp of last failed billing charge. Null when no recent failure. */
   payment_failed_at?: string | null;
   /** ISO timestamp of when the post-failure grace period expires. Computed by backend. */
@@ -391,6 +397,14 @@ export interface Creator {
   payout_category?: 1 | 2 | 3 | null;
   /** Minimum withdrawal amount in dollars for this creator's country. Null when blocked (category 3) or location unknown. */
   payout_minimum?: number | null;
+  /**
+   * Phase 1 US-only market gate. False when Artypot has not yet launched creator
+   * support in this creator's country. Distinct from `payout_category === 3`
+   * (sanctions): an unsanctioned creator can still be outside an open market.
+   * Drives the /c/* full-page takeover (own /me) and the public profile "on hold"
+   * notice (public profile payload).
+   */
+  creator_market_open?: boolean;
   /** Timestamp of TOS agreement, stamped when the user activates creator mode. */
   creator_tos_agreed_at?: string | null;
   verified_at?: string;
@@ -1291,6 +1305,21 @@ export interface ComplianceStateThreshold {
   sunset_date: string | null;
   verified_at: string | null;
   notes: string | null;
+}
+
+export interface CompliancePlatformFeeTaxRate {
+  id: number;
+  state_code: string;
+  subdivision_code: string | null;
+  rate: string; // decimal fraction of the platform fee, e.g. "0.062500"
+  source: string;
+  source_url: string | null;
+  source_fetched_at: string | null;
+  effective_date: string;
+  sunset_date: string | null;
+  verified_at: string | null;
+  notes: string | null;
+  created_at?: string;
 }
 
 export interface ComplianceContentRule {

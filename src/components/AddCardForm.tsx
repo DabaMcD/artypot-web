@@ -105,7 +105,17 @@ export default function AddCardForm({ onSuccess, onCancel }: AddCardFormProps) {
     billing
       .setupIntent()
       .then((res) => setClientSecret(res.data.client_secret))
-      .catch(() => setFetchError('Could not initialise payment setup. Please try again.'));
+      .catch((err: { reason?: string; message?: string }) => {
+        // Phase 1 US-only gate: the API blocks adding a card outside open markets.
+        if (err?.reason === 'market_unavailable') {
+          setFetchError(
+            err.message
+              ?? "Adding a payment method isn't available in your country yet. Artypot is currently US-only.",
+          );
+          return;
+        }
+        setFetchError('Could not initialise payment setup. Please try again.');
+      });
   }, []);
 
   if (fetchError) {

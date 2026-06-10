@@ -14,6 +14,7 @@ import ShareButton from '@/components/ShareButton';
 import { SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { Banner } from '@/components/ui/Banner';
 
 const SOCIAL_LINKS: { key: keyof Creator; label: string; prefix: string }[] = [
   { key: 'youtube_handle',   label: 'YouTube',    prefix: 'https://youtube.com/@' },
@@ -303,6 +304,19 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                 </div>
               )}
             </div>
+
+            {/* Phase 1 US-only gate: this creator's country isn't supported yet, so any
+                bounties placed for them can't be completed or paid out until we launch there. */}
+            {creator.creator_market_open === false && (
+              <Banner tone="warn">
+                <div>
+                  <strong className="text-foreground">Bounties for {creator.display_name} are on hold.</strong>{' '}
+                  Artypot hasn&apos;t launched creator support in their country yet, so bounties can&apos;t be
+                  completed or paid out for now. You can still follow along — we&apos;ll get going here as soon
+                  as we expand.
+                </div>
+              </Banner>
+            )}
 
             {/* Bounties */}
             <div>
