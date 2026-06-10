@@ -32,8 +32,20 @@ function isClearing(entry: CashLedgerEntry) {
   return new Date(entry.available_after) > new Date();
 }
 
-/** Classify a row into a display type. */
-function entryKind(entry: CashLedgerEntry): 'earning' | 'stripe' | 'external' | 'adjustment' {
+/** Classify a row into a display type — prefers the explicit entry_type, falls
+ *  back to the legacy field-presence heuristic for any unstamped legacy rows. */
+function entryKind(entry: CashLedgerEntry): 'earning' | 'fee' | 'stripe' | 'external' | 'adjustment' {
+  switch (entry.entry_type) {
+    case 'creator_earning':          return 'earning';
+    case 'platform_fee':
+    case 'platform_fee_tax':         return 'fee';
+    case 'creator_withdrawal':       return 'stripe';
+    case 'external_payout':
+    case 'external_payout_reversal': return 'external';
+    case 'dispute_adjustment':
+    case 'adjustment':               return 'adjustment';
+  }
+  // Legacy fallback (rows written before entry_type existed).
   if (entry.fan_payment_id && Number(entry.amount) > 0) return 'earning';
   if (entry.creator_withdrawal_id && Number(entry.amount) < 0) return 'stripe';
   if (entry.external_payout_id) return 'external';
@@ -48,6 +60,7 @@ function TypeBadge({ entry }: { entry: CashLedgerEntry }) {
   const kind = entryKind(entry);
 
   if (kind === 'earning') return <Badge tone="creator">earning</Badge>;
+  if (kind === 'fee')     return <Badge tone="warn">fee</Badge>;
   if (kind === 'stripe')  return <Badge tone="info">stripe</Badge>;
 
   if (kind === 'external' && entry.external_payout) {
@@ -102,6 +115,15 @@ function LedgerRow({ entry, prevDate }: { entry: CashLedgerEntry; prevDate: stri
           <span className="font-mono text-[10px] text-muted/50 block mt-0.5">ref: {refId}</span>
         )}
 
+        {/* Historical earnings: derived gross/fee breakdown (newer payouts show
+            the fee as its own row instead). */}
+        {kind === 'earning' && entry.platform_fee != null && entry.platform_fee > 0 && (
+          <span className="font-mono text-[10px] text-muted/70 block mt-0.5">
+            {entry.gross_amount != null ? `gross ${fmt(Number(entry.gross_amount))} · ` : ''}
+            −{fmt(Number(entry.platform_fee))} platform fee
+          </span>
+        )}
+
         {clearing && entry.available_after && (
           <span className="inline-flex items-center gap-1 mt-1 font-mono text-[10px] text-info">
             {/* clock icon */}
@@ -121,7 +143,9 @@ function LedgerRow({ entry, prevDate }: { entry: CashLedgerEntry; prevDate: stri
       {/* Amount */}
       <div className="shrink-0 text-right min-w-[72px]">
         <span className={`font-mono text-sm font-semibold tabular-nums ${
-          kind === 'earning' ? 'text-creator' : kind === 'adjustment' ? 'text-muted' : 'text-bad'
+          kind === 'earning' ? 'text-creator'
+            : kind === 'fee' || kind === 'adjustment' ? 'text-muted'
+            : 'text-bad'
         }`}>
           {isCredit ? '+' : '−'}{fmt(Math.abs(amt))}
         </span>
@@ -246,8 +270,9 @@ function MoneyContent() {
 
   // Client-side filter (pagination only fetches "all" — filter narrows visible rows)
   const filtered = entries.filter((e) => {
-    if (filter === 'earnings') return entryKind(e) === 'earning';
-    if (filter === 'payouts')  return entryKind(e) === 'stripe' || entryKind(e) === 'external';
+    const k = entryKind(e);
+    if (filter === 'earnings') return k === 'earning' || k === 'fee';
+    if (filter === 'payouts')  return k === 'stripe' || k === 'external';
     return true;
   });
 
@@ -256,6 +281,7 @@ function MoneyContent() {
   const clearing            = balance?.clearing             ?? 0;
   const availableBalance    = balance?.available_balance    ?? 0;
   const paidOut             = balance?.paid_out             ?? 0;
+  const lifetimeFees        = balance?.lifetime_platform_fees ?? 0;
   const openBackings         = balance?.open_backings         ?? 0;
   const solidOpenBackings    = balance?.solid_open_backings   ?? openBackings;
 
@@ -429,6 +455,19 @@ function MoneyContent() {
                   : <div className="font-mono text-lg font-medium text-foreground tabular-nums">{fmt(paidOut)}</div>
                 }
               </div>
+
+              <div>
+                <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-0.5">platform fees</div>
+                {balanceLoading
+                  ? <div className="h-5 w-20 bg-surface-2 animate-pulse rounded mt-1" />
+                  : (
+                    <>
+                      <div className="font-mono text-lg font-medium text-muted tabular-nums">{fmt(lifetimeFees)}</div>
+                      <div className="font-mono text-[10px] text-muted/60 mt-0.5">withheld to date</div>
+                    </>
+                  )
+                }
+              </div>
             </div>
 
             <div className="mt-5 space-y-2">
@@ -453,7 +492,9 @@ function MoneyContent() {
             <div className="space-y-3 text-sm text-muted leading-relaxed">
               <p>
                 <span className="text-foreground font-semibold">Earning</span> — fans are billed on
-                the {BILLING_DAY}th. The gross amount minus the platform fee is credited to your ledger.
+                the {BILLING_DAY}th. Each payout posts as a gross <span className="text-creator">earning</span> credit
+                with the <span className="text-warn">platform fee</span> shown as its own line, so your net is
+                always clear.
               </p>
               <p>
                 <span className="text-foreground font-semibold">Clearing</span> — funds are held for{' '}

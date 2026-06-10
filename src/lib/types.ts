@@ -613,6 +613,20 @@ export interface CashBalance {
   broke_cooldown: { ends_at: string; started_at: string } | null;
 }
 
+/** Self-describing type for a cash_ledger row. Mirrors App\Enums\CashLedgerEntryType. */
+export type CashLedgerEntryType =
+  | 'fan_obligation'
+  | 'fan_settlement'
+  | 'broke_declaration'
+  | 'creator_earning'
+  | 'platform_fee'
+  | 'platform_fee_tax'
+  | 'creator_withdrawal'
+  | 'external_payout'
+  | 'external_payout_reversal'
+  | 'dispute_adjustment'
+  | 'adjustment';
+
 export interface CashLedgerEntry {
   id: number;
   entity_type: 'user' | 'creator';
@@ -621,10 +635,17 @@ export interface CashLedgerEntry {
   running_balance: number;
   available_after: string | null;
   description: string;
+  /** Nullable only for legacy rows written before the column existed. */
+  entry_type?: CashLedgerEntryType | null;
+  created_at?: string;
   bounty?: Pick<Bounty, 'id' | 'title'>;
   fan_payment_id?: number | null;
   creator_withdrawal_id?: number | null;
   external_payout_id?: number | null;
+  /** Derived (not stored) on historical creator_earning rows so the UI can show the fee breakdown. */
+  gross_amount?: number | null;
+  /** Derived (not stored) platform fee for historical net earnings. New payouts carry the fee as its own row. */
+  platform_fee?: number | null;
   external_payout?: {
     id: number;
     method: ExternalPayoutMethod;
@@ -871,6 +892,8 @@ export interface CreatorBalance {
   available_balance: number;
   /** Total ever transferred to the creator's bank */
   paid_out: number;
+  /** Lifetime platform fees withheld from this creator's earnings (incl. derived historical). */
+  lifetime_platform_fees: number;
   available: PaginatedResponse<CashLedgerEntry>;
 }
 
