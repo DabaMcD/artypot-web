@@ -27,6 +27,7 @@ import { useViewMode } from '@/lib/view-mode-context';
 import type { Bounty, BountyHistoryEvent } from '@/lib/types';
 import { handleLink, formatPlatformHandle } from '@/lib/platforms';
 import ShareButton from '@/components/ShareButton';
+import BackingPolicyNote from '@/components/BackingPolicyNote';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
 import CommentSection from '@/components/CommentSection';
 import { BOUNTY_STATUS_LABELS as STATUS_LABELS, BOUNTY_STATUS_TONES as STATUS_TONES } from '@/components/BountyStatusBadge';
@@ -557,6 +558,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               >
                 Update
               </Button>
+              <BackingPolicyNote />
             </form>
             <Button
               variant="ghost"
@@ -608,6 +610,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             >
               {backingLoading ? 'Backing…' : 'Back This Bounty'}
             </Button>
+            <BackingPolicyNote />
           </form>
         )}
       </Card>

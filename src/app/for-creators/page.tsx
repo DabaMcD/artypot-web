@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import FeaturedBountiesSection from '@/components/FeaturedBountiesSection';
-import { PLATFORM_FEE_PCT, BILLING_DAY, BILLING_GRACE_PERIOD_DAYS } from '@/lib/config';
+import { PLATFORM_FEE_PCT, BILLING_DAY, PLATFORM_PAYOUT_WAIT_DAYS } from '@/lib/config';
 
 export const metadata = {
   title: 'For Creators — Artypot',
@@ -47,7 +47,7 @@ const PAYOUT_STEPS: { label: string; sub: string; color: string }[] = [
     color: 'bg-fan',
   },
   {
-    label: `${BILLING_GRACE_PERIOD_DAYS}-day clearing window`,
+    label: `${PLATFORM_PAYOUT_WAIT_DAYS}-day clearing window`,
     sub: 'A short buffer for any disputed charges to surface. Standard payment processing practice.',
     color: 'bg-fan',
   },
@@ -176,7 +176,7 @@ export default function ForCreatorsPage() {
                 {[
                   ['Know if it\'s worth making before you make it', 'Open the bounty. Share it. If backings don\'t justify the work, nothing happens and nobody lost money.'],
                   ['Your content stays public', 'This isn\'t a paywall. Backers don\'t get exclusive access — they get the same thing everyone else gets, plus the satisfaction of having made it happen.'],
-                  ['No platform decides your payout schedule', `You withdraw when you want. The ${BILLING_DAY}th is when fans are charged — after that, funds clear in ${BILLING_GRACE_PERIOD_DAYS} days.`],
+                  ['No platform decides your payout schedule', `You withdraw when you want. The ${BILLING_DAY}th is when fans are charged — after that, funds clear in ${PLATFORM_PAYOUT_WAIT_DAYS} days.`],
                 ].map(([title, detail]) => (
                   <li key={title as string} className="flex gap-3">
                     <span className="text-creator mt-1 shrink-0">✓</span>

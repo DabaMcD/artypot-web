@@ -2,6 +2,9 @@ import Link from 'next/link';
 import type { Creator } from '@/lib/types';
 import { Badge } from '@/components/ui/Badge';
 
+function fmtMoney(n: number): string {
+  return `$${n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+}
 
 export default function CreatorCard({ creator }: { creator: Creator }) {
   const hasStats =
@@ -10,18 +13,29 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
     creator.total_backing_sum != null;
 
   return (
-    <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-creator/50 transition-colors group">
-      <div className="flex items-center gap-3 mb-3">
+    <div className="relative flex flex-col h-full bg-surface border border-border rounded-xl p-5 transition-[transform,border-color,box-shadow] duration-150 hover:border-creator/60 hover:-translate-y-0.5 hover:shadow-soft group overflow-hidden">
+      {/* Creator-colored corner glow + accent hairline */}
+      <span
+        aria-hidden
+        className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-creator/10 blur-2xl pointer-events-none"
+      />
+      <span
+        aria-hidden
+        className="absolute inset-x-4 top-0 h-[2px] rounded-b bg-gradient-to-r from-creator/0 via-creator/70 to-creator/0 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+      />
+
+      <div className="flex items-center gap-3.5 mb-3">
         {/* Avatar */}
         {creator.profile_picture ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={creator.profile_picture}
             alt={creator.display_name}
-            className="w-10 h-10 rounded-full object-cover shrink-0"
+            className="w-12 h-12 rounded-full object-cover shrink-0 ring-2 ring-creator/40 ring-offset-2 ring-offset-surface"
           />
         ) : (
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+            className="w-12 h-12 rounded-full flex items-center justify-center text-base font-bold shrink-0 ring-2 ring-creator/40 ring-offset-2 ring-offset-surface"
             style={{ background: 'var(--color-creator)', color: 'var(--color-brand-dark)' }}
           >
             {creator.display_name?.charAt(0).toUpperCase() ?? '?'}
@@ -30,50 +44,63 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
 
         <div className="min-w-0 flex-1">
           {/* Stretched link title */}
-          <div className="font-semibold text-foreground group-hover:text-creator transition-colors truncate">
+          <div className="font-semibold text-[15px] text-foreground group-hover:text-creator transition-colors truncate">
             <Link
               href={creator.slug ? `/${creator.slug}` : `/creators/${creator.id}`}
-              className="after:absolute after:inset-0 focus:outline-none"
+              className="after:absolute after:inset-0 after:rounded-xl focus:outline-none focus-visible:after:ring-2 focus-visible:after:ring-creator/60"
             >
               {creator.display_name}
             </Link>
           </div>
-          <Badge tone="creator">Creator</Badge>
+          <div className="mt-1 flex items-center gap-2 min-w-0">
+            <Badge tone="creator">Creator</Badge>
+            {creator.slug && (
+              <span className="font-mono text-[11px] text-muted/70 truncate">/{creator.slug}</span>
+            )}
+          </div>
         </div>
-
       </div>
 
-      {creator.description && (
+      {creator.description ? (
         <p className="text-sm text-muted line-clamp-2 mb-3">{creator.description}</p>
+      ) : (
+        // Keeps cards in a grid row at equal visual weight when a creator
+        // hasn't written a description yet.
+        <p className="text-sm text-muted/40 italic mb-3">No description yet.</p>
       )}
 
       {hasStats && (
-        <div className="flex items-center gap-4 pt-3 border-t border-border text-xs text-muted flex-wrap">
-          {creator.projects_finished != null && (
-            <span>
-              <span className="text-foreground font-medium">{creator.projects_finished}</span>{' '}
-              completed
-            </span>
-          )}
-          {creator.projects_open != null && (
-            <span>
-              <span className="text-foreground font-medium">{creator.projects_open}</span>{' '}
-              open
-            </span>
-          )}
-          {creator.total_backing_sum != null && Number(creator.total_backing_sum) > 0 && (
-            <span className="ml-auto">
-              <span className="text-fan font-semibold">
-                ${Number(creator.total_backing_sum).toLocaleString('en-US', {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0,
-                })}
-              </span>{' '}
-              backed
-            </span>
-          )}
+        <div className="mt-auto grid grid-cols-3 gap-2 pt-3 border-t border-border/70">
+          <CardStat
+            value={creator.projects_open != null ? String(creator.projects_open) : '—'}
+            label="open"
+          />
+          <CardStat
+            value={creator.projects_finished != null ? String(creator.projects_finished) : '—'}
+            label="completed"
+          />
+          <CardStat
+            value={
+              creator.total_backing_sum != null && Number(creator.total_backing_sum) > 0
+                ? fmtMoney(Number(creator.total_backing_sum))
+                : '—'
+            }
+            label="backed"
+            accent
+          />
         </div>
       )}
+    </div>
+  );
+}
+
+function CardStat({ value, label, accent = false }: { value: string; label: string; accent?: boolean }) {
+  return (
+    <div className="min-w-0">
+      <div className={`font-mono font-bold text-sm truncate ${accent && value !== '—' ? 'text-fan' : 'text-foreground'}`}>
+        {value}
+      </div>
+      <div className="font-mono text-[9px] uppercase tracking-widest text-muted/70">{label}</div>
     </div>
   );
 }

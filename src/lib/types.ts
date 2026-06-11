@@ -458,6 +458,15 @@ export interface Bounty {
   /** Sum of fan charges already collected via billing for this bounty. */
   cleared_amount?: number;
   backings?: BountyBacking[];
+  /**
+   * The authenticated fan's own active backing amount on this bounty, or null
+   * if they don't back it. Appended by the list endpoint (index) so cards can
+   * show "you back $X" without the full backings list. Absent (undefined) on
+   * payloads that don't compute it, e.g. for guests.
+   */
+  user_backing?: number | null;
+  /** Active supporter count. Appended by the list endpoint via withCount. */
+  backings_count?: number;
   completion?: BountyCompletion;
 }
 

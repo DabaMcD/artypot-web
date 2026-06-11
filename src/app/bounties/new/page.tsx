@@ -17,6 +17,7 @@ import { Input, Textarea, Select, FieldLabel, FieldHint } from '@/components/ui/
 import { PlatformHandleInput, formatPlatformHandle } from '@/components/ui/PlatformHandleInput';
 import { Banner } from '@/components/ui/Banner';
 import { Stepper } from '@/components/ui/Stepper';
+import BackingPolicyNote from '@/components/BackingPolicyNote';
 import { ALL_PLATFORMS, OTHER_SLUG, platformLabel } from '@/lib/platforms';
 import { useDebouncedSearch } from '@/lib/search/useDebouncedSearch';
 import { moveActiveIndex } from '@/lib/search/navigation';
@@ -689,6 +690,7 @@ function Step3({ target, isSelfBounty, title, description, amount, displayName, 
       >
         {submitting ? 'Creating…' : 'Create Bounty'}
       </Button>
+      {!isSelfBounty && <BackingPolicyNote />}
     </div>
   );
 }
