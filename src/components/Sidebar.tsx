@@ -121,6 +121,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
     { id: 'council-featured-bounties', label: 'Featured bounties',  icon: '★', href: '/admin/featured-bounties' },
     { sec: 'operations' },
     { id: 'council-billing',          label: 'Billing runs',        icon: '$', href: '/admin/billing' },
+    { id: 'council-refunds',          label: 'Refunds',             icon: '↩', href: '/admin/refunds' },
     { id: 'council-payouts',          label: 'External payouts',    icon: '↗', href: '/admin/external-payouts' },
     { id: 'council-members',          label: 'Council members',     icon: '◇', href: '/admin/council' },
     { id: 'council-tiers',            label: 'Country tiers',       icon: '◉', href: '/admin/tiers' },

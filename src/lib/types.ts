@@ -880,6 +880,76 @@ export interface BillingRunDetail extends BillingRun {
   dropped_backings: BillingRunDroppedBacking[];
 }
 
+// ── Refunds (admin partial-refund tooling + creator bounty-wide refunds) ─────
+
+/** One refunded backing — a partial Stripe refund of a grouped charge. */
+export interface AdminRefund {
+  id: number;
+  backing_id: number;
+  fan_payment_id: number;
+  bounty: { id: number; title: string } | null;
+  fan: { id: number; display_name: string; email: string | null } | null;
+  creator: { id: number; display_name: string } | null;
+  initiated_by: { id: number; display_name: string } | null;
+  source: 'admin' | 'creator';
+  /** Gross returned to the fan's card. */
+  amount: number;
+  /** Amount debited from the creator (net for admin refunds, gross for creator refunds). */
+  creator_clawback: number;
+  status: 'succeeded' | 'pending' | 'failed';
+  failure_reason: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+/** One backing slice of a grouped charge, as seen by the admin refund tool. */
+export interface FanPaymentBackingRow {
+  backing_id: number;
+  bounty: { id: number; title: string } | null;
+  creator: { id: number; display_name: string } | null;
+  fan: { id: number; display_name: string } | null;
+  amount: number;
+  /** What the creator actually received (gross − platform fee). */
+  creator_net: number;
+  refunded_at: string | null;
+  refundable: boolean;
+}
+
+export interface FanPaymentBackingsResponse {
+  fan_payment: {
+    id: number;
+    gross_paid: number;
+    net_paid: number;
+    status: string;
+    user: { id: number; display_name: string } | null;
+  };
+  backings: FanPaymentBackingRow[];
+}
+
+/** Creator-side preview of a bounty-wide refund. */
+export interface BountyRefundPreview {
+  settled: Array<{
+    backing_id: number;
+    fan: { id: number; display_name: string };
+    amount: number;
+  }>;
+  unsettled_count: number;
+  unsettled_total: number;
+  total_refund: number;
+  /** Gross clawback — what the refund will cost the creator. */
+  total_clawback: number;
+  /** The creator's current running balance. */
+  balance: number;
+  sufficient: boolean;
+}
+
+export interface BountyRefundResult {
+  refunded: number;
+  revoked: number;
+  failed: number;
+  total_refunded: number;
+}
+
 export interface PaymentMethod {
   id: string;
   brand: string;

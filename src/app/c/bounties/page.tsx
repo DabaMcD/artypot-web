@@ -7,12 +7,13 @@ import { bounties as bountiesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { toExternalUrl } from '@/lib/url';
-import type { Bounty, BountyStatus } from '@/lib/types';
+import type { Bounty, BountyStatus, BountyRefundPreview } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Empty } from '@/components/ui/Empty';
 import { Input, Textarea, FieldLabel, FieldHint } from '@/components/ui/Input';
+import { Modal } from '@/components/ui/Modal';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
 import ShareButton from '@/components/ShareButton';
 
@@ -64,6 +65,139 @@ function Skeleton() {
   );
 }
 
+// ── Refund-all modal ──────────────────────────────────────────────────────────
+
+function moneyFmt(n: number): string {
+  return `$${Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function RefundAllModal({ bounty, onClose }: { bounty: Bounty; onClose: () => void }) {
+  const { toast } = useToast();
+  const [preview, setPreview] = useState<BountyRefundPreview | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    bountiesApi.refundPreview(bounty.id)
+      .then((r) => { if (alive) setPreview(r.data); })
+      .catch(() => { if (alive) toast('Could not load the refund preview.', 'error'); })
+      .finally(() => { if (alive) setLoading(false); });
+    return () => { alive = false; };
+  }, [bounty.id, toast]);
+
+  const execute = async () => {
+    setSubmitting(true);
+    try {
+      const res = await bountiesApi.refundAll(bounty.id);
+      const { refunded, revoked, failed } = res.data;
+      const parts = [
+        refunded > 0 ? `${refunded} backer${refunded === 1 ? '' : 's'} refunded` : null,
+        revoked > 0 ? `${revoked} unbilled backing${revoked === 1 ? '' : 's'} cancelled` : null,
+      ].filter(Boolean);
+      toast(
+        failed > 0
+          ? `${parts.join(', ')} — ${failed} failed; support has been alerted.`
+          : `${parts.join(', ') || 'Nothing to refund'}.`,
+        failed > 0 ? 'error' : 'success',
+      );
+      onClose();
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message ?? 'Refund failed. Please try again.';
+      toast(msg, 'error');
+      setSubmitting(false);
+    }
+  };
+
+  const nothingToDo = preview !== null
+    && preview.settled.length === 0
+    && preview.unsettled_count === 0;
+
+  return (
+    <Modal title="Refund all backers?" onClose={onClose}>
+      {loading || !preview ? (
+        <div className="space-y-3">
+          {[1, 2].map((i) => <div key={i} className="h-14 bg-surface-2 animate-pulse rounded" />)}
+        </div>
+      ) : nothingToDo ? (
+        <div className="space-y-4">
+          <p className="text-sm text-muted">
+            There&apos;s nothing left to refund on this bounty — every backing has already been
+            refunded or cancelled.
+          </p>
+          <div className="flex justify-end">
+            <Button variant="ghost" size="sm" onClick={onClose}>Close</Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <p className="text-sm text-muted">
+            Every backer of <span className="text-foreground">{bounty.title}</span> gets their full
+            payment back. The total comes out of your balance — refunding costs you what your
+            backers paid, including the platform fee.
+          </p>
+
+          {preview.settled.length > 0 && (
+            <div className="border border-border rounded-md bg-surface-2 max-h-44 overflow-y-auto divide-y divide-border">
+              {preview.settled.map((s) => (
+                <div key={s.backing_id} className="flex justify-between px-4 py-2 text-sm">
+                  <span className="text-muted truncate pr-3">{s.fan.display_name}</span>
+                  <span className="font-mono tabular-nums text-foreground shrink-0">{moneyFmt(s.amount)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {preview.unsettled_count > 0 && (
+            <p className="font-mono text-[11px] text-muted">
+              + {preview.unsettled_count} backing{preview.unsettled_count === 1 ? '' : 's'} not yet
+              billed ({moneyFmt(preview.unsettled_total)}) — cancelled at no cost to you.
+            </p>
+          )}
+
+          <div className="border-t border-dashed border-border pt-3 space-y-1.5">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted">Cost to you</span>
+              <span className="font-mono tabular-nums text-bad">−{moneyFmt(preview.total_clawback)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted">Your balance</span>
+              <span className={`font-mono tabular-nums ${preview.sufficient ? 'text-foreground' : 'text-bad'}`}>
+                {moneyFmt(preview.balance)}
+              </span>
+            </div>
+          </div>
+
+          {preview.sufficient ? (
+            <>
+              <p className="font-mono text-[10px] text-muted/70 uppercase tracking-widest">
+                this can&apos;t be undone
+              </p>
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" size="sm" onClick={onClose} disabled={submitting}>Cancel</Button>
+                <Button variant="danger" size="sm" onClick={execute} disabled={submitting}>
+                  {submitting ? 'Refunding…' : `Refund ${moneyFmt(preview.total_refund)}`}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-bad">
+                Your balance doesn&apos;t cover this refund. Contact{' '}
+                <a href="mailto:support@artypot.com" className="underline">support@artypot.com</a>{' '}
+                and we&apos;ll help sort it out.
+              </p>
+              <div className="flex justify-end">
+                <Button variant="ghost" size="sm" onClick={onClose}>Close</Button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </Modal>
+  );
+}
+
 // ── BountyRow ─────────────────────────────────────────────────────────────────
 
 interface BountyRowProps {
@@ -79,6 +213,7 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showRefund, setShowRefund] = useState(false);
 
   // Seed URL field when expanded for resubmission
   useEffect(() => {
@@ -123,6 +258,13 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
         {expanded ? 'Cancel' : 'Resubmit →'}
       </Button>
     );
+  } else if (status === 'completed' || status === 'paid_out') {
+    // Escape valve: refund every backer (gated server-side on balance).
+    actionBtn = (
+      <Button size="sm" variant="ghost" onClick={() => setShowRefund(true)}>
+        Refund backers
+      </Button>
+    );
   }
 
   // Metadata line
@@ -148,6 +290,8 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
 
   return (
     <div className="px-5 py-4">
+      {showRefund && <RefundAllModal bounty={bounty} onClose={() => setShowRefund(false)} />}
+
       {/* Main row */}
       <div className="flex items-start gap-4">
         {/* Left */}

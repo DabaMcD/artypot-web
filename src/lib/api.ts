@@ -441,6 +441,16 @@ export const bounties = {
       method: 'DELETE',
       body: JSON.stringify({ reason }),
     }),
+
+  /** Creator-only: itemized preview of refunding every backer on this bounty. */
+  refundPreview: (bountyId: number) =>
+    request<{ data: import('./types').BountyRefundPreview }>(`/bounties/${bountyId}/refund-preview`),
+
+  /** Creator-only: refund every backer. Gated on balance ≥ gross clawback. */
+  refundAll: (bountyId: number) =>
+    request<{ data: import('./types').BountyRefundResult }>(`/bounties/${bountyId}/refund-all`, {
+      method: 'POST',
+    }),
 };
 
 // Users
@@ -1006,6 +1016,24 @@ export const admin = {
 
     trigger: () =>
       request<{ message: string }>('/admin/billing-runs/trigger', { method: 'POST' }),
+  },
+
+  // Refunds (partial refunds of grouped charges; creator clawed back at net)
+  refunds: {
+    list: (page = 1) =>
+      request<PaginatedResponse<import('./types').AdminRefund>>(`/admin/refunds?page=${page}`),
+
+    /** Per-backing breakdown of a grouped charge — pick which slice to refund. */
+    paymentBackings: (fanPaymentId: number) =>
+      request<{ data: import('./types').FanPaymentBackingsResponse }>(
+        `/admin/fan-payments/${fanPaymentId}/backings`
+      ),
+
+    refundBacking: (backingId: number, notes?: string) =>
+      request<{ data: import('./types').AdminRefund }>(`/admin/backings/${backingId}/refund`, {
+        method: 'POST',
+        body: JSON.stringify(notes ? { notes } : {}),
+      }),
   },
 
   // Country tiers (read-only, derived live from compliance data)

@@ -99,14 +99,16 @@ function UserCell({ user }: { user: { id: number; display_name: string; email: s
 // ── Chargeback resolution badge ───────────────────────────────────────────────
 
 function ChargebackImpact({ cb }: { cb: BillingRunChargeback }) {
-  // pre_clearing: null = unknown charge (platform eats), true = creator clawed back, false = platform absorbed
+  // Clawback is always applied since 2026-06 (negative balances allowed), so
+  // the signal is the amount: zero means the slices were already refunded or
+  // the charge couldn't be matched.
   if (cb.pre_clearing === null) {
     return <Badge tone="bad">platform loss · unknown charge</Badge>;
   }
-  if (cb.pre_clearing === true) {
-    return <Badge tone="warn">creator clawback {cb.clawback_amount != null ? money(cb.clawback_amount) : ''}</Badge>;
+  if (cb.clawback_amount != null && cb.clawback_amount > 0) {
+    return <Badge tone="warn">creator clawback {money(cb.clawback_amount)}</Badge>;
   }
-  return <Badge tone="info">platform absorbed</Badge>;
+  return <Badge tone="info">no clawback · already refunded</Badge>;
 }
 
 // ── Detail modal ──────────────────────────────────────────────────────────────
@@ -242,7 +244,7 @@ function RunDetailModal({ runId, onClose }: { runId: number; onClose: () => void
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-left">
-                  <Th>Fan</Th><Th>Amount</Th><Th>Reason</Th><Th>Status</Th><Th>Impact</Th>
+                  <Th>Fan</Th><Th>Amount</Th><Th>Reason</Th><Th>Status</Th><Th>Impact</Th><th className="py-1.5" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -254,7 +256,17 @@ function RunDetailModal({ runId, onClose }: { runId: number; onClose: () => void
                     <td className="py-2 pr-3">
                       <Badge tone={c.is_terminal ? 'default' : 'warn'}>{c.status_label ?? c.status ?? 'unknown'}</Badge>
                     </td>
-                    <td className="py-2"><ChargebackImpact cb={c} /></td>
+                    <td className="py-2 pr-3"><ChargebackImpact cb={c} /></td>
+                    <td className="py-2 text-right">
+                      {c.fan_payment_id != null && (
+                        <Link
+                          href={`/admin/refunds?payment=${c.fan_payment_id}`}
+                          className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground whitespace-nowrap"
+                        >
+                          refunds →
+                        </Link>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
