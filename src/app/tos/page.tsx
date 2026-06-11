@@ -4,7 +4,7 @@ export const metadata = {
   title: 'Terms of Service — Artypot',
 };
 
-const LAST_UPDATED = 'May 20, 2026';
+const LAST_UPDATED = 'June 11, 2026';
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
@@ -38,6 +38,7 @@ export default function ToSPage() {
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Creators around the world can get paid</strong> — via direct bank payouts where supported, and alternative methods elsewhere. Fans anywhere can back bounties. A few countries are restricted by law.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>If a bounty never completes, no money moves.</strong> Ever.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Backing isn&apos;t a purchase.</strong> You&apos;re funding a public result everyone gets equally — not buying private perks, goods, or access. Creators can&apos;t auction personal rewards to top backers, and you shouldn&apos;t ask them to.</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✗</span><span><strong>No buying official acts or funding campaigns.</strong> You can&apos;t use a bounty to pay a government official for something they do in office, or to bankroll a candidate, campaign, or election effort — that runs into bribery and campaign-finance law.</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>Keep Artypot all-ages.</strong> Everything posted to the Platform — bounty text, profiles, comments, completion notes — must be PG, and you can&apos;t use a bounty to fund adult content (our payment partners forbid it). Nothing illegal, ever. What a creator makes and hosts elsewhere is their own business.</span></li>
           </ul>
           <p className="text-xs text-muted mt-4">This TL;DR is a helpful summary, not a substitute for the full terms below.</p>
@@ -94,6 +95,7 @@ export default function ToSPage() {
             <p>Any registered user may open a bounty for any task a named creator could verifiably complete, subject to the Content Policy (Section 9). If it can be done, confirmed, and doesn&apos;t violate the Content Policy, it can be a bounty.</p>
             <p>Opening a bounty does not guarantee the named creator will fulfil it. The creator is under no contractual obligation to Artypot or to backers. A bounty is an expression of collective demand, not a contract with the creator.</p>
             <p><strong className="text-foreground">A bounty funds public work, not private perks.</strong> Backing is a contribution toward a result that is released publicly and equally to backers and non-backers alike. It is not a purchase of goods or services for the backer, and it confers no private benefit, ownership, exclusive access, or preferential treatment. Creators may not offer, and backers may not solicit or demand, any personal or backer-exclusive reward in exchange for a backing or its size — for example, private meetings, physical goods, personalized work, or an experience auctioned to the highest backer. Publicly acknowledging backers (such as a thank-you or a name in public credits) is the only recognition permitted.</p>
+            <p><strong className="text-foreground">No bounties for official acts or political campaigns.</strong> A bounty may not reward, induce, or be conditioned on an <em>official act</em> — anything a government office holder or employee does, or could do, in their official capacity. Nor may a bounty serve as a contribution to or expenditure for a candidate, campaign, party, or committee, or otherwise aim to influence an election. Funding pointed at an official act or an election can create legal exposure for backers and for Artypot regardless of intent, so we don&apos;t allow it. This turns on the purpose of a bounty, not the identity of its subject: a public servant who is also a creator can still be the subject of a bounty for ordinary creative work. We may remove bounties that cross this line and take action on the accounts behind them.</p>
             <p>We reserve the right to remove any bounty at our sole discretion, including but not limited to bounties that are too vague, too difficult to verify completion, harmful, or illegal. We are not obligated to explain every removal, though we will attempt to provide a reason when possible.</p>
             <p>While we are committed to being reasonable, the creator a bounty is directed at may also remove that bounty at their sole discretion, for any reason or no reason.</p>
           </Section>
@@ -132,6 +134,7 @@ export default function ToSPage() {
             <p><strong className="text-foreground">Absolute prohibitions.</strong> The following are never permitted on the Platform or in any work funded through it, and apply regardless of where the work is hosted:</p>
             <ul className="list-disc list-inside space-y-1 pl-2">
               <li>Content that is illegal under US federal or state law</li>
+              <li>Bounties that pay for an official government act or function as a political campaign contribution (see Section 4)</li>
               <li>Harassment, credible threats, or targeted hate speech</li>
               <li>Malware, malicious code, or attempts to compromise the Platform or its users</li>
             </ul>

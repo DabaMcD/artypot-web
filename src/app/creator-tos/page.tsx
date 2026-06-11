@@ -5,7 +5,7 @@ export const metadata = {
   title: 'Creator Terms of Service — Artypot',
 };
 
-const LAST_UPDATED = 'May 20, 2026';
+const LAST_UPDATED = 'June 11, 2026';
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
@@ -69,6 +69,7 @@ export default function CreatorToSPage() {
             <p><strong className="text-foreground">1.4 Keep your tax residence current.</strong> You must maintain an accurate country of tax residence (and U.S. state or territory, if applicable) in your creator profile. This information is used solely for earnings reporting and tax compliance purposes.</p>
             <p><strong className="text-foreground">1.5 Comply with all applicable laws.</strong> You are solely responsible for complying with all laws applicable to your activities on Artypot, including tax obligations, export controls, and local content regulations.</p>
             <p><strong className="text-foreground">1.6 Bounties fund public work, not private perks.</strong> A backing is a contribution toward a public deliverable — it is not a purchase, and it does not entitle the backer to anything the general public does not also receive. You must not offer, promise, or provide any private, personal, or backer-exclusive benefit in exchange for a backing or in recognition of its size, including (without limitation) private access, one-on-one time, physical goods, personalized or backer-owned work, travel, in-person meetings, early or exclusive access, or any preferential treatment. The work you deliver for a bounty must be a single public result, equally accessible to backers and non-backers alike. The only recognition you may give backers is public acknowledgment, such as a public thank-you or their name in public credits. Auctioning or selling personal access or private benefits — for example, offering an experience to the highest backer — is prohibited, and converts a non-sale contribution into a transaction our platform and payment partners do not support.</p>
+            <p><strong className="text-foreground">1.7 No payment for official acts or campaigns.</strong> If you hold public office or are employed by a government, you may not accept or fulfil a bounty that rewards, induces, or is conditioned on anything you do in that official capacity. You also may not use Artypot to raise money for a political campaign, candidate, party, or committee, or for any other election-related purpose. This applies regardless of intent. Bounties for your ordinary creative work are unaffected — this is about official acts and campaigns, not about who you are.</p>
           </Section>
 
           <Section id="role" title="2. Artypot's Role">

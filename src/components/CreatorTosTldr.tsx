@@ -57,6 +57,14 @@ export default function CreatorTosTldr({
           </span>
         </li>
         <li className="flex gap-2">
+          <span className="text-creator shrink-0 mt-0.5">✗</span>
+          <span>
+            <strong>No pay for official acts or campaigns.</strong>{' '}You can&apos;t accept a
+            bounty for anything you do in a government role, or use Artypot to fund a campaign,
+            candidate, or election effort.
+          </span>
+        </li>
+        <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
             <strong>Act in good faith.</strong>{' '}Misleading comments, disingenuous
