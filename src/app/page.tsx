@@ -10,7 +10,7 @@ import type { Bounty } from '@/lib/types';
 
 // ── "How it works" steps ───────────────────────────────────────────────────────
 const STEPS: { n: number; body: string }[] = [
-  { n: 1, body: 'Ask for your favorite creator to do something cool or stupid.' },
+  { n: 1, body: 'Ask your favorite creator to do something cool or stupid.' },
   { n: 2, body: "Like-minded fans chip in until the bounty can't be ignored." },
   { n: 3, body: 'The creator delivers, the fans pay them. Spam Ws in chat.' },
 ];
