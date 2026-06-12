@@ -1,14 +1,16 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import type { Bounty } from '@/lib/types';
-import { formatPlatformHandle } from '@/lib/platforms';
+import { formatPlatformHandle, handleLink } from '@/lib/platforms';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { bounties as bountiesApi } from '@/lib/api';
 import { requestNudgeRefresh } from '@/lib/nudge-context';
 import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
+import { trackSpotlight } from '@/lib/spotlight';
 import { AvatarOrUnknown } from './ui/AvatarOrUnknown';
 import { BountyStatusBadge } from './BountyStatusBadge';
 import BackingPolicyNote from './BackingPolicyNote';
@@ -52,15 +54,24 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
     disarmTimer.current = setTimeout(() => setQuickBackArmed(false), 12000);
   };
 
-  const fanSingular = bounty.owner_user?.fan_name || 'supporter';
-  const fanPlural   = bounty.owner_user?.fan_name_plural || bounty.owner_user?.fan_name || 'supporters';
-
   // Platform-qualified handle string for owner-less bounties ("youtube/@mrbeast",
   // or the bare URL for 'other'). Rendered on one truncating line.
   const handleText = bounty.target_handle
     ? bounty.target_handle.platform === 'other'
       ? formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)
       : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`
+    : null;
+  // Where the handle points: the internal unverified-handle page for curated
+  // platforms, or straight out to the external profile/URL otherwise.
+  const handleHref = bounty.target_handle
+    ? handleLink(bounty.target_handle.platform, bounty.target_handle.username)
+    : null;
+  // A registered creator's own page: their vanity slug if claimed, else the
+  // numeric user page. Mirrors the bounty detail page's link target.
+  const ownerHref = bounty.owner_user
+    ? bounty.owner_user.slug
+      ? `/${bounty.owner_user.slug}`
+      : `/users/${bounty.owner_user.id}`
     : null;
 
   const activeBackings = bounty.backings?.filter((v) => !v.revoked_at) ?? null;
@@ -134,16 +145,19 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
   };
 
   return (
-    <div className="relative flex flex-col h-full bg-surface border border-border rounded-xl p-5 transition-[transform,border-color,box-shadow] duration-150 hover:border-fan/60 hover:-translate-y-0.5 hover:shadow-soft group">
-      {/* Fan-colored accent hairline that fades in on hover */}
-      <span
-        aria-hidden
-        className="absolute inset-x-4 top-0 h-[2px] rounded-b bg-gradient-to-r from-fan/0 via-fan/70 to-fan/0 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-      />
+    <div
+      onMouseMove={trackSpotlight}
+      style={{ '--spot-color': 'var(--color-fan)' } as CSSProperties}
+      className="relative flex flex-col h-full bg-surface border border-border rounded-xl p-5 transition-[transform,border-color,box-shadow] duration-150 hover:border-fan/25 hover:-translate-y-0.5 hover:shadow-soft group"
+    >
+      {/* Cursor-tracking spotlight: a fan-colored hot spot on the border ring
+          plus a faint interior glow, both following the pointer. */}
+      <span aria-hidden className="ap-spot-ring opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+      <span aria-hidden className="ap-spot-glow opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
       <div className="flex items-start justify-between gap-3 mb-3">
         {/* Stretched link title — ::after pseudo-element covers the whole card */}
-        <h3 className="font-semibold text-foreground group-hover:text-fan transition-colors line-clamp-2 leading-snug">
+        <h3 className="font-semibold text-foreground group-hover:text-fan transition-colors line-clamp-2 leading-snug break-words">
           <Link
             href={`/bounties/${bounty.id}`}
             className="after:absolute after:inset-0 after:rounded-xl focus:outline-none focus-visible:after:ring-2 focus-visible:after:ring-fan/60"
@@ -193,18 +207,41 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
             )}
             <div className="flex items-baseline gap-1.5 min-w-0 flex-1">
               <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 shrink-0">for</span>
-              {bounty.owner_user ? (
-                <span className="text-sm text-creator font-medium truncate" title={bounty.owner_user.display_name}>
+              {/* The identity links sit above the card's stretched-link overlay
+                  (relative z-10) so they navigate to the creator/handle rather
+                  than the bounty. */}
+              {bounty.owner_user && ownerHref ? (
+                <Link
+                  href={ownerHref}
+                  title={bounty.owner_user.display_name}
+                  className="relative z-10 text-sm text-creator font-medium truncate hover:underline underline-offset-2"
+                >
                   {bounty.owner_user.display_name}
-                </span>
-              ) : handleText ? (
+                </Link>
+              ) : handleText && handleHref ? (
                 // No verified account owner — the platform-qualified handle is
                 // the only trustworthy identity, so it leads. A fan-supplied
                 // display_name is secondary and can't masquerade as someone else.
                 <>
-                  <span className="font-mono text-[13px] text-creator font-medium truncate min-w-0" title={handleText}>
-                    {handleText}
-                  </span>
+                  {handleHref.external ? (
+                    <a
+                      href={handleHref.href}
+                      target="_blank"
+                      rel="noopener noreferrer nofollow"
+                      title={handleText}
+                      className="relative z-10 font-mono text-[13px] text-creator font-medium truncate min-w-0 hover:underline underline-offset-2"
+                    >
+                      {handleText}
+                    </a>
+                  ) : (
+                    <Link
+                      href={handleHref.href}
+                      title={handleText}
+                      className="relative z-10 font-mono text-[13px] text-creator font-medium truncate min-w-0 hover:underline underline-offset-2"
+                    >
+                      {handleText}
+                    </Link>
+                  )}
                   {bounty.display_name && (
                     <span className="text-[11px] text-muted truncate min-w-0 shrink-[4]" title={bounty.display_name}>
                       ({bounty.display_name})
@@ -228,7 +265,7 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
             </div>
             {backerCount !== null && (
               <div className="text-xs text-muted mt-0.5">
-                {backerCount} {backerCount === 1 ? fanSingular : fanPlural}
+                {backerCount} {backerCount === 1 ? 'backer' : 'backers'}
               </div>
             )}
             {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (

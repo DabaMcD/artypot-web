@@ -160,7 +160,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
     return (
       <div className="max-w-6xl mx-auto px-7 py-10">
         <div className="h-48 bg-surface border border-border rounded-xl animate-pulse mb-6" />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-36 bg-surface border border-border rounded-xl animate-pulse" />
           ))}
@@ -294,7 +294,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
                 )}
               </div>
             ) : (
-              <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {state.bounties.map((b) => (
                   <HandleBountyCard key={b.id} bounty={b} />
                 ))}

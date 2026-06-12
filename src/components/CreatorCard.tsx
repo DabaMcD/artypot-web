@@ -1,6 +1,10 @@
+'use client';
+
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
 import type { Creator } from '@/lib/types';
 import { Badge } from '@/components/ui/Badge';
+import { trackSpotlight } from '@/lib/spotlight';
 
 function fmtMoney(n: number): string {
   return `$${n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
@@ -22,16 +26,19 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
       : creator.fan_name_plural || creator.fan_name || 'backers';
 
   return (
-    <div className="relative flex flex-col h-full bg-surface border border-border rounded-xl p-5 transition-[transform,border-color,box-shadow] duration-150 hover:border-creator/60 hover:-translate-y-0.5 hover:shadow-soft group overflow-hidden">
-      {/* Creator-colored corner glow + accent hairline */}
+    <div
+      onMouseMove={trackSpotlight}
+      style={{ '--spot-color': 'var(--color-creator)' } as CSSProperties}
+      className="relative flex flex-col h-full bg-surface border border-border rounded-xl p-5 transition-[transform,border-color,box-shadow] duration-150 hover:border-creator/25 hover:-translate-y-0.5 hover:shadow-soft group overflow-hidden"
+    >
+      {/* Static corner glow + cursor-tracking spotlight (border ring + faint
+          interior glow following the pointer). */}
       <span
         aria-hidden
         className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-creator/10 blur-2xl pointer-events-none"
       />
-      <span
-        aria-hidden
-        className="absolute inset-x-4 top-0 h-[2px] rounded-b bg-gradient-to-r from-creator/0 via-creator/70 to-creator/0 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-      />
+      <span aria-hidden className="ap-spot-ring opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+      <span aria-hidden className="ap-spot-glow opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
       <div className="flex items-center gap-3.5 mb-3">
         {/* Avatar */}

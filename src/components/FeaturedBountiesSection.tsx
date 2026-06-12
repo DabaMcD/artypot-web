@@ -26,7 +26,7 @@ export default function FeaturedBountiesSection() {
         <h2 className="text-2xl font-display font-bold text-foreground mb-2">Open right now.</h2>
         <p className="text-muted mb-10">A few bounties worth knowing about.</p>
 
-        <div className="grid sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
           {loading
             ? [1, 2, 3].map((i) => (
                 <div

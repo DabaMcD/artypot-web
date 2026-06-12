@@ -119,7 +119,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
     return (
       <div className="max-w-6xl mx-auto px-7 py-10">
         <div className="h-48 bg-surface border border-border rounded-xl animate-pulse mb-6" />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-36 bg-surface border border-border rounded-xl animate-pulse" />
           ))}
@@ -343,7 +343,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                 </div>
               ) : (
                 <>
-                  <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                     {bountiesData.data.map((bounty) => (
                       <BountyCard key={bounty.id} bounty={bounty} />
                     ))}

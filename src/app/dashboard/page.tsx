@@ -292,7 +292,7 @@ export default function DashboardPage() {
         </div>
 
         {bountiesLoading ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {[1,2,3].map(i => <div key={i} className="h-44 bg-surface animate-pulse rounded" />)}
           </div>
         ) : !myBounties || myBounties.data.length === 0 ? (
@@ -300,7 +300,7 @@ export default function DashboardPage() {
             <Button variant="primary" onClick={() => router.push('/bounties/new')}>Create the First One</Button>
           </Empty>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {myBounties.data.slice(0, 6).map((bounty) => (
               <BountyCard key={bounty.id} bounty={bounty} />
             ))}

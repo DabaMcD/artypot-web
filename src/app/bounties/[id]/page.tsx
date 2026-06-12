@@ -485,7 +485,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <div className="bg-fan/10 border border-fan/30 rounded px-4 py-3 text-sm mb-3">
             <div>
               You&apos;re in for{' '}
-              <span className="text-fan font-mono font-semibold tabular-nums">
+              <span className="text-fan font-mono font-bold text-base tabular-nums">
                 ${Number(userBacking!.amount).toFixed(2)}
               </span>
             </div>
@@ -529,7 +529,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             <div className="bg-fan/10 border border-fan/30 rounded px-4 py-3 text-sm">
               <div>
                 You&apos;re in for{' '}
-                <span className="text-fan font-mono font-semibold tabular-nums">
+                <span className="text-fan font-mono font-bold text-base tabular-nums">
                   ${Number(userBacking.amount).toFixed(2)}
                 </span>
               </div>
@@ -758,7 +758,13 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       )}
 
       {/* Bounty header */}
-      <Card className="mb-6">
+      <Card className="mb-6 overflow-hidden">
+        {/* Always-on fan accent hairline — same visual signature as the
+            bounty cards' hover state, anchoring the page to the fan role. */}
+        <span
+          aria-hidden
+          className="absolute inset-x-4 top-0 h-[2px] rounded-b bg-gradient-to-r from-fan/0 via-fan/60 to-fan/0"
+        />
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-start gap-3">
@@ -774,12 +780,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                       ✕ Back to current
                     </button>
                   </div>
-                  <h1 className="text-2xl font-display font-bold text-foreground/70 leading-snug flex-1 min-w-0 normal-case">
+                  <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground/70 leading-snug flex-1 min-w-0 normal-case break-words">
                     {displayedTitle}
                   </h1>
                 </div>
               ) : (
-                <h1 className="text-2xl font-display font-bold text-foreground leading-snug flex-1 min-w-0 normal-case">
+                <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground leading-snug flex-1 min-w-0 normal-case break-words">
                   {displayedTitle}
                 </h1>
               )}
@@ -886,10 +892,10 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           ) : null
         )}
 
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-3 text-sm">
           {(bounty.owner_user || bounty.target_handle) && (
             <div>
-              <span className="text-muted">For </span>
+              <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mr-1.5">for</span>
               {bounty.owner_user && !viewingPreAssignment ? (
                 <Link
                   href={bounty.owner_user.slug ? `/${bounty.owner_user.slug}` : `/users/${bounty.owner_user.id}`}
@@ -940,7 +946,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           )}
           {bounty.initiator && (
             <div>
-              <span className="text-muted">Started by </span>
+              <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mr-1.5">started by</span>
               {bounty.initiator.id === 0 ? (
                 <span className="text-foreground font-medium">{bounty.initiator.display_name}</span>
               ) : (
@@ -956,18 +962,19 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Total backed + history toggle */}
-        <div className="mt-5 pt-5 border-t border-border">
-          <div className="text-fan font-mono font-bold tabular-nums text-3xl">
-            ${displayedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-          </div>
-          {!selectedEvent && bounty?.solid_total !== undefined && (Number(bounty.total_backed) - bounty.solid_total) > 0.005 && (
-            <div className="font-mono text-[10px] text-muted tabular-nums mt-0.5">
-              + ${(Number(bounty.total_backed) - bounty.solid_total).toLocaleString('en-US', { minimumFractionDigits: 2 })} in soft backings
-            </div>
-          )}
-          <div className="flex items-center justify-between gap-2 mt-0.5">
-            <div>
-              <div className="text-muted text-sm">
+        <div className="mt-5 pt-5 border-t border-border/70">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="min-w-0">
+              <div className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mb-1">total backed</div>
+              <div className="text-fan font-mono font-bold tabular-nums text-3xl sm:text-4xl leading-none tracking-tight">
+                ${displayedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </div>
+              {!selectedEvent && bounty?.solid_total !== undefined && (Number(bounty.total_backed) - bounty.solid_total) > 0.005 && (
+                <div className="font-mono text-[10px] text-muted tabular-nums mt-1.5">
+                  + ${(Number(bounty.total_backed) - bounty.solid_total).toLocaleString('en-US', { minimumFractionDigits: 2 })} in soft backings
+                </div>
+              )}
+              <div className="text-muted text-sm mt-1.5">
                 backed by {activeBackings.length} {activeBackings.length === 1 ? fanSingular : fanPlural}
               </div>
               {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
@@ -1019,9 +1026,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </div>
       </Card>
 
-      <div className="grid sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Action panel */}
-        <div className="sm:col-span-1 space-y-4">
+        <div className="md:col-span-1 space-y-4">
 
           {isCreator ? (
             // ── Creator view: submit completion dominates ───────────────────
@@ -1250,7 +1257,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Backers + completion */}
-        <div className="sm:col-span-2 space-y-6">
+        <div className="md:col-span-2 space-y-6">
           {/* Completion info */}
           {bounty.completion && (
             <Card>
@@ -1361,9 +1368,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     return (
                       <div
                         key={backing.id}
-                        className="flex items-center justify-between py-2 border-b border-border last:border-0"
+                        className="flex items-center justify-between gap-3 py-2 px-2 -mx-2 rounded border-b border-border/60 last:border-0 hover:bg-surface-2/60 transition-colors"
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
                           {avatarSrc ? (
                             <img
                               src={avatarSrc}
@@ -1373,7 +1380,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                           ) : (
                             <div
                               className="w-6 h-6 rounded-full flex items-center justify-center font-mono text-xs font-bold shrink-0"
-                              style={{ background: '#F5A623', color: '#0a0a0a' }}
+                              style={{ background: 'var(--color-fan)', color: 'var(--color-brand-dark)' }}
                             >
                               {initial}
                             </div>

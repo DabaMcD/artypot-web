@@ -95,7 +95,7 @@ export default function HomePage() {
           </div>
 
           {bountiesLoading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="h-48 bg-surface border border-border rounded-md shadow-[3px_3px_0_#000] animate-pulse" />
               ))}
@@ -108,7 +108,7 @@ export default function HomePage() {
               </Link>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {trendingBounties.map((bounty) => (
                 <BountyCard key={bounty.id} bounty={bounty} />
               ))}

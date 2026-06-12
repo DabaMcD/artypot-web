@@ -20,7 +20,7 @@ import { Banner } from '@/components/ui/Banner';
 import { Stepper } from '@/components/ui/Stepper';
 import BackingPolicyNote from '@/components/BackingPolicyNote';
 import PayOnVerifiedNote from '@/components/PayOnVerifiedNote';
-import { ALL_PLATFORMS, OTHER_SLUG, platformLabel } from '@/lib/platforms';
+import { ALL_PLATFORMS, OTHER_SLUG, platformLabel, handleLink } from '@/lib/platforms';
 import { useDebouncedSearch } from '@/lib/search/useDebouncedSearch';
 import { moveActiveIndex } from '@/lib/search/navigation';
 
@@ -97,13 +97,34 @@ function looksLikeUrl(s: string) {
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function TargetingCard({ target }: { target: TargetSelection }) {
+  const handle = formatPlatformHandle(target.platform, target.username);
+  const { href, external } = handleLink(target.platform, target.username);
+  // Links open in a new tab so clicking through to verify the target never
+  // discards the half-filled bounty form. A verified creator (kind 'user')
+  // has an Artypot profile the name can point at; unverified / not-yet-created
+  // targets only expose the platform handle.
+  const nameHref = target.kind === 'user' ? `/users/${target.userId}` : null;
+  const linkCls = 'hover:underline underline-offset-2';
+  const rel = external ? 'noopener noreferrer nofollow' : 'noopener noreferrer';
+
   return (
     <div className="flex items-center gap-3 p-3 bg-surface-2 rounded-lg border border-border">
       <AvatarOrUnknown avatarUrl={target.avatarUrl ?? null} size="md" />
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-medium text-foreground truncate">{target.displayName || formatPlatformHandle(target.platform, target.username)}</div>
-        <div className="text-xs text-muted font-mono">
-          {PLATFORM_LABELS[target.platform]} · {formatPlatformHandle(target.platform, target.username)}
+        <div className="text-sm font-medium text-foreground truncate">
+          {target.displayName ? (
+            nameHref ? (
+              <a href={nameHref} target="_blank" rel="noopener noreferrer" className={linkCls}>{target.displayName}</a>
+            ) : (
+              target.displayName
+            )
+          ) : (
+            <a href={href} target="_blank" rel={rel} className={linkCls}>{handle}</a>
+          )}
+        </div>
+        <div className="text-xs text-muted font-mono truncate">
+          {PLATFORM_LABELS[target.platform]} ·{' '}
+          <a href={href} target="_blank" rel={rel} className={linkCls}>{handle}</a>
         </div>
       </div>
       {target.kind === 'user' ? (

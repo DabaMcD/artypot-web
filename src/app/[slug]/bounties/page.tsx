@@ -168,7 +168,7 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
 
       {/* List */}
       {listLoading ? (
-        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
             <div key={i} className="h-40 bg-surface animate-pulse rounded-xl" />
           ))}
@@ -178,7 +178,7 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
           {emptyMessage}
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {bounties.map((bounty) => (
             <BountyCard key={bounty.id} bounty={bounty} />
           ))}

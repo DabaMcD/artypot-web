@@ -190,6 +190,42 @@ body {
   border-color: var(--color-role);
 }
 
+/* ── Cursor-spotlight card accents ───────────────────────────────────────────
+   The card root tracks the pointer via onMouseMove (lib/spotlight.ts), writing
+   --spot-x/--spot-y in card-local pixels. These overlays paint a radial glow
+   at that point: -ring is masked down to a 1px line hugging the card's rounded
+   border (the mask punches out the content box), -glow is a faint interior
+   wash. Both default to top-center so the first hover frame matches the old
+   static hairline; visibility (opacity on group-hover) is handled by Tailwind
+   classes on the spans, so touch devices simply never see them. The accent
+   color comes from --spot-color, set inline per card (fan vs creator). */
+.ap-spot-ring,
+.ap-spot-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.ap-spot-ring {
+  padding: 1px;
+  background: radial-gradient(
+    200px circle at var(--spot-x, 50%) var(--spot-y, 0px),
+    var(--spot-color, var(--color-fan)),
+    transparent 70%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+.ap-spot-glow {
+  background: radial-gradient(
+    260px circle at var(--spot-x, 50%) var(--spot-y, 0px),
+    color-mix(in srgb, var(--spot-color, var(--color-fan)) 8%, transparent),
+    transparent 70%
+  );
+}
+
 /* ── react-phone-number-input dark theme ────────────────────────────────── */
 /* Scoped to .artypot-phone-input so we don't bleed into any other use      */
 .artypot-phone-input .PhoneInput {
