@@ -101,12 +101,12 @@ export default function ShareButton({
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
-  const getUrl = () => {
+  const getUrl = useCallback(() => {
     if (typeof window !== 'undefined') {
       return `${window.location.origin}${path}`;
     }
     return `https://artypot.com${path}`;
-  };
+  }, [path]);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -125,7 +125,7 @@ export default function ShareButton({
       setTimeout(() => setCopied(false), 2000);
     }
     setOpen(false);
-  }, [path]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [getUrl]);
 
   const handlePlatform = (platform: 'twitter' | 'facebook' | 'whatsapp' | 'email') => {
     const url = getUrl();
@@ -150,10 +150,9 @@ export default function ShareButton({
     setOpen(false);
   };
 
-  const sizeClasses =
-    size === 'sm'
-      ? 'text-xs px-2.5 py-1.5 gap-1'
-      : 'text-sm px-3.5 py-2 gap-1.5';
+  // A quiet round ghost button: no border box, so it reads as a secondary
+  // action next to badges and titles instead of competing with them.
+  const sizeClasses = size === 'sm' ? 'w-7 h-7' : 'w-9 h-9';
 
   return (
     <div ref={ref} className="relative">
@@ -161,12 +160,13 @@ export default function ShareButton({
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-label={label}
-        className={`inline-flex items-center justify-center rounded-lg border transition-colors ${sizeClasses} ${
+        title={label}
+        className={`inline-flex items-center justify-center rounded-full transition-colors cursor-pointer ${sizeClasses} ${
           copied
-            ? 'border-good/50 text-good bg-good/10'
+            ? 'text-good bg-good/10'
             : open
-              ? 'border-foreground/30 text-foreground bg-white/5'
-              : 'border-border text-muted hover:text-foreground hover:border-foreground/30'
+              ? 'text-foreground bg-white/10'
+              : 'text-muted/60 hover:text-foreground hover:bg-white/10'
         }`}
       >
         {copied ? (

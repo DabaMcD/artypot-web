@@ -22,6 +22,7 @@ import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { toExternalUrl, urlHost, submissionLinkLabel } from '@/lib/url';
 import { useAuth } from '@/lib/auth-context';
 import { useDefaultUpdatePrompt } from '@/lib/default-update-prompt-context';
+import { requestNudgeRefresh } from '@/lib/nudge-context';
 import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import { useViewMode } from '@/lib/view-mode-context';
 import type { Bounty, BountyHistoryEvent } from '@/lib/types';
@@ -260,6 +261,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       const res = await bountiesApi.backing(Number(id), amount, expiresAt, expVal, expirySingular);
       // Server-computed "update your default" prompt, if any.
       dispatchPrompt(res.default_update_prompts);
+      // Backing changes can affect nudge state (e.g. nearing the good-faith
+      // cap surfaces add_payment_method), so the bar re-fetches right away.
+      requestNudgeRefresh();
       toast(isUpdate ? 'Updated!' : `You're in for $${amount.toFixed(2)}!`, 'success');
       // Leave the amount field as-is; the seed effect re-syncs it to the
       // fan's now-current backing once the refreshed bounty lands.

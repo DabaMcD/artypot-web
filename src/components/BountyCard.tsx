@@ -7,6 +7,7 @@ import { formatPlatformHandle } from '@/lib/platforms';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { bounties as bountiesApi } from '@/lib/api';
+import { requestNudgeRefresh } from '@/lib/nudge-context';
 import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import { AvatarOrUnknown } from './ui/AvatarOrUnknown';
 import { BountyStatusBadge } from './BountyStatusBadge';
@@ -22,27 +23,6 @@ function computeExpiresAt(value: number, unit: string): string {
   else if (unit === 'week') d.setDate(d.getDate() + value * 7);
   else d.setDate(d.getDate() + value);
   return d.toISOString();
-}
-
-/**
- * Renders an identity string that may wrap. If it contains a "/", the preferred
- * wrap point is right after the *first* slash so platform-qualified handles
- * break cleanly onto two lines (e.g. "youtube/" + "@mrbeast", or
- * "wikipedia.org/" + "wiki/Brad_Pitt") instead of mid-word. `break-words` is the
- * fallback for any single segment that's still too wide for the card.
- */
-function WrappableName({ text, className = '' }: { text: string; className?: string }) {
-  const slash = text.indexOf('/');
-  if (slash === -1) {
-    return <span className={`break-words ${className}`}>{text}</span>;
-  }
-  return (
-    <span className={`break-words ${className}`}>
-      {text.slice(0, slash + 1)}
-      <wbr />
-      {text.slice(slash + 1)}
-    </span>
-  );
 }
 
 export default function BountyCard({ bounty }: { bounty: Bounty }) {
@@ -74,6 +54,14 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
 
   const fanSingular = bounty.owner_user?.fan_name || 'supporter';
   const fanPlural   = bounty.owner_user?.fan_name_plural || bounty.owner_user?.fan_name || 'supporters';
+
+  // Platform-qualified handle string for owner-less bounties ("youtube/@mrbeast",
+  // or the bare URL for 'other'). Rendered on one truncating line.
+  const handleText = bounty.target_handle
+    ? bounty.target_handle.platform === 'other'
+      ? formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)
+      : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`
+    : null;
 
   const activeBackings = bounty.backings?.filter((v) => !v.revoked_at) ?? null;
   // The fan's own active backing on this bounty. List endpoints append it as
@@ -126,6 +114,9 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
       setLiveTotal(Number(res.bounty.total_backed));
       setLiveUserBacking(Number(res.data.amount));
       toast(`You're in for $${defaultAmount.toFixed(2)}!`, 'success');
+      // A new backing can change nudge state (e.g. approaching the good-faith
+      // cap surfaces add_payment_method), so re-fetch the bar right away.
+      requestNudgeRefresh();
     } catch (err: unknown) {
       const e = err as { message?: string; status?: number; reason?: string };
       if (e.status === 422 && e.reason === 'backing_cap_exceeded') {
@@ -172,10 +163,12 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
       )}
 
       <div className="mt-auto pt-3 border-t border-border/70">
-        {/* Target identity — spans the full card width and is free to wrap onto
-            multiple lines, pushing the amount below it down as needed. */}
+        {/* Target identity — one compact row that never wraps. Long handles and
+            URLs truncate with an ellipsis; the full value lives in the title
+            tooltip. The fan-supplied display name (unverified handles only)
+            rides inline in parens and gives way first when space runs out. */}
         {(bounty.avatar_url !== undefined || bounty.owner_user) && (
-          <div className="flex items-start gap-2.5 mb-3">
+          <div className="flex items-center gap-2 mb-3 min-w-0">
             {bounty.owner_user ? (
               // Registered creator: real picture if they have one, otherwise their
               // initial on the creator-colored chip. The "?" placeholder is only
@@ -185,44 +178,43 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
                 <img
                   src={bounty.owner_user.profile_picture}
                   alt=""
-                  className="w-7 h-7 rounded-full object-cover shrink-0 ring-1 ring-creator/40"
+                  className="w-6 h-6 rounded-full object-cover shrink-0 ring-1 ring-creator/40"
                 />
               ) : (
                 <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ring-1 ring-creator/40"
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ring-1 ring-creator/40"
                   style={{ background: 'var(--color-creator)', color: 'var(--color-brand-dark)' }}
                 >
                   {bounty.owner_user.display_name?.charAt(0).toUpperCase() ?? '?'}
                 </div>
               )
             ) : (
-              <AvatarOrUnknown avatarUrl={bounty.avatar_url ?? null} size="sm" />
+              <AvatarOrUnknown avatarUrl={bounty.avatar_url ?? null} size="xs" />
             )}
-            <div className="min-w-0 flex-1">
-              <div className="font-mono text-[9px] uppercase tracking-widest text-muted/70 leading-none mb-1">for</div>
+            <div className="flex items-baseline gap-1.5 min-w-0 flex-1">
+              <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 shrink-0">for</span>
               {bounty.owner_user ? (
-                <div className="text-sm text-creator font-medium break-words">
+                <span className="text-sm text-creator font-medium truncate" title={bounty.owner_user.display_name}>
                   {bounty.owner_user.display_name}
-                </div>
-              ) : bounty.target_handle ? (
+                </span>
+              ) : handleText ? (
                 // No verified account owner — the platform-qualified handle is
                 // the only trustworthy identity, so it leads. A fan-supplied
                 // display_name is secondary and can't masquerade as someone else.
                 <>
-                  <WrappableName
-                    text={bounty.target_handle.platform === 'other'
-                      ? formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)
-                      : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`}
-                    className="block font-mono text-sm text-creator font-medium"
-                  />
+                  <span className="font-mono text-[13px] text-creator font-medium truncate min-w-0" title={handleText}>
+                    {handleText}
+                  </span>
                   {bounty.display_name && (
-                    <div className="text-[11px] text-muted truncate">({bounty.display_name})</div>
+                    <span className="text-[11px] text-muted truncate min-w-0 shrink-[4]" title={bounty.display_name}>
+                      ({bounty.display_name})
+                    </span>
                   )}
                 </>
               ) : (
-                <div className="text-sm text-creator font-medium break-words">
+                <span className="text-sm text-creator font-medium truncate" title={bounty.display_name ?? undefined}>
                   {bounty.display_name}
-                </div>
+                </span>
               )}
             </div>
           </div>

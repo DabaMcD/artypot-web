@@ -24,6 +24,18 @@ const NudgeContext = createContext<NudgeContextValue | null>(null);
 const VISIBLE_POLL_INTERVAL = 5 * 60 * 1000; // safety net while visible
 const REFOCUS_MIN_GAP = 10 * 1000;           // throttle for bursty focus events
 
+// In-app actions can resolve or spawn a nudge instantly (creating a bounty or
+// a backing affects the good-faith cap / add-payment-method nudge). Those call
+// sites fire this window event rather than the context's refresh() directly,
+// because some of them (BountyCard's quick-back) also render on public pages
+// outside <NudgeProvider>. The event is a no-op when no provider is mounted.
+const NUDGE_REFRESH_EVENT = 'artypot:nudge-refresh';
+
+/** Ask the mounted NudgeProvider (if any) to re-fetch the nudge bar now. */
+export function requestNudgeRefresh(): void {
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(NUDGE_REFRESH_EVENT));
+}
+
 export function NudgeProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [nudge, setNudge] = useState<Nudge | null>(null);
@@ -73,10 +85,14 @@ export function NudgeProvider({ children }: { children: ReactNode }) {
 
     window.addEventListener('focus', onRefocus);
     document.addEventListener('visibilitychange', onVisibilityChange);
+    // Explicit refresh requests (bounty/backing just created) bypass the
+    // refocus throttle — the caller knows server state changed.
+    window.addEventListener(NUDGE_REFRESH_EVENT, refreshNow);
     return () => {
       clearInterval(interval);
       window.removeEventListener('focus', onRefocus);
       document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.removeEventListener(NUDGE_REFRESH_EVENT, refreshNow);
     };
   }, [user, refresh]);
 

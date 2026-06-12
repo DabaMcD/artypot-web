@@ -7,6 +7,7 @@ import { handles as handlesApi, bounties as bountiesApi, creators as creatorsApi
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { useDefaultUpdatePrompt } from '@/lib/default-update-prompt-context';
+import { requestNudgeRefresh } from '@/lib/nudge-context';
 import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import type { HandleSearchResult, HandlePlatform } from '@/lib/types';
 import { AvatarOrUnknown } from '@/components/ui/AvatarOrUnknown';
@@ -862,6 +863,9 @@ function NewBountyForm() {
       // Surface any "update your default" prompt server-side computed from
       // the initial backing values. The banner takes over from here.
       dispatchPrompt(res.default_update_prompts);
+      // The bounty's initial backing counts toward the good-faith cap, so the
+      // nudge bar may need to change (add_payment_method) — re-fetch it now.
+      requestNudgeRefresh();
       toast('Bounty created!', 'success');
       setTimeout(() => router.push(`/bounties/${res.data.id}`), 700);
     } catch (err: unknown) {
