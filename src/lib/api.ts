@@ -30,6 +30,8 @@ import type {
   AdminBountyCompletion,
   HandleVerificationApplicationRow,
   HandleVerificationApplicationStatus,
+  UnclaimedHandlePot,
+  BountyReportRow,
   ExternalPayout,
   CreatorSearchResult,
   CreatorEarning,
@@ -381,6 +383,13 @@ export const bounties = {
   },
 
   get: (id: number) => request<{ data: Bounty }>(`/bounties/${id}`),
+
+  /** Submit a Content Policy report. One per user per bounty (resubmit = update). */
+  report: (id: number, reason: string, details?: string) =>
+    request<{ message: string; data: { id: number; status: string } }>(`/bounties/${id}/reports`, {
+      method: 'POST',
+      body: JSON.stringify({ reason, details: details || undefined }),
+    }),
 
   create: (data: {
     title: string;
@@ -942,6 +951,26 @@ export const admin = {
       `/admin/handles/history${qs ? `?${qs}` : ''}`
     );
   },
+
+  /** Founder-outreach worklist: top unclaimed handles ranked by waiting pot. */
+  listUnclaimedPots: (limit = 50) =>
+    request<{ data: UnclaimedHandlePot[] }>(`/admin/handles/unclaimed-pots?limit=${limit}`),
+
+  /** Content Policy report queue. */
+  listReports: (params: { status?: string; page?: number } = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params)
+        .filter(([, v]) => v != null && v !== '')
+        .map(([k, v]) => [k, String(v)]) as [string, string][]
+    ).toString();
+    return request<PaginatedResponse<BountyReportRow>>(`/admin/reports${qs ? `?${qs}` : ''}`);
+  },
+
+  resolveReport: (reportId: number, status: 'reviewed' | 'actioned' | 'dismissed', reviewNotes?: string) =>
+    request<{ data: BountyReportRow }>(`/admin/reports/${reportId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status, review_notes: reviewNotes || undefined }),
+    }),
 
   approveHandle: (handleId: number, decisionNotes?: string) =>
     request<{ data: unknown }>(`/admin/handles/${handleId}/approve`, {

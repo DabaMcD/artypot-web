@@ -18,6 +18,7 @@ import { PlatformHandleInput, formatPlatformHandle } from '@/components/ui/Platf
 import { Banner } from '@/components/ui/Banner';
 import { Stepper } from '@/components/ui/Stepper';
 import BackingPolicyNote from '@/components/BackingPolicyNote';
+import PayOnVerifiedNote from '@/components/PayOnVerifiedNote';
 import { ALL_PLATFORMS, OTHER_SLUG, platformLabel } from '@/lib/platforms';
 import { useDebouncedSearch } from '@/lib/search/useDebouncedSearch';
 import { moveActiveIndex } from '@/lib/search/navigation';
@@ -559,7 +560,8 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
               className="pl-7"
             />
           </div>
-          <FieldHint>Minimum $1. You are only charged if council confirms the bounty is completed.</FieldHint>
+          <FieldHint>Minimum $1.</FieldHint>
+          <PayOnVerifiedNote className="mt-2" />
 
           <div className="mt-4 pt-4 border-t border-border">
             <button

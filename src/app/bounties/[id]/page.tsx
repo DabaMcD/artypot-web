@@ -28,6 +28,7 @@ import type { Bounty, BountyHistoryEvent } from '@/lib/types';
 import { handleLink, formatPlatformHandle } from '@/lib/platforms';
 import ShareButton from '@/components/ShareButton';
 import BackingPolicyNote from '@/components/BackingPolicyNote';
+import PayOnVerifiedNote from '@/components/PayOnVerifiedNote';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
 import CommentSection from '@/components/CommentSection';
 import { BOUNTY_STATUS_LABELS as STATUS_LABELS, BOUNTY_STATUS_TONES as STATUS_TONES } from '@/components/BountyStatusBadge';
@@ -47,6 +48,16 @@ function formatHoverDate(iso: string): string {
     hour:   'numeric',
     minute: '2-digit',
     hour12: true,
+  });
+}
+
+/** Whole-dollar pot formatting for share text ("$1,250"). */
+function formatUsd(amount: number): string {
+  return amount.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   });
 }
 
@@ -94,6 +105,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
 
   // Pending-bounty revoke warning (shown when bounty.status === 'pending')
   const [showPendingRevokeWarning, setShowPendingRevokeWarning] = useState(false);
+
+  // Content Policy report
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState('harassment');
+  const [reportDetails, setReportDetails] = useState('');
+  const [reportSubmitting, setReportSubmitting] = useState(false);
 
   // Edit form
   const [showEditForm, setShowEditForm] = useState(false);
@@ -602,6 +619,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               </div>
             </div>
             {renderExpirePicker()}
+            <PayOnVerifiedNote />
             <Button
               type="submit"
               variant="primary"
@@ -782,8 +800,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <div className="flex items-center gap-2 shrink-0">
             <ShareButton
               path={`/bounties/${bounty.id}`}
-              title={bounty.title}
-              text={`Back "${bounty.title}" on artypot!`}
+              title={`${formatUsd(Number(bounty.total_backed))} bounty: ${bounty.title}`}
+              text={
+                bounty.target_handle?.username
+                  ? `💰 There's a ${formatUsd(Number(bounty.total_backed))} bounty waiting for @${bounty.target_handle.username}: "${bounty.title}" — back it on Artypot!`
+                  : `💰 ${formatUsd(Number(bounty.total_backed))} bounty: "${bounty.title}" — back it on Artypot!`
+              }
               size="sm"
             />
             <Badge tone={STATUS_TONES[bounty.status] ?? 'default'} lg>
@@ -1393,9 +1415,72 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             </div>
 
           </Card>
+
+          {/* Content Policy report — subtle, logged-in non-participants only */}
+          {user && !isOwner && bounty.initiator_user_id !== user.id && bounty.owner_user_id !== user.id && (
+            <div className="mt-3 text-right">
+              <button
+                type="button"
+                onClick={() => setShowReportModal(true)}
+                className="font-mono text-[10px] uppercase tracking-widest text-muted/50 hover:text-bad transition-colors cursor-pointer"
+              >
+                ⚑ Report this bounty
+              </button>
+            </div>
+          )}
         </div>
 
       </div>
+
+      {showReportModal && (
+        <Modal title="Report this bounty" onClose={() => setShowReportModal(false)}>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setReportSubmitting(true);
+              try {
+                await bountiesApi.report(bounty.id, reportReason, reportDetails.trim() || undefined);
+                setShowReportModal(false);
+                setReportDetails('');
+                toast('Report received. The Council will review this bounty.', 'success');
+              } catch (err) {
+                toast(err instanceof Error ? err.message : 'Failed to submit report.', 'error');
+              } finally {
+                setReportSubmitting(false);
+              }
+            }}
+            className="space-y-3"
+          >
+            <p className="text-sm text-muted">
+              Reports go to the Council for review against the{' '}
+              <Link href="/tos#content" className="underline underline-offset-2">Content Policy</Link>.
+              The bounty stays up unless the Council removes it.
+            </p>
+            <Select value={reportReason} onChange={(e) => setReportReason(e.target.value)}>
+              <option value="harassment">Harassment or targeted abuse</option>
+              <option value="illegal">Illegal content or request</option>
+              <option value="adult_content">Adult-content commission</option>
+              <option value="spam">Spam or scam</option>
+              <option value="other">Something else</option>
+            </Select>
+            <Textarea
+              value={reportDetails}
+              onChange={(e) => setReportDetails(e.target.value)}
+              placeholder="Anything the Council should know (optional)"
+              rows={3}
+              maxLength={2000}
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" type="button" onClick={() => setShowReportModal(false)}>
+                Cancel
+              </Button>
+              <Button variant="danger" type="submit" disabled={reportSubmitting}>
+                {reportSubmitting ? 'Submitting…' : 'Submit Report'}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 }

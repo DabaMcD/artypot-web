@@ -8,9 +8,18 @@ function fmtMoney(n: number): string {
 
 export default function CreatorCard({ creator }: { creator: Creator }) {
   const hasStats =
+    creator.supporter_count != null ||
     creator.projects_finished != null ||
     creator.projects_open != null ||
     creator.total_backing_sum != null;
+
+  // Label the supporter stat with the creator's own fan-name when they've set
+  // one ("12 parrotheads" beats "12 backers"); the stat cell truncates names
+  // too long for the column, with the full term in the title tooltip.
+  const supporterLabel =
+    creator.supporter_count === 1
+      ? creator.fan_name || 'backer'
+      : creator.fan_name_plural || creator.fan_name || 'backers';
 
   return (
     <div className="relative flex flex-col h-full bg-surface border border-border rounded-xl p-5 transition-[transform,border-color,box-shadow] duration-150 hover:border-creator/60 hover:-translate-y-0.5 hover:shadow-soft group overflow-hidden">
@@ -70,14 +79,10 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
       )}
 
       {hasStats && (
-        <div className="mt-auto grid grid-cols-3 gap-2 pt-3 border-t border-border/70">
+        <div className="mt-auto grid grid-cols-4 gap-2 pt-3 border-t border-border/70">
           <CardStat
-            value={creator.projects_open != null ? String(creator.projects_open) : '—'}
-            label="open"
-          />
-          <CardStat
-            value={creator.projects_finished != null ? String(creator.projects_finished) : '—'}
-            label="completed"
+            value={creator.supporter_count != null ? String(creator.supporter_count) : '—'}
+            label={supporterLabel}
           />
           <CardStat
             value={
@@ -87,6 +92,14 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
             }
             label="backed"
             accent
+          />
+          <CardStat
+            value={creator.projects_open != null ? String(creator.projects_open) : '—'}
+            label="open"
+          />
+          <CardStat
+            value={creator.projects_finished != null ? String(creator.projects_finished) : '—'}
+            label="completed"
           />
         </div>
       )}
@@ -100,7 +113,7 @@ function CardStat({ value, label, accent = false }: { value: string; label: stri
       <div className={`font-mono font-bold text-sm truncate ${accent && value !== '—' ? 'text-fan' : 'text-foreground'}`}>
         {value}
       </div>
-      <div className="font-mono text-[9px] uppercase tracking-widest text-muted/70">{label}</div>
+      <div className="font-mono text-[9px] uppercase tracking-widest text-muted/70 truncate" title={label}>{label}</div>
     </div>
   );
 }

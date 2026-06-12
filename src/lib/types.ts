@@ -1064,8 +1064,10 @@ export const NOTIFICATION_DEFAULTS: NotificationSettings = {
   bounty_confirmed: false,     sms_bounty_confirmed: false,     in_app_bounty_confirmed: false,
   backing_confirmed: false,    sms_backing_confirmed: false,
   backing_expired: false,      sms_backing_expired: false,      in_app_backing_expired: false,
-  billing_preview: false,      sms_billing_preview: false,
-  billing_receipt: true,       sms_billing_receipt: false,      in_app_billing_receipt: true,
+  // billing_preview email defaults ON — the fan's only advance notice of the
+  // monthly charge (bell is mandatory-OFF, SMS disabled platform-wide).
+  billing_preview: true,       sms_billing_preview: false,
+  billing_receipt: true,       sms_billing_receipt: true,       in_app_billing_receipt: true,
   bounty_activity: false,         sms_bounty_activity: false,         in_app_bounty_activity: true,
   creator_activity: false,        sms_creator_activity: false,        in_app_creator_activity: true,
   comment_reply: false,           sms_comment_reply: false,           in_app_comment_reply: true,
@@ -1551,4 +1553,34 @@ export interface AdminCreatorDetail extends AdminCreator {
     created_at: string;
     completed_at: string | null;
   }>;
+}
+
+/** Admin: an unclaimed handle ranked by the pot waiting for its creator. */
+export interface UnclaimedHandlePot {
+  id: number;
+  platform: string;
+  username: string;
+  open_bounty_count: number;
+  pot_total: number;
+}
+
+/** Admin: a Content Policy report queue row. */
+export interface BountyReportRow {
+  id: number;
+  bounty_id: number;
+  reason: 'harassment' | 'illegal' | 'adult_content' | 'spam' | 'other';
+  details: string | null;
+  status: 'pending' | 'reviewed' | 'actioned' | 'dismissed';
+  review_notes: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  bounty?: {
+    id: number;
+    title: string;
+    status: string;
+    total_backed: number;
+    target_handle?: { id: number; platform: string; username: string } | null;
+  };
+  reporter?: { id: number; display_name: string; email: string };
+  reviewed_by?: { id: number; display_name: string } | null;
 }
