@@ -33,13 +33,13 @@ const TAGLINES: { text: string; pill: string; dot: string }[] = [
   },
   {
     text: 'Like Change.org, but with accurate financial incentives.',
-    pill: 'bg-creator/10 border-creator/30 text-creator',
-    dot: 'bg-creator',
+    pill: 'bg-fan/10 border-fan/30 text-fan',
+    dot: 'bg-fan',
   },
   {
     text: 'Artypot is a communication device. A demand coordinator.',
-    pill: 'bg-council/10 border-council/30 text-council',
-    dot: 'bg-council',
+    pill: 'bg-creator/10 border-creator/30 text-creator',
+    dot: 'bg-creator',
   },
 ];
 
@@ -159,10 +159,10 @@ export default function AboutPage() {
               </div>
 
               <h1 className="font-display font-bold text-5xl sm:text-6xl tracking-tight text-foreground leading-[1.1] mb-6">
-                A comment saying &apos;please&apos; is easy to scroll past.
+                Money talks louder
                 <br />
                 <span className="text-fan">
-                  <span className="ap-sketch-u" style={fanRole}>$10,000?</span> Not so much.
+                  when it&apos;s <span className="ap-sketch-u" style={fanRole}>still in your pocket.</span>
                 </span>
               </h1>
 
@@ -278,7 +278,7 @@ export default function AboutPage() {
             <p className={`${microLabel} mb-3`}>follow the money</p>
             <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-4">The technical part</h2>
             <p className="text-muted leading-relaxed">
-              I know how crowdfunding usually goes. You pay, you wait, you get a link to a
+              We know how crowdfunding usually goes. You pay, you wait, you get a link to a
               Discord. Here, your card isn&apos;t charged until the work is DONE. The Council
               verifies completion before any money moves.
             </p>

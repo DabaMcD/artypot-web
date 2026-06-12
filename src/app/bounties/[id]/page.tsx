@@ -989,18 +989,38 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             </div>
           )}
           {bounty.initiator && (
-            <div>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mr-1.5">started by</span>
-              {bounty.initiator.id === 0 ? (
-                <span className="text-foreground font-medium">{bounty.initiator.display_name}</span>
+            <div className="flex items-center gap-2">
+              {/* Initiator face — same treatment as the creator block above,
+                  fan-toned. Anonymous initiators (id 0) get the same "?" chip
+                  as anonymous backers in the list below. */}
+              {bounty.initiator.id !== 0 && bounty.initiator.profile_picture ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={normalizeAvatarUrl(bounty.initiator.profile_picture)!}
+                  alt=""
+                  className="w-7 h-7 rounded-full object-cover shrink-0 ring-1 ring-fan/40"
+                />
               ) : (
-                <Link
-                  href={`/users/${bounty.initiator.id}`}
-                  className="text-foreground font-medium hover:underline cursor-pointer"
+                <div
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ring-1 ring-fan/40"
+                  style={{ background: 'var(--color-fan)', color: 'var(--color-brand-dark)' }}
                 >
-                  {bounty.initiator.display_name}
-                </Link>
+                  {bounty.initiator.id === 0 ? '?' : (bounty.initiator.display_name?.charAt(0).toUpperCase() ?? '?')}
+                </div>
               )}
+              <div>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mr-1.5">started by</span>
+                {bounty.initiator.id === 0 ? (
+                  <span className="text-foreground font-medium">{bounty.initiator.display_name}</span>
+                ) : (
+                  <Link
+                    href={`/users/${bounty.initiator.id}`}
+                    className="text-foreground font-medium hover:underline cursor-pointer"
+                  >
+                    {bounty.initiator.display_name}
+                  </Link>
+                )}
+              </div>
             </div>
           )}
         </div>
