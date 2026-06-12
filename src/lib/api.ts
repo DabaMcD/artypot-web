@@ -446,10 +446,14 @@ export const bounties = {
   refundPreview: (bountyId: number) =>
     request<{ data: import('./types').BountyRefundPreview }>(`/bounties/${bountyId}/refund-preview`),
 
-  /** Creator-only: refund every backer. Gated on balance ≥ gross clawback. */
-  refundAll: (bountyId: number) =>
+  /**
+   * Creator-only: refund every backer. Gated on balance ≥ gross clawback.
+   * `reason` is required and shown publicly to every refunded backer.
+   */
+  refundAll: (bountyId: number, reason: string) =>
     request<{ data: import('./types').BountyRefundResult }>(`/bounties/${bountyId}/refund-all`, {
       method: 'POST',
+      body: JSON.stringify({ reason }),
     }),
 };
 
@@ -1029,10 +1033,11 @@ export const admin = {
         `/admin/fan-payments/${fanPaymentId}/backings`
       ),
 
-    refundBacking: (backingId: number, notes?: string) =>
+    /** `reason` is required and shown publicly to the fan and creator. */
+    refundBacking: (backingId: number, reason: string, notes?: string) =>
       request<{ data: import('./types').AdminRefund }>(`/admin/backings/${backingId}/refund`, {
         method: 'POST',
-        body: JSON.stringify(notes ? { notes } : {}),
+        body: JSON.stringify({ reason, ...(notes ? { notes } : {}) }),
       }),
   },
 

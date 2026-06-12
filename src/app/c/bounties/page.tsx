@@ -74,6 +74,7 @@ function moneyFmt(n: number): string {
 function RefundAllModal({ bounty, onClose }: { bounty: Bounty; onClose: () => void }) {
   const { toast } = useToast();
   const [preview, setPreview] = useState<BountyRefundPreview | null>(null);
+  const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -87,9 +88,10 @@ function RefundAllModal({ bounty, onClose }: { bounty: Bounty; onClose: () => vo
   }, [bounty.id, toast]);
 
   const execute = async () => {
+    if (!reason.trim()) return;
     setSubmitting(true);
     try {
-      const res = await bountiesApi.refundAll(bounty.id);
+      const res = await bountiesApi.refundAll(bounty.id, reason.trim());
       const { refunded, revoked, failed } = res.data;
       const parts = [
         refunded > 0 ? `${refunded} backer${refunded === 1 ? '' : 's'} refunded` : null,
@@ -170,12 +172,24 @@ function RefundAllModal({ bounty, onClose }: { bounty: Bounty; onClose: () => vo
 
           {preview.sufficient ? (
             <>
-              <p className="font-mono text-[10px] text-muted/70 uppercase tracking-widest">
-                this can&apos;t be undone
+              <div>
+                <FieldLabel>Reason (shown to your backers) *</FieldLabel>
+                <Textarea
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  rows={2}
+                  placeholder="e.g. I'm no longer able to complete this work"
+                />
+                <FieldHint>Required. Sent to every backer with their refund, and to the Artypot team.</FieldHint>
+              </div>
+
+              <p className="font-mono text-[10px] text-muted/70 leading-relaxed">
+                Your backers keep their money — issuing the refund just can&apos;t be reversed from
+                here. You&apos;d have to set the bounty up again to collect from them.
               </p>
               <div className="flex justify-end gap-2">
                 <Button variant="ghost" size="sm" onClick={onClose} disabled={submitting}>Cancel</Button>
-                <Button variant="danger" size="sm" onClick={execute} disabled={submitting}>
+                <Button variant="danger" size="sm" onClick={execute} disabled={submitting || !reason.trim()}>
                   {submitting ? 'Refunding…' : `Refund ${moneyFmt(preview.total_refund)}`}
                 </Button>
               </div>

@@ -898,6 +898,9 @@ export interface AdminRefund {
   creator_clawback: number;
   status: 'succeeded' | 'pending' | 'failed';
   failure_reason: string | null;
+  /** Publicly-visible reason shown to the fan and creator. */
+  reason: string | null;
+  /** Internal admin-only note. */
   notes: string | null;
   created_at: string;
 }

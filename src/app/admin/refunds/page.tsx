@@ -45,13 +45,15 @@ function RefundConfirmModal({
   onDone: () => void;
 }) {
   const { toast } = useToast();
+  const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const submit = async () => {
+    if (!reason.trim()) return;
     setSubmitting(true);
     try {
-      await adminApi.refunds.refundBacking(row.backing_id, notes.trim() || undefined);
+      await adminApi.refunds.refundBacking(row.backing_id, reason.trim(), notes.trim() || undefined);
       toast(`Refunded ${money(row.amount)} to ${row.fan?.display_name ?? 'fan'}.`, 'success');
       onDone();
     } catch (err: unknown) {
@@ -86,19 +88,35 @@ function RefundConfirmModal({
         </p>
 
         <div>
-          <FieldLabel>Notes (internal)</FieldLabel>
+          <FieldLabel>Reason (shown to the fan and creator) *</FieldLabel>
+          <Textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            rows={2}
+            placeholder="e.g. Creator could not deliver the work"
+          />
+          <FieldHint>Required. Included in the refund notifications sent to the fan and creator.</FieldHint>
+        </div>
+
+        <div>
+          <FieldLabel>Internal notes (optional)</FieldLabel>
           <Textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            placeholder="Why is this being refunded?"
+            placeholder="Context for other admins"
           />
           <FieldHint>Stored on the refund record — not shown to the fan or creator.</FieldHint>
         </div>
 
+        <p className="font-mono text-[10px] text-muted/70 leading-relaxed">
+          The fan keeps the refund either way — this just can&apos;t be reversed from here. To take
+          the money back you&apos;d have to re-bill the fan manually.
+        </p>
+
         <div className="flex justify-end gap-2">
           <Button variant="ghost" size="sm" onClick={onClose} disabled={submitting}>Cancel</Button>
-          <Button variant="danger" size="sm" onClick={submit} disabled={submitting}>
+          <Button variant="danger" size="sm" onClick={submit} disabled={submitting || !reason.trim()}>
             {submitting ? 'Refunding…' : `Refund ${money(row.amount)}`}
           </Button>
         </div>
@@ -297,10 +315,15 @@ function RefundHistory({ refreshKey }: { refreshKey: number }) {
                           ? <Link href={`/admin/users?focus=${r.fan.id}`} className="text-foreground hover:underline">{r.fan.display_name}</Link>
                           : <span className="font-mono text-[11px] text-muted">deleted user</span>}
                       </td>
-                      <td className="py-2.5 pr-3 max-w-[200px]">
+                      <td className="py-2.5 pr-3 max-w-[220px]">
                         {r.bounty
                           ? <Link href={`/bounties/${r.bounty.id}`} className="text-foreground hover:underline line-clamp-1">{r.bounty.title}</Link>
                           : <span className="font-mono text-[11px] text-muted">—</span>}
+                        {r.reason && (
+                          <div className="font-mono text-[10px] text-muted/80 line-clamp-1 mt-0.5" title={r.reason}>
+                            &ldquo;{r.reason}&rdquo;
+                          </div>
+                        )}
                       </td>
                       <td className="py-2.5 pr-3 font-mono text-[12px] tabular-nums">{money(r.amount)}</td>
                       <td className="py-2.5 pr-3">
