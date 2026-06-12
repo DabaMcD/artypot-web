@@ -33,6 +33,7 @@ import PayOnVerifiedNote from '@/components/PayOnVerifiedNote';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
 import CommentSection from '@/components/CommentSection';
 import { BOUNTY_STATUS_LABELS as STATUS_LABELS, BOUNTY_STATUS_TONES as STATUS_TONES } from '@/components/BountyStatusBadge';
+import { AvatarOrUnknown } from '@/components/ui/AvatarOrUnknown';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { InfoDot } from '@/components/ui/InfoDot';
@@ -472,6 +473,21 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const canSubmitCompletion = isCreator && bounty.status === 'open' && !isPayoutBlocked && !creatorMarketClosed;
   const canCreatorRemove = isCreator && bounty.status === 'open';
 
+  // Where the owner's name links: their vanity slug page once creator mode is
+  // on; before that, the handle page (it shows the verified owner's identity)
+  // when the target handle has an internal page; else the bare user profile.
+  // Mirrors BountyCard's ownerHref.
+  const ownerHandleHref = bounty.target_handle
+    ? handleLink(bounty.target_handle.platform, bounty.target_handle.username)
+    : null;
+  const ownerHref = bounty.owner_user
+    ? bounty.owner_user.slug
+      ? `/${bounty.owner_user.slug}`
+      : ownerHandleHref && !ownerHandleHref.external
+        ? ownerHandleHref.href
+        : `/users/${bounty.owner_user.id}`
+    : null;
+
   // ── Backing panel content ────────────────────────────────────────────────────
   const renderBackingPanel = () => {
     if (!canVote && !canRevokeDuringReview) return null;
@@ -892,13 +908,40 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           ) : null
         )}
 
-        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-3 text-sm">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
           {(bounty.owner_user || bounty.target_handle) && (
-            <div>
+            <div className="flex items-center gap-2">
+              {/* Creator face — same trio as BountyCard, one notch larger:
+                  real picture, else initial chip, else the unknown-avatar
+                  placeholder for unclaimed handles (and pre-assignment
+                  snapshots, where the owner attribution didn't exist yet). */}
+              {bounty.owner_user && !viewingPreAssignment ? (
+                bounty.owner_user.profile_picture ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={normalizeAvatarUrl(bounty.owner_user.profile_picture)!}
+                    alt=""
+                    className="w-7 h-7 rounded-full object-cover shrink-0 ring-1 ring-creator/40"
+                  />
+                ) : (
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ring-1 ring-creator/40"
+                    style={{ background: 'var(--color-creator)', color: 'var(--color-brand-dark)' }}
+                  >
+                    {bounty.owner_user.display_name?.charAt(0).toUpperCase() ?? '?'}
+                  </div>
+                )
+              ) : (
+                // avatar_url is the CURRENT owner's photo (backend accessor), so a
+                // pre-assignment snapshot must not show it — the owner attribution
+                // didn't exist at that point in history.
+                <AvatarOrUnknown avatarUrl={viewingPreAssignment ? null : (bounty.avatar_url ?? null)} size="sm" />
+              )}
+              <div>
               <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mr-1.5">for</span>
               {bounty.owner_user && !viewingPreAssignment ? (
                 <Link
-                  href={bounty.owner_user.slug ? `/${bounty.owner_user.slug}` : `/users/${bounty.owner_user.id}`}
+                  href={ownerHref!}
                   className="text-creator hover:underline font-medium cursor-pointer"
                 >
                   {bounty.owner_user.display_name}
@@ -942,6 +985,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   )}
                 </span>
               ) : null}
+              </div>
             </div>
           )}
           {bounty.initiator && (

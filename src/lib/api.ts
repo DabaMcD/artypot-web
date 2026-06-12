@@ -360,12 +360,15 @@ export const creators = {
 
   /**
    * GET /platform/{platform}/{handle}
-   *  - match === 'verified'   → handle is verified by a creator; redirect client to /{user.slug}
+   *  - match === 'verified'   → handle is verified by an enabled creator; redirect client to /{user.slug}
+   *  - match === 'claimed'    → verified claim, but the owner hasn't enabled creator mode yet;
+   *                             the handle page stays their public surface (owner identity included)
    *  - match === 'unverified' → no verified claim; returns bounties for share/recruitment UI
    */
   byPlatformHandle: (platform: string, handle: string) =>
     request<
       | { match: 'verified';   user: { id: number; display_name: string; slug: string; profile_picture: string | null } }
+      | { match: 'claimed';    handle: { id: number | null; platform: string; username: string }; owner: { display_name: string; profile_picture: string | null }; bounties: Array<{ id: number; title: string; status: string; total_backed: string; created_at: string }> }
       | { match: 'unverified'; handle: { id: number | null; platform: string; username: string }; bounties: Array<{ id: number; title: string; status: string; total_backed: string; created_at: string }> }
     >(`/platform/${encodeURIComponent(platform)}/${encodeURIComponent(handle)}`),
 

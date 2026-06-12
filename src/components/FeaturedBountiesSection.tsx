@@ -22,7 +22,7 @@ export default function FeaturedBountiesSection() {
 
   return (
     <section className="border-t border-border">
-      <div className="max-w-6xl mx-auto px-4 py-20">
+      <div className="max-w-6xl mx-auto px-7 py-20">
         <h2 className="text-2xl font-display font-bold text-foreground mb-2">Open right now.</h2>
         <p className="text-muted mb-10">A few bounties worth knowing about.</p>
 

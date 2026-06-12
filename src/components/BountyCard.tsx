@@ -5,6 +5,7 @@ import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import type { Bounty } from '@/lib/types';
 import { formatPlatformHandle, handleLink } from '@/lib/platforms';
+import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { bounties as bountiesApi } from '@/lib/api';
@@ -66,12 +67,16 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
   const handleHref = bounty.target_handle
     ? handleLink(bounty.target_handle.platform, bounty.target_handle.username)
     : null;
-  // A registered creator's own page: their vanity slug if claimed, else the
-  // numeric user page. Mirrors the bounty detail page's link target.
+  // A registered creator's own page: their vanity slug if claimed; before
+  // creator mode is on, the handle page (it shows the verified owner's
+  // identity) when the target handle has an internal page; else the numeric
+  // user page. Mirrors the bounty detail page's link target.
   const ownerHref = bounty.owner_user
     ? bounty.owner_user.slug
       ? `/${bounty.owner_user.slug}`
-      : `/users/${bounty.owner_user.id}`
+      : handleHref && !handleHref.external
+        ? handleHref.href
+        : `/users/${bounty.owner_user.id}`
     : null;
 
   const activeBackings = bounty.backings?.filter((v) => !v.revoked_at) ?? null;
@@ -190,7 +195,7 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
               bounty.owner_user.profile_picture ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={bounty.owner_user.profile_picture}
+                  src={normalizeAvatarUrl(bounty.owner_user.profile_picture)!}
                   alt=""
                   className="w-6 h-6 rounded-full object-cover shrink-0 ring-1 ring-creator/40"
                 />

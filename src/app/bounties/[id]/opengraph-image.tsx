@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og';
+import { normalizeAvatarUrl } from '@/lib/cloudinary';
 
 export const runtime = 'edge';
 export const alt = 'Artypot bounty';
@@ -19,6 +20,7 @@ export default async function OgImage({ params }: { params: Promise<{ id: string
   let title = 'A bounty on Artypot';
   let handle: string | null = null;
   let backerCount = 0;
+  let avatar: ArrayBuffer | null = null;
 
   try {
     const res = await fetch(`${API_BASE}/bounties/${id}`, { next: { revalidate: 300 } });
@@ -37,6 +39,37 @@ export default async function OgImage({ params }: { params: Promise<{ id: string
           ? `@${bounty.target_handle.username}`
           : (bounty.owner_user?.display_name ?? bounty.display_name ?? null);
         backerCount = Array.isArray(bounty.backings) ? bounty.backings.length : 0;
+
+        // Creator face. satori fetches remote <img> URLs itself and THROWS on
+        // failure, which would break this route's never-fail-the-unfurl
+        // guarantee — so fetch the bytes ourselves in an isolated try/catch
+        // and only hand satori the buffer on success. Unclaimed handles have
+        // no avatar; the text-only layout below is the common case.
+        const avatarUrl: string | null =
+          bounty.avatar_url ?? bounty.owner_user?.profile_picture ?? null;
+        if (avatarUrl) {
+          try {
+            const normalized = normalizeAvatarUrl(avatarUrl);
+            if (normalized) {
+              // Two more never-fail guards beyond the try/catch:
+              // 1. satori decodes the buffer at RENDER time (outside any catch)
+              //    and only understands png/jpeg/gif — but f_auto lets
+              //    Cloudinary negotiate webp/avif. Pin the format to jpg for
+              //    this fetch, and verify the content-type before accepting
+              //    the bytes (covers non-Cloudinary legacy/OAuth URLs too).
+              // 2. The avatar is decorative; unfurl bots time out at ~3-10s,
+              //    so a slow third-party host must drop the face, not the card.
+              const ogUrl = normalized.replace(',f_auto', ',f_jpg');
+              const avatarRes = await fetch(ogUrl, { signal: AbortSignal.timeout(2500) });
+              const contentType = avatarRes.headers.get('content-type') ?? '';
+              if (avatarRes.ok && /image\/(png|jpe?g|gif)/i.test(contentType)) {
+                avatar = await avatarRes.arrayBuffer();
+              }
+            }
+          } catch {
+            // No face on the card beats a broken unfurl.
+          }
+        }
       }
     }
   } catch {
@@ -77,9 +110,26 @@ export default async function OgImage({ params }: { params: Promise<{ id: string
             {clampedTitle}
           </div>
           {handle ? (
-            <div style={{ display: 'flex', fontSize: 30, color: '#999' }}>
-              waiting for {handle}
-            </div>
+            avatar ? (
+              // Face + name as one unit. satori accepts an ArrayBuffer as img
+              // src (cast — its types only admit strings).
+              <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                <img
+                  alt=""
+                  src={avatar as unknown as string}
+                  width={104}
+                  height={104}
+                  style={{ borderRadius: '50%', border: '3px solid rgba(52,211,153,0.45)', objectFit: 'cover' }}
+                />
+                <div style={{ display: 'flex', fontSize: 30, color: '#999' }}>
+                  waiting for {handle}
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', fontSize: 30, color: '#999' }}>
+                waiting for {handle}
+              </div>
+            )
           ) : null}
         </div>
 

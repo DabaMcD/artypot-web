@@ -162,14 +162,17 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
           // what caused the slight, content-fits-anyway scroll.
           'lg:sticky lg:top-16 lg:bottom-auto lg:left-auto lg:z-auto',
           'lg:translate-x-0 lg:h-[calc(100vh-4rem)]',
-          // Scroll the whole column only when its content genuinely overflows.
-          // (A nested scroll container on the nav alone left it a few pixels
-          // short of its content, producing a spurious tiny scrollbar.)
-          'overflow-y-auto',
+          // The nav below is the scroll container; clip the aside itself so the
+          // pinned bottom group can never be pushed out of view. (The "spurious
+          // tiny scrollbar" that once motivated whole-column scrolling was
+          // actually the 3rem/4rem height bug above.)
+          'overflow-hidden',
         ].join(' ')}
       >
-      {/* Nav at natural height; the bottom group below is pinned with mt-auto. */}
-      <nav className="py-1">
+      {/* Nav is the only scroll region; min-h-0 lets it shrink below its
+          content (flex items default to min-height:auto), and overscroll-contain
+          stops mobile-drawer scrolling from chaining to the page behind. */}
+      <nav className="py-1 flex-1 min-h-0 overflow-y-auto overscroll-contain">
         {items.map((item, i) =>
           item.sec ? (
             <NavSection key={`s-${i}`} title={item.sec} />
@@ -191,10 +194,9 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
         )}
       </nav>
 
-      {/* Bottom group — pinned to the bottom of the column via mt-auto when the
-          nav doesn't fill the height; scrolls along with everything else when
-          it does. */}
-      <div className="mt-auto">
+      {/* Bottom group — always pinned at the bottom of the column; shrink-0
+          keeps it at natural height while the nav above scrolls. */}
+      <div className="shrink-0">
       {/* Role switcher — only renders when at least 2 roles are available, and only the
           available roles are listed. */}
       {showRoleSwitcher && (
@@ -260,8 +262,10 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
         </div>
       </div>
 
-      {/* Legal links — distributed evenly across the sidebar width */}
-      <div className="px-5 pb-4 flex items-center justify-between">
+      {/* Legal links — distributed evenly across the sidebar width. pb respects
+          the iOS home-indicator safe area: the footer is hard-pinned to the
+          viewport bottom now, so it can't scroll clear of it anymore. */}
+      <div className="px-5 pb-[max(1rem,env(safe-area-inset-bottom))] flex items-center justify-between">
         {([
           { href: '/about',   label: 'About' },
           { href: '/tos',     label: 'Terms' },
