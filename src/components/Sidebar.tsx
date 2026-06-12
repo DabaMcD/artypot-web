@@ -81,33 +81,49 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
     council: () => { router.push('/admin'); },
   };
 
+  // Dashboard sits unlabeled at the top of each nav; the labeled sections
+  // below it group pages by user goal (your bounty activity, finding new
+  // stuff, billing, account) rather than by page type.
   const fanItems: NavItem[] = [
+    { id: 'fan-home',      label: 'Dashboard',       icon: '◐', href: '/dashboard' },
+    { sec: 'bounties' },
+    { id: 'fan-backings',  label: 'My backings',     icon: '◇', href: '/backings' },
+    { id: 'fan-create',    label: 'Start a bounty',  icon: '+', href: '/bounties/new' },
     { sec: 'discover' },
-    { id: 'fan-home',     label: 'Dashboard',   icon: '◐', href: '/dashboard' },
-    { id: 'fan-create',   label: 'Start a bounty',     icon: '+', href: '/bounties/new' },
-    { id: 'fan-search',   label: 'Explore',            icon: '⌕', href: '/search' },
+    { id: 'fan-search',    label: 'Explore',         icon: '⌕', href: '/search' },
+    { id: 'fan-bounties',  label: 'All bounties',    icon: '◫', href: '/bounties' },
     { sec: 'money' },
     { id: 'fan-billing',   label: 'Billing',         icon: '$', href: '/billing' },
-    { id: 'fan-backings',  label: 'My backings',     icon: '◇', href: '/backings' },
     { id: 'fan-payments',  label: 'Payment history', icon: '◷', href: '/history' },
     { sec: 'account' },
-    { id: 'fan-settings', label: 'Settings',           icon: '⚙', href: '/settings' },
-    { id: 'fan-become',   label: 'Become a creator',   icon: '✦', href: '/become-creator' },
+    { id: 'fan-settings',  label: 'Settings',        icon: '⚙', href: '/settings' },
+    // Pitching creator mode to someone who already has it is just noise —
+    // existing creators switch via the role widget below.
+    ...(!canSwitch
+      ? [{ id: 'fan-become', label: 'Become a creator', icon: '✦', href: '/become-creator' }]
+      : []),
   ];
 
+  // The three setup gates (verified handle, creator TOS, bank account) are all
+  // derivable from the /me payload — same signals /c/setup itself renders.
+  // Once every gate is done the Setup item retires from the nav; the page
+  // stays reachable from the dashboard checklist and by URL.
+  const setupComplete = !!user?.has_verified_handle && !!user?.creator?.bank_connected;
+
   const creatorItems: NavItem[] = [
-    { sec: 'overview' },
-    { id: 'creator-dashboard',  label: 'Dashboard',          icon: '◐', href: '/c' },
-    { id: 'creator-onboarding', label: 'Setup',              icon: '◔', href: '/c/setup' },
-    { sec: 'work' },
-    { id: 'creator-bounties',   label: 'Bounties',           icon: '◇', href: '/c/bounties' },
+    { id: 'creator-dashboard',  label: 'Dashboard',        icon: '◐', href: '/c' },
+    ...(!setupComplete
+      ? [{ id: 'creator-onboarding', label: 'Setup', icon: '◔', href: '/c/setup' }]
+      : []),
+    { sec: 'bounties' },
+    { id: 'creator-bounties',   label: 'My bounties',      icon: '◇', href: '/c/bounties' },
     { sec: 'money' },
-    { id: 'creator-payouts',    label: 'Payouts',            icon: '↗', href: '/c/payouts' },
-    { id: 'creator-tax',        label: 'Tax & compliance',   icon: '⚖', href: '/c/tax' },
-    { id: 'creator-money',      label: 'Cash ledger',        icon: '$', href: '/c/money' },
-    { sec: 'admin' },
-    { id: 'creator-handles',    label: 'Handles',            icon: '@', href: '/c/handles' },
-    { id: 'creator-settings',   label: 'Settings',           icon: '⚙', href: '/c/settings' },
+    { id: 'creator-money',      label: 'Cash ledger',      icon: '$', href: '/c/money' },
+    { id: 'creator-payouts',    label: 'Payouts',          icon: '↗', href: '/c/payouts' },
+    { id: 'creator-tax',        label: 'Tax & compliance', icon: '⚖', href: '/c/tax' },
+    { sec: 'account' },
+    { id: 'creator-handles',    label: 'Handles',          icon: '@', href: '/c/handles' },
+    { id: 'creator-settings',   label: 'Settings',         icon: '⚙', href: '/c/settings' },
   ];
 
   const councilItems: NavItem[] = [
@@ -171,8 +187,10 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
       >
       {/* Nav is the only scroll region; min-h-0 lets it shrink below its
           content (flex items default to min-height:auto), and overscroll-contain
-          stops mobile-drawer scrolling from chaining to the page behind. */}
-      <nav className="py-1 flex-1 min-h-0 overflow-y-auto overscroll-contain">
+          stops mobile-drawer scrolling from chaining to the page behind.
+          pt-2.5 gives the unlabeled Dashboard item at the top of the fan and
+          creator navs the gap a section header used to provide. */}
+      <nav className="pt-2.5 pb-1 flex-1 min-h-0 overflow-y-auto overscroll-contain">
         {items.map((item, i) =>
           item.sec ? (
             <NavSection key={`s-${i}`} title={item.sec} />
@@ -184,7 +202,9 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
                 if (!item.href) return false;
                 // Section landing pages (e.g. /c, /admin) must match exactly —
                 // otherwise they'd light up for every sub-route below them.
-                const EXACT_MATCH_ROUTES = new Set(['/c', '/creator', '/admin', '/dashboard']);
+                // /bounties is exact too: its children belong to other items
+                // (/bounties/new is "Start a bounty") or to no item (detail pages).
+                const EXACT_MATCH_ROUTES = new Set(['/c', '/admin', '/dashboard', '/bounties']);
                 if (EXACT_MATCH_ROUTES.has(item.href)) return pathname === item.href;
                 // Sub-routes: active when on the exact page OR a deeper page beneath it.
                 return pathname === item.href || pathname.startsWith(item.href + '/');
@@ -268,6 +288,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
       <div className="px-5 pb-[max(1rem,env(safe-area-inset-bottom))] flex items-center justify-between">
         {([
           { href: '/about',   label: 'About' },
+          { href: '/guide',   label: 'Guide' },
           { href: '/tos',     label: 'Terms' },
           { href: '/privacy', label: 'Privacy' },
           { href: '/support', label: 'Contact' },

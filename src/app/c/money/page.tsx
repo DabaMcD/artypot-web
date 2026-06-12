@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { cash as cashApi } from '@/lib/api';
-import type { CreatorBalance, CashLedgerEntry } from '@/lib/types';
+import type { CreatorBalance, CreatorEarning, CashLedgerEntry } from '@/lib/types';
 import { BILLING_DAY, BILLING_GRACE_PERIOD_DAYS } from '@/lib/config';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { Banner } from '@/components/ui/Banner';
 import { Button } from '@/components/ui/Button';
 import { BalancePipeline } from '@/components/ui/Pipeline';
 
@@ -237,10 +238,18 @@ function MoneyContent() {
   const [loadingMore, setLoadingMore]   = useState(false);
   const [entries, setEntries]           = useState<CashLedgerEntry[]>([]);
   const [filter, setFilter]             = useState<FilterTab>('all');
+  const [earnings, setEarnings]         = useState<CreatorEarning[] | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/login');
   }, [authLoading, user, router]);
+
+  useEffect(() => {
+    cashApi
+      .creatorEarnings()
+      .then((res) => setEarnings(res.data))
+      .catch(() => setEarnings([]));
+  }, []);
 
   const load = useCallback(async (pageNum: number, append = false) => {
     try {
@@ -285,6 +294,12 @@ function MoneyContent() {
   const openBackings         = balance?.open_backings         ?? 0;
   const solidOpenBackings    = balance?.solid_open_backings   ?? openBackings;
 
+  // Payout categories: 2 = manual processing (Wise/PayPal/wire), 3 = payouts
+  // unavailable in the creator's country entirely.
+  const isManualPayout  = user.creator?.payout_category === 2;
+  const isPayoutBlocked = user.creator?.payout_category === 3;
+  const payoutMinimum   = user.creator?.payout_minimum ?? 50;
+
   return (
     <div className="space-y-7 pt-2">
 
@@ -292,7 +307,7 @@ function MoneyContent() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <SectionLabel>creator · money</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">Money</h1>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">Cash ledger</h1>
           <p className="text-sm text-muted mt-1 max-w-[480px]">
             Your balances and every credit and debit on your creator account, newest first.
           </p>
@@ -304,6 +319,19 @@ function MoneyContent() {
           ← overview
         </Link>
       </div>
+
+      {/* ── Restricted-region notice ──────────────────────────────────────── */}
+      {isPayoutBlocked && (
+        <Banner tone="bad">
+          <div>
+            <strong>Payouts unavailable in your region.</strong>{' '}
+            Due to international payment restrictions, we&apos;re unable to process payouts to
+            creators in your country at this time. Your bounty activity is otherwise unaffected.
+            If you believe this is an error,{' '}
+            <a href="mailto:support@artypot.com" className="ap-inline-link">contact support</a>.
+          </div>
+        </Banner>
+      )}
 
       {/* ── Balance pipeline ───────────────────────────────────────────────── */}
       {balanceLoading ? (
@@ -392,6 +420,63 @@ function MoneyContent() {
               </div>
             )}
           </Card>
+
+          {/* ── Per-bounty breakdown ──────────────────────────────────────── */}
+          {earnings && earnings.length > 0 && (
+            <Card className="overflow-hidden !p-0">
+              <div className="px-5 pt-4 pb-3 border-b border-border">
+                <SectionLabel>by project</SectionLabel>
+              </div>
+              <div className="divide-y divide-border">
+                {earnings.map((earning) => {
+                  const earnedPct = earning.total > 0
+                    ? Math.min((earning.earned / earning.total) * 100, 100)
+                    : 0;
+                  return (
+                    <div key={earning.bounty.id} className="px-5 py-4">
+                      <div className="flex items-start justify-between gap-4 mb-2.5">
+                        <Link
+                          href={`/bounties/${earning.bounty.id}`}
+                          className="text-sm font-semibold text-foreground hover:text-creator transition-colors leading-snug"
+                        >
+                          {earning.bounty.title}
+                        </Link>
+                        <span className="font-mono text-[10px] uppercase tracking-widest text-muted shrink-0 pt-0.5">
+                          {earning.bounty.status.replace('_', ' ')}
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-surface-2 rounded-full overflow-hidden mb-2.5">
+                        <div
+                          className="h-full bg-creator rounded-full transition-all"
+                          style={{ width: `${earnedPct}%` }}
+                        />
+                      </div>
+                      <div className="flex items-end justify-between gap-4">
+                        <div>
+                          <span className="font-mono text-lg font-medium tabular-nums text-foreground">
+                            {fmt(earning.earned)}
+                          </span>
+                          <span className="font-mono text-[10px] text-muted ml-2">
+                            of {fmt(earning.total)} potential
+                          </span>
+                        </div>
+                        {earning.incoming > 0 && (
+                          <span className="font-mono text-xs text-warn tabular-nums">
+                            +{fmt(earning.incoming)} incoming
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="border-t border-border px-5 py-3">
+                <p className="font-mono text-[10px] text-muted/50">
+                  incoming amounts are gross fan charges — net credit is lower after stripe + platform fees
+                </p>
+              </div>
+            </Card>
+          )}
         </div>
 
         {/* ── Sidebar (1/3) ─────────────────────────────────────────────── */}
@@ -501,8 +586,18 @@ function MoneyContent() {
                 {BILLING_GRACE_PERIOD_DAYS} days to cover disputes. After that they move to Available.
               </p>
               <p>
-                <span className="text-foreground font-semibold">Payout</span> — you withdraw from
-                the overview page. Stripe hits your bank in 1–3 business days.
+                <span className="text-foreground font-semibold">Payout</span> —{' '}
+                {isManualPayout ? (
+                  <>
+                    your country requires manual payout processing. Payouts are sent via Wise,
+                    PayPal, or wire transfer, with a minimum withdrawal of{' '}
+                    <span className="text-foreground">${payoutMinimum.toLocaleString('en-US')}</span>.
+                  </>
+                ) : (
+                  <>
+                    you withdraw from the overview page. Stripe hits your bank in 1–3 business days.
+                  </>
+                )}
               </p>
             </div>
           </Card>

@@ -52,7 +52,6 @@ const FULL_BLEED_EXACT = new Set([
   '/tos',
   '/creator-tos',
   '/bounties',         // browse index — note /bounties/new is app-padded (below)
-  '/cash',
   '/obelisk',          // /obelisk/* children covered by the prefix below
   '/settings/password',
 ]);
@@ -70,7 +69,7 @@ const APP_PADDED_EXACT = new Set(['/bounties/new']);
 // top-level route folder is added under src/app.
 const RESERVED_TOP_SEGMENTS = new Set([
   'about', 'admin', 'backings', 'become-creator', 'billing', 'bounties', 'c',
-  'cash', 'creator-tos', 'creators', 'dashboard', 'email', 'for-creators',
+  'creator-tos', 'creators', 'dashboard', 'email', 'for-creators',
   'forgot-password', 'guide', 'history', 'login', 'oauth', 'obelisk',
   'privacy', 'register', 'reset-password', 'search', 'settings', 'support',
   'tos', 'users',
