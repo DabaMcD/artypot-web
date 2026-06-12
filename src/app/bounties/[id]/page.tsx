@@ -297,8 +297,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       } else if (e.status === 422 && e.reason === 'market_unavailable') {
         setBackingError(
           <>
-            Backing isn&apos;t available in your country yet. Artypot is currently US-only — we hope
-            to support your country soon.
+            Backing isn&apos;t available in your country yet — we hope to support it soon.
           </>,
         );
       } else {

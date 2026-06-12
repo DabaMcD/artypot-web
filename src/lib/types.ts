@@ -151,8 +151,9 @@ export interface User {
   /** Server-computed: user has at least one council-verified handle. Included in /me response only. */
   has_verified_handle?: boolean;
   /**
-   * Phase 1 US-only gate for fans. False when the user's country isn't a supported
-   * fan market yet — existing backings render soft and activity is paused. Drives
+   * Fan-market gate (admin-managed). False ONLY when the user has DECLARED a
+   * closed-market country — they can still place (soft) backings but can't add
+   * a card / be charged. Undeclared fans are chargeable-pending → true. Drives
    * the FanMarketBanner. Included in /me response only.
    */
   fan_market_open?: boolean;
@@ -398,8 +399,8 @@ export interface Creator {
   /** Minimum withdrawal amount in dollars for this creator's country. Null when blocked (category 3) or location unknown. */
   payout_minimum?: number | null;
   /**
-   * Phase 1 US-only market gate. False when Artypot has not yet launched creator
-   * support in this creator's country. Distinct from `payout_category === 3`
+   * Creator-market gate (admin-managed). False when Artypot has not yet launched
+   * creator support in this creator's country. Distinct from `payout_category === 3`
    * (sanctions): an unsanctioned creator can still be outside an open market.
    * Drives the /c/* full-page takeover (own /me) and the public profile "on hold"
    * notice (public profile payload).
@@ -1583,4 +1584,55 @@ export interface BountyReportRow {
   };
   reporter?: { id: number; display_name: string; email: string };
   reviewed_by?: { id: number; display_name: string } | null;
+}
+
+/** Admin: platform-wide market defaults (the Phase 2 launch switch). */
+export interface MarketPolicyData {
+  fan_default: 'open' | 'closed';
+  creator_default: 'open' | 'closed';
+  updated_at: string;
+}
+
+/** Admin: one country's market overrides + research dossier. */
+export interface MarketCountryRow {
+  country_code: string;
+  /** name_common from the compliance countries table; null when no row exists for the code. */
+  name: string | null;
+  /** Explicit override, or null = follow the platform default. */
+  fan_status: 'open' | 'closed' | null;
+  creator_status: 'open' | 'closed' | null;
+  /** Resolved status (override ?? default). */
+  fan_effective: 'open' | 'closed';
+  creator_effective: 'open' | 'closed';
+  watch_notes: string | null;
+  legal_basis_notes: string | null;
+  activation_notes: string | null;
+  creator_notes: string | null;
+  updated_at: string;
+}
+
+/** Admin: per-country billed volume for VAT registration-threshold monitoring. */
+export interface MarketVolumeRow {
+  /** null = fans who never declared a country (the "Undeclared" bucket). */
+  country_code: string | null;
+  /** Null for the Undeclared bucket and for codes missing from the countries table. */
+  name: string | null;
+  fans_total: number;
+  fans_with_card: number;
+  active_backing_total: number;
+  settled_12mo: number;
+  settled_lifetime: number;
+  fan_effective: 'open' | 'closed' | null;
+}
+
+/** Admin: a fan whose declared country contradicts their card's issuing country. */
+export interface MarketConflictRow {
+  user_id: number;
+  display_name: string;
+  email: string;
+  declared_country: string;
+  card_country: string;
+  declared_fan_open: boolean;
+  card_fan_open: boolean;
+  card_added_at: string;
 }

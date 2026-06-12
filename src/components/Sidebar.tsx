@@ -115,6 +115,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
     { id: 'council-completions',      label: 'Completion review',   icon: '✓', href: '/admin/completions' },
     { id: 'council-handles',          label: 'Handle verification', icon: '@', href: '/admin/handles' },
     { id: 'council-compliance',       label: 'Compliance',          icon: '⚖', href: '/admin/compliance' },
+    { id: 'council-reports',          label: 'Reports',             icon: '⚑', href: '/admin/reports' },
     { sec: 'catalog' },
     { id: 'council-users',            label: 'Users',               icon: '◍', href: '/admin/users' },
     { id: 'council-creators',         label: 'Creators',            icon: '◐', href: '/admin/creators' },
@@ -125,6 +126,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
     { id: 'council-payouts',          label: 'External payouts',    icon: '↗', href: '/admin/external-payouts' },
     { id: 'council-members',          label: 'Council members',     icon: '◇', href: '/admin/council' },
     { id: 'council-tiers',            label: 'Country tiers',       icon: '◉', href: '/admin/tiers' },
+    { id: 'council-markets',          label: 'Markets',             icon: '◎', href: '/admin/markets' },
     { id: 'council-audit',            label: 'Audit log',           icon: '◫', href: '/admin/logs' },
   ];
 

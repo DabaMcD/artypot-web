@@ -57,6 +57,10 @@ import type {
   BillingRunDetail,
   CountryTiersResponse,
   AuditLogResponse,
+  MarketPolicyData,
+  MarketCountryRow,
+  MarketVolumeRow,
+  MarketConflictRow,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -1288,4 +1292,44 @@ export const admin = {
     if (params?.page) qs.set('page', String(params.page));
     return request<PaginatedResponse<ComplianceAuditEntry>>(`/admin/compliance/audit-log?${qs}`);
   },
+
+  // Market availability (Phase 2 launch switch + per-country overrides/dossiers)
+  getMarkets: () =>
+    request<{ data: { policy: MarketPolicyData; countries: MarketCountryRow[] } }>('/admin/markets'),
+
+  updateMarketPolicy: (body: { fan_default?: 'open' | 'closed'; creator_default?: 'open' | 'closed' }) =>
+    request<{ data: MarketPolicyData }>('/admin/markets/policy', {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+
+  /**
+   * `null` status = clear the override and follow the platform default.
+   * NOTE: the write response is the raw row — it lacks the `name` and
+   * `*_effective` fields that index() enriches; refetch getMarkets() for those.
+   */
+  upsertMarketCountry: (code: string, body: {
+    fan_status?: 'open' | 'closed' | null;
+    creator_status?: 'open' | 'closed' | null;
+    watch_notes?: string | null;
+    legal_basis_notes?: string | null;
+    activation_notes?: string | null;
+    creator_notes?: string | null;
+  }) =>
+    request<{ data: Omit<MarketCountryRow, 'name' | 'fan_effective' | 'creator_effective'> }>(
+      `/admin/markets/countries/${code}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      },
+    ),
+
+  deleteMarketCountry: (code: string) =>
+    request<{ message: string }>(`/admin/markets/countries/${code}`, { method: 'DELETE' }),
+
+  marketVolume: () =>
+    request<{ data: MarketVolumeRow[]; generated_at: string }>('/admin/markets/volume'),
+
+  marketConflicts: () =>
+    request<{ data: MarketConflictRow[] }>('/admin/markets/conflicts'),
 };

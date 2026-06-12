@@ -106,11 +106,11 @@ export default function AddCardForm({ onSuccess, onCancel }: AddCardFormProps) {
       .setupIntent()
       .then((res) => setClientSecret(res.data.client_secret))
       .catch((err: { reason?: string; message?: string }) => {
-        // Phase 1 US-only gate: the API blocks adding a card outside open markets.
+        // Market gate: the API blocks adding a card outside open fan markets.
         if (err?.reason === 'market_unavailable') {
           setFetchError(
             err.message
-              ?? "Adding a payment method isn't available in your country yet. Artypot is currently US-only.",
+              ?? "Adding a payment method isn't available in your country yet — we hope to support it soon.",
           );
           return;
         }

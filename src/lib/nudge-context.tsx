@@ -14,12 +14,15 @@ interface NudgeContextValue {
 
 const NudgeContext = createContext<NudgeContextValue | null>(null);
 
-// Poll cadence for nudge-bar updates. A focused tab refreshes briskly so a
-// freshly-resolved nudge (e.g. a verified handle, a settled balance) clears
-// within a minute; a backgrounded tab falls back to the same slow cadence the
-// notification poller uses, to avoid hammering the API for a hidden page.
-const FOCUSED_POLL_INTERVAL = 60 * 1000;        // 60s while the tab is focused
-const BACKGROUND_POLL_INTERVAL = 5 * 60 * 1000; // 5min while the tab is hidden
+// Nudge freshness is driven by *refocus*, not aggressive polling: the typical
+// way a nudge resolves (clicking a verify-email link in a mail client, fixing
+// a card in a Stripe tab) happens outside this page, and the user returning to
+// it is the moment the bar must be right. A slow safety-net poll covers the
+// rare case where the nudge resolves while this tab stays focused the whole
+// time (e.g. email verified on a phone). Hidden tabs don't poll at all — they
+// refresh the instant they're visible again.
+const VISIBLE_POLL_INTERVAL = 5 * 60 * 1000; // safety net while visible
+const REFOCUS_MIN_GAP = 10 * 1000;           // throttle for bursty focus events
 
 export function NudgeProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
@@ -43,31 +46,36 @@ export function NudgeProvider({ children }: { children: ReactNode }) {
     refresh();
   }, [refresh]);
 
-  // Keep the nudge bar fresh without a manual reload. The cadence tracks tab
-  // visibility: 60s while focused, 5min while hidden. We also refresh
-  // immediately on regaining focus so a user returning to the tab sees an
-  // up-to-date bar at once rather than waiting out the interval.
+  // Refresh whenever the user comes back to the page. Two listeners are needed
+  // because they cover different returns: `visibilitychange` fires on tab
+  // switches within the browser, while `window focus` fires when the user
+  // returns from another application (mail client, phone-mirroring, etc.)
+  // where the tab never stopped being "visible". Focus events can fire in
+  // quick bursts (window-switching, devtools), so refocus refreshes are
+  // throttled to one per REFOCUS_MIN_GAP.
   useEffect(() => {
     if (!user) return;
-    let interval: ReturnType<typeof setInterval> | undefined;
+    let lastFetch = Date.now(); // the mount effect above just fetched
 
-    const start = () => {
-      if (interval) clearInterval(interval);
-      const period = document.visibilityState === 'visible'
-        ? FOCUSED_POLL_INTERVAL
-        : BACKGROUND_POLL_INTERVAL;
-      interval = setInterval(refresh, period);
+    const refreshNow = () => {
+      lastFetch = Date.now();
+      refresh();
     };
-
+    const onRefocus = () => {
+      if (Date.now() - lastFetch >= REFOCUS_MIN_GAP) refreshNow();
+    };
     const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible') refresh();
-      start(); // re-arm the interval at the cadence for the new visibility state
+      if (document.visibilityState === 'visible') onRefocus();
     };
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') refreshNow();
+    }, VISIBLE_POLL_INTERVAL);
 
-    start();
+    window.addEventListener('focus', onRefocus);
     document.addEventListener('visibilitychange', onVisibilityChange);
     return () => {
-      if (interval) clearInterval(interval);
+      clearInterval(interval);
+      window.removeEventListener('focus', onRefocus);
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, [user, refresh]);
