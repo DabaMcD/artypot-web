@@ -5,6 +5,7 @@ import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
+import PayoutRegionNotice from '@/components/creator/PayoutRegionNotice';
 import type { CreatorPayouts } from '@/lib/hooks/useCreatorPayouts';
 
 /**
@@ -13,7 +14,7 @@ import type { CreatorPayouts } from '@/lib/hooks/useCreatorPayouts';
  * from the shared {@link useCreatorPayouts} hook.
  */
 export default function BankAccountCard({ p }: { p: CreatorPayouts }) {
-  const { bankConnected, canWithdraw, needsLocation, stripeLoading } = p;
+  const { bankConnected, canWithdraw, needsLocation, stripeLoading, isPayoutBlocked, isManualPayout } = p;
 
   return (
     <>
@@ -23,31 +24,39 @@ export default function BankAccountCard({ p }: { p: CreatorPayouts }) {
             <SectionLabel>bank account</SectionLabel>
             {canWithdraw && <Badge tone="good">connected</Badge>}
           </div>
-          <p className="text-sm text-muted leading-relaxed mb-4">
-            Artypot uses Stripe for secure, direct bank verification — your credentials are never stored by us.
-          </p>
-          {needsLocation ? (
-            <div>
-              <p className="text-sm text-muted mb-3">Set your location before connecting a bank account.</p>
-              <Link href="/c/settings#location">
-                <Button variant="primary">Set Location →</Button>
-              </Link>
-            </div>
-          ) : !bankConnected ? (
-            <Button variant="primary" disabled={stripeLoading} onClick={p.handleConnectBank}>
-              {stripeLoading ? 'Starting setup…' : 'Connect Bank Account'}
-            </Button>
-          ) : !canWithdraw ? (
-            <div>
-              <Button variant="primary" disabled={stripeLoading} onClick={p.handleContinueOnboarding}>
-                {stripeLoading ? 'Loading…' : 'Continue Setup →'}
-              </Button>
-              <p className="text-xs text-warn mt-2">Bank connection pending — complete Stripe setup to enable withdrawals.</p>
-            </div>
+          {isPayoutBlocked || isManualPayout ? (
+            /* Stripe self-serve onboarding can never lead to a payout in these
+               regions, so replace the connect flow with the region notice. */
+            <PayoutRegionNotice p={p} />
           ) : (
-            <Button variant="danger" size="sm" disabled={stripeLoading} onClick={() => p.setShowDisconnectConfirm(true)}>
-              Disconnect Bank
-            </Button>
+            <>
+              <p className="text-sm text-muted leading-relaxed mb-4">
+                Artypot uses Stripe for secure, direct bank verification — your credentials are never stored by us.
+              </p>
+              {needsLocation ? (
+                <div>
+                  <p className="text-sm text-muted mb-3">Set your location before connecting a bank account.</p>
+                  <Link href="/c/settings#location">
+                    <Button variant="primary">Set Location →</Button>
+                  </Link>
+                </div>
+              ) : !bankConnected ? (
+                <Button variant="primary" disabled={stripeLoading} onClick={p.handleConnectBank}>
+                  {stripeLoading ? 'Starting setup…' : 'Connect Bank Account'}
+                </Button>
+              ) : !canWithdraw ? (
+                <div>
+                  <Button variant="primary" disabled={stripeLoading} onClick={p.handleContinueOnboarding}>
+                    {stripeLoading ? 'Loading…' : 'Continue Setup →'}
+                  </Button>
+                  <p className="text-xs text-warn mt-2">Bank connection pending — complete Stripe setup to enable withdrawals.</p>
+                </div>
+              ) : (
+                <Button variant="danger" size="sm" disabled={stripeLoading} onClick={() => p.setShowDisconnectConfirm(true)}>
+                  Disconnect Bank
+                </Button>
+              )}
+            </>
           )}
         </Card>
       </div>

@@ -145,7 +145,15 @@ export function useCreatorPayouts(returnPath: string) {
   const bankConnected  = bankConnectedOverride ?? (creator?.bank_connected ?? false);
   const payoutsEnabled = stripeStatus?.payouts_enabled === true;
   const payoutHold     = creator?.payout_hold === true;
-  const canWithdraw    = payoutsEnabled && !payoutHold;
+  // Country payout category, derived from the creator's location:
+  //   2 = manual payouts only (Wise / PayPal / wire), higher minimum, no Stripe self-serve.
+  //   3 = comprehensive sanction — payouts can't be processed at all.
+  const isPayoutBlocked = creator?.payout_category === 3;
+  const isManualPayout  = creator?.payout_category === 2;
+  const payoutMinimum   = creator?.payout_minimum ?? 50;
+  // A category-3 creator can never enable Stripe payouts; guard explicitly so the
+  // withdraw surface stays blocked even if a stale Stripe status reports otherwise.
+  const canWithdraw    = payoutsEnabled && !payoutHold && !isPayoutBlocked;
   const needsLocation  = !user?.location_complete;
 
   return {
@@ -158,6 +166,9 @@ export function useCreatorPayouts(returnPath: string) {
     bankConnected,
     payoutsEnabled,
     payoutHold,
+    isPayoutBlocked,
+    isManualPayout,
+    payoutMinimum,
     canWithdraw,
     needsLocation,
     // Bank handlers

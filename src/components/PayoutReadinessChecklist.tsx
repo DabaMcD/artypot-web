@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { PAYOUT_MINIMUM_AUTOMATED, PAYOUT_MINIMUM_MANUAL } from '@/lib/config';
+import { PAYOUT_MINIMUM_AUTOMATED } from '@/lib/config';
 
 interface ChecklistItem {
   label: string;
@@ -53,12 +53,31 @@ export default function PayoutReadinessChecklist({
   if (!user || !user.creator) return null;
 
   const creator = user.creator;
-  const isUS = user.country_code === 'US';
-  // If the creator has no bank_connected flag and no known Stripe connection, assume manual region
-  const isManualPayoutRegion = !creator.bank_connected;
 
-  // Determine minimum based on region
-  const payoutMin = isManualPayoutRegion ? PAYOUT_MINIMUM_MANUAL : PAYOUT_MINIMUM_AUTOMATED;
+  // Region-blocked (sanctioned) creators can never reach a first payout, so a
+  // bank/minimum checklist would contradict the "unavailable in your region"
+  // notice shown by WithdrawCard / BankAccountCard (via PayoutRegionNotice) and
+  // the /c/money banner. Render that same brief notice instead.
+  if (creator.payout_category === 3) {
+    return (
+      <p className="text-sm text-bad leading-relaxed">
+        <strong>Payouts unavailable in your region.</strong>{' '}
+        Due to international payment restrictions, we&apos;re unable to process payouts to
+        creators in your country at this time.{' '}
+        <a href="mailto:support@artypot.com" className="ap-inline-link">Contact support</a>{' '}
+        if you believe this is an error.
+      </p>
+    );
+  }
+
+  const isUS = user.country_code === 'US';
+  // Payout category drives manual vs Stripe self-serve: category 2 = manual payouts
+  // (Wise / PayPal / wire), mirroring the useCreatorPayouts isManualPayout flag.
+  const isManualPayout = creator.payout_category === 2;
+
+  // Manual regions carry a higher, country-specific minimum (creator.payout_minimum);
+  // Stripe self-serve regions keep the low automated default.
+  const payoutMin = isManualPayout ? (creator.payout_minimum ?? 50) : PAYOUT_MINIMUM_AUTOMATED;
   const amountEarned = creator.amount_earned ?? 0;
   const meetsMinimum = amountEarned >= payoutMin;
 
@@ -91,23 +110,21 @@ export default function PayoutReadinessChecklist({
       done: user.has_verified_handle === true,
       href: '/c/handles',
     },
-    ...(creator.bank_connected !== undefined && !isManualPayoutRegion
+    ...(isManualPayout
       ? [
+          {
+            label: 'Bank account (manual payout — contact support)',
+            done: false,
+            href: '/support',
+          } as ChecklistItem,
+        ]
+      : [
           {
             label: 'Bank account connected',
             done: creator.bank_connected === true,
             href: '/c/payouts#bank-account',
           } as ChecklistItem,
-        ]
-      : isManualPayoutRegion
-        ? [
-            {
-              label: 'Bank account (manual payout — contact support)',
-              done: false,
-              href: '/support',
-            } as ChecklistItem,
-          ]
-        : []),
+        ]),
     ...(showTaxForm
       ? [
           {

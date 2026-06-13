@@ -51,7 +51,7 @@ function CreatorDashboardContent() {
   }
 
   const creator = user.creator;
-  const { balance, balanceLoading, bankConnected, canWithdraw, payoutHold, needsLocation } = p;
+  const { balance, balanceLoading, bankConnected, canWithdraw, payoutHold, needsLocation, isPayoutBlocked, isManualPayout } = p;
 
   const solidOpenBackings    = balance?.solid_open_backings ?? balance?.open_backings ?? 0;
   const softOpenBackings     = (balance?.open_backings ?? 0) - solidOpenBackings;
@@ -96,8 +96,10 @@ function CreatorDashboardContent() {
         </Banner>
       )}
 
-      {/* Setup checklist */}
-      {(needsLocation || !canWithdraw || taxFormRequired) && (
+      {/* Setup checklist — this is the Stripe self-serve withdrawal path, which
+          region-blocked (cat 3) and manual-payout (cat 2) creators don't use; the
+          WithdrawCard below carries the right region notice for them instead. */}
+      {!isPayoutBlocked && !isManualPayout && (needsLocation || !canWithdraw || taxFormRequired) && (
         <Banner tone="warn">
           <div>
             <strong>Before You Can Withdraw</strong>

@@ -120,7 +120,7 @@ const GUARANTEES: { title: string; detail: string }[] = [
   },
   {
     title: `${PLATFORM_FEE_PCT}% platform fee, all-in`,
-    detail: 'Covers everything — I need to eat, and Stripe needs to get paid.',
+    detail: 'Covers everything — I need to eat, file taxes, and payment processors needs to get paid.',
   },
   {
     title: 'Direct bank payout',
@@ -159,10 +159,10 @@ export default function AboutPage() {
               </div>
 
               <h1 className="font-display font-bold text-5xl sm:text-6xl tracking-tight text-foreground leading-[1.1] mb-6">
-                Money talks louder
+                Money talks loudest
                 <br />
                 <span className="text-fan">
-                  when it&apos;s <span className="ap-sketch-u" style={fanRole}>still in your pocket.</span>
+                  when it&apos;s <span className="ap-sketch-u" style={fanRole}>in your pocket.</span>
                 </span>
               </h1>
 
@@ -194,7 +194,7 @@ export default function AboutPage() {
           <div className="max-w-3xl mx-auto text-center mb-14">
             <p className={`${microLabel} mb-3`}>the psychology</p>
             <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground leading-snug mb-5">
-              The bounty doesn&apos;t pressure anyone.
+              A bounty doesn&apos;t pressure anyone.
               <br />It just sits there, growing,
               <br /><span className="ap-sketch-u" style={fanRole}>being very visible.</span>
             </h2>
