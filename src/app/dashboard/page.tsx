@@ -7,7 +7,6 @@ import { bounties as bountiesApi, billing, backings as backingsApi } from '@/lib
 import { nextBillingInfo } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
 import type { Bounty, CashBalance, FanStats, PaginatedResponse, PublicUserBacking } from '@/lib/types';
-import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { InfoDot } from '@/components/ui/InfoDot';
@@ -108,7 +107,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-7 pt-2">
-      {!user.email_verified_at && <EmailVerificationBanner email={user.email} />}
+      {/* Email-verification prompt now renders globally via AppShell. */}
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4">

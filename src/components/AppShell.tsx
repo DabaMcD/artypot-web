@@ -11,6 +11,7 @@ import HeaderSearch from './HeaderSearch';
 import NotificationBell from './NotificationBell';
 import { NudgeBar } from '@/components/NudgeBar';
 import { NudgeProvider } from '@/lib/nudge-context';
+import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import { PaymentGraceBanner } from '@/components/PaymentGraceBanner';
 import { FanMarketBanner } from '@/components/FanMarketBanner';
 import { PaymentAuthBanner } from '@/components/PaymentAuthBanner';
@@ -297,6 +298,12 @@ export function AppShell({ children }: AppShellProps) {
                 keeps the top gutter from adding dead space when no banner is
                 active (each banner renders null when it has nothing to show). */}
             <div className={fullBleed ? '[&:not(:empty)]:pt-7 max-w-6xl mx-auto px-7' : ''}>
+              {/* "Please verify your email" — shown on every authenticated page.
+                  Suppressed on /settings, whose email card already surfaces this
+                  banner contextually (with the resend control). */}
+              {!user.email_verified_at && pathname !== '/settings' && (
+                <EmailVerificationBanner email={user.email} />
+              )}
               <NudgeBar />
               <FanMarketBanner />
               <PaymentAuthBanner />
