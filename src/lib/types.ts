@@ -629,6 +629,16 @@ export interface AdminBountyCompletion {
   reviewed_at?: string | null;
   verified_at?: string | null;
   created_at: string;
+  /**
+   * The submitter's prior review outcomes (approved/rejected completion
+   * counts). `total_decided === 0` means this is their first reviewed
+   * submission — i.e. no track record to judge by.
+   */
+  creator_history: {
+    approved: number;
+    rejected: number;
+    total_decided: number;
+  };
 }
 
 export interface CashBalance {

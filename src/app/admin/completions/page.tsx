@@ -29,6 +29,74 @@ const COMPLETION_LABELS: Record<BountyCompletionStatus, string> = {
   rejected:       'rejected',
 };
 
+type CreatorHistory = AdminBountyCompletion['creator_history'];
+
+/**
+ * Classifies a submitter's track record into the three states the council
+ * cares about: no history (first submission), any prior rejections (red flag),
+ * or a clean record. Drives both the inline badge and the modal callout.
+ */
+function classifyHistory(h: CreatorHistory): 'none' | 'rejections' | 'clean' {
+  if (h.total_decided === 0) return 'none';
+  if (h.rejected > 0) return 'rejections';
+  return 'clean';
+}
+
+/** Compact inline badge for the submissions list. */
+function CreatorTrackRecordBadge({ history }: { history: CreatorHistory }) {
+  const kind = classifyHistory(history);
+  if (kind === 'none') {
+    return <Badge tone="warn">★ first submission · no track record</Badge>;
+  }
+  if (kind === 'rejections') {
+    return (
+      <Badge tone="bad">
+        ⚑ {history.rejected} prior {history.rejected === 1 ? 'rejection' : 'rejections'} · {history.approved} approved
+      </Badge>
+    );
+  }
+  return <Badge tone="good">✓ {history.approved} approved · 0 rejected</Badge>;
+}
+
+/** Prominent callout shown at the top of the review modal. */
+function CreatorTrackRecordCallout({ history, name }: { history: CreatorHistory; name?: string }) {
+  const kind = classifyHistory(history);
+  const who = name ?? 'This creator';
+
+  if (kind === 'none') {
+    return (
+      <div className="rounded border border-warn/40 bg-warn/10 px-3 py-2">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-warn mb-0.5">⚠ first submission</div>
+        <p className="text-sm text-foreground">
+          {who} has no prior reviewed completions. There&apos;s no track record to go on — review carefully.
+        </p>
+      </div>
+    );
+  }
+  if (kind === 'rejections') {
+    return (
+      <div className="rounded border border-bad/40 bg-bad/10 px-3 py-2">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-bad mb-0.5">
+          ⚑ {history.rejected} prior {history.rejected === 1 ? 'rejection' : 'rejections'}
+        </div>
+        <p className="text-sm text-foreground">
+          {who} has <span className="text-good">{history.approved} approved</span> and{' '}
+          <span className="text-bad">{history.rejected} rejected</span>{' '}
+          {history.total_decided === 1 ? 'submission' : 'submissions'} on record.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="rounded border border-good/40 bg-good/10 px-3 py-2">
+      <div className="font-mono text-[10px] uppercase tracking-widest text-good mb-0.5">✓ clean record</div>
+      <p className="text-sm text-foreground">
+        {who} has {history.approved} approved {history.approved === 1 ? 'submission' : 'submissions'} and no rejections.
+      </p>
+    </div>
+  );
+}
+
 // ── Review modal ────────────────────────────────────────────────────────────
 function ReviewModal({
   completion,
@@ -100,6 +168,11 @@ function ReviewModal({
           </span>{' '}
           committed
         </p>
+
+        <CreatorTrackRecordCallout
+          history={completion.creator_history}
+          name={completion.bounty.creator?.display_name ?? completion.submitted_by.display_name}
+        />
 
         <Card>
           <div className="space-y-3">
@@ -285,6 +358,7 @@ export default function AdminCompletionsPage() {
                         {c.bounty.title}
                       </Link>
                       <Badge tone={COMPLETION_TONES[c.status]}>{COMPLETION_LABELS[c.status]}</Badge>
+                      <CreatorTrackRecordBadge history={c.creator_history} />
                     </div>
                     <div className="flex items-center gap-3 font-mono text-[10px] text-muted mb-1 flex-wrap">
                       {c.bounty.creator && (
