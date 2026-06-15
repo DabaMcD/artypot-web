@@ -177,7 +177,7 @@ function OAuthConnectModal({
         <div className="flex gap-3 justify-end">
           <Button variant="ghost" onClick={onClose} disabled={loading}>Cancel</Button>
           <Button variant="primary" onClick={handleConnect} disabled={loading}>
-            {loading ? 'Redirecting…' : `Connect ${authBrand} →`}
+            {loading ? 'Redirecting…' : `Connect ${platformLabel} →`}
           </Button>
         </div>
       </div>
