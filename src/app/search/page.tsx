@@ -56,12 +56,12 @@ function PillRow<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <div className="flex items-center gap-1 border border-border rounded p-1 bg-surface shrink-0">
+    <div className="flex flex-wrap items-center gap-1 border border-border rounded p-1 bg-surface max-w-full">
       {options.map(({ value: v, label }) => (
         <button
           key={v}
           onClick={() => onChange(v)}
-          className={`px-3 py-1 font-mono text-[10px] uppercase tracking-wider rounded transition-colors cursor-pointer ${
+          className={`px-3 py-1 font-mono text-[10px] uppercase tracking-wider rounded transition-colors cursor-pointer whitespace-nowrap ${
             value === v ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
           }`}
         >
@@ -230,7 +230,7 @@ function SearchPageInner() {
           {/* Bounties */}
           {showBounties && (
             <section className="space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
                 <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">Bounties</h2>
                 <Toggle on={includeCompleted} onChange={setIncludeCompleted} label="include completed" className="text-xs text-muted" />
               </div>
@@ -279,7 +279,7 @@ function BrowseView({
     <div className="space-y-10">
       {/* Creators */}
       <section className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
           <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">Creators</h2>
           <PillRow options={SORT_OPTIONS} value={sort} onChange={onSortChange} />
         </div>

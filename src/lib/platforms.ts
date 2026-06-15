@@ -25,6 +25,17 @@ interface PlatformConfig {
   urlTemplate: string;
   /** Whether handles on this platform can be auto-verified via OAuth. */
   oauth: boolean;
+  /**
+   * OAuth *provider* slug to route verification through when it differs from
+   * the platform slug. Only YouTube uses this (verified via 'google'). When
+   * omitted, the provider equals the platform slug.
+   */
+  oauthProvider?: string;
+  /**
+   * Optional `intent` hint passed to the backend redirect endpoint so it can
+   * request platform-specific scopes (e.g. 'verify_youtube' → youtube.readonly).
+   */
+  oauthIntent?: string;
 }
 
 export const OTHER_SLUG = 'other';
@@ -38,10 +49,14 @@ export const PLATFORM_CATALOGUE: Record<string, PlatformConfig> = {
     oauth:       true,
   },
   youtube: {
-    label:       'YouTube',
-    prefix:      '@',
-    urlTemplate: 'https://youtube.com/@{username}',
-    oauth:       false,
+    label:        'YouTube',
+    prefix:       '@',
+    urlTemplate:  'https://youtube.com/@{username}',
+    oauth:        true,
+    // YouTube has no standalone OAuth provider — verified by signing in with
+    // Google and reading the user's channel via the YouTube Data API.
+    oauthProvider: 'google',
+    oauthIntent:   'verify_youtube',
   },
   instagram: {
     label:       'Instagram',
@@ -87,6 +102,20 @@ export const OAUTH_PLATFORMS: HandlePlatform[] = CURATED_PLATFORMS.filter(
 );
 
 /**
+ * The OAuth *provider* slug used to verify a handle on this platform. Usually
+ * identical to the platform slug (tiktok → tiktok); YouTube is verified through
+ * Google, so youtube → google. Mirrors Platforms::oauthProvider() on the backend.
+ */
+export function platformOAuthProvider(slug: string): string {
+  return PLATFORM_CATALOGUE[slug]?.oauthProvider ?? slug;
+}
+
+/** Optional OAuth `intent` hint for a platform (e.g. 'verify_youtube'), if any. */
+export function platformOAuthIntent(slug: string): string | undefined {
+  return PLATFORM_CATALOGUE[slug]?.oauthIntent;
+}
+
+/**
  * The subset of OAUTH_PLATFORMS that are enabled on this deployment.
  *
  * Gated by NEXT_PUBLIC_OAUTH_PROVIDERS — the same env var that controls which
@@ -105,8 +134,10 @@ const _oauthEnabledSet: Set<string> | null = process.env.NEXT_PUBLIC_OAUTH_PROVI
     )
   : null;
 
+// Gate by the resolved OAuth *provider*, not the platform slug — YouTube
+// verifies through 'google', so it's enabled when Google login is enabled.
 export const ENABLED_OAUTH_PLATFORMS: HandlePlatform[] = _oauthEnabledSet
-  ? OAUTH_PLATFORMS.filter((slug) => _oauthEnabledSet.has(slug))
+  ? OAUTH_PLATFORMS.filter((slug) => _oauthEnabledSet.has(platformOAuthProvider(slug)))
   : OAUTH_PLATFORMS;
 
 /** Set form for fast routing checks (used by /{platform}/{handle} page). */

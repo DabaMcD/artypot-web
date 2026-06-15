@@ -18,7 +18,10 @@ import {
   ENABLED_OAUTH_PLATFORMS,
   OTHER_SLUG,
   platformLabel,
+  platformOAuthProvider,
+  platformOAuthIntent,
 } from '@/lib/platforms';
+import { OAUTH_NEXT_KEY } from '@/lib/next-redirect';
 
 /**
  * Add-handle dropdown options — every curated platform plus 'Other'. Sourced
@@ -129,10 +132,29 @@ function OAuthConnectModal({
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
+  const platform = claim.handle.platform;
+  const provider = platformOAuthProvider(platform);
+  const intent   = platformOAuthIntent(platform);
+  const platformLabel = PLATFORM_LABELS[platform as HandlePlatform] ?? platform;
+  // The brand the user actually authorizes against. Usually the platform
+  // itself; YouTube is authorized through Google.
+  const authBrand = provider === 'google' ? 'Google' : platformLabel;
+
   const handleConnect = async () => {
     setLoading(true);
     try {
-      const res = await authApi.oauthRedirect(claim.handle.platform);
+      // Mirror the login page's handshake so the shared /oauth/callback page
+      // accepts the round-trip (nonce) and returns the creator to this page
+      // (next) instead of /dashboard once verification completes.
+      sessionStorage.setItem('oauth_nonce', crypto.randomUUID());
+      sessionStorage.setItem(OAUTH_NEXT_KEY, window.location.pathname);
+
+      // Pass the specific handle so the backend scopes verification to it
+      // (relevant for YouTube, where one Google account can own many channels).
+      const res = await authApi.oauthRedirect(
+        provider,
+        intent ? { intent, handleId: claim.handle.id } : undefined,
+      );
       window.location.href = res.url;
     } catch (err: unknown) {
       const e = err as { message?: string };
@@ -141,22 +163,21 @@ function OAuthConnectModal({
     }
   };
 
-  const platformLabel = PLATFORM_LABELS[claim.handle.platform as HandlePlatform] ?? claim.handle.platform;
-
   return (
     <Modal title={`connect ${platformLabel}`} onClose={onClose}>
       <div className="space-y-4">
         <p className="text-sm text-muted">
           Connect your <span className="text-foreground">{platformLabel}</span>{' '}account via OAuth for instant verification.
-          You&apos;ll be redirected to {platformLabel} to authorize the connection, then brought back here.
+          You&apos;ll be redirected to {authBrand} to authorize the connection, then brought back here.
         </p>
         <Banner tone="default">
-          Make sure you&apos;re logged in to <span className="text-foreground">@{claim.handle.username}</span> on {platformLabel} before continuing.
+          Make sure you&apos;re signed in to {authBrand} as the owner of{' '}
+          <span className="text-foreground">@{claim.handle.username}</span> before continuing.
         </Banner>
         <div className="flex gap-3 justify-end">
           <Button variant="ghost" onClick={onClose} disabled={loading}>Cancel</Button>
           <Button variant="primary" onClick={handleConnect} disabled={loading}>
-            {loading ? 'Redirecting…' : `Connect ${platformLabel} →`}
+            {loading ? 'Redirecting…' : `Connect ${authBrand} →`}
           </Button>
         </div>
       </div>
