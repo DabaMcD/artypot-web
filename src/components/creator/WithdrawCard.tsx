@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import PayoutRegionNotice from '@/components/creator/PayoutRegionNotice';
 import type { CreatorPayouts } from '@/lib/hooks/useCreatorPayouts';
 
 const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
@@ -14,7 +15,7 @@ const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits
  * creator dashboard and the dedicated Payouts page.
  */
 export default function WithdrawCard({ p }: { p: CreatorPayouts }) {
-  const { balance, balanceLoading, bankConnected, canWithdraw, payoutHold } = p;
+  const { balance, balanceLoading, bankConnected, canWithdraw, payoutHold, isPayoutBlocked, isManualPayout } = p;
   const availableBalance = balance?.available_balance ?? 0;
 
   return (
@@ -25,7 +26,9 @@ export default function WithdrawCard({ p }: { p: CreatorPayouts }) {
           {balanceLoading ? <span className="text-muted/40">—</span> : fmt(availableBalance)}
         </div>
 
-        {payoutHold ? (
+        {isPayoutBlocked || isManualPayout ? (
+          <PayoutRegionNotice p={p} compact />
+        ) : payoutHold ? (
           <p className="text-sm text-bad">
             Payouts are on hold — complete Stripe verification to withdraw.{' '}
             <Link href="/c/payouts#payout-hold" className="underline underline-offset-2 hover:opacity-80">Resolve now →</Link>

@@ -8,7 +8,7 @@ import { billing, backings as backingsApi } from '@/lib/api';
 import type { PublicUserBacking } from '@/lib/types';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
 import Link from 'next/link';
-import { BILLING_DAY, nextBillingInfo, WARP_SPEED, PLATFORM_FEE_PCT } from '@/lib/config';
+import { BILLING_DAY, nextBillingInfo, WARP_SPEED } from '@/lib/config';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
 import { ConfirmPaymentModal } from '@/components/ConfirmPaymentModal';
 import { Card, SectionLabel } from '@/components/ui/Card';
@@ -211,7 +211,7 @@ export default function BillingPage() {
             'You commit an amount when you back a bounty. Nothing is charged at that point.',
             'When a creator submits their work and the council approves it, your charge is locked in. You can only back out while the bounty is still open.',
             `Locked charges are collected automatically on the ${BILLING_DAY}th of each month, or you can pay early.`,
-            `Artypot takes a ${PLATFORM_FEE_PCT}% all-in platform fee from the creator's payout. You always pay your exact committed amount.`,
+            'You always pay your exact committed amount — no fees are ever added on top.',
           ].map((item, i) => (
             <li key={i} className="flex items-start gap-2">
               <span className="text-fan mt-0.5 shrink-0">✓</span>
@@ -229,7 +229,6 @@ export default function BillingPage() {
             { when: 'now', what: 'approved backings are locked in', done: true },
             { when: previewDate, what: 'billing preview sent to your inbox' },
             { when: `${chargeDate} · 09:00 UTC`, what: 'your card is charged' },
-            { when: '7 days after charge', what: 'funds clear and creators can withdraw' },
           ]}
         />
       </Card>

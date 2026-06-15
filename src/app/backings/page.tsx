@@ -3,21 +3,23 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { backings as backingsApi, billing } from '@/lib/api';
+import { backings as backingsApi, bounties as bountiesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { PublicUserBacking, CashBalance } from '@/lib/types';
+import { useToast } from '@/lib/toast-context';
+import type { PublicUserBacking } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Empty } from '@/components/ui/Empty';
+import { Modal } from '@/components/ui/Modal';
 import { nextBillingInfo } from '@/lib/config';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
-import ShareButton from '@/components/ShareButton';
 
 type SortKey = 'date' | 'amount';
 
 export default function MyBackingsPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
 
   const [backings, setBackings] = useState<PublicUserBacking[]>([]);
   const [sort, setSort] = useState<SortKey>('date');
@@ -26,7 +28,10 @@ export default function MyBackingsPage() {
   const [total, setTotal] = useState(0);
   const [totalActiveAmount, setTotalActiveAmount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
-  const [cashBalance, setCashBalance] = useState<CashBalance | null>(null);
+  // Per-backing "backing out" in-flight set, plus the backing awaiting a
+  // confirm-modal decision.
+  const [revoking, setRevoking] = useState<Set<number>>(new Set());
+  const [confirmTarget, setConfirmTarget] = useState<PublicUserBacking | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) router.replace('/login');
@@ -51,22 +56,35 @@ export default function MyBackingsPage() {
     load(sort, page);
   }, [user, sort, page, load]);
 
-  useEffect(() => {
-    if (!user) return;
-    billing.cash().then(setCashBalance).catch(() => {});
-  }, [user]);
-
   const handleSort = (s: SortKey) => {
     if (s === sort) return;
     setSort(s);
     setPage(1);
   };
 
-  const { label: billingDateStr } = nextBillingInfo();
+  // Back out of an open backing. Mirrors the bounty-detail revoke but reloads
+  // the list afterwards (the row will drop out of the active total). Only open
+  // bounties can be backed out — the per-row button is gated on status.
+  const handleRevoke = async (backing: PublicUserBacking) => {
+    if (revoking.has(backing.id)) return;
+    setConfirmTarget(null);
+    setRevoking((prev) => new Set(prev).add(backing.id));
+    try {
+      const result = await bountiesApi.removeBacking(backing.bounty_id, backing.id);
+      toast(result.bounty_deleted ? 'Backed out — the bounty was removed.' : 'Backed out.', 'success');
+      load(sort, page);
+    } catch (e) {
+      toast((e as Error)?.message ?? 'Failed to back out.', 'error');
+    } finally {
+      setRevoking((prev) => {
+        const next = new Set(prev);
+        next.delete(backing.id);
+        return next;
+      });
+    }
+  };
 
-  const outstandingAmount = cashBalance !== null && cashBalance.balance < 0
-    ? Math.abs(cashBalance.balance)
-    : 0;
+  const { label: billingDateStr } = nextBillingInfo();
 
   if (authLoading || !user) {
     return (
@@ -124,7 +142,7 @@ export default function MyBackingsPage() {
             </Card>
           ) : backings.length === 0 ? (
             <Empty icon="◇" message="No backings yet">
-              <Link href="/search"><Button variant="default" size="sm">Explore →</Button></Link>
+              <Link href="/search"><Button variant="default" size="sm">Find creators →</Button></Link>
             </Empty>
           ) : (
             <Card>
@@ -152,12 +170,19 @@ export default function MyBackingsPage() {
                         </div>
                       </div>
                       <BountyStatusBadge status={status} />
-                      {backing.bounty && (
-                        <ShareButton path={`/bounties/${backing.bounty_id}`} title={backing.bounty.title} />
-                      )}
                       <span className="font-mono text-sm font-medium text-fan tabular-nums shrink-0">
                         ${Number(backing.amount).toFixed(2)}
                       </span>
+                      {status === 'open' && (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmTarget(backing)}
+                          disabled={revoking.has(backing.id)}
+                          className="font-mono text-[10px] uppercase tracking-wider text-muted/60 hover:text-bad transition-colors disabled:opacity-40 cursor-pointer shrink-0"
+                        >
+                          {revoking.has(backing.id) ? '…' : 'back out'}
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -193,12 +218,13 @@ export default function MyBackingsPage() {
 
         {/* Right: sidebar */}
         <div className="space-y-4">
+          {/* The exact next-charge amount lives on /billing (the authoritative
+              owner). We show the deterministic date here and link out for the
+              figure rather than re-deriving it client-side. */}
           <Card>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">next charge</div>
-            <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
-              ${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </div>
-            <div className="font-mono text-[10px] text-muted mt-0.5">on {billingDateStr}</div>
+            <div className="font-mono text-sm text-foreground">on {billingDateStr}</div>
+            <Link href="/billing" className="ap-inline-link text-sm mt-2 inline-block">view amount in billing →</Link>
           </Card>
           <Card>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">payment method</div>
@@ -210,6 +236,33 @@ export default function MyBackingsPage() {
           </Card>
         </div>
       </div>
+
+      {/* Back-out confirmation */}
+      {confirmTarget && (
+        <Modal
+          title="Back out of this bounty?"
+          onClose={() => setConfirmTarget(null)}
+          actions={
+            <>
+              <Button variant="ghost" size="sm" onClick={() => setConfirmTarget(null)}>Cancel</Button>
+              <Button variant="danger" size="sm" onClick={() => handleRevoke(confirmTarget)}>
+                Back out
+              </Button>
+            </>
+          }
+        >
+          <p className="text-sm text-muted leading-relaxed">
+            Your{' '}
+            <span className="text-foreground">${Number(confirmTarget.amount).toFixed(2)}</span>{' '}
+            commitment to{' '}
+            <span className="text-foreground">
+              {confirmTarget.bounty?.title ?? `bounty #${confirmTarget.bounty_id}`}
+            </span>{' '}
+            will be cancelled — you won&apos;t be charged for it. You can only back out
+            while a bounty is still open.
+          </p>
+        </Modal>
+      )}
     </div>
   );
 }

@@ -139,7 +139,7 @@ export default function PaymentHistoryPage() {
             <Empty icon="◷" message={filter === 'all' ? 'No payments yet' : `No ${filter} payments`}>
               {filter === 'all' ? (
                 <Link href="/search">
-                  <Button variant="default" size="sm">Explore →</Button>
+                  <Button variant="default" size="sm">Find creators →</Button>
                 </Link>
               ) : (
                 <Button variant="ghost" size="sm" onClick={() => handleFilter('all')}>
@@ -174,6 +174,25 @@ export default function PaymentHistoryPage() {
                           {fmtMoney(p.gross_paid)}
                         </span>
                       </button>
+
+                      {/* Remediation — a failed or unconfirmed charge previously
+                          dead-ended here (the badge with no way to act). Surface a
+                          direct route to the settle / update-card flow on /billing. */}
+                      {(p.status === 'failed' || p.status === 'requires_action') && (
+                        <div className="flex items-center gap-2 px-5 py-2 pl-11 bg-bad-soft/40 border-t border-bad/20">
+                          <span className="text-xs text-bad">
+                            {p.status === 'requires_action'
+                              ? 'This charge needs confirmation before it can complete.'
+                              : 'This charge didn’t go through.'}
+                          </span>
+                          <Link
+                            href={p.status === 'requires_action' ? '/billing#authenticate' : '/billing#payment-method'}
+                            className="ml-auto shrink-0 font-mono text-[11px] uppercase tracking-wide text-fan hover:opacity-80 transition-opacity"
+                          >
+                            {p.status === 'requires_action' ? 'Confirm payment →' : 'Update card & retry →'}
+                          </Link>
+                        </div>
+                      )}
 
                       {/* Expanded: itemized bounties */}
                       {isOpen && (

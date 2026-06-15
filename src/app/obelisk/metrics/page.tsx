@@ -149,7 +149,7 @@ export default function MetricsPage() {
             <StatCard
               label="Hard backings"
               value={fmtN(data.total_hard_backings)}
-              sub="no expiry date"
+              sub="backer has a valid card"
             />
             <StatCard
               label="Avg hard backing"
@@ -158,7 +158,7 @@ export default function MetricsPage() {
             <StatCard
               label="Soft backings"
               value={fmtN(data.total_soft_backings)}
-              sub="expire in the future"
+              sub="no card or frozen market"
             />
             <StatCard
               label="Avg soft backing"

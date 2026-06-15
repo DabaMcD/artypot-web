@@ -285,7 +285,7 @@ function BrowseView({
         </div>
 
         {loading && !creators ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-36 bg-surface animate-pulse rounded-xl" />
             ))}
@@ -294,7 +294,7 @@ function BrowseView({
           <Empty message="no verified creators yet" />
         ) : (
           <>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {creators.data.map((creator) => (
                 <CreatorCard key={creator.id} creator={creator} />
               ))}

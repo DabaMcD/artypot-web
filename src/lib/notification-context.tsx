@@ -101,11 +101,20 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }
   }, [fetchUnreadCount]);
 
-  // Initial fetch + polling every 5 minutes
+  // Initial fetch + polling every 5 minutes. Also refetch when the tab
+  // regains focus — a user returning from their email or bank (3DS) should
+  // see the badge immediately rather than up to 5 minutes later.
   useEffect(() => {
     fetchUnreadCount();
     const interval = setInterval(fetchUnreadCount, POLL_INTERVAL);
-    return () => clearInterval(interval);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchUnreadCount();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, [fetchUnreadCount]);
 
   return (

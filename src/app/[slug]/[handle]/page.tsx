@@ -4,6 +4,7 @@ import { useEffect, useState, use, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { creators as creatorsApi, handles as handlesApi } from '@/lib/api';
+import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { Button } from '@/components/ui/Button';
@@ -38,10 +39,18 @@ const KNOWN_PLATFORMS = new Set<string>(CURATED_PLATFORMS);
 
 type SimpleBounty = { id: number; title: string; status: string; total_backed: string; created_at: string };
 
+type SimpleHandle = { id: number | null; platform: string; username: string };
+
+/** Public identity of a verified owner who hasn't enabled creator mode yet. */
+type ClaimedOwner = { display_name: string; profile_picture: string | null };
+
 type ResolveResult =
   | { kind: 'loading' }
   | { kind: 'not-platform' }
-  | { kind: 'unverified'; handle: { id: number | null; platform: string; username: string }; bounties: SimpleBounty[] }
+  | { kind: 'unverified'; handle: SimpleHandle; bounties: SimpleBounty[] }
+  // 'claimed': a verified claim exists but the owner has no creator page yet —
+  // this handle page stays their public surface until they enable creator mode.
+  | { kind: 'claimed'; handle: SimpleHandle; owner: ClaimedOwner; bounties: SimpleBounty[] }
   | { kind: 'error' };
 
 // ── Mini bounty card (simplified — handle bounties aren't full Bounty objects) ──
@@ -145,6 +154,11 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
           return;
         }
 
+        if (res.match === 'claimed') {
+          setState({ kind: 'claimed', handle: res.handle, owner: res.owner, bounties: res.bounties });
+          return;
+        }
+
         setState({ kind: 'unverified', handle: res.handle, bounties: res.bounties });
       } catch (err) {
         if (cancelled) return;
@@ -160,7 +174,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
     return (
       <div className="max-w-6xl mx-auto px-7 py-10">
         <div className="h-48 bg-surface border border-border rounded-xl animate-pulse mb-6" />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-36 bg-surface border border-border rounded-xl animate-pulse" />
           ))}
@@ -199,13 +213,16 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
     );
   }
 
-  // ── Unverified ──────────────────────────────────────────────────────────────
+  // ── Unverified / claimed ─────────────────────────────────────────────────────
+  const claimedOwner = state.kind === 'claimed' ? state.owner : null;
   const platformKey = platform.toLowerCase() as HandlePlatform;
   const platformLabel = PLATFORM_LABELS[platformKey] ?? platform;
   const prefix = PLATFORM_HANDLE_CONFIG[platformKey]?.prefix ?? '@';
   const fullHandle = `${prefix}${state.handle.username}`;
 
-  const shareText = `${fullHandle} on ${platformLabel} — fans are queueing bounties for them on Artypot. Help get their attention!`;
+  const shareText = claimedOwner
+    ? `${fullHandle} on ${platformLabel} — ${claimedOwner.display_name} is on Artypot. Back a bounty for them!`
+    : `${fullHandle} on ${platformLabel} — fans are queueing bounties for them on Artypot. Help get their attention!`;
 
   return (
     <div className="max-w-6xl mx-auto px-7 py-10">
@@ -217,37 +234,63 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
           {/* Profile card */}
           <div className="bg-surface border border-border rounded-xl p-6 mb-8">
             <div className="flex items-start gap-5">
-              {/* Placeholder avatar */}
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold shrink-0 select-none"
-                style={{ background: '#47DFD3', color: '#0a0a0a' }}
-              >
-                {state.handle.username.charAt(0).toUpperCase()}
-              </div>
+              {/* Owner avatar (claimed) or placeholder initial */}
+              {claimedOwner?.profile_picture ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={normalizeAvatarUrl(claimedOwner.profile_picture)!}
+                  alt=""
+                  className="w-16 h-16 rounded-full object-cover shrink-0 ring-1 ring-creator/40 select-none"
+                />
+              ) : (
+                <div
+                  className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold shrink-0 select-none"
+                  style={{ background: '#47DFD3', color: '#0a0a0a' }}
+                >
+                  {(claimedOwner?.display_name ?? state.handle.username).charAt(0).toUpperCase()}
+                </div>
+              )}
 
               <div className="flex-1 min-w-0">
 
                 <div className="flex items-center gap-3 flex-wrap mb-1">
                   <h1 className="text-2xl font-display font-bold text-foreground break-all">{fullHandle}</h1>
-                  <Badge tone="default" lg>Unverified</Badge>
+                  {claimedOwner ? (
+                    <Badge tone="good" lg>Verified</Badge>
+                  ) : (
+                    <Badge tone="default" lg>Unverified</Badge>
+                  )}
                 </div>
-                <p className="text-sm text-muted mb-3">{platformLabel}</p>
-                <p className="text-muted text-sm leading-relaxed">
-                  <span className="font-mono text-creator">{fullHandle}</span>{' '}doesn&apos;t appear to have joined Artypot yet.
-                  Tag them on social media to let them know there are fans queueing bounties.
+                <p className="text-sm text-muted mb-3">
+                  {claimedOwner ? `${claimedOwner.display_name} · ${platformLabel}` : platformLabel}
                 </p>
+                {claimedOwner ? (
+                  // Verified owner, no creator page yet. No claim CTA here — the
+                  // handle is taken, so claiming could only ever 422.
+                  <p className="text-muted text-sm leading-relaxed">
+                    <span className="text-foreground font-medium">{claimedOwner.display_name}</span> has verified this
+                    handle — their full creator page is coming soon. Bounties here already count toward them.
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-muted text-sm leading-relaxed">
+                      <span className="font-mono text-creator">{fullHandle}</span>{' '}doesn&apos;t appear to have joined Artypot yet.
+                      Tag them on social media to let them know there are fans queueing bounties.
+                    </p>
 
-                {/* "Is this you?" — self-claim CTA for the handle's real owner */}
-                <div className="mt-4 flex items-center gap-3 flex-wrap">
-                  <Button variant="primary" size="sm" onClick={handleClaim} disabled={claiming}>
-                    {claiming ? 'Claiming…' : 'Is this you? Claim this handle →'}
-                  </Button>
-                  <span className="text-xs text-muted">
-                    {user
-                      ? 'We’ll add it to your account and help you verify it.'
-                      : 'Sign in to claim it as your own.'}
-                  </span>
-                </div>
+                    {/* "Is this you?" — self-claim CTA for the handle's real owner */}
+                    <div className="mt-4 flex items-center gap-3 flex-wrap">
+                      <Button variant="primary" size="sm" onClick={handleClaim} disabled={claiming}>
+                        {claiming ? 'Claiming…' : 'Is this you? Claim this handle →'}
+                      </Button>
+                      <span className="text-xs text-muted">
+                        {user
+                          ? 'We’ll add it to your account and help you verify it.'
+                          : 'Sign in to claim it as your own.'}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="shrink-0">
@@ -294,7 +337,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
                 )}
               </div>
             ) : (
-              <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {state.bounties.map((b) => (
                   <HandleBountyCard key={b.id} bounty={b} />
                 ))}
@@ -310,7 +353,15 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
               Spread the word
             </h3>
             <p className="text-xs text-muted leading-relaxed mb-4">
-              Help <span className="font-mono text-creator">{fullHandle}</span> discover their fans on Artypot. Share their page and tag them on {platformLabel}.
+              {claimedOwner ? (
+                <>
+                  <span className="font-mono text-creator">{fullHandle}</span> is on Artypot — share this page to rally more backers behind their bounties.
+                </>
+              ) : (
+                <>
+                  Help <span className="font-mono text-creator">{fullHandle}</span> discover their fans on Artypot. Share their page and tag them on {platformLabel}.
+                </>
+              )}
             </p>
             <div className="flex justify-end">
               <ShareButton

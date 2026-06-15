@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { w9 as w9Api, w8ben as w8benApi } from '@/lib/api';
@@ -9,7 +8,6 @@ import type { FormW9StatusResponse, FormW8BENStatusResponse } from '@/lib/types'
 import { BILLING_DAY } from '@/lib/config';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Banner } from '@/components/ui/Banner';
-import { Button } from '@/components/ui/Button';
 import { useCreatorPayouts } from '@/lib/hooks/useCreatorPayouts';
 import WithdrawCard from '@/components/creator/WithdrawCard';
 import BankAccountCard from '@/components/creator/BankAccountCard';
@@ -53,11 +51,6 @@ function PayoutsContent() {
   const taxFormRequired = needsW9 || needsW8BEN;
   const taxFormDone     = isUS ? !!w9Status?.record?.tin_matched : !!w8benStatus?.record?.qualifies;
 
-  const taxStatusLabel = isUS
-    ? (w9Status?.record?.tin_matched ? 'verified' : w9Status?.record ? 'submitted' : w9Status?.requires_w9 ? 'required' : 'not needed yet')
-    : (w8benStatus?.record?.qualifies ? 'submitted' : w8benStatus?.requires_w8ben ? 'required' : 'not needed yet');
-  const taxStatusTone = taxFormDone ? 'text-good' : taxFormRequired ? 'text-warn' : 'text-muted';
-
   return (
     <div className="space-y-7 pt-2">
       {/* Header */}
@@ -86,26 +79,9 @@ function PayoutsContent() {
         {/* LEFT */}
         <div className="space-y-6">
           <BankAccountCard p={p} />
-
-          {/* Tax status pointer — the form lives on the Tax & compliance page. */}
-          <Card>
-            <div className="flex items-start justify-between mb-3">
-              <SectionLabel>tax compliance</SectionLabel>
-              <span className={`font-mono text-[11px] ${taxStatusTone}`}>
-                {isUS ? 'W-9' : 'W-8BEN'} · {taxStatusLabel}
-              </span>
-            </div>
-            <p className="text-sm text-muted leading-relaxed mb-4">
-              {taxFormRequired
-                ? `A ${isUS ? 'W-9' : 'W-8BEN'} is required before your next withdrawal.`
-                : `Tax forms aren't a first-payout gate — we'll prompt you here once your earnings approach the IRS reporting threshold.`}
-            </p>
-            <Link href="/c/tax">
-              <Button variant={taxFormRequired ? 'primary' : 'default'} size="sm">
-                {taxFormRequired ? `Complete ${isUS ? 'W-9' : 'W-8BEN'} →` : 'Tax & compliance →'}
-              </Button>
-            </Link>
-          </Card>
+          {/* Tax status is no longer duplicated here — it lives once, in the
+              "first payout" readiness checklist on the right (and in full on
+              the Tax & compliance page). */}
         </div>
 
         {/* RIGHT sidebar */}

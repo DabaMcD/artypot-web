@@ -1,9 +1,10 @@
 export interface AvatarOrUnknownProps {
   avatarUrl: string | null;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
 const SIZE_CLASSES: Record<NonNullable<AvatarOrUnknownProps['size']>, string> = {
+  xs: 'w-6 h-6',
   sm: 'w-7 h-7',
   md: 'w-10 h-10',
   lg: 'w-18 h-18',

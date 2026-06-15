@@ -11,7 +11,9 @@ import HeaderSearch from './HeaderSearch';
 import NotificationBell from './NotificationBell';
 import { NudgeBar } from '@/components/NudgeBar';
 import { NudgeProvider } from '@/lib/nudge-context';
+import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import { PaymentGraceBanner } from '@/components/PaymentGraceBanner';
+import { FanMarketBanner } from '@/components/FanMarketBanner';
 import { PaymentAuthBanner } from '@/components/PaymentAuthBanner';
 import { DefaultUpdatePromptBar } from '@/components/DefaultUpdatePromptBar';
 import { DefaultUpdatePromptProvider } from '@/lib/default-update-prompt-context';
@@ -51,7 +53,6 @@ const FULL_BLEED_EXACT = new Set([
   '/tos',
   '/creator-tos',
   '/bounties',         // browse index — note /bounties/new is app-padded (below)
-  '/cash',
   '/obelisk',          // /obelisk/* children covered by the prefix below
   '/settings/password',
 ]);
@@ -69,7 +70,7 @@ const APP_PADDED_EXACT = new Set(['/bounties/new']);
 // top-level route folder is added under src/app.
 const RESERVED_TOP_SEGMENTS = new Set([
   'about', 'admin', 'backings', 'become-creator', 'billing', 'bounties', 'c',
-  'cash', 'creator-tos', 'creators', 'dashboard', 'email', 'for-creators',
+  'creator-tos', 'creators', 'dashboard', 'email', 'for-creators',
   'forgot-password', 'guide', 'history', 'login', 'oauth', 'obelisk',
   'privacy', 'register', 'reset-password', 'search', 'settings', 'support',
   'tos', 'users',
@@ -297,7 +298,14 @@ export function AppShell({ children }: AppShellProps) {
                 keeps the top gutter from adding dead space when no banner is
                 active (each banner renders null when it has nothing to show). */}
             <div className={fullBleed ? '[&:not(:empty)]:pt-7 max-w-6xl mx-auto px-7' : ''}>
+              {/* "Please verify your email" — shown on every authenticated page.
+                  Suppressed on /settings, whose email card already surfaces this
+                  banner contextually (with the resend control). */}
+              {!user.email_verified_at && pathname !== '/settings' && (
+                <EmailVerificationBanner email={user.email} />
+              )}
               <NudgeBar />
+              <FanMarketBanner />
               <PaymentAuthBanner />
               <PaymentGraceBanner />
               <DefaultUpdatePromptBar />

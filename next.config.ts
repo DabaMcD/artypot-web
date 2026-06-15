@@ -29,6 +29,9 @@ const nextConfig: NextConfig = {
       { source: '/c/ledger', destination: '/c/money', permanent: true },
       { source: '/c/queue', destination: '/c/bounties', permanent: true },
       { source: '/c/my-bounties', destination: '/c/bounties', permanent: true },
+      // /c/setup retired: its three gates (handle / TOS / bank) are now tracked
+      // by the payout-readiness checklist on the dashboard. Old links land there.
+      { source: '/c/setup', destination: '/c', permanent: true },
       // /admin has no landing page — every section lives in the council
       // sidebar. Bounce to the canonical default queue. Non-council users
       // get re-redirected away by the destination page's own auth gate.

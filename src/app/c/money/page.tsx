@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { cash as cashApi } from '@/lib/api';
-import type { CreatorBalance, CashLedgerEntry } from '@/lib/types';
+import type { CreatorBalance, CreatorEarning, CashLedgerEntry } from '@/lib/types';
 import { BILLING_DAY, BILLING_GRACE_PERIOD_DAYS } from '@/lib/config';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { Banner } from '@/components/ui/Banner';
 import { Button } from '@/components/ui/Button';
 import { BalancePipeline } from '@/components/ui/Pipeline';
 
@@ -32,8 +33,21 @@ function isClearing(entry: CashLedgerEntry) {
   return new Date(entry.available_after) > new Date();
 }
 
-/** Classify a row into a display type. */
-function entryKind(entry: CashLedgerEntry): 'earning' | 'stripe' | 'external' | 'adjustment' {
+/** Classify a row into a display type — prefers the explicit entry_type, falls
+ *  back to the legacy field-presence heuristic for any unstamped legacy rows. */
+function entryKind(entry: CashLedgerEntry): 'earning' | 'fee' | 'stripe' | 'external' | 'refund' | 'adjustment' {
+  switch (entry.entry_type) {
+    case 'creator_earning':          return 'earning';
+    case 'platform_fee':
+    case 'platform_fee_tax':         return 'fee';
+    case 'creator_withdrawal':       return 'stripe';
+    case 'external_payout':
+    case 'external_payout_reversal': return 'external';
+    case 'refund_clawback':          return 'refund';
+    case 'dispute_adjustment':
+    case 'adjustment':               return 'adjustment';
+  }
+  // Legacy fallback (rows written before entry_type existed).
   if (entry.fan_payment_id && Number(entry.amount) > 0) return 'earning';
   if (entry.creator_withdrawal_id && Number(entry.amount) < 0) return 'stripe';
   if (entry.external_payout_id) return 'external';
@@ -48,7 +62,9 @@ function TypeBadge({ entry }: { entry: CashLedgerEntry }) {
   const kind = entryKind(entry);
 
   if (kind === 'earning') return <Badge tone="creator">earning</Badge>;
+  if (kind === 'fee')     return <Badge tone="warn">fee</Badge>;
   if (kind === 'stripe')  return <Badge tone="info">stripe</Badge>;
+  if (kind === 'refund')  return <Badge tone="bad">refund</Badge>;
 
   if (kind === 'external' && entry.external_payout) {
     const toneMap: Record<string, 'creator' | 'info' | 'good' | 'default'> = {
@@ -63,7 +79,6 @@ function TypeBadge({ entry }: { entry: CashLedgerEntry }) {
 
 function LedgerRow({ entry, prevDate }: { entry: CashLedgerEntry; prevDate: string | null }) {
   const amt      = Number(entry.amount);
-  const runBal   = Number(entry.running_balance);
   const clearing = isClearing(entry);
   const kind     = entryKind(entry);
   const isCredit = amt > 0;
@@ -102,6 +117,15 @@ function LedgerRow({ entry, prevDate }: { entry: CashLedgerEntry; prevDate: stri
           <span className="font-mono text-[10px] text-muted/50 block mt-0.5">ref: {refId}</span>
         )}
 
+        {/* Historical earnings: derived gross/fee breakdown (newer payouts show
+            the fee as its own row instead). */}
+        {kind === 'earning' && entry.platform_fee != null && entry.platform_fee > 0 && (
+          <span className="font-mono text-[10px] text-muted/70 block mt-0.5">
+            {entry.gross_amount != null ? `gross ${fmt(Number(entry.gross_amount))} · ` : ''}
+            −{fmt(Number(entry.platform_fee))} platform fee
+          </span>
+        )}
+
         {clearing && entry.available_after && (
           <span className="inline-flex items-center gap-1 mt-1 font-mono text-[10px] text-info">
             {/* clock icon */}
@@ -121,15 +145,15 @@ function LedgerRow({ entry, prevDate }: { entry: CashLedgerEntry; prevDate: stri
       {/* Amount */}
       <div className="shrink-0 text-right min-w-[72px]">
         <span className={`font-mono text-sm font-semibold tabular-nums ${
-          kind === 'earning' ? 'text-creator' : kind === 'adjustment' ? 'text-muted' : 'text-bad'
+          kind === 'earning' ? 'text-creator'
+            : kind === 'fee' || kind === 'adjustment' ? 'text-muted'
+            // Refunds are usually a clawback (debit, red); a failed-refund
+            // reversal credits the balance back, so colour by direction.
+            : kind === 'refund' ? (isCredit ? 'text-good' : 'text-bad')
+            : 'text-bad'
         }`}>
           {isCredit ? '+' : '−'}{fmt(Math.abs(amt))}
         </span>
-      </div>
-
-      {/* Running balance */}
-      <div className="shrink-0 text-right w-[76px]">
-        <span className="font-mono text-xs text-muted tabular-nums">{fmt(runBal)}</span>
       </div>
     </div>
   );
@@ -144,7 +168,6 @@ function TableHeader() {
       <div className="flex-1 font-mono text-[10px] uppercase tracking-widest text-muted/50">description</div>
       <div className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-muted/50">type</div>
       <div className="shrink-0 min-w-[72px] font-mono text-[10px] uppercase tracking-widest text-muted/50 text-right">amount</div>
-      <div className="shrink-0 w-[76px] font-mono text-[10px] uppercase tracking-widest text-muted/50 text-right">balance</div>
     </div>
   );
 }
@@ -166,7 +189,7 @@ function EmptyLedger({ filter }: { filter: FilterTab }) {
     payouts: {
       icon: '◫',
       heading: 'No payouts yet',
-      sub: 'Once you have an available balance, withdraw it from the overview page.',
+      sub: 'Once you have an available balance, withdraw it from the payouts page.',
     },
   };
   const { icon, heading, sub } = copy[filter];
@@ -193,7 +216,6 @@ function LedgerSkeleton() {
           </div>
           <div className="h-4 w-12 bg-surface-2 animate-pulse rounded-full shrink-0" />
           <div className="h-4 w-16 bg-surface-2 animate-pulse rounded shrink-0" />
-          <div className="h-3 w-[76px] bg-surface-2 animate-pulse rounded shrink-0" />
         </div>
       ))}
     </div>
@@ -213,10 +235,18 @@ function MoneyContent() {
   const [loadingMore, setLoadingMore]   = useState(false);
   const [entries, setEntries]           = useState<CashLedgerEntry[]>([]);
   const [filter, setFilter]             = useState<FilterTab>('all');
+  const [earnings, setEarnings]         = useState<CreatorEarning[] | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/login');
   }, [authLoading, user, router]);
+
+  useEffect(() => {
+    cashApi
+      .creatorEarnings()
+      .then((res) => setEarnings(res.data))
+      .catch(() => setEarnings([]));
+  }, []);
 
   const load = useCallback(async (pageNum: number, append = false) => {
     try {
@@ -246,8 +276,11 @@ function MoneyContent() {
 
   // Client-side filter (pagination only fetches "all" — filter narrows visible rows)
   const filtered = entries.filter((e) => {
-    if (filter === 'earnings') return entryKind(e) === 'earning';
-    if (filter === 'payouts')  return entryKind(e) === 'stripe' || entryKind(e) === 'external';
+    const k = entryKind(e);
+    // Refunds (clawbacks) reverse a prior earning, so they belong in the
+    // earnings view — otherwise net earnings can't be reconciled from that tab.
+    if (filter === 'earnings') return k === 'earning' || k === 'fee' || k === 'refund';
+    if (filter === 'payouts')  return k === 'stripe' || k === 'external';
     return true;
   });
 
@@ -256,8 +289,15 @@ function MoneyContent() {
   const clearing            = balance?.clearing             ?? 0;
   const availableBalance    = balance?.available_balance    ?? 0;
   const paidOut             = balance?.paid_out             ?? 0;
+  const lifetimeFees        = balance?.lifetime_platform_fees ?? 0;
   const openBackings         = balance?.open_backings         ?? 0;
   const solidOpenBackings    = balance?.solid_open_backings   ?? openBackings;
+
+  // Payout categories: 2 = manual processing (Wise/PayPal/wire), 3 = payouts
+  // unavailable in the creator's country entirely.
+  const isManualPayout  = user.creator?.payout_category === 2;
+  const isPayoutBlocked = user.creator?.payout_category === 3;
+  const payoutMinimum   = user.creator?.payout_minimum ?? 50;
 
   return (
     <div className="space-y-7 pt-2">
@@ -266,7 +306,7 @@ function MoneyContent() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <SectionLabel>creator · money</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">Money</h1>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">Cash ledger</h1>
           <p className="text-sm text-muted mt-1 max-w-[480px]">
             Your balances and every credit and debit on your creator account, newest first.
           </p>
@@ -278,6 +318,19 @@ function MoneyContent() {
           ← overview
         </Link>
       </div>
+
+      {/* ── Restricted-region notice ──────────────────────────────────────── */}
+      {isPayoutBlocked && (
+        <Banner tone="bad">
+          <div>
+            <strong>Payouts unavailable in your region.</strong>{' '}
+            Due to international payment restrictions, we&apos;re unable to process payouts to
+            creators in your country at this time. Your bounty activity is otherwise unaffected.
+            If you believe this is an error,{' '}
+            <a href="mailto:support@artypot.com" className="ap-inline-link">contact support</a>.
+          </div>
+        </Banner>
+      )}
 
       {/* ── Balance pipeline ───────────────────────────────────────────────── */}
       {balanceLoading ? (
@@ -366,6 +419,63 @@ function MoneyContent() {
               </div>
             )}
           </Card>
+
+          {/* ── Per-bounty breakdown ──────────────────────────────────────── */}
+          {earnings && earnings.length > 0 && (
+            <Card className="overflow-hidden !p-0">
+              <div className="px-5 pt-4 pb-3 border-b border-border">
+                <SectionLabel>by project</SectionLabel>
+              </div>
+              <div className="divide-y divide-border">
+                {earnings.map((earning) => {
+                  const earnedPct = earning.total > 0
+                    ? Math.min((earning.earned / earning.total) * 100, 100)
+                    : 0;
+                  return (
+                    <div key={earning.bounty.id} className="px-5 py-4">
+                      <div className="flex items-start justify-between gap-4 mb-2.5">
+                        <Link
+                          href={`/bounties/${earning.bounty.id}`}
+                          className="text-sm font-semibold text-foreground hover:text-creator transition-colors leading-snug"
+                        >
+                          {earning.bounty.title}
+                        </Link>
+                        <span className="font-mono text-[10px] uppercase tracking-widest text-muted shrink-0 pt-0.5">
+                          {earning.bounty.status.replace('_', ' ')}
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-surface-2 rounded-full overflow-hidden mb-2.5">
+                        <div
+                          className="h-full bg-creator rounded-full transition-all"
+                          style={{ width: `${earnedPct}%` }}
+                        />
+                      </div>
+                      <div className="flex items-end justify-between gap-4">
+                        <div>
+                          <span className="font-mono text-lg font-medium tabular-nums text-foreground">
+                            {fmt(earning.earned)}
+                          </span>
+                          <span className="font-mono text-[10px] text-muted ml-2">
+                            of {fmt(earning.total)} potential
+                          </span>
+                        </div>
+                        {earning.incoming > 0 && (
+                          <span className="font-mono text-xs text-warn tabular-nums">
+                            +{fmt(earning.incoming)} incoming
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="border-t border-border px-5 py-3">
+                <p className="font-mono text-[10px] text-muted/50">
+                  incoming amounts are gross fan charges — net credit is lower after stripe + platform fees
+                </p>
+              </div>
+            </Card>
+          )}
         </div>
 
         {/* ── Sidebar (1/3) ─────────────────────────────────────────────── */}
@@ -429,11 +539,24 @@ function MoneyContent() {
                   : <div className="font-mono text-lg font-medium text-foreground tabular-nums">{fmt(paidOut)}</div>
                 }
               </div>
+
+              <div>
+                <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-0.5">platform fees</div>
+                {balanceLoading
+                  ? <div className="h-5 w-20 bg-surface-2 animate-pulse rounded mt-1" />
+                  : (
+                    <>
+                      <div className="font-mono text-lg font-medium text-muted tabular-nums">{fmt(lifetimeFees)}</div>
+                      <div className="font-mono text-[10px] text-muted/60 mt-0.5">withheld to date</div>
+                    </>
+                  )
+                }
+              </div>
             </div>
 
             <div className="mt-5 space-y-2">
               {!balanceLoading && availableBalance > 0 && (
-                <Link href="/c">
+                <Link href="/c/payouts#available">
                   <Button variant="primary" className="w-full justify-center">
                     Withdraw {fmt(availableBalance)} →
                   </Button>
@@ -453,15 +576,29 @@ function MoneyContent() {
             <div className="space-y-3 text-sm text-muted leading-relaxed">
               <p>
                 <span className="text-foreground font-semibold">Earning</span> — fans are billed on
-                the {BILLING_DAY}th. The gross amount minus the platform fee is credited to your ledger.
+                the {BILLING_DAY}th. Each payout posts as a gross <span className="text-creator">earning</span> credit
+                with the <span className="text-warn">platform fee</span> shown as its own line, so your net is
+                always clear.
               </p>
               <p>
                 <span className="text-foreground font-semibold">Clearing</span> — funds are held for{' '}
                 {BILLING_GRACE_PERIOD_DAYS} days to cover disputes. After that they move to Available.
               </p>
               <p>
-                <span className="text-foreground font-semibold">Payout</span> — you withdraw from
-                the overview page. Stripe hits your bank in 1–3 business days.
+                <span className="text-foreground font-semibold">Payout</span> —{' '}
+                {isManualPayout ? (
+                  <>
+                    your country requires manual payout processing. Payouts are sent via Wise,
+                    PayPal, or wire transfer, with a minimum withdrawal of{' '}
+                    <span className="text-foreground">${payoutMinimum.toLocaleString('en-US')}</span>.
+                  </>
+                ) : (
+                  <>
+                    you withdraw from the{' '}
+                    <Link href="/c/payouts" className="ap-inline-link">payouts page</Link>.
+                    Stripe hits your bank in 1–3 business days.
+                  </>
+                )}
               </p>
             </div>
           </Card>
