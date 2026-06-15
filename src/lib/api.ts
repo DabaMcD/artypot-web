@@ -267,8 +267,13 @@ export const auth = {
   resendVerification: () =>
     request<{ message: string }>('/auth/email/resend', { method: 'POST' }),
 
-  oauthRedirect: (provider: string) =>
-    request<{ url: string }>(`/auth/oauth/${provider}/redirect`),
+  oauthRedirect: (provider: string, opts?: { intent?: string; handleId?: number }) => {
+    const params = new URLSearchParams();
+    if (opts?.intent) params.set('intent', opts.intent);
+    if (opts?.handleId != null) params.set('handle_id', String(opts.handleId));
+    const qs = params.toString();
+    return request<{ url: string }>(`/auth/oauth/${provider}/redirect${qs ? `?${qs}` : ''}`);
+  },
 
   forgotPassword: (email: string) =>
     request<{ message: string }>('/auth/password/forgot', {
