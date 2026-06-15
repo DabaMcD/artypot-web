@@ -171,8 +171,8 @@ function OAuthConnectModal({
           You&apos;ll be redirected to {authBrand} to authorize the connection, then brought back here.
         </p>
         <Banner tone="default">
-          Make sure you&apos;re signed in to {authBrand} as the owner of{' '}
-          <span className="text-foreground">@{claim.handle.username}</span> before continuing.
+          Make sure you&apos;re using the {authBrand} account that owns{' '}
+          <span className="text-foreground">@{claim.handle.username}</span>.
         </Banner>
         <div className="flex gap-3 justify-end">
           <Button variant="ghost" onClick={onClose} disabled={loading}>Cancel</Button>
