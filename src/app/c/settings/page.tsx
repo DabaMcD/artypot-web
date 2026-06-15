@@ -273,7 +273,7 @@ export default function CreatorSettingsPage() {
   return (
     <div className="space-y-7 pt-2 max-w-[680px]">
       <div>
-        <SectionLabel>creator · admin</SectionLabel>
+        <SectionLabel>creator · profile</SectionLabel>
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">settings</h1>
       </div>
 

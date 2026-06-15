@@ -82,16 +82,18 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
   };
 
   // Dashboard sits unlabeled at the top of each nav; the labeled sections
-  // below it group pages by user goal (your bounty activity, finding new
-  // stuff, billing, account) rather than by page type.
+  // below it group pages by user goal (your own activity, finding new stuff,
+  // money, account) rather than by page type.
   const fanItems: NavItem[] = [
     { id: 'fan-home',      label: 'Dashboard',       icon: '◐', href: '/dashboard' },
-    { sec: 'bounties' },
+    // 'your activity' (not 'bounties') — this section holds the fan's own
+    // backings + authoring, not the bounty directory (that's under discover).
+    { sec: 'your activity' },
     { id: 'fan-backings',  label: 'My backings',     icon: '◇', href: '/backings' },
     { id: 'fan-create',    label: 'Start a bounty',  icon: '+', href: '/bounties/new' },
     { sec: 'discover' },
-    { id: 'fan-search',    label: 'Explore',         icon: '⌕', href: '/search' },
-    { id: 'fan-bounties',  label: 'All bounties',    icon: '◫', href: '/bounties' },
+    { id: 'fan-search',    label: 'Find creators',   icon: '⌕', href: '/search' },
+    { id: 'fan-bounties',  label: 'Browse bounties', icon: '◫', href: '/bounties' },
     { sec: 'money' },
     { id: 'fan-billing',   label: 'Billing',         icon: '$', href: '/billing' },
     { id: 'fan-payments',  label: 'Payment history', icon: '◷', href: '/history' },
@@ -104,22 +106,17 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
       : []),
   ];
 
-  // The three setup gates (verified handle, creator TOS, bank account) are all
-  // derivable from the /me payload — same signals /c/setup itself renders.
-  // Once every gate is done the Setup item retires from the nav; the page
-  // stays reachable from the dashboard checklist and by URL.
-  const setupComplete = !!user?.has_verified_handle && !!user?.creator?.bank_connected;
-
+  // No 'Setup' item: onboarding now lives on the dashboard (/c) as the payout-
+  // readiness checklist, which is the canonical tracker. /c/setup is retired
+  // (redirects to /c). The money section leads with Payouts (the action) ahead
+  // of the read-only Cash ledger, mirroring the fan side's Billing-before-history.
   const creatorItems: NavItem[] = [
     { id: 'creator-dashboard',  label: 'Dashboard',        icon: '◐', href: '/c' },
-    ...(!setupComplete
-      ? [{ id: 'creator-onboarding', label: 'Setup', icon: '◔', href: '/c/setup' }]
-      : []),
     { sec: 'bounties' },
     { id: 'creator-bounties',   label: 'My bounties',      icon: '◇', href: '/c/bounties' },
     { sec: 'money' },
-    { id: 'creator-money',      label: 'Cash ledger',      icon: '$', href: '/c/money' },
     { id: 'creator-payouts',    label: 'Payouts',          icon: '↗', href: '/c/payouts' },
+    { id: 'creator-money',      label: 'Cash ledger',      icon: '$', href: '/c/money' },
     { id: 'creator-tax',        label: 'Tax & compliance', icon: '⚖', href: '/c/tax' },
     { sec: 'account' },
     { id: 'creator-handles',    label: 'Handles',          icon: '@', href: '/c/handles' },

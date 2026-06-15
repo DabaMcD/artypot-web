@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { w9 as w9Api, w8ben as w8benApi } from '@/lib/api';
 import type { FormW9StatusResponse, FormW8BENStatusResponse } from '@/lib/types';
-import { countryName } from '@/lib/countries';
 import { BILLING_DAY } from '@/lib/config';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -14,7 +13,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Banner } from '@/components/ui/Banner';
 import { BalancePipeline } from '@/components/ui/Pipeline';
 import { useCreatorPayouts } from '@/lib/hooks/useCreatorPayouts';
-import WithdrawCard from '@/components/creator/WithdrawCard';
+import AvailableBalanceSummary from '@/components/creator/AvailableBalanceSummary';
 import PayoutReadinessChecklist from '@/components/PayoutReadinessChecklist';
 
 function CreatorDashboardContent() {
@@ -51,7 +50,7 @@ function CreatorDashboardContent() {
   }
 
   const creator = user.creator;
-  const { balance, balanceLoading, bankConnected, canWithdraw, payoutHold, needsLocation, isPayoutBlocked, isManualPayout } = p;
+  const { balance, balanceLoading, payoutHold } = p;
 
   const solidOpenBackings    = balance?.solid_open_backings ?? balance?.open_backings ?? 0;
   const softOpenBackings     = (balance?.open_backings ?? 0) - solidOpenBackings;
@@ -96,38 +95,10 @@ function CreatorDashboardContent() {
         </Banner>
       )}
 
-      {/* Setup checklist — this is the Stripe self-serve withdrawal path, which
-          region-blocked (cat 3) and manual-payout (cat 2) creators don't use; the
-          WithdrawCard below carries the right region notice for them instead. */}
-      {!isPayoutBlocked && !isManualPayout && (needsLocation || !canWithdraw || taxFormRequired) && (
-        <Banner tone="warn">
-          <div>
-            <strong>Before You Can Withdraw</strong>
-            <ul className="mt-2 space-y-1 text-sm">
-              <li className={`flex items-center gap-2 ${!needsLocation ? 'line-through text-muted' : ''}`}>
-                <span>{!needsLocation ? '✓' : '1.'}</span>
-                Set your location
-                {needsLocation && <Link href="/c/settings#location" className="ap-inline-link ml-1">edit settings →</Link>}
-              </li>
-              <li className={`flex items-center gap-2 ${canWithdraw ? 'line-through text-muted' : ''}`}>
-                <span>{canWithdraw ? '✓' : '2.'}</span>
-                Connect a bank account
-                {!canWithdraw && <Link href="/c/payouts" className="ap-inline-link ml-1">payouts →</Link>}
-              </li>
-              {/* Tax forms aren't a first-payout gate — a US creator can withdraw
-                  well before hitting the W-9 threshold. Only list it here once it's
-                  genuinely blocking a withdrawal. */}
-              {taxFormRequired && (
-                <li className="flex items-center gap-2">
-                  <span>3.</span>
-                  Submit your {isUS ? 'W-9' : 'W-8BEN'}
-                  <Link href="/c/tax" className="ap-inline-link ml-1">tax →</Link>
-                </li>
-              )}
-            </ul>
-          </div>
-        </Banner>
-      )}
+      {/* Onboarding (location / bank / tax) is tracked once, by the payout-
+          readiness checklist in the right sidebar — the canonical tracker now
+          that /c/setup is retired. No separate "Before You Can Withdraw" banner
+          or status card duplicating it. */}
 
       {/* Balance pipeline */}
       <div>
@@ -214,47 +185,10 @@ function CreatorDashboardContent() {
 
         {/* RIGHT sidebar */}
         <div className="space-y-4">
-          {/* Withdraw */}
-          <WithdrawCard p={p} />
+          {/* Available balance — read-only summary; withdrawal lives on /c/payouts */}
+          <AvailableBalanceSummary p={p} />
 
-          {/* Status summary */}
-          <Card>
-            <SectionLabel className="mb-3">status</SectionLabel>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-muted">location</span>
-                <span className={user.location_complete ? 'text-good' : 'text-warn'}>
-                  {user.location_complete
-                    ? (isUS ? `${user.state_code}, US` : countryName(user.country_code ?? ''))
-                    : 'not set'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted">{isUS ? 'W-9' : 'W-8BEN'}</span>
-                <span className={
-                  isUS
-                    ? (w9Status?.record?.tin_matched ? 'text-good' : w9Status?.requires_w9 ? 'text-warn' : 'text-muted')
-                    : (w8benStatus?.record?.qualifies ? 'text-good' : w8benStatus?.requires_w8ben ? 'text-warn' : 'text-muted')
-                }>
-                  {isUS
-                    ? (w9Status?.record?.tin_matched ? 'verified' : w9Status?.record ? 'submitted' : w9Status?.requires_w9 ? 'required' : 'not needed yet')
-                    : (w8benStatus?.record?.qualifies ? 'submitted' : w8benStatus?.requires_w8ben ? 'required' : 'not needed yet')}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted">bank account</span>
-                <span className={canWithdraw ? 'text-good' : 'text-warn'}>
-                  {canWithdraw ? 'connected' : bankConnected ? 'setup incomplete' : 'not connected'}
-                </span>
-              </div>
-            </div>
-            <div className="border-t border-border mt-3 pt-3 flex items-center justify-between">
-              <Link href="/c/payouts" className="ap-inline-link text-xs">Payouts →</Link>
-              <Link href="/c/tax" className="ap-inline-link text-xs">Tax →</Link>
-            </div>
-          </Card>
-
-          {/* First payout checklist */}
+          {/* First payout checklist — the single payout-readiness surface */}
           <Card>
             <SectionLabel className="mb-3">first payout</SectionLabel>
             <PayoutReadinessChecklist taxFormRequired={taxFormRequired} taxFormDone={taxFormDone} />

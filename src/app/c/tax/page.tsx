@@ -43,6 +43,8 @@ function TaxContent() {
 
         {/* RIGHT — residence + future documents */}
         <div className="space-y-4">
+          {/* Compact mirror of the real editor on /c/settings#location — shows
+              the declared residence and links out; it does not edit here. */}
           <Card>
             <SectionLabel className="mb-3">tax residence</SectionLabel>
             <div className="flex items-center justify-between text-sm">
@@ -51,13 +53,10 @@ function TaxContent() {
                 {residence ?? 'not set'}
               </span>
             </div>
-            <p className="text-xs text-muted leading-relaxed mt-3">
-              Determines whether a W-9 (US) or W-8BEN (international) applies, and how
-              your earnings are reported. Changes are logged for compliance.
+            <p className="text-xs text-muted leading-relaxed mt-2">
+              Sets whether a W-9 (US) or W-8BEN (international) applies.{' '}
+              <Link href="/c/settings#location" className="ap-inline-link">Update tax residence →</Link>
             </p>
-            <div className="border-t border-border mt-3 pt-3">
-              <Link href="/c/settings#location" className="ap-inline-link text-xs">Update tax residence →</Link>
-            </div>
           </Card>
 
           <Card dashed>

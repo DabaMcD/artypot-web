@@ -98,7 +98,7 @@ export default function PayoutReadinessChecklist({
     {
       label: 'Creator TOS agreed',
       done: (user as unknown as Record<string, unknown>).creator_tos_accepted_at != null,
-      href: '/c',
+      href: '/creator-tos',
     },
     {
       label: 'Country / region set',
@@ -146,6 +146,20 @@ export default function PayoutReadinessChecklist({
   // Find index of first incomplete item
   const firstIncompleteIdx = items.findIndex((item) => !item.done);
 
+  // Once everything is done (and there's no Stripe hold), collapse to a single
+  // confirmation line rather than a permanent wall of ✓s. This keeps the
+  // checklist — now the only readiness surface on the dashboard — from becoming
+  // clutter for established creators.
+  const allDone = !payoutHold && firstIncompleteIdx === -1;
+  if (allDone) {
+    return (
+      <div className="flex items-center gap-3 py-1">
+        <CheckIcon done />
+        <span className="text-sm text-good">You&apos;re all set for payouts.</span>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-2">
       {payoutHold && (
@@ -189,7 +203,12 @@ export default function PayoutReadinessChecklist({
               >
                 {item.label}
               </span>
-              {isFirstIncomplete && item.href && (
+              {/* Every incomplete step is actionable — this checklist is now the
+                  canonical onboarding tracker (the standalone /c/setup page is
+                  retired), so it must deep-link to each step's real home, not
+                  just the next one. The first incomplete item keeps the visual
+                  emphasis as the suggested next step. */}
+              {!item.done && item.href && (
                 <Link
                   href={item.href}
                   className="ml-2 text-xs text-fan underline underline-offset-2 hover:opacity-80 transition-opacity"

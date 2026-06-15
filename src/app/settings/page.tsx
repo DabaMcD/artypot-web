@@ -523,18 +523,11 @@ export default function SettingsPage() {
         )}
         </div>
 
-        {/* Profile picture — moved to creator settings for creators */}
-        {user.role === 'creator' ? (
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <SectionLabel className="mb-1">profile picture</SectionLabel>
-                <p className="text-sm text-muted">Manage your creator profile picture.</p>
-              </div>
-              <Link href="/c/settings#picture"><Button variant="default" size="sm">Creator Settings →</Button></Link>
-            </div>
-          </Card>
-        ) : (
+        {/* Profile picture, display name and bio are edited here for fans. For
+            creators these are owned by /c/settings (the public-profile editor);
+            the "creator profile" card below is their single doorway there, so we
+            don't render empty redirect stubs for each field. */}
+        {user.role !== 'creator' && (
           <Card>
             <SectionLabel className="mb-4">profile picture</SectionLabel>
             <div className="flex items-center gap-4">
@@ -578,18 +571,8 @@ export default function SettingsPage() {
           </Card>
         )}
 
-        {/* Display name — moved to creator settings for creators */}
-        {user.role === 'creator' ? (
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <SectionLabel className="mb-1">display name</SectionLabel>
-                <p className="text-sm text-muted">Update your public name in creator settings.</p>
-              </div>
-              <Link href="/c/settings#display-name"><Button variant="default" size="sm">Creator Settings →</Button></Link>
-            </div>
-          </Card>
-        ) : (
+        {/* Display name — fans edit here; creators edit on /c/settings */}
+        {user.role !== 'creator' && (
           <Card>
             <SectionLabel className="mb-3">display name</SectionLabel>
             <form onSubmit={handleSaveName} className="flex gap-2">
@@ -694,8 +677,12 @@ export default function SettingsPage() {
           </div>
         </Card>
 
-        {/* Creator profile link */}
-        {user.role === 'creator' && user.creator && (
+        {/* Creator profile link — this is the single doorway to the creator
+            profile editors (which is why the per-field stubs were removed). Gate
+            on role only: the inverse cards above hide for `role === 'creator'`,
+            so a creator must always have this card or they'd have no profile
+            editing affordance at all. */}
+        {user.role === 'creator' && (
           <Card>
             <div className="flex items-center justify-between">
               <div>
@@ -870,35 +857,9 @@ export default function SettingsPage() {
           </Card>
         )}
 
-        {/* Tax residence — creators manage in /c/settings; fans set it as part of the become-creator flow. */}
-        {user.role === 'creator' && (
-          <div id="location">
-            <Card>
-              <div className="flex items-center justify-between">
-                <div>
-                  <SectionLabel className="mb-1">tax residence</SectionLabel>
-                  <p className="text-sm text-muted">Where you pay tax on your Artypot earnings.</p>
-                </div>
-                <Link href="/c/settings#location"><Button variant="default" size="sm">Creator Settings →</Button></Link>
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* Handles — moved to /c/handles for creators */}
-        {user.role === 'creator' && (
-          <div id="handles">
-            <Card>
-              <div className="flex items-center justify-between">
-                <div>
-                  <SectionLabel className="mb-1">handles</SectionLabel>
-                  <p className="text-sm text-muted">Manage your verified social handles.</p>
-                </div>
-                <Link href="/c/handles"><Button variant="default" size="sm">Manage Handles →</Button></Link>
-              </div>
-            </Card>
-          </div>
-        )}
+        {/* Creator tax residence + handles are edited on /c/settings and
+            /c/handles; the "creator profile" card above is the single doorway,
+            so no empty redirect stubs are rendered here. */}
 
         {/* Danger zone */}
         <Card className="border-bad/30">

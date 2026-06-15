@@ -649,6 +649,7 @@ export type CashLedgerEntryType =
   | 'external_payout'
   | 'external_payout_reversal'
   | 'dispute_adjustment'
+  | 'refund_clawback'
   | 'adjustment';
 
 export interface CashLedgerEntry {
@@ -656,7 +657,6 @@ export interface CashLedgerEntry {
   entity_type: 'user' | 'creator';
   entity_id: number;
   amount: number;
-  running_balance: number;
   available_after: string | null;
   description: string;
   /** Nullable only for legacy rows written before the column existed. */

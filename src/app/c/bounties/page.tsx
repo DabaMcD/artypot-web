@@ -15,7 +15,6 @@ import { Empty } from '@/components/ui/Empty';
 import { Input, Textarea, FieldLabel, FieldHint } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
-import ShareButton from '@/components/ShareButton';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -322,7 +321,6 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
         </div>
         {/* Right */}
         <div className="flex items-center gap-2 shrink-0">
-          <ShareButton path={`/bounties/${bounty.id}`} title={bounty.title} />
           <BountyStatusBadge status={status} />
           {actionBtn}
         </div>

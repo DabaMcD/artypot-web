@@ -35,7 +35,7 @@ function isClearing(entry: CashLedgerEntry) {
 
 /** Classify a row into a display type — prefers the explicit entry_type, falls
  *  back to the legacy field-presence heuristic for any unstamped legacy rows. */
-function entryKind(entry: CashLedgerEntry): 'earning' | 'fee' | 'stripe' | 'external' | 'adjustment' {
+function entryKind(entry: CashLedgerEntry): 'earning' | 'fee' | 'stripe' | 'external' | 'refund' | 'adjustment' {
   switch (entry.entry_type) {
     case 'creator_earning':          return 'earning';
     case 'platform_fee':
@@ -43,6 +43,7 @@ function entryKind(entry: CashLedgerEntry): 'earning' | 'fee' | 'stripe' | 'exte
     case 'creator_withdrawal':       return 'stripe';
     case 'external_payout':
     case 'external_payout_reversal': return 'external';
+    case 'refund_clawback':          return 'refund';
     case 'dispute_adjustment':
     case 'adjustment':               return 'adjustment';
   }
@@ -63,6 +64,7 @@ function TypeBadge({ entry }: { entry: CashLedgerEntry }) {
   if (kind === 'earning') return <Badge tone="creator">earning</Badge>;
   if (kind === 'fee')     return <Badge tone="warn">fee</Badge>;
   if (kind === 'stripe')  return <Badge tone="info">stripe</Badge>;
+  if (kind === 'refund')  return <Badge tone="bad">refund</Badge>;
 
   if (kind === 'external' && entry.external_payout) {
     const toneMap: Record<string, 'creator' | 'info' | 'good' | 'default'> = {
@@ -77,7 +79,6 @@ function TypeBadge({ entry }: { entry: CashLedgerEntry }) {
 
 function LedgerRow({ entry, prevDate }: { entry: CashLedgerEntry; prevDate: string | null }) {
   const amt      = Number(entry.amount);
-  const runBal   = Number(entry.running_balance);
   const clearing = isClearing(entry);
   const kind     = entryKind(entry);
   const isCredit = amt > 0;
@@ -146,15 +147,13 @@ function LedgerRow({ entry, prevDate }: { entry: CashLedgerEntry; prevDate: stri
         <span className={`font-mono text-sm font-semibold tabular-nums ${
           kind === 'earning' ? 'text-creator'
             : kind === 'fee' || kind === 'adjustment' ? 'text-muted'
+            // Refunds are usually a clawback (debit, red); a failed-refund
+            // reversal credits the balance back, so colour by direction.
+            : kind === 'refund' ? (isCredit ? 'text-good' : 'text-bad')
             : 'text-bad'
         }`}>
           {isCredit ? '+' : '−'}{fmt(Math.abs(amt))}
         </span>
-      </div>
-
-      {/* Running balance */}
-      <div className="shrink-0 text-right w-[76px]">
-        <span className="font-mono text-xs text-muted tabular-nums">{fmt(runBal)}</span>
       </div>
     </div>
   );
@@ -169,7 +168,6 @@ function TableHeader() {
       <div className="flex-1 font-mono text-[10px] uppercase tracking-widest text-muted/50">description</div>
       <div className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-muted/50">type</div>
       <div className="shrink-0 min-w-[72px] font-mono text-[10px] uppercase tracking-widest text-muted/50 text-right">amount</div>
-      <div className="shrink-0 w-[76px] font-mono text-[10px] uppercase tracking-widest text-muted/50 text-right">balance</div>
     </div>
   );
 }
@@ -191,7 +189,7 @@ function EmptyLedger({ filter }: { filter: FilterTab }) {
     payouts: {
       icon: '◫',
       heading: 'No payouts yet',
-      sub: 'Once you have an available balance, withdraw it from the overview page.',
+      sub: 'Once you have an available balance, withdraw it from the payouts page.',
     },
   };
   const { icon, heading, sub } = copy[filter];
@@ -218,7 +216,6 @@ function LedgerSkeleton() {
           </div>
           <div className="h-4 w-12 bg-surface-2 animate-pulse rounded-full shrink-0" />
           <div className="h-4 w-16 bg-surface-2 animate-pulse rounded shrink-0" />
-          <div className="h-3 w-[76px] bg-surface-2 animate-pulse rounded shrink-0" />
         </div>
       ))}
     </div>
@@ -280,7 +277,9 @@ function MoneyContent() {
   // Client-side filter (pagination only fetches "all" — filter narrows visible rows)
   const filtered = entries.filter((e) => {
     const k = entryKind(e);
-    if (filter === 'earnings') return k === 'earning' || k === 'fee';
+    // Refunds (clawbacks) reverse a prior earning, so they belong in the
+    // earnings view — otherwise net earnings can't be reconciled from that tab.
+    if (filter === 'earnings') return k === 'earning' || k === 'fee' || k === 'refund';
     if (filter === 'payouts')  return k === 'stripe' || k === 'external';
     return true;
   });
@@ -557,7 +556,7 @@ function MoneyContent() {
 
             <div className="mt-5 space-y-2">
               {!balanceLoading && availableBalance > 0 && (
-                <Link href="/c">
+                <Link href="/c/payouts#available">
                   <Button variant="primary" className="w-full justify-center">
                     Withdraw {fmt(availableBalance)} →
                   </Button>
@@ -595,7 +594,9 @@ function MoneyContent() {
                   </>
                 ) : (
                   <>
-                    you withdraw from the overview page. Stripe hits your bank in 1–3 business days.
+                    you withdraw from the{' '}
+                    <Link href="/c/payouts" className="ap-inline-link">payouts page</Link>.
+                    Stripe hits your bank in 1–3 business days.
                   </>
                 )}
               </p>
