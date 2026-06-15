@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { metrics as metricsApi } from '@/lib/api';
+import { metrics as metricsApi, type RefundMetricSegment } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import Link from 'next/link';
@@ -23,6 +23,16 @@ type MetricsData = {
   total_unpaid_to_creators:    number;
   total_comments:              number;
   reply_percentage:            number;
+  refunds: {
+    overall:  RefundMetricSegment;
+    admin:    RefundMetricSegment;
+    creator:  RefundMetricSegment;
+    pending_count:        number;
+    failed_count:         number;
+    mtd_count:            number;
+    mtd_refunded_to_fans: number;
+    refund_rate_pct:      number;
+  };
 };
 
 function fmt$( n: number ) {
@@ -37,14 +47,61 @@ interface StatCardProps {
   label: string;
   value: string;
   sub?: string;
+  /** Tint the value red — used to draw the eye to non-zero failure counts. */
+  alert?: boolean;
 }
 
-function StatCard({ label, value, sub }: StatCardProps) {
+function StatCard({ label, value, sub, alert }: StatCardProps) {
   return (
     <div className="bg-surface border border-border rounded-xl p-5 flex flex-col gap-1">
       <p className="text-xs text-muted uppercase tracking-wider font-semibold">{label}</p>
-      <p className="text-2xl font-display font-bold text-foreground">{value}</p>
+      <p className={`text-2xl font-display font-bold ${alert ? 'text-red-400' : 'text-foreground'}`}>{value}</p>
       {sub && <p className="text-xs text-muted">{sub}</p>}
+    </div>
+  );
+}
+
+/**
+ * Side-by-side admin vs creator vs total breakdown. Refunds split cleanly by
+ * who initiated them, and the money columns mean different things per source
+ * (admin claws back net, creator claws back gross), so a comparison grid is far
+ * more legible than a wall of flat stat cards.
+ */
+function RefundCompareTable({
+  admin, creator, overall,
+}: {
+  admin:   RefundMetricSegment;
+  creator: RefundMetricSegment;
+  overall: RefundMetricSegment;
+}) {
+  const rows: { label: string; sub: string; pick: (s: RefundMetricSegment) => string }[] = [
+    { label: 'Refunds',           sub: 'succeeded',              pick: (s) => fmtN(s.count) },
+    { label: 'Refunded to fans',  sub: 'gross returned',         pick: (s) => fmt$(s.refunded_to_fans) },
+    { label: 'Clawed back',       sub: 'debited from creators',  pick: (s) => fmt$(s.clawed_back) },
+    { label: 'Platform absorbed', sub: 'fees not clawed back',   pick: (s) => fmt$(s.platform_absorbed) },
+  ];
+
+  return (
+    <div className="bg-surface border border-border rounded-xl overflow-hidden">
+      <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr] text-xs">
+        {/* Header row */}
+        <div className="px-4 py-2.5 bg-surface-2 font-semibold uppercase tracking-wider text-muted">Metric</div>
+        <div className="px-4 py-2.5 bg-surface-2 font-semibold uppercase tracking-wider text-muted text-right">Admin</div>
+        <div className="px-4 py-2.5 bg-surface-2 font-semibold uppercase tracking-wider text-muted text-right">Creator</div>
+        <div className="px-4 py-2.5 bg-surface-2 font-semibold uppercase tracking-wider text-right" style={{ color: '#8A2BE2' }}>Total</div>
+
+        {rows.map((r, i) => (
+          <div key={r.label} className="contents">
+            <div className={`px-4 py-3 ${i > 0 ? 'border-t border-border' : ''}`}>
+              <p className="text-foreground font-medium">{r.label}</p>
+              <p className="text-[11px] text-muted">{r.sub}</p>
+            </div>
+            <div className={`px-4 py-3 text-right tabular-nums text-foreground self-center ${i > 0 ? 'border-t border-border' : ''}`}>{r.pick(admin)}</div>
+            <div className={`px-4 py-3 text-right tabular-nums text-foreground self-center ${i > 0 ? 'border-t border-border' : ''}`}>{r.pick(creator)}</div>
+            <div className={`px-4 py-3 text-right tabular-nums font-semibold self-center ${i > 0 ? 'border-t border-border' : ''}`} style={{ color: '#8A2BE2' }}>{r.pick(overall)}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -207,6 +264,59 @@ export default function MetricsPage() {
               sub="pending or ready to pay out"
             />
           </Section>
+
+          {/* Refunds — headline health stats, then the admin/creator split. */}
+          <Section title="Refunds">
+            <StatCard
+              label="Total refunds"
+              value={fmtN(data.refunds.overall.count)}
+              sub={`${fmt$(data.refunds.overall.refunded_to_fans)} to fans`}
+            />
+            <StatCard
+              label="Refund rate"
+              value={`${data.refunds.refund_rate_pct}%`}
+              sub="of fan $ handed back"
+            />
+            <StatCard
+              label="This month"
+              value={fmtN(data.refunds.mtd_count)}
+              sub={`${fmt$(data.refunds.mtd_refunded_to_fans)} refunded`}
+            />
+            <StatCard
+              label="Platform absorbed"
+              value={fmt$(data.refunds.overall.platform_absorbed)}
+              sub="fees Artypot ate"
+            />
+            <StatCard
+              label="Pending"
+              value={fmtN(data.refunds.pending_count)}
+              sub="awaiting Stripe settlement"
+              alert={data.refunds.pending_count > 0}
+            />
+            <StatCard
+              label="Failed"
+              value={fmtN(data.refunds.failed_count)}
+              sub="needs attention"
+              alert={data.refunds.failed_count > 0}
+            />
+          </Section>
+
+          {/* By initiator — admin vs creator comparison. */}
+          <div>
+            <h2 className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#8A2BE2' }}>
+              Refunds by initiator
+            </h2>
+            <RefundCompareTable
+              admin={data.refunds.admin}
+              creator={data.refunds.creator}
+              overall={data.refunds.overall}
+            />
+            <p className="text-[11px] text-muted mt-2 leading-relaxed">
+              Admin refunds claw back the creator&apos;s <strong>net</strong> (Artypot returns its platform fee);
+              creator refunds claw back the full <strong>gross</strong> (Artypot keeps its fee to cover Stripe&apos;s
+              non-refundable cost). The gap is &ldquo;platform absorbed.&rdquo;
+            </p>
+          </div>
         </>
       ) : (
         <p className="text-sm text-muted">No data available.</p>

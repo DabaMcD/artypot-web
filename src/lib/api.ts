@@ -842,6 +842,13 @@ export const logs = {
 };
 
 // Overlord — sitewide metrics
+export interface RefundMetricSegment {
+  count:             number;
+  refunded_to_fans:  number;
+  clawed_back:       number;
+  platform_absorbed: number;
+}
+
 export const metrics = {
   get: () =>
     request<{
@@ -861,6 +868,16 @@ export const metrics = {
         total_unpaid_to_creators:    number;
         total_comments:              number;
         reply_percentage:            number;
+        refunds: {
+          overall:  RefundMetricSegment;
+          admin:    RefundMetricSegment;
+          creator:  RefundMetricSegment;
+          pending_count:        number;
+          failed_count:         number;
+          mtd_count:            number;
+          mtd_refunded_to_fans: number;
+          refund_rate_pct:      number;
+        };
       };
     }>('/overlord/metrics'),
 };
