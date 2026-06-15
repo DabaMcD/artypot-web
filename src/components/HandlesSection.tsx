@@ -21,7 +21,7 @@ import {
   platformOAuthProvider,
   platformOAuthIntent,
 } from '@/lib/platforms';
-import { OAUTH_NEXT_KEY } from '@/lib/next-redirect';
+import { OAUTH_NEXT_KEY, OAUTH_VERIFY_KEY, OAUTH_VERIFY_RESULT_KEY } from '@/lib/next-redirect';
 
 /**
  * Add-handle dropdown options — every curated platform plus 'Other'. Sourced
@@ -148,13 +148,16 @@ function OAuthConnectModal({
       // (next) instead of /dashboard once verification completes.
       sessionStorage.setItem('oauth_nonce', crypto.randomUUID());
       sessionStorage.setItem(OAUTH_NEXT_KEY, window.location.pathname);
+      // Mark this as a handle-verification round-trip (vs a login) and carry the
+      // handle so the callback page can always report the outcome on return.
+      sessionStorage.setItem(OAUTH_VERIFY_KEY, claim.handle.username);
 
-      // Pass the specific handle so the backend scopes verification to it
-      // (relevant for YouTube, where one Google account can own many channels).
-      const res = await authApi.oauthRedirect(
-        provider,
-        intent ? { intent, handleId: claim.handle.id } : undefined,
-      );
+      // Pass the specific handle so the backend scopes verification to it and
+      // can report the per-handle result (also fixes YouTube/brand multi-channel).
+      const res = await authApi.oauthRedirect(provider, {
+        handleId: claim.handle.id,
+        ...(intent ? { intent } : {}),
+      });
       window.location.href = res.url;
     } catch (err: unknown) {
       const e = err as { message?: string };
@@ -171,13 +174,13 @@ function OAuthConnectModal({
           You&apos;ll be redirected to {authBrand} to authorize the connection, then brought back here.
         </p>
         <Banner tone="default">
-          Make sure you&apos;re signed in to {authBrand} as the owner of{' '}
-          <span className="text-foreground">@{claim.handle.username}</span> before continuing.
+          Make sure you&apos;re using the {authBrand} account that owns{' '}
+          <span className="text-foreground">@{claim.handle.username}</span>.
         </Banner>
         <div className="flex gap-3 justify-end">
           <Button variant="ghost" onClick={onClose} disabled={loading}>Cancel</Button>
           <Button variant="primary" onClick={handleConnect} disabled={loading}>
-            {loading ? 'Redirecting…' : `Connect ${authBrand} →`}
+            {loading ? 'Redirecting…' : `Connect ${platformLabel} →`}
           </Button>
         </div>
       </div>
@@ -231,6 +234,38 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
   useEffect(() => {
     fetchClaims();
   }, [fetchClaims]);
+
+  // Surface the outcome of an OAuth handle-verification round-trip. The callback
+  // page stashes the result here before redirecting back; we show it once and
+  // clear it so a refresh doesn't replay the toast.
+  useEffect(() => {
+    const raw = sessionStorage.getItem(OAUTH_VERIFY_RESULT_KEY);
+    if (!raw) return;
+    sessionStorage.removeItem(OAUTH_VERIFY_RESULT_KEY);
+
+    let handle = '';
+    let result = '';
+    try {
+      ({ handle, result } = JSON.parse(raw));
+    } catch {
+      return;
+    }
+    const at = handle ? `@${handle}` : 'your handle';
+
+    switch (result) {
+      case 'verified':
+        toast(`${at} is verified! 🎉`, 'success');
+        break;
+      case 'not_found':
+        toast(`We couldn't verify ${at} — that account didn't match. Make sure you signed in to the account that owns it.`, 'error');
+        break;
+      case 'failed':
+        toast(`Couldn't complete the connection for ${at}. Please try again.`, 'error');
+        break;
+      default:
+        toast(`Something went wrong verifying ${at}. Please try again.`, 'error');
+    }
+  }, [toast]);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
