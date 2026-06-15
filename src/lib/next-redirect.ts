@@ -13,6 +13,20 @@
 /** sessionStorage key used to carry `next` across the OAuth provider round-trip. */
 export const OAUTH_NEXT_KEY = 'oauth_next';
 
+/**
+ * sessionStorage key marking an in-progress handle-verification OAuth flow.
+ * Its presence tells the callback page "this round-trip was a handle verify,
+ * not a login"; its value is the handle being verified (for the result message).
+ */
+export const OAUTH_VERIFY_KEY = 'oauth_handle_verify';
+
+/**
+ * sessionStorage key the callback page writes the verification outcome into, for
+ * the page that started the flow to read on return and surface as a toast.
+ * Shape: JSON `{ handle: string, result: 'verified'|'not_found'|'failed'|'error' }`.
+ */
+export const OAUTH_VERIFY_RESULT_KEY = 'oauth_handle_verify_result';
+
 /** Where users land after auth when no (valid) `next` was supplied. */
 export const DEFAULT_POST_AUTH = '/dashboard';
 
