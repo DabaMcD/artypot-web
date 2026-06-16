@@ -29,6 +29,7 @@ const GROUPS: Array<{ title: string; items: AdminSection[] }> = [
     items: [
       { label: 'Users',               icon: '◍', href: '/admin/users',             desc: 'Browse and manage accounts' },
       { label: 'Creators',            icon: '◐', href: '/admin/creators',          desc: 'Creator roster and status' },
+      { label: 'Handle registry',     icon: '⊙', href: '/admin/handle-registry',   desc: 'Investigate handles, claims & rejected claimants' },
       { label: 'Featured bounties',   icon: '★', href: '/admin/featured-bounties', desc: 'Curate the featured shelf' },
     ],
   },

@@ -30,6 +30,8 @@ import type {
   AdminBountyCompletion,
   HandleVerificationApplicationRow,
   HandleVerificationApplicationStatus,
+  HandleRegistryRow,
+  HandleDossier,
   UnclaimedHandlePot,
   BountyReportRow,
   ExternalPayout,
@@ -38,6 +40,7 @@ import type {
   CreatorBalance,
   Comment,
   HandlePlatform,
+  HandleStatus,
   HandleClaim,
   HandleSearchResult,
   SearchResponse,
@@ -846,6 +849,29 @@ export const logs = {
     }),
 };
 
+// Overlord — outbound email log (every email sent: recipient, address, subject)
+export interface EmailLogRow {
+  id: number;
+  user_id: number | null;
+  display_name: string | null;
+  email: string;
+  subject: string;
+  created_at: string | null;
+}
+
+export const emailLogs = {
+  list: (params?: { page?: number; search?: string }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<{
+      data: EmailLogRow[];
+      meta: { current_page: number; last_page: number; total: number; per_page: number };
+    }>(`/overlord/email-logs${qs ? `?${qs}` : ''}`);
+  },
+};
+
 // Overlord — sitewide metrics
 export interface RefundMetricSegment {
   count:             number;
@@ -1012,6 +1038,27 @@ export const admin = {
       method: 'POST',
       body: JSON.stringify(decisionNotes ? { decision_notes: decisionNotes } : {}),
     }),
+
+  // Handle investigation registry (read-only forensics)
+  /** Searchable handle list with per-status claim tallies. */
+  listHandleRegistry: (params: {
+    q?: string;
+    status?: HandleStatus | 'all';
+    contested?: boolean;
+    page?: number;
+  } = {}) => {
+    const entries = Object.entries(params)
+      .filter(([, v]) => v != null && v !== '' && v !== false)
+      .map(([k, v]) => [k, v === true ? '1' : String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<PaginatedResponse<HandleRegistryRow>>(
+      `/admin/handle-registry${qs ? `?${qs}` : ''}`,
+    );
+  },
+
+  /** Full investigation dossier for one handle. */
+  getHandleDossier: (handleId: number) =>
+    request<{ data: HandleDossier }>(`/admin/handle-registry/${handleId}`),
 
   // Bounty Completions
   listCompletions: (status: 'pending_review' | 'approved' | 'rejected' | 'all' = 'pending_review', page = 1) =>

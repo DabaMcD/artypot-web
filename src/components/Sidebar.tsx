@@ -132,6 +132,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
     { sec: 'catalog' },
     { id: 'council-users',            label: 'Users',               icon: '◍', href: '/admin/users' },
     { id: 'council-creators',         label: 'Creators',            icon: '◐', href: '/admin/creators' },
+    { id: 'council-handle-registry',  label: 'Handle registry',     icon: '⊙', href: '/admin/handle-registry' },
     { id: 'council-featured-bounties', label: 'Featured bounties',  icon: '★', href: '/admin/featured-bounties' },
     { sec: 'operations' },
     { id: 'council-billing',          label: 'Billing runs',        icon: '$', href: '/admin/billing' },

@@ -19,6 +19,12 @@ const NAV_ITEMS = [
     desc: 'Browse, filter, and prune application log entries.',
   },
   {
+    href: '/obelisk/email-logs',
+    icon: '✉️',
+    title: 'Email Log',
+    desc: 'Every outbound email — recipient, address, and subject.',
+  },
+  {
     href: '/obelisk/metrics',
     icon: '📊',
     title: 'Metrics',

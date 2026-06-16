@@ -607,6 +607,98 @@ export interface HandleVerificationApplicationRow {
   };
 }
 
+// ── Handle investigation registry (GET /admin/handle-registry[/{id}]) ─────────
+
+export type HandleClaimStatus = 'unverified' | 'verified' | 'rejected' | 'abandoned';
+export type HandleVerificationMethod = 'oauth' | 'manual_post' | 'manual_dm' | 'admin';
+
+/** Per-status claim tallies for one handle. */
+export interface HandleClaimSummary {
+  total: number;
+  verified: number;
+  rejected: number;
+  unverified: number;
+  abandoned: number;
+}
+
+/** A row in the handle registry list. */
+export interface HandleRegistryRow {
+  id: number;
+  platform: HandlePlatform;
+  username: string;
+  status: HandleStatus;
+  created_at: string;
+  owner: { id: number; display_name: string } | null;
+  verification_method: HandleVerificationMethod | null;
+  verified_at: string | null;
+  claim_summary: HandleClaimSummary;
+}
+
+/** One claim in a handle's full dossier. */
+export interface HandleDossierClaim {
+  id: number;
+  status: HandleClaimStatus;
+  verification_method: HandleVerificationMethod | null;
+  verified_at: string | null;
+  rejected_at: string | null;
+  created_at: string;
+  updated_at: string;
+  user: { id: number; display_name: string; email: string | null; country_code: string | null } | null;
+  /** Set on rejected claims: the claim (and user) that won the handle. */
+  rejected_in_favor_of: {
+    claim_id: number;
+    user: { id: number; display_name: string } | null;
+  } | null;
+  /** This claim's admin-review submission history, newest first. */
+  applications: Array<{
+    id: number;
+    status: HandleVerificationApplicationStatus;
+    contact_message: string;
+    decision_notes: string | null;
+    reviewed_at: string | null;
+    created_at: string;
+    reviewer: { id: number; display_name: string; email: string | null } | null;
+  }>;
+}
+
+/** Full investigation dossier for one handle (GET /admin/handle-registry/{id}). */
+export interface HandleDossier {
+  handle: {
+    id: number;
+    platform: HandlePlatform;
+    username: string;
+    username_normalized: string;
+    external_id: string | null;
+    profile_url: string | null;
+    status: HandleStatus;
+    last_synced_at: string | null;
+    created_at: string;
+    updated_at: string;
+  };
+  /** Null until the handle has a verified claim. */
+  verification: {
+    verified_claim_id: number;
+    method: HandleVerificationMethod | null;
+    verified_at: string | null;
+    owner: { id: number; display_name: string; email: string | null } | null;
+    /** The approved admin application behind a manual verification; null for OAuth. */
+    review: {
+      reviewer: { id: number; display_name: string; email: string | null } | null;
+      reviewed_at: string | null;
+      decision_notes: string | null;
+      contact_message: string;
+    } | null;
+  } | null;
+  claim_summary: HandleClaimSummary;
+  claims: HandleDossierClaim[];
+  aliases: Array<{ id: number; alias: string; source: string; created_at: string }>;
+  bounties: {
+    total: number;
+    pot_total: number;
+    items: Array<{ id: number; title: string; status: BountyStatus; total_backed: number }>;
+  };
+}
+
 export interface AdminBountyCompletion {
   id: number;
   bounty_id: number;
