@@ -10,6 +10,7 @@ import { nextTarget, readNextFromLocation, withNext, OAUTH_NEXT_KEY } from '@/li
 import { PLATFORM_FEE_PCT, PHONE_SIGNUP_ENABLED, PAYOUT_MINIMUM_AUTOMATED } from '@/lib/config';
 import { Button } from '@/components/ui/Button';
 import { Input, PasswordInput, FieldLabel } from '@/components/ui/Input';
+import { BrandIcon } from '@/components/ui/BrandIcon';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 
 /** All OAuth providers the backend supports, in preferred display order. */
@@ -171,8 +172,8 @@ export default function LoginPage() {
               className="flex items-center justify-center gap-1.5 border border-border bg-surface rounded py-2 px-3 font-mono text-xs text-muted hover:bg-surface-2 hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               {oauthLoading === id
-                ? <span className="w-3 h-3 rounded-full border border-current border-t-transparent animate-spin" />
-                : null}
+                ? <span className="w-3.5 h-3.5 rounded-full border border-current border-t-transparent animate-spin shrink-0" />
+                : <BrandIcon slug={id} className="w-3.5 h-3.5 shrink-0" />}
               {oauthLoading === id ? 'redirecting…' : label}
             </button>
           ))}

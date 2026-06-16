@@ -3,11 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { bounties as bountiesApi, billing, backings as backingsApi } from '@/lib/api';
+import { bounties as bountiesApi, billing, backings as backingsApi, featuredBounties as featuredBountiesApi } from '@/lib/api';
 import { nextBillingInfo } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
-import type { Bounty, CashBalance, FanStats, PaginatedResponse, PublicUserBacking } from '@/lib/types';
-import EmailVerificationBanner from '@/components/EmailVerificationBanner';
+import type { Bounty, CashBalance, FanStats, PublicUserBacking } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { InfoDot } from '@/components/ui/InfoDot';
@@ -21,13 +20,13 @@ export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [myBounties, setMyBounties] = useState<PaginatedResponse<Bounty> | null>(null);
+  const [featured, setFeatured] = useState<Bounty[]>([]);
   const [cash, setCash] = useState<CashBalance | null>(null);
   const [myBackings, setMyBackings] = useState<PublicUserBacking[]>([]);
   const [fanStats, setFanStats] = useState<FanStats | null>(null);
   const [revoking, setRevoking] = useState<Set<number>>(new Set());
 
-  const [bountiesLoading, setBountiesLoading] = useState(true);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
   const [cashLoading, setCashLoading] = useState(true);
   const [backingsLoading, setBackingsLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(true);
@@ -50,11 +49,14 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user) return;
 
-    bountiesApi
-      .list({ page: 1 })
-      .then(setMyBounties)
+    // Curated featured bounties — NOT the global recency feed (that lives on
+    // /bounties). The home shouldn't re-list the directory; it highlights a
+    // hand-picked few and links out for the rest.
+    featuredBountiesApi
+      .list()
+      .then((res) => setFeatured(res.data))
       .catch(() => {})
-      .finally(() => setBountiesLoading(false));
+      .finally(() => setFeaturedLoading(false));
 
     billing
       .cash()
@@ -108,7 +110,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-7 pt-2">
-      {!user.email_verified_at && <EmailVerificationBanner email={user.email} />}
+      {/* Email-verification prompt now renders globally via AppShell. */}
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
@@ -171,25 +173,26 @@ export default function DashboardPage() {
           </div>
         </Card>
 
-        {/* Next charge — actionable */}
+        {/* Next charge — the exact amount lives on /billing (the authoritative
+            owner). This card shows whether anything is due + when, and links out
+            for the figure rather than re-deriving it client-side. The actionable
+            amount + Pay Now still appears in the banner above when a balance is owed. */}
         <Card>
           <div className="flex items-center gap-1 mb-1">
             <span className="font-mono text-[10px] uppercase tracking-widest text-muted">next charge</span>
-            <InfoDot>What you&apos;ll be billed on the next billing date, covering bounties that were completed and approved since your last charge.</InfoDot>
+            <InfoDot>What you&apos;ll be billed on the next billing date, covering bounties that were completed and approved since your last charge. See the full breakdown on the billing page.</InfoDot>
           </div>
-          <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
-            {cashLoading
-              ? '—'
-              : outstandingAmount === 0
-                ? 'Nothing due'
-                : `$${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+          <div className="font-mono text-[20px] font-medium text-foreground">
+            {cashLoading ? '—' : balanceIsNegative ? `due ${nextBillingStr}` : 'Nothing due'}
           </div>
-          <div className={`font-mono text-[10px] mt-0.5 ${outstandingAmount > 0 ? 'text-warn' : 'text-muted'}`}>
-            {cashLoading
-              ? ''
-              : outstandingAmount === 0
-                ? "you're all settled up"
-                : `charged ${nextBillingStr}`}
+          <div className="font-mono text-[10px] mt-0.5">
+            {cashLoading ? (
+              ''
+            ) : balanceIsNegative ? (
+              <Link href="/billing" className="text-warn hover:opacity-80 transition-opacity">view amount in billing →</Link>
+            ) : (
+              <span className="text-muted">you&apos;re all settled up</span>
+            )}
           </div>
         </Card>
 
@@ -229,7 +232,7 @@ export default function DashboardPage() {
           </Card>
         ) : activeBackings.length === 0 ? (
           <Empty icon="◇" message="Not backing anything yet">
-            <Link href="/search"><Button variant="default" size="sm">Explore →</Button></Link>
+            <Link href="/search"><Button variant="default" size="sm">Find creators →</Button></Link>
           </Empty>
         ) : (
           <Card>
@@ -282,26 +285,32 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Browse bounties */}
+      {/* Featured bounties — a curated few, with a link out to the full directory */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <SectionLabel>browse bounties</SectionLabel>
+          <SectionLabel>featured bounties</SectionLabel>
           <Link href="/bounties" className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors">
-            view all →
+            browse all →
           </Link>
         </div>
 
-        {bountiesLoading ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {featuredLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {[1,2,3].map(i => <div key={i} className="h-44 bg-surface animate-pulse rounded" />)}
           </div>
-        ) : !myBounties || myBounties.data.length === 0 ? (
-          <Empty icon="◇" message="No bounties yet">
-            <Button variant="primary" onClick={() => router.push('/bounties/new')}>Create the First One</Button>
-          </Empty>
+        ) : featured.length === 0 ? (
+          // No editorial picks right now — point to the directory + creator search
+          // rather than re-listing the global feed inline.
+          <Card dashed>
+            <p className="text-sm text-muted mb-3">Discover bounties from creators across Artypot.</p>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/bounties"><Button variant="default" size="sm">Browse bounties →</Button></Link>
+              <Link href="/search"><Button variant="ghost" size="sm">Find creators →</Button></Link>
+            </div>
+          </Card>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {myBounties.data.slice(0, 6).map((bounty) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {featured.slice(0, 6).map((bounty) => (
               <BountyCard key={bounty.id} bounty={bounty} />
             ))}
           </div>

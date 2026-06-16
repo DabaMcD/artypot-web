@@ -273,7 +273,7 @@ export default function CreatorSettingsPage() {
   return (
     <div className="space-y-7 pt-2 max-w-[680px]">
       <div>
-        <SectionLabel>creator · admin</SectionLabel>
+        <SectionLabel>creator · profile</SectionLabel>
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">settings</h1>
       </div>
 
@@ -428,7 +428,7 @@ export default function CreatorSettingsPage() {
         <SectionLabel className="mb-3">tax residence</SectionLabel>
         <p className="text-sm text-muted mb-4">
           The country (and state, where applicable) where you pay tax on your Artypot earnings.
-          We use this to generate the right tax forms — 1099-NEC for US creators, 1042-S for non-US.
+          We use this to generate the right tax forms — 1099-K for US creators, 1042-S for non-US.
           Changes are logged for compliance.
         </p>
         <form onSubmit={handleRequestSaveLocation} className="space-y-3">
@@ -517,7 +517,7 @@ export default function CreatorSettingsPage() {
               <strong className="text-foreground">{newDisplay}</strong>.
             </p>
             <p className="text-sm text-muted leading-relaxed mb-3">
-              This is the address we&apos;ll use for tax reporting (1099-NEC for US, 1042-S for non-US).
+              This is the address we&apos;ll use for tax reporting (1099-K for US, 1042-S for non-US).
               <strong className="text-foreground">
                 {crossingCountry
                   ? ' Because the country is changing, we may ask you to re-submit tax documentation (W-9 or W-8BEN) and run a brief compliance review — payouts can be paused while that completes.'

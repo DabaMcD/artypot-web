@@ -43,9 +43,19 @@ export default function CreatorTosTldr({
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
-            <strong>Completed charges are final.</strong>{' '}Once the Council confirms your
-            completion and fans are charged, those payments are final and non-refundable —
-            barring a chargeback or verified fraud.
+            <strong>Charges are final to fans, but refunds can still happen.</strong>{' '}A fan
+            can&apos;t demand their money back once charged. But a chargeback, a refund Artypot
+            issues to fix a problem, or a refund you choose to issue is deducted from your
+            balance — which can go negative and is offset against future earnings. Chargebacks and
+            Artypot-issued refunds return your platform fee; refunds you start yourself don&apos;t.
+          </span>
+        </li>
+        <li className="flex gap-2">
+          <span className="text-creator shrink-0 mt-0.5">✓</span>
+          <span>
+            <strong>You can refund a whole bounty.</strong>{' '}If you need to make things right,
+            you can refund all of a bounty&apos;s backers from your dashboard — as long as your
+            balance covers it. Otherwise, support can help.
           </span>
         </li>
         <li className="flex gap-2">
@@ -54,6 +64,14 @@ export default function CreatorTosTldr({
             <strong>Bounties fund public work, not private perks.</strong>{' '}Your deliverable
             goes out to everyone equally. You can&apos;t trade backings for private access,
             physical goods, meetups, or rewards — a public thank-you is the only perk allowed.
+          </span>
+        </li>
+        <li className="flex gap-2">
+          <span className="text-creator shrink-0 mt-0.5">✗</span>
+          <span>
+            <strong>No pay for official acts or campaigns.</strong>{' '}You can&apos;t accept a
+            bounty for anything you do in a government role, or use Artypot to fund a campaign,
+            candidate, or election effort.
           </span>
         </li>
         <li className="flex gap-2">

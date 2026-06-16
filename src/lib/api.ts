@@ -30,12 +30,17 @@ import type {
   AdminBountyCompletion,
   HandleVerificationApplicationRow,
   HandleVerificationApplicationStatus,
+  HandleRegistryRow,
+  HandleDossier,
+  UnclaimedHandlePot,
+  BountyReportRow,
   ExternalPayout,
   CreatorSearchResult,
   CreatorEarning,
   CreatorBalance,
   Comment,
   HandlePlatform,
+  HandleStatus,
   HandleClaim,
   HandleSearchResult,
   SearchResponse,
@@ -47,6 +52,7 @@ import type {
   ComplianceTaxTreaty,
   CompliancePaymentSupport,
   ComplianceStateThreshold,
+  CompliancePlatformFeeTaxRate,
   ComplianceContentRule,
   ComplianceJobRun,
   ComplianceAuditEntry,
@@ -54,6 +60,10 @@ import type {
   BillingRunDetail,
   CountryTiersResponse,
   AuditLogResponse,
+  MarketPolicyData,
+  MarketCountryRow,
+  MarketVolumeRow,
+  MarketConflictRow,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -260,8 +270,13 @@ export const auth = {
   resendVerification: () =>
     request<{ message: string }>('/auth/email/resend', { method: 'POST' }),
 
-  oauthRedirect: (provider: string) =>
-    request<{ url: string }>(`/auth/oauth/${provider}/redirect`),
+  oauthRedirect: (provider: string, opts?: { intent?: string; handleId?: number }) => {
+    const params = new URLSearchParams();
+    if (opts?.intent) params.set('intent', opts.intent);
+    if (opts?.handleId != null) params.set('handle_id', String(opts.handleId));
+    const qs = params.toString();
+    return request<{ url: string }>(`/auth/oauth/${provider}/redirect${qs ? `?${qs}` : ''}`);
+  },
 
   forgotPassword: (email: string) =>
     request<{ message: string }>('/auth/password/forgot', {
@@ -353,12 +368,15 @@ export const creators = {
 
   /**
    * GET /platform/{platform}/{handle}
-   *  - match === 'verified'   → handle is verified by a creator; redirect client to /{user.slug}
+   *  - match === 'verified'   → handle is verified by an enabled creator; redirect client to /{user.slug}
+   *  - match === 'claimed'    → verified claim, but the owner hasn't enabled creator mode yet;
+   *                             the handle page stays their public surface (owner identity included)
    *  - match === 'unverified' → no verified claim; returns bounties for share/recruitment UI
    */
   byPlatformHandle: (platform: string, handle: string) =>
     request<
       | { match: 'verified';   user: { id: number; display_name: string; slug: string; profile_picture: string | null } }
+      | { match: 'claimed';    handle: { id: number | null; platform: string; username: string }; owner: { display_name: string; profile_picture: string | null }; bounties: Array<{ id: number; title: string; status: string; total_backed: string; created_at: string }> }
       | { match: 'unverified'; handle: { id: number | null; platform: string; username: string }; bounties: Array<{ id: number; title: string; status: string; total_backed: string; created_at: string }> }
     >(`/platform/${encodeURIComponent(platform)}/${encodeURIComponent(handle)}`),
 
@@ -380,6 +398,13 @@ export const bounties = {
   },
 
   get: (id: number) => request<{ data: Bounty }>(`/bounties/${id}`),
+
+  /** Submit a Content Policy report. One per user per bounty (resubmit = update). */
+  report: (id: number, reason: string, details?: string) =>
+    request<{ message: string; data: { id: number; status: string } }>(`/bounties/${id}/reports`, {
+      method: 'POST',
+      body: JSON.stringify({ reason, details: details || undefined }),
+    }),
 
   create: (data: {
     title: string;
@@ -438,6 +463,20 @@ export const bounties = {
   creatorRemove: (bountyId: number, reason: string) =>
     request<{ message: string }>(`/bounties/${bountyId}/creator-remove`, {
       method: 'DELETE',
+      body: JSON.stringify({ reason }),
+    }),
+
+  /** Creator-only: itemized preview of refunding every backer on this bounty. */
+  refundPreview: (bountyId: number) =>
+    request<{ data: import('./types').BountyRefundPreview }>(`/bounties/${bountyId}/refund-preview`),
+
+  /**
+   * Creator-only: refund every backer. Gated on balance ≥ gross clawback.
+   * `reason` is required and shown publicly to every refunded backer.
+   */
+  refundAll: (bountyId: number, reason: string) =>
+    request<{ data: import('./types').BountyRefundResult }>(`/bounties/${bountyId}/refund-all`, {
+      method: 'POST',
       body: JSON.stringify({ reason }),
     }),
 };
@@ -810,7 +849,37 @@ export const logs = {
     }),
 };
 
+// Overlord — outbound email log (every email sent: recipient, address, subject)
+export interface EmailLogRow {
+  id: number;
+  user_id: number | null;
+  display_name: string | null;
+  email: string;
+  subject: string;
+  created_at: string | null;
+}
+
+export const emailLogs = {
+  list: (params?: { page?: number; search?: string }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null && v !== '')
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<{
+      data: EmailLogRow[];
+      meta: { current_page: number; last_page: number; total: number; per_page: number };
+    }>(`/overlord/email-logs${qs ? `?${qs}` : ''}`);
+  },
+};
+
 // Overlord — sitewide metrics
+export interface RefundMetricSegment {
+  count:             number;
+  refunded_to_fans:  number;
+  clawed_back:       number;
+  platform_absorbed: number;
+}
+
 export const metrics = {
   get: () =>
     request<{
@@ -830,6 +899,16 @@ export const metrics = {
         total_unpaid_to_creators:    number;
         total_comments:              number;
         reply_percentage:            number;
+        refunds: {
+          overall:  RefundMetricSegment;
+          admin:    RefundMetricSegment;
+          creator:  RefundMetricSegment;
+          pending_count:        number;
+          failed_count:         number;
+          mtd_count:            number;
+          mtd_refunded_to_fans: number;
+          refund_rate_pct:      number;
+        };
       };
     }>('/overlord/metrics'),
 };
@@ -928,6 +1007,26 @@ export const admin = {
     );
   },
 
+  /** Founder-outreach worklist: top unclaimed handles ranked by waiting pot. */
+  listUnclaimedPots: (limit = 50) =>
+    request<{ data: UnclaimedHandlePot[] }>(`/admin/handles/unclaimed-pots?limit=${limit}`),
+
+  /** Content Policy report queue. */
+  listReports: (params: { status?: string; page?: number } = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params)
+        .filter(([, v]) => v != null && v !== '')
+        .map(([k, v]) => [k, String(v)]) as [string, string][]
+    ).toString();
+    return request<PaginatedResponse<BountyReportRow>>(`/admin/reports${qs ? `?${qs}` : ''}`);
+  },
+
+  resolveReport: (reportId: number, status: 'reviewed' | 'actioned' | 'dismissed', reviewNotes?: string) =>
+    request<{ data: BountyReportRow }>(`/admin/reports/${reportId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status, review_notes: reviewNotes || undefined }),
+    }),
+
   approveHandle: (handleId: number, decisionNotes?: string) =>
     request<{ data: unknown }>(`/admin/handles/${handleId}/approve`, {
       method: 'POST',
@@ -939,6 +1038,27 @@ export const admin = {
       method: 'POST',
       body: JSON.stringify(decisionNotes ? { decision_notes: decisionNotes } : {}),
     }),
+
+  // Handle investigation registry (read-only forensics)
+  /** Searchable handle list with per-status claim tallies. */
+  listHandleRegistry: (params: {
+    q?: string;
+    status?: HandleStatus | 'all';
+    contested?: boolean;
+    page?: number;
+  } = {}) => {
+    const entries = Object.entries(params)
+      .filter(([, v]) => v != null && v !== '' && v !== false)
+      .map(([k, v]) => [k, v === true ? '1' : String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<PaginatedResponse<HandleRegistryRow>>(
+      `/admin/handle-registry${qs ? `?${qs}` : ''}`,
+    );
+  },
+
+  /** Full investigation dossier for one handle. */
+  getHandleDossier: (handleId: number) =>
+    request<{ data: HandleDossier }>(`/admin/handle-registry/${handleId}`),
 
   // Bounty Completions
   listCompletions: (status: 'pending_review' | 'approved' | 'rejected' | 'all' = 'pending_review', page = 1) =>
@@ -1005,6 +1125,25 @@ export const admin = {
 
     trigger: () =>
       request<{ message: string }>('/admin/billing-runs/trigger', { method: 'POST' }),
+  },
+
+  // Refunds (partial refunds of grouped charges; creator clawed back at net)
+  refunds: {
+    list: (page = 1) =>
+      request<PaginatedResponse<import('./types').AdminRefund>>(`/admin/refunds?page=${page}`),
+
+    /** Per-backing breakdown of a grouped charge — pick which slice to refund. */
+    paymentBackings: (fanPaymentId: number) =>
+      request<{ data: import('./types').FanPaymentBackingsResponse }>(
+        `/admin/fan-payments/${fanPaymentId}/backings`
+      ),
+
+    /** `reason` is required and shown publicly to the fan and creator. */
+    refundBacking: (backingId: number, reason: string, notes?: string) =>
+      request<{ data: import('./types').AdminRefund }>(`/admin/backings/${backingId}/refund`, {
+        method: 'POST',
+        body: JSON.stringify({ reason, ...(notes ? { notes } : {}) }),
+      }),
   },
 
   // Country tiers (read-only, derived live from compliance data)
@@ -1155,6 +1294,49 @@ export const admin = {
     return request<PaginatedResponse<ComplianceStateThreshold>>(`/admin/compliance/state-thresholds?${qs}`);
   },
 
+  compliancePlatformFeeTaxRates: (params?: { state_code?: string; active_only?: boolean; page?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.state_code) qs.set('state_code', params.state_code);
+    if (params?.active_only) qs.set('active_only', '1');
+    if (params?.page) qs.set('page', String(params.page));
+    return request<PaginatedResponse<CompliancePlatformFeeTaxRate>>(`/admin/compliance/platform-fee-tax-rates?${qs}`);
+  },
+
+  createPlatformFeeTaxRate: (body: {
+    state_code: string;
+    subdivision_code?: string | null;
+    rate: number;
+    source: string;
+    source_url?: string | null;
+    effective_date: string;
+    sunset_date?: string | null;
+    notes?: string | null;
+  }) =>
+    request<{ message: string; rate: CompliancePlatformFeeTaxRate }>('/admin/compliance/platform-fee-tax-rates', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+
+  updatePlatformFeeTaxRate: (id: number, body: {
+    subdivision_code?: string | null;
+    rate: number;
+    source: string;
+    source_url?: string | null;
+    effective_date: string;
+    sunset_date?: string | null;
+    notes?: string | null;
+  }) =>
+    request<{ message: string; rate: CompliancePlatformFeeTaxRate }>(`/admin/compliance/platform-fee-tax-rates/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+
+  sunsetPlatformFeeTaxRate: (id: number, body?: { sunset_date?: string }) =>
+    request<{ message: string; rate: CompliancePlatformFeeTaxRate }>(`/admin/compliance/platform-fee-tax-rates/${id}/sunset`, {
+      method: 'POST',
+      body: JSON.stringify(body ?? {}),
+    }),
+
   complianceContentRules: (params?: { country_code?: string; requires_age_verification?: boolean; requires_local_representative?: boolean; active_only?: boolean; page?: number }) => {
     const qs = new URLSearchParams();
     if (params?.country_code) qs.set('country_code', params.country_code);
@@ -1182,4 +1364,44 @@ export const admin = {
     if (params?.page) qs.set('page', String(params.page));
     return request<PaginatedResponse<ComplianceAuditEntry>>(`/admin/compliance/audit-log?${qs}`);
   },
+
+  // Market availability (Phase 2 launch switch + per-country overrides/dossiers)
+  getMarkets: () =>
+    request<{ data: { policy: MarketPolicyData; countries: MarketCountryRow[] } }>('/admin/markets'),
+
+  updateMarketPolicy: (body: { fan_default?: 'open' | 'closed'; creator_default?: 'open' | 'closed' }) =>
+    request<{ data: MarketPolicyData }>('/admin/markets/policy', {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+
+  /**
+   * `null` status = clear the override and follow the platform default.
+   * NOTE: the write response is the raw row — it lacks the `name` and
+   * `*_effective` fields that index() enriches; refetch getMarkets() for those.
+   */
+  upsertMarketCountry: (code: string, body: {
+    fan_status?: 'open' | 'closed' | null;
+    creator_status?: 'open' | 'closed' | null;
+    watch_notes?: string | null;
+    legal_basis_notes?: string | null;
+    activation_notes?: string | null;
+    creator_notes?: string | null;
+  }) =>
+    request<{ data: Omit<MarketCountryRow, 'name' | 'fan_effective' | 'creator_effective'> }>(
+      `/admin/markets/countries/${code}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(body),
+      },
+    ),
+
+  deleteMarketCountry: (code: string) =>
+    request<{ message: string }>(`/admin/markets/countries/${code}`, { method: 'DELETE' }),
+
+  marketVolume: () =>
+    request<{ data: MarketVolumeRow[]; generated_at: string }>('/admin/markets/volume'),
+
+  marketConflicts: () =>
+    request<{ data: MarketConflictRow[] }>('/admin/markets/conflicts'),
 };

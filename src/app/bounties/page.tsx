@@ -83,7 +83,7 @@ export default function BountiesPage() {
       {error ? (
         <div className="text-red-400 text-sm">{error}</div>
       ) : loading ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-44 bg-surface border border-border rounded-xl animate-pulse" />
           ))}
@@ -102,7 +102,7 @@ export default function BountiesPage() {
           <div className="text-xs text-muted mb-4">
             {data.total} {data.total !== 1 ? 'bounties' : 'bounty'}
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {data.data.map((bounty) => (
               <BountyCard key={bounty.id} bounty={bounty} />
             ))}

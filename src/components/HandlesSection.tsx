@@ -7,6 +7,7 @@ import type { HandleClaim, HandlePlatform } from '@/lib/types';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
+import { BrandIcon } from '@/components/ui/BrandIcon';
 import { Modal } from '@/components/ui/Modal';
 import { FieldLabel, FieldHint, Textarea, Select } from '@/components/ui/Input';
 import { Banner } from '@/components/ui/Banner';
@@ -18,7 +19,10 @@ import {
   ENABLED_OAUTH_PLATFORMS,
   OTHER_SLUG,
   platformLabel,
+  platformOAuthProvider,
+  platformOAuthIntent,
 } from '@/lib/platforms';
+import { OAUTH_NEXT_KEY, OAUTH_VERIFY_KEY, OAUTH_VERIFY_RESULT_KEY } from '@/lib/next-redirect';
 
 /**
  * Add-handle dropdown options — every curated platform plus 'Other'. Sourced
@@ -129,10 +133,32 @@ function OAuthConnectModal({
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
+  const platform = claim.handle.platform;
+  const provider = platformOAuthProvider(platform);
+  const intent   = platformOAuthIntent(platform);
+  const platformLabel = PLATFORM_LABELS[platform as HandlePlatform] ?? platform;
+  // The brand the user actually authorizes against. Usually the platform
+  // itself; YouTube is authorized through Google.
+  const authBrand = provider === 'google' ? 'Google' : platformLabel;
+
   const handleConnect = async () => {
     setLoading(true);
     try {
-      const res = await authApi.oauthRedirect(claim.handle.platform);
+      // Mirror the login page's handshake so the shared /oauth/callback page
+      // accepts the round-trip (nonce) and returns the creator to this page
+      // (next) instead of /dashboard once verification completes.
+      sessionStorage.setItem('oauth_nonce', crypto.randomUUID());
+      sessionStorage.setItem(OAUTH_NEXT_KEY, window.location.pathname);
+      // Mark this as a handle-verification round-trip (vs a login) and carry the
+      // handle so the callback page can always report the outcome on return.
+      sessionStorage.setItem(OAUTH_VERIFY_KEY, claim.handle.username);
+
+      // Pass the specific handle so the backend scopes verification to it and
+      // can report the per-handle result (also fixes YouTube/brand multi-channel).
+      const res = await authApi.oauthRedirect(provider, {
+        handleId: claim.handle.id,
+        ...(intent ? { intent } : {}),
+      });
       window.location.href = res.url;
     } catch (err: unknown) {
       const e = err as { message?: string };
@@ -141,22 +167,26 @@ function OAuthConnectModal({
     }
   };
 
-  const platformLabel = PLATFORM_LABELS[claim.handle.platform as HandlePlatform] ?? claim.handle.platform;
-
   return (
     <Modal title={`connect ${platformLabel}`} onClose={onClose}>
       <div className="space-y-4">
         <p className="text-sm text-muted">
           Connect your <span className="text-foreground">{platformLabel}</span>{' '}account via OAuth for instant verification.
-          You&apos;ll be redirected to {platformLabel} to authorize the connection, then brought back here.
+          You&apos;ll be redirected to {authBrand} to authorize the connection, then brought back here.
         </p>
         <Banner tone="default">
-          Make sure you&apos;re logged in to <span className="text-foreground">@{claim.handle.username}</span> on {platformLabel} before continuing.
+          Make sure you&apos;re using the {authBrand} account that owns{' '}
+          <span className="text-foreground">@{claim.handle.username}</span>.
         </Banner>
         <div className="flex gap-3 justify-end">
           <Button variant="ghost" onClick={onClose} disabled={loading}>Cancel</Button>
           <Button variant="primary" onClick={handleConnect} disabled={loading}>
-            {loading ? 'Redirecting…' : `Connect ${platformLabel} →`}
+            {loading ? 'Redirecting…' : (
+              <>
+                <BrandIcon slug={platform} className="w-4 h-4 shrink-0" />
+                Connect {platformLabel} →
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -210,6 +240,38 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
   useEffect(() => {
     fetchClaims();
   }, [fetchClaims]);
+
+  // Surface the outcome of an OAuth handle-verification round-trip. The callback
+  // page stashes the result here before redirecting back; we show it once and
+  // clear it so a refresh doesn't replay the toast.
+  useEffect(() => {
+    const raw = sessionStorage.getItem(OAUTH_VERIFY_RESULT_KEY);
+    if (!raw) return;
+    sessionStorage.removeItem(OAUTH_VERIFY_RESULT_KEY);
+
+    let handle = '';
+    let result = '';
+    try {
+      ({ handle, result } = JSON.parse(raw));
+    } catch {
+      return;
+    }
+    const at = handle ? `@${handle}` : 'your handle';
+
+    switch (result) {
+      case 'verified':
+        toast(`${at} is verified! 🎉`, 'success');
+        break;
+      case 'not_found':
+        toast(`We couldn't verify ${at} — that account didn't match. Make sure you signed in to the account that owns it.`, 'error');
+        break;
+      case 'failed':
+        toast(`Couldn't complete the connection for ${at}. Please try again.`, 'error');
+        break;
+      default:
+        toast(`Something went wrong verifying ${at}. Please try again.`, 'error');
+    }
+  }, [toast]);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -323,6 +385,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
                     <div className="mt-3 flex flex-wrap gap-2">
                       {supportsOAuth && (
                         <Button size="sm" variant="primary" onClick={() => setOauthClaim(claim)}>
+                          <BrandIcon slug={platform} className="w-3.5 h-3.5 shrink-0" />
                           Connect via {platformLabel} →
                         </Button>
                       )}

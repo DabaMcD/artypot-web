@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { setToken } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import { nextTarget, OAUTH_NEXT_KEY } from '@/lib/next-redirect';
+import { nextTarget, OAUTH_NEXT_KEY, OAUTH_VERIFY_KEY, OAUTH_VERIFY_RESULT_KEY } from '@/lib/next-redirect';
 
 function OAuthCallbackContent() {
   const searchParams = useSearchParams();
@@ -16,6 +16,21 @@ function OAuthCallbackContent() {
   useEffect(() => {
     const token = searchParams.get('token');
     const err   = searchParams.get('error');
+    // Verification outcome echoed by the backend on the success redirect.
+    const verify = searchParams.get('verify');
+    // Set by the handles-page modal: presence ⇒ this was a handle-verify flow
+    // (not a login); value ⇒ the handle being verified (for the result message).
+    const verifyHandle = sessionStorage.getItem(OAUTH_VERIFY_KEY);
+
+    // Stash the verification outcome for the originating page to toast on return.
+    const stashVerifyResult = (result: string) => {
+      if (!verifyHandle) return;
+      sessionStorage.setItem(
+        OAUTH_VERIFY_RESULT_KEY,
+        JSON.stringify({ handle: verifyHandle, result }),
+      );
+      sessionStorage.removeItem(OAUTH_VERIFY_KEY);
+    };
 
     if (token) {
       // Nonce check: verify this callback was initiated from this browser session.
@@ -25,6 +40,7 @@ function OAuthCallbackContent() {
       const nonce = sessionStorage.getItem('oauth_nonce');
       if (!nonce) {
         sessionStorage.removeItem(OAUTH_NEXT_KEY);
+        sessionStorage.removeItem(OAUTH_VERIFY_KEY);
         router.replace('/login?error=invalid_oauth_state');
         return;
       }
@@ -35,11 +51,29 @@ function OAuthCallbackContent() {
       const dest = nextTarget(sessionStorage.getItem(OAUTH_NEXT_KEY));
       sessionStorage.removeItem(OAUTH_NEXT_KEY);
 
+      // Record the handle-verify outcome (backend result, or a neutral fallback).
+      stashVerifyResult(verify ?? 'verified');
+
       setToken(token);
       refreshUser()
         .then(() => router.replace(dest))
         .catch(() => setError('Failed to load your account. Please try logging in again.'));
-    } else if (err === 'provider_not_configured') {
+      return;
+    }
+
+    // ── Error paths ──────────────────────────────────────────────────────────
+    // For a handle-verification flow, send the user back to where they started
+    // with a "couldn't connect" result instead of the login-error screen.
+    if (verifyHandle) {
+      stashVerifyResult('failed');
+      const dest = nextTarget(sessionStorage.getItem(OAUTH_NEXT_KEY));
+      sessionStorage.removeItem(OAUTH_NEXT_KEY);
+      sessionStorage.removeItem('oauth_nonce');
+      router.replace(dest);
+      return;
+    }
+
+    if (err === 'provider_not_configured') {
       // Backend dropped us back because credentials for this provider aren't
       // set up yet. Build a friendly message that names the platform.
       const PLATFORM_LABELS: Record<string, string> = {

@@ -9,6 +9,7 @@ import { useToast } from '@/lib/toast-context';
 import type {
   HandleVerificationApplicationRow,
   HandleVerificationApplicationStatus,
+  UnclaimedHandlePot,
 } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -214,7 +215,7 @@ function HistoryDetailModal({
 
 // ── Main page ────────────────────────────────────────────────────────────────
 
-type Tab = 'pending' | 'history';
+type Tab = 'pending' | 'history' | 'outreach';
 type HistoryFilter = 'all' | HandleVerificationApplicationStatus;
 
 export default function AdminHandlesPage() {
@@ -239,6 +240,10 @@ export default function AdminHandlesPage() {
   const [historyStatusFilter, setHistoryStatusFilter] = useState<HistoryFilter>('all');
   const [reviewerQ, setReviewerQ] = useState('');
   const [creatorQ, setCreatorQ] = useState('');
+
+  // Outreach state — top unclaimed handles ranked by waiting pot
+  const [outreachRows, setOutreachRows] = useState<UnclaimedHandlePot[]>([]);
+  const [outreachLoading, setOutreachLoading] = useState(true);
 
   // Modals
   const [reviewing, setReviewing] = useState<HandleVerificationApplicationRow | null>(null);
@@ -303,6 +308,15 @@ export default function AdminHandlesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, user, historyStatusFilter, fetchHistory]);
 
+  useEffect(() => {
+    if (user?.role !== 'council' || tab !== 'outreach') return;
+    setOutreachLoading(true);
+    adminApi.listUnclaimedPots()
+      .then((res) => setOutreachRows(res.data))
+      .catch(() => setOutreachRows([]))
+      .finally(() => setOutreachLoading(false));
+  }, [tab, user]);
+
   // Debounced search input handler — re-fetches history after the user pauses typing.
   const handleSearchChange = (which: 'reviewer' | 'creator', val: string) => {
     if (which === 'reviewer') setReviewerQ(val); else setCreatorQ(val);
@@ -354,7 +368,9 @@ export default function AdminHandlesPage() {
             <p className="text-sm text-muted mt-1">
               {tab === 'pending'
                 ? `${pendingTotal} pending ${pendingTotal === 1 ? 'request' : 'requests'}`
-                : `${historyTotal} in history`}
+                : tab === 'history'
+                  ? `${historyTotal} in history`
+                  : `${outreachRows.length} unclaimed ${outreachRows.length === 1 ? 'handle' : 'handles'} with money waiting`}
             </p>
           </div>
           <Link href="/admin"><Button variant="ghost" size="sm">← Admin</Button></Link>
@@ -365,6 +381,7 @@ export default function AdminHandlesPage() {
           {([
             { label: 'Pending',  value: 'pending' as const },
             { label: 'History',  value: 'history' as const },
+            { label: 'Outreach', value: 'outreach' as const },
           ]).map(({ label, value }) => (
             <button
               key={value}
@@ -534,6 +551,44 @@ export default function AdminHandlesPage() {
                 <Button variant="default" size="sm" disabled={historyPage === historyLastPage || historyLoading}
                   onClick={() => fetchHistory(historyPage + 1, historyStatusFilter, reviewerQ, creatorQ)}>next →</Button>
               </div>
+            )}
+          </>
+        )}
+
+        {/* ── Outreach tab — top unclaimed handles by waiting pot ─────────── */}
+        {tab === 'outreach' && (
+          <>
+            <p className="text-sm text-muted -mt-2">
+              Creators who don&apos;t know money is waiting for them. Biggest pots first —
+              reach out tastefully via their public business contact.
+            </p>
+            {outreachLoading ? (
+              <Card>
+                <div className="space-y-3">
+                  {[1,2,3,4].map(i => <div key={i} className="h-10 bg-surface-2 animate-pulse rounded" />)}
+                </div>
+              </Card>
+            ) : outreachRows.length === 0 ? (
+              <Empty>No unclaimed handles have open pots right now.</Empty>
+            ) : (
+              <Card>
+                <div className="divide-y divide-border -mx-5 -my-4">
+                  {outreachRows.map((row) => (
+                    <div key={row.id} className="flex items-center gap-3 px-5 py-3">
+                      <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                        <span className="font-mono text-sm text-foreground">@{row.username}</span>
+                        <Badge tone="default">{PLATFORM_LABELS[row.platform] ?? row.platform}</Badge>
+                        <span className="font-mono text-[10px] uppercase tracking-widest text-muted/70">
+                          {row.open_bounty_count} open {row.open_bounty_count === 1 ? 'bounty' : 'bounties'}
+                        </span>
+                      </div>
+                      <span className="font-mono text-base font-bold text-good shrink-0">
+                        ${row.pot_total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
             )}
           </>
         )}

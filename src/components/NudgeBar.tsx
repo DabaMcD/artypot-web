@@ -6,7 +6,8 @@ import { useAuth } from '@/lib/auth-context';
 
 const TONE_CLASSES: Record<string, string> = {
   add_contact_method:   'bg-bad-soft  border-bad  text-foreground',
-  verify_email:         'bg-bad-soft  border-bad  text-foreground',
+  // verify_email is not a nudge — email verification is owned by
+  // <EmailVerificationBanner>. See NudgeService::TYPES (backend).
   add_payment_method:   'bg-bad-soft  border-bad  text-foreground',
   payout_hold:          'bg-bad-soft  border-bad  text-foreground',
   setup_bank:           'bg-warn-soft border-warn text-foreground',
@@ -19,7 +20,6 @@ const TONE_CLASSES: Record<string, string> = {
 
 const ICON_CLASSES: Record<string, string> = {
   add_contact_method:   'border-bad  text-bad',
-  verify_email:         'border-bad  text-bad',
   add_payment_method:   'border-bad  text-bad',
   payout_hold:          'border-bad  text-bad',
   setup_bank:           'border-warn text-warn',

@@ -1,17 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { auth } from '@/lib/api';
 import { useToast } from '@/lib/toast-context';
+import { useAuth } from '@/lib/auth-context';
 
 interface Props {
   email: string | null;
 }
 
+// How often we re-check whether the email got verified (e.g. the user clicked
+// the link in another tab/device). Once verified, the parent stops rendering
+// this banner — it's gated on !user.email_verified_at — which unmounts the
+// component and clears the timer.
+const VERIFY_POLL_INTERVAL = 60 * 1000; // 60s
+
 export default function EmailVerificationBanner({ email }: Props) {
   const { toast } = useToast();
+  const { refreshUser } = useAuth();
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+
+  // Poll so the banner clears itself without a manual reload. refreshUser's
+  // identity can change across renders, so call it through a ref to keep a
+  // single stable 60s interval.
+  const refreshRef = useRef(refreshUser);
+  refreshRef.current = refreshUser;
+  useEffect(() => {
+    const id = setInterval(() => { refreshRef.current(); }, VERIFY_POLL_INTERVAL);
+    return () => clearInterval(id);
+  }, []);
 
   const handleResend = async () => {
     setSending(true);

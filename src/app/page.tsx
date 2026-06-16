@@ -10,7 +10,7 @@ import type { Bounty } from '@/lib/types';
 
 // ── "How it works" steps ───────────────────────────────────────────────────────
 const STEPS: { n: number; body: string }[] = [
-  { n: 1, body: 'Ask for your favorite creator to do something cool or stupid.' },
+  { n: 1, body: 'Ask your favorite creator to do something cool or stupid.' },
   { n: 2, body: "Like-minded fans chip in until the bounty can't be ignored." },
   { n: 3, body: 'The creator delivers, the fans pay them. Spam Ws in chat.' },
 ];
@@ -45,12 +45,6 @@ export default function HomePage() {
         </div>
 
         <div className="max-w-2xl mx-auto text-center">
-          {/* Eyebrow pill */}
-          <div className="inline-flex items-center gap-2 bg-creator/10 border border-creator/30 text-creator text-xs font-medium px-3 py-1.5 rounded-full mb-7">
-            <span className="w-1.5 h-1.5 rounded-full bg-creator animate-pulse" />
-            crowd-funded creator bounties
-          </div>
-
           <h1 className="font-display font-bold text-5xl sm:text-6xl text-foreground tracking-tight mb-4 leading-[1.05]">
             tell the world
             <br />
@@ -101,7 +95,7 @@ export default function HomePage() {
           </div>
 
           {bountiesLoading ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="h-48 bg-surface border border-border rounded-md shadow-[3px_3px_0_#000] animate-pulse" />
               ))}
@@ -114,7 +108,7 @@ export default function HomePage() {
               </Link>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {trendingBounties.map((bounty) => (
                 <BountyCard key={bounty.id} bounty={bounty} />
               ))}

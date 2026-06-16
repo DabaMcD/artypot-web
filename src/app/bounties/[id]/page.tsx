@@ -22,14 +22,18 @@ import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { toExternalUrl, urlHost, submissionLinkLabel } from '@/lib/url';
 import { useAuth } from '@/lib/auth-context';
 import { useDefaultUpdatePrompt } from '@/lib/default-update-prompt-context';
+import { requestNudgeRefresh } from '@/lib/nudge-context';
 import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import { useViewMode } from '@/lib/view-mode-context';
 import type { Bounty, BountyHistoryEvent } from '@/lib/types';
 import { handleLink, formatPlatformHandle } from '@/lib/platforms';
 import ShareButton from '@/components/ShareButton';
+import BackingPolicyNote from '@/components/BackingPolicyNote';
+import PayOnVerifiedNote from '@/components/PayOnVerifiedNote';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
 import CommentSection from '@/components/CommentSection';
 import { BOUNTY_STATUS_LABELS as STATUS_LABELS, BOUNTY_STATUS_TONES as STATUS_TONES } from '@/components/BountyStatusBadge';
+import { AvatarOrUnknown } from '@/components/ui/AvatarOrUnknown';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { InfoDot } from '@/components/ui/InfoDot';
@@ -46,6 +50,16 @@ function formatHoverDate(iso: string): string {
     hour:   'numeric',
     minute: '2-digit',
     hour12: true,
+  });
+}
+
+/** Whole-dollar pot formatting for share text ("$1,250"). */
+function formatUsd(amount: number): string {
+  return amount.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   });
 }
 
@@ -93,6 +107,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
 
   // Pending-bounty revoke warning (shown when bounty.status === 'pending')
   const [showPendingRevokeWarning, setShowPendingRevokeWarning] = useState(false);
+
+  // Content Policy report
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState('harassment');
+  const [reportDetails, setReportDetails] = useState('');
+  const [reportSubmitting, setReportSubmitting] = useState(false);
 
   // Edit form
   const [showEditForm, setShowEditForm] = useState(false);
@@ -242,6 +262,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       const res = await bountiesApi.backing(Number(id), amount, expiresAt, expVal, expirySingular);
       // Server-computed "update your default" prompt, if any.
       dispatchPrompt(res.default_update_prompts);
+      // Backing changes can affect nudge state (e.g. nearing the good-faith
+      // cap surfaces add_payment_method), so the bar re-fetches right away.
+      requestNudgeRefresh();
       toast(isUpdate ? 'Updated!' : `You're in for $${amount.toFixed(2)}!`, 'success');
       // Leave the amount field as-is; the seed effect re-syncs it to the
       // fan's now-current backing once the refreshed bounty lands.
@@ -274,6 +297,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               Update your card
             </Link>{' '}
             to continue.
+          </>,
+        );
+      } else if (e.status === 422 && e.reason === 'market_unavailable') {
+        setBackingError(
+          <>
+            Backing isn&apos;t available in your country yet — we hope to support it soon.
           </>,
         );
       } else {
@@ -439,8 +468,25 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   // Fans can back out during council review, but only if they already have a backing.
   const canRevokeDuringReview = user && bounty.status === 'pending' && !!userBacking;
   const isPayoutBlocked = user?.creator?.payout_category === 3;
-  const canSubmitCompletion = isCreator && bounty.status === 'open' && !isPayoutBlocked;
+  // Phase 1 US-only gate: creators outside an open market can't submit completions.
+  const creatorMarketClosed = user?.creator?.creator_market_open === false;
+  const canSubmitCompletion = isCreator && bounty.status === 'open' && !isPayoutBlocked && !creatorMarketClosed;
   const canCreatorRemove = isCreator && bounty.status === 'open';
+
+  // Where the owner's name links: their vanity slug page once creator mode is
+  // on; before that, the handle page (it shows the verified owner's identity)
+  // when the target handle has an internal page; else the bare user profile.
+  // Mirrors BountyCard's ownerHref.
+  const ownerHandleHref = bounty.target_handle
+    ? handleLink(bounty.target_handle.platform, bounty.target_handle.username)
+    : null;
+  const ownerHref = bounty.owner_user
+    ? bounty.owner_user.slug
+      ? `/${bounty.owner_user.slug}`
+      : ownerHandleHref && !ownerHandleHref.external
+        ? ownerHandleHref.href
+        : `/users/${bounty.owner_user.id}`
+    : null;
 
   // ── Backing panel content ────────────────────────────────────────────────────
   const renderBackingPanel = () => {
@@ -455,7 +501,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <div className="bg-fan/10 border border-fan/30 rounded px-4 py-3 text-sm mb-3">
             <div>
               You&apos;re in for{' '}
-              <span className="text-fan font-mono font-semibold tabular-nums">
+              <span className="text-fan font-mono font-bold text-base tabular-nums">
                 ${Number(userBacking!.amount).toFixed(2)}
               </span>
             </div>
@@ -499,7 +545,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             <div className="bg-fan/10 border border-fan/30 rounded px-4 py-3 text-sm">
               <div>
                 You&apos;re in for{' '}
-                <span className="text-fan font-mono font-semibold tabular-nums">
+                <span className="text-fan font-mono font-bold text-base tabular-nums">
                   ${Number(userBacking.amount).toFixed(2)}
                 </span>
               </div>
@@ -548,6 +594,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               >
                 Update
               </Button>
+              <BackingPolicyNote />
             </form>
             <Button
               variant="ghost"
@@ -591,6 +638,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               </div>
             </div>
             {renderExpirePicker()}
+            <PayOnVerifiedNote />
             <Button
               type="submit"
               variant="primary"
@@ -599,6 +647,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             >
               {backingLoading ? 'Backing…' : 'Back This Bounty'}
             </Button>
+            <BackingPolicyNote />
           </form>
         )}
       </Card>
@@ -725,7 +774,13 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       )}
 
       {/* Bounty header */}
-      <Card className="mb-6">
+      <Card className="mb-6 overflow-hidden">
+        {/* Always-on fan accent hairline — same visual signature as the
+            bounty cards' hover state, anchoring the page to the fan role. */}
+        <span
+          aria-hidden
+          className="absolute inset-x-4 top-0 h-[2px] rounded-b bg-gradient-to-r from-fan/0 via-fan/60 to-fan/0"
+        />
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-start gap-3">
@@ -741,12 +796,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                       ✕ Back to current
                     </button>
                   </div>
-                  <h1 className="text-2xl font-display font-bold text-foreground/70 leading-snug flex-1 min-w-0 normal-case">
+                  <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground/70 leading-snug flex-1 min-w-0 normal-case break-words">
                     {displayedTitle}
                   </h1>
                 </div>
               ) : (
-                <h1 className="text-2xl font-display font-bold text-foreground leading-snug flex-1 min-w-0 normal-case">
+                <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground leading-snug flex-1 min-w-0 normal-case break-words">
                   {displayedTitle}
                 </h1>
               )}
@@ -770,8 +825,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <div className="flex items-center gap-2 shrink-0">
             <ShareButton
               path={`/bounties/${bounty.id}`}
-              title={bounty.title}
-              text={`Back "${bounty.title}" on artypot!`}
+              title={`${formatUsd(Number(bounty.total_backed))} bounty: ${bounty.title}`}
+              text={
+                bounty.target_handle?.username
+                  ? `💰 There's a ${formatUsd(Number(bounty.total_backed))} bounty waiting for @${bounty.target_handle.username}: "${bounty.title}" — back it on Artypot!`
+                  : `💰 ${formatUsd(Number(bounty.total_backed))} bounty: "${bounty.title}" — back it on Artypot!`
+              }
               size="sm"
             />
             <Badge tone={STATUS_TONES[bounty.status] ?? 'default'} lg>
@@ -851,11 +910,38 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
 
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
           {(bounty.owner_user || bounty.target_handle) && (
-            <div>
-              <span className="text-muted">For </span>
+            <div className="flex items-center gap-2">
+              {/* Creator face — same trio as BountyCard, one notch larger:
+                  real picture, else initial chip, else the unknown-avatar
+                  placeholder for unclaimed handles (and pre-assignment
+                  snapshots, where the owner attribution didn't exist yet). */}
+              {bounty.owner_user && !viewingPreAssignment ? (
+                bounty.owner_user.profile_picture ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={normalizeAvatarUrl(bounty.owner_user.profile_picture)!}
+                    alt=""
+                    className="w-7 h-7 rounded-full object-cover shrink-0 ring-1 ring-creator/40"
+                  />
+                ) : (
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ring-1 ring-creator/40"
+                    style={{ background: 'var(--color-creator)', color: 'var(--color-brand-dark)' }}
+                  >
+                    {bounty.owner_user.display_name?.charAt(0).toUpperCase() ?? '?'}
+                  </div>
+                )
+              ) : (
+                // avatar_url is the CURRENT owner's photo (backend accessor), so a
+                // pre-assignment snapshot must not show it — the owner attribution
+                // didn't exist at that point in history.
+                <AvatarOrUnknown avatarUrl={viewingPreAssignment ? null : (bounty.avatar_url ?? null)} size="sm" />
+              )}
+              <div>
+              <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mr-1.5">for</span>
               {bounty.owner_user && !viewingPreAssignment ? (
                 <Link
-                  href={bounty.owner_user.slug ? `/${bounty.owner_user.slug}` : `/users/${bounty.owner_user.id}`}
+                  href={ownerHref!}
                   className="text-creator hover:underline font-medium cursor-pointer"
                 >
                   {bounty.owner_user.display_name}
@@ -899,38 +985,60 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   )}
                 </span>
               ) : null}
+              </div>
             </div>
           )}
           {bounty.initiator && (
-            <div>
-              <span className="text-muted">Started by </span>
-              {bounty.initiator.id === 0 ? (
-                <span className="text-foreground font-medium">{bounty.initiator.display_name}</span>
+            <div className="flex items-center gap-2">
+              {/* Initiator face — same treatment as the creator block above,
+                  fan-toned. Anonymous initiators (id 0) get the same "?" chip
+                  as anonymous backers in the list below. */}
+              {bounty.initiator.id !== 0 && bounty.initiator.profile_picture ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={normalizeAvatarUrl(bounty.initiator.profile_picture)!}
+                  alt=""
+                  className="w-7 h-7 rounded-full object-cover shrink-0 ring-1 ring-fan/40"
+                />
               ) : (
-                <Link
-                  href={`/users/${bounty.initiator.id}`}
-                  className="text-foreground font-medium hover:underline cursor-pointer"
+                <div
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ring-1 ring-fan/40"
+                  style={{ background: 'var(--color-fan)', color: 'var(--color-brand-dark)' }}
                 >
-                  {bounty.initiator.display_name}
-                </Link>
+                  {bounty.initiator.id === 0 ? '?' : (bounty.initiator.display_name?.charAt(0).toUpperCase() ?? '?')}
+                </div>
               )}
+              <div>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mr-1.5">started by</span>
+                {bounty.initiator.id === 0 ? (
+                  <span className="text-foreground font-medium">{bounty.initiator.display_name}</span>
+                ) : (
+                  <Link
+                    href={`/users/${bounty.initiator.id}`}
+                    className="text-foreground font-medium hover:underline cursor-pointer"
+                  >
+                    {bounty.initiator.display_name}
+                  </Link>
+                )}
+              </div>
             </div>
           )}
         </div>
 
         {/* Total backed + history toggle */}
-        <div className="mt-5 pt-5 border-t border-border">
-          <div className="text-fan font-mono font-bold tabular-nums text-3xl">
-            ${displayedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-          </div>
-          {!selectedEvent && bounty?.solid_total !== undefined && (Number(bounty.total_backed) - bounty.solid_total) > 0.005 && (
-            <div className="font-mono text-[10px] text-muted tabular-nums mt-0.5">
-              + ${(Number(bounty.total_backed) - bounty.solid_total).toLocaleString('en-US', { minimumFractionDigits: 2 })} in soft backings
-            </div>
-          )}
-          <div className="flex items-center justify-between gap-2 mt-0.5">
-            <div>
-              <div className="text-muted text-sm">
+        <div className="mt-5 pt-5 border-t border-border/70">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="min-w-0">
+              <div className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mb-1">total backed</div>
+              <div className="text-fan font-mono font-bold tabular-nums text-3xl sm:text-4xl leading-none tracking-tight">
+                ${displayedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </div>
+              {!selectedEvent && bounty?.solid_total !== undefined && (Number(bounty.total_backed) - bounty.solid_total) > 0.005 && (
+                <div className="font-mono text-[10px] text-muted tabular-nums mt-1.5">
+                  + ${(Number(bounty.total_backed) - bounty.solid_total).toLocaleString('en-US', { minimumFractionDigits: 2 })} in soft backings
+                </div>
+              )}
+              <div className="text-muted text-sm mt-1.5">
                 backed by {activeBackings.length} {activeBackings.length === 1 ? fanSingular : fanPlural}
               </div>
               {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
@@ -982,9 +1090,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </div>
       </Card>
 
-      <div className="grid sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Action panel */}
-        <div className="sm:col-span-1 space-y-4">
+        <div className="md:col-span-1 space-y-4">
 
           {isCreator ? (
             // ── Creator view: submit completion dominates ───────────────────
@@ -1011,6 +1119,17 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 <Banner tone="warn">
                   <div className="font-semibold text-foreground text-sm mb-1">Payout blocked</div>
                   <div className="text-muted text-sm">Your account is not eligible for payouts. Contact support to resolve this.</div>
+                </Banner>
+              )}
+
+              {/* Phase 1 US-only creator gate */}
+              {isCreator && bounty.status === 'open' && !isPayoutBlocked && creatorMarketClosed && (
+                <Banner tone="warn">
+                  <div className="font-semibold text-foreground text-sm mb-1">Not available in your country yet</div>
+                  <div className="text-muted text-sm">
+                    Artypot is currently US-only, so you can&apos;t submit completions yet. We&apos;ll email you
+                    the moment we roll out support for your country.
+                  </div>
                 </Banner>
               )}
 
@@ -1202,7 +1321,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Backers + completion */}
-        <div className="sm:col-span-2 space-y-6">
+        <div className="md:col-span-2 space-y-6">
           {/* Completion info */}
           {bounty.completion && (
             <Card>
@@ -1313,9 +1432,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     return (
                       <div
                         key={backing.id}
-                        className="flex items-center justify-between py-2 border-b border-border last:border-0"
+                        className="flex items-center justify-between gap-3 py-2 px-2 -mx-2 rounded border-b border-border/60 last:border-0 hover:bg-surface-2/60 transition-colors"
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
                           {avatarSrc ? (
                             <img
                               src={avatarSrc}
@@ -1325,7 +1444,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                           ) : (
                             <div
                               className="w-6 h-6 rounded-full flex items-center justify-center font-mono text-xs font-bold shrink-0"
-                              style={{ background: '#F5A623', color: '#0a0a0a' }}
+                              style={{ background: 'var(--color-fan)', color: 'var(--color-brand-dark)' }}
                             >
                               {initial}
                             </div>
@@ -1370,9 +1489,72 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             </div>
 
           </Card>
+
+          {/* Content Policy report — subtle, logged-in non-participants only */}
+          {user && !isOwner && bounty.initiator_user_id !== user.id && bounty.owner_user_id !== user.id && (
+            <div className="mt-3 text-right">
+              <button
+                type="button"
+                onClick={() => setShowReportModal(true)}
+                className="font-mono text-[10px] uppercase tracking-widest text-muted/50 hover:text-bad transition-colors cursor-pointer"
+              >
+                ⚑ Report this bounty
+              </button>
+            </div>
+          )}
         </div>
 
       </div>
+
+      {showReportModal && (
+        <Modal title="Report this bounty" onClose={() => setShowReportModal(false)}>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setReportSubmitting(true);
+              try {
+                await bountiesApi.report(bounty.id, reportReason, reportDetails.trim() || undefined);
+                setShowReportModal(false);
+                setReportDetails('');
+                toast('Report received. The Council will review this bounty.', 'success');
+              } catch (err) {
+                toast(err instanceof Error ? err.message : 'Failed to submit report.', 'error');
+              } finally {
+                setReportSubmitting(false);
+              }
+            }}
+            className="space-y-3"
+          >
+            <p className="text-sm text-muted">
+              Reports go to the Council for review against the{' '}
+              <Link href="/tos#content" className="underline underline-offset-2">Content Policy</Link>.
+              The bounty stays up unless the Council removes it.
+            </p>
+            <Select value={reportReason} onChange={(e) => setReportReason(e.target.value)}>
+              <option value="harassment">Harassment or targeted abuse</option>
+              <option value="illegal">Illegal content or request</option>
+              <option value="adult_content">Adult-content commission</option>
+              <option value="spam">Spam or scam</option>
+              <option value="other">Something else</option>
+            </Select>
+            <Textarea
+              value={reportDetails}
+              onChange={(e) => setReportDetails(e.target.value)}
+              placeholder="Anything the Council should know (optional)"
+              rows={3}
+              maxLength={2000}
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" type="button" onClick={() => setShowReportModal(false)}>
+                Cancel
+              </Button>
+              <Button variant="danger" type="submit" disabled={reportSubmitting}>
+                {reportSubmitting ? 'Submitting…' : 'Submit Report'}
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 }

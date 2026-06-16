@@ -8,7 +8,7 @@ export default function CreatorHandlesPage() {
   return (
     <div className="space-y-7 pt-2 max-w-[680px]">
       <div>
-        <SectionLabel>creator · admin</SectionLabel>
+        <SectionLabel>creator · account</SectionLabel>
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">handles</h1>
         <p className="text-sm text-muted mt-1">
           Connect and verify your social accounts so fans can find you and direct bounties your way.

@@ -38,9 +38,12 @@ function NotifItem({
         )}
         {!isUnread && <span className="mt-1.5 w-2 h-2 shrink-0" />}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium leading-snug truncate">{notif.title}</p>
+          {/* Title + body wrap to full length (no truncation) so long
+              descriptions stay readable; the panel scrolls. break-words keeps
+              long unbroken tokens (URLs, handles) from overflowing the box. */}
+          <p className="text-sm font-medium leading-snug break-words">{notif.title}</p>
           {notif.body && (
-            <p className="text-xs text-muted mt-0.5 line-clamp-2">{notif.body}</p>
+            <p className="text-xs text-muted mt-0.5 break-words whitespace-pre-line">{notif.body}</p>
           )}
           <p className="text-xs text-muted mt-1">{timeAgo(notif.created_at)}</p>
         </div>
@@ -148,7 +151,7 @@ export default function NotificationBell({ panelClassName }: NotificationBellPro
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={handleClose} />
-          <div className={`${panelClassName ?? 'absolute right-0 mt-2'} w-80 bg-surface-2 border border-border rounded-xl shadow-2xl z-50 overflow-hidden`}>
+          <div className={`${panelClassName ?? 'absolute right-0 mt-2'} w-80 max-w-[calc(100vw-1rem)] bg-surface-2 border border-border rounded-xl shadow-2xl z-50 overflow-hidden`}>
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-border">
               <h3 className="text-sm font-semibold">Notifications</h3>

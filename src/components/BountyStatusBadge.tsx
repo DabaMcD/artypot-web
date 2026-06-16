@@ -12,10 +12,11 @@ export const BOUNTY_STATUS_LABELS: Record<string, string> = {
   revoked:   'Revoked',
 };
 
-type BadgeTone = 'default' | 'info' | 'warn' | 'good' | 'bad';
+type BadgeTone = 'default' | 'info' | 'warn' | 'good' | 'bad' | 'fan';
 
 export const BOUNTY_STATUS_TONES: Record<string, BadgeTone> = {
-  open:      'default',
+  // Brand-yellow: "open" is the live, money-on-the-table state.
+  open:      'fan',
   pending:   'info',
   completed: 'warn',
   paid_out:  'good',

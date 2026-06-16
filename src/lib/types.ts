@@ -150,6 +150,13 @@ export interface User {
   location_complete?: boolean;
   /** Server-computed: user has at least one council-verified handle. Included in /me response only. */
   has_verified_handle?: boolean;
+  /**
+   * Fan-market gate (admin-managed). False ONLY when the user has DECLARED a
+   * closed-market country — they can still place (soft) backings but can't add
+   * a card / be charged. Undeclared fans are chargeable-pending → true. Drives
+   * the FanMarketBanner. Included in /me response only.
+   */
+  fan_market_open?: boolean;
   /** ISO timestamp of last failed billing charge. Null when no recent failure. */
   payment_failed_at?: string | null;
   /** ISO timestamp of when the post-failure grace period expires. Computed by backend. */
@@ -391,6 +398,14 @@ export interface Creator {
   payout_category?: 1 | 2 | 3 | null;
   /** Minimum withdrawal amount in dollars for this creator's country. Null when blocked (category 3) or location unknown. */
   payout_minimum?: number | null;
+  /**
+   * Creator-market gate (admin-managed). False when Artypot has not yet launched
+   * creator support in this creator's country. Distinct from `payout_category === 3`
+   * (sanctions): an unsanctioned creator can still be outside an open market.
+   * Drives the /c/* full-page takeover (own /me) and the public profile "on hold"
+   * notice (public profile payload).
+   */
+  creator_market_open?: boolean;
   /** Timestamp of TOS agreement, stamped when the user activates creator mode. */
   creator_tos_agreed_at?: string | null;
   verified_at?: string;
@@ -444,6 +459,15 @@ export interface Bounty {
   /** Sum of fan charges already collected via billing for this bounty. */
   cleared_amount?: number;
   backings?: BountyBacking[];
+  /**
+   * The authenticated fan's own active backing amount on this bounty, or null
+   * if they don't back it. Appended by the list endpoint (index) so cards can
+   * show "you back $X" without the full backings list. Absent (undefined) on
+   * payloads that don't compute it, e.g. for guests.
+   */
+  user_backing?: number | null;
+  /** Active supporter count. Appended by the list endpoint via withCount. */
+  backings_count?: number;
   completion?: BountyCompletion;
 }
 
@@ -583,6 +607,98 @@ export interface HandleVerificationApplicationRow {
   };
 }
 
+// ── Handle investigation registry (GET /admin/handle-registry[/{id}]) ─────────
+
+export type HandleClaimStatus = 'unverified' | 'verified' | 'rejected' | 'abandoned';
+export type HandleVerificationMethod = 'oauth' | 'manual_post' | 'manual_dm' | 'admin';
+
+/** Per-status claim tallies for one handle. */
+export interface HandleClaimSummary {
+  total: number;
+  verified: number;
+  rejected: number;
+  unverified: number;
+  abandoned: number;
+}
+
+/** A row in the handle registry list. */
+export interface HandleRegistryRow {
+  id: number;
+  platform: HandlePlatform;
+  username: string;
+  status: HandleStatus;
+  created_at: string;
+  owner: { id: number; display_name: string } | null;
+  verification_method: HandleVerificationMethod | null;
+  verified_at: string | null;
+  claim_summary: HandleClaimSummary;
+}
+
+/** One claim in a handle's full dossier. */
+export interface HandleDossierClaim {
+  id: number;
+  status: HandleClaimStatus;
+  verification_method: HandleVerificationMethod | null;
+  verified_at: string | null;
+  rejected_at: string | null;
+  created_at: string;
+  updated_at: string;
+  user: { id: number; display_name: string; email: string | null; country_code: string | null } | null;
+  /** Set on rejected claims: the claim (and user) that won the handle. */
+  rejected_in_favor_of: {
+    claim_id: number;
+    user: { id: number; display_name: string } | null;
+  } | null;
+  /** This claim's admin-review submission history, newest first. */
+  applications: Array<{
+    id: number;
+    status: HandleVerificationApplicationStatus;
+    contact_message: string;
+    decision_notes: string | null;
+    reviewed_at: string | null;
+    created_at: string;
+    reviewer: { id: number; display_name: string; email: string | null } | null;
+  }>;
+}
+
+/** Full investigation dossier for one handle (GET /admin/handle-registry/{id}). */
+export interface HandleDossier {
+  handle: {
+    id: number;
+    platform: HandlePlatform;
+    username: string;
+    username_normalized: string;
+    external_id: string | null;
+    profile_url: string | null;
+    status: HandleStatus;
+    last_synced_at: string | null;
+    created_at: string;
+    updated_at: string;
+  };
+  /** Null until the handle has a verified claim. */
+  verification: {
+    verified_claim_id: number;
+    method: HandleVerificationMethod | null;
+    verified_at: string | null;
+    owner: { id: number; display_name: string; email: string | null } | null;
+    /** The approved admin application behind a manual verification; null for OAuth. */
+    review: {
+      reviewer: { id: number; display_name: string; email: string | null } | null;
+      reviewed_at: string | null;
+      decision_notes: string | null;
+      contact_message: string;
+    } | null;
+  } | null;
+  claim_summary: HandleClaimSummary;
+  claims: HandleDossierClaim[];
+  aliases: Array<{ id: number; alias: string; source: string; created_at: string }>;
+  bounties: {
+    total: number;
+    pot_total: number;
+    items: Array<{ id: number; title: string; status: BountyStatus; total_backed: number }>;
+  };
+}
+
 export interface AdminBountyCompletion {
   id: number;
   bounty_id: number;
@@ -605,6 +721,16 @@ export interface AdminBountyCompletion {
   reviewed_at?: string | null;
   verified_at?: string | null;
   created_at: string;
+  /**
+   * The submitter's prior review outcomes (approved/rejected completion
+   * counts). `total_decided === 0` means this is their first reviewed
+   * submission — i.e. no track record to judge by.
+   */
+  creator_history: {
+    approved: number;
+    rejected: number;
+    total_decided: number;
+  };
 }
 
 export interface CashBalance {
@@ -613,18 +739,39 @@ export interface CashBalance {
   broke_cooldown: { ends_at: string; started_at: string } | null;
 }
 
+/** Self-describing type for a cash_ledger row. Mirrors App\Enums\CashLedgerEntryType. */
+export type CashLedgerEntryType =
+  | 'fan_obligation'
+  | 'fan_settlement'
+  | 'broke_declaration'
+  | 'creator_earning'
+  | 'platform_fee'
+  | 'platform_fee_tax'
+  | 'creator_withdrawal'
+  | 'external_payout'
+  | 'external_payout_reversal'
+  | 'dispute_adjustment'
+  | 'refund_clawback'
+  | 'adjustment';
+
 export interface CashLedgerEntry {
   id: number;
   entity_type: 'user' | 'creator';
   entity_id: number;
   amount: number;
-  running_balance: number;
   available_after: string | null;
   description: string;
+  /** Nullable only for legacy rows written before the column existed. */
+  entry_type?: CashLedgerEntryType | null;
+  created_at?: string;
   bounty?: Pick<Bounty, 'id' | 'title'>;
   fan_payment_id?: number | null;
   creator_withdrawal_id?: number | null;
   external_payout_id?: number | null;
+  /** Derived (not stored) on historical creator_earning rows so the UI can show the fee breakdown. */
+  gross_amount?: number | null;
+  /** Derived (not stored) platform fee for historical net earnings. New payouts carry the fee as its own row. */
+  platform_fee?: number | null;
   external_payout?: {
     id: number;
     method: ExternalPayoutMethod;
@@ -836,6 +983,79 @@ export interface BillingRunDetail extends BillingRun {
   dropped_backings: BillingRunDroppedBacking[];
 }
 
+// ── Refunds (admin partial-refund tooling + creator bounty-wide refunds) ─────
+
+/** One refunded backing — a partial Stripe refund of a grouped charge. */
+export interface AdminRefund {
+  id: number;
+  backing_id: number;
+  fan_payment_id: number;
+  bounty: { id: number; title: string } | null;
+  fan: { id: number; display_name: string; email: string | null } | null;
+  creator: { id: number; display_name: string } | null;
+  initiated_by: { id: number; display_name: string } | null;
+  source: 'admin' | 'creator';
+  /** Gross returned to the fan's card. */
+  amount: number;
+  /** Amount debited from the creator (net for admin refunds, gross for creator refunds). */
+  creator_clawback: number;
+  status: 'succeeded' | 'pending' | 'failed';
+  failure_reason: string | null;
+  /** Publicly-visible reason shown to the fan and creator. */
+  reason: string | null;
+  /** Internal admin-only note. */
+  notes: string | null;
+  created_at: string;
+}
+
+/** One backing slice of a grouped charge, as seen by the admin refund tool. */
+export interface FanPaymentBackingRow {
+  backing_id: number;
+  bounty: { id: number; title: string } | null;
+  creator: { id: number; display_name: string } | null;
+  fan: { id: number; display_name: string } | null;
+  amount: number;
+  /** What the creator actually received (gross − platform fee). */
+  creator_net: number;
+  refunded_at: string | null;
+  refundable: boolean;
+}
+
+export interface FanPaymentBackingsResponse {
+  fan_payment: {
+    id: number;
+    gross_paid: number;
+    net_paid: number;
+    status: string;
+    user: { id: number; display_name: string } | null;
+  };
+  backings: FanPaymentBackingRow[];
+}
+
+/** Creator-side preview of a bounty-wide refund. */
+export interface BountyRefundPreview {
+  settled: Array<{
+    backing_id: number;
+    fan: { id: number; display_name: string };
+    amount: number;
+  }>;
+  unsettled_count: number;
+  unsettled_total: number;
+  total_refund: number;
+  /** Gross clawback — what the refund will cost the creator. */
+  total_clawback: number;
+  /** The creator's current running balance. */
+  balance: number;
+  sufficient: boolean;
+}
+
+export interface BountyRefundResult {
+  refunded: number;
+  revoked: number;
+  failed: number;
+  total_refunded: number;
+}
+
 export interface PaymentMethod {
   id: string;
   brand: string;
@@ -871,6 +1091,8 @@ export interface CreatorBalance {
   available_balance: number;
   /** Total ever transferred to the creator's bank */
   paid_out: number;
+  /** Lifetime platform fees withheld from this creator's earnings (incl. derived historical). */
+  lifetime_platform_fees: number;
   available: PaginatedResponse<CashLedgerEntry>;
 }
 
@@ -945,8 +1167,10 @@ export const NOTIFICATION_DEFAULTS: NotificationSettings = {
   bounty_confirmed: false,     sms_bounty_confirmed: false,     in_app_bounty_confirmed: false,
   backing_confirmed: false,    sms_backing_confirmed: false,
   backing_expired: false,      sms_backing_expired: false,      in_app_backing_expired: false,
-  billing_preview: false,      sms_billing_preview: false,
-  billing_receipt: true,       sms_billing_receipt: false,      in_app_billing_receipt: true,
+  // billing_preview email defaults ON — the fan's only advance notice of the
+  // monthly charge (bell is mandatory-OFF, SMS disabled platform-wide).
+  billing_preview: true,       sms_billing_preview: false,
+  billing_receipt: true,       sms_billing_receipt: true,       in_app_billing_receipt: true,
   bounty_activity: false,         sms_bounty_activity: false,         in_app_bounty_activity: true,
   creator_activity: false,        sms_creator_activity: false,        in_app_creator_activity: true,
   comment_reply: false,           sms_comment_reply: false,           in_app_comment_reply: true,
@@ -1270,6 +1494,21 @@ export interface ComplianceStateThreshold {
   notes: string | null;
 }
 
+export interface CompliancePlatformFeeTaxRate {
+  id: number;
+  state_code: string;
+  subdivision_code: string | null;
+  rate: string; // decimal fraction of the platform fee, e.g. "0.062500"
+  source: string;
+  source_url: string | null;
+  source_fetched_at: string | null;
+  effective_date: string;
+  sunset_date: string | null;
+  verified_at: string | null;
+  notes: string | null;
+  created_at?: string;
+}
+
 export interface ComplianceContentRule {
   id: number;
   country_code: string;
@@ -1417,4 +1656,85 @@ export interface AdminCreatorDetail extends AdminCreator {
     created_at: string;
     completed_at: string | null;
   }>;
+}
+
+/** Admin: an unclaimed handle ranked by the pot waiting for its creator. */
+export interface UnclaimedHandlePot {
+  id: number;
+  platform: string;
+  username: string;
+  open_bounty_count: number;
+  pot_total: number;
+}
+
+/** Admin: a Content Policy report queue row. */
+export interface BountyReportRow {
+  id: number;
+  bounty_id: number;
+  reason: 'harassment' | 'illegal' | 'adult_content' | 'spam' | 'other';
+  details: string | null;
+  status: 'pending' | 'reviewed' | 'actioned' | 'dismissed';
+  review_notes: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  bounty?: {
+    id: number;
+    title: string;
+    status: string;
+    total_backed: number;
+    target_handle?: { id: number; platform: string; username: string } | null;
+  };
+  reporter?: { id: number; display_name: string; email: string };
+  reviewed_by?: { id: number; display_name: string } | null;
+}
+
+/** Admin: platform-wide market defaults (the Phase 2 launch switch). */
+export interface MarketPolicyData {
+  fan_default: 'open' | 'closed';
+  creator_default: 'open' | 'closed';
+  updated_at: string;
+}
+
+/** Admin: one country's market overrides + research dossier. */
+export interface MarketCountryRow {
+  country_code: string;
+  /** name_common from the compliance countries table; null when no row exists for the code. */
+  name: string | null;
+  /** Explicit override, or null = follow the platform default. */
+  fan_status: 'open' | 'closed' | null;
+  creator_status: 'open' | 'closed' | null;
+  /** Resolved status (override ?? default). */
+  fan_effective: 'open' | 'closed';
+  creator_effective: 'open' | 'closed';
+  watch_notes: string | null;
+  legal_basis_notes: string | null;
+  activation_notes: string | null;
+  creator_notes: string | null;
+  updated_at: string;
+}
+
+/** Admin: per-country billed volume for VAT registration-threshold monitoring. */
+export interface MarketVolumeRow {
+  /** null = fans who never declared a country (the "Undeclared" bucket). */
+  country_code: string | null;
+  /** Null for the Undeclared bucket and for codes missing from the countries table. */
+  name: string | null;
+  fans_total: number;
+  fans_with_card: number;
+  active_backing_total: number;
+  settled_12mo: number;
+  settled_lifetime: number;
+  fan_effective: 'open' | 'closed' | null;
+}
+
+/** Admin: a fan whose declared country contradicts their card's issuing country. */
+export interface MarketConflictRow {
+  user_id: number;
+  display_name: string;
+  email: string;
+  declared_country: string;
+  card_country: string;
+  declared_fan_open: boolean;
+  card_fan_open: boolean;
+  card_added_at: string;
 }

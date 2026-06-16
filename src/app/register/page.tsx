@@ -10,6 +10,7 @@ import { nextTarget, readNextFromLocation, OAUTH_NEXT_KEY } from '@/lib/next-red
 import { PHONE_SIGNUP_ENABLED } from '@/lib/config';
 import { Button } from '@/components/ui/Button';
 import { Input, PasswordInput, FieldLabel, FieldGrid2 } from '@/components/ui/Input';
+import { BrandIcon } from '@/components/ui/BrandIcon';
 import { Toggle } from '@/components/ui/Toggle';
 import { Card } from '@/components/ui/Card';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
@@ -338,8 +339,8 @@ export default function RegisterPage() {
                   className="flex items-center justify-center gap-1.5 border border-border bg-surface rounded py-2 px-3 font-mono text-xs text-muted hover:bg-surface-2 hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {oauthLoading === id
-                    ? <span className="w-3 h-3 rounded-full border border-current border-t-transparent animate-spin" />
-                    : null}
+                    ? <span className="w-3.5 h-3.5 rounded-full border border-current border-t-transparent animate-spin shrink-0" />
+                    : <BrandIcon slug={id} className="w-3.5 h-3.5 shrink-0" />}
                   {oauthLoading === id ? 'redirecting…' : label}
                 </button>
               ))}

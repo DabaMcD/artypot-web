@@ -5,6 +5,11 @@ export const PAYOUT_MINIMUM_MANUAL = Number(process.env.NEXT_PUBLIC_PAYOUT_MINIM
 // env BILLING_GRACE_PERIOD_DAYS). The PaymentGraceBanner computes the grace-expiry
 // date client-side from this value, so a mismatch would show the wrong deadline.
 export const BILLING_GRACE_PERIOD_DAYS = Number(process.env.NEXT_PUBLIC_BILLING_GRACE_PERIOD_DAYS ?? 14);
+// Days a collected payment is held before becoming withdrawable by the creator
+// (the "clearing"/hold window — for fraud review and dispute resolution). This
+// is NOT the fan-side BILLING_GRACE_PERIOD_DAYS. Must match the backend
+// (config/artypot.php → payout_wait_days, env PLATFORM_PAYOUT_WAIT_DAYS).
+export const PLATFORM_PAYOUT_WAIT_DAYS = Number(process.env.NEXT_PUBLIC_PLATFORM_PAYOUT_WAIT_DAYS ?? 7);
 export const PLATFORM_FEE_PCT = Number(process.env.NEXT_PUBLIC_PLATFORM_FEE_PCT ?? 20);
 
 /**
