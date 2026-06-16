@@ -7,6 +7,7 @@ import type { HandleClaim, HandlePlatform } from '@/lib/types';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionLabel } from '@/components/ui/Card';
+import { BrandIcon } from '@/components/ui/BrandIcon';
 import { Modal } from '@/components/ui/Modal';
 import { FieldLabel, FieldHint, Textarea, Select } from '@/components/ui/Input';
 import { Banner } from '@/components/ui/Banner';
@@ -180,7 +181,12 @@ function OAuthConnectModal({
         <div className="flex gap-3 justify-end">
           <Button variant="ghost" onClick={onClose} disabled={loading}>Cancel</Button>
           <Button variant="primary" onClick={handleConnect} disabled={loading}>
-            {loading ? 'Redirecting…' : `Connect ${platformLabel} →`}
+            {loading ? 'Redirecting…' : (
+              <>
+                <BrandIcon slug={platform} className="w-4 h-4 shrink-0" />
+                Connect {platformLabel} →
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -379,6 +385,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
                     <div className="mt-3 flex flex-wrap gap-2">
                       {supportsOAuth && (
                         <Button size="sm" variant="primary" onClick={() => setOauthClaim(claim)}>
+                          <BrandIcon slug={platform} className="w-3.5 h-3.5 shrink-0" />
                           Connect via {platformLabel} →
                         </Button>
                       )}
