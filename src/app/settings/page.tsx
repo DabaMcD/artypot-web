@@ -133,6 +133,13 @@ const NOTIF_ROWS: {
     bellKey:  'in_app_comment_reply',  bellRule:  'toggle',
   },
   {
+    label: 'region available',
+    desc: 'payment processing opens in your region, so your backings can be charged.',
+    emailKey: 'market_available',         emailRule: 'toggle',
+    smsKey:   'sms_market_available',     smsRule:   'toggle',
+    bellKey:  'in_app_market_available',  bellRule:  'toggle',
+  },
+  {
     label: 'account management',
     desc: 'required actions, admin messages, handle verification results.',
     emailKey: null, emailRule: 'mandatory_on',
@@ -196,18 +203,18 @@ export default function SettingsPage() {
       'creator_verified','bounty_pending_review','bounty_confirmed',
       'backing_confirmed','backing_expired','billing_preview',
       'billing_receipt','bounty_activity','creator_activity','comment_reply',
-      'creator_new_bounty','creator_bounty_verified',
+      'creator_new_bounty','creator_bounty_verified','market_available',
     ];
     const smsKeys: Array<keyof NotificationSettings> = [
       'sms_creator_verified','sms_bounty_pending_review','sms_bounty_confirmed',
       'sms_backing_confirmed','sms_backing_expired','sms_billing_preview',
       'sms_billing_receipt','sms_bounty_activity','sms_creator_activity','sms_comment_reply',
-      'sms_creator_new_bounty','sms_creator_bounty_verified',
+      'sms_creator_new_bounty','sms_creator_bounty_verified','sms_market_available',
     ];
     const bellKeys: Array<keyof NotificationSettings> = [
       'in_app_creator_verified','in_app_bounty_pending_review','in_app_bounty_confirmed',
       'in_app_backing_expired','in_app_billing_receipt','in_app_bounty_activity','in_app_creator_activity',
-      'in_app_comment_reply','in_app_creator_new_bounty','in_app_creator_bounty_verified',
+      'in_app_comment_reply','in_app_creator_new_bounty','in_app_creator_bounty_verified','in_app_market_available',
     ];
 
     if (value) {

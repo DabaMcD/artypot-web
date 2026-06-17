@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import type { Bounty } from '@/lib/types';
-import { formatPlatformHandle, handleLink } from '@/lib/platforms';
+import { formatPlatformHandle, handleLink, handleExternalUrl } from '@/lib/platforms';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
@@ -62,10 +62,16 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
       ? formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)
       : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`
     : null;
-  // Where the handle points: the internal unverified-handle page for curated
-  // platforms, or straight out to the external profile/URL otherwise.
+  // Where the handle points: the internal handle page — /{platform}/{username}
+  // for curated, or /h/{id} for 'other' — passing the id so 'other' resolves
+  // internally instead of dead-ending on the external site.
   const handleHref = bounty.target_handle
-    ? handleLink(bounty.target_handle.platform, bounty.target_handle.username)
+    ? handleLink(bounty.target_handle.platform, bounty.target_handle.username, bounty.target_handle.id)
+    : null;
+  // 'other' handles now lead to their Artypot page, so offer a small ↗ beside
+  // the name to still jump straight to the external URL in one click.
+  const handleExternal = bounty.target_handle?.platform === 'other'
+    ? handleExternalUrl(bounty.target_handle.platform, bounty.target_handle.username)
     : null;
   // A registered creator's own page: their vanity slug if claimed; before
   // creator mode is on, the handle page (it shows the verified owner's
@@ -239,13 +245,27 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
                       {handleText}
                     </a>
                   ) : (
-                    <Link
-                      href={handleHref.href}
-                      title={handleText}
-                      className="relative z-10 font-mono text-[13px] text-creator font-medium truncate min-w-0 hover:underline underline-offset-2"
-                    >
-                      {handleText}
-                    </Link>
+                    <span className="relative z-10 flex items-center gap-1 min-w-0">
+                      <Link
+                        href={handleHref.href}
+                        title={handleText}
+                        className="font-mono text-[13px] text-creator font-medium truncate min-w-0 hover:underline underline-offset-2"
+                      >
+                        {handleText}
+                      </Link>
+                      {handleExternal && (
+                        <a
+                          href={handleExternal}
+                          target="_blank"
+                          rel="noopener noreferrer nofollow"
+                          title={`Visit ${handleText}`}
+                          aria-label={`Visit ${handleText}`}
+                          className="shrink-0 text-muted hover:text-creator transition-colors"
+                        >
+                          ↗
+                        </a>
+                      )}
+                    </span>
                   )}
                   {bounty.display_name && (
                     <span className="text-[11px] text-muted truncate min-w-0 shrink-[4]" title={bounty.display_name}>

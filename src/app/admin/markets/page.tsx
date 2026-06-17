@@ -24,6 +24,17 @@ type MarketStatus = 'open' | 'closed';
 /** Select value for an override: '' = follow default. */
 type OverrideValue = '' | MarketStatus;
 
+/** Render one independent location signal (flag + code + open/closed) in the conflict queue. */
+function renderConflictSignal(sig: MarketConflictRow['card']) {
+  if (!sig) return <span className="text-muted/40">—</span>;
+  return (
+    <span className="whitespace-nowrap">
+      <span className="font-mono text-foreground mr-2">{countryFlag(sig.country)} {sig.country}</span>
+      <Badge tone={sig.fan_open ? 'good' : 'bad'}>{sig.fan_open ? 'open' : 'closed'}</Badge>
+    </span>
+  );
+}
+
 function countryFlag(code: string) {
   try {
     return String.fromCodePoint(...[...code.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65));
@@ -384,7 +395,7 @@ export default function AdminMarketsPage() {
                 ? `${countries.length} ${countries.length === 1 ? 'country' : 'countries'} with overrides or dossiers`
                 : tab === 'volume'
                   ? 'per-country billed volume'
-                  : `${conflictRows.length} declared-vs-card ${conflictRows.length === 1 ? 'conflict' : 'conflicts'}`}
+                  : `${conflictRows.length} location-signal ${conflictRows.length === 1 ? 'conflict' : 'conflicts'}`}
             </p>
           </div>
           <Link href="/admin"><Button variant="ghost" size="sm">← Admin</Button></Link>
@@ -571,17 +582,19 @@ export default function AdminMarketsPage() {
             {conflictsLoading ? (
               <Card><div className="space-y-3">{[1,2,3,4].map(i => <div key={i} className="h-14 bg-surface-2 animate-pulse rounded" />)}</div></Card>
             ) : conflictRows.length === 0 ? (
-              <Empty>No declared-vs-card country conflicts.</Empty>
+              <Empty>No location-signal conflicts.</Empty>
             ) : (
               <Card>
                 <div className="overflow-x-auto -mx-5 -my-4">
-                  <table className="w-full text-sm min-w-[640px]">
+                  <table className="w-full text-sm min-w-[760px]">
                     <thead>
                       <tr className="border-b border-border">
                         <th className="text-left px-5 py-3 font-mono text-[10px] uppercase tracking-wider text-muted">User</th>
-                        <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-muted">Declared</th>
                         <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-muted">Card</th>
-                        <th className="text-left px-5 py-3 font-mono text-[10px] uppercase tracking-wider text-muted">Card added</th>
+                        <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-muted">Billing</th>
+                        <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-muted">IP</th>
+                        <th className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-wider text-muted">Declared</th>
+                        <th className="text-left px-5 py-3 font-mono text-[10px] uppercase tracking-wider text-muted">Waiting on</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
@@ -591,15 +604,13 @@ export default function AdminMarketsPage() {
                             <span className="text-foreground">{row.display_name}</span>{' '}
                             <span className="text-muted/70 font-mono text-[10px]">{row.email}</span>
                           </td>
-                          <td className="px-4 py-3">
-                            <span className="font-mono text-foreground mr-2">{countryFlag(row.declared_country)} {row.declared_country}</span>
-                            <Badge tone={row.declared_fan_open ? 'good' : 'bad'}>{row.declared_fan_open ? 'open' : 'closed'}</Badge>
+                          <td className="px-4 py-3">{renderConflictSignal(row.card)}</td>
+                          <td className="px-4 py-3">{renderConflictSignal(row.billing)}</td>
+                          <td className="px-4 py-3">{renderConflictSignal(row.ip)}</td>
+                          <td className="px-4 py-3">{renderConflictSignal(row.declared)}</td>
+                          <td className="px-5 py-3 font-mono text-[11px] text-muted">
+                            {row.waiting_on ? `${countryFlag(row.waiting_on)} ${row.waiting_on}` : '—'}
                           </td>
-                          <td className="px-4 py-3">
-                            <span className="font-mono text-foreground mr-2">{countryFlag(row.card_country)} {row.card_country}</span>
-                            <Badge tone={row.card_fan_open ? 'good' : 'bad'}>{row.card_fan_open ? 'open' : 'closed'}</Badge>
-                          </td>
-                          <td className="px-5 py-3 font-mono text-[11px] text-muted">{fmtDate(row.card_added_at)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -608,7 +619,8 @@ export default function AdminMarketsPage() {
               </Card>
             )}
             <p className="font-mono text-[10px] text-muted/70">
-              Fans whose declared country contradicts their card&apos;s issuing country — review for geo-fence evasion.
+              Fans whose independent location signals disagree across an open/closed market boundary —
+              frozen pending review. Resolve by setting the fan&apos;s country (admin override).
             </p>
           </>
         )}

@@ -75,6 +75,15 @@ export default function CreatorTosTldr({
           </span>
         </li>
         <li className="flex gap-2">
+          <span className="text-creator shrink-0 mt-0.5">✗</span>
+          <span>
+            <strong>Real people only, not brands (yet).</strong>{' '}Creator accounts are for
+            individuals signing up for themselves. If you run a company&apos;s or
+            organization&apos;s social media, you can&apos;t register that brand as a creator yet —
+            business-entity support is coming later.
+          </span>
+        </li>
+        <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
             <strong>Act in good faith.</strong>{' '}Misleading comments, disingenuous

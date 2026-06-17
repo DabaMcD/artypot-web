@@ -389,7 +389,7 @@ export const creators = {
 
 // Bounties
 export const bounties = {
-  list: (params?: { creator_id?: number; status?: BountyStatus; page?: number }) => {
+  list: (params?: { creator_id?: number; handle_id?: number; status?: BountyStatus; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
@@ -796,6 +796,20 @@ export const handles = {
       `/handles/search?q=${encodeURIComponent(q)}`,
       { signal }
     ),
+
+  /**
+   * GET /handles/{id}/page — the universal id-keyed handle page payload. Powers
+   * /h/[id] (the home for 'other' handles; curated handles redirect to their
+   * pretty /{platform}/{username} URL). Same discriminated union as
+   * creators.byPlatformHandle, plus profile_url + the owner slug.
+   */
+  page: (id: number | string) =>
+    request<{
+      match: 'verified' | 'claimed' | 'unverified';
+      handle: { id: number; platform: string; username: string; profile_url: string | null; status: string };
+      owner: { id: number; display_name: string; slug: string | null; profile_picture: string | null } | null;
+      bounties: Array<{ id: number; title: string; status: string; total_backed: string; created_at: string }>;
+    }>(`/handles/${id}/page`),
 
   /**
    * POST /handles — find-or-create a handle and create an unverified claim.

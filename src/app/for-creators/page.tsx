@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import FeaturedBountiesSection from '@/components/FeaturedBountiesSection';
+import { SmoothHashLink } from '@/components/SmoothHashLink';
 import { PLATFORM_FEE_PCT, BILLING_DAY, PLATFORM_PAYOUT_WAIT_DAYS } from '@/lib/config';
 
 export const metadata = {
@@ -85,12 +86,12 @@ export default function ForCreatorsPage() {
             >
               Get started →
             </Link>
-            <a
+            <SmoothHashLink
               href="#how-you-get-paid"
               className="bg-surface border border-border text-foreground font-semibold px-6 py-3 rounded-lg hover:border-creator/50 hover:text-creator transition-colors"
             >
               How you get paid
-            </a>
+            </SmoothHashLink>
           </div>
         </div>
       </section>

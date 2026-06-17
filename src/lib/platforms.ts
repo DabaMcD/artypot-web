@@ -188,12 +188,28 @@ export function platformProfileUrl(slug: string, username: string): string {
 export function handleLink(
   slug: string,
   username: string,
+  id?: number | null,
 ): { href: string; external: boolean } {
   const isCurated = slug !== OTHER_SLUG && KNOWN_PLATFORMS.has(slug);
   if (isCurated && !username.includes('/')) {
     return { href: `/${slug}/${username}`, external: false };
   }
+  // 'other' (and any handle whose username can't be a clean path segment) has
+  // no pretty URL — route to its internal id-keyed page when we know the id.
+  // Without an id we fall back to the external site (legacy behaviour).
+  if (id != null) {
+    return { href: `/h/${id}`, external: false };
+  }
   return { href: platformProfileUrl(slug, username), external: true };
+}
+
+/**
+ * The canonical *external* URL for a handle (the real third-party profile),
+ * regardless of whether the handle also has an internal page. Used for the
+ * "visit ↗" affordance next to a handle that now links to its internal page.
+ */
+export function handleExternalUrl(slug: string, username: string): string {
+  return platformProfileUrl(slug, username);
 }
 
 /**

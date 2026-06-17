@@ -26,11 +26,12 @@ import { requestNudgeRefresh } from '@/lib/nudge-context';
 import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import { useViewMode } from '@/lib/view-mode-context';
 import type { Bounty, BountyHistoryEvent } from '@/lib/types';
-import { handleLink, formatPlatformHandle } from '@/lib/platforms';
+import { handleLink, handleExternalUrl, formatPlatformHandle } from '@/lib/platforms';
 import ShareButton from '@/components/ShareButton';
 import BackingPolicyNote from '@/components/BackingPolicyNote';
 import PayOnVerifiedNote from '@/components/PayOnVerifiedNote';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
+import BountyCard from '@/components/BountyCard';
 import CommentSection from '@/components/CommentSection';
 import { BOUNTY_STATUS_LABELS as STATUS_LABELS, BOUNTY_STATUS_TONES as STATUS_TONES } from '@/components/BountyStatusBadge';
 import { AvatarOrUnknown } from '@/components/ui/AvatarOrUnknown';
@@ -74,6 +75,11 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const [bounty, setBounty] = useState<Bounty | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Up to six *other* bounties that share this bounty's creator (preferred) or,
+  // for an unclaimed handle, its target handle — rendered in an optional
+  // "more bounties" section at the bottom of the page.
+  const [relatedBounties, setRelatedBounties] = useState<Bounty[]>([]);
 
 
   // Backing form. Initial empty string lets the placeholder show; once the
@@ -175,6 +181,49 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       .catch(() => setError('Failed to load bounty.'))
       .finally(() => setLoading(false));
   }, [refreshBounty]);
+
+  // The identity this bounty belongs to, for the "other bounties for …"
+  // section. A claimed creator (owner) is canonical when present; otherwise
+  // fall back to the unclaimed target handle. Both are stable primitives so
+  // the fetch below only re-runs when the identity actually changes — not on
+  // every backing/total refresh.
+  const relatedOwnerId  = bounty?.owner_user_id ?? bounty?.owner_user?.id ?? null;
+  const relatedHandleId = bounty?.target_handle_id ?? bounty?.target_handle?.id ?? null;
+  const currentBountyId = bounty?.id ?? null;
+
+  // Fetch siblings. Optional, best-effort: any failure (or no siblings) just
+  // leaves the section hidden. Revoked bounties and this bounty itself are
+  // filtered out; we keep at most six, newest first (the list endpoint's order).
+  useEffect(() => {
+    if (currentBountyId == null) return;
+    const params =
+      relatedOwnerId != null
+        ? { creator_id: relatedOwnerId }
+        : relatedHandleId != null
+          ? { handle_id: relatedHandleId }
+          : null;
+    if (!params) {
+      setRelatedBounties([]);
+      return;
+    }
+    let cancelled = false;
+    bountiesApi
+      .list(params)
+      .then((res) => {
+        if (cancelled) return;
+        setRelatedBounties(
+          res.data
+            .filter((b) => b.id !== currentBountyId && b.status !== 'revoked')
+            .slice(0, 6),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setRelatedBounties([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [relatedOwnerId, relatedHandleId, currentBountyId]);
 
   // Register the bounty's target with the view-mode context so the sidebar
   // flips to creator mode whenever the logged-in user is the target.
@@ -478,7 +527,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   // when the target handle has an internal page; else the bare user profile.
   // Mirrors BountyCard's ownerHref.
   const ownerHandleHref = bounty.target_handle
-    ? handleLink(bounty.target_handle.platform, bounty.target_handle.username)
+    ? handleLink(bounty.target_handle.platform, bounty.target_handle.username, bounty.target_handle.id)
     : null;
   const ownerHref = bounty.owner_user
     ? bounty.owner_user.slug
@@ -486,6 +535,15 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       : ownerHandleHref && !ownerHandleHref.external
         ? ownerHandleHref.href
         : `/users/${bounty.owner_user.id}`
+    : null;
+
+  // Platform-qualified handle string for the "other bounties for …" heading
+  // ("youtube/@mrbeast", or the bare URL for 'other'). Mirrors the header and
+  // BountyCard identity formatting so the label reads consistently everywhere.
+  const relatedHandleLabel = bounty.target_handle
+    ? bounty.target_handle.platform === 'other'
+      ? formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)
+      : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`
     : null;
 
   // ── Backing panel content ────────────────────────────────────────────────────
@@ -955,22 +1013,42 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 <span className="inline-flex items-center gap-x-2 gap-y-1 flex-wrap align-middle">
                   {(() => {
                     const th = bounty.target_handle!;
-                    const { href, external } = handleLink(th.platform, th.username);
+                    // Pass the id so 'other' resolves to its internal /h/{id}
+                    // page instead of dead-ending on the external site.
+                    const { href, external } = handleLink(th.platform, th.username, th.id);
                     // Primary, verifiable identity: `youtube/@bbnomoney`. The
                     // platform-qualified handle is the only thing a fan can
                     // actually trust, so it always leads.
                     const label = th.platform === 'other'
                       ? formatPlatformHandle(th.platform, th.username)
                       : `${th.platform}/${formatPlatformHandle(th.platform, th.username)}`;
+                    // 'other' now links internally; offer a ↗ to still jump out.
+                    const external_url = th.platform === 'other'
+                      ? handleExternalUrl(th.platform, th.username)
+                      : null;
                     const cls = 'text-creator font-medium font-mono cursor-pointer hover:underline break-all';
                     return external ? (
                       <a href={href} target="_blank" rel="noopener noreferrer nofollow" className={cls}>
                         {label}
                       </a>
                     ) : (
-                      <Link href={href} className={cls}>
-                        {label}
-                      </Link>
+                      <span className="inline-flex items-center gap-1 min-w-0">
+                        <Link href={href} className={cls}>
+                          {label}
+                        </Link>
+                        {external_url && (
+                          <a
+                            href={external_url}
+                            target="_blank"
+                            rel="noopener noreferrer nofollow"
+                            title={`Visit ${label}`}
+                            aria-label={`Visit ${label}`}
+                            className="shrink-0 text-muted hover:text-creator transition-colors"
+                          >
+                            ↗
+                          </a>
+                        )}
+                      </span>
                     );
                   })()}
                   {/* Fan-supplied display name is secondary context, never the
@@ -1505,6 +1583,47 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
       </div>
+
+      {/* ── Other bounties for this creator / handle (optional) ───────────────
+          Hidden entirely when there are no siblings. Grouped by the claimed
+          creator when there is one, else by the unclaimed target handle. */}
+      {relatedBounties.length > 0 && (
+        <section className="mt-12 pt-8 border-t border-border">
+          <SectionLabel className="mb-1.5">more bounties</SectionLabel>
+          <h2 className="font-display font-bold text-xl text-foreground mb-5">
+            Other bounties for{' '}
+            {bounty.owner_user && ownerHref ? (
+              <Link href={ownerHref} className="text-creator hover:underline">
+                {bounty.owner_user.display_name}
+              </Link>
+            ) : relatedHandleLabel && ownerHandleHref ? (
+              ownerHandleHref.external ? (
+                <a
+                  href={ownerHandleHref.href}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="font-mono text-creator hover:underline break-all"
+                >
+                  {relatedHandleLabel}
+                </a>
+              ) : (
+                <Link href={ownerHandleHref.href} className="font-mono text-creator hover:underline break-all">
+                  {relatedHandleLabel}
+                </Link>
+              )
+            ) : (
+              <span className="text-creator">
+                {bounty.owner_user?.display_name ?? relatedHandleLabel}
+              </span>
+            )}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {relatedBounties.map((b) => (
+              <BountyCard key={b.id} bounty={b} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {showReportModal && (
         <Modal title="Report this bounty" onClose={() => setShowReportModal(false)}>
