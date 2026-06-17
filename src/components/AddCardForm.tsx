@@ -4,6 +4,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { stripePromise } from '@/lib/stripe';
 import { billing } from '@/lib/api';
+import { COUNTRIES } from '@/lib/countries';
 
 // CardElement style tokens — Stripe renders in an iframe so CSS vars don't reach here;
 // keep these in sync with globals.css manually.
@@ -36,6 +37,16 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  // Billing address — an independent location signal (alongside the card's
+  // issuing country and the request-IP country) used for market eligibility,
+  // tax determination, and the EU/GST location-evidence trail. Captured here
+  // and threaded into the PaymentMethod's billing_details so the
+  // setup_intent.succeeded webhook can persist it (PaymentMethodRecord
+  // billing_country / billing_postal_code). Country is required; postal is
+  // optional since not every country uses one.
+  const [billingCountry, setBillingCountry] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!stripe || !elements) return;
@@ -43,11 +54,25 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
     const cardElement = elements.getElement(CardElement);
     if (!cardElement) return;
 
+    if (!billingCountry) {
+      setError('Please select the billing country for this card.');
+      return;
+    }
+
     setError('');
     setSubmitting(true);
 
     const { error: stripeError } = await stripe.confirmCardSetup(clientSecret, {
-      payment_method: { card: cardElement },
+      payment_method: {
+        card: cardElement,
+        billing_details: {
+          address: {
+            country: billingCountry,
+            // Omit empty postal so Stripe stores null rather than "".
+            ...(postalCode.trim() ? { postal_code: postalCode.trim() } : {}),
+          },
+        },
+      },
     });
 
     if (stripeError) {
@@ -58,11 +83,50 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
     }
   };
 
+  const fieldClass =
+    'w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-fan transition-colors';
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Card input — styled box matching the dark surface */}
       <div className="bg-surface-2 border border-border rounded-lg px-3 py-3">
         <CardElement options={{ style: CARD_STYLE, hidePostalCode: true }} />
+      </div>
+
+      {/* Billing location */}
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label htmlFor="billing-country" className="block text-xs text-muted mb-1">
+            Billing country
+          </label>
+          <select
+            id="billing-country"
+            value={billingCountry}
+            onChange={(e) => setBillingCountry(e.target.value)}
+            className={fieldClass}
+            required
+          >
+            <option value="">— select —</option>
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="billing-postal" className="block text-xs text-muted mb-1">
+            ZIP / postal code
+          </label>
+          <input
+            id="billing-postal"
+            type="text"
+            inputMode="text"
+            autoComplete="postal-code"
+            value={postalCode}
+            onChange={(e) => setPostalCode(e.target.value)}
+            placeholder="optional"
+            className={fieldClass}
+          />
+        </div>
       </div>
 
       {error && (
