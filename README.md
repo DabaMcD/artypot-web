@@ -127,7 +127,7 @@ We use Tailwind size utilities heavily, but a handful of arbitrary values are in
 
 1. **Auth route** (`/login`, `/register`, `/forgot-password`, `/reset-password`, `/email/*`, `/oauth/*`) → full-bleed, no chrome. Pages render their own centered card.
 2. **Loading auth check** → blank dark screen (just `bg-background`).
-3. **Unauthenticated on a non-auth route** → `<PublicHeader />` + page + `<PublicFooter />`. Used for the marketing homepage, public profiles, public bounties, `/about`, `/tos`, `/privacy`, `/support`, `/guide`, `/for-creators`.
+3. **Unauthenticated on a non-auth route** → `<PublicHeader />` + page + `<PublicFooter />`. Used for the marketing homepage, public profiles, public bounties, `/about`, `/tos`, `/privacy`, `/support`, `/for-creators`.
 4. **Authenticated** → sticky 64px top bar + left sidebar + main content area + role-themed banners.
 
 ### 4.2 Authenticated layout

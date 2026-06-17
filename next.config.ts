@@ -36,6 +36,9 @@ const nextConfig: NextConfig = {
       // sidebar. Bounce to the canonical default queue. Non-council users
       // get re-redirected away by the destination page's own auth gate.
       { source: '/admin', destination: '/admin/completions', permanent: false },
+      // /guide ("The Lingo" glossary) retired — /about is the single canonical
+      // explainer now. Permanent redirect preserves old bookmarks / indexed links.
+      { source: '/guide', destination: '/about', permanent: true },
     ];
   },
 };

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Privacy Policy — Artypot',
+  title: 'Privacy Policy',
 };
 
 const LAST_UPDATED = 'April 11, 2026';
