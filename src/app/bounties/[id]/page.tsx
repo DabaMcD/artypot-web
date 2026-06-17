@@ -26,7 +26,7 @@ import { requestNudgeRefresh } from '@/lib/nudge-context';
 import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import { useViewMode } from '@/lib/view-mode-context';
 import type { Bounty, BountyHistoryEvent } from '@/lib/types';
-import { handleLink, formatPlatformHandle } from '@/lib/platforms';
+import { handleLink, handleExternalUrl, formatPlatformHandle } from '@/lib/platforms';
 import ShareButton from '@/components/ShareButton';
 import BackingPolicyNote from '@/components/BackingPolicyNote';
 import PayOnVerifiedNote from '@/components/PayOnVerifiedNote';
@@ -478,7 +478,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   // when the target handle has an internal page; else the bare user profile.
   // Mirrors BountyCard's ownerHref.
   const ownerHandleHref = bounty.target_handle
-    ? handleLink(bounty.target_handle.platform, bounty.target_handle.username)
+    ? handleLink(bounty.target_handle.platform, bounty.target_handle.username, bounty.target_handle.id)
     : null;
   const ownerHref = bounty.owner_user
     ? bounty.owner_user.slug
@@ -955,22 +955,42 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 <span className="inline-flex items-center gap-x-2 gap-y-1 flex-wrap align-middle">
                   {(() => {
                     const th = bounty.target_handle!;
-                    const { href, external } = handleLink(th.platform, th.username);
+                    // Pass the id so 'other' resolves to its internal /h/{id}
+                    // page instead of dead-ending on the external site.
+                    const { href, external } = handleLink(th.platform, th.username, th.id);
                     // Primary, verifiable identity: `youtube/@bbnomoney`. The
                     // platform-qualified handle is the only thing a fan can
                     // actually trust, so it always leads.
                     const label = th.platform === 'other'
                       ? formatPlatformHandle(th.platform, th.username)
                       : `${th.platform}/${formatPlatformHandle(th.platform, th.username)}`;
+                    // 'other' now links internally; offer a ↗ to still jump out.
+                    const external_url = th.platform === 'other'
+                      ? handleExternalUrl(th.platform, th.username)
+                      : null;
                     const cls = 'text-creator font-medium font-mono cursor-pointer hover:underline break-all';
                     return external ? (
                       <a href={href} target="_blank" rel="noopener noreferrer nofollow" className={cls}>
                         {label}
                       </a>
                     ) : (
-                      <Link href={href} className={cls}>
-                        {label}
-                      </Link>
+                      <span className="inline-flex items-center gap-1 min-w-0">
+                        <Link href={href} className={cls}>
+                          {label}
+                        </Link>
+                        {external_url && (
+                          <a
+                            href={external_url}
+                            target="_blank"
+                            rel="noopener noreferrer nofollow"
+                            title={`Visit ${label}`}
+                            aria-label={`Visit ${label}`}
+                            className="shrink-0 text-muted hover:text-creator transition-colors"
+                          >
+                            ↗
+                          </a>
+                        )}
+                      </span>
                     );
                   })()}
                   {/* Fan-supplied display name is secondary context, never the

@@ -176,7 +176,8 @@ export default function CreatorSearchWidget({
     if (r.type === 'user' && r.user_id) {
       router.push(`/creators/${r.user_id}`);
     } else {
-      const { href, external } = handleLink(r.platform, r.username);
+      // handle_id lets 'other' results open their internal /h/{id} page.
+      const { href, external } = handleLink(r.platform, r.username, r.handle_id);
       if (external) {
         window.open(href, '_blank', 'noopener,noreferrer');
       } else {
