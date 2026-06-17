@@ -389,7 +389,7 @@ export const creators = {
 
 // Bounties
 export const bounties = {
-  list: (params?: { creator_id?: number; status?: BountyStatus; page?: number }) => {
+  list: (params?: { creator_id?: number; handle_id?: number; status?: BountyStatus; page?: number }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];

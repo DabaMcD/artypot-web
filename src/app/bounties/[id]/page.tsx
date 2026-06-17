@@ -31,6 +31,7 @@ import ShareButton from '@/components/ShareButton';
 import BackingPolicyNote from '@/components/BackingPolicyNote';
 import PayOnVerifiedNote from '@/components/PayOnVerifiedNote';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
+import BountyCard from '@/components/BountyCard';
 import CommentSection from '@/components/CommentSection';
 import { BOUNTY_STATUS_LABELS as STATUS_LABELS, BOUNTY_STATUS_TONES as STATUS_TONES } from '@/components/BountyStatusBadge';
 import { AvatarOrUnknown } from '@/components/ui/AvatarOrUnknown';
@@ -74,6 +75,11 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const [bounty, setBounty] = useState<Bounty | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Up to six *other* bounties that share this bounty's creator (preferred) or,
+  // for an unclaimed handle, its target handle — rendered in an optional
+  // "more bounties" section at the bottom of the page.
+  const [relatedBounties, setRelatedBounties] = useState<Bounty[]>([]);
 
 
   // Backing form. Initial empty string lets the placeholder show; once the
@@ -175,6 +181,49 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       .catch(() => setError('Failed to load bounty.'))
       .finally(() => setLoading(false));
   }, [refreshBounty]);
+
+  // The identity this bounty belongs to, for the "other bounties for …"
+  // section. A claimed creator (owner) is canonical when present; otherwise
+  // fall back to the unclaimed target handle. Both are stable primitives so
+  // the fetch below only re-runs when the identity actually changes — not on
+  // every backing/total refresh.
+  const relatedOwnerId  = bounty?.owner_user_id ?? bounty?.owner_user?.id ?? null;
+  const relatedHandleId = bounty?.target_handle_id ?? bounty?.target_handle?.id ?? null;
+  const currentBountyId = bounty?.id ?? null;
+
+  // Fetch siblings. Optional, best-effort: any failure (or no siblings) just
+  // leaves the section hidden. Revoked bounties and this bounty itself are
+  // filtered out; we keep at most six, newest first (the list endpoint's order).
+  useEffect(() => {
+    if (currentBountyId == null) return;
+    const params =
+      relatedOwnerId != null
+        ? { creator_id: relatedOwnerId }
+        : relatedHandleId != null
+          ? { handle_id: relatedHandleId }
+          : null;
+    if (!params) {
+      setRelatedBounties([]);
+      return;
+    }
+    let cancelled = false;
+    bountiesApi
+      .list(params)
+      .then((res) => {
+        if (cancelled) return;
+        setRelatedBounties(
+          res.data
+            .filter((b) => b.id !== currentBountyId && b.status !== 'revoked')
+            .slice(0, 6),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setRelatedBounties([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [relatedOwnerId, relatedHandleId, currentBountyId]);
 
   // Register the bounty's target with the view-mode context so the sidebar
   // flips to creator mode whenever the logged-in user is the target.
@@ -486,6 +535,15 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       : ownerHandleHref && !ownerHandleHref.external
         ? ownerHandleHref.href
         : `/users/${bounty.owner_user.id}`
+    : null;
+
+  // Platform-qualified handle string for the "other bounties for …" heading
+  // ("youtube/@mrbeast", or the bare URL for 'other'). Mirrors the header and
+  // BountyCard identity formatting so the label reads consistently everywhere.
+  const relatedHandleLabel = bounty.target_handle
+    ? bounty.target_handle.platform === 'other'
+      ? formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)
+      : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`
     : null;
 
   // ── Backing panel content ────────────────────────────────────────────────────
@@ -1525,6 +1583,47 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
       </div>
+
+      {/* ── Other bounties for this creator / handle (optional) ───────────────
+          Hidden entirely when there are no siblings. Grouped by the claimed
+          creator when there is one, else by the unclaimed target handle. */}
+      {relatedBounties.length > 0 && (
+        <section className="mt-12 pt-8 border-t border-border">
+          <SectionLabel className="mb-1.5">more bounties</SectionLabel>
+          <h2 className="font-display font-bold text-xl text-foreground mb-5">
+            Other bounties for{' '}
+            {bounty.owner_user && ownerHref ? (
+              <Link href={ownerHref} className="text-creator hover:underline">
+                {bounty.owner_user.display_name}
+              </Link>
+            ) : relatedHandleLabel && ownerHandleHref ? (
+              ownerHandleHref.external ? (
+                <a
+                  href={ownerHandleHref.href}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="font-mono text-creator hover:underline break-all"
+                >
+                  {relatedHandleLabel}
+                </a>
+              ) : (
+                <Link href={ownerHandleHref.href} className="font-mono text-creator hover:underline break-all">
+                  {relatedHandleLabel}
+                </Link>
+              )
+            ) : (
+              <span className="text-creator">
+                {bounty.owner_user?.display_name ?? relatedHandleLabel}
+              </span>
+            )}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {relatedBounties.map((b) => (
+              <BountyCard key={b.id} bounty={b} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {showReportModal && (
         <Modal title="Report this bounty" onClose={() => setShowReportModal(false)}>
