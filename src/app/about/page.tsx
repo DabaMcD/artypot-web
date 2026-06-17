@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { PLATFORM_FEE_PCT } from '@/lib/config';
 
 export const metadata = {
-  title: 'About — Artypot',
+  title: 'About',
   description:
     'Like Kickstarter, but no money moves until the thing is done. Fans pool money on specific requests; nobody is charged until the work is delivered and approved.',
 };

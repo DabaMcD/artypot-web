@@ -32,7 +32,14 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Artypot — Tell the world what you want.',
+  // `default` titles routes that set no title of their own (e.g. the home page
+  // and client pages without a metadata layout). `template` brands every
+  // per-page title consistently, so a page setting `title: 'Dashboard'` renders
+  // as "Dashboard · Artypot".
+  title: {
+    default: 'Artypot — Tell the world what you want.',
+    template: '%s · Artypot',
+  },
   description:
     'Artypot is a crowdfund-commissioning platform where communities pool money into bounties that pay out directly to creators once they complete a specified public creative work.',
   icons: {

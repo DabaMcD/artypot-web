@@ -48,7 +48,6 @@ const FULL_BLEED_EXACT = new Set([
   '/about',
   '/for-creators',
   '/support',
-  '/guide',
   '/privacy',
   '/tos',
   '/creator-tos',
@@ -71,6 +70,8 @@ const APP_PADDED_EXACT = new Set(['/bounties/new']);
 const RESERVED_TOP_SEGMENTS = new Set([
   'about', 'admin', 'backings', 'become-creator', 'billing', 'bounties', 'c',
   'creator-tos', 'creators', 'dashboard', 'email', 'for-creators',
+  // 'guide' has no page anymore (308-redirects to /about via next.config) but
+  // stays reserved so it can never be claimed as a creator slug.
   'forgot-password', 'guide', 'history', 'login', 'oauth', 'obelisk',
   'privacy', 'register', 'reset-password', 'search', 'settings', 'support',
   'tos', 'users',

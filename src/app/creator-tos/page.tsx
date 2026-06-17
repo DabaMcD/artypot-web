@@ -2,7 +2,7 @@ import Link from 'next/link';
 import CreatorTosTldr from '@/components/CreatorTosTldr';
 
 export const metadata = {
-  title: 'Creator Terms of Service — Artypot',
+  title: 'Creator Terms of Service',
 };
 
 const LAST_UPDATED = 'June 11, 2026';

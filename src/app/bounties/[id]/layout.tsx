@@ -38,7 +38,7 @@ export async function generateMetadata(
   const bounty = await fetchBounty(id);
 
   if (!bounty) {
-    return { title: 'Bounty — Artypot' };
+    return { title: 'Bounty' };
   }
 
   const pot = formatPot(Number(bounty.total_backed ?? 0));

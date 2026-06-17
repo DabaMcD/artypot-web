@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'How to Delete Your Account — Artypot',
+  title: 'How to Delete Your Account',
 };
 
 function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Terms of Service — Artypot',
+  title: 'Terms of Service',
 };
 
 const LAST_UPDATED = 'June 11, 2026';

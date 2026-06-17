@@ -286,7 +286,6 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
       <div className="px-5 pb-[max(1rem,env(safe-area-inset-bottom))] flex items-center justify-between">
         {([
           { href: '/about',   label: 'About' },
-          { href: '/guide',   label: 'Guide' },
           { href: '/tos',     label: 'Terms' },
           { href: '/privacy', label: 'Privacy' },
           { href: '/support', label: 'Contact' },

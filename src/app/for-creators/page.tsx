@@ -4,7 +4,7 @@ import { SmoothHashLink } from '@/components/SmoothHashLink';
 import { PLATFORM_FEE_PCT, BILLING_DAY, PLATFORM_PAYOUT_WAIT_DAYS } from '@/lib/config';
 
 export const metadata = {
-  title: 'For Creators — Artypot',
+  title: 'For Creators',
   description: 'Tell your fans exactly what you want to make. Let them fund it. Get paid when you deliver.',
 };
 
