@@ -861,7 +861,7 @@
       },
       "payouts": {
         "label": "BAG go brrr 💰",
-        "note": "yeeted to 50+ Ohios worldwide fr 🌍🗣️"
+        "note": "straight to ur US bank acct fr 🇺🇸💸"
       }
     },
     "sectionLabel": "slide in bestie 👀",
@@ -1225,8 +1225,8 @@
       "finalRest": " — Council confirms, card eats the charge, n that bag is GONE gng. no refunds. the escape window slammed shut the second it finished, shoulda dipped earlier bestie 💀.",
       "feeLead": "Artypot snags a 20% gyatt-sized cut 🪙",
       "feeRest": " — off the creator's bag, NOT urs btw. one fee, covers literally everything incl payment processing, no sneaky Ohio surcharges 🚫. backers pay the full promised amount, creators walk w 80%, the math is mathing fr.",
-      "globalLead": "creators worldwide securin the bag 🌍💰 yeah boiii",
-      "globalRest": " — direct bank deposits where it works, slick alt methods everywhere else. fans from anywhere can back stuff. a couple countries got locked out bc the law said nuh uh 🚫.",
+      "globalLead": "US creators securin the bag 🇺🇸💰 yeah boiii",
+      "globalRest": " — u need a US bank acct to get paid, more countries otw fr. but fans from anywhere can still back stuff 🌍.",
       "neverLead": "bounty never finishes?? then NO money moves 🙅 fr",
       "neverRest": " — like ever ever ever. zero. ghost town. tumbleweed aura 🌵.",
       "notPurchaseLead": "backing ≠ buying smth bestie 🛒❌ get that out ur head",
@@ -1318,7 +1318,7 @@
         "title": "6. creator chores 🛠️",
         "p1": "creators who claim their profile n accept a bounty r basically pinky-promising 🤙 to deliver the exact work described, in good faith, the way their community reads it. no funny business gng.",
         "p2": "droppin a completion claim = u swearin the work actually fulfills the bounty. fraud submissions — turnin in work that doesn't do the thing, or work u don't even own the rights to — can get the account YEETED 🚪 n, where it applies, real legal smoke 🚬💀.",
-        "p3": "creators gettin paid gotta hand over accurate payment n tax info. US creators do a W-9; non-US creators do a W-8BEN. payouts work in most countries (direct bank payout where supported, alt methods elsewhere) but they're straight DEAD in countries we're legally banned from serving 💀. Artypot drops 1099 or 1042-S forms where the law says so."
+        "p3": "creators gettin paid gotta hand over accurate payment n tax info. US creators do a W-9; non-US creators do a W-8BEN. creator payouts need a US bank acct n are US-only for now, more countries otw fr 🇺🇸. Artypot drops 1099 or 1042-S forms where the law says so."
       },
       "council": {
         "title": "7. The Council 🫡",
@@ -2225,7 +2225,8 @@
     "pagination": {
       "prev": "← back gng 🔙",
       "next": "gimme more →🔥"
-    }
+    },
+    "socialOn": "on {platform} 📍"
   },
   "Search": {
     "header": {
@@ -2685,7 +2686,7 @@
     },
     "belowTheLaw": {
       "title": "artypot is below the law lowkey, humbly 📉⚖️",
-      "body": "tax info gets collected, no slithering out of it 🧾. a whole army of countries don't rock with automated payments and flex a higher minimum payout threshold. and some countries? straight up can't operate there at all, it's so over for them 🌍🚫💀"
+      "body": "tax info gets collected, no slithering out of it 🧾. creator payouts are US-only rn (u need a US bank acct) but we're cookin up more countries fr 🇺🇸🌍. and a few? straight up can't serve em at all, the law said nuh uh 💀."
     },
     "fundsClear": {
       "title": "funds clear after 7 days, lock in and wait ⏳💰",

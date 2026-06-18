@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { useMoney } from '@/lib/format';
 import type { Bounty } from '@/lib/types';
-import { formatPlatformHandle, handleLink, handleExternalUrl } from '@/lib/platforms';
+import { formatPlatformHandle, bareUsername, handleLink, handleExternalUrl } from '@/lib/platforms';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
@@ -59,12 +59,14 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
     disarmTimer.current = setTimeout(() => setQuickBackArmed(false), 12000);
   };
 
-  // Platform-qualified handle string for owner-less bounties ("youtube/@mrbeast",
-  // or the bare URL for 'other'). Rendered on one truncating line.
+  // Platform-qualified handle string for owner-less bounties ("youtube/mrbeast",
+  // or the bare URL for 'other'). The platform slug already names the platform,
+  // so the username is bare (no '@' / 'twitch.tv/' prefix). Rendered on one
+  // truncating line.
   const handleText = bounty.target_handle
     ? bounty.target_handle.platform === 'other'
       ? formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)
-      : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`
+      : `${bounty.target_handle.platform}/${bareUsername(bounty.target_handle.platform, bounty.target_handle.username)}`
     : null;
   // Where the handle points: the internal handle page — /{platform}/{username}
   // for curated, or /h/{id} for 'other' — passing the id so 'other' resolves
