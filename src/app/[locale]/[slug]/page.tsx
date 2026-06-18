@@ -301,7 +301,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                         rel="noopener noreferrer"
                         className="text-xs text-muted border border-border rounded-full px-3 py-1 hover:border-creator/50 hover:text-creator transition-colors"
                       >
-                        {label}
+                        {key === 'domain' ? label : t('socialOn', { platform: label })}
                       </a>
                     );
                   })}

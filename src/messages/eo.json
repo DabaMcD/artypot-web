@@ -861,7 +861,7 @@
       },
       "payouts": {
         "label": "elpagoj",
-        "note": "al pli ol 50 landoj"
+        "note": "al usonaj bankkontoj"
       }
     },
     "sectionLabel": "ensaluti",
@@ -1225,8 +1225,8 @@
       "finalRest": " Post kiam La Konsilio konfirmas premion kaj vi estas ŝarĝata, tiu pago estas fina kaj nerepagebla — via fenestro por retiriĝi estas antaŭ kompletiĝo, ne poste.",
       "feeLead": "Artypot prenas 20% platforman kotizon",
       "feeRest": ", deprenitan de la elpago al la kreinto. Tiu kotizo kovras ĉiujn transakciajn kostojn inkluzive de pagprilaborado — subtenantoj estas ŝarĝataj sian promesitan sumon plene, kaj kreintoj ricevas 80%.",
-      "globalLead": "Kreintoj tra la mondo povas esti pagataj",
-      "globalRest": " — per rektaj bankaj elpagoj kie subtenata, kaj alternativaj metodoj aliloke. Adorantoj ie ajn povas subteni premiojn. Kelkaj landoj estas limigitaj de leĝo.",
+      "globalLead": "Usonaj kreintoj povas esti pagataj",
+      "globalRest": " — vi bezonas usonan bankkonton por ricevi elpagojn, kaj pli da landoj baldaŭ aldoniĝos. Adorantoj ie ajn en la mondo povas subteni premiojn.",
       "neverLead": "Se premio neniam kompletiĝas, neniu mono moviĝas.",
       "neverRest": " Neniam.",
       "notPurchaseLead": "Subtenado ne estas aĉeto.",
@@ -1318,7 +1318,7 @@
         "title": "6. Devoj de la kreinto",
         "p1": "Creators who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith, as understood by their community.",
         "p2": "Submission of a completion claim constitutes a representation that the submitted work satisfies the bounty description. Fraudulent submissions — submitting work that does not fulfil the bounty, or submitting work you do not own the rights to — may result in account termination and, where applicable, legal action.",
-        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Payouts are available in most countries — via direct bank payout where supported and alternative methods elsewhere — but are unavailable in countries we are legally restricted from serving. Artypot issues 1099 or 1042-S forms where required by law."
+        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Creator payouts currently require a US bank account and are available in the US only for now, with more countries planned. Artypot issues 1099 or 1042-S forms where required by law."
       },
       "council": {
         "title": "7. La Konsilio",
@@ -2225,7 +2225,8 @@
     "pagination": {
       "prev": "← antaŭa",
       "next": "sekva →"
-    }
+    },
+    "socialOn": "ĉe {platform}"
   },
   "Search": {
     "header": {
@@ -2685,7 +2686,7 @@
     },
     "belowTheLaw": {
       "title": "Artypot estas sub la leĝo.",
-      "body": "Ni devas kolekti impostajn informojn. Multaj landoj ne subtenas aŭtomatan pago-prilaboradon kaj havas pli altan minimuman elpagan sojlon. Estas kelkaj landoj, en kiuj ni tute ne povas funkcii."
+      "body": "Ni devas kolekti impostajn informojn. Nuntempe, elpagoj al kreintoj estas nur por Usono (usona bankkonto estas necesa), kaj ni laboras por aldoni pli da landoj. Kelkajn ni tute ne povas servi, pro la leĝo."
     },
     "fundsClear": {
       "title": "Fondusoj liberiĝas post 7 tagoj.",

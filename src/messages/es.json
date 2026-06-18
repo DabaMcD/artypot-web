@@ -861,7 +861,7 @@
       },
       "payouts": {
         "label": "pagos",
-        "note": "a más de 50 países"
+        "note": "a cuentas bancarias de EE. UU."
       }
     },
     "sectionLabel": "iniciar sesión",
@@ -1225,8 +1225,8 @@
       "finalRest": " Después de que El Consejo confirma una recompensa y se te cobra, ese pago es definitivo y no reembolsable — tu ventana para retirarte es antes de la finalización, no después.",
       "feeLead": "Artypot cobra una comisión de plataforma del 20%",
       "feeRest": ", deducida del pago al creador. Esta comisión cubre todos los costes de transacción, incluido el procesamiento de pagos — a los patrocinadores se les cobra su importe comprometido en su totalidad, y los creadores reciben el 80%.",
-      "globalLead": "Los creadores de todo el mundo pueden cobrar",
-      "globalRest": " — mediante pagos bancarios directos donde sea compatible, y métodos alternativos en otros lugares. Los fans de cualquier lugar pueden respaldar recompensas. Algunos países están restringidos por ley.",
+      "globalLead": "Los creadores de EE. UU. pueden cobrar",
+      "globalRest": " — necesitas una cuenta bancaria de EE. UU. para recibir pagos, y pronto se sumarán más países. Los fans de cualquier parte del mundo pueden respaldar recompensas.",
       "neverLead": "Si una recompensa nunca se completa, no se mueve dinero.",
       "neverRest": " Nunca.",
       "notPurchaseLead": "Respaldar no es una compra.",
@@ -1318,7 +1318,7 @@
         "title": "6. Obligaciones del creador",
         "p1": "Creators who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith, as understood by their community.",
         "p2": "Submission of a completion claim constitutes a representation that the submitted work satisfies the bounty description. Fraudulent submissions — submitting work that does not fulfil the bounty, or submitting work you do not own the rights to — may result in account termination and, where applicable, legal action.",
-        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Payouts are available in most countries — via direct bank payout where supported and alternative methods elsewhere — but are unavailable in countries we are legally restricted from serving. Artypot issues 1099 or 1042-S forms where required by law."
+        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Creator payouts currently require a US bank account and are available in the US only for now, with more countries planned. Artypot issues 1099 or 1042-S forms where required by law."
       },
       "council": {
         "title": "7. El Consejo",
@@ -2225,7 +2225,8 @@
     "pagination": {
       "prev": "← anterior",
       "next": "siguiente →"
-    }
+    },
+    "socialOn": "en {platform}"
   },
   "Search": {
     "header": {
@@ -2685,7 +2686,7 @@
     },
     "belowTheLaw": {
       "title": "Artypot está por debajo de la ley.",
-      "body": "Tenemos que recopilar información fiscal. Muchos países no admiten el procesamiento automático de pagos y tienen un umbral mínimo de pago más alto. Hay algunos países en los que no podemos operar en absoluto."
+      "body": "Tenemos que recopilar información fiscal. Por ahora, los pagos a creadores son solo para EE. UU. (se requiere una cuenta bancaria de EE. UU.) y estamos trabajando para sumar más países. A algunos no podemos prestarles servicio en absoluto, por ley."
     },
     "fundsClear": {
       "title": "Los fondos se liberan tras 7 días.",

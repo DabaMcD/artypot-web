@@ -879,7 +879,7 @@
       },
       "payouts": {
         "label": "payouts",
-        "note": "to 50+ countries"
+        "note": "to US bank accounts"
       }
     },
     "sectionLabel": "sign in",
@@ -1243,8 +1243,8 @@
       "finalRest": " After The Council confirms a bounty and you're charged, that payment is final and non-refundable — your window to back out is before completion, not after.",
       "feeLead": "Artypot takes a 20% platform fee",
       "feeRest": ", deducted from the creator's payout. This fee covers all transaction costs including payment processing — backers are charged their committed amount in full, creators receive 80%.",
-      "globalLead": "Creators around the world can get paid",
-      "globalRest": " — via direct bank payouts where supported, and alternative methods elsewhere. Fans anywhere can back bounties. A few countries are restricted by law.",
+      "globalLead": "US creators can get paid",
+      "globalRest": " — you need a US bank account to receive payouts, with more countries coming. Fans anywhere in the world can still back bounties.",
       "neverLead": "If a bounty never completes, no money moves.",
       "neverRest": " Ever.",
       "notPurchaseLead": "Backing isn't a purchase.",
@@ -1336,7 +1336,7 @@
         "title": "6. Creator Obligations",
         "p1": "Creators who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith, as understood by their community.",
         "p2": "Submission of a completion claim constitutes a representation that the submitted work satisfies the bounty description. Fraudulent submissions — submitting work that does not fulfil the bounty, or submitting work you do not own the rights to — may result in account termination and, where applicable, legal action.",
-        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Payouts are available in most countries — via direct bank payout where supported and alternative methods elsewhere — but are unavailable in countries we are legally restricted from serving. Artypot issues 1099 or 1042-S forms where required by law."
+        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Creator payouts currently require a US bank account and are available in the US only for now, with more countries planned. Artypot issues 1099 or 1042-S forms where required by law."
       },
       "council": {
         "title": "7. The Council",
@@ -2243,7 +2243,8 @@
     "pagination": {
       "prev": "← prev",
       "next": "next →"
-    }
+    },
+    "socialOn": "on {platform}"
   },
   "Search": {
     "header": {
@@ -2703,7 +2704,7 @@
     },
     "belowTheLaw": {
       "title": "Artypot is below the law.",
-      "body": "We have to collect tax info. Many countries don't support automated payment processing and have a higher minimum payout threshold. There are some countries we can't operate in at all."
+      "body": "We have to collect tax info. Creator payouts are US-only for now — a US bank account is required — and we're working on adding more countries. A few we can't serve at all, by law."
     },
     "fundsClear": {
       "title": "Funds clear after 7 days.",
