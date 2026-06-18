@@ -260,7 +260,11 @@ export default function ForCreatorsPage() {
               <div className="divide-y divide-border">
                 <div className="flex items-center justify-between px-5 py-4">
                   <span className="text-muted text-sm">Total backed by fans</span>
-                  <span className="font-mono font-bold text-foreground">$2,000.00</span>
+                  <span className="font-mono font-bold text-foreground">+$2,758.00</span>
+                </div>
+                <div className="flex items-center justify-between px-5 py-4">
+                  <span className="text-muted text-sm">Most soft backings fall through</span>
+                  <span className="font-mono text-bad">−$758.00</span>
                 </div>
                 <div className="flex items-center justify-between px-5 py-4">
                   <span className="text-muted text-sm">Platform fee ({PLATFORM_FEE_PCT}%)</span>
