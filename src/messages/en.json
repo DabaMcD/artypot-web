@@ -2289,5 +2289,225 @@
       "badgeUnverified": "unverified",
       "matchedAlias": "matched alias: {alias}"
     }
+  },
+  "Pipeline": {
+    "pending": "pending",
+    "clearing": "clearing",
+    "available": "available",
+    "pendingNote": "verified by Council — bills on the {day}th",
+    "softLine": "+ {amount} soft",
+    "clearingNote": "fans billed · 7-day clearing window",
+    "availableNote": "withdraw to your bank (min $1)"
+  },
+  "BountyDetail": {
+    "creatorFallback": "The creator",
+    "fan": {
+      "singular": "fan",
+      "plural": "fans"
+    },
+    "common": {
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "loadBounty": "Failed to load bounty.",
+      "loadHistory": "Failed to load history.",
+      "notFound": "Bounty not found."
+    },
+    "toast": {
+      "minimumAmount": "Minimum is $1.00",
+      "expiryRange": "Expiry must be a whole number between 1 and 999.",
+      "updated": "Updated!",
+      "youreInFor": "You're in for {amount}!",
+      "failedSubmit": "Failed to submit.",
+      "backedOutDeleted": "You backed out — the bounty was deleted.",
+      "backedOut": "Backed out.",
+      "failedBackOut": "Failed to back out.",
+      "bountyUpdated": "Bounty updated!",
+      "failedUpdate": "Failed to update bounty.",
+      "bountyRemoved": "Bounty removed.",
+      "failedRemove": "Failed to remove bounty."
+    },
+    "backingError": {
+      "capExceeded": "You've reached your good faith limit. <link>Add a payment method</link> to continue.",
+      "gracePeriod": "New backings are paused while you resolve a failed payment. <link>Update your card</link> to continue.",
+      "marketUnavailable": "Backing isn't available in your country yet — we hope to support it soon."
+    },
+    "expiry": {
+      "advanced": "Advanced",
+      "expiresIn": "Expires in",
+      "units": {
+        "years": "year(s)",
+        "months": "month(s)",
+        "weeks": "week(s)",
+        "days": "day(s)",
+        "hours": "hour(s)",
+        "minutes": "minute(s)"
+      }
+    },
+    "panel": {
+      "yourVotive": "Your votive",
+      "youreInFor": "You're in for",
+      "expires": "Expires",
+      "backOut": "Back out",
+      "chipIn": "Chip in",
+      "howBackingWorksHeading": "How does backing work?",
+      "howBackingWorks1": "You're committing to <strong>pay only if this bounty gets completed</strong> and approved by The Council.",
+      "howBackingWorks2": "Nothing happens to your card right now. Charges are billed monthly for approved completions.",
+      "howBackingWorks3": "Most bounties are never completed, so most commitments are never charged. You can back out at any time.",
+      "changeCommitment": "Change how much you're in for by entering a new amount and expiry.",
+      "newAmountPlaceholder": "New amount",
+      "amountPlaceholder": "Amount",
+      "update": "Update",
+      "backingLoading": "Backing…",
+      "backThisBounty": "Back This Bounty"
+    },
+    "revokeWarning": {
+      "title": "Hold on, {name}.",
+      "proceed": "Proceed anyway",
+      "nevermind": "Never mind",
+      "body": "<strong>{creator}</strong> has already submitted their work for completion. Removing your votive at this time may be seen as a dick move.",
+      "aside": "(You can still do it. We're just saying.)"
+    },
+    "removeDialog": {
+      "title": "Remove this bounty",
+      "removing": "Removing…",
+      "remove": "Remove bounty",
+      "body": "All active backers will be notified by email and their commitments will be cancelled. Please provide a reason.",
+      "reasonPlaceholder": "Why are you removing this bounty?…"
+    },
+    "lastBacking": {
+      "title": "Back out completely?",
+      "confirm": "Yes, back out",
+      "body": "You're the only {fan} backing this bounty. By leaving, this bounty will be queued for removal."
+    },
+    "header": {
+      "historicalView": "Historical view",
+      "backToCurrent": "✕ Back to current",
+      "edit": "Edit",
+      "for": "for",
+      "visit": "Visit {label}",
+      "unverified": "unverified",
+      "startedBy": "started by"
+    },
+    "editForm": {
+      "warning": "<strong>Heads up:</strong> Edits may only clarify details — you cannot change the core nature or purpose of this bounty. The Council reviews the full edit history before approving any bounty.",
+      "titleLabel": "Title",
+      "descriptionLabel": "Description",
+      "creatorNameLabel": "Creator name",
+      "creatorNameHint": "A friendly name shown alongside the handle (e.g. “bbno$”). The verified handle is always shown — this is just a label.",
+      "saving": "Saving…",
+      "save": "Save changes"
+    },
+    "totals": {
+      "totalBacked": "total backed",
+      "softBackings": "+ {amount} in soft backings",
+      "backedBy": "backed by {count} {fan}",
+      "cleared": "{cleared} of {total} cleared",
+      "totalBackedOn": "*Total backed on {date}",
+      "hideHistory": "Hide history",
+      "showHistory": "Show history"
+    },
+    "completion": {
+      "cardLabel": "submit completion",
+      "intro": "Ready? Link to your finished work and the Council will review it. Fans are charged once approved.",
+      "submitCta": "Submit Completion →"
+    },
+    "payoutBlocked": {
+      "heading": "Payout blocked",
+      "body": "Your account is not eligible for payouts. Contact support to resolve this."
+    },
+    "marketClosed": {
+      "heading": "Not available in your country yet",
+      "body": "Artypot is currently US-only, so you can't submit completions yet. We'll email you the moment we roll out support for your country."
+    },
+    "completionForm": {
+      "title": "Submit Completed Work",
+      "urlLabel": "Link to the work (URL)",
+      "urlPlaceholder": "example.com/proof",
+      "publiclyVisible": "Publicly visible",
+      "notesLabel": "Notes (optional)",
+      "notesPlaceholder": "Anything the council should know…",
+      "submitting": "Submitting…",
+      "submit": "Submit"
+    },
+    "creatorNotices": {
+      "pending": {
+        "heading": "Under Council review",
+        "body": "Your submission is being reviewed. You'll be notified of the decision."
+      },
+      "completed": {
+        "heading": "Approved — payout incoming",
+        "body": "The Council approved your work. Fans will be charged in the next billing cycle."
+      },
+      "paidOut": {
+        "heading": "Paid out",
+        "body": "Your payout has been processed. Thank you!"
+      },
+      "revoked": {
+        "heading": "Bounty revoked",
+        "body": "This bounty has been revoked and is no longer active."
+      }
+    },
+    "howThisWorks": {
+      "label": "How this works",
+      "headline": "You only pay if it gets made.",
+      "body": "How much is this worth to you? Your card is charged <strong>only if the work is delivered and approved</strong> — nothing happens today, and you can back out anytime before then.",
+      "bullet1": "Nothing charged today",
+      "bullet2": "Billed only after delivery",
+      "bullet3": "Back out anytime",
+      "ctaBack": "Back this bounty →",
+      "ctaFirst": "Be the first to back this →",
+      "alreadyHaveAccount": "Already have an account? <link>Log in</link>"
+    },
+    "fanNotices": {
+      "completed": {
+        "heading": "Completed — payout pending",
+        "body": "The Council has approved this bounty. Commitments are now locked — your card will be charged in the next billing cycle."
+      },
+      "paidOut": {
+        "heading": "Paid out",
+        "body": "This bounty has been paid out. {creator} has been compensated for their work."
+      },
+      "revoked": {
+        "heading": "Bounty revoked",
+        "body": "This bounty has been revoked and is no longer active."
+      }
+    },
+    "submittedWork": {
+      "label": "Submitted Work",
+      "pendingReview": "Pending Review",
+      "councilNotes": "Council notes: {notes}"
+    },
+    "tabs": {
+      "comments": "Comments"
+    },
+    "backers": {
+      "empty": "No {fan} yet. Be the first!",
+      "anonymous": "[anonymous]",
+      "unknown": "Unknown",
+      "you": "(you)",
+      "expires": "Expires {date}"
+    },
+    "report": {
+      "trigger": "⚑ Report this bounty",
+      "title": "Report this bounty",
+      "received": "Report received. The Council will review this bounty.",
+      "failed": "Failed to submit report.",
+      "intro": "Reports go to the Council for review against the <link>Content Policy</link>. The bounty stays up unless the Council removes it.",
+      "reasons": {
+        "harassment": "Harassment or targeted abuse",
+        "illegal": "Illegal content or request",
+        "adultContent": "Adult-content commission",
+        "spam": "Spam or scam",
+        "other": "Something else"
+      },
+      "detailsPlaceholder": "Anything the Council should know (optional)",
+      "submitting": "Submitting…",
+      "submit": "Submit Report"
+    },
+    "related": {
+      "label": "more bounties",
+      "heading": "Other bounties for"
+    }
   }
 }

@@ -1908,122 +1908,122 @@
   "CreatorSettings": {
     "header": {
       "breadcrumbCreator": "creator",
-      "breadcrumbProfile": "the lore",
+      "breadcrumbProfile": "the lore 📖",
       "title": "tweak the aura 🔧✨"
     },
     "picture": {
-      "sectionLabel": "pfp glow up",
-      "alt": "the face card 💅",
-      "saving": "saving… brain buffering 🧠⏳",
-      "changePhoto": "swap the pfp 📸",
-      "uploadPhoto": "drop a pfp 📸",
-      "unavailable": "BRO uploads are so over 💀 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ghosted us, no cap",
-      "uploadAnySize": "any size we don't gatekeep 🤷",
-      "toastSaved": "pfp serving aura now 💅✨",
-      "toastError": "it's so over 💀 pfp didn't lock in"
+      "sectionLabel": "pfp glowup arc",
+      "alt": "the face card (never declines) 💳💅",
+      "saving": "saving… brain on 2% 🧠🪫",
+      "changePhoto": "swap the pfp rq 📸",
+      "uploadPhoto": "yeet a pfp in here 📸",
+      "unavailable": "BROOO uploads r SO over 💀 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME straight up ghosted us no cap, it's giving abandonment 😭",
+      "uploadAnySize": "any size we don't gatekeep gng 🤷‍♂️",
+      "toastSaved": "pfp serving GYATT levels of aura now 💅🔥",
+      "toastError": "it's so over 💀 pfp refused to lock in, what the sigma"
     },
     "displayName": {
-      "sectionLabel": "the gov name",
-      "saving": "saving… hold up 🫷",
-      "save": "lock the name in 🔒",
-      "toastSaved": "name secured bestie 🤝✨",
-      "toastError": "BRO name flopped 💀 what the sigma"
+      "sectionLabel": "the @ / gov name",
+      "saving": "saving… hold up bestie 🫷",
+      "save": "lock the @ in 🔒",
+      "toastSaved": "name secured, certified W bestie 🤝✨",
+      "toastError": "BROOO the name flopped 💀 what the sigma fr"
     },
     "bio": {
       "sectionLabel": "the bio drop",
-      "description": "lil public blurb that glazes you on your creator page, keep it bussin 🔥",
-      "placeholder": "who r u?? what kinda goated stuff u cook?? 🍳",
-      "saving": "saving… vibing 🫠",
-      "save": "ship the bio 🚀",
-      "toastSaved": "bio is bussin now fr 🔥",
-      "toastError": "it's so over 💀 bio said nah"
+      "description": "lil public blurb that glazes u to death on ur creator page 😩🙏 keep it BUSSIN or stay mid",
+      "placeholder": "who r u?? 🤨 what kinda goated cooked-up stuff u even make?? 🍳🔥",
+      "saving": "saving… just vibin 🫠",
+      "save": "ship the bio rn 🚀",
+      "toastSaved": "bio bussin now fr fr the rizz is up 🔥📈",
+      "toastError": "it's so over 💀 the bio said nah gng"
     },
     "fanName": {
-      "sectionLabel": "what u call the gng",
-      "description": "what u call ur ride-or-die backers. flexed on ur bounty pages — like „backed by 12 <emphasis>{example}</emphasis>” yeah boiii 🤝. leave it blank n we default to mid „fan / fans” 🥱",
-      "exampleFallback": "the gng",
-      "singularLabel": "just one",
+      "sectionLabel": "what u even call the gng",
+      "description": "what u call ur ride-or-die day-one backers 🫡. flexed all over ur bounty pages — like „backed by 12 <emphasis>{example}</emphasis>” YEAH BOIII 🤝🔥. leave it blank n we hit u w the mid default „fan / fans” 🥱💤",
+      "exampleFallback": "the whole gng 🫂",
+      "singularLabel": "just the one 🧍",
       "singularPlaceholder": "fan",
-      "pluralLabel": "the whole gng",
+      "pluralLabel": "the entire gng 🫂",
       "pluralPlaceholder": "fans",
-      "saving": "saving… cooking 🍳",
+      "saving": "saving… cooking sumn up 🍳",
       "save": "lock the gng name in 🔒",
-      "toastSaved": "gng name locked in fr 🤝✨",
-      "toastError": "BRO it flopped 💀 gng name said no"
+      "toastSaved": "gng name locked in, certified aura 🤝✨",
+      "toastError": "BROOO it flopped 💀 the gng name said no diddy"
     },
     "handles": {
-      "sectionLabel": "the @s",
-      "description": "run ur verified socials, keep the aura tight 🌐💅",
-      "manage": "run the @s →"
+      "sectionLabel": "the @s / linked ops 🔗",
+      "description": "run ur verified socials, keep the whole aura airtight no cap 🌐💅",
+      "manage": "go run the @s →"
     },
     "location": {
-      "sectionLabel": "where the IRS finds u",
-      "description": "the country (n state if it applies) where the taxman taxes ur Artypot bag 🤑. we use it to spit the right tax papers — 1099-K if ur Ohio (US), 1042-S if ur not. every change gets logged so don't be sus 👀",
-      "countryLabel": "country",
-      "selectCountry": "— pick a country bestie —",
-      "selectSubdivision": "— pick a {label} bestie —",
-      "saving": "saving… buffering 🧠⏳",
+      "sectionLabel": "where the taxman sniffs u out 👃💸",
+      "description": "the country (n state if it even applies 🙄) where the IRS taxman comes for ur Artypot bag 🤑👮. we use it to spit the right tax papers — 1099-K if ur deep in Ohio (US 🇺🇸), 1042-S if u escaped. every lil change gets LOGGED so don't be acting sus 👀📝",
+      "countryLabel": "ur whole ahh country 🌍",
+      "selectCountry": "— pick a country bestie 🌍 —",
+      "selectSubdivision": "— pick a {label} bestie 🗺️ —",
+      "saving": "saving… buffering hard 🧠🪫",
       "save": "lock the tax stuff in 🔒",
-      "toastSaved": "tax residence secured 🔐✨",
-      "toastError": "it's so over 💀 tax stuff didn't save",
+      "toastSaved": "tax residence secured, no snitches 🔐✨",
+      "toastError": "it's so over 💀 the tax stuff ghosted, didn't save",
       "confirm": {
-        "title": "fr changing where the IRS finds u?? 👀",
-        "cancel": "nah jk 🙅",
-        "saving": "saving… lock in 🔒",
-        "submit": "yea boiii do it 🤝",
-        "changeLine": "ok so ur yeeting ur tax residence from <strong>{from}</strong> to <strong>{to}</strong>, big move bestie 🌍",
-        "reportingLine": "this the addy we slap on the tax papers (1099-K if Ohio/US, 1042-S if not).",
-        "crossingCountry": " since u switched whole countries we might make u re-drop the tax docs (W-9 or W-8BEN) n run a lil compliance check 👮 — the bag stays frozen til it's done, it's giving paused 🧊🤑",
-        "sameCountry": " big changes can trigger a lil compliance check 👮; the bag might get paused til it wraps 🧊🤑",
-        "loggedLine": "this whole move gets logged no cap 📝. only do it if ur ACTUAL legal residence rlly changed, no cap don't be sus 🙏"
+        "title": "fr fr u changing where the taxman finds u?? 👀💸",
+        "cancel": "nah jk get me outta here 🙅‍♂️",
+        "saving": "saving… locking it in 🔒",
+        "submit": "YEAH BOIII send it 🤝🚀",
+        "changeLine": "ok so ur straight up YEETING ur tax residence from <strong>{from}</strong> to <strong>{to}</strong> 🧳💨 big sigma move bestie 🌍",
+        "reportingLine": "this the addy that's getting slapped on the tax papers (1099-K if Ohio/US 🇺🇸, 1042-S if u dipped). it's giving paperwork 📄😩",
+        "crossingCountry": " bc u switched whole entire countries 🌍😳 we might make u re-drop the tax docs (W-9 or W-8BEN) n run a lil compliance check 👮👀 — the bag stays FROZEN til it wraps, it's giving paused 🧊🤑😭",
+        "sameCountry": " big moves can trigger a lil compliance check 👮👀; the bag might get iced til it wraps, it's so over for ur wallet rn 🧊🤑",
+        "loggedLine": "this whole move gets LOGGED no cap 📝👁️. only do it if ur ACTUAL legal residence rlly moved, don't be sus or it's so over for u 🙏💀"
       }
     },
     "notifications": {
-      "sectionLabel": "the pings",
-      "description": "creator-only ping vibes, curate ur notifications 🔔",
-      "loading": "loading… brain buffering 🧠⏳",
-      "goToFan": "← bounce to fan pings",
-      "reset": "nuke it back to default 💣",
-      "resetting": "nuking… 💣⏳",
-      "toastSaved": "settings locked in 🔒✨",
-      "toastError": "it's so over 💀 didn't save, run it back",
-      "toastReset": "pings nuked back to default 💣✨",
-      "toastResetError": "BRO reset flopped 💀 run it back",
+      "sectionLabel": "the pings 🔔",
+      "description": "creator-only ping vibes, curate the chaos how u want it 🔔🎛️",
+      "loading": "loading… brain at 2% 🧠🪫",
+      "goToFan": "← bounce over to fan pings",
+      "reset": "NUKE it back to factory 💣",
+      "resetting": "nuking… stand back 💣⏳",
+      "toastSaved": "settings locked in, certified W 🔒✨",
+      "toastError": "it's so over 💀 didn't save gng, run it back",
+      "toastReset": "pings NUKED back to default, clean slate 💣✨",
+      "toastResetError": "BROOO the reset flopped 💀 run it back bestie",
       "smsBanner": {
-        "verify": "verify ur digits to unlock SMS pings bestie 📲",
-        "addAndVerify": "drop n verify ur digits to unlock SMS pings 📲",
-        "addPhone": "drop ur digits →"
+        "verify": "verify ur digits to unlock the SMS pings bestie 📲🔓",
+        "addAndVerify": "drop n verify ur digits to unlock SMS pings, lock in 📲🔓",
+        "addPhone": "drop ur digits here →"
       },
       "channels": {
-        "email": "mail",
-        "sms": "sms",
-        "bell": "bell"
+        "email": "the mail 📬",
+        "sms": "the texts 📲",
+        "bell": "the bell 🔔"
       },
       "toggleAria": {
-        "email": "mail: {label}",
-        "emailAlwaysOn": "mail: {label} (always on, no escaping 😭)",
-        "sms": "sms: {label}",
-        "smsAlwaysOn": "sms: {label} (always on, no escaping 😭)",
-        "bell": "bell: {label}",
-        "bellAlwaysOn": "bell: {label} (always on, no escaping 😭)"
+        "email": "the mail 📬: {label}",
+        "emailAlwaysOn": "the mail 📬: {label} (always on, no escaping this one 😭⛓️)",
+        "sms": "the texts 📲: {label}",
+        "smsAlwaysOn": "the texts 📲: {label} (always on, no escaping this one 😭⛓️)",
+        "bell": "the bell 🔔: {label}",
+        "bellAlwaysOn": "the bell 🔔: {label} (always on, no escaping this one 😭⛓️)"
       },
       "rows": {
         "newBounty": {
-          "label": "fresh bounty 🆕",
-          "desc": "a fan just dropped a new bounty on u, lock in 🔒"
+          "label": "fresh bounty just dropped 🆕🔥",
+          "desc": "a fan straight up dropped a new bounty on u, LOCK IN 🔒👀"
         },
         "bountyVerified": {
-          "label": "bounty W ✅",
-          "desc": "the council said ur bounty is goated n done fr 🐐"
+          "label": "bounty W secured ✅🐐",
+          "desc": "the council said ur bounty is GOATED n done fr, certified dub 🐐🏆"
         },
         "bountyRejected": {
-          "label": "bounty L 💀",
-          "desc": "the council said nah to ur completion drop, it's so over 😭"
+          "label": "bounty L taken 💀📉",
+          "desc": "the council said no diddy to ur completion drop, it's so over for this one 😭💀"
         }
       }
     },
     "fanSettingsLink": {
-      "text": "wanna mess w ur mail, digits, password or other account stuff?? <link>bounce to fan settings →</link>"
+      "text": "wanna mess w ur mail, digits, password or other account ops?? 🛠️ <link>bounce to fan settings →</link>"
     }
   },
   "CreatorTax": {
@@ -2270,6 +2270,226 @@
       "badgeCreator": "goat 🐐",
       "badgeUnverified": "rando 💀",
       "matchedAlias": "caught lackin as: {alias} 👀💀"
+    }
+  },
+  "Pipeline": {
+    "pending": "pending 🫠",
+    "clearing": "in transit 🚚",
+    "available": "the bag 🤑",
+    "pendingNote": "Council peeped it ✅ card gets tapped the {day}th 💸",
+    "softLine": "+ {amount} no-card 🫠",
+    "clearingNote": "fans got charged · 7-day clearing arc ⏳",
+    "availableNote": "yoink it to ur bank (min $1) 🏦"
+  },
+  "BountyDetail": {
+    "creatorFallback": "the goat 🐐",
+    "fan": {
+      "singular": "glazer",
+      "plural": "glazers"
+    },
+    "common": {
+      "cancel": "nvm 🙅"
+    },
+    "errors": {
+      "loadBounty": "bounty refused to load it's so over 💀",
+      "loadHistory": "history ghosted us 👻 no cap",
+      "notFound": "this bounty got vanished into the Ohio backrooms 🌀💀"
+    },
+    "toast": {
+      "minimumAmount": "bro put in at least a whole dollar 💵 don't be broke",
+      "expiryRange": "expiry gotta be a real number 1 to 999 lock in fr",
+      "updated": "bag adjusted ✅ slay",
+      "youreInFor": "you locked in {amount} 🤑 secure the bag",
+      "failedSubmit": "it didn't send it's cooked 💀",
+      "backedOutDeleted": "you bailed and the bounty straight up evaporated 💨💀",
+      "backedOut": "you dipped out 🚪 no cap",
+      "failedBackOut": "couldn't dip out it's so over 😭",
+      "bountyUpdated": "bounty got a glow up ✨ slay",
+      "failedUpdate": "couldn't glow it up it's cooked 💀",
+      "bountyRemoved": "bounty got deleted off the face of Ohio 🗑️💀",
+      "failedRemove": "couldn't yeet the bounty it's so over 😭"
+    },
+    "backingError": {
+      "capExceeded": "you maxed out the good faith aura 😬 <link>drop a payment method</link> to keep cooking.",
+      "gracePeriod": "new bags on pause til you fix that flopped payment 💀 <link>fix ur card</link> to keep going.",
+      "marketUnavailable": "throwing bags ain't unlocked in ur country yet 🌍 we got u soon no cap."
+    },
+    "expiry": {
+      "advanced": "tryhard mode 🤓",
+      "expiresIn": "it's so over in",
+      "units": {
+        "years": "year(s)",
+        "months": "month(s)",
+        "weeks": "week(s)",
+        "days": "day(s)",
+        "hours": "hour(s)",
+        "minutes": "minute(s)"
+      }
+    },
+    "panel": {
+      "yourVotive": "ur promise 🤞",
+      "youreInFor": "you locked in",
+      "expires": "it's so over",
+      "backOut": "dip out 🚪",
+      "chipIn": "throw a bag 🤑",
+      "howBackingWorksHeading": "how does throwing bags even work??",
+      "howBackingWorks1": "you're pinky promising to <strong>only pay if this bounty gets COOKED ✅</strong> and the Council gives the W.",
+      "howBackingWorks2": "nothing touches ur card rn chill. charges drop monthly only for approved Ws.",
+      "howBackingWorks3": "most bounties never get cooked so most promises never get charged. dip out whenever bestie.",
+      "changeCommitment": "wanna change ur bag? just type a new number n expiry it's that easy gng.",
+      "newAmountPlaceholder": "new bag 🤑",
+      "amountPlaceholder": "bag 🤑",
+      "update": "fix the bag ✅",
+      "backingLoading": "throwing bag…",
+      "backThisBounty": "throw ur bag in 🤑"
+    },
+    "revokeWarning": {
+      "title": "hold up {name} 🛑",
+      "proceed": "i don't care let me cook",
+      "nevermind": "my bad nvm",
+      "body": "<strong>{creator}</strong> already dropped their work bro. yanking ur promise rn is kinda diabolical ngl 💀",
+      "aside": "(you CAN still do it. we're just sayin 👀)"
+    },
+    "removeDialog": {
+      "title": "yeet this bounty 🗑️",
+      "removing": "yeeting…",
+      "remove": "yeet it 🗑️",
+      "body": "every glazer backing this gets a sad email n their bags get cancelled. spill ur reason fr.",
+      "reasonPlaceholder": "why u yeeting this bounty bestie?…"
+    },
+    "lastBacking": {
+      "title": "bail completely??",
+      "confirm": "yea i'm dipping",
+      "body": "you're the ONLY {fan} on this bounty 💀 you bounce, this bounty gets queued for the shadow realm."
+    },
+    "header": {
+      "historicalView": "throwback vibes 📼",
+      "backToCurrent": "✕ back to rn",
+      "edit": "tweak it ✏️",
+      "for": "for",
+      "visit": "pull up to {label} ↗",
+      "unverified": "sus ⚠️",
+      "startedBy": "cooked up by"
+    },
+    "editForm": {
+      "warning": "<strong>heads up gng:</strong> edits can only add lore — you can't switch up the whole vibe or purpose of this bounty. the Council reads the ENTIRE edit history before they hand out the W 👀",
+      "titleLabel": "title",
+      "descriptionLabel": "the lore",
+      "creatorNameLabel": "creator's @",
+      "creatorNameHint": "a cute lil name next to the handle (e.g. “bbno$”). the verified handle ALWAYS shows up — this is just a sticker no cap.",
+      "saving": "saving…",
+      "save": "lock it in ✅"
+    },
+    "totals": {
+      "totalBacked": "total bag 🤑",
+      "softBackings": "+ {amount} in soft bags 🫠",
+      "backedBy": "backed by {count} {fan}",
+      "cleared": "{cleared} of {total} cleared the bag",
+      "totalBackedOn": "*total bag on {date}",
+      "hideHistory": "hide the lore",
+      "showHistory": "show the lore 📜"
+    },
+    "completion": {
+      "cardLabel": "drop ur work 📤",
+      "intro": "you ready? link the finished work n the Council reviews it. glazers get charged once it gets the W ✅",
+      "submitCta": "drop the work →"
+    },
+    "payoutBlocked": {
+      "heading": "bag blocked 🚫",
+      "body": "ur account can't catch payouts rn. slide into support to fix it fr."
+    },
+    "marketClosed": {
+      "heading": "not unlocked in ur country yet 🌍",
+      "body": "Artypot is US-only rn so you can't drop work yet 😔 we'll email u THE SECOND we go live in ur country no cap."
+    },
+    "completionForm": {
+      "title": "drop the finished work 📤",
+      "urlLabel": "link to the work (URL)",
+      "urlPlaceholder": "example.com/proof",
+      "publiclyVisible": "everyone sees this 👀",
+      "notesLabel": "notes (optional)",
+      "notesPlaceholder": "anything the council should know…",
+      "submitting": "dropping…",
+      "submit": "send it 🚀"
+    },
+    "creatorNotices": {
+      "pending": {
+        "heading": "the Council is locked in 👀",
+        "body": "ur drop is under review. we'll ping u with the verdict bestie."
+      },
+      "completed": {
+        "heading": "you got the W ✅ bag incoming",
+        "body": "the Council blessed ur work fr. glazers get charged next billing cycle 🤑"
+      },
+      "paidOut": {
+        "heading": "bag secured 💰",
+        "body": "ur payout went through. ty for cooking 🙏"
+      },
+      "revoked": {
+        "heading": "bounty revoked 💀",
+        "body": "this bounty got revoked n it's dead it's so over."
+      }
+    },
+    "howThisWorks": {
+      "label": "how this works",
+      "headline": "you only pay if it actually gets made fr.",
+      "body": "how much is this worth to u? ur card gets hit <strong>ONLY if the work drops n gets the W</strong> — nothing happens today, n you can dip out anytime before then no cap.",
+      "bullet1": "nothing charged today 😌",
+      "bullet2": "billed only after it drops",
+      "bullet3": "dip out anytime 🚪",
+      "ctaBack": "throw ur bag in →",
+      "ctaFirst": "be the FIRST to throw a bag →",
+      "alreadyHaveAccount": "already got an account? <link>log in</link>"
+    },
+    "fanNotices": {
+      "completed": {
+        "heading": "cooked ✅ bag pending",
+        "body": "the Council blessed this bounty. bags are LOCKED now — ur card gets hit next billing cycle 🤑"
+      },
+      "paidOut": {
+        "heading": "bag secured 💰",
+        "body": "this bounty got paid out. {creator} caught their bag for the work 🐐"
+      },
+      "revoked": {
+        "heading": "bounty revoked 💀",
+        "body": "this bounty got revoked n it's dead it's so over."
+      }
+    },
+    "submittedWork": {
+      "label": "the dropped work 📤",
+      "pendingReview": "under review 👀",
+      "councilNotes": "council tea ☕: {notes}"
+    },
+    "tabs": {
+      "comments": "yap section 🗣️"
+    },
+    "backers": {
+      "empty": "zero {fan} it's barren out here 🏜️💀 be the first!",
+      "anonymous": "[mystery gng 🥷]",
+      "unknown": "who's this 🤨",
+      "you": "(u)",
+      "expires": "it's so over {date}"
+    },
+    "report": {
+      "trigger": "⚑ snitch on this bounty",
+      "title": "snitch on this bounty 🚨",
+      "received": "snitch received 🫡 the Council gon peep this bounty.",
+      "failed": "snitch didn't send it's cooked 💀",
+      "intro": "snitches go to the Council to get checked against the <link>Content Policy</link>. the bounty stays up unless the Council yeets it.",
+      "reasons": {
+        "harassment": "harassment or targeted hate 😡",
+        "illegal": "illegal content or ask 🚔",
+        "adultContent": "spicy content commission 🌶️",
+        "spam": "spam or scam 🤖",
+        "other": "smth else"
+      },
+      "detailsPlaceholder": "anything the Council should know (optional)",
+      "submitting": "snitching…",
+      "submit": "send the snitch 🚨"
+    },
+    "related": {
+      "label": "more bounties",
+      "heading": "other bounties for"
     }
   }
 }

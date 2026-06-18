@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, use, FormEvent, useCallback } from 'react';
+import { useTranslations, useFormatter } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
+import { useMoney, useDateFormats } from '@/lib/format';
 
 type ExpireUnit = 'years' | 'months' | 'weeks' | 'days' | 'hours' | 'minutes';
 
@@ -43,17 +45,6 @@ import { Input, Textarea, Select, FieldLabel, FieldHint } from '@/components/ui/
 import { Modal } from '@/components/ui/Modal';
 import { Banner } from '@/components/ui/Banner';
 
-function formatHoverDate(iso: string): string {
-  return new Date(iso).toLocaleString('en-US', {
-    month:  'long',
-    day:    'numeric',
-    year:   'numeric',
-    hour:   'numeric',
-    minute: '2-digit',
-    hour12: true,
-  });
-}
-
 /** Whole-dollar pot formatting for share text ("$1,250"). */
 function formatUsd(amount: number): string {
   return amount.toLocaleString('en-US', {
@@ -66,6 +57,10 @@ function formatUsd(amount: number): string {
 
 export default function BountyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const t = useTranslations('BountyDetail');
+  const money = useMoney();
+  const dateFmt = useDateFormats();
+  const format = useFormatter();
   const { user } = useAuth();
   const { setCurrentBountyTargetUserId } = useViewMode();
   const { toast } = useToast();
@@ -178,7 +173,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   // Load bounty
   useEffect(() => {
     refreshBounty()
-      .catch(() => setError('Failed to load bounty.'))
+      .catch(() => setError(t('errors.loadBounty')))
       .finally(() => setLoading(false));
   }, [refreshBounty]);
 
@@ -242,7 +237,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         setHistoryEvents(res.events);
         setHistoryLoaded(true);
       })
-      .catch(() => toast('Failed to load history.', 'error'))
+      .catch(() => toast(t('errors.loadHistory'), 'error'))
       .finally(() => setHistoryLoading(false));
   }, [showHistory, id, toast]);
 
@@ -269,8 +264,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   }, [userBackingId, userBackingAmount, user]);
 
   // Fan name terms set by the creator; fall back to generic labels.
-  const fanSingular = bounty?.owner_user?.fan_name || 'fan';
-  const fanPlural   = bounty?.owner_user?.fan_name_plural || bounty?.owner_user?.fan_name || 'fans';
+  const fanSingular = bounty?.owner_user?.fan_name || t('fan.singular');
+  const fanPlural   = bounty?.owner_user?.fan_name_plural || bounty?.owner_user?.fan_name || t('fan.plural');
 
   // ── Derived display values ────────────────────────────────────────────────
   const displayedTotal = selectedEvent
@@ -292,12 +287,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     e.preventDefault();
     const amount = parseFloat(backingAmount);
     if (isNaN(amount) || amount < 1) {
-      toast('Minimum is $1.00', 'error');
+      toast(t('toast.minimumAmount'), 'error');
       return;
     }
     const expVal = parseInt(expireValue, 10);
     if (!Number.isInteger(expVal) || expVal < 1 || expVal > 999) {
-      toast('Expiry must be a whole number between 1 and 999.', 'error');
+      toast(t('toast.expiryRange'), 'error');
       return;
     }
     const expiresAt = computeExpiresAt(expVal, expireUnit);
@@ -314,7 +309,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       // Backing changes can affect nudge state (e.g. nearing the good-faith
       // cap surfaces add_payment_method), so the bar re-fetches right away.
       requestNudgeRefresh();
-      toast(isUpdate ? 'Updated!' : `You're in for $${amount.toFixed(2)}!`, 'success');
+      toast(isUpdate ? t('toast.updated') : t('toast.youreInFor', { amount: money(amount) }), 'success');
       // Leave the amount field as-is; the seed effect re-syncs it to the
       // fan's now-current backing once the refreshed bounty lands.
       // Re-fetch the whole bounty so total_backed AND solid_total both reflect
@@ -330,32 +325,30 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       };
       if (e.status === 422 && e.reason === 'backing_cap_exceeded') {
         setBackingError(
-          <>
-            You&apos;ve reached your good faith limit.{' '}
-            <Link href="/billing#payment-method" className="underline underline-offset-2 font-semibold">
-              Add a payment method
-            </Link>{' '}
-            to continue.
-          </>,
+          t.rich('backingError.capExceeded', {
+            link: (chunks) => (
+              <Link href="/billing#payment-method" className="underline underline-offset-2 font-semibold">
+                {chunks}
+              </Link>
+            ),
+          }),
         );
       } else if (e.status === 422 && e.reason === 'payment_grace_period') {
         setBackingError(
-          <>
-            New backings are paused while you resolve a failed payment.{' '}
-            <Link href="/billing#payment-method" className="underline underline-offset-2 font-semibold">
-              Update your card
-            </Link>{' '}
-            to continue.
-          </>,
+          t.rich('backingError.gracePeriod', {
+            link: (chunks) => (
+              <Link href="/billing#payment-method" className="underline underline-offset-2 font-semibold">
+                {chunks}
+              </Link>
+            ),
+          }),
         );
       } else if (e.status === 422 && e.reason === 'market_unavailable') {
         setBackingError(
-          <>
-            Backing isn&apos;t available in your country yet — we hope to support it soon.
-          </>,
+          <>{t('backingError.marketUnavailable')}</>,
         );
       } else {
-        toast(e.message ?? 'Failed to submit.', 'error');
+        toast(e.message ?? t('toast.failedSubmit'), 'error');
       }
     } finally {
       setBackingLoading(false);
@@ -369,17 +362,17 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     try {
       const result = await bountiesApi.removeBacking(Number(id), userBacking.id);
       if (result.bounty_deleted) {
-        toast('You backed out — the bounty was deleted.', 'success');
+        toast(t('toast.backedOutDeleted'), 'success');
         router.push('/bounties');
         return;
       }
       // Full refresh so total_backed, solid_total, the backings list, and any
       // server-side initiator reassignment all stay in sync.
       await refreshBounty();
-      toast('Backed out.', 'success');
+      toast(t('toast.backedOut'), 'success');
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Failed to back out.', 'error');
+      toast(e.message ?? t('toast.failedBackOut'), 'error');
     } finally {
       setBackingLoading(false);
     }
@@ -398,14 +391,14 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         ...(canEditName ? { display_name: editDisplayName.trim() || null } : {}),
       });
       setBounty((prev) => (prev ? { ...prev, title: res.data.title, description: res.data.description, display_name: res.data.display_name } : prev));
-      toast('Bounty updated!', 'success');
+      toast(t('toast.bountyUpdated'), 'success');
       setShowEditForm(false);
       // Invalidate history cache so next open reflects the new edit
       setHistoryLoaded(false);
       setHistoryEvents([]);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Failed to update bounty.', 'error');
+      toast(e.message ?? t('toast.failedUpdate'), 'error');
     } finally {
       setEditLoading(false);
     }
@@ -416,11 +409,11 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     setRemoveLoading(true);
     try {
       await bountiesApi.creatorRemove(Number(id), removeReason.trim());
-      toast('Bounty removed.', 'success');
+      toast(t('toast.bountyRemoved'), 'success');
       router.push('/bounties');
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Failed to remove bounty.', 'error');
+      toast(e.message ?? t('toast.failedRemove'), 'error');
       setRemoveLoading(false);
     }
   };
@@ -439,7 +432,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       setShowCompletion(false);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setCompletionError(e.message ?? 'Failed to submit.');
+      setCompletionError(e.message ?? t('toast.failedSubmit'));
     } finally {
       setCompletionLoading(false);
     }
@@ -455,11 +448,11 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-muted/60 hover:text-muted transition-colors cursor-pointer select-none"
       >
         <span className={`transition-transform duration-150 ${showAdvanced ? 'rotate-90' : ''}`}>▶</span>
-        Advanced
+        {t('expiry.advanced')}
       </button>
       {showAdvanced && (
         <div className="mt-2 space-y-1.5">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted">Expires in</span>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('expiry.expiresIn')}</span>
           <div className="grid gap-0" style={{ gridTemplateColumns: '5rem 1fr' }}>
             <Input
               type="number"
@@ -475,12 +468,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               value={expireUnit}
               onChange={(e) => setExpireUnit(e.target.value as ExpireUnit)}
             >
-              <option value="years">year(s)</option>
-              <option value="months">month(s)</option>
-              <option value="weeks">week(s)</option>
-              <option value="days">day(s)</option>
-              <option value="hours">hour(s)</option>
-              <option value="minutes">minute(s)</option>
+              <option value="years">{t('expiry.units.years')}</option>
+              <option value="months">{t('expiry.units.months')}</option>
+              <option value="weeks">{t('expiry.units.weeks')}</option>
+              <option value="days">{t('expiry.units.days')}</option>
+              <option value="hours">{t('expiry.units.hours')}</option>
+              <option value="minutes">{t('expiry.units.minutes')}</option>
             </Select>
           </div>
         </div>
@@ -501,7 +494,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     return (
       <div className="max-w-4xl mx-auto px-4 py-10">
         <p className="bg-bad-soft border border-bad text-bad rounded-md px-4 py-3">
-          {error || 'Bounty not found.'}
+          {error || t('errors.notFound')}
         </p>
       </div>
     );
@@ -555,22 +548,18 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     if (canRevokeDuringReview && !canVote) {
       return (
         <Card>
-          <SectionLabel className="mb-3">Your votive</SectionLabel>
+          <SectionLabel className="mb-3">{t('panel.yourVotive')}</SectionLabel>
           <div className="bg-fan/10 border border-fan/30 rounded px-4 py-3 text-sm mb-3">
             <div>
-              You&apos;re in for{' '}
+              {t('panel.youreInFor')}{' '}
               <span className="text-fan font-mono font-bold text-base tabular-nums">
-                ${Number(userBacking!.amount).toFixed(2)}
+                {money(Number(userBacking!.amount))}
               </span>
             </div>
             {userBacking!.expires_at && (
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5">
-                Expires{' '}
-                {new Date(userBacking!.expires_at).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
+                {t('panel.expires')}{' '}
+                {dateFmt.short(userBacking!.expires_at)}
               </div>
             )}
           </div>
@@ -581,7 +570,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             disabled={backingLoading}
             className="w-full justify-center text-muted hover:text-bad cursor-pointer"
           >
-            Back out
+            {t('panel.backOut')}
           </Button>
         </Card>
       );
@@ -590,11 +579,11 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     return (
       <Card>
         <div className="flex items-center gap-2 mb-4">
-          <SectionLabel>Chip in</SectionLabel>
-          <InfoDot heading="How does backing work?">
-            <p className="mb-2">You&apos;re committing to <strong className="text-foreground">pay only if this bounty gets completed</strong> and approved by The Council.</p>
-            <p className="mb-2">Nothing happens to your card right now. Charges are billed monthly for approved completions.</p>
-            <p>Most bounties are never completed, so most commitments are never charged. You can back out at any time.</p>
+          <SectionLabel>{t('panel.chipIn')}</SectionLabel>
+          <InfoDot heading={t('panel.howBackingWorksHeading')}>
+            <p className="mb-2">{t.rich('panel.howBackingWorks1', { strong: (chunks) => <strong className="text-foreground">{chunks}</strong> })}</p>
+            <p className="mb-2">{t('panel.howBackingWorks2')}</p>
+            <p>{t('panel.howBackingWorks3')}</p>
           </InfoDot>
         </div>
 
@@ -602,24 +591,20 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <div className="space-y-3">
             <div className="bg-fan/10 border border-fan/30 rounded px-4 py-3 text-sm">
               <div>
-                You&apos;re in for{' '}
+                {t('panel.youreInFor')}{' '}
                 <span className="text-fan font-mono font-bold text-base tabular-nums">
-                  ${Number(userBacking.amount).toFixed(2)}
+                  {money(Number(userBacking.amount))}
                 </span>
               </div>
               {userBacking.expires_at && (
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5">
-                  Expires{' '}
-                  {new Date(userBacking.expires_at).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
+                  {t('panel.expires')}{' '}
+                  {dateFmt.short(userBacking.expires_at)}
                 </div>
               )}
             </div>
             <p className="text-xs text-muted">
-              Change how much you&apos;re in for by entering a new amount and expiry.
+              {t('panel.changeCommitment')}
             </p>
             <form onSubmit={handleBacking} className="space-y-2">
               {backingError && (
@@ -638,7 +623,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     mono
                     value={backingAmount}
                     onChange={(e) => setBackingAmount(e.target.value)}
-                    placeholder="New amount"
+                    placeholder={t('panel.newAmountPlaceholder')}
                     className="border-0 rounded-none rounded-r focus:border-0"
                   />
                 </div>
@@ -650,7 +635,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 disabled={backingLoading}
                 className="w-full justify-center"
               >
-                Update
+                {t('panel.update')}
               </Button>
               <BackingPolicyNote />
             </form>
@@ -669,7 +654,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               disabled={backingLoading}
               className="w-full justify-center text-muted hover:text-bad cursor-pointer"
             >
-              Back out
+              {t('panel.backOut')}
             </Button>
           </div>
         ) : (
@@ -690,7 +675,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   mono
                   value={backingAmount}
                   onChange={(e) => setBackingAmount(e.target.value)}
-                  placeholder="Amount"
+                  placeholder={t('panel.amountPlaceholder')}
                   className="border-0 rounded-none rounded-r focus:border-0"
                 />
               </div>
@@ -703,7 +688,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               disabled={backingLoading}
               className="w-full justify-center"
             >
-              {backingLoading ? 'Backing…' : 'Back This Bounty'}
+              {backingLoading ? t('panel.backingLoading') : t('panel.backThisBounty')}
             </Button>
             <BackingPolicyNote />
           </form>
@@ -718,7 +703,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       {/* Pending-bounty revoke warning */}
       {showPendingRevokeWarning && userBacking && (
         <Modal
-          title={`Hold on, ${user?.display_name.split(' ')[0]}.`}
+          title={t('revokeWarning.title', { name: user?.display_name.split(' ')[0] ?? '' })}
           onClose={() => setShowPendingRevokeWarning(false)}
           actions={
             <>
@@ -735,7 +720,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 disabled={backingLoading}
                 className="cursor-pointer"
               >
-                Proceed anyway
+                {t('revokeWarning.proceed')}
               </Button>
               <Button
                 variant="default"
@@ -743,17 +728,19 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 disabled={backingLoading}
                 className="cursor-pointer"
               >
-                Never mind
+                {t('revokeWarning.nevermind')}
               </Button>
             </>
           }
         >
           <p className="text-muted text-sm leading-relaxed mb-2">
-            <span className="text-foreground font-semibold">{bounty?.owner_user?.display_name ?? 'The creator'}</span> has
-            already submitted their work for completion. Removing your votive at this time may be seen as a dick move.
+            {t.rich('revokeWarning.body', {
+              creator: bounty?.owner_user?.display_name ?? t('creatorFallback'),
+              strong: (chunks) => <span className="text-foreground font-semibold">{chunks}</span>,
+            })}
           </p>
           <p className="font-mono text-[10px] uppercase tracking-widest text-muted/60 mt-2">
-            (You can still do it. We&apos;re just saying.)
+            {t('revokeWarning.aside')}
           </p>
         </Modal>
       )}
@@ -761,7 +748,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       {/* Creator remove dialog */}
       {showRemoveDialog && (
         <Modal
-          title="Remove this bounty"
+          title={t('removeDialog.title')}
           onClose={() => { setShowRemoveDialog(false); setRemoveReason(''); }}
           actions={
             <>
@@ -771,7 +758,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 disabled={removeLoading || removeReason.trim().length < 10}
                 className="cursor-pointer"
               >
-                {removeLoading ? 'Removing…' : 'Remove bounty'}
+                {removeLoading ? t('removeDialog.removing') : t('removeDialog.remove')}
               </Button>
               <Button
                 variant="default"
@@ -779,19 +766,19 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 disabled={removeLoading}
                 className="cursor-pointer"
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
             </>
           }
         >
           <p className="text-muted text-sm leading-relaxed mb-4">
-            All active backers will be notified by email and their commitments will be cancelled. Please provide a reason.
+            {t('removeDialog.body')}
           </p>
           <Textarea
             value={removeReason}
             onChange={(e) => setRemoveReason(e.target.value)}
             rows={4}
-            placeholder="Why are you removing this bounty?…"
+            placeholder={t('removeDialog.reasonPlaceholder')}
             maxLength={1000}
             className="mb-1"
           />
@@ -802,7 +789,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       {/* Last-backing confirm dialog */}
       {showLastBackingConfirm && (
         <Modal
-          title="Back out completely?"
+          title={t('lastBacking.title')}
           onClose={() => setShowLastBackingConfirm(false)}
           actions={
             <>
@@ -812,7 +799,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 disabled={backingLoading}
                 className="cursor-pointer"
               >
-                {backingLoading ? 'Removing…' : 'Yes, back out'}
+                {backingLoading ? t('removeDialog.removing') : t('lastBacking.confirm')}
               </Button>
               <Button
                 variant="default"
@@ -820,13 +807,13 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 disabled={backingLoading}
                 className="cursor-pointer"
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
             </>
           }
         >
           <p className="text-muted text-sm leading-relaxed">
-            You&apos;re the only {fanSingular} backing this bounty. By leaving, this bounty will be queued for removal.
+            {t('lastBacking.body', { fan: fanSingular })}
           </p>
         </Modal>
       )}
@@ -846,12 +833,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               {snapshotView !== null ? (
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1.5">
-                    <Badge tone="info">Historical view</Badge>
+                    <Badge tone="info">{t('header.historicalView')}</Badge>
                     <button
                       onClick={() => { setSnapshotView(null); setSelectedEvent(null); }}
                       className="text-xs text-muted hover:text-foreground transition-colors cursor-pointer"
                     >
-                      ✕ Back to current
+                      {t('header.backToCurrent')}
                     </button>
                   </div>
                   <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground/70 leading-snug flex-1 min-w-0 normal-case break-words">
@@ -875,7 +862,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   }}
                   className="shrink-0 mt-1 cursor-pointer"
                 >
-                  Edit
+                  {t('header.edit')}
                 </Button>
               )}
             </div>
@@ -901,10 +888,10 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         {showEditForm && isOwner && bounty.status === 'open' && (
           <form onSubmit={handleEditSubmit} className="mb-4 space-y-3">
             <Banner tone="warn">
-              <strong>Heads up:</strong> Edits may only clarify details — you cannot change the core nature or purpose of this bounty. The Council reviews the full edit history before approving any bounty.
+              {t.rich('editForm.warning', { strong: (chunks) => <strong>{chunks}</strong> })}
             </Banner>
             <div>
-              <FieldLabel>Title</FieldLabel>
+              <FieldLabel>{t('editForm.titleLabel')}</FieldLabel>
               <Input
                 type="text"
                 value={editTitle}
@@ -914,7 +901,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               />
             </div>
             <div>
-              <FieldLabel>Description</FieldLabel>
+              <FieldLabel>{t('editForm.descriptionLabel')}</FieldLabel>
               <Textarea
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
@@ -923,7 +910,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             </div>
             {!bounty.owner_user && bounty.target_handle && (
               <div>
-                <FieldLabel>Creator name</FieldLabel>
+                <FieldLabel>{t('editForm.creatorNameLabel')}</FieldLabel>
                 <Input
                   type="text"
                   value={editDisplayName}
@@ -932,7 +919,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   placeholder={formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}
                 />
                 <FieldHint>
-                  A friendly name shown alongside the handle (e.g. “bbno$”). The verified handle is always shown — this is just a label.
+                  {t('editForm.creatorNameHint')}
                 </FieldHint>
               </div>
             )}
@@ -943,7 +930,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 disabled={editLoading}
                 className="cursor-pointer"
               >
-                {editLoading ? 'Saving…' : 'Save changes'}
+                {editLoading ? t('editForm.saving') : t('editForm.save')}
               </Button>
               <Button
                 type="button"
@@ -951,7 +938,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 onClick={() => setShowEditForm(false)}
                 className="cursor-pointer"
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
             </div>
           </form>
@@ -996,7 +983,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 <AvatarOrUnknown avatarUrl={viewingPreAssignment ? null : (bounty.avatar_url ?? null)} size="sm" />
               )}
               <div>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mr-1.5">for</span>
+              <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mr-1.5">{t('header.for')}</span>
               {bounty.owner_user && !viewingPreAssignment ? (
                 <Link
                   href={ownerHref!}
@@ -1041,8 +1028,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                             href={external_url}
                             target="_blank"
                             rel="noopener noreferrer nofollow"
-                            title={`Visit ${label}`}
-                            aria-label={`Visit ${label}`}
+                            title={t('header.visit', { label })}
+                            aria-label={t('header.visit', { label })}
                             className="shrink-0 text-muted hover:text-creator transition-colors"
                           >
                             ↗
@@ -1059,7 +1046,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     </span>
                   )}
                   {(bounty.target_handle.status !== 'verified' || viewingPreAssignment) && (
-                    <Badge tone="default">unverified</Badge>
+                    <Badge tone="default">{t('header.unverified')}</Badge>
                   )}
                 </span>
               ) : null}
@@ -1087,7 +1074,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 </div>
               )}
               <div>
-                <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mr-1.5">started by</span>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mr-1.5">{t('header.startedBy')}</span>
                 {bounty.initiator.id === 0 ? (
                   <span className="text-foreground font-medium">{bounty.initiator.display_name}</span>
                 ) : (
@@ -1107,26 +1094,26 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         <div className="mt-5 pt-5 border-t border-border/70">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div className="min-w-0">
-              <div className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mb-1">total backed</div>
+              <div className="font-mono text-[9px] uppercase tracking-widest text-muted/70 mb-1">{t('totals.totalBacked')}</div>
               <div className="text-fan font-mono font-bold tabular-nums text-3xl sm:text-4xl leading-none tracking-tight">
-                ${displayedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                {money(displayedTotal)}
               </div>
               {!selectedEvent && bounty?.solid_total !== undefined && (Number(bounty.total_backed) - bounty.solid_total) > 0.005 && (
                 <div className="font-mono text-[10px] text-muted tabular-nums mt-1.5">
-                  + ${(Number(bounty.total_backed) - bounty.solid_total).toLocaleString('en-US', { minimumFractionDigits: 2 })} in soft backings
+                  {t('totals.softBackings', { amount: money(Number(bounty.total_backed) - bounty.solid_total) })}
                 </div>
               )}
               <div className="text-muted text-sm mt-1.5">
-                backed by {activeBackings.length} {activeBackings.length === 1 ? fanSingular : fanPlural}
+                {t('totals.backedBy', { count: activeBackings.length, fan: activeBackings.length === 1 ? fanSingular : fanPlural })}
               </div>
               {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5 tabular-nums">
-                  ${bounty.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2 })} of ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2 })} cleared
+                  {t('totals.cleared', { cleared: money(bounty.cleared_amount), total: money(Number(bounty.total_backed)) })}
                 </div>
               )}
               {selectedEvent && (
                 <p className="font-mono text-[10px] uppercase tracking-widest text-muted/60 italic mt-0.5">
-                  *Total backed on {formatHoverDate(selectedEvent.at)}
+                  {t('totals.totalBackedOn', { date: dateFmt.full(selectedEvent.at) })}
                 </p>
               )}
             </div>
@@ -1136,7 +1123,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               onClick={() => setShowHistory((v) => !v)}
               className="shrink-0 cursor-pointer"
             >
-              {showHistory ? 'Hide history' : 'Show history'}
+              {showHistory ? t('totals.hideHistory') : t('totals.showHistory')}
             </Button>
           </div>
 
@@ -1178,16 +1165,16 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               {/* Primary CTA: submit completion */}
               {canSubmitCompletion && !showCompletion && (
                 <Card accent>
-                  <SectionLabel className="mb-3">submit completion</SectionLabel>
+                  <SectionLabel className="mb-3">{t('completion.cardLabel')}</SectionLabel>
                   <p className="text-sm text-muted mb-4 leading-relaxed">
-                    Ready? Link to your finished work and the Council will review it. Fans are charged once approved.
+                    {t('completion.intro')}
                   </p>
                   <Button
                     variant="primary"
                     onClick={() => setShowCompletion(true)}
                     className="w-full justify-center cursor-pointer"
                   >
-                    Submit Completion →
+                    {t('completion.submitCta')}
                   </Button>
                 </Card>
               )}
@@ -1195,18 +1182,17 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               {/* Payout blocked notice */}
               {isCreator && bounty.status === 'open' && isPayoutBlocked && (
                 <Banner tone="warn">
-                  <div className="font-semibold text-foreground text-sm mb-1">Payout blocked</div>
-                  <div className="text-muted text-sm">Your account is not eligible for payouts. Contact support to resolve this.</div>
+                  <div className="font-semibold text-foreground text-sm mb-1">{t('payoutBlocked.heading')}</div>
+                  <div className="text-muted text-sm">{t('payoutBlocked.body')}</div>
                 </Banner>
               )}
 
               {/* Phase 1 US-only creator gate */}
               {isCreator && bounty.status === 'open' && !isPayoutBlocked && creatorMarketClosed && (
                 <Banner tone="warn">
-                  <div className="font-semibold text-foreground text-sm mb-1">Not available in your country yet</div>
+                  <div className="font-semibold text-foreground text-sm mb-1">{t('marketClosed.heading')}</div>
                   <div className="text-muted text-sm">
-                    Artypot is currently US-only, so you can&apos;t submit completions yet. We&apos;ll email you
-                    the moment we roll out support for your country.
+                    {t('marketClosed.body')}
                   </div>
                 </Banner>
               )}
@@ -1214,28 +1200,28 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               {/* Inline completion form */}
               {showCompletion && (
                 <Card accent>
-                  <SectionLabel className="mb-4">Submit Completed Work</SectionLabel>
+                  <SectionLabel className="mb-4">{t('completionForm.title')}</SectionLabel>
                   <form onSubmit={handleSubmitCompletion} className="space-y-3">
                     <div>
-                      <FieldLabel>Link to the work (URL)</FieldLabel>
+                      <FieldLabel>{t('completionForm.urlLabel')}</FieldLabel>
                       <Input
                         type="text"
                         required
                         value={submissionUrl}
                         onChange={(e) => setSubmissionUrl(e.target.value)}
-                        placeholder="example.com/proof"
+                        placeholder={t('completionForm.urlPlaceholder')}
                       />
-                      <FieldHint>Publicly visible</FieldHint>
+                      <FieldHint>{t('completionForm.publiclyVisible')}</FieldHint>
                     </div>
                     <div>
-                      <FieldLabel>Notes (optional)</FieldLabel>
+                      <FieldLabel>{t('completionForm.notesLabel')}</FieldLabel>
                       <Textarea
                         rows={2}
                         value={submissionNotes}
                         onChange={(e) => setSubmissionNotes(e.target.value)}
-                        placeholder="Anything the council should know…"
+                        placeholder={t('completionForm.notesPlaceholder')}
                       />
-                      <FieldHint>Publicly visible</FieldHint>
+                      <FieldHint>{t('completionForm.publiclyVisible')}</FieldHint>
                     </div>
                     {completionError && (
                       <div className="rounded bg-bad-soft border border-bad text-bad px-3 py-2.5">
@@ -1249,7 +1235,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                         disabled={completionLoading}
                         className="flex-1 justify-center cursor-pointer"
                       >
-                        {completionLoading ? 'Submitting…' : 'Submit'}
+                        {completionLoading ? t('completionForm.submitting') : t('completionForm.submit')}
                       </Button>
                       <Button
                         type="button"
@@ -1257,7 +1243,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                         onClick={() => setShowCompletion(false)}
                         className="cursor-pointer"
                       >
-                        Cancel
+                        {t('common.cancel')}
                       </Button>
                     </div>
                   </form>
@@ -1268,23 +1254,23 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               {bounty.status !== 'open' && (() => {
                 const notices: Record<string, { heading: string; body: string; tone: 'default' | 'warn' | 'bad' | 'good' }> = {
                   pending: {
-                    heading: 'Under Council review',
-                    body: 'Your submission is being reviewed. You\'ll be notified of the decision.',
+                    heading: t('creatorNotices.pending.heading'),
+                    body: t('creatorNotices.pending.body'),
                     tone: 'default',
                   },
                   completed: {
-                    heading: 'Approved — payout incoming',
-                    body: 'The Council approved your work. Fans will be charged in the next billing cycle.',
+                    heading: t('creatorNotices.completed.heading'),
+                    body: t('creatorNotices.completed.body'),
                     tone: 'good',
                   },
                   paid_out: {
-                    heading: 'Paid out',
-                    body: 'Your payout has been processed. Thank you!',
+                    heading: t('creatorNotices.paidOut.heading'),
+                    body: t('creatorNotices.paidOut.body'),
                     tone: 'good',
                   },
                   revoked: {
-                    heading: 'Bounty revoked',
-                    body: 'This bounty has been revoked and is no longer active.',
+                    heading: t('creatorNotices.revoked.heading'),
+                    body: t('creatorNotices.revoked.body'),
                     tone: 'bad',
                   },
                 };
@@ -1308,7 +1294,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   onClick={() => setShowRemoveDialog(true)}
                   className="w-full justify-center cursor-pointer"
                 >
-                  Remove this bounty
+                  {t('removeDialog.title')}
                 </Button>
               )}
             </>
@@ -1324,18 +1310,16 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   with that, reassure, then send them to sign up (not just log in). */}
               {!user && bounty.status === 'open' && (
                 <Card>
-                  <SectionLabel>How this works</SectionLabel>
+                  <SectionLabel>{t('howThisWorks.label')}</SectionLabel>
                   <p className="text-foreground font-semibold text-[15px] leading-snug mt-3 mb-2">
-                    You only pay if it gets made.
+                    {t('howThisWorks.headline')}
                   </p>
                   <p className="text-muted text-sm leading-relaxed mb-4">
-                    How much is this worth to you? Your card is charged{' '}
-                    <strong className="text-foreground font-medium">only if the work is delivered and approved</strong>
-                    {' '}— nothing happens today, and you can back out anytime before then.
+                    {t.rich('howThisWorks.body', { strong: (chunks) => <strong className="text-foreground font-medium">{chunks}</strong> })}
                   </p>
 
                   <div className="space-y-1.5 mb-5">
-                    {['Nothing charged today', 'Billed only after delivery', 'Back out anytime'].map((line) => (
+                    {[t('howThisWorks.bullet1'), t('howThisWorks.bullet2'), t('howThisWorks.bullet3')].map((line) => (
                       <div
                         key={line}
                         className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted"
@@ -1349,36 +1333,39 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   <Link href={`/register?next=${encodeURIComponent(`/bounties/${id}`)}`} className="block w-full cursor-pointer">
                     <Button variant="primary" className="w-full justify-center">
                       {activeBackings.length > 0
-                        ? 'Back this bounty →'
-                        : 'Be the first to back this →'}
+                        ? t('howThisWorks.ctaBack')
+                        : t('howThisWorks.ctaFirst')}
                     </Button>
                   </Link>
                   <p className="text-center text-xs text-muted mt-3">
-                    Already have an account?{' '}
-                    <Link href={`/login?next=${encodeURIComponent(`/bounties/${id}`)}`} className="text-fan hover:underline cursor-pointer">
-                      Log in
-                    </Link>
+                    {t.rich('howThisWorks.alreadyHaveAccount', {
+                      link: (chunks) => (
+                        <Link href={`/login?next=${encodeURIComponent(`/bounties/${id}`)}`} className="text-fan hover:underline cursor-pointer">
+                          {chunks}
+                        </Link>
+                      ),
+                    })}
                   </p>
                 </Card>
               )}
 
               {/* Status notices for non-open bounties */}
               {bounty.status !== 'open' && (() => {
-                const creatorName = bounty.owner_user?.display_name ?? 'The creator';
+                const creatorName = bounty.owner_user?.display_name ?? t('creatorFallback');
                 const notices: Record<string, { heading: string; body: string; tone: 'default' | 'warn' | 'bad' | 'good' }> = {
                   completed: {
-                    heading: 'Completed — payout pending',
-                    body: 'The Council has approved this bounty. Commitments are now locked — your card will be charged in the next billing cycle.',
+                    heading: t('fanNotices.completed.heading'),
+                    body: t('fanNotices.completed.body'),
                     tone: 'warn',
                   },
                   paid_out: {
-                    heading: 'Paid out',
-                    body: `This bounty has been paid out. ${creatorName} has been compensated for their work.`,
+                    heading: t('fanNotices.paidOut.heading'),
+                    body: t('fanNotices.paidOut.body', { creator: creatorName }),
                     tone: 'good',
                   },
                   revoked: {
-                    heading: 'Bounty revoked',
-                    body: 'This bounty has been revoked and is no longer active.',
+                    heading: t('fanNotices.revoked.heading'),
+                    body: t('fanNotices.revoked.body'),
                     tone: 'bad',
                   },
                 };
@@ -1404,7 +1391,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           {bounty.completion && (
             <Card>
               <div className="flex items-center justify-between mb-3">
-                <SectionLabel>Submitted Work</SectionLabel>
+                <SectionLabel>{t('submittedWork.label')}</SectionLabel>
                 <Badge
                   tone={
                     bounty.completion.status === 'approved'
@@ -1415,7 +1402,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   }
                 >
                   {bounty.completion.status === 'pending_review'
-                    ? 'Pending Review'
+                    ? t('submittedWork.pendingReview')
                     : bounty.completion.status}
                 </Badge>
               </div>
@@ -1453,7 +1440,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
               {bounty.completion.council_notes && (
                 <div className="mt-3 pt-3 border-t border-border">
                   <p className="font-mono text-[10px] uppercase tracking-widest text-muted">
-                    Council notes: {bounty.completion.council_notes}
+                    {t('submittedWork.councilNotes', { notes: bounty.completion.council_notes })}
                   </p>
                 </div>
               )}
@@ -1486,7 +1473,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     : 'text-muted hover:text-foreground'
                 }`}
               >
-                Comments{' '}
+                {t('tabs.comments')}{' '}
                 <span className={activeTab === 'comments' ? 'text-muted font-normal' : ''}>
                   ({commentCount ?? '…'})
                 </span>
@@ -1496,15 +1483,15 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             {/* Backings panel */}
             <div className={`p-5 ${activeTab !== 'backings' ? 'hidden' : ''}`}>
               {activeBackings.length === 0 ? (
-                <p className="text-muted text-sm">No {fanPlural} yet. Be the first!</p>
+                <p className="text-muted text-sm">{t('backers.empty', { fan: fanPlural })}</p>
               ) : (
                 <div className="space-y-2">
                   {activeBackings.map((backing) => {
                     const isAnon = backing.user_id === 0;
-                    const displayName = isAnon ? '[anonymous]' : (backing.user?.display_name ?? 'Unknown');
+                    const displayName = isAnon ? t('backers.anonymous') : (backing.user?.display_name ?? t('backers.unknown'));
                     const initial = isAnon ? '?' : (backing.user?.display_name?.charAt(0).toUpperCase() ?? '?');
                     const expiryDate = backing.expires_at
-                      ? new Date(backing.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                      ? format.dateTime(new Date(backing.expires_at), { month: 'short', year: 'numeric' })
                       : null;
                     const avatarSrc = !isAnon ? normalizeAvatarUrl(backing.user?.profile_picture ?? null) : null;
                     return (
@@ -1539,15 +1526,15 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                               </Link>
                             )}
                             {user && backing.user_id === user.id && (
-                              <span className="font-mono text-[10px] uppercase tracking-widest text-muted ml-1">(you)</span>
+                              <span className="font-mono text-[10px] uppercase tracking-widest text-muted ml-1">{t('backers.you')}</span>
                             )}
                             {expiryDate && (
-                              <p className="font-mono text-[10px] uppercase tracking-widest text-muted">Expires {expiryDate}</p>
+                              <p className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('backers.expires', { date: expiryDate })}</p>
                             )}
                           </div>
                         </div>
                         <span className="text-fan font-mono text-sm font-semibold tabular-nums">
-                          ${Number(backing.amount).toFixed(2)}
+                          {money(Number(backing.amount))}
                         </span>
                       </div>
                     );
@@ -1576,7 +1563,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 onClick={() => setShowReportModal(true)}
                 className="font-mono text-[10px] uppercase tracking-widest text-muted/50 hover:text-bad transition-colors cursor-pointer"
               >
-                ⚑ Report this bounty
+                {t('report.trigger')}
               </button>
             </div>
           )}
@@ -1589,9 +1576,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           creator when there is one, else by the unclaimed target handle. */}
       {relatedBounties.length > 0 && (
         <section className="mt-12 pt-8 border-t border-border">
-          <SectionLabel className="mb-1.5">more bounties</SectionLabel>
+          <SectionLabel className="mb-1.5">{t('related.label')}</SectionLabel>
           <h2 className="font-display font-bold text-xl text-foreground mb-5">
-            Other bounties for{' '}
+            {t('related.heading')}{' '}
             {bounty.owner_user && ownerHref ? (
               <Link href={ownerHref} className="text-creator hover:underline">
                 {bounty.owner_user.display_name}
@@ -1626,7 +1613,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       )}
 
       {showReportModal && (
-        <Modal title="Report this bounty" onClose={() => setShowReportModal(false)}>
+        <Modal title={t('report.title')} onClose={() => setShowReportModal(false)}>
           <form
             onSubmit={async (e) => {
               e.preventDefault();
@@ -1635,9 +1622,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                 await bountiesApi.report(bounty.id, reportReason, reportDetails.trim() || undefined);
                 setShowReportModal(false);
                 setReportDetails('');
-                toast('Report received. The Council will review this bounty.', 'success');
+                toast(t('report.received'), 'success');
               } catch (err) {
-                toast(err instanceof Error ? err.message : 'Failed to submit report.', 'error');
+                toast(err instanceof Error ? err.message : t('report.failed'), 'error');
               } finally {
                 setReportSubmitting(false);
               }
@@ -1645,30 +1632,30 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             className="space-y-3"
           >
             <p className="text-sm text-muted">
-              Reports go to the Council for review against the{' '}
-              <Link href="/tos#content" className="underline underline-offset-2">Content Policy</Link>.
-              The bounty stays up unless the Council removes it.
+              {t.rich('report.intro', {
+                link: (chunks) => <Link href="/tos#content" className="underline underline-offset-2">{chunks}</Link>,
+              })}
             </p>
             <Select value={reportReason} onChange={(e) => setReportReason(e.target.value)}>
-              <option value="harassment">Harassment or targeted abuse</option>
-              <option value="illegal">Illegal content or request</option>
-              <option value="adult_content">Adult-content commission</option>
-              <option value="spam">Spam or scam</option>
-              <option value="other">Something else</option>
+              <option value="harassment">{t('report.reasons.harassment')}</option>
+              <option value="illegal">{t('report.reasons.illegal')}</option>
+              <option value="adult_content">{t('report.reasons.adultContent')}</option>
+              <option value="spam">{t('report.reasons.spam')}</option>
+              <option value="other">{t('report.reasons.other')}</option>
             </Select>
             <Textarea
               value={reportDetails}
               onChange={(e) => setReportDetails(e.target.value)}
-              placeholder="Anything the Council should know (optional)"
+              placeholder={t('report.detailsPlaceholder')}
               rows={3}
               maxLength={2000}
             />
             <div className="flex justify-end gap-2">
               <Button variant="ghost" type="button" onClick={() => setShowReportModal(false)}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button variant="danger" type="submit" disabled={reportSubmitting}>
-                {reportSubmitting ? 'Submitting…' : 'Submit Report'}
+                {reportSubmitting ? t('report.submitting') : t('report.submit')}
               </Button>
             </div>
           </form>

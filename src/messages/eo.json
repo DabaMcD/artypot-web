@@ -2271,5 +2271,225 @@
       "badgeUnverified": "nekontrolita",
       "matchedAlias": "kongrua kromnomo: {alias}"
     }
+  },
+  "Pipeline": {
+    "pending": "atendanta",
+    "clearing": "kompensiĝanta",
+    "available": "disponebla",
+    "pendingNote": "kontrolita de La Konsilio — fakturiĝas la {day}-an tagon",
+    "softLine": "+ {amount} mola",
+    "clearingNote": "fanoj fakturitaj · 7-taga kompensa periodo",
+    "availableNote": "elprenu al via banko (min. $1)"
+  },
+  "BountyDetail": {
+    "creatorFallback": "La kreinto",
+    "fan": {
+      "singular": "ŝatanto",
+      "plural": "ŝatantoj"
+    },
+    "common": {
+      "cancel": "Nuligi"
+    },
+    "errors": {
+      "loadBounty": "Malsukcesis ŝargi la rekompencon.",
+      "loadHistory": "Malsukcesis ŝargi la historion.",
+      "notFound": "Rekompenco ne trovita."
+    },
+    "toast": {
+      "minimumAmount": "La minimumo estas $1,00",
+      "expiryRange": "La limdato devas esti entjero inter 1 kaj 999.",
+      "updated": "Ĝisdatigita!",
+      "youreInFor": "Vi vetas {amount}!",
+      "failedSubmit": "Malsukcesis sendi.",
+      "backedOutDeleted": "Vi retiriĝis — la rekompenco estis forigita.",
+      "backedOut": "Retiriĝis.",
+      "failedBackOut": "Malsukcesis retiriĝi.",
+      "bountyUpdated": "Rekompenco ĝisdatigita!",
+      "failedUpdate": "Malsukcesis ĝisdatigi la rekompencon.",
+      "bountyRemoved": "Rekompenco forigita.",
+      "failedRemove": "Malsukcesis forigi la rekompencon."
+    },
+    "backingError": {
+      "capExceeded": "Vi atingis vian bonfidan limon. <link>Aldonu pagmetodon</link> por daŭrigi.",
+      "gracePeriod": "Novaj subtenoj estas paŭzigitaj dum vi solvas malsukcesan pagon. <link>Ĝisdatigu vian karton</link> por daŭrigi.",
+      "marketUnavailable": "Subtenado ankoraŭ ne disponeblas en via lando — ni esperas subteni ĝin baldaŭ."
+    },
+    "expiry": {
+      "advanced": "Altnivela",
+      "expiresIn": "Eksvalidiĝas post",
+      "units": {
+        "years": "jaro(j)",
+        "months": "monato(j)",
+        "weeks": "semajno(j)",
+        "days": "tago(j)",
+        "hours": "horo(j)",
+        "minutes": "minuto(j)"
+      }
+    },
+    "panel": {
+      "yourVotive": "Via promeso",
+      "youreInFor": "Vi vetas",
+      "expires": "Eksvalidiĝas",
+      "backOut": "Retiriĝi",
+      "chipIn": "Kontribui",
+      "howBackingWorksHeading": "Kiel funkcias subtenado?",
+      "howBackingWorks1": "Vi devontigas vin <strong>pagi nur se ĉi tiu rekompenco estos plenumita</strong> kaj aprobita de La Konsilio.",
+      "howBackingWorks2": "Nenio okazas al via karto nun. Kostoj estas fakturataj monate por aprobitaj plenumoj.",
+      "howBackingWorks3": "Plej multaj rekompencoj neniam estas plenumitaj, do plej multaj devontigoj neniam estas ŝarĝitaj. Vi povas retiriĝi iam ajn.",
+      "changeCommitment": "Ŝanĝu kiom vi vetas enigante novan sumon kaj limdaton.",
+      "newAmountPlaceholder": "Nova sumo",
+      "amountPlaceholder": "Sumo",
+      "update": "Ĝisdatigi",
+      "backingLoading": "Subtenante…",
+      "backThisBounty": "Subteni ĉi tiun rekompencon"
+    },
+    "revokeWarning": {
+      "title": "Atendu, {name}.",
+      "proceed": "Daŭrigi tamen",
+      "nevermind": "Ne gravas",
+      "body": "<strong>{creator}</strong> jam sendis sian laboron por plenumo. Forigi vian promeson nuntempe povus esti vidata kiel fia ago.",
+      "aside": "(Vi ankoraŭ povas fari tion. Ni nur diras.)"
+    },
+    "removeDialog": {
+      "title": "Forigi ĉi tiun rekompencon",
+      "removing": "Forigante…",
+      "remove": "Forigi rekompencon",
+      "body": "Ĉiuj aktivaj subtenantoj estos sciigitaj per retpoŝto kaj iliaj devontigoj estos nuligitaj. Bonvolu doni kialon.",
+      "reasonPlaceholder": "Kial vi forigas ĉi tiun rekompencon?…"
+    },
+    "lastBacking": {
+      "title": "Tute retiriĝi?",
+      "confirm": "Jes, retiriĝi",
+      "body": "Vi estas la sola {fan} subtenanta ĉi tiun rekompencon. Per foriro, ĉi tiu rekompenco estos vicigita por forigo."
+    },
+    "header": {
+      "historicalView": "Historia vido",
+      "backToCurrent": "✕ Reen al la nuna",
+      "edit": "Redakti",
+      "for": "por",
+      "visit": "Viziti {label}",
+      "unverified": "nekonfirmita",
+      "startedBy": "komencita de"
+    },
+    "editForm": {
+      "warning": "<strong>Atentu:</strong> Redaktoj povas nur klarigi detalojn — vi ne povas ŝanĝi la esencan naturon aŭ celon de ĉi tiu rekompenco. La Konsilio kontrolas la tutan redaktan historion antaŭ ol aprobi iun ajn rekompencon.",
+      "titleLabel": "Titolo",
+      "descriptionLabel": "Priskribo",
+      "creatorNameLabel": "Nomo de la kreinto",
+      "creatorNameHint": "Afabla nomo montrata apud la identigilo (ekz. “bbno$”). La konfirmita identigilo ĉiam estas montrata — ĉi tio estas nur etikedo.",
+      "saving": "Konservante…",
+      "save": "Konservi ŝanĝojn"
+    },
+    "totals": {
+      "totalBacked": "entute subtenita",
+      "softBackings": "+ {amount} en molaj subtenoj",
+      "backedBy": "subtenita de {count} {fan}",
+      "cleared": "{cleared} el {total} likvidita",
+      "totalBackedOn": "*Entute subtenita je {date}",
+      "hideHistory": "Kaŝi historion",
+      "showHistory": "Montri historion"
+    },
+    "completion": {
+      "cardLabel": "sendi plenumon",
+      "intro": "Preta? Ligu al via finita laboro kaj la Konsilio kontrolos ĝin. Ŝatantoj estas ŝarĝataj post aprobo.",
+      "submitCta": "Sendi plenumon →"
+    },
+    "payoutBlocked": {
+      "heading": "Pago blokita",
+      "body": "Via konto ne rajtas ricevi pagojn. Kontaktu subtenon por solvi tion."
+    },
+    "marketClosed": {
+      "heading": "Ankoraŭ ne disponebla en via lando",
+      "body": "Artypot nuntempe disponeblas nur en Usono, do vi ankoraŭ ne povas sendi plenumojn. Ni retpoŝtos vin tuj kiam ni etendos subtenon al via lando."
+    },
+    "completionForm": {
+      "title": "Sendi finitan laboron",
+      "urlLabel": "Ligo al la laboro (URL)",
+      "urlPlaceholder": "ekzemplo.com/pruvo",
+      "publiclyVisible": "Publike videbla",
+      "notesLabel": "Notoj (laŭvola)",
+      "notesPlaceholder": "Io, kion la konsilio devus scii…",
+      "submitting": "Sendante…",
+      "submit": "Sendi"
+    },
+    "creatorNotices": {
+      "pending": {
+        "heading": "Sub kontrolo de la Konsilio",
+        "body": "Via sendaĵo estas kontrolata. Vi estos sciigita pri la decido."
+      },
+      "completed": {
+        "heading": "Aprobita — pago alvenas",
+        "body": "La Konsilio aprobis vian laboron. Ŝatantoj estos ŝarĝataj en la sekva fakturada ciklo."
+      },
+      "paidOut": {
+        "heading": "Pagita",
+        "body": "Via pago estis traktita. Dankon!"
+      },
+      "revoked": {
+        "heading": "Rekompenco nuligita",
+        "body": "Ĉi tiu rekompenco estis nuligita kaj ne plu estas aktiva."
+      }
+    },
+    "howThisWorks": {
+      "label": "Kiel ĉi tio funkcias",
+      "headline": "Vi pagas nur se ĝi estas farita.",
+      "body": "Kiom ĉi tio valoras por vi? Via karto estas ŝarĝata <strong>nur se la laboro estas liverita kaj aprobita</strong> — nenio okazas hodiaŭ, kaj vi povas retiriĝi iam ajn antaŭe.",
+      "bullet1": "Hodiaŭ nenio estas ŝarĝata",
+      "bullet2": "Fakturata nur post livero",
+      "bullet3": "Retiriĝu iam ajn",
+      "ctaBack": "Subteni ĉi tiun rekompencon →",
+      "ctaFirst": "Estu la unua subtenanto →",
+      "alreadyHaveAccount": "Ĉu vi jam havas konton? <link>Ensalutu</link>"
+    },
+    "fanNotices": {
+      "completed": {
+        "heading": "Plenumita — pago atendas",
+        "body": "La Konsilio aprobis ĉi tiun rekompencon. Devontigoj nun estas ŝlositaj — via karto estos ŝarĝata en la sekva fakturada ciklo."
+      },
+      "paidOut": {
+        "heading": "Pagita",
+        "body": "Ĉi tiu rekompenco estis pagita. {creator} estis kompensita pro sia laboro."
+      },
+      "revoked": {
+        "heading": "Rekompenco nuligita",
+        "body": "Ĉi tiu rekompenco estis nuligita kaj ne plu estas aktiva."
+      }
+    },
+    "submittedWork": {
+      "label": "Sendita laboro",
+      "pendingReview": "Atendas kontrolon",
+      "councilNotes": "Notoj de la Konsilio: {notes}"
+    },
+    "tabs": {
+      "comments": "Komentoj"
+    },
+    "backers": {
+      "empty": "Ankoraŭ neniu {fan}. Estu la unua!",
+      "anonymous": "[anonima]",
+      "unknown": "Nekonata",
+      "you": "(vi)",
+      "expires": "Eksvalidiĝas {date}"
+    },
+    "report": {
+      "trigger": "⚑ Raporti ĉi tiun rekompencon",
+      "title": "Raporti ĉi tiun rekompencon",
+      "received": "Raporto ricevita. La Konsilio kontrolos ĉi tiun rekompencon.",
+      "failed": "Malsukcesis sendi raporton.",
+      "intro": "Raportoj iras al la Konsilio por kontrolo laŭ la <link>Enhava Politiko</link>. La rekompenco restas aktiva krom se la Konsilio forigas ĝin.",
+      "reasons": {
+        "harassment": "Ĉikanado aŭ celita misuzo",
+        "illegal": "Kontraŭleĝa enhavo aŭ peto",
+        "adultContent": "Mendo de plenkreska enhavo",
+        "spam": "Trudmesaĝo aŭ trompo",
+        "other": "Io alia"
+      },
+      "detailsPlaceholder": "Io, kion la Konsilio devus scii (laŭvola)",
+      "submitting": "Sendante…",
+      "submit": "Sendi raporton"
+    },
+    "related": {
+      "label": "pli da rekompencoj",
+      "heading": "Aliaj rekompencoj por"
+    }
   }
 }
