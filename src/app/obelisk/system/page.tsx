@@ -127,7 +127,7 @@ export default function OverlordSystemPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="text-xs font-mono mb-3">
-          <Link href="/obelisk" className="hover:underline text-muted">← Overlord</Link>
+          <Link href="/obelisk" className="hover:underline text-muted">← Obelisk</Link>
         </div>
         <div className="flex items-center justify-between gap-3 mb-1">
           <div className="flex items-center gap-3">

@@ -83,7 +83,7 @@ export default function OverlordEmailLogsPage() {
           <p className="text-muted text-sm mt-1">
             {meta ? `${meta.total.toLocaleString()} emails sent` : '—'}
             {' · '}
-            <Link href="/obelisk" className="hover:underline text-muted">← Overlord</Link>
+            <Link href="/obelisk" className="hover:underline text-muted">← Obelisk</Link>
           </p>
         </div>
       </div>

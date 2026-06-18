@@ -169,7 +169,7 @@ export default function MetricsPage() {
         <p className="text-sm text-muted">
           Live aggregate stats across all users and bounties.
           {' · '}
-          <Link href="/obelisk" className="hover:underline text-muted">← Overlord</Link>
+          <Link href="/obelisk" className="hover:underline text-muted">← Obelisk</Link>
         </p>
       </div>
 
