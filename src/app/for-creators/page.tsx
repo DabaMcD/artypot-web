@@ -14,7 +14,7 @@ const creatorReceivesPct = 100 - PLATFORM_FEE_PCT;
 const PAYOUT_STEPS: { label: string; sub: string; color: string }[] = [
   {
     label: 'Sign up and become a creator',
-    sub: 'Link a social handle so we can confirm it\'s you. Coordinate with us if you have trouble.',
+    sub: 'Link a social handle so we can confirm it\'s you. We will help if if you have trouble.',
     color: 'bg-creator',
   },
   {
