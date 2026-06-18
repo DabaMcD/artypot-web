@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { creators as creatorsApi, handles as handlesApi } from '@/lib/api';
 import { handleLink, formatPlatformHandle, platformLabel } from '@/lib/platforms';
 import type { Creator, HandleSearchResult } from '@/lib/types';

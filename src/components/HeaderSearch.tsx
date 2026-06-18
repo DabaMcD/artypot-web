@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import { search as searchApi } from '@/lib/api';
 import type { SearchResponse, SearchPerson, SearchBountyResult } from '@/lib/types';
 import { useDebouncedSearch } from '@/lib/search/useDebouncedSearch';

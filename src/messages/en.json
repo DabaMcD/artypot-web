@@ -1,0 +1,98 @@
+{
+  "Common": {
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "submit": "Submit",
+      "continue": "Continue",
+      "back": "Back",
+      "next": "Next",
+      "previous": "Previous",
+      "edit": "Edit",
+      "delete": "Delete",
+      "remove": "Remove"
+    },
+    "states": {
+      "loading": "Loading…",
+      "saving": "Saving…"
+    },
+    "toast": {
+      "saved": "Saved!",
+      "removed": "Removed.",
+      "genericError": "Something went wrong."
+    },
+    "legal": {
+      "about": "About",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "contact": "Contact"
+    }
+  },
+  "Sidebar": {
+    "sections": {
+      "yourActivity": "your activity",
+      "discover": "discover",
+      "money": "money",
+      "account": "account",
+      "bounties": "bounties",
+      "queues": "queues",
+      "catalog": "catalog",
+      "operations": "operations",
+      "role": "role"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "myBackings": "My backings",
+      "startBounty": "Start a bounty",
+      "findCreators": "Find creators",
+      "browseBounties": "Browse bounties",
+      "billing": "Billing",
+      "paymentHistory": "Payment history",
+      "settings": "Settings",
+      "becomeCreator": "Become a creator",
+      "myBounties": "My bounties",
+      "payouts": "Payouts",
+      "cashLedger": "Cash ledger",
+      "tax": "Tax & compliance",
+      "handles": "Handles",
+      "completionReview": "Completion review",
+      "handleVerification": "Handle verification",
+      "compliance": "Compliance",
+      "reports": "Reports",
+      "users": "Users",
+      "creators": "Creators",
+      "handleRegistry": "Handle registry",
+      "featuredBounties": "Featured bounties",
+      "billingRuns": "Billing runs",
+      "refunds": "Refunds",
+      "externalPayouts": "External payouts",
+      "councilMembers": "Council members",
+      "countryTiers": "Country tiers",
+      "markets": "Markets",
+      "auditLog": "Audit log"
+    },
+    "roles": {
+      "fan": "fan",
+      "creator": "creator",
+      "council": "council"
+    },
+    "userCard": {
+      "signOut": "logout"
+    }
+  },
+  "PublicHeader": {
+    "logIn": "Log in",
+    "signUp": "Sign up",
+    "searchLong": "find a creator, bounty, or handle…",
+    "searchShort": "search…",
+    "cancel": "cancel"
+  },
+  "Settings": {
+    "language": {
+      "label": "Language",
+      "title": "language",
+      "blurb": "Choose the language Artypot is displayed in. Your choice is saved to your account.",
+      "hint": "Choose your preferred language. Saved to your account."
+    }
+  }
+}

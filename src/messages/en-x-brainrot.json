@@ -1,0 +1,80 @@
+{
+  "Common": {
+    "actions": {
+      "save": "lock it in",
+      "cancel": "nah jk",
+      "submit": "send it",
+      "continue": "bet, next",
+      "back": "go back fr",
+      "next": "next one",
+      "previous": "the one b4",
+      "edit": "switch it up",
+      "delete": "delete fr",
+      "remove": "yeet it"
+    },
+    "states": {
+      "loading": "loading… hold on bestie ⏳",
+      "saving": "saving rn 🙏"
+    },
+    "toast": {
+      "saved": "locked in 🔒 yeah boiii",
+      "removed": "yeeted 🕊️",
+      "genericError": "what the sigma just happened 😭 it's so over"
+    },
+    "legal": {
+      "about": "the lore 📖",
+      "terms": "terms (legally binding fr)",
+      "privacy": "privacy",
+      "contact": "@ us"
+    }
+  },
+  "Sidebar": {
+    "sections": {
+      "yourActivity": "ur whole vibe",
+      "discover": "discover 🔭",
+      "money": "the bag 💰",
+      "account": "account",
+      "bounties": "bounties",
+      "role": "who r u"
+    },
+    "nav": {
+      "dashboard": "home base 📍",
+      "myBackings": "my bags 💰",
+      "startBounty": "cook a bounty 🍳",
+      "findCreators": "scout creators 🔍",
+      "browseBounties": "doomscroll bounties 👀",
+      "billing": "the damage 💸",
+      "paymentHistory": "receipts 🧾",
+      "settings": "tweak it ⚙️",
+      "becomeCreator": "go creator mode ✨",
+      "myBounties": "my bounties 📁",
+      "payouts": "secure the bag 🤑",
+      "cashLedger": "cash log 📒",
+      "tax": "tax (so Ohio) 💀",
+      "handles": "handles 🔗"
+    },
+    "roles": {
+      "fan": "fan",
+      "creator": "creator",
+      "council": "council"
+    },
+    "userCard": {
+      "signOut": "bounce"
+    }
+  },
+  "PublicHeader": {
+    "logIn": "log in",
+    "signUp": "sign up ✨",
+    "searchLong": "find a creator, bounty, or handle… (no cap)",
+    "searchShort": "search… 🔍",
+    "cancel": "nvm"
+  },
+  "Settings": {
+    "language": {
+      "label": "language",
+      "title": "language",
+      "blurb": "pick how artypot talks to u fr. we save it to ur account so it stays 🔒 yeah boiii",
+      "hint": "pick ur vibe. saved to ur account no cap"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useAuth } from '@/lib/auth-context';
 import { PAYOUT_MINIMUM_AUTOMATED } from '@/lib/config';
 

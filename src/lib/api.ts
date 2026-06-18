@@ -190,6 +190,7 @@ export const auth = {
     phone_number?: string;
     password: string;
     password_confirmation: string;
+    preferred_locale?: string;
   }) =>
     request<{ token: string; phone_verification_required?: boolean }>('/auth/register', {
       method: 'POST',
@@ -199,6 +200,7 @@ export const auth = {
         phone_number:           payload.phone_number || undefined,
         password:               payload.password,
         password_confirmation:  payload.password_confirmation,
+        preferred_locale:       payload.preferred_locale,
         agreed_to_terms:        true,
       }),
     }),
@@ -486,7 +488,7 @@ export const users = {
   get: (id: number) =>
     request<{ data: PublicUser }>(`/users/${id}`),
 
-  update: (id: number, data: Partial<Pick<User, 'display_name' | 'profile_picture' | 'is_anonymous' | 'country_code' | 'state_code' | 'default_expiry_value' | 'default_expiry_unit' | 'default_backing_amount' | 'bio' | 'fan_name' | 'fan_name_plural'>>) =>
+  update: (id: number, data: Partial<Pick<User, 'display_name' | 'profile_picture' | 'is_anonymous' | 'country_code' | 'state_code' | 'default_expiry_value' | 'default_expiry_unit' | 'default_backing_amount' | 'bio' | 'fan_name' | 'fan_name_plural' | 'preferred_locale'>>) =>
     request<{ data: User }>(`/users/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),

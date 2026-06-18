@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useNotifications } from '@/lib/notification-context';
 import type { UserNotification } from '@/lib/types';
 

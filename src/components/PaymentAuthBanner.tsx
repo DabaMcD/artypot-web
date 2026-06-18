@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname } from '@/i18n/routing';
 import { billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { ConfirmPaymentModal } from './ConfirmPaymentModal';

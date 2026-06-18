@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import type { CSSProperties } from 'react';
 import type { Creator } from '@/lib/types';
 import { Badge } from '@/components/ui/Badge';

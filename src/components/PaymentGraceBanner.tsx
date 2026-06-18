@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useAuth } from '@/lib/auth-context';
 import { BILLING_GRACE_PERIOD_DAYS } from '@/lib/config';
 

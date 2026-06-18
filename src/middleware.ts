@@ -1,49 +1,57 @@
+import createMiddleware from 'next-intl/middleware';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { routing } from './i18n/routing';
 
 /**
- * Admin / obelisk (overlord) route protection middleware.
+ * Composed middleware: next-intl locale handling + the original admin/obelisk
+ * session-cookie guard.
  *
- * NOTE: The app currently stores the auth token in localStorage via setToken()
- * in src/lib/api.ts. localStorage is not accessible in Edge middleware, so this
- * middleware cannot perform full token verification server-side.
+ * The guard predates i18n and matched raw pathnames (`/admin/*`). Once routes
+ * live under `[locale]`, a request to `/es/admin/...` carries the locale prefix,
+ * so we strip it before the protection check — otherwise non-default locales
+ * would silently lose server-side protection.
  *
- * As a defence-in-depth measure, we redirect requests that carry no session
- * cookie at all. Authenticated users whose token lives only in localStorage
- * will pass through to the client-side auth guard in each admin page, which
- * handles the real enforcement. A future improvement is to mirror the token
- * into a HttpOnly cookie on login so middleware can verify it properly.
- *
- * Cookie name checked: 'artypot_session' — set this alongside the localStorage
- * token if/when server-side protection is needed.
+ * The real token lives in localStorage (not readable in Edge), so this stays a
+ * best-effort check: absent `artypot_session` cookie ⇒ redirect to login; the
+ * client-side auth guard on each admin page does the real enforcement.
  */
+
+const handleI18n = createMiddleware(routing);
 
 const PROTECTED_PREFIXES = ['/admin', '/obelisk'];
 
+// Non-default locale prefixes (default `en` is unprefixed under `as-needed`).
+const LOCALE_PREFIX_RE = /^\/(es|eo|en-x-brainrot)(?=\/|$)/;
+
 export function middleware(request: NextRequest) {
+  // Let next-intl resolve the locale (redirect/rewrite + NEXT_LOCALE cookie).
+  const i18nResponse = handleI18n(request);
+
   const { pathname } = request.nextUrl;
+  const localePrefix = pathname.match(LOCALE_PREFIX_RE)?.[0] ?? '';
+  const unprefixed = localePrefix ? pathname.slice(localePrefix.length) || '/' : pathname;
 
-  const isProtected = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-  if (!isProtected) return NextResponse.next();
+  const isProtected = PROTECTED_PREFIXES.some(
+    (p) => unprefixed === p || unprefixed.startsWith(`${p}/`),
+  );
 
-  // Check for a session cookie. This is a best-effort check; the real token
-  // lives in localStorage and is enforced client-side. If the cookie is absent
-  // we can safely redirect; if present, we let the client-side guard verify.
-  const sessionCookie = request.cookies.get('artypot_session');
-  if (!sessionCookie) {
+  if (isProtected && !request.cookies.get('artypot_session')) {
     const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = '/login';
-    // Only pass `from` if it's a safe same-origin path (starts with '/', no '//')
-    // to prevent open-redirect exploitation if this param is ever consumed post-login.
+    loginUrl.pathname = `${localePrefix}/login`;
+    loginUrl.search = '';
+    // Only pass `from` if it's a safe same-origin path (no protocol-relative `//`).
     if (pathname.startsWith('/') && !pathname.startsWith('//')) {
       loginUrl.searchParams.set('from', pathname);
     }
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  return i18nResponse;
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/obelisk/:path*'],
+  // Everything except API routes, the un-localized `/marriage-autonomy-spectrum`
+  // route handler, Next internals, and files with an extension.
+  matcher: ['/((?!api|marriage-autonomy-spectrum|_next|_vercel|.*\\..*).*)'],
 };

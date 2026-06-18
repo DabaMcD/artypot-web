@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import type { BountyHistoryEvent } from '@/lib/types';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
 

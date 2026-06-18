@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { Elements, useStripe } from '@stripe/react-stripe-js';
 import { stripePromise } from '@/lib/stripe';
 import { Modal } from './ui/Modal';

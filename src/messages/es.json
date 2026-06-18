@@ -1,0 +1,80 @@
+{
+  "Common": {
+    "actions": {
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "submit": "Enviar",
+      "continue": "Continuar",
+      "back": "Atrás",
+      "next": "Siguiente",
+      "previous": "Anterior",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "remove": "Quitar"
+    },
+    "states": {
+      "loading": "Cargando…",
+      "saving": "Guardando…"
+    },
+    "toast": {
+      "saved": "¡Guardado!",
+      "removed": "Eliminado.",
+      "genericError": "Algo salió mal."
+    },
+    "legal": {
+      "about": "Acerca de",
+      "terms": "Términos",
+      "privacy": "Privacidad",
+      "contact": "Contacto"
+    }
+  },
+  "Sidebar": {
+    "sections": {
+      "yourActivity": "tu actividad",
+      "discover": "descubrir",
+      "money": "dinero",
+      "account": "cuenta",
+      "bounties": "encargos",
+      "role": "rol"
+    },
+    "nav": {
+      "dashboard": "Panel",
+      "myBackings": "Mis aportes",
+      "startBounty": "Crear un encargo",
+      "findCreators": "Buscar creadores",
+      "browseBounties": "Explorar encargos",
+      "billing": "Facturación",
+      "paymentHistory": "Historial de pagos",
+      "settings": "Ajustes",
+      "becomeCreator": "Hazte creador",
+      "myBounties": "Mis encargos",
+      "payouts": "Pagos",
+      "cashLedger": "Libro de caja",
+      "tax": "Impuestos y cumplimiento",
+      "handles": "Cuentas"
+    },
+    "roles": {
+      "fan": "fan",
+      "creator": "creador",
+      "council": "consejo"
+    },
+    "userCard": {
+      "signOut": "salir"
+    }
+  },
+  "PublicHeader": {
+    "logIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "searchLong": "busca un creador, encargo o cuenta…",
+    "searchShort": "buscar…",
+    "cancel": "cancelar"
+  },
+  "Settings": {
+    "language": {
+      "label": "Idioma",
+      "title": "idioma",
+      "blurb": "Elige el idioma en el que se muestra Artypot. Tu elección se guarda en tu cuenta.",
+      "hint": "Elige tu idioma preferido. Se guarda en tu cuenta."
+    }
+  }
+}

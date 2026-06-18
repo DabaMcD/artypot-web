@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import type { Bounty } from '@/lib/types';
 import { formatPlatformHandle, handleLink, handleExternalUrl } from '@/lib/platforms';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';

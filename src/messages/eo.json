@@ -1,0 +1,80 @@
+{
+  "Common": {
+    "actions": {
+      "save": "Konservi",
+      "cancel": "Nuligi",
+      "submit": "Sendi",
+      "continue": "Daŭrigi",
+      "back": "Reen",
+      "next": "Sekva",
+      "previous": "Antaŭa",
+      "edit": "Redakti",
+      "delete": "Forigi",
+      "remove": "Forpreni"
+    },
+    "states": {
+      "loading": "Ŝargado…",
+      "saving": "Konservado…"
+    },
+    "toast": {
+      "saved": "Konservita!",
+      "removed": "Forigita.",
+      "genericError": "Io misfunkciis."
+    },
+    "legal": {
+      "about": "Pri ni",
+      "terms": "Kondiĉoj",
+      "privacy": "Privateco",
+      "contact": "Kontakto"
+    }
+  },
+  "Sidebar": {
+    "sections": {
+      "yourActivity": "via aktiveco",
+      "discover": "malkovri",
+      "money": "mono",
+      "account": "konto",
+      "bounties": "mendoj",
+      "role": "rolo"
+    },
+    "nav": {
+      "dashboard": "Panelo",
+      "myBackings": "Miaj subtenoj",
+      "startBounty": "Krei mendon",
+      "findCreators": "Trovi kreantojn",
+      "browseBounties": "Foliumi mendojn",
+      "billing": "Fakturado",
+      "paymentHistory": "Pagohistorio",
+      "settings": "Agordoj",
+      "becomeCreator": "Iĝu kreanto",
+      "myBounties": "Miaj mendoj",
+      "payouts": "Elpagoj",
+      "cashLedger": "Kaslibro",
+      "tax": "Impostoj kaj plenumo",
+      "handles": "Kontonomoj"
+    },
+    "roles": {
+      "fan": "fano",
+      "creator": "kreanto",
+      "council": "konsilio"
+    },
+    "userCard": {
+      "signOut": "elsaluti"
+    }
+  },
+  "PublicHeader": {
+    "logIn": "Ensaluti",
+    "signUp": "Registriĝi",
+    "searchLong": "trovu kreanton, mendon aŭ kontonomon…",
+    "searchShort": "serĉi…",
+    "cancel": "nuligi"
+  },
+  "Settings": {
+    "language": {
+      "label": "Lingvo",
+      "title": "lingvo",
+      "blurb": "Elektu la lingvon en kiu Artypot montriĝas. Via elekto konserviĝas en via konto.",
+      "hint": "Elektu vian preferatan lingvon. Konserviĝas en via konto."
+    }
+  }
+}

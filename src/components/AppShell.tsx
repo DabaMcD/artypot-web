@@ -1,8 +1,7 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, Link } from '@/i18n/routing';
 import { ReactNode, useState, useEffect } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
 import { bounties as bountiesApi } from '@/lib/api';
@@ -19,6 +18,7 @@ import { DefaultUpdatePromptBar } from '@/components/DefaultUpdatePromptBar';
 import { DefaultUpdatePromptProvider } from '@/lib/default-update-prompt-context';
 import { PublicHeader } from '@/components/PublicHeader';
 import { PublicFooter } from '@/components/PublicFooter';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password'];
 const AUTH_PREFIXES = ['/email/', '/oauth/'];
@@ -157,9 +157,17 @@ export function AppShell({ children }: AppShellProps) {
   // Close mobile drawer + mobile search whenever the route changes.
   useEffect(() => { setSidebarOpen(false); setSearchOpen(false); }, [pathname]);
 
-  // Auth pages: full-bleed, no sidebar
+  // Auth pages: full-bleed, no sidebar. A compact language switcher floats in
+  // the corner so logged-out users can change language on /login, /register, etc.
   if (isAuthRoute(pathname)) {
-    return <>{children}</>;
+    return (
+      <>
+        <div className="fixed top-4 right-4 z-50">
+          <LanguageSwitcher variant="header" />
+        </div>
+        {children}
+      </>
+    );
   }
 
   // Loading: blank dark screen

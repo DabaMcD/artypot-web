@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { useNudgeContext } from '@/lib/nudge-context';
 import { useAuth } from '@/lib/auth-context';
 

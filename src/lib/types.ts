@@ -179,6 +179,12 @@ export interface User {
   fan_name?: string | null;
   /** Creator-set plural noun for their fans, e.g. "patrons". */
   fan_name_plural?: string | null;
+  /**
+   * The user's saved UI language (BCP-47), e.g. 'es' or 'en-x-brainrot'. Null
+   * when never set — the client then falls back to cookie/browser detection.
+   * Honored as a one-shot locale redirect on login.
+   */
+  preferred_locale?: string | null;
   creator?: Creator;
 }
 
