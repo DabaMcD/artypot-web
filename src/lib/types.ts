@@ -207,6 +207,10 @@ export interface TreasurySummary {
   reconciled: boolean | null;
   /** stripe_balance − expected_balance. Null if balance unavailable. */
   discrepancy: number | null;
+  /** Count of payments Stripe captured but that never settled past the staleness window — money taken, ledger not booked. 0 when healthy. */
+  unsettled_captured_count: number;
+  /** Gross dollar total of those captured-but-unsettled payments. */
+  unsettled_captured_amount: number;
   /** Total un-withdrawn creator earnings (our liability). */
   owed_to_creators: number;
   /** Portion of owed_to_creators that is withdrawable now. */
