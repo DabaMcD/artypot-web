@@ -1,8 +1,10 @@
 'use client';
 
 import { Suspense, useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
+import { useMoney } from '@/lib/format';
 import { search as searchApi, creators as creatorsApi } from '@/lib/api';
 import type {
   SearchResponse,
@@ -30,19 +32,18 @@ const BOUNTIES_MAX = 20;
 const PEOPLE_STEP = 5;
 const BOUNTIES_STEP = 10;
 
-const fmtMoney = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 const isExternal = (url: string | null | undefined) => !!url && /^https?:\/\//i.test(url);
 
-const FILTER_TABS: { key: FilterType; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'people', label: 'People' },
-  { key: 'bounties', label: 'Bounties' },
+const FILTER_TABS: { key: FilterType; labelKey: string }[] = [
+  { key: 'all', labelKey: 'filters.all' },
+  { key: 'people', labelKey: 'filters.people' },
+  { key: 'bounties', labelKey: 'filters.bounties' },
 ];
 
-const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: 'newest', label: 'newest' },
-  { value: 'most_backed', label: 'most bounties' },
-  { value: 'most_completed', label: 'most completed' },
+const SORT_OPTIONS: { value: SortOption; labelKey: string }[] = [
+  { value: 'newest', labelKey: 'sort.newest' },
+  { value: 'most_backed', labelKey: 'sort.mostBounties' },
+  { value: 'most_completed', labelKey: 'sort.mostCompleted' },
 ];
 
 // A "pill row" toggle matching the app's mono idiom (shared by tabs + sort).
@@ -73,6 +74,7 @@ function PillRow<T extends string>({
 }
 
 function SearchPageInner() {
+  const t = useTranslations('Search');
   const params = useSearchParams();
   const router = useRouter();
 
@@ -178,16 +180,19 @@ function SearchPageInner() {
     <div className="space-y-6 pt-2">
       {/* Header */}
       <div>
-        <SectionLabel>discover</SectionLabel>
+        <SectionLabel>{t('header.label')}</SectionLabel>
         <h1 className="font-display font-bold text-[28px] text-foreground mt-1">
           {query
-            ? <>Results for <span className="text-creator">&ldquo;{query}&rdquo;</span></>
-            : 'Explore'}
+            ? t.rich('header.resultsFor', {
+                query,
+                highlight: (chunks) => <span className="text-creator">&ldquo;{chunks}&rdquo;</span>,
+              })
+            : t('header.exploreTitle')}
         </h1>
         <p className="text-sm text-muted mt-1">
           {query
-            ? 'Creators, bounties, and handles.'
-            : 'Browse creators and the bounties their communities are backing.'}
+            ? t('header.resultsSubtitle')
+            : t('header.exploreSubtitle')}
         </p>
       </div>
 
@@ -205,7 +210,7 @@ function SearchPageInner() {
         <>
           {/* Filter tabs */}
           <PillRow
-            options={FILTER_TABS.map((t) => ({ value: t.key, label: t.label }))}
+            options={FILTER_TABS.map((tab) => ({ value: tab.key, label: t(tab.labelKey) }))}
             value={type}
             onChange={setType}
           />
@@ -213,9 +218,9 @@ function SearchPageInner() {
           {/* People */}
           {showPeople && (
             <section className="space-y-3">
-              <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">People</h2>
+              <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">{t('sections.people')}</h2>
               {people.length === 0 && !loading ? (
-                <EmptyNote>No people match this search.</EmptyNote>
+                <EmptyNote>{t('empty.people')}</EmptyNote>
               ) : (
                 <div className="flex flex-col divide-y divide-border border border-border rounded-xl overflow-hidden">
                   {people.map((p) => <PersonRow key={`${p.type}-${p.id}`} person={p} />)}
@@ -231,14 +236,14 @@ function SearchPageInner() {
           {showBounties && (
             <section className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-                <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">Bounties</h2>
-                <Toggle on={includeCompleted} onChange={setIncludeCompleted} label="include completed" className="text-xs text-muted" />
+                <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">{t('sections.bounties')}</h2>
+                <Toggle on={includeCompleted} onChange={setIncludeCompleted} label={t('bounties.includeCompleted')} className="text-xs text-muted" />
               </div>
               {bounties.length === 0 && !loading ? (
                 <EmptyNote>
-                  No bounties match this search.{' '}
+                  {t('empty.bounties')}{' '}
                   <Link href={`/bounties/new?handle=${encodeURIComponent(query)}`} className="text-creator hover:underline">
-                    Create one targeting &ldquo;{query}&rdquo; →
+                    {t('empty.bountiesCreate', { query })} →
                   </Link>
                 </EmptyNote>
               ) : (
@@ -275,13 +280,18 @@ function BrowseView({
   onPageChange: (updater: (p: number) => number) => void;
   trending: SearchBountyResult[];
 }) {
+  const t = useTranslations('Search');
   return (
     <div className="space-y-10">
       {/* Creators */}
       <section className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">Creators</h2>
-          <PillRow options={SORT_OPTIONS} value={sort} onChange={onSortChange} />
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">{t('sections.creators')}</h2>
+          <PillRow
+            options={SORT_OPTIONS.map((opt) => ({ value: opt.value, label: t(opt.labelKey) }))}
+            value={sort}
+            onChange={onSortChange}
+          />
         </div>
 
         {loading && !creators ? (
@@ -291,7 +301,7 @@ function BrowseView({
             ))}
           </div>
         ) : !creators || creators.data.length === 0 ? (
-          <Empty message="no verified creators yet" />
+          <Empty message={t('empty.creators')} />
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -302,13 +312,13 @@ function BrowseView({
             {creators.last_page > 1 && (
               <div className="flex items-center justify-center gap-3 pt-1">
                 <Button variant="default" size="sm" onClick={() => onPageChange((p) => p - 1)} disabled={page === 1}>
-                  ← prev
+                  {t('pagination.prev')}
                 </Button>
                 <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
                   {creators.current_page} / {creators.last_page}
                 </span>
                 <Button variant="default" size="sm" onClick={() => onPageChange((p) => p + 1)} disabled={page === creators.last_page}>
-                  next →
+                  {t('pagination.next')}
                 </Button>
               </div>
             )}
@@ -319,7 +329,7 @@ function BrowseView({
       {/* Trending bounties */}
       {trending.length > 0 && (
         <section className="space-y-3">
-          <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">Trending bounties</h2>
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted/70">{t('sections.trending')}</h2>
           <div className="flex flex-col gap-3">
             {trending.map((b) => <BountyRow key={b.id} bounty={b} />)}
           </div>
@@ -334,6 +344,7 @@ function EmptyNote({ children }: { children: React.ReactNode }) {
 }
 
 function ShowMore({ onClick, loading }: { onClick: () => void; loading: boolean }) {
+  const t = useTranslations('Search');
   return (
     <div className="text-center">
       <button
@@ -341,18 +352,20 @@ function ShowMore({ onClick, loading }: { onClick: () => void; loading: boolean 
         disabled={loading}
         className="text-sm text-fan font-medium hover:underline disabled:opacity-50"
       >
-        {loading ? 'Loading…' : 'Show more'}
+        {loading ? t('actions.loading') : t('actions.showMore')}
       </button>
     </div>
   );
 }
 
 function PersonRow({ person }: { person: SearchPerson }) {
+  const t = useTranslations('Search');
+  const money = useMoney();
   const external = isExternal(person.url);
   const subline =
     person.open_bounty_count > 0
-      ? `${person.open_bounty_count} open ${person.open_bounty_count === 1 ? 'bounty' : 'bounties'} · ${fmtMoney(person.total_backed_open)} backed`
-      : person.type === 'creator' ? 'Creator' : 'Unverified';
+      ? `${t('person.openBounties', { count: person.open_bounty_count })} · ${t('person.backed', { amount: money(person.total_backed_open) })}`
+      : person.type === 'creator' ? t('person.creator') : t('person.unverified');
 
   const inner = (
     <div className="flex items-center gap-3 px-4 py-3 hover:bg-surface-2 transition-colors">
@@ -372,7 +385,7 @@ function PersonRow({ person }: { person: SearchPerson }) {
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-foreground truncate">{person.display_name}</span>
           <Badge tone={person.type === 'creator' ? 'creator' : 'default'} className="shrink-0">
-            {person.type === 'creator' ? 'creator' : 'unverified'}
+            {person.type === 'creator' ? t('person.badgeCreator') : t('person.badgeUnverified')}
           </Badge>
         </div>
         {person.type === 'creator' && person.primary_handle && (
@@ -381,7 +394,7 @@ function PersonRow({ person }: { person: SearchPerson }) {
         <div className="text-xs text-muted truncate">{subline}</div>
         {person.match_reason?.kind === 'alias' && person.match_reason.value && (
           <div className="text-[11px] text-muted/70 truncate">
-            matched alias: {person.match_reason.value}
+            {t('person.matchedAlias', { alias: person.match_reason.value })}
           </div>
         )}
       </div>
@@ -397,6 +410,7 @@ function PersonRow({ person }: { person: SearchPerson }) {
 }
 
 function BountyRow({ bounty }: { bounty: SearchBountyResult }) {
+  const money = useMoney();
   const snippet = bounty.match_reason?.kind === 'description' ? sanitizeSnippet(bounty.match_reason?.snippet) : '';
   return (
     <Link
@@ -408,7 +422,7 @@ function BountyRow({ bounty }: { bounty: SearchBountyResult }) {
         <BountyStatusBadge status={bounty.status} />
       </div>
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-fan font-bold">{fmtMoney(bounty.amount_backed)}</span>
+        <span className="text-fan font-bold">{money(bounty.amount_backed)}</span>
         {bounty.creator.display_name && <span className="text-muted truncate">· {bounty.creator.display_name}</span>}
       </div>
       {snippet && (
@@ -423,8 +437,13 @@ function BountyRow({ bounty }: { bounty: SearchBountyResult }) {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="pt-2 text-muted text-sm">Loading…</div>}>
+    <Suspense fallback={<SearchFallback />}>
       <SearchPageInner />
     </Suspense>
   );
+}
+
+function SearchFallback() {
+  const t = useTranslations('Search');
+  return <div className="pt-2 text-muted text-sm">{t('actions.loading')}</div>;
 }

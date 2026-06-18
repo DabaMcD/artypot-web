@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import { billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { useMoney, useDateFormats } from '@/lib/format';
 import type { FanPaymentSummary, FanPaymentStatus, PaginatedResponse } from '@/lib/types';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -19,23 +21,20 @@ const STATUS_TONE: Record<FanPaymentStatus, 'default' | 'warn' | 'good' | 'bad'>
   requires_action: 'warn',
   pending: 'default',
 };
-const STATUS_LABEL: Record<FanPaymentStatus, string> = {
-  completed: 'Completed',
-  failed: 'Failed',
-  requires_action: 'Action needed',
-  pending: 'Pending',
-};
-
-function fmtMoney(v: number | string) {
-  return `$${Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
 
 export default function PaymentHistoryPage() {
+  const t = useTranslations('History');
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const fmtMoney = useMoney();
+  const { short: fmtDate } = useDateFormats();
+
+  const STATUS_LABEL: Record<FanPaymentStatus, string> = {
+    completed: t('status.completed'),
+    failed: t('status.failed'),
+    requires_action: t('status.requiresAction'),
+    pending: t('status.pending'),
+  };
 
   const [payments, setPayments] = useState<FanPaymentSummary[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
@@ -90,14 +89,14 @@ export default function PaymentHistoryPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <SectionLabel>fan · payments</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">payment history</h1>
+          <SectionLabel>{t('breadcrumb.fan')} · {t('breadcrumb.payments')}</SectionLabel>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('title')}</h1>
           <p className="text-sm text-muted mt-1">
-            {total} {total !== 1 ? 'payments' : 'payment'}
+            {total} {total !== 1 ? t('count.plural') : t('count.singular')}
           </p>
         </div>
         <Link href="/dashboard">
-          <Button variant="ghost" size="sm">← dashboard</Button>
+          <Button variant="ghost" size="sm">{t('nav.dashboard')}</Button>
         </Link>
       </div>
 
@@ -115,7 +114,7 @@ export default function PaymentHistoryPage() {
                   filter === tab ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
                 }`}
               >
-                {tab}
+                {t(`tabs.${tab}`)}
               </button>
             ))}
           </div>
@@ -129,20 +128,23 @@ export default function PaymentHistoryPage() {
               </div>
             </Card>
           ) : error ? (
-            <Empty icon="!" message="Couldn't load payments">
+            <Empty icon="!" message={t('error.message')}>
               <Button variant="default" size="sm" onClick={() => load(filter, page)}>
-                Retry
+                {t('error.retry')}
               </Button>
             </Empty>
           ) : payments.length === 0 ? (
-            <Empty icon="◷" message={filter === 'all' ? 'No payments yet' : `No ${filter} payments`}>
+            <Empty
+              icon="◷"
+              message={filter === 'all' ? t('empty.all') : t('empty.filtered', { filter: t(`tabs.${filter}`) })}
+            >
               {filter === 'all' ? (
                 <Link href="/search">
-                  <Button variant="default" size="sm">Find creators →</Button>
+                  <Button variant="default" size="sm">{t('empty.findCreators')}</Button>
                 </Link>
               ) : (
                 <Button variant="ghost" size="sm" onClick={() => handleFilter('all')}>
-                  Show all
+                  {t('empty.showAll')}
                 </Button>
               )}
             </Empty>
@@ -170,7 +172,7 @@ export default function PaymentHistoryPage() {
                         <div className="flex-1" />
                         <Badge tone={STATUS_TONE[p.status]}>{STATUS_LABEL[p.status]}</Badge>
                         <span className="font-mono text-sm font-medium text-fan tabular-nums shrink-0">
-                          {fmtMoney(p.gross_paid)}
+                          {fmtMoney(Number(p.gross_paid))}
                         </span>
                       </button>
 
@@ -181,14 +183,14 @@ export default function PaymentHistoryPage() {
                         <div className="flex items-center gap-2 px-5 py-2 pl-11 bg-bad-soft/40 border-t border-bad/20">
                           <span className="text-xs text-bad">
                             {p.status === 'requires_action'
-                              ? 'This charge needs confirmation before it can complete.'
-                              : 'This charge didn’t go through.'}
+                              ? t('remediation.requiresActionMessage')
+                              : t('remediation.failedMessage')}
                           </span>
                           <Link
                             href={p.status === 'requires_action' ? '/billing#authenticate' : '/billing#payment-method'}
                             className="ml-auto shrink-0 font-mono text-[11px] uppercase tracking-wide text-fan hover:opacity-80 transition-opacity"
                           >
-                            {p.status === 'requires_action' ? 'Confirm payment →' : 'Update card & retry →'}
+                            {p.status === 'requires_action' ? t('remediation.confirmPayment') : t('remediation.updateCard')}
                           </Link>
                         </div>
                       )}
@@ -198,7 +200,7 @@ export default function PaymentHistoryPage() {
                         <div className="px-5 pb-3.5 pl-11 space-y-1.5 bg-surface/40">
                           {p.items.length === 0 ? (
                             <div className="font-mono text-[11px] text-muted/60 py-1">
-                              No itemized backings for this charge.
+                              {t('items.empty')}
                             </div>
                           ) : (
                             p.items.map((it, idx) => (
@@ -211,11 +213,11 @@ export default function PaymentHistoryPage() {
                                     {it.bounty.title}
                                   </Link>
                                 ) : (
-                                  <span className="text-sm text-muted">bounty #{it.bounty_id}</span>
+                                  <span className="text-sm text-muted">{t('items.bountyRef', { id: it.bounty_id })}</span>
                                 )}
                                 <div className="flex-1 border-b border-dashed border-border/50" />
                                 <span className="font-mono text-[13px] text-muted tabular-nums shrink-0">
-                                  {fmtMoney(it.amount)}
+                                  {fmtMoney(Number(it.amount))}
                                 </span>
                               </div>
                             ))
@@ -238,7 +240,7 @@ export default function PaymentHistoryPage() {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1 || loading}
               >
-                ← prev
+                {t('pagination.prev')}
               </Button>
               <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
                 {page} / {lastPage}
@@ -249,7 +251,7 @@ export default function PaymentHistoryPage() {
                 onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
                 disabled={page === lastPage || loading}
               >
-                next →
+                {t('pagination.next')}
               </Button>
             </div>
           )}
@@ -258,10 +260,10 @@ export default function PaymentHistoryPage() {
         {/* Right: cross-links */}
         <div className="space-y-4">
           <Card>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">more</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">{t('more.label')}</div>
             <div className="space-y-2">
-              <Link href="/backings" className="ap-inline-link text-sm block">my backings →</Link>
-              <Link href="/billing" className="ap-inline-link text-sm block">billing →</Link>
+              <Link href="/backings" className="ap-inline-link text-sm block">{t('more.myBackings')}</Link>
+              <Link href="/billing" className="ap-inline-link text-sm block">{t('more.billing')}</Link>
             </div>
           </Card>
         </div>

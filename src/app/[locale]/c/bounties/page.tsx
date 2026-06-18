@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
+import { useMoney, useDateFormats } from '@/lib/format';
 import { bounties as bountiesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
@@ -19,19 +21,21 @@ import { BountyStatusBadge } from '@/components/BountyStatusBadge';
 
 type FilterStatus = BountyStatus | '';
 
-const FILTER_TABS: { label: string; value: FilterStatus }[] = [
-  { label: 'All', value: '' },
-  { label: 'Open', value: 'open' },
-  { label: 'Pending Review', value: 'pending' },
-  { label: 'Completed', value: 'completed' },
-  { label: 'Paid Out', value: 'paid_out' },
-  { label: 'Revoked', value: 'revoked' },
+// `labelKey` resolves against t('filters.<labelKey>') at render (hooks can't run here).
+const FILTER_TABS: { labelKey: string; value: FilterStatus }[] = [
+  { labelKey: 'all', value: '' },
+  { labelKey: 'open', value: 'open' },
+  { labelKey: 'pending', value: 'pending' },
+  { labelKey: 'completed', value: 'completed' },
+  { labelKey: 'paidOut', value: 'paid_out' },
+  { labelKey: 'revoked', value: 'revoked' },
 ];
 
-const COMPLETION_BADGE: Record<string, { tone: 'info' | 'good' | 'bad'; label: string }> = {
-  pending_review: { tone: 'info', label: 'Pending Review' },
-  approved: { tone: 'good', label: 'Approved' },
-  rejected: { tone: 'bad', label: 'Rejected' },
+// `labelKey` resolves against t('completionBadge.<labelKey>') at render.
+const COMPLETION_BADGE: Record<string, { tone: 'info' | 'good' | 'bad'; labelKey: string }> = {
+  pending_review: { tone: 'info', labelKey: 'pendingReview' },
+  approved: { tone: 'good', labelKey: 'approved' },
+  rejected: { tone: 'bad', labelKey: 'rejected' },
 };
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
@@ -65,11 +69,9 @@ function Skeleton() {
 
 // ── Refund-all modal ──────────────────────────────────────────────────────────
 
-function moneyFmt(n: number): string {
-  return `$${Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
 function RefundAllModal({ bounty, onClose }: { bounty: Bounty; onClose: () => void }) {
+  const t = useTranslations('CreatorBounties');
+  const money = useMoney();
   const { toast } = useToast();
   const [preview, setPreview] = useState<BountyRefundPreview | null>(null);
   const [reason, setReason] = useState('');
@@ -80,10 +82,10 @@ function RefundAllModal({ bounty, onClose }: { bounty: Bounty; onClose: () => vo
     let alive = true;
     bountiesApi.refundPreview(bounty.id)
       .then((r) => { if (alive) setPreview(r.data); })
-      .catch(() => { if (alive) toast('Could not load the refund preview.', 'error'); })
+      .catch(() => { if (alive) toast(t('refundModal.toasts.loadFailed'), 'error'); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
-  }, [bounty.id, toast]);
+  }, [bounty.id, toast, t]);
 
   const execute = async () => {
     if (!reason.trim()) return;
@@ -92,18 +94,19 @@ function RefundAllModal({ bounty, onClose }: { bounty: Bounty; onClose: () => vo
       const res = await bountiesApi.refundAll(bounty.id, reason.trim());
       const { refunded, revoked, failed } = res.data;
       const parts = [
-        refunded > 0 ? `${refunded} backer${refunded === 1 ? '' : 's'} refunded` : null,
-        revoked > 0 ? `${revoked} unbilled backing${revoked === 1 ? '' : 's'} cancelled` : null,
+        refunded > 0 ? t('refundModal.toasts.refundedPart', { count: refunded }) : null,
+        revoked > 0 ? t('refundModal.toasts.cancelledPart', { count: revoked }) : null,
       ].filter(Boolean);
+      const summary = parts.join(', ') || t('refundModal.toasts.nothingToRefund');
       toast(
         failed > 0
-          ? `${parts.join(', ')} — ${failed} failed; support has been alerted.`
-          : `${parts.join(', ') || 'Nothing to refund'}.`,
+          ? t('refundModal.toasts.partialFailure', { summary, failed })
+          : t('refundModal.toasts.success', { summary }),
         failed > 0 ? 'error' : 'success',
       );
       onClose();
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message ?? 'Refund failed. Please try again.';
+      const msg = (err as { message?: string })?.message ?? t('refundModal.toasts.refundFailed');
       toast(msg, 'error');
       setSubmitting(false);
     }
@@ -114,7 +117,7 @@ function RefundAllModal({ bounty, onClose }: { bounty: Bounty; onClose: () => vo
     && preview.unsettled_count === 0;
 
   return (
-    <Modal title="Refund all backers?" onClose={onClose}>
+    <Modal title={t('refundModal.title')} onClose={onClose}>
       {loading || !preview ? (
         <div className="space-y-3">
           {[1, 2].map((i) => <div key={i} className="h-14 bg-surface-2 animate-pulse rounded" />)}
@@ -122,19 +125,19 @@ function RefundAllModal({ bounty, onClose }: { bounty: Bounty; onClose: () => vo
       ) : nothingToDo ? (
         <div className="space-y-4">
           <p className="text-sm text-muted">
-            There&apos;s nothing left to refund on this bounty — every backing has already been
-            refunded or cancelled.
+            {t('refundModal.nothingLeft')}
           </p>
           <div className="flex justify-end">
-            <Button variant="ghost" size="sm" onClick={onClose}>Close</Button>
+            <Button variant="ghost" size="sm" onClick={onClose}>{t('refundModal.close')}</Button>
           </div>
         </div>
       ) : (
         <div className="space-y-4">
           <p className="text-sm text-muted">
-            Every backer of <span className="text-foreground">{bounty.title}</span> gets their full
-            payment back. The total comes out of your balance — refunding costs you what your
-            backers paid, including the platform fee.
+            {t.rich('refundModal.intro', {
+              title: bounty.title,
+              titled: (chunks) => <span className="text-foreground">{chunks}</span>,
+            })}
           </p>
 
           {preview.settled.length > 0 && (
@@ -142,7 +145,7 @@ function RefundAllModal({ bounty, onClose }: { bounty: Bounty; onClose: () => vo
               {preview.settled.map((s) => (
                 <div key={s.backing_id} className="flex justify-between px-4 py-2 text-sm">
                   <span className="text-muted truncate pr-3">{s.fan.display_name}</span>
-                  <span className="font-mono tabular-nums text-foreground shrink-0">{moneyFmt(s.amount)}</span>
+                  <span className="font-mono tabular-nums text-foreground shrink-0">{money(s.amount)}</span>
                 </div>
               ))}
             </div>
@@ -150,20 +153,22 @@ function RefundAllModal({ bounty, onClose }: { bounty: Bounty; onClose: () => vo
 
           {preview.unsettled_count > 0 && (
             <p className="font-mono text-[11px] text-muted">
-              + {preview.unsettled_count} backing{preview.unsettled_count === 1 ? '' : 's'} not yet
-              billed ({moneyFmt(preview.unsettled_total)}) — cancelled at no cost to you.
+              {t('refundModal.unsettled', {
+                count: preview.unsettled_count,
+                total: money(preview.unsettled_total),
+              })}
             </p>
           )}
 
           <div className="border-t border-dashed border-border pt-3 space-y-1.5">
             <div className="flex justify-between text-sm">
-              <span className="text-muted">Cost to you</span>
-              <span className="font-mono tabular-nums text-bad">−{moneyFmt(preview.total_clawback)}</span>
+              <span className="text-muted">{t('refundModal.costToYou')}</span>
+              <span className="font-mono tabular-nums text-bad">−{money(preview.total_clawback)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-muted">Your balance</span>
+              <span className="text-muted">{t('refundModal.yourBalance')}</span>
               <span className={`font-mono tabular-nums ${preview.sufficient ? 'text-foreground' : 'text-bad'}`}>
-                {moneyFmt(preview.balance)}
+                {money(preview.balance)}
               </span>
             </div>
           </div>
@@ -171,36 +176,36 @@ function RefundAllModal({ bounty, onClose }: { bounty: Bounty; onClose: () => vo
           {preview.sufficient ? (
             <>
               <div>
-                <FieldLabel>Reason (shown to your backers) *</FieldLabel>
+                <FieldLabel>{t('refundModal.reasonLabel')}</FieldLabel>
                 <Textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   rows={2}
-                  placeholder="e.g. I'm no longer able to complete this work"
+                  placeholder={t('refundModal.reasonPlaceholder')}
                 />
-                <FieldHint>Required. Sent to every backer with their refund, and to the Artypot team.</FieldHint>
+                <FieldHint>{t('refundModal.reasonHint')}</FieldHint>
               </div>
 
               <p className="font-mono text-[10px] text-muted/70 leading-relaxed">
-                Your backers keep their money — issuing the refund just can&apos;t be reversed from
-                here. You&apos;d have to set the bounty up again to collect from them.
+                {t('refundModal.irreversibleNote')}
               </p>
               <div className="flex justify-end gap-2">
-                <Button variant="ghost" size="sm" onClick={onClose} disabled={submitting}>Cancel</Button>
+                <Button variant="ghost" size="sm" onClick={onClose} disabled={submitting}>{t('refundModal.cancel')}</Button>
                 <Button variant="danger" size="sm" onClick={execute} disabled={submitting || !reason.trim()}>
-                  {submitting ? 'Refunding…' : `Refund ${moneyFmt(preview.total_refund)}`}
+                  {submitting ? t('refundModal.refunding') : t('refundModal.refundAmount', { amount: money(preview.total_refund) })}
                 </Button>
               </div>
             </>
           ) : (
             <>
               <p className="text-sm text-bad">
-                Your balance doesn&apos;t cover this refund. Contact{' '}
-                <a href="mailto:support@artypot.com" className="underline">support@artypot.com</a>{' '}
-                and we&apos;ll help sort it out.
+                {t.rich('refundModal.insufficient', {
+                  email: 'support@artypot.com',
+                  mail: (chunks) => <a href="mailto:support@artypot.com" className="underline">{chunks}</a>,
+                })}
               </p>
               <div className="flex justify-end">
-                <Button variant="ghost" size="sm" onClick={onClose}>Close</Button>
+                <Button variant="ghost" size="sm" onClick={onClose}>{t('refundModal.close')}</Button>
               </div>
             </>
           )}
@@ -220,6 +225,9 @@ interface BountyRowProps {
 }
 
 function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowProps) {
+  const t = useTranslations('CreatorBounties');
+  const money = useMoney();
+  const dateFmt = useDateFormats();
   const { toast } = useToast();
   const [url, setUrl] = useState('');
   const [notes, setNotes] = useState('');
@@ -238,16 +246,16 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!url.trim()) { setError('Please enter a URL.'); return; }
+    if (!url.trim()) { setError(t('row.form.errorNoUrl')); return; }
     setSubmitting(true);
     setError(null);
     try {
       const res = await bountiesApi.submitCompletion(bounty.id, url.trim(), notes.trim() || undefined);
       const updated: Bounty = { ...bounty, status: 'pending', completion: res.data };
       onSubmitted(updated);
-      toast('Submitted for review!', 'success');
+      toast(t('row.form.submittedToast'), 'success');
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message ?? 'Submission failed. Please try again.';
+      const msg = (err as { message?: string })?.message ?? t('row.form.submitFailed');
       setError(msg);
     } finally {
       setSubmitting(false);
@@ -261,43 +269,39 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
   if (status === 'open') {
     actionBtn = (
       <Button size="sm" onClick={() => onToggleExpand(bounty.id)}>
-        {expanded ? 'Cancel' : 'Submit →'}
+        {expanded ? t('row.actions.cancel') : t('row.actions.submit')}
       </Button>
     );
   } else if (status === 'pending' && completion?.status === 'rejected') {
     actionBtn = (
       <Button size="sm" onClick={() => onToggleExpand(bounty.id)}>
-        {expanded ? 'Cancel' : 'Resubmit →'}
+        {expanded ? t('row.actions.cancel') : t('row.actions.resubmit')}
       </Button>
     );
   } else if (status === 'completed' || status === 'paid_out') {
     // Escape valve: refund every backer (gated server-side on balance).
     actionBtn = (
       <Button size="sm" variant="ghost" onClick={() => setShowRefund(true)}>
-        Refund backers
+        {t('row.actions.refundBackers')}
       </Button>
     );
   }
 
   // Metadata line
   const metaParts: string[] = [
-    `$${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2 })} backed`,
+    t('row.meta.backed', { amount: money(Number(bounty.total_backed)) }),
   ];
   const backerCount = bounty.backings?.filter((p) => !p.revoked_at).length;
   if (backerCount !== undefined) {
-    const fanSingular = bounty.owner_user?.fan_name || 'supporter';
-    const fanPlural = bounty.owner_user?.fan_name_plural || bounty.owner_user?.fan_name || 'supporters';
+    const fanSingular = bounty.owner_user?.fan_name || t('row.meta.fanSingular');
+    const fanPlural = bounty.owner_user?.fan_name_plural || bounty.owner_user?.fan_name || t('row.meta.fanPlural');
     metaParts.push(`${backerCount} ${backerCount === 1 ? fanSingular : fanPlural}`);
   }
   if (bounty.completed_at) {
-    metaParts.push(
-      `Completed ${new Date(bounty.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
-    );
+    metaParts.push(t('row.meta.completed', { date: dateFmt.short(bounty.completed_at) }));
   }
   if (completion?.verified_at) {
-    metaParts.push(
-      `Verified ${new Date(completion.verified_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
-    );
+    metaParts.push(t('row.meta.verified', { date: dateFmt.short(completion.verified_at) }));
   }
 
   return (
@@ -339,13 +343,13 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
             </a>
             {COMPLETION_BADGE[completion.status] && (
               <Badge tone={COMPLETION_BADGE[completion.status].tone}>
-                {COMPLETION_BADGE[completion.status].label}
+                {t(`completionBadge.${COMPLETION_BADGE[completion.status].labelKey}`)}
               </Badge>
             )}
           </div>
           {completion.council_notes && (
             <div className="font-mono text-[10px] text-muted">
-              Council: &ldquo;{completion.council_notes}&rdquo;
+              {t('row.councilNote', { note: completion.council_notes })}
             </div>
           )}
         </div>
@@ -356,10 +360,10 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
         <Card className="mt-3 !bg-surface-2">
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-              submit completed work
+              {t('row.form.heading')}
             </div>
             <div>
-              <FieldLabel>Link to the work (URL)</FieldLabel>
+              <FieldLabel>{t('row.form.urlLabel')}</FieldLabel>
               <Input
                 type="url"
                 required
@@ -367,17 +371,17 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
               />
-              <FieldHint>Publicly visible</FieldHint>
+              <FieldHint>{t('row.form.publiclyVisible')}</FieldHint>
             </div>
             <div>
-              <FieldLabel>Notes (optional)</FieldLabel>
+              <FieldLabel>{t('row.form.notesLabel')}</FieldLabel>
               <Textarea
                 rows={2}
-                placeholder="Any context for the council…"
+                placeholder={t('row.form.notesPlaceholder')}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
-              <FieldHint>Publicly visible</FieldHint>
+              <FieldHint>{t('row.form.publiclyVisible')}</FieldHint>
             </div>
             {error && (
               <div className="bg-[var(--color-bad-soft)] border border-[var(--color-bad)] text-[var(--color-bad)] rounded px-3 py-2 text-xs">
@@ -391,10 +395,10 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
                 size="sm"
                 onClick={() => onToggleExpand(bounty.id)}
               >
-                Cancel
+                {t('row.form.cancel')}
               </Button>
               <Button type="submit" variant="primary" size="sm" disabled={submitting}>
-                {submitting ? 'Submitting…' : 'Submit'}
+                {submitting ? t('row.form.submitting') : t('row.form.submit')}
               </Button>
             </div>
           </form>
@@ -407,6 +411,8 @@ function BountyRow({ bounty, expanded, onToggleExpand, onSubmitted }: BountyRowP
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function CreatorBountiesPage() {
+  const t = useTranslations('CreatorBounties');
+  const money = useMoney();
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -507,37 +513,34 @@ export default function CreatorBountiesPage() {
     );
   }
 
-  const fmt$ = (n: number) =>
-    `$${n.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-
   const emptyMessage =
-    statusFilter === 'revoked' ? 'No revoked bounties' : 'No bounties yet';
+    statusFilter === 'revoked' ? t('empty.revoked') : t('empty.none');
 
   return (
     <div className="space-y-7 pt-2">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <SectionLabel>creator · bounties</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">My Bounties</h1>
+          <SectionLabel>{t('header.breadcrumbCreator')} · {t('header.breadcrumbBounties')}</SectionLabel>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('header.title')}</h1>
           <p className="text-sm text-muted mt-1">
-            {total} {total !== 1 ? 'bounties' : 'bounty'}
+            {t('header.count', { count: total })}
           </p>
         </div>
         <Link href="/bounties/new">
-          <Button variant="default" size="sm">+ New Bounty →</Button>
+          <Button variant="default" size="sm">{t('header.newBounty')}</Button>
         </Link>
       </div>
 
       {/* Stats bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCell label="open bounties" value={stats?.open ?? '—'} />
+        <StatCell label={t('stats.openBounties')} value={stats?.open ?? '—'} />
         <StatCell
-          label="total backed"
-          value={stats !== null ? fmt$(stats.backed) : '—'}
+          label={t('stats.totalBacked')}
+          value={stats !== null ? money(stats.backed) : '—'}
         />
-        <StatCell label="in review" value={stats?.inReview ?? '—'} />
-        <StatCell label="completed" value={stats?.completed ?? '—'} />
+        <StatCell label={t('stats.inReview')} value={stats?.inReview ?? '—'} />
+        <StatCell label={t('stats.completed')} value={stats?.completed ?? '—'} />
       </div>
 
       {/* Filter tabs */}
@@ -552,7 +555,7 @@ export default function CreatorBountiesPage() {
                 : 'bg-surface border-border text-muted hover:border-creator/50 hover:text-foreground'
             }`}
           >
-            {tab.label}
+            {t(`filters.${tab.labelKey}`)}
           </button>
         ))}
       </div>
@@ -564,7 +567,7 @@ export default function CreatorBountiesPage() {
         <Empty icon="◇" message={emptyMessage}>
           {statusFilter !== 'revoked' && (
             <Link href="/bounties/new">
-              <Button variant="default" size="sm">Create one →</Button>
+              <Button variant="default" size="sm">{t('empty.createOne')}</Button>
             </Link>
           )}
         </Empty>
@@ -593,7 +596,7 @@ export default function CreatorBountiesPage() {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1 || loading}
           >
-            ← prev
+            {t('pagination.prev')}
           </Button>
           <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
             {page} / {lastPage}
@@ -604,7 +607,7 @@ export default function CreatorBountiesPage() {
             onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
             disabled={page === lastPage || loading}
           >
-            next →
+            {t('pagination.next')}
           </Button>
         </div>
       )}

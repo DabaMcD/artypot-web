@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { usePathname } from '@/i18n/routing';
 import { billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { useMoney } from '@/lib/format';
 import { ConfirmPaymentModal } from './ConfirmPaymentModal';
 
 interface PendingAction {
@@ -25,6 +27,8 @@ interface PendingAction {
 export function PaymentAuthBanner() {
   const { user } = useAuth();
   const pathname = usePathname();
+  const t = useTranslations('Banners');
+  const money = useMoney();
   const [pending, setPending] = useState<PendingAction | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -62,7 +66,7 @@ export function PaymentAuthBanner() {
   if (!user || !pending?.pending) return null;
 
   const dollars = pending.amount_cents != null
-    ? (pending.amount_cents / 100).toFixed(2)
+    ? money(pending.amount_cents / 100)
     : null;
 
   return (
@@ -70,11 +74,11 @@ export function PaymentAuthBanner() {
       <div className="flex items-center gap-4 bg-bad-soft border border-bad text-foreground rounded-md px-5 py-4 mb-6">
         <span className="shrink-0 w-6 h-6 rounded-full border-2 border-bad text-bad flex items-center justify-center text-xs font-black leading-none">!</span>
         <p className="flex-1 text-sm">
-          <span className="font-semibold">Your bank needs you to confirm a charge.</span>
+          <span className="font-semibold">{t('paymentAuth.title')}</span>
           <span className="text-foreground/80">
             {dollars
-              ? <> Authorize the <strong>${dollars}</strong> pending payment to keep your backings active.</>
-              : <> Authorize the pending payment to keep your backings active.</>}
+              ? <> {t.rich('paymentAuth.bodyWithAmount', { amount: dollars, strong: (chunks) => <strong>{chunks}</strong> })}</>
+              : <> {t('paymentAuth.body')}</>}
           </span>
         </p>
         <button
@@ -82,7 +86,7 @@ export function PaymentAuthBanner() {
           onClick={() => setModalOpen(true)}
           className="shrink-0 text-sm font-semibold whitespace-nowrap hover:underline underline-offset-2 cursor-pointer"
         >
-          Complete authentication →
+          {t('paymentAuth.cta')}
         </button>
       </div>
 

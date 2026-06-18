@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { SmoothHashLink } from '@/components/SmoothHashLink';
 
 export const metadata = {
   title: 'Terms of Service',
@@ -72,7 +73,7 @@ export default function ToSPage() {
           <ol className="space-y-1.5 text-muted list-decimal list-inside">
             {TOC.map(([id, label]) => (
               <li key={id}>
-                <a href={`#${id}`} className="hover:text-foreground transition-colors">{label}</a>
+                <SmoothHashLink href={`#${id}`} className="hover:text-foreground transition-colors">{label}</SmoothHashLink>
               </li>
             ))}
           </ol>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { useNudgeContext } from '@/lib/nudge-context';
 import { useAuth } from '@/lib/auth-context';
@@ -31,6 +32,7 @@ const ICON_CLASSES: Record<string, string> = {
 export function NudgeBar() {
   const { user } = useAuth();
   const { nudge, dismiss } = useNudgeContext();
+  const t = useTranslations('Banners');
 
   if (!user || !nudge) return null;
 
@@ -51,14 +53,14 @@ export function NudgeBar() {
             href={nudge.link}
             className="text-sm font-semibold whitespace-nowrap hover:underline underline-offset-2"
           >
-            Set up now →
+            {t('nudge.setUpNow')}
           </Link>
         )}
         {nudge.dismissable && (
           <button
             type="button"
             onClick={() => dismiss(nudge.type)}
-            aria-label="Dismiss"
+            aria-label={t('nudge.dismiss')}
             className="text-foreground/40 hover:text-foreground/80 transition-colors leading-none"
           >
             ✕

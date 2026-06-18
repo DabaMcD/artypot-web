@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { SmoothHashLink } from '@/components/SmoothHashLink';
 
 export const metadata = {
   title: 'Privacy Policy',
@@ -65,7 +66,7 @@ export default function PrivacyPage() {
           <ol className="space-y-1.5 text-muted list-decimal list-inside">
             {toc.map(([id, label]) => (
               <li key={id}>
-                <a href={`#${id}`} className="hover:text-foreground transition-colors">{label}</a>
+                <SmoothHashLink href={`#${id}`} className="hover:text-foreground transition-colors">{label}</SmoothHashLink>
               </li>
             ))}
           </ol>

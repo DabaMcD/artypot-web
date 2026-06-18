@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, Suspense } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import { useAuth } from '@/lib/auth-context';
 import { countryName } from '@/lib/countries';
@@ -8,6 +9,7 @@ import { Card, SectionLabel } from '@/components/ui/Card';
 import TaxComplianceCard from '@/components/creator/TaxComplianceCard';
 
 function TaxContent() {
+  const t = useTranslations('CreatorTax');
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -26,11 +28,10 @@ function TaxContent() {
   return (
     <div className="space-y-7 pt-2">
       <div>
-        <SectionLabel>creator · money</SectionLabel>
-        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">tax &amp; compliance</h1>
+        <SectionLabel>{t('breadcrumb.creator')} · {t('breadcrumb.money')}</SectionLabel>
+        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('heading')}</h1>
         <p className="text-sm text-muted mt-1">
-          Your tax forms and reporting status. Artypot uses TaxBandits for secure
-          submission — we never see your SSN or personal tax details.
+          {t('intro')}
         </p>
       </div>
 
@@ -45,24 +46,23 @@ function TaxContent() {
           {/* Compact mirror of the real editor on /c/settings#location — shows
               the declared residence and links out; it does not edit here. */}
           <Card>
-            <SectionLabel className="mb-3">tax residence</SectionLabel>
+            <SectionLabel className="mb-3">{t('residence.label')}</SectionLabel>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted">declared</span>
+              <span className="text-muted">{t('residence.declared')}</span>
               <span className={residence ? 'text-foreground' : 'text-warn'}>
-                {residence ?? 'not set'}
+                {residence ?? t('residence.notSet')}
               </span>
             </div>
             <p className="text-xs text-muted leading-relaxed mt-2">
-              Sets whether a W-9 (US) or W-8BEN (international) applies.{' '}
-              <Link href="/c/settings#location" className="ap-inline-link">Update tax residence →</Link>
+              {t('residence.formNote')}{' '}
+              <Link href="/c/settings#location" className="ap-inline-link">{t('residence.updateLink')}</Link>
             </p>
           </Card>
 
           <Card dashed>
-            <SectionLabel className="mb-2">tax documents</SectionLabel>
+            <SectionLabel className="mb-2">{t('documents.label')}</SectionLabel>
             <p className="text-xs text-muted leading-relaxed">
-              Your annual tax forms — {isUS ? '1099-K' : '1042-S'} — will appear here
-              once the tax year closes and your earnings reach the reporting threshold.
+              {t('documents.pending', { form: isUS ? '1099-K' : '1042-S' })}
             </p>
           </Card>
         </div>

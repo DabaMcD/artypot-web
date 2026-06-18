@@ -1,20 +1,10 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { useAuth } from '@/lib/auth-context';
+import { useDateFormats } from '@/lib/format';
 import { BILLING_GRACE_PERIOD_DAYS } from '@/lib/config';
-
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  } catch {
-    return iso;
-  }
-}
 
 /**
  * Shown when the authenticated user's last billing charge failed and they are
@@ -24,6 +14,8 @@ function formatDate(iso: string): string {
  */
 export function PaymentGraceBanner() {
   const { user } = useAuth();
+  const t = useTranslations('Banners');
+  const { short: formatDate } = useDateFormats();
   if (!user || !user.payment_failed_at) return null;
 
   // Prefer backend-provided expiry; otherwise compute from payment_failed_at + grace days.
@@ -44,15 +36,15 @@ export function PaymentGraceBanner() {
     <div className="flex items-center gap-4 bg-bad-soft border border-bad text-foreground rounded-md px-5 py-4 mb-6">
       <span className="shrink-0 w-6 h-6 rounded-full border-2 border-bad text-bad flex items-center justify-center text-xs font-black leading-none">!</span>
       <p className="flex-1 text-sm">
-        <span className="font-semibold">Your last payment didn&apos;t go through.</span>
-        <span className="text-foreground/80"> Add or update your card by {dateLabel}.</span>
+        <span className="font-semibold">{t('paymentGrace.title')}</span>
+        <span className="text-foreground/80"> {t('paymentGrace.body', { date: dateLabel })}</span>
       </p>
       <div className="shrink-0">
         <Link
           href="/billing"
           className="text-sm font-semibold whitespace-nowrap hover:underline underline-offset-2"
         >
-          Update card →
+          {t('paymentGrace.cta')}
         </Link>
       </div>
     </div>

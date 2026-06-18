@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname, Link } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 import { ReactNode, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
@@ -127,6 +128,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
+  const th = useTranslations('PublicHeader');
   const { user, loading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -247,7 +249,7 @@ export function AppShell({ children }: AppShellProps) {
           {/* Desktop (≥sm): fixed-width search bar always visible (suppressed on landing) */}
           {!isLanding && (
           <div className="hidden sm:block w-64 lg:w-[340px] xl:w-[420px] shrink-0">
-            <HeaderSearch placeholder="find a creator, bounty, or handle…" />
+            <HeaderSearch placeholder={th("searchLong")} />
           </div>
           )}
 

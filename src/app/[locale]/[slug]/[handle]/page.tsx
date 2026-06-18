@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState, use, useCallback, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { creators as creatorsApi, handles as handlesApi } from '@/lib/api';
+import { useMoney } from '@/lib/format';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
@@ -55,6 +57,7 @@ type ResolveResult =
 // ── Mini bounty card (simplified — handle bounties aren't full Bounty objects) ──
 
 function HandleBountyCard({ bounty }: { bounty: SimpleBounty }) {
+  const money = useMoney();
   return (
     <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-fan/50 transition-colors group">
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -74,7 +77,7 @@ function HandleBountyCard({ bounty }: { bounty: SimpleBounty }) {
       </div>
       <div className="pt-3 border-t border-border">
         <div className="text-fan font-bold text-lg">
-          ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {money(Number(bounty.total_backed))}
         </div>
       </div>
     </div>
@@ -85,6 +88,7 @@ function HandleBountyCard({ bounty }: { bounty: SimpleBounty }) {
 export default function PlatformHandlePage({ params }: { params: Promise<{ slug: string; handle: string }> }) {
   const { slug: platform, handle } = use(params);
   const router = useRouter();
+  const t = useTranslations('PublicProfile');
   const { user } = useAuth();
   const { toast } = useToast();
   const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
@@ -110,17 +114,17 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
     try {
       const platformKey = platform.toLowerCase() as HandlePlatform;
       await handlesApi.store(platformKey, state.handle.username);
-      toast('Handle claimed — verify it below to confirm ownership.', 'success');
+      toast(t('claim.successToast'), 'success');
       const dest = user.role === 'creator' || user.role === 'council'
         ? '/c/handles'
         : '/become-creator';
       router.push(dest);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Could not claim this handle. Please try again.', 'error');
+      toast(e.message ?? t('claim.errorToast'), 'error');
       setClaiming(false);
     }
-  }, [state, user, router, platform, handle, toast]);
+  }, [state, user, router, platform, handle, toast, t]);
 
   // Resume a claim that was interrupted by the login round-trip: a logged-out
   // visitor who clicked "Claim this handle" lands back here as ?claim=1 once
@@ -187,15 +191,15 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
     return (
       <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
         <div>
-          <SectionLabel>platform handle</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">page not found</h1>
+          <SectionLabel>{t('handleNotFound.label')}</SectionLabel>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('handleNotFound.heading')}</h1>
           <p className="text-sm text-muted mt-2">
-            We don&apos;t recognize this URL. Browse creators or head home.
+            {t('handleNotFound.body')}
           </p>
         </div>
         <div className="flex gap-3">
-          <Link href="/search"><Button variant="primary">Explore Creators</Button></Link>
-          <Link href="/"><Button variant="ghost">← Home</Button></Link>
+          <Link href="/search"><Button variant="primary">{t('notFound.exploreCreators')}</Button></Link>
+          <Link href="/"><Button variant="ghost">{t('notFound.home')}</Button></Link>
         </div>
       </div>
     );
@@ -206,7 +210,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
     return (
       <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
         <p className="text-sm text-bad">
-          something went wrong looking that up. try again in a moment.
+          {t('error.lookup')}
         </p>
       </div>
     );
@@ -220,8 +224,8 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   const fullHandle = `${prefix}${state.handle.username}`;
 
   const shareText = claimedOwner
-    ? `${fullHandle} on ${platformLabel} — ${claimedOwner.display_name} is on Artypot. Back a bounty for them!`
-    : `${fullHandle} on ${platformLabel} — fans are queueing bounties for them on Artypot. Help get their attention!`;
+    ? t('share.claimedText', { handle: fullHandle, platform: platformLabel, name: claimedOwner.display_name })
+    : t('share.unverifiedText', { handle: fullHandle, platform: platformLabel });
 
   return (
     <div className="max-w-6xl mx-auto px-7 py-10">
@@ -255,9 +259,9 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
                 <div className="flex items-center gap-3 flex-wrap mb-1">
                   <h1 className="text-2xl font-display font-bold text-foreground break-all">{fullHandle}</h1>
                   {claimedOwner ? (
-                    <Badge tone="good" lg>Verified</Badge>
+                    <Badge tone="good" lg>{t('badge.verified')}</Badge>
                   ) : (
-                    <Badge tone="default" lg>Unverified</Badge>
+                    <Badge tone="default" lg>{t('badge.unverified')}</Badge>
                   )}
                 </div>
                 <p className="text-sm text-muted mb-3">
@@ -267,25 +271,29 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
                   // Verified owner, no creator page yet. No claim CTA here — the
                   // handle is taken, so claiming could only ever 422.
                   <p className="text-muted text-sm leading-relaxed">
-                    <span className="text-foreground font-medium">{claimedOwner.display_name}</span> has verified this
-                    handle — their full creator page is coming soon. Bounties here already count toward them.
+                    {t.rich('claimed.verifiedBlurb', {
+                      name: claimedOwner.display_name,
+                      strong: (chunks) => <span className="text-foreground font-medium">{chunks}</span>,
+                    })}
                   </p>
                 ) : (
                   <>
                     <p className="text-muted text-sm leading-relaxed">
-                      <span className="font-mono text-creator">{fullHandle}</span>{' '}doesn&apos;t appear to have joined Artypot yet.
-                      Tag them on social media to let them know there are fans queueing bounties.
+                      {t.rich('unverified.blurb', {
+                        handle: fullHandle,
+                        mono: (chunks) => <span className="font-mono text-creator">{chunks}</span>,
+                      })}
                     </p>
 
                     {/* "Is this you?" — self-claim CTA for the handle's real owner */}
                     <div className="mt-4 flex items-center gap-3 flex-wrap">
                       <Button variant="primary" size="sm" onClick={handleClaim} disabled={claiming}>
-                        {claiming ? 'Claiming…' : 'Is this you? Claim this handle →'}
+                        {claiming ? t('claim.claiming') : t('claim.cta')}
                       </Button>
                       <span className="text-xs text-muted">
                         {user
-                          ? 'We’ll add it to your account and help you verify it.'
-                          : 'Sign in to claim it as your own.'}
+                          ? t('claim.helperLoggedIn')
+                          : t('claim.helperLoggedOut')}
                       </span>
                     </div>
                   </>
@@ -307,31 +315,31 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
           <div>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-xl font-bold text-foreground">
-                Bounties for {fullHandle}
+                {t('bounties.heading', { name: fullHandle })}
               </h2>
               {user && (
                 <Link
                   href={`/bounties/new?platform=${encodeURIComponent(platform)}&handle=${encodeURIComponent(state.handle.username)}`}
                   className="text-sm bg-fan text-black font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                 >
-                  + New Bounty
+                  {t('bounties.newBounty')}
                 </Link>
               )}
             </div>
 
             {state.bounties.length === 0 ? (
               <div className="text-center py-16 text-muted border border-border border-dashed rounded-xl">
-                No bounties queued for this handle yet.{' '}
+                {t('bounties.emptyHandle')}{' '}
                 {user ? (
                   <Link
                     href={`/bounties/new?platform=${encodeURIComponent(platform)}&handle=${encodeURIComponent(state.handle.username)}`}
                     className="text-fan hover:underline"
                   >
-                    Create the first one
+                    {t('bounties.createFirst')}
                   </Link>
                 ) : (
                   <Link href={`/login?next=${encodeURIComponent(`/${platform}/${handle}`)}`} className="text-fan hover:underline">
-                    Sign in to start one
+                    {t('bounties.signInToStart')}
                   </Link>
                 )}
               </div>
@@ -349,17 +357,20 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
         <div className="w-full lg:w-72 shrink-0">
           <div className="bg-surface border border-border rounded-xl p-4">
             <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">
-              Spread the word
+              {t('spreadWord.title')}
             </h3>
             <p className="text-xs text-muted leading-relaxed mb-4">
               {claimedOwner ? (
-                <>
-                  <span className="font-mono text-creator">{fullHandle}</span> is on Artypot — share this page to rally more backers behind their bounties.
-                </>
+                t.rich('spreadWord.claimedBody', {
+                  handle: fullHandle,
+                  mono: (chunks) => <span className="font-mono text-creator">{chunks}</span>,
+                })
               ) : (
-                <>
-                  Help <span className="font-mono text-creator">{fullHandle}</span> discover their fans on Artypot. Share their page and tag them on {platformLabel}.
-                </>
+                t.rich('spreadWord.unverifiedBody', {
+                  handle: fullHandle,
+                  platform: platformLabel,
+                  mono: (chunks) => <span className="font-mono text-creator">{chunks}</span>,
+                })
               )}
             </p>
             <div className="flex justify-end">
@@ -368,7 +379,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
                 title={fullHandle}
                 text={shareText}
                 size="md"
-                label="Share & Tag"
+                label={t('spreadWord.shareLabel')}
               />
             </div>
           </div>

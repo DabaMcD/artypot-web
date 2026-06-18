@@ -1,16 +1,16 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import type { CSSProperties } from 'react';
 import type { Creator } from '@/lib/types';
 import { Badge } from '@/components/ui/Badge';
 import { trackSpotlight } from '@/lib/spotlight';
-
-function fmtMoney(n: number): string {
-  return `$${n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-}
+import { useMoney } from '@/lib/format';
 
 export default function CreatorCard({ creator }: { creator: Creator }) {
+  const t = useTranslations('Components');
+  const money = useMoney();
   const hasStats =
     creator.supporter_count != null ||
     creator.projects_finished != null ||
@@ -22,8 +22,8 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
   // too long for the column, with the full term in the title tooltip.
   const supporterLabel =
     creator.supporter_count === 1
-      ? creator.fan_name || 'backer'
-      : creator.fan_name_plural || creator.fan_name || 'backers';
+      ? creator.fan_name || t('creatorCard.backer')
+      : creator.fan_name_plural || creator.fan_name || t('creatorCard.backers');
 
   return (
     <div
@@ -69,7 +69,7 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
             </Link>
           </div>
           <div className="mt-1 flex items-center gap-2 min-w-0">
-            <Badge tone="creator">Creator</Badge>
+            <Badge tone="creator">{t('creatorCard.creatorBadge')}</Badge>
             {creator.slug && (
               <span className="font-mono text-[11px] text-muted/70 truncate">/{creator.slug}</span>
             )}
@@ -82,7 +82,7 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
       ) : (
         // Keeps cards in a grid row at equal visual weight when a creator
         // hasn't written a description yet.
-        <p className="text-sm text-muted/40 italic mb-3">No description yet.</p>
+        <p className="text-sm text-muted/40 italic mb-3">{t('creatorCard.noDescription')}</p>
       )}
 
       {hasStats && (
@@ -94,19 +94,19 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
           <CardStat
             value={
               creator.total_backing_sum != null && Number(creator.total_backing_sum) > 0
-                ? fmtMoney(Number(creator.total_backing_sum))
+                ? money(Number(creator.total_backing_sum))
                 : '—'
             }
-            label="backed"
+            label={t('creatorCard.statBacked')}
             accent
           />
           <CardStat
             value={creator.projects_open != null ? String(creator.projects_open) : '—'}
-            label="open"
+            label={t('creatorCard.statOpen')}
           />
           <CardStat
             value={creator.projects_finished != null ? String(creator.projects_finished) : '—'}
-            label="completed"
+            label={t('creatorCard.statCompleted')}
           />
         </div>
       )}

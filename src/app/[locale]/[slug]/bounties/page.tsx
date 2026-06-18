@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, use, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { creators as creatorsApi, bounties as bountiesApi } from '@/lib/api';
 import type { Bounty, BountyStatus, Creator, PaginatedResponse } from '@/lib/types';
@@ -10,17 +11,18 @@ import { Button } from '@/components/ui/Button';
 
 type FilterStatus = BountyStatus | '';
 
-const FILTER_TABS: { label: string; value: FilterStatus }[] = [
-  { label: 'All', value: '' },
-  { label: 'Open', value: 'open' },
-  { label: 'Pending', value: 'pending' },
-  { label: 'Completed', value: 'completed' },
-  { label: 'Paid Out', value: 'paid_out' },
+const FILTER_TABS: { labelKey: string; value: FilterStatus }[] = [
+  { labelKey: 'filters.all', value: '' },
+  { labelKey: 'filters.open', value: 'open' },
+  { labelKey: 'filters.pending', value: 'pending' },
+  { labelKey: 'filters.completed', value: 'completed' },
+  { labelKey: 'filters.paidOut', value: 'paid_out' },
 ];
 
 export default function CreatorBountiesPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const router = useRouter();
+  const t = useTranslations('PublicProfile');
 
   const [creator, setCreator] = useState<Creator | null>(null);
   const [bountiesData, setBountiesData] = useState<PaginatedResponse<Bounty> | null>(null);
@@ -110,13 +112,13 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
     return (
       <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
         <div>
-          <SectionLabel>not found</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">creator not found</h1>
+          <SectionLabel>{t('notFound.label')}</SectionLabel>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('notFound.creatorHeading')}</h1>
         </div>
         <p className="text-sm text-muted">
-          We couldn&apos;t find a creator with that handle.
+          {t('notFound.creatorBody')}
         </p>
-        <Link href="/" className="text-fan hover:underline text-sm">← back to home</Link>
+        <Link href="/" className="text-fan hover:underline text-sm">{t('notFound.backHome')}</Link>
       </div>
     );
   }
@@ -124,22 +126,23 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
   if (pageState === 'error' || !creator) {
     return (
       <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
-        <h1 className="font-display font-bold text-[28px] text-foreground">Something went wrong</h1>
-        <p className="text-sm text-muted">Couldn&apos;t load this creator&apos;s bounties.</p>
+        <h1 className="font-display font-bold text-[28px] text-foreground">{t('error.heading')}</h1>
+        <p className="text-sm text-muted">{t('error.bountiesBody')}</p>
       </div>
     );
   }
 
   const bounties = bountiesData?.data ?? [];
   const lastPage = bountiesData?.last_page ?? 1;
-  const emptyMessage = statusFilter
-    ? `No ${FILTER_TABS.find((t) => t.value === statusFilter)?.label.toLowerCase()} bounties.`
-    : 'No bounties yet for this creator.';
+  const activeFilterKey = FILTER_TABS.find((tab) => tab.value === statusFilter)?.labelKey;
+  const emptyMessage = statusFilter && activeFilterKey
+    ? t('list.emptyFiltered', { filter: t(activeFilterKey).toLowerCase() })
+    : t('list.emptyAll');
 
   return (
     <div className="max-w-6xl mx-auto px-7 py-10 space-y-7">
       <div>
-        <h1 className="font-display font-bold text-[28px] text-foreground">bounties</h1>
+        <h1 className="font-display font-bold text-[28px] text-foreground">{t('list.heading')}</h1>
         <Link
           href={`/${creator.slug ?? slug}`}
           className="text-sm font-mono text-muted hover:text-foreground cursor-pointer transition-colors mt-1 block"
@@ -160,7 +163,7 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
                 : 'bg-surface border-border text-muted hover:border-creator/50 hover:text-foreground'
             }`}
           >
-            {tab.label}
+            {t(tab.labelKey)}
           </button>
         ))}
       </div>
@@ -193,7 +196,7 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1 || listLoading}
           >
-            ← prev
+            {t('pagination.prev')}
           </Button>
           <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
             {page} / {lastPage}
@@ -204,7 +207,7 @@ export default function CreatorBountiesPage({ params }: { params: Promise<{ slug
             onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
             disabled={page === lastPage || listLoading}
           >
-            next →
+            {t('pagination.next')}
           </Button>
         </div>
       )}

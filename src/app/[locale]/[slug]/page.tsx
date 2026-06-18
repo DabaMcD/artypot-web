@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { creators as creatorsApi, bounties as bountiesApi, following as followingApi } from '@/lib/api';
+import { useMoney } from '@/lib/format';
 import { useToast } from '@/lib/toast-context';
 import { countryFlag, countryName } from '@/lib/countries';
 import { useAuth } from '@/lib/auth-context';
@@ -30,6 +32,8 @@ const SOCIAL_LINKS: { key: keyof Creator; label: string; prefix: string }[] = [
 export default function CreatorSlugPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const router = useRouter();
+  const t = useTranslations('PublicProfile');
+  const money = useMoney();
   const { user } = useAuth();
   const { toast } = useToast();
   const { mode } = useViewMode();
@@ -100,14 +104,14 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
       if (isFollowing) {
         await followingApi.unfollow('user', creator.id);
         setIsFollowing(false);
-        toast('Unfollowed.', 'success');
+        toast(t('follow.unfollowedToast'), 'success');
       } else {
         await followingApi.follow('user', creator.id);
         setIsFollowing(true);
-        toast('Following!', 'success');
+        toast(t('follow.followingToast'), 'success');
       }
     } catch {
-      toast('Failed to update follow status.', 'error');
+      toast(t('follow.errorToast'), 'error');
     } finally {
       setFollowLoading(false);
     }
@@ -132,15 +136,15 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
     return (
       <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
         <div>
-          <SectionLabel>creator</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">no creator at /{slug}</h1>
+          <SectionLabel>{t('notFound.label')}</SectionLabel>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('notFound.slugHeading', { slug })}</h1>
           <p className="text-sm text-muted mt-2">
-            This slug isn&apos;t taken yet. Browse other creators or head home.
+            {t('notFound.slugBody')}
           </p>
         </div>
         <div className="flex gap-3">
-          <Link href="/search"><Button variant="primary">Explore Creators</Button></Link>
-          <Link href="/"><Button variant="ghost">← Home</Button></Link>
+          <Link href="/search"><Button variant="primary">{t('notFound.exploreCreators')}</Button></Link>
+          <Link href="/"><Button variant="ghost">{t('notFound.home')}</Button></Link>
         </div>
       </div>
     );
@@ -151,7 +155,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
     return (
       <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
         <p className="text-sm text-bad">
-          something went wrong looking that up. try again in a moment.
+          {t('error.lookup')}
         </p>
       </div>
     );
@@ -194,19 +198,19 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                     <ShareButton
                       path={`/${slug}`}
                       title={creator.display_name}
-                      text={`Support ${creator.display_name} on Artypot!`}
+                      text={t('share.creatorText', { name: creator.display_name })}
                       size="sm"
                     />
-                    <Badge tone="creator" lg>Creator</Badge>
+                    <Badge tone="creator" lg>{t('badge.creator')}</Badge>
                   </div>
 
                   <p className="text-sm text-muted mb-2">
-                    Supported by{' '}
+                    {t('stats.supportedBy')}{' '}
                     <span className="text-foreground">{(creator.supporter_count ?? 0).toLocaleString()}</span>{' '}
                     <span className="text-foreground">
                       {creator.supporter_count === 1
-                        ? (creator.fan_name ?? 'fan')
-                        : (creator.fan_name_plural ?? creator.fan_name ?? 'fans')}
+                        ? (creator.fan_name ?? t('stats.fan'))
+                        : (creator.fan_name_plural ?? creator.fan_name ?? t('stats.fans'))}
                     </span>
                   </p>
 
@@ -230,7 +234,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                         href="/c/settings"
                         className="bg-creator text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                       >
-                        Edit Profile
+                        {t('actions.editProfile')}
                       </Link>
                     )}
                   </div>
@@ -245,7 +249,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                       onClick={handleFollowToggle}
                       disabled={followLoading}
                     >
-                      {followLoading ? '…' : isFollowing ? 'Unfollow' : 'Follow'}
+                      {followLoading ? '…' : isFollowing ? t('follow.unfollow') : t('follow.follow')}
                     </Button>
                   </div>
                 )}
@@ -256,29 +260,29 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                 {creator.projects_open != null && (
                   <div>
                     <div className="text-foreground font-semibold text-lg">{creator.projects_open}</div>
-                    <div className="text-muted text-xs">Open bounties</div>
+                    <div className="text-muted text-xs">{t('stats.openBounties')}</div>
                   </div>
                 )}
                 {creator.projects_finished != null && (
                   <div>
                     <div className="text-foreground font-semibold text-lg">{creator.projects_finished}</div>
-                    <div className="text-muted text-xs">Completed</div>
+                    <div className="text-muted text-xs">{t('stats.completed')}</div>
                   </div>
                 )}
                 {creator.amount_earned != null && (
                   <div>
                     <div className="text-fan font-semibold text-lg">
-                      ${Number(creator.amount_earned).toLocaleString()}
+                      {money(Number(creator.amount_earned))}
                     </div>
-                    <div className="text-muted text-xs">Total earned</div>
+                    <div className="text-muted text-xs">{t('stats.totalEarned')}</div>
                   </div>
                 )}
                 {creator.total_backing_sum != null && (
                   <div>
                     <div className="text-fan font-semibold text-lg">
-                      ${Number(creator.total_backing_sum).toLocaleString()}
+                      {money(Number(creator.total_backing_sum))}
                     </div>
-                    <div className="text-muted text-xs">Active backing</div>
+                    <div className="text-muted text-xs">{t('stats.activeBacking')}</div>
                   </div>
                 )}
               </div>
@@ -309,10 +313,10 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
             {creator.creator_market_open === false && (
               <Banner tone="warn">
                 <div>
-                  <strong className="text-foreground">Bounties for {creator.display_name} are on hold.</strong>{' '}
-                  Artypot hasn&apos;t launched creator support in their country yet, so bounties can&apos;t be
-                  completed or paid out for now. You can still follow along — we&apos;ll get going here as soon
-                  as we expand.
+                  {t.rich('marketClosed.body', {
+                    name: creator.display_name,
+                    strong: (chunks) => <strong className="text-foreground">{chunks}</strong>,
+                  })}
                 </div>
               </Banner>
             )}
@@ -320,23 +324,23 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
             {/* Bounties */}
             <div>
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-xl font-bold text-foreground">Bounties for {creator.display_name}</h2>
+                <h2 className="text-xl font-bold text-foreground">{t('bounties.heading', { name: creator.display_name })}</h2>
                 {user && (
                   <Link
                     href={`/bounties/new?creator_id=${creator.id}`}
                     className="text-sm bg-fan text-black font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
                   >
-                    + New Bounty
+                    {t('bounties.newBounty')}
                   </Link>
                 )}
               </div>
 
               {!bountiesData || bountiesData.data.length === 0 ? (
                 <div className="text-center py-16 text-muted border border-border border-dashed rounded-xl">
-                  No bounties yet for this creator.{' '}
+                  {t('bounties.emptyCreator')}{' '}
                   {user && (
                     <Link href={`/bounties/new?creator_id=${creator.id}`} className="text-fan hover:underline">
-                      Create the first one
+                      {t('bounties.createFirst')}
                     </Link>
                   )}
                 </div>
@@ -353,7 +357,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                         href={`/${creator.slug ?? slug}/bounties`}
                         className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors"
                       >
-                        see all →
+                        {t('bounties.seeAll')}
                       </Link>
                     </div>
                   )}

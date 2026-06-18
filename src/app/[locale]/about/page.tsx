@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { SmoothHashLink } from '@/components/SmoothHashLink';
 import type { CSSProperties } from 'react';
 import FeaturedBountiesSection from '@/components/FeaturedBountiesSection';
 import SpotCard from '@/components/about/SpotCard';
@@ -124,9 +125,9 @@ export default function AboutPage() {
                 <Link href="/bounties" className={pressBtn}>{t('hero.browseBounties')}</Link>
                 <Link href="/search" className={pressBtnSecondary}>{t('hero.exploreCreators')}</Link>
               </div>
-              <a href="#how-it-works" className="text-sm text-muted hover:text-foreground transition-colors">
+              <SmoothHashLink href="#how-it-works" className="text-sm text-muted hover:text-foreground transition-colors">
                 {t('hero.notSure')}
-              </a>
+              </SmoothHashLink>
             </div>
 
             {/* The product object, shown instead of described. */}

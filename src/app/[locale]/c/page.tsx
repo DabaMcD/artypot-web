@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import { useAuth } from '@/lib/auth-context';
+import { useMoney } from '@/lib/format';
 import { w9 as w9Api, w8ben as w8benApi } from '@/lib/api';
 import type { FormW9StatusResponse, FormW8BENStatusResponse } from '@/lib/types';
 import { BILLING_DAY } from '@/lib/config';
@@ -18,6 +20,8 @@ import PayoutReadinessChecklist from '@/components/PayoutReadinessChecklist';
 function CreatorDashboardContent() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const t = useTranslations('CreatorDash');
+  const money = useMoney();
   const p = useCreatorPayouts('/c');
 
   const [w9Status, setW9Status] = useState<FormW9StatusResponse | null>(null);
@@ -60,9 +64,7 @@ function CreatorDashboardContent() {
   const paidOut              = balance?.paid_out ?? 0;
   const recentTransactions   = balance?.available?.data?.slice(0, 5) ?? [];
 
-  const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-
-  const needsW9    = isUS && !!(w9Status?.requires_w9 && !w9Status?.record?.tin_matched);
+  const needsW9   = isUS && !!(w9Status?.requires_w9 && !w9Status?.record?.tin_matched);
   const needsW8BEN = !isUS && !!(w8benStatus?.requires_w8ben && !w8benStatus?.record?.qualifies);
   const taxFormRequired = needsW9 || needsW8BEN;
   const taxFormDone     = isUS ? !!w9Status?.record?.tin_matched : !!w8benStatus?.record?.qualifies;
@@ -72,11 +74,11 @@ function CreatorDashboardContent() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <SectionLabel>creator · dashboard</SectionLabel>
+          <SectionLabel>{t('header.breadcrumb.creator')} · {t('header.breadcrumb.dashboard')}</SectionLabel>
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{creator.display_name}</h1>
         </div>
         <Link href={`/${user.slug}`}>
-          <Button variant="default" size="sm">Public Profile →</Button>
+          <Button variant="default" size="sm">{t('header.publicProfile')}</Button>
         </Link>
       </div>
 
@@ -84,12 +86,12 @@ function CreatorDashboardContent() {
       {payoutHold && (
         <Banner tone="bad" action={
           <Link href="/c/payouts#payout-hold">
-            <Button variant="primary" size="sm">Complete verification →</Button>
+            <Button variant="primary" size="sm">{t('payoutHold.action')}</Button>
           </Link>
         }>
           <div>
-            <strong>Your payouts are currently on hold.</strong>
-            {' '}Stripe needs additional verification before funds can be released.
+            <strong>{t('payoutHold.title')}</strong>
+            {' '}{t('payoutHold.body')}
           </div>
         </Banner>
       )}
@@ -101,10 +103,10 @@ function CreatorDashboardContent() {
 
       {/* Balance pipeline */}
       <div>
-        <SectionLabel className="mb-3">earnings pipeline</SectionLabel>
+        <SectionLabel className="mb-3">{t('pipeline.label')}</SectionLabel>
         <BalancePipeline balances={{ pending: pendingPayment, solidPending: solidPendingPayment, clearing, available: availableBalance }} />
         <p className="text-xs text-muted mt-2">
-          Contributions flow left &rarr; right. Council approval moves funds to pending. Payment from fans on the {BILLING_DAY}th moves them into clearing. 7 days later they&apos;re available.
+          {t('pipeline.explainer', { billingDay: BILLING_DAY })}
         </p>
       </div>
 
@@ -115,26 +117,26 @@ function CreatorDashboardContent() {
           {/* Open backing + paid out stats */}
           <div className="grid grid-cols-2 gap-4">
             <Card>
-              <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">open backing</div>
-              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{fmt(solidOpenBackings)}</div>
-              <div className="font-mono text-[10px] text-muted mt-0.5">solid backings (active payment method)</div>
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">{t('stats.openBacking.label')}</div>
+              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{money(solidOpenBackings)}</div>
+              <div className="font-mono text-[10px] text-muted mt-0.5">{t('stats.openBacking.solidSub')}</div>
               {softOpenBackings > 0.005 && (
-                <div className="font-mono text-[10px] text-muted mt-0.5">+ {fmt(softOpenBackings)} soft (no payment method)</div>
+                <div className="font-mono text-[10px] text-muted mt-0.5">{t('stats.openBacking.softSub', { amount: money(softOpenBackings) })}</div>
               )}
             </Card>
             <Card>
-              <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">lifetime paid out</div>
-              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{fmt(paidOut)}</div>
-              <div className="font-mono text-[10px] text-muted mt-0.5">total withdrawn to bank</div>
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">{t('stats.paidOut.label')}</div>
+              <div className="font-mono text-[24px] font-medium tabular-nums text-foreground">{money(paidOut)}</div>
+              <div className="font-mono text-[10px] text-muted mt-0.5">{t('stats.paidOut.sub')}</div>
             </Card>
           </div>
 
           {/* Recent transactions */}
           <Card>
             <div className="flex items-center justify-between mb-4">
-              <SectionLabel>recent transactions</SectionLabel>
+              <SectionLabel>{t('transactions.label')}</SectionLabel>
               <Link href="/c/money" className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors">
-                full ledger →
+                {t('transactions.fullLedger')}
               </Link>
             </div>
             {balanceLoading ? (
@@ -142,7 +144,7 @@ function CreatorDashboardContent() {
                 {[1,2,3].map(i => <div key={i} className="h-5 bg-surface-2 animate-pulse rounded" />)}
               </div>
             ) : recentTransactions.length === 0 ? (
-              <p className="text-sm text-muted">no transactions yet.</p>
+              <p className="text-sm text-muted">{t('transactions.empty')}</p>
             ) : (
               <div className="divide-y divide-border -mx-5 -my-4">
                 {recentTransactions.map((entry) => {
@@ -163,7 +165,7 @@ function CreatorDashboardContent() {
                   } else if (entry.creator_withdrawal_id && amt < 0) {
                     methodBadge = { label: 'stripe', tone: 'info' };
                   } else if (entry.fan_payment_id && amt > 0) {
-                    methodBadge = { label: 'earning', tone: 'creator' };
+                    methodBadge = { label: t('transactions.earningBadge'), tone: 'creator' };
                   }
                   return (
                     <div key={entry.id} className="flex items-center justify-between px-5 py-3 gap-3">
@@ -172,7 +174,7 @@ function CreatorDashboardContent() {
                         {methodBadge && <Badge tone={methodBadge.tone}>{methodBadge.label}</Badge>}
                       </span>
                       <span className={`font-mono text-sm font-medium shrink-0 ${amt < 0 ? 'text-bad' : 'text-creator'}`}>
-                        {amt < 0 ? '-' : '+'}${Math.abs(amt).toFixed(2)}
+                        {amt < 0 ? '-' : '+'}{money(Math.abs(amt))}
                       </span>
                     </div>
                   );
@@ -189,17 +191,17 @@ function CreatorDashboardContent() {
 
           {/* First payout checklist — the single payout-readiness surface */}
           <Card>
-            <SectionLabel className="mb-3">first payout</SectionLabel>
+            <SectionLabel className="mb-3">{t('firstPayout.label')}</SectionLabel>
             <PayoutReadinessChecklist taxFormRequired={taxFormRequired} taxFormDone={taxFormDone} />
           </Card>
 
           {/* Quick links */}
           <Card dashed>
             <Link href="/bounties/new" className="block text-sm text-foreground hover:text-fan transition-colors mb-2">
-              + Start a New Bounty
+              {t('quickLinks.newBounty')}
             </Link>
             <Link href={`/${user.slug}`} className="block text-sm text-foreground hover:text-creator transition-colors">
-              View Public Profile
+              {t('quickLinks.viewProfile')}
             </Link>
           </Card>
         </div>

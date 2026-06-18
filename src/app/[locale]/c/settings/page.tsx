@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import Image from 'next/image';
 import { CldUploadWidget } from 'next-cloudinary';
@@ -49,8 +50,8 @@ function MiniToggle({
 type ChannelRule = 'toggle' | 'mandatory_on';
 
 const CREATOR_NOTIF_ROWS: {
-  label: string;
-  desc: string;
+  labelKey: string;
+  descKey: string;
   emailKey: keyof NotificationSettings | null;
   emailRule: ChannelRule;
   smsKey: keyof NotificationSettings | null;
@@ -61,22 +62,22 @@ const CREATOR_NOTIF_ROWS: {
   // IMPORTANT: Keep mandatory rules in sync with MANDATORY_ON in
   // artypot-api/app/Models/NotificationSettings.php — update both together.
   {
-    label: 'new bounty',
-    desc: 'a fan opened a new bounty for you.',
+    labelKey: 'notifications.rows.newBounty.label',
+    descKey: 'notifications.rows.newBounty.desc',
     emailKey: 'creator_new_bounty',         emailRule: 'toggle',
     smsKey:   'sms_creator_new_bounty',     smsRule:   'toggle',
     bellKey:  'in_app_creator_new_bounty',  bellRule:  'toggle',
   },
   {
-    label: 'bounty verified',
-    desc: 'council verified a bounty you submitted as completed.',
+    labelKey: 'notifications.rows.bountyVerified.label',
+    descKey: 'notifications.rows.bountyVerified.desc',
     emailKey: 'creator_bounty_verified',         emailRule: 'toggle',
     smsKey:   'sms_creator_bounty_verified',     smsRule:   'toggle',
     bellKey:  'in_app_creator_bounty_verified',  bellRule:  'toggle',
   },
   {
-    label: 'bounty rejected',
-    desc: 'council rejected your bounty completion submission.',
+    labelKey: 'notifications.rows.bountyRejected.label',
+    descKey: 'notifications.rows.bountyRejected.desc',
     emailKey: null, emailRule: 'mandatory_on',
     smsKey:   null, smsRule:   'mandatory_on',
     bellKey:  null, bellRule:  'mandatory_on',
@@ -86,6 +87,7 @@ const CREATOR_NOTIF_ROWS: {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function CreatorSettingsPage() {
+  const t = useTranslations('CreatorSettings');
   const { user, loading: authLoading, refreshUser } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
@@ -128,8 +130,8 @@ export default function CreatorSettingsPage() {
     try {
       await usersApi.update(user.id, { display_name: nameInput.trim() });
       await refreshUser();
-      toast('Name updated!', 'success');
-    } catch { toast('Failed to save name.', 'error'); }
+      toast(t('displayName.toastSaved'), 'success');
+    } catch { toast(t('displayName.toastError'), 'error'); }
     finally { setNameSaving(false); }
   };
 
@@ -141,8 +143,8 @@ export default function CreatorSettingsPage() {
     try {
       await usersApi.update(user.id, { profile_picture: normalized });
       await refreshUser();
-      toast('Profile picture updated!', 'success');
-    } catch { toast('Failed to save picture.', 'error'); }
+      toast(t('picture.toastSaved'), 'success');
+    } catch { toast(t('picture.toastError'), 'error'); }
     finally { setPicSaving(false); }
   };
 
@@ -153,8 +155,8 @@ export default function CreatorSettingsPage() {
     try {
       await usersApi.update(user.id, { bio: bioInput.trim() || null });
       await refreshUser();
-      toast('Bio updated!', 'success');
-    } catch { toast('Failed to save bio.', 'error'); }
+      toast(t('bio.toastSaved'), 'success');
+    } catch { toast(t('bio.toastError'), 'error'); }
     finally { setBioSaving(false); }
   };
 
@@ -168,8 +170,8 @@ export default function CreatorSettingsPage() {
         fan_name_plural: fanNamePlural.trim() || null,
       });
       await refreshUser();
-      toast('Fan name updated!', 'success');
-    } catch { toast('Failed to save fan name.', 'error'); }
+      toast(t('fanName.toastSaved'), 'success');
+    } catch { toast(t('fanName.toastError'), 'error'); }
     finally { setFanNameSaving(false); }
   };
 
@@ -197,9 +199,9 @@ export default function CreatorSettingsPage() {
         state_code: (countryCode && subdivisions(countryCode)) ? (stateCode || null) : null,
       });
       await refreshUser();
-      toast('Tax residence saved.', 'success');
+      toast(t('location.toastSaved'), 'success');
       setShowLocationConfirm(false);
-    } catch { toast('Failed to save tax residence.', 'error'); }
+    } catch { toast(t('location.toastError'), 'error'); }
     finally { setLocationSaving(false); }
   };
 
@@ -233,10 +235,10 @@ export default function CreatorSettingsPage() {
       if (masterKey) payload[masterKey] = true as never;
       const updated = await notifApi.update(payload);
       setNotifSettings(updated);
-      toast('Settings saved.', 'success');
+      toast(t('notifications.toastSaved'), 'success');
     } catch {
       setNotifSettings({ ...notifSettings, [key]: !value });
-      toast('Failed to save. Please try again.', 'error');
+      toast(t('notifications.toastError'), 'error');
     } finally {
       setNotifSaving((prev) => { const s = new Set(prev); s.delete(key); return s; });
     }
@@ -247,9 +249,9 @@ export default function CreatorSettingsPage() {
     try {
       const updated = await notifApi.reset();
       setNotifSettings(updated);
-      toast('Notification settings reset to defaults.', 'success');
+      toast(t('notifications.toastReset'), 'success');
     } catch {
-      toast('Failed to reset. Please try again.', 'error');
+      toast(t('notifications.toastResetError'), 'error');
     } finally {
       setNotifResetting(false);
     }
@@ -272,18 +274,18 @@ export default function CreatorSettingsPage() {
   return (
     <div className="space-y-7 pt-2 max-w-[680px]">
       <div>
-        <SectionLabel>creator · profile</SectionLabel>
-        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">settings</h1>
+        <SectionLabel>{t('header.breadcrumbCreator')} · {t('header.breadcrumbProfile')}</SectionLabel>
+        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('header.title')}</h1>
       </div>
 
       {/* Profile picture */}
       <div id="picture">
       <Card>
-        <SectionLabel className="mb-4">profile picture</SectionLabel>
+        <SectionLabel className="mb-4">{t('picture.sectionLabel')}</SectionLabel>
         <div className="flex items-center gap-4">
           <div className="relative w-16 h-16 rounded-full overflow-hidden bg-surface-2 border border-border shrink-0">
             {user.profile_picture ? (
-              <Image src={user.profile_picture} alt="Profile picture" fill className="object-cover" unoptimized />
+              <Image src={user.profile_picture} alt={t('picture.alt')} fill className="object-cover" unoptimized />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-2xl text-muted select-none font-bold">
                 {user.display_name?.charAt(0).toUpperCase() ?? '?'}
@@ -304,17 +306,17 @@ export default function CreatorSettingsPage() {
               >
                 {({ open }) => (
                   <Button variant="default" size="sm" disabled={picSaving} onClick={() => open()}>
-                    {picSaving ? 'saving…' : user.profile_picture ? 'change photo…' : 'upload photo…'}
+                    {picSaving ? t('picture.saving') : user.profile_picture ? t('picture.changePhoto') : t('picture.uploadPhoto')}
                   </Button>
                 )}
               </CldUploadWidget>
             ) : (
               <p className="text-xs text-bad">
-                Image uploads are unavailable — NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is not set.
+                {t('picture.unavailable')}
               </p>
             )}
             <p className="text-xs text-muted mt-2">
-              Upload any size
+              {t('picture.uploadAnySize')}
             </p>
           </div>
         </div>
@@ -324,11 +326,11 @@ export default function CreatorSettingsPage() {
       {/* Display name */}
       <div id="display-name">
       <Card>
-        <SectionLabel className="mb-3">display name</SectionLabel>
+        <SectionLabel className="mb-3">{t('displayName.sectionLabel')}</SectionLabel>
         <form onSubmit={handleSaveName} className="flex gap-2">
           <Input type="text" required value={nameInput} onChange={(e) => setNameInput(e.target.value)} className="flex-1" />
           <Button type="submit" variant="default" disabled={nameSaving || !nameInput.trim() || nameInput.trim() === user.display_name}>
-            {nameSaving ? 'Saving…' : 'Save Name'}
+            {nameSaving ? t('displayName.saving') : t('displayName.save')}
           </Button>
         </form>
       </Card>
@@ -340,16 +342,16 @@ export default function CreatorSettingsPage() {
       {/* Bio */}
       <div id="bio">
       <Card>
-        <SectionLabel className="mb-3">creator bio</SectionLabel>
+        <SectionLabel className="mb-3">{t('bio.sectionLabel')}</SectionLabel>
         <p className="text-sm text-muted mb-3">
-          A short public description shown on your creator profile.
+          {t('bio.description')}
         </p>
         <form onSubmit={handleSaveBio} className="space-y-3">
           <textarea
             value={bioInput}
             onChange={(e) => setBioInput(e.target.value)}
             rows={4}
-            placeholder="Who are you? What kind of work do you make?"
+            placeholder={t('bio.placeholder')}
             className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors resize-y placeholder:text-muted"
           />
           <Button
@@ -358,7 +360,7 @@ export default function CreatorSettingsPage() {
             size="sm"
             disabled={bioSaving || (bioInput ?? '') === (user.bio ?? '')}
           >
-            {bioSaving ? 'Saving…' : 'Save Bio'}
+            {bioSaving ? t('bio.saving') : t('bio.save')}
           </Button>
         </form>
       </Card>
@@ -367,29 +369,32 @@ export default function CreatorSettingsPage() {
       {/* Fan name */}
       <div id="fan-name">
       <Card>
-        <SectionLabel className="mb-3">fan name</SectionLabel>
+        <SectionLabel className="mb-3">{t('fanName.sectionLabel')}</SectionLabel>
         <p className="text-sm text-muted mb-3">
-          What you call your supporters. Shown on your bounty pages — e.g. &ldquo;supported by 12 <span className="text-foreground">{fanNamePlural || fanName || 'fans'}</span>&rdquo;. Leave blank to use the generic &ldquo;fan / fans&rdquo;.
+          {t.rich('fanName.description', {
+            example: fanNamePlural || fanName || t('fanName.exampleFallback'),
+            emphasis: (chunks) => <span className="text-foreground">{chunks}</span>,
+          })}
         </p>
         <form onSubmit={handleSaveFanName} className="grid sm:grid-cols-2 gap-3">
           <div>
-            <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">singular</label>
+            <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">{t('fanName.singularLabel')}</label>
             <Input
               type="text"
               value={fanName}
               onChange={(e) => setFanName(e.target.value)}
               maxLength={100}
-              placeholder="fan"
+              placeholder={t('fanName.singularPlaceholder')}
             />
           </div>
           <div>
-            <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">plural</label>
+            <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">{t('fanName.pluralLabel')}</label>
             <Input
               type="text"
               value={fanNamePlural}
               onChange={(e) => setFanNamePlural(e.target.value)}
               maxLength={100}
-              placeholder="fans"
+              placeholder={t('fanName.pluralPlaceholder')}
             />
           </div>
           <div className="sm:col-span-2">
@@ -403,7 +408,7 @@ export default function CreatorSettingsPage() {
                  (fanNamePlural ?? '') === (user.fan_name_plural ?? ''))
               }
             >
-              {fanNameSaving ? 'Saving…' : 'Save Fan Name'}
+              {fanNameSaving ? t('fanName.saving') : t('fanName.save')}
             </Button>
           </div>
         </form>
@@ -414,31 +419,29 @@ export default function CreatorSettingsPage() {
       <Card>
         <div className="flex items-center justify-between">
           <div>
-            <SectionLabel className="mb-1">handles</SectionLabel>
-            <p className="text-sm text-muted">Manage your verified social accounts.</p>
+            <SectionLabel className="mb-1">{t('handles.sectionLabel')}</SectionLabel>
+            <p className="text-sm text-muted">{t('handles.description')}</p>
           </div>
-          <Link href="/c/handles"><Button variant="default" size="sm">Manage Handles →</Button></Link>
+          <Link href="/c/handles"><Button variant="default" size="sm">{t('handles.manage')}</Button></Link>
         </div>
       </Card>
 
       {/* Tax residence */}
       <div id="location">
       <Card>
-        <SectionLabel className="mb-3">tax residence</SectionLabel>
+        <SectionLabel className="mb-3">{t('location.sectionLabel')}</SectionLabel>
         <p className="text-sm text-muted mb-4">
-          The country (and state, where applicable) where you pay tax on your Artypot earnings.
-          We use this to generate the right tax forms — 1099-K for US creators, 1042-S for non-US.
-          Changes are logged for compliance.
+          {t('location.description')}
         </p>
         <form onSubmit={handleRequestSaveLocation} className="space-y-3">
           <div>
-            <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">country</label>
+            <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1">{t('location.countryLabel')}</label>
             <select
               value={countryCode}
               onChange={(e) => { setCountryCode(e.target.value); setStateCode(''); }}
               className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
             >
-              <option value="">— select country —</option>
+              <option value="">{t('location.selectCountry')}</option>
               {COUNTRIES.map((c) => (
                 <option key={c.code} value={c.code}>{c.name}</option>
               ))}
@@ -455,7 +458,7 @@ export default function CreatorSettingsPage() {
                 className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
                 required
               >
-                <option value="">— select {subdivisionLabel(countryCode).toLowerCase()} —</option>
+                <option value="">{t('location.selectSubdivision', { label: subdivisionLabel(countryCode).toLowerCase() })}</option>
                 {subdivisions(countryCode)!.map((s) => (
                   <option key={s.code} value={s.code}>{s.name}</option>
                 ))}
@@ -474,7 +477,7 @@ export default function CreatorSettingsPage() {
                 (user?.state_code ?? '') === (subdivisions(countryCode) ? stateCode : ''))
             }
           >
-            {locationSaving ? 'Saving…' : 'Save Tax Residence'}
+            {locationSaving ? t('location.saving') : t('location.save')}
           </Button>
         </form>
       </Card>
@@ -497,34 +500,36 @@ export default function CreatorSettingsPage() {
         const crossingCountry = (user?.country_code ?? '') !== countryCode;
         return (
           <Modal
-            title="Update Tax Residence?"
+            title={t('location.confirm.title')}
             onClose={() => !locationSaving && setShowLocationConfirm(false)}
             actions={
               <>
                 <Button variant="ghost" onClick={() => setShowLocationConfirm(false)} disabled={locationSaving}>
-                  Cancel
+                  {t('location.confirm.cancel')}
                 </Button>
                 <Button variant="primary" onClick={handleConfirmSaveLocation} disabled={locationSaving}>
-                  {locationSaving ? 'Saving…' : 'Yes, Update'}
+                  {locationSaving ? t('location.confirm.saving') : t('location.confirm.submit')}
                 </Button>
               </>
             }
           >
             <p className="text-sm text-muted leading-relaxed mb-3">
-              You&apos;re about to change your tax residence from{' '}
-              <strong className="text-foreground">{oldDisplay}</strong> to{' '}
-              <strong className="text-foreground">{newDisplay}</strong>.
+              {t.rich('location.confirm.changeLine', {
+                from: oldDisplay,
+                to: newDisplay,
+                strong: (chunks) => <strong className="text-foreground">{chunks}</strong>,
+              })}
             </p>
             <p className="text-sm text-muted leading-relaxed mb-3">
-              This is the address we&apos;ll use for tax reporting (1099-K for US, 1042-S for non-US).
+              {t('location.confirm.reportingLine')}
               <strong className="text-foreground">
                 {crossingCountry
-                  ? ' Because the country is changing, we may ask you to re-submit tax documentation (W-9 or W-8BEN) and run a brief compliance review — payouts can be paused while that completes.'
-                  : ' Significant changes can trigger a brief compliance review; payouts may be paused while that completes.'}
+                  ? t('location.confirm.crossingCountry')
+                  : t('location.confirm.sameCountry')}
               </strong>
             </p>
             <p className="text-sm text-muted leading-relaxed">
-              The change is logged for compliance. Please only update if your actual legal residence has changed.
+              {t('location.confirm.loggedLine')}
             </p>
           </Modal>
         );
@@ -533,8 +538,8 @@ export default function CreatorSettingsPage() {
       {/* Creator notifications */}
       <div id="notifications">
       <Card>
-        <SectionLabel className="mb-4">notifications</SectionLabel>
-        <p className="text-sm text-muted mb-4">Creator-specific notification preferences.</p>
+        <SectionLabel className="mb-4">{t('notifications.sectionLabel')}</SectionLabel>
+        <p className="text-sm text-muted mb-4">{t('notifications.description')}</p>
 
         {/* SMS unavailable banner — hidden while SMS is disabled platform-wide (see lib/features.ts). */}
         {SMS_ENABLED && !phoneVerified && (
@@ -542,11 +547,11 @@ export default function CreatorSettingsPage() {
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <span>
                 {user.phone_number
-                  ? 'Verify your phone number to enable SMS notifications.'
-                  : 'Add and verify your phone number to enable SMS notifications.'}
+                  ? t('notifications.smsBanner.verify')
+                  : t('notifications.smsBanner.addAndVerify')}
               </span>
               <Link href="/settings#phone">
-                <Button variant="default" size="sm">Add phone number →</Button>
+                <Button variant="default" size="sm">{t('notifications.smsBanner.addPhone')}</Button>
               </Link>
             </div>
           </Banner>
@@ -559,30 +564,32 @@ export default function CreatorSettingsPage() {
             <span key={ch} className={`font-mono text-[9px] uppercase w-9 text-center ${
               (ch === 'email' && !emailChannelAvailable) || (ch === 'sms' && !phoneVerified)
                 ? 'text-muted/40' : 'text-muted'
-            }`}>{ch}</span>
+            }`}>{t(`notifications.channels.${ch}`)}</span>
           ))}
         </div>
 
         {!notifSettings ? (
-          <div className="py-4 text-center font-mono text-xs text-muted">loading…</div>
+          <div className="py-4 text-center font-mono text-xs text-muted">{t('notifications.loading')}</div>
         ) : (
           <>
-            {CREATOR_NOTIF_ROWS.map(({ label, desc, emailKey, emailRule, smsKey, smsRule, bellKey, bellRule }) => (
-              <div key={label} className="grid gap-x-4 items-center py-2.5 border-b border-border last:border-0" style={{ gridTemplateColumns: SMS_ENABLED ? '1fr auto auto auto' : '1fr auto auto' }}>
+            {CREATOR_NOTIF_ROWS.map(({ labelKey, descKey, emailKey, emailRule, smsKey, smsRule, bellKey, bellRule }) => {
+              const label = t(labelKey);
+              return (
+              <div key={labelKey} className="grid gap-x-4 items-center py-2.5 border-b border-border last:border-0" style={{ gridTemplateColumns: SMS_ENABLED ? '1fr auto auto auto' : '1fr auto auto' }}>
                 <div>
                   <p className="text-sm text-foreground">{label}</p>
-                  <p className="text-xs text-muted mt-0.5">{desc}</p>
+                  <p className="text-xs text-muted mt-0.5">{t(descKey)}</p>
                 </div>
 
                 {/* Email */}
                 {emailRule === 'mandatory_on' ? (
-                  <MiniToggle checked={true} onChange={() => {}} saving={false} label={`email: ${label} (always on)`} disabled={true} />
+                  <MiniToggle checked={true} onChange={() => {}} saving={false} label={t('notifications.toggleAria.emailAlwaysOn', { label })} disabled={true} />
                 ) : (
                   <MiniToggle
                     checked={!!(emailKey && notifSettings[emailKey])}
                     onChange={(val) => emailKey && handleNotifToggle(emailKey, val)}
                     saving={!!emailKey && notifSaving.has(emailKey)}
-                    label={`email: ${label}`}
+                    label={t('notifications.toggleAria.email', { label })}
                     disabled={!emailChannelAvailable}
                     dimmed={emailChannelAvailable && !notifSettings.email_master}
                   />
@@ -591,13 +598,13 @@ export default function CreatorSettingsPage() {
                 {/* SMS — hidden while SMS is disabled platform-wide (see lib/features.ts). */}
                 {SMS_ENABLED && (
                   smsRule === 'mandatory_on' ? (
-                    <MiniToggle checked={true} onChange={() => {}} saving={false} label={`sms: ${label} (always on)`} disabled={true} />
+                    <MiniToggle checked={true} onChange={() => {}} saving={false} label={t('notifications.toggleAria.smsAlwaysOn', { label })} disabled={true} />
                   ) : (
                     <MiniToggle
                       checked={!!(smsKey && notifSettings[smsKey])}
                       onChange={(val) => smsKey && handleNotifToggle(smsKey, val)}
                       saving={!!smsKey && notifSaving.has(smsKey)}
-                      label={`sms: ${label}`}
+                      label={t('notifications.toggleAria.sms', { label })}
                       disabled={!phoneVerified}
                       dimmed={phoneVerified && !notifSettings.sms_master}
                     />
@@ -606,24 +613,25 @@ export default function CreatorSettingsPage() {
 
                 {/* Bell */}
                 {bellRule === 'mandatory_on' ? (
-                  <MiniToggle checked={true} onChange={() => {}} saving={false} label={`bell: ${label} (always on)`} disabled={true} />
+                  <MiniToggle checked={true} onChange={() => {}} saving={false} label={t('notifications.toggleAria.bellAlwaysOn', { label })} disabled={true} />
                 ) : (
                   <MiniToggle
                     checked={!!(bellKey && notifSettings[bellKey])}
                     onChange={(val) => bellKey && handleNotifToggle(bellKey, val)}
                     saving={!!bellKey && notifSaving.has(bellKey)}
-                    label={`bell: ${label}`}
+                    label={t('notifications.toggleAria.bell', { label })}
                     disabled={false}
                     dimmed={!notifSettings.in_app_master}
                   />
                 )}
               </div>
-            ))}
+              );
+            })}
 
             {/* Cross-link + reset */}
             <div className="mt-4 pt-3 border-border flex items-center justify-between gap-4">
               <Link href="/settings#notifications" className="text-xs font-mono text-muted hover:text-foreground transition-colors">
-                ← go to fan notifications
+                {t('notifications.goToFan')}
               </Link>
               <button
                 type="button"
@@ -631,7 +639,7 @@ export default function CreatorSettingsPage() {
                 disabled={notifResetting}
                 className="text-xs font-mono text-muted hover:text-foreground transition-colors disabled:opacity-40 cursor-pointer"
               >
-                {notifResetting ? 'resetting…' : 'reset to defaults'}
+                {notifResetting ? t('notifications.resetting') : t('notifications.reset')}
               </button>
             </div>
           </>
@@ -642,10 +650,13 @@ export default function CreatorSettingsPage() {
       {/* Fan settings cross-link */}
       <Card dashed>
         <p className="text-sm text-muted">
-          To edit your email, phone number, password, or other account options,{' '}
-          <Link href="/settings#email" className="text-foreground hover:underline underline-offset-2 font-medium">
-            go to fan settings →
-          </Link>
+          {t.rich('fanSettingsLink.text', {
+            link: (chunks) => (
+              <Link href="/settings#email" className="text-foreground hover:underline underline-offset-2 font-medium">
+                {chunks}
+              </Link>
+            ),
+          })}
         </p>
       </Card>
     </div>

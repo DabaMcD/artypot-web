@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations, useFormatter } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import { backings as backingsApi, bounties as bountiesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -12,11 +13,16 @@ import { Empty } from '@/components/ui/Empty';
 import { Modal } from '@/components/ui/Modal';
 import { nextBillingInfo } from '@/lib/config';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
+import { useMoney, useDateFormats } from '@/lib/format';
 
 type SortKey = 'date' | 'amount';
 
 export default function MyBackingsPage() {
   const router = useRouter();
+  const t = useTranslations('Backings');
+  const money = useMoney();
+  const dateFmt = useDateFormats();
+  const format = useFormatter();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
@@ -70,10 +76,10 @@ export default function MyBackingsPage() {
     setRevoking((prev) => new Set(prev).add(backing.id));
     try {
       const result = await bountiesApi.removeBacking(backing.bounty_id, backing.id);
-      toast(result.bounty_deleted ? 'Backed out — the bounty was removed.' : 'Backed out.', 'success');
+      toast(result.bounty_deleted ? t('toast.backedOutBountyRemoved') : t('toast.backedOut'), 'success');
       load(sort, page);
     } catch (e) {
-      toast((e as Error)?.message ?? 'Failed to back out.', 'error');
+      toast((e as Error)?.message ?? t('toast.failed'), 'error');
     } finally {
       setRevoking((prev) => {
         const next = new Set(prev);
@@ -98,17 +104,17 @@ export default function MyBackingsPage() {
     <div className="space-y-7 pt-2">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <SectionLabel>fan · backings</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">my backings</h1>
+          <SectionLabel>{t('sectionLabel.fan')} · {t('sectionLabel.backings')}</SectionLabel>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('heading')}</h1>
           <p className="text-sm text-muted mt-1">
-            {total} {total !== 1 ? 'commitments' : 'commitment'}
+            {total} {total !== 1 ? t('count.commitmentPlural') : t('count.commitmentSingular')}
             {totalActiveAmount !== null && totalActiveAmount > 0 && (
-              <> · <span className="text-foreground">${totalActiveAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} active</span></>
+              <> · <span className="text-foreground">{t('count.activeAmount', { amount: money(totalActiveAmount) })}</span></>
             )}
           </p>
         </div>
         <Link href="/dashboard">
-          <Button variant="ghost" size="sm">← dashboard</Button>
+          <Button variant="ghost" size="sm">{t('nav.dashboard')}</Button>
         </Link>
       </div>
 
@@ -117,7 +123,7 @@ export default function MyBackingsPage() {
         <div className="space-y-4">
           {/* Sort controls */}
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted mr-2">sort by</span>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted mr-2">{t('sort.label')}</span>
             {(['date', 'amount'] as SortKey[]).map((s) => (
               <button
                 key={s}
@@ -128,7 +134,7 @@ export default function MyBackingsPage() {
                     : 'border-border text-muted hover:text-foreground'
                 }`}
               >
-                {s === 'date' ? 'most recent' : 'highest amount'}
+                {s === 'date' ? t('sort.mostRecent') : t('sort.highestAmount')}
               </button>
             ))}
           </div>
@@ -140,8 +146,8 @@ export default function MyBackingsPage() {
               </div>
             </Card>
           ) : backings.length === 0 ? (
-            <Empty icon="◇" message="No backings yet">
-              <Link href="/search"><Button variant="default" size="sm">Find creators →</Button></Link>
+            <Empty icon="◇" message={t('empty.message')}>
+              <Link href="/search"><Button variant="default" size="sm">{t('empty.findCreators')}</Button></Link>
             </Empty>
           ) : (
             <Card>
@@ -159,18 +165,18 @@ export default function MyBackingsPage() {
                             {backing.bounty.title}
                           </Link>
                         ) : (
-                          <span className="text-sm text-muted">bounty #{backing.bounty_id}</span>
+                          <span className="text-sm text-muted">{t('row.bountyFallback', { id: backing.bounty_id })}</span>
                         )}
                         <div className="font-mono text-[10px] text-muted mt-0.5">
-                          {new Date(backing.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {dateFmt.short(backing.created_at)}
                           {backing.expires_at && (
-                            <> · expires {new Date(backing.expires_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</>
+                            <> · {t('row.expires', { date: format.dateTime(new Date(backing.expires_at), { month: 'short', year: 'numeric' }) })}</>
                           )}
                         </div>
                       </div>
                       <BountyStatusBadge status={status} />
                       <span className="font-mono text-sm font-medium text-fan tabular-nums shrink-0">
-                        ${Number(backing.amount).toFixed(2)}
+                        {money(Number(backing.amount))}
                       </span>
                       {status === 'open' && (
                         <button
@@ -179,7 +185,7 @@ export default function MyBackingsPage() {
                           disabled={revoking.has(backing.id)}
                           className="font-mono text-[10px] uppercase tracking-wider text-muted/60 hover:text-bad transition-colors disabled:opacity-40 cursor-pointer shrink-0"
                         >
-                          {revoking.has(backing.id) ? '…' : 'back out'}
+                          {revoking.has(backing.id) ? '…' : t('row.backOut')}
                         </button>
                       )}
                     </div>
@@ -198,7 +204,7 @@ export default function MyBackingsPage() {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1 || loading}
               >
-                ← prev
+                {t('pagination.prev')}
               </Button>
               <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
                 {page} / {lastPage}
@@ -209,7 +215,7 @@ export default function MyBackingsPage() {
                 onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
                 disabled={page === lastPage || loading}
               >
-                next →
+                {t('pagination.next')}
               </Button>
             </div>
           )}
@@ -221,17 +227,17 @@ export default function MyBackingsPage() {
               owner). We show the deterministic date here and link out for the
               figure rather than re-deriving it client-side. */}
           <Card>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">next charge</div>
-            <div className="font-mono text-sm text-foreground">on {billingDateStr}</div>
-            <Link href="/billing" className="ap-inline-link text-sm mt-2 inline-block">view amount in billing →</Link>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">{t('sidebar.nextCharge')}</div>
+            <div className="font-mono text-sm text-foreground">{t('sidebar.onDate', { date: billingDateStr })}</div>
+            <Link href="/billing" className="ap-inline-link text-sm mt-2 inline-block">{t('sidebar.viewAmount')}</Link>
           </Card>
           <Card>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">payment method</div>
-            <Link href="/billing" className="ap-inline-link text-sm">manage billing →</Link>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">{t('sidebar.paymentMethod')}</div>
+            <Link href="/billing" className="ap-inline-link text-sm">{t('sidebar.manageBilling')}</Link>
           </Card>
           <Card>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">payments</div>
-            <Link href="/history" className="ap-inline-link text-sm">payment history →</Link>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">{t('sidebar.payments')}</div>
+            <Link href="/history" className="ap-inline-link text-sm">{t('sidebar.paymentHistory')}</Link>
           </Card>
         </div>
       </div>
@@ -239,26 +245,23 @@ export default function MyBackingsPage() {
       {/* Back-out confirmation */}
       {confirmTarget && (
         <Modal
-          title="Back out of this bounty?"
+          title={t('modal.title')}
           onClose={() => setConfirmTarget(null)}
           actions={
             <>
-              <Button variant="ghost" size="sm" onClick={() => setConfirmTarget(null)}>Cancel</Button>
+              <Button variant="ghost" size="sm" onClick={() => setConfirmTarget(null)}>{t('modal.cancel')}</Button>
               <Button variant="danger" size="sm" onClick={() => handleRevoke(confirmTarget)}>
-                Back out
+                {t('modal.confirm')}
               </Button>
             </>
           }
         >
           <p className="text-sm text-muted leading-relaxed">
-            Your{' '}
-            <span className="text-foreground">${Number(confirmTarget.amount).toFixed(2)}</span>{' '}
-            commitment to{' '}
-            <span className="text-foreground">
-              {confirmTarget.bounty?.title ?? `bounty #${confirmTarget.bounty_id}`}
-            </span>{' '}
-            will be cancelled — you won&apos;t be charged for it. You can only back out
-            while a bounty is still open.
+            {t.rich('modal.body', {
+              amount: money(Number(confirmTarget.amount)),
+              title: confirmTarget.bounty?.title ?? t('row.bountyFallback', { id: confirmTarget.bounty_id }),
+              strong: (chunks) => <span className="text-foreground">{chunks}</span>,
+            })}
           </p>
         </Modal>
       )}

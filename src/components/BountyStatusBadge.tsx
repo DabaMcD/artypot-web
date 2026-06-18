@@ -1,9 +1,13 @@
+import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/Badge';
 
 // ── Single source of truth for bounty status labels and tones ─────────────────
 // Update here and every card/list/page that uses <BountyStatusBadge> will
 // automatically reflect the change.
 
+// English fallback labels, kept for non-React consumers that read this map
+// directly. The on-screen badge below renders the localized label via
+// `t('Components.bountyStatus.<status>')` instead.
 export const BOUNTY_STATUS_LABELS: Record<string, string> = {
   open:      'Open',
   pending:   'Pending Review',
@@ -32,8 +36,11 @@ interface BountyStatusBadgeProps {
 }
 
 export function BountyStatusBadge({ status, lg, xs }: BountyStatusBadgeProps) {
-  const label = BOUNTY_STATUS_LABELS[status] ?? status;
+  const t = useTranslations('Components');
   const tone  = BOUNTY_STATUS_TONES[status]  ?? 'default';
+  const label = status in BOUNTY_STATUS_LABELS
+    ? t(`bountyStatus.${status}`)
+    : status;
   return (
     <Badge tone={tone} lg={lg} xs={xs}>
       {label}

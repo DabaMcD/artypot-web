@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { useMoney } from '@/lib/format';
 import type { Bounty } from '@/lib/types';
 import { formatPlatformHandle, handleLink, handleExternalUrl } from '@/lib/platforms';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
@@ -29,6 +31,8 @@ function computeExpiresAt(value: number, unit: string): string {
 }
 
 export default function BountyCard({ bounty }: { bounty: Bounty }) {
+  const t = useTranslations('Components');
+  const money = useMoney();
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -135,20 +139,20 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
       );
       setLiveTotal(Number(res.bounty.total_backed));
       setLiveUserBacking(Number(res.data.amount));
-      toast(`You're in for $${defaultAmount.toFixed(2)}!`, 'success');
+      toast(t('bountyCard.toast.youreIn', { amount: money(defaultAmount) }), 'success');
       // A new backing can change nudge state (e.g. approaching the good-faith
       // cap surfaces add_payment_method), so re-fetch the bar right away.
       requestNudgeRefresh();
     } catch (err: unknown) {
       const e = err as { message?: string; status?: number; reason?: string };
       if (e.status === 422 && e.reason === 'backing_cap_exceeded') {
-        toast('You’ve reached your good faith limit — add a payment method to continue.', 'error');
+        toast(t('bountyCard.toast.capExceeded'), 'error');
       } else if (e.status === 422 && e.reason === 'payment_grace_period') {
-        toast('New backings are paused until you resolve your failed payment.', 'error');
+        toast(t('bountyCard.toast.gracePeriod'), 'error');
       } else if (e.status === 422 && e.reason === 'market_unavailable') {
-        toast('Backing isn’t available in your country yet.', 'error');
+        toast(t('bountyCard.toast.marketUnavailable'), 'error');
       } else {
-        toast(e.message ?? 'Failed to back.', 'error');
+        toast(e.message ?? t('bountyCard.toast.failed'), 'error');
       }
     } finally {
       setQuickBackLoading(false);
@@ -217,7 +221,7 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
               <AvatarOrUnknown avatarUrl={bounty.avatar_url ?? null} size="xs" />
             )}
             <div className="flex items-baseline gap-1.5 min-w-0 flex-1">
-              <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 shrink-0">for</span>
+              <span className="font-mono text-[9px] uppercase tracking-widest text-muted/70 shrink-0">{t('bountyCard.for')}</span>
               {/* The identity links sit above the card's stretched-link overlay
                   (relative z-10) so they navigate to the creator/handle rather
                   than the bounty. */}
@@ -258,8 +262,8 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
                           href={handleExternal}
                           target="_blank"
                           rel="noopener noreferrer nofollow"
-                          title={`Visit ${handleText}`}
-                          aria-label={`Visit ${handleText}`}
+                          title={t('bountyCard.visitHandle', { handle: handleText })}
+                          aria-label={t('bountyCard.visitHandle', { handle: handleText })}
                           className="shrink-0 text-muted hover:text-creator transition-colors"
                         >
                           ↗
@@ -286,16 +290,19 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
         <div className="flex items-end justify-between gap-3">
           <div className="min-w-0">
             <div className="font-mono text-fan font-bold text-xl leading-tight tracking-tight">
-              ${totalBacked.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {money(totalBacked)}
             </div>
             {backerCount !== null && (
               <div className="text-xs text-muted mt-0.5">
-                {backerCount} {backerCount === 1 ? 'backer' : 'backers'}
+                {t('bountyCard.backerCount', { count: backerCount })}
               </div>
             )}
             {(bounty.status === 'completed' || bounty.status === 'paid_out') && bounty.cleared_amount !== undefined && (
               <div className="text-xs text-muted mt-0.5">
-                ${bounty.cleared_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} cleared
+                {t('bountyCard.cleared', {
+                  cleared: money(bounty.cleared_amount),
+                  total: money(Number(bounty.total_backed)),
+                })}
               </div>
             )}
           </div>
@@ -304,12 +311,12 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
             userBackingAmount != null ? (
               <Link
                 href={`/bounties/${bounty.id}`}
-                title="You're backing this bounty — open it to adjust your backing."
+                title={t('bountyCard.youBackTooltip')}
                 className="relative z-10 inline-flex flex-col items-end px-2.5 py-1 rounded font-mono text-fan bg-fan/10 border border-fan/40 hover:bg-fan/15 transition-colors shrink-0 text-right leading-tight"
               >
-                <span className="text-[8px] uppercase tracking-widest text-fan/70">✓ you back</span>
+                <span className="text-[8px] uppercase tracking-widest text-fan/70">{t('bountyCard.youBack')}</span>
                 <span className="text-[13px] font-bold">
-                  ${userBackingAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {money(userBackingAmount)}
                 </span>
               </Link>
             ) : (
@@ -317,14 +324,14 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
                 type="button"
                 onClick={quickBackArmed ? handleQuickBack : armQuickBack}
                 disabled={quickBackLoading}
-                title={quickBackArmed ? undefined : `Back with your default ($${defaultAmount.toFixed(2)})`}
+                title={quickBackArmed ? undefined : t('bountyCard.backDefaultTooltip', { amount: money(defaultAmount) })}
                 className="relative z-10 inline-flex items-center gap-1 px-2.5 py-1 rounded font-mono text-[11px] font-bold uppercase tracking-wide bg-fan text-background border border-fan shadow-[2px_2px_0_#000] hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_#000] active:translate-x-px active:translate-y-px active:shadow-none transition-[transform,box-shadow] duration-75 cursor-pointer disabled:opacity-50 disabled:cursor-wait shrink-0"
               >
                 {quickBackLoading
-                  ? 'backing…'
+                  ? t('bountyCard.backing')
                   : quickBackArmed
-                    ? `✓ confirm $${defaultAmountLabel}`
-                    : `+ back $${defaultAmountLabel}`}
+                    ? t('bountyCard.confirmAmount', { amount: defaultAmountLabel })
+                    : t('bountyCard.backAmount', { amount: defaultAmountLabel })}
               </button>
             )
           )}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useAuth } from '@/lib/auth-context';
 import { w9 as w9Api, w8ben as w8benApi } from '@/lib/api';
@@ -14,6 +15,7 @@ import BankAccountCard from '@/components/creator/BankAccountCard';
 import PayoutReadinessChecklist from '@/components/PayoutReadinessChecklist';
 
 function PayoutsContent() {
+  const t = useTranslations('CreatorMoney');
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const p = useCreatorPayouts('/c/payouts');
@@ -55,10 +57,10 @@ function PayoutsContent() {
     <div className="space-y-7 pt-2">
       {/* Header */}
       <div>
-        <SectionLabel>creator · money</SectionLabel>
-        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">payouts</h1>
+        <SectionLabel>{t('header.crumbCreator')} · {t('header.crumbMoney')}</SectionLabel>
+        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('payouts.title')}</h1>
         <p className="text-sm text-muted mt-1">
-          Connect your bank, track your available balance, and withdraw your earnings.
+          {t('payouts.subtitle')}
         </p>
       </div>
 
@@ -67,9 +69,9 @@ function PayoutsContent() {
         {p.payoutHold && (
           <Banner tone="bad">
             <div>
-              <strong>Your payouts are currently on hold.</strong>
-              {' '}Stripe needs additional verification before funds can be released —
-              use the bank-account card below to complete it.
+              {t.rich('payouts.holdWarning', {
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </div>
           </Banner>
         )}
@@ -89,14 +91,13 @@ function PayoutsContent() {
           <WithdrawCard p={p} />
 
           <Card>
-            <SectionLabel className="mb-3">first payout</SectionLabel>
+            <SectionLabel className="mb-3">{t('payouts.firstPayout')}</SectionLabel>
             <PayoutReadinessChecklist taxFormRequired={taxFormRequired} taxFormDone={taxFormDone} />
           </Card>
 
           <Card dashed>
             <p className="text-xs text-muted leading-relaxed">
-              Withdrawals clear to your bank in 1–3 business days. Fan contributions
-              become available 7 days after they&apos;re charged on the {BILLING_DAY}th.
+              {t('payouts.clearNote', { day: BILLING_DAY })}
             </p>
           </Card>
         </div>

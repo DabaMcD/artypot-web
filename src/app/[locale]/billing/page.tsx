@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
@@ -12,11 +13,15 @@ import PaymentMethodManager from '@/components/PaymentMethodManager';
 import { ConfirmPaymentModal } from '@/components/ConfirmPaymentModal';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Timeline } from '@/components/ui/Timeline';
+import { useMoney, useDateFormats } from '@/lib/format';
 
 export default function BillingPage() {
   const { user, loading } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+  const t = useTranslations('Billing');
+  const money = useMoney();
+  const dates = useDateFormats();
 
   const [balance, setBalance] = useState<number | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
@@ -64,7 +69,7 @@ export default function BillingPage() {
       setBalance(0);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Payment failed.', 'error');
+      toast(e.message ?? t('toast.paymentFailed'), 'error');
     } finally {
       setPaying(false);
     }
@@ -114,26 +119,26 @@ export default function BillingPage() {
           onSuccess={() => {
             setAuthModal(null);
             setBalance(0);
-            toast('Payment authorized.', 'success');
+            toast(t('toast.paymentAuthorized'), 'success');
           }}
           onClose={() => setAuthModal(null)}
         />
       )}
 
       <div>
-        <SectionLabel>fan · billing</SectionLabel>
-        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">upcoming charge</h1>
+        <SectionLabel>{t('breadcrumb.fan')} · {t('breadcrumb.billing')}</SectionLabel>
+        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('heading.upcomingCharge')}</h1>
       </div>
 
       {brokeCooldown && (
         <Card accent>
-          <SectionLabel className="mb-2 text-warn">broke cooldown in effect</SectionLabel>
+          <SectionLabel className="mb-2 text-warn">{t('brokeCooldown.label')}</SectionLabel>
           <p className="text-sm text-muted leading-snug">
-            You declared broke on {new Date(brokeCooldown.started_at).toLocaleDateString()}.
-            New backings are blocked until{' '}
-            <span className="font-mono text-foreground">
-              {new Date(brokeCooldown.ends_at).toLocaleString()}
-            </span>.
+            {t('brokeCooldown.declaredOn', { date: dates.short(brokeCooldown.started_at) })}{' '}
+            {t.rich('brokeCooldown.blockedUntil', {
+              date: dates.full(brokeCooldown.ends_at),
+              stamp: (chunks) => <span className="font-mono text-foreground">{chunks}</span>,
+            })}
           </p>
         </Card>
       )}
@@ -142,22 +147,22 @@ export default function BillingPage() {
       {!balanceLoading && hasOutstandingBalance && (
         <Card>
           <div className="flex items-baseline justify-between gap-4 mb-1">
-            <SectionLabel>what will be charged</SectionLabel>
+            <SectionLabel>{t('charge.label')}</SectionLabel>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
               {chargeDate} · 09:00 UTC
             </div>
           </div>
           <p className="text-sm text-muted mb-4">
-            ${outstandingAmount.toFixed(2)} will be charged automatically on {chargeDate}. No action needed.
+            {t('charge.summary', { amount: money(outstandingAmount), date: chargeDate })}
           </p>
 
           {lockedBackings.length > 0 && (
             <table className="w-full font-mono text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">Bounty</th>
-                  <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">State</th>
-                  <th className="pb-2 text-right text-[10px] uppercase tracking-widest text-muted font-normal">Your Backing</th>
+                  <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">{t('table.bounty')}</th>
+                  <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">{t('table.state')}</th>
+                  <th className="pb-2 text-right text-[10px] uppercase tracking-widest text-muted font-normal">{t('table.yourBacking')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -165,13 +170,13 @@ export default function BillingPage() {
                   <tr key={backing.id}>
                     <td className="py-3 pr-4">
                       <Link href={`/bounties/${backing.bounty_id}`} className="text-fan hover:underline line-clamp-2 leading-snug">
-                        {backing.bounty?.title ?? `Bounty #${backing.bounty_id}`}
+                        {backing.bounty?.title ?? t('table.bountyFallback', { id: backing.bounty_id })}
                       </Link>
                     </td>
                     <td className="py-3 pr-4">
                       <BountyStatusBadge status={backing.bounty?.status ?? 'completed'} />
                     </td>
-                    <td className="py-3 text-right tabular-nums">${Number(backing.amount).toFixed(2)}</td>
+                    <td className="py-3 text-right tabular-nums">{money(Number(backing.amount))}</td>
                   </tr>
                 ))}
               </tbody>
@@ -180,7 +185,7 @@ export default function BillingPage() {
 
           <div className="mt-4 pt-4 border-t border-dashed border-border flex items-center justify-between gap-3">
             <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
-              prefer to clear now?
+              {t('settle.prompt')}
             </span>
             <button
               type="button"
@@ -188,7 +193,7 @@ export default function BillingPage() {
               disabled={paying}
               className="font-mono text-[11px] text-fan hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer"
             >
-              {paying ? 'processing…' : `settle $${outstandingAmount.toFixed(2)} now →`}
+              {paying ? t('settle.processing') : t('settle.cta', { amount: money(outstandingAmount) })}
             </button>
           </div>
         </Card>
@@ -197,20 +202,20 @@ export default function BillingPage() {
       {/* Payment method */}
       <div id="payment-method">
         <Card>
-          <SectionLabel className="mb-4">payment method</SectionLabel>
+          <SectionLabel className="mb-4">{t('paymentMethod.label')}</SectionLabel>
           <PaymentMethodManager />
         </Card>
       </div>
 
       {/* How billing works */}
       <Card dashed>
-        <SectionLabel className="mb-4">how billing works</SectionLabel>
+        <SectionLabel className="mb-4">{t('howItWorks.label')}</SectionLabel>
         <ul className="space-y-2 text-sm text-muted">
           {[
-            'You commit an amount when you back a bounty. Nothing is charged at that point.',
-            'When a creator submits their work and the council approves it, your charge is locked in. You can only back out while the bounty is still open.',
-            `Locked charges are collected automatically on the ${BILLING_DAY}th of each month, or you can pay early.`,
-            'You always pay your exact committed amount — no fees are ever added on top.',
+            t('howItWorks.commit'),
+            t('howItWorks.lockIn'),
+            t('howItWorks.collected', { day: BILLING_DAY }),
+            t('howItWorks.noFees'),
           ].map((item, i) => (
             <li key={i} className="flex items-start gap-2">
               <span className="text-fan mt-0.5 shrink-0">✓</span>
@@ -222,12 +227,12 @@ export default function BillingPage() {
 
       {/* Timeline */}
       <Card>
-        <SectionLabel className="mb-4">this month&apos;s timeline</SectionLabel>
+        <SectionLabel className="mb-4">{t('timeline.label')}</SectionLabel>
         <Timeline
           items={[
-            { when: 'now', what: 'approved backings are locked in', done: true },
-            { when: previewDate, what: 'billing preview sent to your inbox' },
-            { when: `${chargeDate} · 09:00 UTC`, what: 'your card is charged' },
+            { when: t('timeline.now'), what: t('timeline.lockedIn'), done: true },
+            { when: previewDate, what: t('timeline.previewSent') },
+            { when: `${chargeDate} · 09:00 UTC`, what: t('timeline.cardCharged') },
           ]}
         />
       </Card>

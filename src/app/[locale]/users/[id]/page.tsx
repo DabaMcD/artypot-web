@@ -1,29 +1,20 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
 import { users as usersApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { useMoney, useDateFormats } from '@/lib/format';
 import type { PublicUser } from '@/lib/types';
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric',
-  });
-}
-
-function formatExpiry(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    year: 'numeric',
-  });
-}
 
 export default function UserProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { user: authUser } = useAuth();
   const router = useRouter();
+  const t = useTranslations('Profiles');
+  const money = useMoney();
+  const dateFmt = useDateFormats();
 
   const [profile, setProfile] = useState<PublicUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,7 +38,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
         setLoading(false);
       })
       .catch(() => {
-        setError('User not found.');
+        setError(t('errors.userNotFound'));
         setLoading(false);
       });
   }, [userId]);
@@ -64,8 +55,8 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
     return (
       <div className="max-w-2xl mx-auto px-4 py-10 text-center">
         <div className="bg-surface border border-border rounded-xl p-8">
-          <p className="text-red-400 mb-4">{error || 'User not found.'}</p>
-          <Link href="/" className="text-creator hover:underline text-sm">← Home</Link>
+          <p className="text-red-400 mb-4">{error || t('errors.userNotFound')}</p>
+          <Link href="/" className="text-creator hover:underline text-sm">← {t('nav.home')}</Link>
         </div>
       </div>
     );
@@ -104,19 +95,19 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
               <h1 className="text-xl font-bold text-foreground">{profile.display_name}</h1>
               {isOwnProfile && (
                 <span className="text-xs bg-creator/20 text-creator px-2 py-0.5 rounded-full font-medium">
-                  You
+                  {t('header.youBadge')}
                 </span>
               )}
             </div>
             <p className="text-sm text-muted mt-0.5">
-              Member since {formatDate(profile.created_at)}
+              {t('header.memberSince', { date: dateFmt.short(profile.created_at) })}
             </p>
             {isOwnProfile && (
               <Link
                 href="/settings"
                 className="inline-block mt-2 text-xs text-muted hover:text-foreground transition-colors"
               >
-                Edit settings →
+                {t('header.editSettings')} →
               </Link>
             )}
           </div>
@@ -128,16 +119,16 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-semibold text-foreground">
-              Top Backings
+              {t('backings.title')}
             </h2>
             {!profile.is_anonymous && profile.backings.length === 10 && (
-              <p className="text-xs text-muted mt-0.5">Showing top 10 by amount</p>
+              <p className="text-xs text-muted mt-0.5">{t('backings.topTenNote')}</p>
             )}
           </div>
           <div className="flex items-center gap-3">
             {profile.backings.length > 0 && (
               <span className="text-sm text-muted">
-                <span className="text-creator font-semibold">${totalBackings.toFixed(2)}</span>
+                <span className="text-creator font-semibold">{money(totalBackings)}</span>
               </span>
             )}
             {isOwnProfile && (
@@ -145,17 +136,17 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
                 href="/backings"
                 className="text-xs text-fan hover:underline"
               >
-                View all →
+                {t('backings.viewAll')} →
               </Link>
             )}
           </div>
         </div>
 
         {profile.is_anonymous && !isOwnProfile ? (
-          <p className="text-muted text-sm">This user has chosen to remain anonymous.</p>
+          <p className="text-muted text-sm">{t('backings.anonymous')}</p>
         ) : profile.backings.length === 0 ? (
           <p className="text-muted text-sm">
-            {isOwnProfile ? "You're not backing anything yet." : 'Not backing anything.'}
+            {isOwnProfile ? t('backings.emptyOwn') : t('backings.emptyOther')}
           </p>
         ) : (
           <div className="space-y-2">
@@ -173,16 +164,16 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
                       {backing.bounty.title}
                     </Link>
                   ) : (
-                    <span className="text-sm text-muted">Project #{backing.bounty_id}</span>
+                    <span className="text-sm text-muted">{t('backings.projectFallback', { id: backing.bounty_id })}</span>
                   )}
                   {backing.expires_at && (
                     <p className="text-xs text-muted mt-0.5">
-                      Expires {formatExpiry(backing.expires_at)}
+                      {t('backings.expires', { date: dateFmt.short(backing.expires_at) })}
                     </p>
                   )}
                 </div>
                 <span className="text-creator font-semibold text-sm ml-4">
-                  ${Number(backing.amount).toFixed(2)}
+                  {money(Number(backing.amount))}
                 </span>
               </div>
             ))}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect, Suspense } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { handles as handlesApi, bounties as bountiesApi, creators as creatorsApi } from '@/lib/api';
@@ -9,6 +10,7 @@ import { useToast } from '@/lib/toast-context';
 import { useDefaultUpdatePrompt } from '@/lib/default-update-prompt-context';
 import { requestNudgeRefresh } from '@/lib/nudge-context';
 import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
+import { useMoney } from '@/lib/format';
 import type { HandleSearchResult, HandlePlatform } from '@/lib/types';
 import { AvatarOrUnknown } from '@/components/ui/AvatarOrUnknown';
 import { Badge } from '@/components/ui/Badge';
@@ -97,6 +99,7 @@ function looksLikeUrl(s: string) {
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function TargetingCard({ target }: { target: TargetSelection }) {
+  const t = useTranslations('Bounties');
   const handle = formatPlatformHandle(target.platform, target.username);
   const { href, external } = handleLink(target.platform, target.username);
   // Links open in a new tab so clicking through to verify the target never
@@ -128,9 +131,9 @@ function TargetingCard({ target }: { target: TargetSelection }) {
         </div>
       </div>
       {target.kind === 'user' ? (
-        <Badge tone="good">verified</Badge>
+        <Badge tone="good">{t('badge.verified')}</Badge>
       ) : (
-        <Badge tone="default">unverified</Badge>
+        <Badge tone="default">{t('badge.unverified')}</Badge>
       )}
     </div>
   );
@@ -161,6 +164,7 @@ function Step1({
   newPlatform, onNewPlatform,
   newUsername, onNewUsername,
 }: Step1Props) {
+  const t = useTranslations('Bounties');
   const { toast } = useToast();
   const [focused, setFocused] = useState(false);
   const [addError, setAddError] = useState('');
@@ -197,7 +201,7 @@ function Step1({
     const parsed = extractHandleFromUrl(pasted);
     if (parsed) {
       e.preventDefault();
-      toast(`Detected ${parsed.label} handle from URL`, 'success');
+      toast(t('step1.urlDetected', { platform: parsed.label }), 'success');
       onQuery(parsed.username);
     }
   };
@@ -218,11 +222,11 @@ function Step1({
   };
 
   const confirmAddNew = () => {
-    if (!newPlatform) { setAddError('Please select a platform.'); return; }
-    if (!newUsername.trim()) { setAddError(newPlatform === OTHER_SLUG ? 'Website URL is required.' : 'Handle is required.'); return; }
+    if (!newPlatform) { setAddError(t('step1.addNew.errors.platformRequired')); return; }
+    if (!newUsername.trim()) { setAddError(newPlatform === OTHER_SLUG ? t('step1.addNew.errors.urlRequired') : t('step1.addNew.errors.handleRequired')); return; }
     // A human name is only required for 'other' (off-platform) links, where the
     // identifier is a raw URL and would otherwise read terribly on the bounty.
-    if (newPlatform === OTHER_SLUG && !newDisplayName.trim()) { setAddError('Creator display name is required for off-platform links.'); return; }
+    if (newPlatform === OTHER_SLUG && !newDisplayName.trim()) { setAddError(t('step1.addNew.errors.displayNameRequired')); return; }
     setAddError('');
     onSelect({ kind: 'new', platform: newPlatform, username: newUsername.trim(), displayName: newDisplayName.trim(), avatarUrl: null });
   };
@@ -278,13 +282,13 @@ function Step1({
   return (
     <div className="space-y-5">
       <div>
-        <SectionLabel>fan</SectionLabel>
-        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">start a bounty</h1>
-        <p className="text-sm text-muted mt-1">Name a creator. The community funds the work.</p>
+        <SectionLabel>{t('step1.sectionLabel')}</SectionLabel>
+        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('step1.heading')}</h1>
+        <p className="text-sm text-muted mt-1">{t('step1.subtitle')}</p>
       </div>
 
       <Card>
-        <SectionLabel className="mb-3">who should do this?</SectionLabel>
+        <SectionLabel className="mb-3">{t('step1.whoLabel')}</SectionLabel>
 
         {showAddNew ? (
           <>
@@ -293,16 +297,16 @@ function Step1({
               onClick={() => onShowAddNew(false)}
               className="text-xs font-mono text-muted hover:text-foreground cursor-pointer transition-colors mb-4"
             >
-              ← Back to Creator Search
+              {t('step1.addNew.back')}
             </button>
 
             <div className="space-y-3 border-t border-border pt-4">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-creator">add new creator</span>
+              <span className="font-mono text-[10px] uppercase tracking-widest text-creator">{t('step1.addNew.heading')}</span>
 
               <div>
-                <FieldLabel>platform - where they&apos;re active</FieldLabel>
+                <FieldLabel>{t('step1.addNew.platformLabel')}</FieldLabel>
                 <Select value={newPlatform} onChange={(e) => { onNewPlatform(e.target.value as HandlePlatform | ''); onNewUsername(''); }} autoFocus>
-                  <option value="" disabled>— select a platform —</option>
+                  <option value="" disabled>{t('step1.addNew.platformPlaceholder')}</option>
                   {PLATFORMS.map(({ value, label }) => (
                     <option key={value} value={value}>{label}</option>
                   ))}
@@ -317,21 +321,21 @@ function Step1({
 
               <div>
                 <FieldLabel>
-                  creator display name{' '}
+                  {t('displayName.label')}{' '}
                   {newPlatform === OTHER_SLUG
                     ? <span className="text-bad">*</span>
-                    : <span className="text-muted font-normal">(optional)</span>}
+                    : <span className="text-muted font-normal">{t('displayName.optional')}</span>}
                 </FieldLabel>
                 <Input
                   type="text"
                   value={newDisplayName}
                   onChange={(e) => onNewDisplayName(e.target.value)}
-                  placeholder="e.g. Tom Scott"
+                  placeholder={t('displayName.placeholder')}
                 />
                 <FieldHint>
                   {newPlatform === OTHER_SLUG
-                    ? 'Required for off-platform links — shown on your bounty.'
-                    : 'Shown on your bounty. Leave blank to use the handle.'}
+                    ? t('displayName.hintRequired')
+                    : t('displayName.hintOptional')}
                 </FieldHint>
               </div>
 
@@ -343,13 +347,13 @@ function Step1({
                 className="w-full justify-center"
                 onClick={confirmAddNew}
               >
-                Use This Creator →
+                {t('step1.addNew.submit')}
               </Button>
             </div>
           </>
         ) : (
           <>
-            <FieldLabel>creator handle or name</FieldLabel>
+            <FieldLabel>{t('step1.search.label')}</FieldLabel>
             <div className="relative">
               <Input
                 type="text"
@@ -364,7 +368,7 @@ function Step1({
                 onBlur={() => {
                   blurTimer.current = setTimeout(() => setFocused(false), 150);
                 }}
-                placeholder="e.g. mrbeast"
+                placeholder={t('step1.search.placeholder')}
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck={false}
@@ -384,7 +388,7 @@ function Step1({
                   <div className="overflow-y-auto">
                     {/* Too-short hint */}
                     {!queryActive && trimmed.length > 0 && (
-                      <div className="px-4 py-3 text-sm text-muted">Keep typing — at least 2 characters.</div>
+                      <div className="px-4 py-3 text-sm text-muted">{t('step1.search.tooShort')}</div>
                     )}
 
                     {/* Loading state */}
@@ -394,7 +398,7 @@ function Step1({
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                         </svg>
-                        Searching…
+                        {t('step1.search.searching')}
                       </div>
                     )}
 
@@ -420,10 +424,10 @@ function Step1({
                                 <span className="block font-mono text-[11px] text-muted/80 truncate">{handleLabel}</span>
                               </span>
                               <span className="flex flex-col items-end gap-0.5 shrink-0 self-center">
-                                <Badge tone={r.verified ? 'good' : 'default'}>{r.verified ? 'verified' : 'unverified'}</Badge>
+                                <Badge tone={r.verified ? 'good' : 'default'}>{r.verified ? t('badge.verified') : t('badge.unverified')}</Badge>
                                 {!r.verified && r.pending_bounty_count > 0 && (
                                   <span className="text-[10px] font-mono text-muted">
-                                    {r.pending_bounty_count} {r.pending_bounty_count === 1 ? 'bounty' : 'bounties'} waiting
+                                    {t('step1.search.bountiesWaiting', { count: r.pending_bounty_count })}
                                   </span>
                                 )}
                               </span>
@@ -436,7 +440,7 @@ function Step1({
                     {/* Empty state */}
                     {queryActive && !searching && results.length === 0 && (
                       <div className="px-4 py-3">
-                        <p className="text-sm text-muted">No matches for &ldquo;{trimmed}&rdquo;.</p>
+                        <p className="text-sm text-muted">{t('step1.search.noMatches', { query: trimmed })}</p>
                       </div>
                     )}
                   </div>
@@ -453,7 +457,7 @@ function Step1({
                       }`}
                     >
                       <span className="flex items-center justify-center w-5 h-5 rounded-full border border-dashed border-creator/50 text-creator text-xs">+</span>
-                      add new creator
+                      {t('step1.addNewCreator')}
                     </button>
                   )}
                 </div>
@@ -466,7 +470,7 @@ function Step1({
                 onClick={() => onShowAddNew(true)}
                 className="mt-2 text-xs text-creator hover:underline cursor-pointer font-mono"
               >
-                + add new creator manually
+                {t('step1.addNewManually')}
               </button>
             )}
           </>
@@ -492,6 +496,7 @@ interface Step2Props {
 }
 
 function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDescription, initialAmount, initialDisplayName, initialExpiryValue, initialExpiryUnit }: Step2Props) {
+  const t = useTranslations('Bounties');
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
   const [amount, setAmount] = useState(initialAmount);
@@ -515,9 +520,9 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-display font-bold text-[28px] text-foreground">bounty details</h1>
+        <h1 className="font-display font-bold text-[28px] text-foreground">{t('step2.heading')}</h1>
         <button type="button" onClick={onBack} className="text-sm font-mono text-muted hover:text-foreground cursor-pointer transition-colors mt-1 block">
-          ← back
+          {t('back')}
         </button>
       </div>
 
@@ -526,49 +531,49 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
       {target.kind === 'handle' && (
         <Card>
           <SectionLabel className="mb-3">
-            creator display name{target.platform === OTHER_SLUG ? '' : ' (optional)'}
+            {t('displayName.label')}{target.platform === OTHER_SLUG ? '' : ` ${t('displayName.optional')}`}
           </SectionLabel>
           <Input
             type="text"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="e.g. Tom Scott"
+            placeholder={t('displayName.placeholder')}
             required={target.platform === OTHER_SLUG}
           />
           <FieldHint>
             {target.platform === OTHER_SLUG
-              ? 'Required for off-platform links — shown on your bounty.'
-              : 'Shown on your bounty. Leave blank to use the handle.'}
+              ? t('displayName.hintRequired')
+              : t('displayName.hintOptional')}
           </FieldHint>
         </Card>
       )}
 
       <Card>
-        <SectionLabel className="mb-3">what should they make?</SectionLabel>
-        <FieldLabel>title <span className="text-bad">*</span></FieldLabel>
+        <SectionLabel className="mb-3">{t('step2.whatLabel')}</SectionLabel>
+        <FieldLabel>{t('step2.titleLabel')} <span className="text-bad">*</span></FieldLabel>
         <Input
           type="text"
           required
           maxLength={255}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="e.g. do a backflip while singing the national anthem"
+          placeholder={t('step2.titlePlaceholder')}
           autoFocus
         />
         <div className="mt-4">
-          <FieldLabel>description <span className="text-muted font-normal">(optional)</span></FieldLabel>
+          <FieldLabel>{t('step2.descriptionLabel')} <span className="text-muted font-normal">{t('displayName.optional')}</span></FieldLabel>
           <Textarea
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="what specifically must be done? any requirements?"
+            placeholder={t('step2.descriptionPlaceholder')}
           />
         </div>
       </Card>
 
       {!isSelfBounty && (
         <Card>
-          <SectionLabel className="mb-3">your opening commitment</SectionLabel>
+          <SectionLabel className="mb-3">{t('step2.commitmentLabel')}</SectionLabel>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-muted text-sm select-none">$</span>
             <Input
@@ -582,7 +587,7 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
               className="pl-7"
             />
           </div>
-          <FieldHint>Minimum $1.</FieldHint>
+          <FieldHint>{t('step2.minimumHint')}</FieldHint>
           <PayOnVerifiedNote className="mt-2" />
 
           <div className="mt-4 pt-4 border-t border-border">
@@ -592,11 +597,11 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
               className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-muted/60 hover:text-muted transition-colors cursor-pointer select-none"
             >
               <span className={`transition-transform duration-150 ${showAdvanced ? 'rotate-90' : ''}`}>▶</span>
-              Advanced
+              {t('step2.advanced')}
             </button>
             {showAdvanced && (
               <div className="mt-2 space-y-1.5">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-muted">Expires in</span>
+                <span className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('step2.expiresIn')}</span>
                 <div className="grid gap-0" style={{ gridTemplateColumns: '5rem 1fr' }}>
                   <Input
                     type="number"
@@ -612,15 +617,15 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
                     value={expiryUnit}
                     onChange={(e) => setExpiryUnit(e.target.value)}
                   >
-                    <option value="year">year(s)</option>
-                    <option value="month">month(s)</option>
-                    <option value="week">week(s)</option>
-                    <option value="day">day(s)</option>
-                    <option value="hour">hour(s)</option>
-                    <option value="minute">minute(s)</option>
+                    <option value="year">{t('units.year')}</option>
+                    <option value="month">{t('units.month')}</option>
+                    <option value="week">{t('units.week')}</option>
+                    <option value="day">{t('units.day')}</option>
+                    <option value="hour">{t('units.hour')}</option>
+                    <option value="minute">{t('units.minute')}</option>
                   </Select>
                 </div>
-                <FieldHint>Your backing will auto-expire after this period if the bounty is still open. Change your default in settings.</FieldHint>
+                <FieldHint>{t('step2.expiryHint')}</FieldHint>
               </div>
             )}
           </div>
@@ -634,7 +639,7 @@ function Step2({ target, isSelfBounty, onBack, onNext, initialTitle, initialDesc
         disabled={!title.trim() || (!isSelfBounty && parseFloat(amount) < 1) || (!isSelfBounty && (parseInt(expiryValue, 10) < 1 || parseInt(expiryValue, 10) > 999 || isNaN(parseInt(expiryValue, 10)))) || (target.kind === 'handle' && target.platform === OTHER_SLUG && !displayName.trim())}
         onClick={handleNext}
       >
-        Review →
+        {t('step2.review')}
       </Button>
     </div>
   );
@@ -658,14 +663,23 @@ interface Step3Props {
 }
 
 function Step3({ target, isSelfBounty, title, description, amount, displayName, expiryValue, expiryUnit, onBack, onSubmit, submitting, error }: Step3Props) {
-  const UNIT_LABELS: Record<string, string> = { minute: 'minute(s)', hour: 'hour(s)', day: 'day(s)', week: 'week(s)', month: 'month(s)', year: 'year(s)' };
+  const t = useTranslations('Bounties');
+  const money = useMoney();
+  const UNIT_LABELS: Record<string, string> = {
+    minute: t('units.minute'),
+    hour: t('units.hour'),
+    day: t('units.day'),
+    week: t('units.week'),
+    month: t('units.month'),
+    year: t('units.year'),
+  };
   return (
     <div className="space-y-5">
       <div>
         <button type="button" onClick={onBack} disabled={submitting} className="text-sm font-mono text-muted hover:text-foreground cursor-pointer transition-colors mb-3 block disabled:opacity-40">
-          ← back
+          {t('back')}
         </button>
-        <h1 className="font-display font-bold text-[28px] text-foreground">review &amp; submit</h1>
+        <h1 className="font-display font-bold text-[28px] text-foreground">{t('step3.heading')}</h1>
       </div>
 
       <TargetingCard target={target} />
@@ -674,29 +688,29 @@ function Step3({ target, isSelfBounty, title, description, amount, displayName, 
         <div className="space-y-3">
           {target.kind === 'handle' && displayName.trim() && (
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">creator display name</div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">{t('step3.fields.displayName')}</div>
               <div className="text-sm text-foreground font-medium">{displayName}</div>
             </div>
           )}
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">title</div>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">{t('step3.fields.title')}</div>
             <div className="text-sm text-foreground font-medium">{title}</div>
           </div>
           {description && (
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">description</div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">{t('step3.fields.description')}</div>
               <div className="text-sm text-foreground whitespace-pre-wrap">{description}</div>
             </div>
           )}
           {!isSelfBounty && (
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">your commitment</div>
-              <div className="text-fan font-bold text-lg">${parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">{t('step3.fields.commitment')}</div>
+              <div className="text-fan font-bold text-lg">{money(parseFloat(amount))}</div>
             </div>
           )}
           {!isSelfBounty && (
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">backing expires after</div>
+              <div className="text-[10px] font-mono uppercase tracking-widest text-muted mb-0.5">{t('step3.fields.expiresAfter')}</div>
               <div className="text-sm text-foreground font-medium font-mono">{expiryValue} {UNIT_LABELS[expiryUnit] ?? expiryUnit}</div>
             </div>
           )}
@@ -712,7 +726,7 @@ function Step3({ target, isSelfBounty, title, description, amount, displayName, 
         onClick={onSubmit}
         disabled={submitting}
       >
-        {submitting ? 'Creating…' : 'Create Bounty'}
+        {submitting ? t('step3.creating') : t('step3.submit')}
       </Button>
       {!isSelfBounty && <BackingPolicyNote />}
     </div>
@@ -722,6 +736,7 @@ function Step3({ target, isSelfBounty, title, description, amount, displayName, 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 function NewBountyForm() {
+  const t = useTranslations('Bounties');
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -887,11 +902,11 @@ function NewBountyForm() {
       // The bounty's initial backing counts toward the good-faith cap, so the
       // nudge bar may need to change (add_payment_method) — re-fetch it now.
       requestNudgeRefresh();
-      toast('Bounty created!', 'success');
+      toast(t('toast.created'), 'success');
       setTimeout(() => router.push(`/bounties/${res.data.id}`), 700);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setSubmitError(e.message ?? 'Failed to create bounty.');
+      setSubmitError(e.message ?? t('submitError'));
     } finally {
       setSubmitting(false);
     }
@@ -902,8 +917,8 @@ function NewBountyForm() {
   if (!user) {
     return (
       <div className="max-w-lg mx-auto py-20 text-center">
-        <p className="text-muted mb-4">You need to be logged in to create a bounty.</p>
-        <Link href="/login"><Button variant="primary">Sign In →</Button></Link>
+        <p className="text-muted mb-4">{t('loginRequired.message')}</p>
+        <Link href="/login"><Button variant="primary">{t('loginRequired.signIn')}</Button></Link>
       </div>
     );
   }
@@ -911,7 +926,7 @@ function NewBountyForm() {
   return (
     <div className="max-w-[560px] space-y-7 pt-2">
       <Stepper
-        steps={['target', 'details', 'review']}
+        steps={[t('stepper.target'), t('stepper.details'), t('stepper.review')]}
         current={step - 1}
       />
 
