@@ -28,22 +28,21 @@ function usd(n: number): string {
 }
 
 /** A labelled dollar figure. */
-function Stat({ label, value, accent, sub }: {
+function Stat({ label, value, accent, danger, sub }: {
   label: string;
   value: string;
   accent?: boolean;
+  danger?: boolean;
   sub?: string;
 }) {
+  const valueColor = danger ? '#f87171' : accent ? PURPLE : 'var(--color-foreground)';
   return (
     <div className="flex items-baseline justify-between gap-4 py-2.5">
       <div className="min-w-0">
-        <div className="text-sm text-foreground">{label}</div>
+        <div className={`text-sm ${danger ? 'text-red-400' : 'text-foreground'}`}>{label}</div>
         {sub && <div className="text-xs text-muted mt-0.5">{sub}</div>}
       </div>
-      <div
-        className="shrink-0 font-mono tabular-nums text-base"
-        style={accent ? { color: PURPLE } : { color: 'var(--color-foreground)' }}
-      >
+      <div className="shrink-0 font-mono tabular-nums text-base" style={{ color: valueColor }}>
         {value}
       </div>
     </div>
@@ -166,7 +165,26 @@ export default function OverlordTreasuryPage() {
                   value={`${data.discrepancy > 0 ? '+' : ''}${usd(data.discrepancy)}`}
                 />
               )}
+              {data.unsettled_captured_count > 0 && (
+                <Stat
+                  danger
+                  label="Captured, unsettled"
+                  sub={`${data.unsettled_captured_count} payment${data.unsettled_captured_count === 1 ? '' : 's'} Stripe charged but the ledger hasn't booked`}
+                  value={usd(data.unsettled_captured_amount)}
+                />
+              )}
             </div>
+
+            {data.unsettled_captured_count > 0 && (
+              <p className="text-xs text-red-400 mt-3">
+                ⚠ {usd(data.unsettled_captured_amount)} across {data.unsettled_captured_count} payment
+                {data.unsettled_captured_count === 1 ? ' has' : 's have'} been captured by Stripe but never
+                settled — money taken, creators uncredited. This inflates the discrepancy above. Likely a
+                stuck settlement job; check <span className="font-mono">failed_jobs</span> and re-run it
+                (<span className="font-mono">queue:retry</span>). <span className="font-mono">system:money-integrity</span> is
+                alerting on this too.
+              </p>
+            )}
 
             {reconcilingAmount !== null && (
               <p className="text-xs text-muted mt-3">
