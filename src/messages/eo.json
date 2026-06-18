@@ -1,0 +1,3139 @@
+{
+  "Common": {
+    "actions": {
+      "save": "Konservi",
+      "cancel": "Nuligi",
+      "submit": "Sendi",
+      "continue": "Daŭrigi",
+      "back": "Reen",
+      "next": "Sekva",
+      "previous": "Antaŭa",
+      "edit": "Redakti",
+      "delete": "Forigi",
+      "remove": "Forpreni"
+    },
+    "states": {
+      "loading": "Ŝargado…",
+      "saving": "Konservado…"
+    },
+    "toast": {
+      "saved": "Konservita!",
+      "removed": "Forigita.",
+      "genericError": "Io misfunkciis."
+    },
+    "legal": {
+      "about": "Pri ni",
+      "terms": "Kondiĉoj",
+      "privacy": "Privateco",
+      "contact": "Kontakto"
+    }
+  },
+  "Sidebar": {
+    "sections": {
+      "yourActivity": "via aktiveco",
+      "discover": "malkovri",
+      "money": "mono",
+      "account": "konto",
+      "bounties": "mendoj",
+      "role": "rolo"
+    },
+    "nav": {
+      "dashboard": "Panelo",
+      "myBackings": "Miaj subtenoj",
+      "startBounty": "Krei mendon",
+      "findCreators": "Trovi kreantojn",
+      "browseBounties": "Foliumi mendojn",
+      "billing": "Fakturado",
+      "paymentHistory": "Pagohistorio",
+      "settings": "Agordoj",
+      "becomeCreator": "Iĝu kreanto",
+      "myBounties": "Miaj mendoj",
+      "payouts": "Elpagoj",
+      "cashLedger": "Kaslibro",
+      "tax": "Impostoj kaj plenumo",
+      "handles": "Kontonomoj"
+    },
+    "roles": {
+      "fan": "fano",
+      "creator": "kreanto",
+      "council": "konsilio"
+    },
+    "userCard": {
+      "signOut": "elsaluti"
+    }
+  },
+  "PublicHeader": {
+    "logIn": "Ensaluti",
+    "signUp": "Registriĝi",
+    "searchLong": "trovu kreanton, mendon aŭ kontonomon…",
+    "searchShort": "serĉi…",
+    "cancel": "nuligi"
+  },
+  "Settings": {
+    "language": {
+      "label": "Lingvo",
+      "title": "lingvo",
+      "blurb": "Elektu la lingvon en kiu Artypot estas montrata. Via elekto estas konservita al via konto.",
+      "hint": "Elektu vian preferatan lingvon. Konserviĝas en via konto."
+    },
+    "breadcrumb": {
+      "fan": "fano",
+      "settings": "agordoj"
+    },
+    "hero": {
+      "title": "agordoj"
+    },
+    "common": {
+      "cancel": "Nuligi",
+      "save": "Konservi",
+      "saving": "Konservante…"
+    },
+    "email": {
+      "label": "retpoŝta adreso",
+      "addBlurb": "Aldonu retpoŝtan adreson por ebligi retpoŝtajn sciigojn kaj pasvortan ensaluton.",
+      "verifiedBadge": "✓ kontrolita",
+      "placeholderExample": "via@retposxto.com",
+      "placeholderNew": "nova retpoŝta adreso",
+      "addButton": "Aldoni retpoŝton",
+      "changeButton": "Ŝanĝi retpoŝton",
+      "sending": "Sendante…",
+      "sentBanner": "Konfirma retmesaĝo sendita al <strong>{email}</strong>. Klaku la ligilon por kompletigi.",
+      "sentBannerShort": "Konfirmo sendita al <strong>{email}</strong>. Klaku la ligilon por kompletigi.",
+      "pendingBanner": "Atendanta ŝanĝo al <strong>{email}</strong> — kontrolu tiun enirkeston."
+    },
+    "profilePicture": {
+      "label": "profila bildo",
+      "alt": "Profila bildo",
+      "saving": "konservante…",
+      "change": "ŝanĝi foton…",
+      "upload": "alŝuti foton…",
+      "unavailable": "Bildalŝutoj ne estas disponeblaj — NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ne estas agordita.",
+      "anySize": "Alŝutu ajnan grandecon"
+    },
+    "displayName": {
+      "label": "montrata nomo",
+      "saveButton": "Konservi nomon"
+    },
+    "expiry": {
+      "label": "defaŭlta subtena eksvalidiĝo",
+      "blurb": "Kiom longe via subteno restas aktiva kiam vi subtenas novan rekompencon. Vi ĉiam povas superregi tion por ĉiu rekompenco.",
+      "lengthLabel": "daŭro",
+      "unitLabel": "unuo",
+      "unitDay": "tago(j)",
+      "unitWeek": "semajno(j)",
+      "unitMonth": "monato(j)",
+      "unitYear": "jaro(j)"
+    },
+    "backingAmount": {
+      "label": "defaŭlta subtena sumo",
+      "blurb": "Antaŭplenigita en la subtena formularo. Vi ĉiam povas superregi tion por ĉiu rekompenco.",
+      "amountLabel": "sumo ($)"
+    },
+    "privacy": {
+      "label": "privateco",
+      "anonTitle": "Anonima reĝimo",
+      "beta": "(beta)",
+      "anonDesc": "Kaŝu vian subtenon de via publika profilo. Via nomo aperas kiel [anonima] en subtenantaj listoj."
+    },
+    "billing": {
+      "label": "fakturado",
+      "blurb": "Administru konservitajn pagmetodojn kaj vidu kion vi subtenis.",
+      "cta": "Iri al fakturado →"
+    },
+    "creatorProfile": {
+      "label": "krea profilo",
+      "blurb": "Redaktu vian publikan krean paĝon — montrata nomo, biografio, identigiloj.",
+      "cta": "Redakti profilon →"
+    },
+    "phone": {
+      "label": "telefonnumero",
+      "blurb": "Aldonu kontrolitan telefonnumeron por ricevi SMS-sciigojn.",
+      "verifiedBadge": "✓ kontrolita",
+      "removing": "forigante…",
+      "remove": "forigi",
+      "codeSentTo": "6-cifera kodo estis sendita al <strong>{phone}</strong>.",
+      "verifying": "Kontrolante…",
+      "verify": "Kontroli",
+      "useDifferent": "← Uzi alian numeron",
+      "sending": "Sendante…",
+      "sendCode": "Sendi kodon"
+    },
+    "notifications": {
+      "label": "sciigoj",
+      "addEmailWarn": "Aldonu retpoŝtan adreson supre por ebligi retpoŝtajn sciigojn.",
+      "verifyEmailWarn": "Kontrolu vian retpoŝton por ebligi retpoŝtajn sciigojn.",
+      "verifyPhoneWarn": "Kontrolu vian telefonnumeron por ebligi SMS-sciigojn.",
+      "addPhoneWarn": "Aldonu kaj kontrolu vian telefonnumeron por ebligi SMS-sciigojn.",
+      "loading": "ŝargante…",
+      "notAvailable": "Ne disponebla",
+      "creatorCrossLink": "iri al kreaj sciigoj →",
+      "resetting": "rekomencigante…",
+      "resetToDefaults": "rekomencigi al defaŭltoj",
+      "channels": {
+        "email": "retpoŝto",
+        "sms": "sms",
+        "bell": "sonorilo"
+      },
+      "aria": {
+        "email": "retpoŝto: {row}",
+        "emailAlwaysOn": "retpoŝto: {row} (ĉiam ŝaltita)",
+        "sms": "sms: {row}",
+        "smsAlwaysOn": "sms: {row} (ĉiam ŝaltita)",
+        "bell": "sonorilo: {row}",
+        "bellAlwaysOn": "sonorilo: {row} (ĉiam ŝaltita)"
+      },
+      "rows": {
+        "creatorVerified": {
+          "label": "kreinto kontrolita",
+          "desc": "kreinto por kiu vi lasis rekompencon aliĝas al Artypot."
+        },
+        "bountyPendingReview": {
+          "label": "rekompenco atendanta kontrolon",
+          "desc": "kreinto sendas finon por via rekompenco."
+        },
+        "bountyConfirmed": {
+          "label": "rekompenco konfirmita",
+          "desc": "la konsilio aprobas rekompencon kaj pago estas envicigita."
+        },
+        "backingConfirmed": {
+          "label": "subteno konfirmita",
+          "desc": "vi subtenis rekompencon."
+        },
+        "backingExpired": {
+          "label": "subteno eksvalidiĝis",
+          "desc": "via subteno de rekompenco atingis sian eksvalidiĝon kaj estis forigita."
+        },
+        "billingPreview": {
+          "label": "faktura antaŭrigardo",
+          "desc": "averto antaŭ ol via pagmetodo estas ŝargita."
+        },
+        "billingReceipt": {
+          "label": "faktura kvitanco",
+          "desc": "detaligo post kiam via monata pago estas traktita."
+        },
+        "bountyActivity": {
+          "label": "rekompenca agado",
+          "desc": "komento aŭ ĝisdatigo pri rekompenco kiun vi sekvas."
+        },
+        "creatorActivity": {
+          "label": "krea agado",
+          "desc": "kreinto kiun vi sekvas afiŝas ion aŭ sendas rekompencon."
+        },
+        "commentReply": {
+          "label": "komenta respondo",
+          "desc": "iu respondis al komenta fadeno en kiu vi partoprenis."
+        },
+        "regionAvailable": {
+          "label": "regiono disponebla",
+          "desc": "pagtraktado malfermiĝas en via regiono, do viaj subtenoj povas esti ŝargitaj."
+        },
+        "accountManagement": {
+          "label": "konto-administrado",
+          "desc": "necesaj agoj, administraj mesaĝoj, rezultoj de identigila kontrolo."
+        }
+      }
+    },
+    "password": {
+      "label": "pasvorto",
+      "blurb": "Ĝisdatigu vian ensalutan pasvorton.",
+      "cta": "Ŝanĝi pasvorton →"
+    },
+    "danger": {
+      "label": "danĝera zono",
+      "brokeTitle": "💸 Klaku ĉi tion se vi senmonas!!",
+      "brokeDesc": "Ne fordonu monon kiun vi ne havas. Tuj retiras vin de ĉio al kio vi sin devigis.",
+      "brokeButton": "Mi senmonas",
+      "deleteTitle": "Forigi mian konton",
+      "deleteDesc": "Por ĉiam forigas vian konton kaj nuligas ĉiujn viajn devontigojn. Via retpoŝto povas esti reuzita.",
+      "deleteButton": "Forigi konton",
+      "brokeDone": "farite — {count, plural, one {# devontigo nuligita} other {# devontigoj nuligitaj}}.",
+      "genericError": "io misfunkciis. bonvolu reprovi."
+    },
+    "brokeModal": {
+      "title": "Retiri vin de ĉio",
+      "working": "Laborante…",
+      "confirm": "Jes, retiri min de ĉio",
+      "body": "Ĉi tio tuj <strong>nuligos ĉiujn viajn aktivajn devontigojn</strong> kaj forigos vian subtenon de ĉiu projekto.",
+      "amountWarning": "{amount} en aktivaj devontigoj estos nuligitaj.",
+      "undoNote": "Ĉi tio ne facile malfareblas. Vi devus subteni ĉiun projekton individue denove."
+    },
+    "deleteModal": {
+      "title": "Forigi mian konton",
+      "deleting": "Forigante…",
+      "confirm": "Jes, forigi mian konton",
+      "body": "Ĉi tio <strong>por ĉiam forigos vian konton</strong>, nuligos ĉiujn viajn aktivajn devontigojn, kaj tuj elsalutos vin.",
+      "recoverNote": "Via konto ne reakireblas. Vi povas reregistriĝi per la sama retpoŝta adreso.",
+      "typePrompt": "Tajpu <strong>{name}</strong> por konfirmi:"
+    },
+    "toasts": {
+      "settingsSaved": "Agordoj konservitaj.",
+      "saveFailed": "Ne eblis konservi. Bonvolu reprovi.",
+      "notifReset": "Sciigaj agordoj rekomencigitaj al defaŭltoj.",
+      "resetFailed": "Ne eblis rekomencigi. Bonvolu reprovi.",
+      "nameUpdated": "Nomo ĝisdatigita!",
+      "nameFailed": "Ne eblis konservi la nomon.",
+      "expirySaved": "Defaŭlta eksvalidiĝo konservita.",
+      "expiryFailed": "Ne eblis konservi la eksvalidiĝon.",
+      "backingAmountSaved": "Defaŭlta subtena sumo konservita.",
+      "backingAmountFailed": "Ne eblis konservi la defaŭltan subtenan sumon.",
+      "codeSent": "Kontrola kodo sendita!",
+      "codeSendFailed": "Ne eblis sendi la kodon.",
+      "phoneVerified": "Telefonnumero kontrolita!",
+      "codeInvalid": "Nevalida aŭ eksvalidiĝinta kodo.",
+      "phoneRemoved": "Telefonnumero forigita.",
+      "phoneRemoveFailed": "Ne eblis forigi la telefonnumeron.",
+      "confirmEmailSent": "Konfirma retmesaĝo sendita!",
+      "confirmEmailFailed": "Ne eblis sendi la konfirman retmesaĝon.",
+      "pictureUpdated": "Profila bildo ĝisdatigita!",
+      "pictureFailed": "Ne eblis konservi la bildon."
+    }
+  },
+  "About": {
+    "hero": {
+      "taglines": {
+        "kickstarter": "Kiel Kickstarter, sed neniu mono moviĝas ĝis la afero estas finita.",
+        "changeOrg": "Kiel Change.org, sed kun precizaj financaj instigoj.",
+        "device": "Artypot estas komunika aparato. Postula kunordiganto."
+      },
+      "titleLine1": "Mono parolas plej laŭte",
+      "titleLine2Prefix": "kiam ĝi estas",
+      "titleLine2Sketch": "en via poŝo.",
+      "lede": "Adorantoj kunmetas monon sur specifaj petoj direktitaj al kreantoj kaj publikaj institucioj. Neniu karto estas ŝargita ĝis la afero estas liverita kaj Konsilio-aprobita — retiriĝu iam ajn antaŭ tio. Neniu risko dum vi atendas.",
+      "ledeEmphasis": "Deziro, multobligita, fariĝas oferto kiun neniu povas ignori.",
+      "browseBounties": "Foliumi premiojn",
+      "exploreCreators": "Esplori kreantojn",
+      "notSure": "Ne certas kio ĉio ĉi estas? → Kiel ĝi funkcias"
+    },
+    "psychology": {
+      "label": "la psikologio",
+      "titleLine1": "Premio premas neniun.",
+      "titleLine2": "Ĝi nur sidas tie, kreskante,",
+      "titleSketch": "estante tre videbla.",
+      "subtitle": "La postulo jam estis tie. Ni donis al ĝi numeron.",
+      "usualLabel": "kiel ĝi kutime funkcias",
+      "usualBody": "Vi lasas komenton. Vi citas tviton. Vi petas ĝentile. Vi estas ignorata, aŭ vi ricevas 'baldaŭ.' La momento pasas. La afero neniam fariĝas.",
+      "oursLabel": "kiel ni laboras",
+      "oursBody": "Vi kaj 200 nekonatuloj kun ege simila gusto metas monon en premion. La premio fariĝas neebla ignori. Iuj homoj aperas nur kiam la prezo estas ĝusta."
+    },
+    "howItWorks": {
+      "label": "la mekaniko",
+      "title": "Kiel ĝi funkcias",
+      "steps": {
+        "open": {
+          "title": "Iu malfermas premion",
+          "description": "Iu ajn povas komenci unu. Elektu kreanton, nomu la precizan aferon kiun vi volas fari — kanton, videoeseon, desegnaĵon, kion ajn. Fiksu vian dolaran sumon."
+        },
+        "grow": {
+          "title": "La premio kreskas",
+          "description": "Aliaj homoj kiuj volas la saman aferon kontribuas. La kreanto povas vidi la premion kreski en reala tempo. Foje tio estas la tuta signalo kiun ili bezonas."
+        },
+        "ship": {
+          "title": "Verko liveriĝas. Mono moviĝas.",
+          "description": "La kreanto sendas la finon. La Konsilio kontrolas ke ĝi kongruas kun la peto. Kartoj estas ŝargitaj kaj la premio elpagiĝas. Neniu livero = neniu ŝargo."
+        }
+      }
+    },
+    "roles": {
+      "label": "la rolularo",
+      "title": "Kiu estas en la ĉambro kie tio okazas?",
+      "subtitle": "Tri specoj de homoj. Vi verŝajne estas unu el ili.",
+      "cast": {
+        "fans": {
+          "name": "Adorantoj",
+          "badge": "tio estas vi",
+          "body": "Vi volas ke specifa afero okazu kaj vi pretas subteni ĝin per vera mono."
+        },
+        "creator": {
+          "name": "La Kreanto",
+          "badge": "la talento",
+          "body": "Kiu ajn estas la celo de la premio. Ili ŝuldas nenion al neniu — sed estas vera mono tie kun ilia nomo sur ĝi. Estas nur demando de tempo..."
+        },
+        "council": {
+          "name": "La Konsilio",
+          "badge": "la arbitraciantoj",
+          "body": "Mi kaj kelkaj homoj kiujn mi fidas. Ni kontrolas ke la afero vere estas la afero antaŭ ol iu mono moviĝas. Neniu estas pagata sen ni."
+        }
+      }
+    },
+    "money": {
+      "label": "sekvu la monon",
+      "title": "La teknika parto",
+      "intro": "Ni scias kiel homamasfinancado kutime iras. Vi pagas, vi atendas, vi ricevas ligilon al Discord. Ĉi tie, via karto ne estas ŝargita ĝis la verko estas FINITA. La Konsilio kontrolas la finon antaŭ ol iu mono moviĝas.",
+      "guarantees": {
+        "charged": {
+          "title": "Ŝargita nur ĉe livero",
+          "detail": "Via karto ne estas tuŝita ĝis la verko estas finita kaj la Konsilio aprobis ĝin. Retiriĝu iam ajn antaŭ la fino — neniu risko dum vi atendas."
+        },
+        "fee": {
+          "title": "{pct}% platforma kotizo, ĉio inkluzive",
+          "detail": "Kovras ĉion — mi devas manĝi, deklari impostojn, kaj pagprocesorojn oni devas pagi."
+        },
+        "payout": {
+          "title": "Rekta banka elpago",
+          "detail": "Kiam premio likvidiĝas, la mono iras rekte al la banka konto de la kreanto."
+        },
+        "noAccess": {
+          "title": "Neniu speciala aliro por subtenantoj",
+          "detail": "La enhavo restas publika. Adorantoj kiuj financis ĝin ricevas la saman aferon kiel ĉiuj aliaj."
+        }
+      },
+      "lifecycleTitle": "La vivo de premio",
+      "lifecycleLabel": "ses haltoj · koloro = kiu agas"
+    },
+    "finePrint": {
+      "label": "neniuj surprizoj",
+      "title": "La malgranda presaĵo",
+      "recordTitle": "Por la registro",
+      "recordBody1": "Mi ne havas enhavpolitikon kiu silente ĝisdatiĝas vendrede nokte. Mi ne decidas kio indas esti farita. Vi kaj viaj adorantoj decidas. Tio estas la tuta afero.",
+      "recordBody2": "Estas evidentaj limoj — kontraŭleĝa estas kontraŭleĝa — sed la platformo ne havas opiniojn pri arto.",
+      "statusTitle": "Noto pri kie mi estas",
+      "statusBody1": "Ĝuste nun, Artypot subtenas nur <emph>kreditkartajn pagojn</emph>, kaj elpagoj povas iri nur al kreantoj kiuj estas <emph>bazitaj en Usono</emph>. Tio ne estas viziodeklaro — ĝi estas nur kie la jura paperaĵo nuntempe estas en ordo.",
+      "statusBody2": "Mi laboras pri tio. La celo estas fine tutmonda. Por nun: se vi estas adoranto ie ajn en la mondo, vi ankoraŭ povas subteni premiojn. Se vi estas tiu kiu ricevas pagon, vi bezonos usonan bankokonton."
+    },
+    "cta": {
+      "titleLine1": "Verŝajne jam ekzistas premio",
+      "titleLine2": "por io kion vi volas.",
+      "subtitle": "Iru rigardi. Se ankoraŭ ne estas, vi scias kion fari.",
+      "browse": "Foliumi malfermajn premiojn",
+      "start": "aŭ komencu premion mem →"
+    }
+  },
+  "BackingPolicyNote": {
+    "text": "Free to cancel anytime before the bounty completes. Once completed, your backing is locked, charged on the next billing day, and final — refunds after a charge are discretionary (hardship or verified fraud only). To the extent this backing constitutes a contract for services, you agree any such performance may begin immediately, and any EU/UK 14-day right of withdrawal ends when the bounty completes. [EO: atendas profesian revizion]"
+  },
+  "BecomeCreator": {
+    "hero": {
+      "sectionLabel": "adoranto",
+      "title": "iĝu kreanto",
+      "subtitle": "Malŝlosu la kreantan vidon por akcepti taskojn kaj ricevi pagon por via laboro."
+    },
+    "economics": {
+      "keepHeadline": "Vi konservas {pct}% de ĉiu tasko.",
+      "feeExplainer": "La {fee}% de Artypot kovras kartan procezadon kaj fraŭdoprotekton, gastigadon, subtenon, kaj organikajn legomojn por la konsiliaj membroj kiuj moderigas ĉion.",
+      "noFees": "neniu registriĝa kotizo · neniu monata kotizo · neniu vendoimposto · deprenita nur de finitaj elpagoj"
+    },
+    "alreadyCreator": {
+      "sectionLabel": "kreanto",
+      "heading": "vi jam estas kreanto",
+      "body": "Via kreanta konto estas aktiva. Iru al via kreanta panelo por administri taskojn, sekvi enspezojn, kaj pli.",
+      "dashboardButton": "Iru al la panelo →"
+    },
+    "gates": {
+      "completeBadge": "finita",
+      "defaultLockText": "finu antaŭajn paŝojn por malŝlosi"
+    },
+    "gate1": {
+      "title": "Konfirmu vian retadreson",
+      "description": "Konfirmita retadreso necesas por ricevi kreantajn sciigojn kaj impostajn komunikadojn"
+    },
+    "gate2": {
+      "title": "Konfirmu kromnomon",
+      "description": "Ligu socian konton por ke adorantoj sciu ke vi estas la vera",
+      "lockText": "Konfirmu vian retadreson por malŝlosi",
+      "editButton": "Redakti",
+      "doneButton": "Farite"
+    },
+    "gate3": {
+      "title": "Aldonu vian impostan loĝlokon",
+      "description": "Ni uzas ĉi tion por scii kie raporti viajn enspezojn poste",
+      "lockText": "Konfirmu kromnomon por malŝlosi",
+      "editButton": "Redakti"
+    },
+    "gate4": {
+      "title": "Akceptu la kreantajn kondiĉojn kaj elektu vian ĉefan kromnomon",
+      "description": "Akceptu la kreantajn kondiĉojn kaj rezervu vian URL artypot.com/[slug]",
+      "lockText": "Finu paŝojn 1–3 por malŝlosi"
+    },
+    "email": {
+      "noEmailPrefix": "Neniu retadreso en via konto.",
+      "noEmailLink": "Aldonu unu en Agordoj",
+      "noEmailSuffix": "por ricevi konfirmligilon.",
+      "linkSentBanner": "Konfirmligilo estis sendita al via retadreso. Kontrolu vian enirkeston (kaj la spam-dosierujon).",
+      "sentToast": "Konfirma retmesaĝo sendita — kontrolu vian enirkeston.",
+      "sendErrorToast": "Ne eblis sendi la konfirman retmesaĝon. Bonvolu reprovi.",
+      "sending": "Sendante…",
+      "resendButton": "Resendi konfirman retmesaĝon"
+    },
+    "residence": {
+      "countryLabel": "lando",
+      "selectCountry": "— elektu landon —",
+      "selectSubdivision": "— elektu {subdivision} —",
+      "saving": "Konservante…",
+      "saveButton": "Konservi impostan loĝlokon",
+      "cancel": "Nuligi",
+      "savedToast": "Imposta loĝloko konservita.",
+      "saveErrorToast": "Malsukcesis konservi la impostan loĝlokon."
+    },
+    "handles": {
+      "loading": "ŝargante…"
+    },
+    "tos": {
+      "slugRequired": "Slug estas deviga.",
+      "slugLabel": "elektu vian kreantan URL",
+      "termsFieldLabel": "kreantaj kondiĉoj de servo",
+      "tldrFootnote": "Ĉi tiu resumo estas helpa, ne anstataŭaĵo por la plenaj kondiĉoj.",
+      "readFullTerms": "Legu la plenajn Kreantajn Kondiĉojn de Servo →",
+      "agreePrefix": "Mi legis kaj akceptas la",
+      "agreeLinkText": "Kreantajn Kondiĉojn de Servo de Artypot",
+      "activating": "Aktivigante…",
+      "enableButton": "Ŝalti kreantan reĝimon →",
+      "activatedToast": "Kreanta reĝimo ŝaltita — bonvenon!",
+      "genericError": "Io misfunkciis. Bonvolu reprovi."
+    },
+    "backToDashboard": "← Reen al la panelo"
+  },
+  "CreatorTos": {
+    "hero": {
+      "eyebrow": "Jura · Kreantoj",
+      "title": "kondiĉoj de servo por kreantoj",
+      "lastUpdated": "Laste ĝisdatigita: {date}",
+      "supplementA": "Ĉi tiuj Kreantaj Kondiĉoj kompletigas la",
+      "generalTosLink": "ĝeneralajn Kondiĉojn de Servo",
+      "supplementB": "kaj validas tuj kiam vi ŝaltas la kreantan reĝimon. Kie la du konfliktas pri kreant-specifaj aferoj, ĉi tiuj kondiĉoj regas."
+    },
+    "toc": {
+      "heading": "Enhavo",
+      "commitments": "Devontigoj de la Kreanto",
+      "role": "La Rolo de Artypot",
+      "payouts": "Elpagoj kaj Kotizoj",
+      "refunds": "Repagoj kaj Nuligoj",
+      "content": "Enhavaj Reguloj",
+      "termination": "Ĉesigo",
+      "disclaimer": "Malgarantioj kaj Limigo de Respondeco",
+      "governing": "Reganta Juro kaj Disputoj",
+      "misc": "Diversaĵoj"
+    },
+    "sections": {
+      "commitments": {
+        "title": "1. Devontigoj de la Kreanto",
+        "p0": "Ŝaltante la kreantan reĝimon, vi formas devigan interkonsenton kun Artypot LLC, limigita respondeca kompanio de Florido, kaj konsentas pri la jeno.",
+        "p1Lead": "1.1 Liveri komisiitan laboron.",
+        "p1Rest": " [EO atendas profesian juran revizion — angla teksto] You commit to producing the work described in a bounty in good faith and submitting it for review. Funds are only collected from fans after you submit your completed work and the Artypot Council confirms it satisfies the bounty — payment never precedes delivery. Submitting work you have not actually produced, do not own the rights to, or that does not fulfil the bounty may result in suspension or termination of your creator account.",
+        "p2Lead": "1.2 Konservi precizajn identigajn informojn.",
+        "p2Rest": " [EO atendas profesian juran revizion — angla teksto] The social handles and websites you verify through Artypot must genuinely represent your identity as a creator. You must not impersonate another person or entity or misrepresent your affiliation with any platform account.",
+        "p3Lead": "1.3 Provizi precizajn impostajn informojn kiam petite.",
+        "p3Rest": " [EO atendas profesian juran revizion — angla teksto] When your cumulative annual payouts reach IRS reporting thresholds (or equivalent thresholds under applicable local law), you agree to provide a completed W-9 (for U.S. persons) or W-8BEN (for non-U.S. persons) upon request. Failure to provide required tax documentation will result in a hard block on payouts until documentation is provided.",
+        "p4Lead": "1.4 Teni vian impostan loĝejon aktuala.",
+        "p4Rest": " [EO atendas profesian juran revizion — angla teksto] You must maintain an accurate country of tax residence (and U.S. state or territory, if applicable) in your creator profile. This information is used solely for earnings reporting and tax compliance purposes.",
+        "p5Lead": "1.5 Obei ĉiujn aplikeblajn leĝojn.",
+        "p5Rest": " [EO atendas profesian juran revizion — angla teksto] You are solely responsible for complying with all laws applicable to your activities on Artypot, including tax obligations, export controls, and local content regulations.",
+        "p6Lead": "1.6 Premioj financas publikan laboron, ne privatajn avantaĝojn.",
+        "p6Rest": " [EO atendas profesian juran revizion — angla teksto] A backing is a contribution toward a public deliverable — it is not a purchase, and it does not entitle the backer to anything the general public does not also receive. You must not offer, promise, or provide any private, personal, or backer-exclusive benefit in exchange for a backing or in recognition of its size, including (without limitation) private access, one-on-one time, physical goods, personalized or backer-owned work, travel, in-person meetings, early or exclusive access, or any preferential treatment. The work you deliver for a bounty must be a single public result, equally accessible to backers and non-backers alike. The only recognition you may give a backer is a simple public acknowledgment of that individual by name, and only as a discretionary courtesy: a backer is never owed it, acquires no right to it, and has no claim if you choose not to give it. You may not scale recognition by backing size — no tiers, no leaderboard-style prominence, and nothing in which a larger backing buys greater visibility, such as naming the top backer in a video's title. Acknowledgment is for natural persons only: never a business name, mark, logo, URL, or promotional message. Auctioning or selling personal access or private benefits — for example, offering an experience to the highest backer — is prohibited, and converts a non-sale contribution into a transaction our platform and payment partners do not support.",
+        "p7Lead": "1.7 Neniu pago por oficialaj agoj aŭ kampanjoj.",
+        "p7Rest": " [EO atendas profesian juran revizion — angla teksto] If you hold public office or are employed by a government, you may not accept or fulfil a bounty that rewards, induces, or is conditioned on anything you do in that official capacity. You also may not use Artypot to raise money for a political campaign, candidate, party, or committee, or for any other election-related purpose. This applies regardless of intent. Bounties for your ordinary creative work are unaffected — this is about official acts and campaigns, not about who you are.",
+        "p8Lead": "1.8 Nur individuaj kreantoj.",
+        "p8Rest": " [EO atendas profesian juran revizion — angla teksto] Creator accounts are currently available only to individuals acting on their own behalf. Artypot does not yet support participation by corporations, LLCs, partnerships, or other business entities, and you may not enable or operate creator mode for or on behalf of any such entity. By enabling creator mode, you represent that you are a natural person, that you are acting solely on your own behalf and not for any business entity, and that your payouts will be reported under your personal taxpayer identity (such as a W-9 or W-8BEN, not an entity tax form). We expect to support business entities in the future; until we announce that support, entity-based participation is not permitted, and an account found to be operated by or for a business entity may have its payouts held or its creator status suspended until the matter is resolved."
+      },
+      "role": {
+        "title": "2. La Rolo de Artypot",
+        "p1Lead": "2.1 Platformo, ne dunganto.",
+        "p1Rest": " [EO atendas profesian juran revizion — angla teksto] Artypot is a platform that facilitates fan-funded commissions. Artypot is not your employer, client, agent, or partner. You are an independent creator. Nothing in these terms creates an employment, agency, joint venture, or partnership relationship between you and Artypot.",
+        "p2Lead": "2.2 Paga peranto.",
+        "p2Rest": " [EO atendas profesian juran revizion — angla teksto] Artypot acts as a payment intermediary between fans and creators. Artypot collects fan backings, holds them in accordance with its billing and refund policies, and disburses net proceeds to creators after any applicable platform fees and processing costs.",
+        "p3Lead": "2.3 Neniu garantio de enspezoj.",
+        "p3Rest": " [EO atendas profesian juran revizion — angla teksto] Artypot does not guarantee that any bounty will reach any amount, that fans will fulfill their backings, or that any particular level of earnings will result from your participation.",
+        "p4Lead": "2.4 Revizio de la Konsilio.",
+        "p4Rest": " [EO atendas profesian juran revizion — angla teksto] Bounty completion submissions are reviewed by the Artypot Council, an independent body of verified users. Council decisions regarding approval or rejection of completions are final. There is no formal appeals process, though you may contact us to raise concerns about a decision."
+      },
+      "payouts": {
+        "title": "3. Elpagoj kaj Kotizoj",
+        "p1Lead": "3.1 Rajteco al elpago.",
+        "p1Rest": " [EO atendas profesian juran revizion — angla teksto] To receive a payout you must: (a) have a verified country of tax residence on file; (b) have a connected payout account (via Stripe Connect where available, or another approved payout method); and (c) have provided required tax documentation (a W-9 for U.S. persons, or a W-8BEN for non-U.S. persons) as applicable.",
+        "p2Lead": "3.2 Minimuma elpaga sojlo.",
+        "p2Rest": " [EO atendas profesian juran revizion — angla teksto] Payouts are subject to a minimum balance threshold that depends on your country and payout method, as published on the Artypot website and shown in your creator dashboard from time to time. Balances below the applicable threshold will accumulate until the threshold is met.",
+        "p3Lead": "3.3 Platforma kotizo.",
+        "p3Rest": " [EO atendas profesian juran revizion — angla teksto] Artypot deducts a platform fee from each payout, as specified in your creator dashboard and on the Artypot pricing page. Fees are subject to change with 30 days' notice to active creators.",
+        "p4Lead": "3.4 Reten-periodo.",
+        "p4Rest": " [EO atendas profesian juran revizion — angla teksto] Funds collected from fans are subject to a hold period (currently 7 days) before becoming available for withdrawal. This period exists to allow for fraud review and fan dispute resolution.",
+        "p5Lead": "3.5 Valuto.",
+        "p5Rest": " [EO atendas profesian juran revizion — angla teksto] All transactions are denominated in U.S. dollars unless otherwise stated. You are responsible for any currency conversion costs incurred by you or your bank."
+      },
+      "refunds": {
+        "title": "4. Repagoj kaj Nuligoj",
+        "p1Lead": "4.1 Nuligoj de adorantoj.",
+        "p1Rest": " [EO atendas profesian juran revizion — angla teksto] Fans may revoke open backings at any time before a bounty is marked complete. Revoked backings are returned to the fan in full; you are not entitled to compensation for revoked backings.",
+        "p2Lead": "4.2 Malakcepto de la Konsilio.",
+        "p2Rest": " [EO atendas profesian juran revizion — angla teksto] If the Council rejects a completion submission, no funds are collected from fans. You may resubmit after addressing the Council's feedback.",
+        "p3Lead": "4.3 Reŝargoj.",
+        "p3Rest": " [EO atendas profesian juran revizion — angla teksto] If a fan's bank reverses a charge (a chargeback), the disputed amount — net of the platform fee that was withheld from it — is deducted from your creator balance. This deduction applies whether or not the funds are still within the clearing hold period, and applies even if the funds have already cleared or been paid out to you. Where a single charge covers backings for more than one creator, a chargeback is allocated proportionally across the affected creators, and a chargeback for only part of a charge is clawed back proportionally. Because a chargeback can arrive after you have withdrawn the funds, this deduction may reduce your balance below zero (see 4.6). If a chargeback is later resolved in Artypot's favour, the deducted amount is restored to your balance.",
+        "p4Lead": "4.4 Repagoj iniciatitaj de Artypot.",
+        "p4Rest": " [EO atendas profesian juran revizion — angla teksto] Artypot may refund a fan, in whole or in part, at its discretion — for example to resolve a complaint, correct an error, address non-delivery or deficient work, or satisfy a legal or payment-partner requirement. When Artypot issues such a refund, the net amount you received for the affected backing is deducted from your balance and Artypot returns its own platform fee. As with a chargeback, this deduction may reduce your balance below zero. Artypot also reserves the right to claw back disbursed funds in cases of verified fraud or material misrepresentation.",
+        "p5Lead": "4.5 Repagoj kiujn vi elektas eldoni.",
+        "p5a": " [EO atendas profesian juran revizion — angla teksto] You may refund every backer of one of your own completed or paid-out bounties from your creator dashboard. Backings that have not yet been billed are cancelled at no cost to you. For backings that have already been charged, each fan is refunded the full amount they paid, and that full amount — including the platform fee — is deducted from your balance; because the refund is voluntary, Artypot does not return its fee on a creator-initiated refund. You may only start a bounty-wide refund when your available balance covers the full amount to be refunded. If it does not, contact ",
+        "p5b": " and we will help arrange it.",
+        "p6Lead": "4.6 Negativaj saldoj kaj kompenso.",
+        "p6Rest": " [EO atendas profesian juran revizion — angla teksto] A chargeback (4.3), an Artypot-initiated refund (4.4), or a clawback for fraud or material misrepresentation may reduce your creator balance below zero. A negative balance is carried forward and offset against your future earnings before any further payout is made. If you disable creator mode, close your account, or stop earning while carrying a negative balance, you remain responsible for the outstanding amount, and Artypot may recover it by any lawful means.",
+        "p7Lead": "4.7 Kompletaj ŝargoj estas finaj por la adoranto.",
+        "p7Rest": " [EO atendas profesian juran revizion — angla teksto] Once the Council confirms a completion and fans are charged, those charges are final and are not refundable at a fan's unilateral request. Refunds occur only in the cases described above: a chargeback (4.3), a refund Artypot elects to issue (4.4), a refund you choose to issue (4.5), or a clawback for verified fraud or material misrepresentation.",
+        "p8Lead": "4.8 Akcepto de nuliga risko; rezigno pri fid-pretendoj.",
+        "p8Rest": " [EO atendas profesian juran revizion — angla teksto] Backings on open bounties are expressions of intent, not guaranteed payments, and any backer may revoke, reduce, or withdraw a backing at any time before a bounty is confirmed complete (see 4.1 and 2.3). If you begin, perform, or complete work in anticipation of a bounty, you do so at your own risk and in reliance solely on your own judgment — not on any backing, projected total, or any representation by a backer or by Artypot. You expressly assume the risk that backings may be revoked, reduced, or never charged, and that a bounty may close or expire without any payment. To the fullest extent permitted by law, you waive and release any claim against any backer and against Artypot — including any claim for detrimental reliance, promissory estoppel, breach of an implied promise, lost profits, or the value of work performed — arising out of or relating to the revocation, reduction, or non-fulfilment of any backing before a bounty is confirmed complete."
+      },
+      "content": {
+        "title": "5. Enhavaj Reguloj",
+        "p1Lead": "5.1 Neniu malobservo de intelekta proprieto.",
+        "p1Rest": " [EO atendas profesian juran revizion — angla teksto] You must not submit, represent, or claim as your own any work that infringes the copyrights, trademarks, trade secrets, or other intellectual property rights of any third party.",
+        "p2Lead": "5.2 La surfaco de Artypot estas por ĉiuj aĝoj.",
+        "p2Rest": " [EO atendas profesian juran revizion — angla teksto] Everything you publish or submit to Artypot itself — bounty descriptions and titles, your profile, display name, verified handles, comments, and the notes or links you attach to a completion — must be suitable for a general audience. This material is hosted and publicly displayed by Artypot, so it may not contain sexually explicit material, pornography, nudity, or gratuitous shock content. This is a rule about the on-platform surface; it is not a judgment about the legitimate creative work you produce and host elsewhere.",
+        "p3Lead": "5.3 Neniu komerco de plenkreskula enhavo.",
+        "p3Rest": " [EO atendas profesian juran revizion — angla teksto] You may not use Artypot to solicit, coordinate, or collect payment for sexually explicit or pornographic work, whether or not the work itself is delivered off-platform. Artypot is the merchant of record for every bounty charge, and our payment partners (including the card networks and Stripe) prohibit processing payments for adult content. A bounty whose purpose is to fund adult content is therefore not permitted, regardless of where the finished work is hosted.",
+        "p4Lead": "5.4 Kontraŭleĝa kaj malutila enhavo.",
+        "p4Rest": " [EO atendas profesian juran revizion — angla teksto] You must never submit, facilitate, represent as a completion, or use a bounty to fund any content that: (a) is illegal under applicable law; (b) constitutes harassment, a credible threat, or targeted hate speech; or (c) contains malware or malicious code. This prohibition is absolute and applies to both on-platform material and any work delivered off-platform in fulfilment of a bounty.",
+        "p5Lead": "5.5 Via permesilo al Artypot.",
+        "p5Rest": " [EO atendas profesian juran revizion — angla teksto] For the material you publish or submit to Artypot itself (such as completion notes, links, and profile content), you grant Artypot a limited, non-exclusive, royalty-free license to display, reproduce, and promote that material solely for the purpose of operating and marketing the Artypot platform.",
+        "p6Lead": "5.6 Viaj rajtoj.",
+        "p6Rest": " [EO atendas profesian juran revizion — angla teksto] You retain all ownership rights in your creative work. Nothing in these terms transfers copyright or other intellectual property rights to Artypot or to any fan."
+      },
+      "termination": {
+        "title": "6. Ĉesigo",
+        "p1Lead": "6.1 De vi.",
+        "p1Rest": " [EO atendas profesian juran revizion — angla teksto] You may disable creator mode at any time from your account settings, subject to any outstanding obligations (open bounties, pending payouts, or active disputes).",
+        "p2Lead": "6.2 De Artypot.",
+        "p2Rest": " [EO atendas profesian juran revizion — angla teksto] Artypot may suspend or terminate your creator status immediately if you: (a) breach these Creator Terms or the General Terms of Service; (b) engage in fraudulent or deceptive conduct; (c) fail to deliver work after funds are collected, repeatedly; (d) violate any applicable law; or (e) pose a risk to Artypot or its users.",
+        "p3Lead": "6.3 Efiko de ĉesigo.",
+        "p3Rest": " [EO atendas profesian juran revizion — angla teksto] Upon termination: existing open bounties are closed and their backings are cancelled (no charges are made, since backings on open bounties are never charged); any available creator balance will be disbursed to you (subject to tax documentation requirements and any outstanding disputes) within a reasonable period."
+      },
+      "disclaimer": {
+        "title": "7. Malgarantioj kaj Limigo de Respondeco",
+        "p1Lead": "7.1",
+        "p1Rest": " [EO atendas profesian juran revizion — angla teksto] Artypot provides its platform \"as is\" and makes no warranties, express or implied, regarding availability, fitness for a particular purpose, or uninterrupted operation.",
+        "p2Lead": "7.2",
+        "p2Rest": " [EO atendas profesian juran revizion — angla teksto] To the maximum extent permitted by law, Artypot's total liability to you arising out of or related to these Creator Terms shall not exceed the total platform fees paid by you (or collected on your behalf) in the twelve months preceding the claim.",
+        "p3Lead": "7.3",
+        "p3Rest": " [EO atendas profesian juran revizion — angla teksto] Artypot is not liable for any indirect, incidental, consequential, or punitive damages, even if advised of the possibility of such damages."
+      },
+      "governing": {
+        "title": "8. Reganta Juro kaj Disputoj",
+        "p1Lead": "8.1",
+        "p1Rest": " [EO atendas profesian juran revizion — angla teksto] These Creator Terms are governed by the laws of the State of Florida, without regard to conflict-of-law principles.",
+        "p2Lead": "8.2",
+        "p2Rest": " [EO atendas profesian juran revizion — angla teksto] Any dispute arising out of or related to these Creator Terms shall be resolved by binding arbitration administered in Hillsborough County, Florida, under the rules of the American Arbitration Association (AAA), except that either party may seek injunctive or other equitable relief in a court of competent jurisdiction in Florida.",
+        "p3Lead": "8.3",
+        "p3Rest": " [EO atendas profesian juran revizion — angla teksto] You waive your right to participate in a class action or class-wide arbitration."
+      },
+      "misc": {
+        "title": "9. Diversaĵoj",
+        "p1Lead": "9.1 Amendoj.",
+        "p1Rest": " [EO atendas profesian juran revizion — angla teksto] Artypot may update these Creator Terms at any time. Material changes will be communicated to you via the email address on your account or via an in-app notice at least 30 days before taking effect.",
+        "p2Lead": "9.2 Disigebleco.",
+        "p2Rest": " [EO atendas profesian juran revizion — angla teksto] If any provision of these Creator Terms is found to be unenforceable, the remaining provisions continue in full force.",
+        "p3Lead": "9.3 Plena Interkonsento.",
+        "p3a": " Ĉi tiuj Kreantaj Kondiĉoj, kune kun la ",
+        "generalTosLink": "ĝeneralaj Kondiĉoj de Servo",
+        "p3b": "kaj la",
+        "privacyLink": "Privateca Politiko",
+        "p3c": " de Artypot, konsistigas la plenan interkonsenton inter vi kaj Artypot rilate al via rolo kiel kreanto.",
+        "questions": "Demandoj pri ĉi tiuj kondiĉoj? Skribu al",
+        "questionsEmail": "legal@artypot.com"
+      }
+    }
+  },
+  "Dashboard": {
+    "header": {
+      "fan": "adoranto",
+      "title": "panelo",
+      "newBounty": "+ Nova premio"
+    },
+    "billing": {
+      "notice": "<strong>fakturado je {date}</strong> — vi estos ŝargita je <strong>{amount}</strong> tra aprobitaj premioj.",
+      "payNow": "Pagi nun →"
+    },
+    "stats": {
+      "bountiesJoined": {
+        "label": "subtenitaj premioj",
+        "info": "Premioj kiujn vi aktive subtenas aŭ jam helpis liveri. La sublinio nombras tiujn kiujn vi mem komencis.",
+        "sub": "{count} komencitaj de vi"
+      },
+      "creatorsPetitioned": {
+        "label": "petitaj kreantoj",
+        "info": "Apartaj kreantoj por kiuj vi subtenis premion. La sublinio estas kiom da ili sukcesis — liveris premion kiun vi subtenis kaj ricevis pagon de vi.",
+        "sub": "{count} liveritaj"
+      },
+      "nextCharge": {
+        "label": "sekva ŝargo",
+        "info": "Kion vi estos fakturita je la sekva fakturdato, kovrante premiojn kompletigitajn kaj aprobitajn ekde via lasta ŝargo. Vidu la plenan rompon sur la fakturpaĝo.",
+        "due": "ŝuldata je {date}",
+        "nothingDue": "Nenio ŝuldata",
+        "viewAmount": "vidi sumon en fakturado →",
+        "settledUp": "vi estas tute kvitiĝinta"
+      },
+      "lifetimePaid": {
+        "label": "tutvive pagita",
+        "info": "Kion vi efektive estis ŝargita, iam ajn. Ĝi restas $0 ĝis premio kiun vi subtenis estas liverita kaj aprobita — via karto neniam estas tuŝita ĝis kompletigo de la premio.",
+        "sub": "{amount} entute subtenita"
+      }
+    },
+    "backings": {
+      "sectionLabel": "miaj subtenoj",
+      "allHistory": "tuta historio →",
+      "empty": {
+        "message": "Ankoraŭ vi subtenas nenion",
+        "findCreators": "Trovi kreantojn →"
+      },
+      "bountyRef": "premio n-ro {id}",
+      "revoke": "nuligi",
+      "more": "+{count} pliaj →"
+    },
+    "featured": {
+      "sectionLabel": "elstaraj premioj",
+      "browseAll": "foliumi ĉiujn →",
+      "empty": {
+        "message": "Malkovru premiojn de kreantoj tra Artypot.",
+        "browse": "Foliumi premiojn →",
+        "findCreators": "Trovi kreantojn →"
+      }
+    }
+  },
+  "FeaturedBounties": {
+    "heading": "Malfermitaj ĝuste nun.",
+    "subheading": "Kelkaj premioj indaj je via atento."
+  },
+  "ForCreators": {
+    "hero": {
+      "titleLine1": "diru al viaj adorantoj",
+      "titleLine2": "kion vi volas krei.",
+      "titleLine3": "lasu ilin financi ĝin.",
+      "body": "Artypot estas premia platformo. Kreu premion por specifa projekto, dividu ĝin kun via spektantaro, kaj ili enmetas monon por ĝi. Neniuj abonoj. Neniuj pagmuroj. Vi faras la aferon, vi ricevas pagon. Se vi ne liveras, kreditkartoj neniam estas tuŝataj.",
+      "getStarted": "Komenci →",
+      "howYouGetPaid": "Kiel vi ricevas pagon"
+    },
+    "different": {
+      "titleLine1": "Ne trinkmonujo. Ne abono.",
+      "titleLine2": "financata projektpeto.",
+      "body": "Vi jam scias kion volas via spektantaro... sed kiom forte ili volas ĝin? Artypot transformas iliajn \"bonvolu fari X\" komentojn en numeron kun dolarsigno antaŭ ĝi.",
+      "patreon": "Monataj abonoj. Bonaj por kreantoj kun konstanta produktado — malfacile se via laboro venas en eksplodoj. Adorantoj pagas por aliro, ne por io specifa.",
+      "kofi": "Malalta frikcio, sed ankaŭ malalta signalo. Trinkmonoj ne diras al vi kion iu vere volas farita. Ili estas dankemo por aferoj kiujn vi jam faris.",
+      "artypot": "Adorantoj enmetas monon por unu specifa afero kiun vi volas krei. Nenio moviĝas ĝis ĝi estas finita. Vi ricevas pagon nur kiam vi liveras — kio estas ĝuste kial adorantoj komfortas enmeti veran monon."
+    },
+    "appeal": {
+      "fans": {
+        "label": "Kial adorantoj subtenas ĝin",
+        "titleLine1": "Ili ne donacas.",
+        "titleLine2": "Ili mendas verkon.",
+        "points": {
+          "card": {
+            "title": "Ilia karto ne estas ŝarĝata ĝis vi liveras",
+            "detail": "Neniu livero signifas neniun pagon. Neniam. Tio igas subtenadon sentiĝi sekura."
+          },
+          "oneThing": {
+            "title": "Ili subtenas unu aferon, ne monatan devontigon",
+            "detail": "Neniu abonkulpo. Ili enmetas monon por specifa afero kiun ili volas ekzisti."
+          },
+          "backOut": {
+            "title": "Ili povas retiriĝi iam ajn antaŭ kompletigo",
+            "detail": "Ŝanĝis sian opinion? Ili retiras sian subtenon. Neniaj malbonaj sentoj, neniu mono perdita."
+          }
+        }
+      },
+      "creators": {
+        "label": "Kial kreantoj uzas ĝin",
+        "titleLine1": "Testu postulon antaŭ ol",
+        "titleLine2": "investi la tempon.",
+        "points": {
+          "worthMaking": {
+            "title": "Sciu ĉu valoras krei ĝin antaŭ ol vi kreas ĝin",
+            "detail": "Malfermu la premion. Dividu ĝin. Se la subtenoj ne pravigas la laboron, nenio okazas kaj neniu perdis monon."
+          },
+          "stayPublic": {
+            "title": "Via enhavo restas publika",
+            "detail": "Ĉi tio ne estas pagmuro. Subtenantoj ne ricevas ekskluzivan aliron — ili ricevas la samon kiel ĉiuj aliaj, plus la kontenton esti farinta ĝin okazi."
+          },
+          "payoutSchedule": {
+            "title": "Neniu platformo decidas vian pag-horaron",
+            "detail": "Vi retiras kiam vi volas. La {billingDay}-a tago estas kiam adorantoj estas ŝarĝataj — post tio, la fondusoj liberiĝas post {waitDays} tagoj."
+          }
+        }
+      }
+    },
+    "howPaid": {
+      "label": "La plena bildo",
+      "title": "de registriĝo ĝis banktransigo",
+      "body": "Ĉiu paŝo, en ordo. Neniaj surprizoj."
+    },
+    "steps": {
+      "signUp": {
+        "label": "Registriĝu kaj fariĝu kreanto",
+        "sub": "Ligu socian uzantnomon por ke ni povu konfirmi ke estas vi. Ni helpos se vi havas problemojn."
+      },
+      "openBounty": {
+        "label": "Malfermu premion por via propra projekto",
+        "sub": "Skribu ĝuste kion vi volas krei — videon, albumon, ilustraĵan serion, ion ajn. Estu specifa. Svagaj premioj estas subtenataj malrapide."
+      },
+      "share": {
+        "label": "Dividu la ligilon kun via spektantaro",
+        "sub": "Afiŝu ĝin kie ajn estas viaj adorantoj. Ili povas subteni ĝin per du klakoj — neniu konto necesas por subteni, kvankam ili bezonos unu por pagi."
+      },
+      "backingsComeIn": {
+        "label": "Subtenoj envenas (ankoraŭ neniu mono moviĝas)",
+        "sub": "Adorantoj engaĝas sumojn. Nenio estas ŝarĝata. Vi povas rigardi la totalon kreski en reala tempo. Decidu kiam vi estas kontenta pri la rezulto."
+      },
+      "makeThing": {
+        "label": "Faru la aferon",
+        "sub": "Laŭ via propra horaro. Neniu limdato krom se vi fiksas ĝin. Kiam ĝi estas finita, sendu ĝin de via panelo."
+      },
+      "councilReviews": {
+        "label": "La Konsilio recenzas ĝin",
+        "sub": "Malgranda grupo de homaj recenzistoj kontrolas ke via sendaĵo vere kongruas kun tio kion la premio petis. La simplaj solviĝas post kelkaj tagoj."
+      },
+      "fansCharged": {
+        "label": "Adorantoj estas ŝarĝataj",
+        "sub": "Kartoj estas ŝarĝataj je la {billingDay}-a tago de la monato post aprobo. Subtenantoj estas avertataj antaŭ ol ĝi okazas."
+      },
+      "clearingWindow": {
+        "label": "{waitDays}-taga liberiga fenestro",
+        "sub": "Mallonga bufro por ke aperu iuj ajn disputataj ŝarĝoj. Norma praktiko de pagprilaborado."
+      },
+      "withdraw": {
+        "label": "Eltiru al via banko",
+        "sub": "Vi konservas {creatorPct}% de tio kion adorantoj pagis. Transigu ĝin al via banko per Stripe Global Payouts."
+      }
+    },
+    "fee": {
+      "label": "La kotizo",
+      "title": "{feePct}%. Fiksa. Ĉio inkluzivita.",
+      "body1": "Unu kotizo kovras ĉion — la funkciajn kostojn de Artypot kaj la tutan Stripe pagprilaboradon. Neniu monata kotizo por listigi premion. Neniu ŝarĝo se premio neniam kompletiĝas. Vi pagas nur kiam vi ricevas pagon.",
+      "body2": "Subtenantoj estas ŝarĝataj je sia ĝusta subtenita sumo. La kotizo eliras nur el via flanko, ne el ilia.",
+      "exampleLabel": "Ekzempla pago",
+      "totalBacked": "Totalo subtenita de adorantoj",
+      "softFallThrough": "Plej multaj molaj subtenoj malsukcesas",
+      "platformFee": "Platforma kotizo ({feePct}%)",
+      "youReceive": "Vi ricevas"
+    },
+    "cta": {
+      "titleLine1": "elektu ion kion vi volas krei.",
+      "titleLine2": "malfermu premion. dividu la ligilon.",
+      "body": "Se via spektantaro volas ĝin, la mono aperos. Se ne estas sufiĉa subteno aŭ vi ne liveras, neniu pagas ion ajn.",
+      "createAccount": "Kreu vian konton →",
+      "alreadyHaveOne": "Ĉu vi jam havas unu?",
+      "logIn": "Ensalutu →",
+      "howItWorks": "Kiel funkcias Artypot",
+      "terms": "Kondiĉoj de servo",
+      "contact": "Demandoj? Kontaktu nin"
+    }
+  },
+  "Home": {
+    "hero": {
+      "titleLine1": "diru al la mondo",
+      "titleLine2": "kion vi volas.",
+      "subtitle": "Serĉu iun ajn kreanton, artiston aŭ publikan figuron — komencu premion kaj lasu la komunumon financi ĝin. Neniu liverado = neniu pago.",
+      "searchPlaceholder": "Serĉu kreanton, artiston aŭ publikan figuron…",
+      "browseBounties": "Foliumi malfermajn premiojn →",
+      "areYouCreator": "Ĉu vi estas kreanto?"
+    },
+    "trending": {
+      "label": "populara nun",
+      "title": "kion homoj volas ĝuste nun",
+      "browseAll": "Foliumi ĉiujn →",
+      "empty": "Ankoraŭ neniuj elstarigitaj premioj.",
+      "emptyLink": "Foliumi ĉiujn premiojn"
+    },
+    "howItWorks": {
+      "label": "la esenco",
+      "title": "kio estas la granda ideo?",
+      "steps": {
+        "one": "Petu vian plej ŝatatan kreanton fari ion mojosan aŭ stultan.",
+        "two": "Samideanaj adorantoj kontribuas ĝis la premio ne plu ignoreblas.",
+        "three": "La kreanto liveras, la adorantoj pagas. Plenigu la babilejon per Vooj."
+      }
+    },
+    "cta": {
+      "title": "kion vi volas vidi farita?",
+      "subtitle": "Trovu vian plej ŝatatan kreanton kaj komencu premion. Se la homamaso ankaŭ volas ĝin, la mono aperas.",
+      "createAccount": "Kreu vian konton →",
+      "browseBounties": "Foliumi premiojn",
+      "haveAccount": "Ĉu vi jam havas konton?",
+      "logIn": "Ensaluti →"
+    }
+  },
+  "Login": {
+    "hero": {
+      "title": "<accent>mono</accent> parolas.",
+      "subtitle": "kreu premion por ke kreanto faru publikan, senpagan verkon. aliaj povas kontribui. kiam la verko estas liverita, la kreanto ricevas pagon."
+    },
+    "stats": {
+      "charged": {
+        "label": "ŝargate",
+        "value": "monate",
+        "note": "nur post livero"
+      },
+      "creatorsKeep": {
+        "label": "kreantoj konservas",
+        "note": "neniu vendimposto"
+      },
+      "payouts": {
+        "label": "elpagoj",
+        "note": "al pli ol 50 landoj"
+      }
+    },
+    "sectionLabel": "ensaluti",
+    "heading": "bonvenon reen",
+    "oauth": {
+      "redirecting": "alidirektante…"
+    },
+    "divider": "aŭ",
+    "modeToggle": {
+      "email": "retpoŝto",
+      "phone": "telefono"
+    },
+    "fields": {
+      "email": {
+        "label": "retpoŝta adreso",
+        "placeholder": "vi@ekzemplo.com"
+      },
+      "phone": {
+        "label": "telefonnumero"
+      },
+      "password": {
+        "label": "pasvorto"
+      }
+    },
+    "forgotPassword": "ĉu vi forgesis la pasvorton?",
+    "submit": {
+      "label": "ensaluti",
+      "loading": "ensalutante…"
+    },
+    "register": {
+      "prompt": "ĉu nova ĉi tie?",
+      "cta": "krei konton",
+      "creatorNote": "fariĝi kreanto estas aparta procezo — unue registriĝu, poste konfirmu identigilon kaj plenumu la impostajn kaj bankajn postulojn."
+    },
+    "errors": {
+      "loginFailed": "Ensaluto malsukcesis. Bonvolu reprovi.",
+      "oauthFailed": "Ne eblis komenci ensaluton. Bonvolu reprovi."
+    }
+  },
+  "PasswordReset": {
+    "forgot": {
+      "sectionLabel": "restarigi pasvorton",
+      "title": "ĉu vi forgesis vian pasvorton?",
+      "subtitle": "Enmetu vian retpoŝton kaj ni sendos restarigan ligilon. Ĝi eksvalidiĝas post 60 minutoj.",
+      "subtitleSent": "Kontrolu vian enirkeston — restariga ligilo estas survoje.",
+      "sent": {
+        "label": "sendita",
+        "before": "Se",
+        "after": "estas registrita, vi baldaŭ ricevos la ligilon.",
+        "backToSignIn": "← Reen al ensaluto"
+      },
+      "emailLabel": "retpoŝta adreso",
+      "submit": "Sendi restarigan ligilon",
+      "submitLoading": "Sendante…",
+      "rememberedPrompt": "Ĉu vi rememoris ĝin?",
+      "signIn": "Ensaluti →",
+      "errors": {
+        "generic": "Io misfunkciis. Bonvolu reprovi."
+      }
+    },
+    "reset": {
+      "sectionLabel": "restarigi pasvorton",
+      "title": "agordu novan pasvorton",
+      "forPrefix": "Por",
+      "loading": "ŝargante…",
+      "newPasswordLabel": "nova pasvorto",
+      "newPasswordPlaceholder": "almenaŭ 8 signoj",
+      "confirmPasswordLabel": "konfirmu novan pasvorton",
+      "confirmPasswordPlaceholder": "ripetu vian novan pasvorton",
+      "submit": "Agordi novan pasvorton",
+      "submitLoading": "Restarigante…",
+      "rememberedPrompt": "Ĉu vi rememoris ĝin?",
+      "signIn": "Ensaluti →",
+      "success": {
+        "label": "farita",
+        "title": "pasvorto ĝisdatigita",
+        "body": "Via pasvorto estis ŝanĝita. Ĉiuj aliaj seancoj estis elsalutitaj.",
+        "signIn": "Ensaluti per nova pasvorto →"
+      },
+      "errors": {
+        "mismatch": "La pasvortoj ne kongruas.",
+        "tooShort": "La pasvorto devas havi almenaŭ 8 signojn.",
+        "failed": "Ne eblis restarigi la pasvorton. La ligilo eble eksvalidiĝis."
+      }
+    }
+  },
+  "Privacy": {
+    "hero": {
+      "eyebrow": "Jura",
+      "title": "privateca politiko",
+      "lastUpdated": "Laste ĝisdatigita: {date}"
+    },
+    "tldr": {
+      "eyebrow": "Resume — simple",
+      "collect": {
+        "bold": "Ni kolektas nur kion ni bezonas",
+        "rest": "por funkciigi la platformon — vian nomon, retpoŝton kaj pagajn informojn."
+      },
+      "noSell": {
+        "bold": "Ni ne vendas viajn datumojn.",
+        "rest": "Ni ne luas ilin. Ni ne uzas ilin por reklamoj."
+      },
+      "stripe": {
+        "bold": "Stripe traktas viajn kartdetalojn.",
+        "rest": "Ni neniam vidas nek konservas vian plenan kartnumeron."
+      },
+      "private": {
+        "bold": "Via subtena historio estas publika defaŭlte.",
+        "rest": "Vi povas anonimigi vian profilon en la agordoj por kaŝi ĝin."
+      },
+      "delete": {
+        "bold": "Vi povas forigi vian konton",
+        "rest": "kaj ni forigos viajn personajn datumojn."
+      },
+      "cookies": {
+        "bold": "Ni uzas minimumajn kuketojn",
+        "rest": "— nur kio necesas por ke la retejo funkciu."
+      },
+      "disclaimer": "Ĉi tiu resumo estas helpa skizo, ne anstataŭaĵo de la plena politiko sube."
+    },
+    "toc": {
+      "heading": "Enhavo"
+    },
+    "sections": {
+      "controller": {
+        "title": "kiu regas viajn datumojn",
+        "body": "Artypot is operated by Artypot LLC, a Florida limited liability company (\"Artypot,\" \"we,\" \"us,\" \"our\"). For questions about this policy, contact [EO: jura teksto — atendas profesian revizion]"
+      },
+      "collected": {
+        "title": "kion ni kolektas",
+        "account": {
+          "label": "Kontaj informoj:",
+          "body": "Your name, email address, and password (hashed — we can't read it). Optionally: a profile picture and phone number for verification purposes. If you sign in with a social provider (Google, GitHub, Discord, etc.), we store that provider and your account ID with it so we can link the login. [EO: atendas profesian revizion]"
+        },
+        "financial": {
+          "label": "Financaj informoj:",
+          "body": "For backers: payment method details (processed by Stripe — see Section 5). For creators receiving payouts: bank account or payout-method information (processed by Stripe Connect or an alternative payout provider), your declared tax residence (country, and US state if applicable, kept as an audit trail for tax reporting), and tax identification details for tax reporting (W-9 and 1099 for US creators; W-8BEN and 1042-S for creators outside the US). We also record the IP address used for certain account and compliance events. [EO: atendas profesian revizion]"
+        },
+        "activity": {
+          "label": "Agad-datumoj:",
+          "body": "Bounties you've created, bounties you've backed, bounties you've fulfilled, notifications you've received. [EO: atendas profesian revizion]"
+        },
+        "usage": {
+          "label": "Uz-datumoj:",
+          "body": "Standard server logs — IP addresses, browser type, pages visited, timestamps. We use this to diagnose problems, not to build marketing profiles. [EO: atendas profesian revizion]"
+        },
+        "comms": {
+          "label": "Komunikadoj:",
+          "body": "If you contact us via the support form or email, we retain those messages to resolve your request. [EO: atendas profesian revizion]"
+        }
+      },
+      "howUsed": {
+        "title": "kiel ni uzas ĝin",
+        "intro": "Ni uzas viajn datumojn por:",
+        "item1": "Funkciigi la platformon — aŭtentigi vian konton, procesi pagojn, ekigi elpagojn",
+        "item2": "Sendi al vi transakciajn retmesaĝojn (pagkonfirmoj, ĝisdatigoj pri premioj, pagkvitancoj)",
+        "item3": "Plenumi jurajn devojn — impostaj raportoj (1099), fraŭdo-preventado",
+        "item4": "Plibonigi la platformon — identigi cimojn kaj uzadajn ŝablonojn agregite",
+        "item5": "Respondi al subtenaj petoj",
+        "outro": "Ni ne uzas viajn datumojn por reklamado, profilado aŭ vendo al triaj partioj."
+      },
+      "sharing": {
+        "title": "kun kiu ni dividas ĝin",
+        "intro": "Ni dividas datumojn nur kun la servoprovizantoj necesaj por funkciigi la platformon:",
+        "stripe": "pago-procesado kaj elpagoj al kreantoj",
+        "stripeConnect": "konfirmado de bankkontoj kaj elpagoj al kreantoj",
+        "taxbandits": "deponado de 1099 kaj 1042-S kie postulate",
+        "emailLabel": "Retpoŝta servoprovizanto",
+        "email": "transakcia retpoŝta liverado",
+        "hostingLabel": "Gastigaj / infrastrukturaj provizantoj",
+        "hosting": "serviloj kaj datumbazoj",
+        "dpa": "Ĉiuj servoprovizantoj estas ligitaj de datumtraktadaj interkonsentoj. Ni ne permesas al ili uzi viajn datumojn por siaj propraj celoj.",
+        "legal": "Ni ankaŭ povas malkaŝi datumojn kie la leĝo postulas, ekzemple responde al valida tribunala ordono aŭ alvoko."
+      },
+      "payments": {
+        "title": "pagdatumoj kaj stripe",
+        "p1": "All payment card data is handled directly by Stripe, Inc. When you enter your card details, that information goes to Stripe's servers — not ours. We never see or store your full card number, CVV, or expiry. [EO: atendas profesian revizion]",
+        "p2": "We store a Stripe customer ID and a reference to your saved payment method (e.g., last four digits, card type) so you can manage your billing. This reference is not sufficient to initiate a charge — only Stripe can do that on our instruction. [EO: atendas profesian revizion]",
+        "p3pre": "La privatecaj praktikoj de Stripe estas regataj de la",
+        "p3link": "Privateca Politiko de Stripe",
+        "p4": "Creator bank account information is processed by Stripe Connect via Stripe Financial Connections. We store only a Stripe Connect account identifier — not the bank account number itself. [EO: atendas profesian revizion]"
+      },
+      "retention": {
+        "title": "kiom longe ni konservas ĝin",
+        "p1": "We retain your account data for as long as your account is active. If you delete your account, we remove your personal information from active systems within 30 days. [EO: atendas profesian revizion]",
+        "p2": "Financial records (payment amounts, payout records, receipts) are retained for 7 years as required by US tax law, even after account deletion. These records are anonymised where possible. [EO: atendas profesian revizion]",
+        "p3": "Servilaj protokoloj estas konservataj ĝis 90 tagoj kaj poste forigataj."
+      },
+      "rights": {
+        "title": "viaj rajtoj",
+        "intro": "Vi havas la rajton:",
+        "access": {
+          "label": "Aliro",
+          "body": "peti kopion de la personaj datumoj kiujn ni tenas pri vi"
+        },
+        "correct": {
+          "label": "Korekto",
+          "body": "ĝisdatigi malĝustajn informojn per via agorda paĝo"
+        },
+        "delete": {
+          "label": "Forigo",
+          "body": "forigi vian konton kaj personajn datumojn (kondiĉe je juraj konservaj postuloj)",
+          "link": "paŝo-post-paŝaj instrukcioj"
+        },
+        "portability": {
+          "label": "Porteblo",
+          "body": "peti viajn datumojn en maŝinlegebla formato"
+        },
+        "object": {
+          "label": "Kontraŭstaro",
+          "body": "kontraŭstari traktadon kie ni apogas nin sur legitimaj interesoj"
+        },
+        "exercisePre": "Por ekzerci ĉi tiujn rajtojn,",
+        "contactLink": "kontaktu nin",
+        "exerciseMid": "aŭ retpoŝtu al",
+        "exercisePost": "Ni respondos ene de 30 tagoj.",
+        "regional": "Se vi estas en la EU/EEA aŭ Kalifornio, vi povas havi pliajn rajtojn laŭ GDPR aŭ CCPA. Ni honoros tiujn petojn eĉ se vi ne citas la specifan regularon."
+      },
+      "cookies": {
+        "title": "kuketoj",
+        "intro": "Artypot uzas minimumajn kuketojn:",
+        "auth": {
+          "label": "Aŭtentiga ĵetono",
+          "body": "konservita en localStorage por teni vin ensalutinta, kune kun unu strikte necesa propra seancokuketo (artypot_session). Ambaŭ estas forigataj kiam vi elsalutas."
+        },
+        "stripe": {
+          "label": "Kuketoj de Stripe",
+          "body": "starigitaj de la JavaScript de Stripe por fraŭdo-detektado dum pagaj fluoj. Regataj de la politiko de Stripe."
+        },
+        "noTracking": "Ni ne uzas analizajn kuketojn, spurajn rastrumojn aŭ trianpartiajn reklamajn kuketojn. Ne estas kuketa konsenta standardo ĉar estas nenio por konsenti preter kio necesas."
+      },
+      "children": {
+        "title": "infanoj",
+        "body": "Artypot ne estas destinita por iu sub 18-jara. Ni ne intence kolektas personajn informojn de neplenaĝuloj. Se vi kredas ke ni hazarde kolektis datumojn de neplenaĝulo, bonvolu kontakti nin kaj ni forigos ilin tuj."
+      },
+      "international": {
+        "title": "internaciaj uzantoj",
+        "p1": "Artypot estas funkciigata el Usono. Se vi aliras la platformon de ekster Usono, viaj datumoj estos transdonitaj al kaj procesitaj en Usono. Uzante la platformon, vi konsentas al ĉi tiu transdono.",
+        "p2": "We apply data protection measures consistent with US law. We do not currently have a formal EU Standard Contractual Clause (SCC) framework in place, but we will comply with any lawful data subject requests we receive. [EO: atendas profesian revizion]"
+      },
+      "changes": {
+        "title": "ŝanĝoj al ĉi tiu politiko",
+        "body": "Ni povas ĝisdatigi ĉi tiun Privatecan Politikon de tempo al tempo. Ŝanĝoj estos reflektitaj en la dato \"Laste ĝisdatigita\" supre. Por gravaj ŝanĝoj, ni sciigos vin per retpoŝto aŭ tra la platformo."
+      },
+      "contact": {
+        "title": "kontakto",
+        "pre": "Demandoj aŭ petoj pri privateco?",
+        "link": "Kontaktu nin ĉi tie",
+        "mid": "aŭ retpoŝtu al"
+      }
+    }
+  },
+  "Register": {
+    "hero": {
+      "title": "mono parolas pli laŭte kiam ĝi ankoraŭ estas <highlight>en via poŝo</highlight>",
+      "subtitle": "ĉiu artypot-konto komenciĝas kiel adoranto — subtenu la premiojn kiujn vi volas vidi faritaj, aŭ malfermu vian propran kaj petu kreanton fari ion specifan.",
+      "howItWorks": {
+        "label": "kiel premio funkcias",
+        "step1": "Subtenu premion kiun vi volas ekzisti — aŭ malfermu novan. Nenio estas ŝargita anticipe.",
+        "step2": "Adorantoj amasiĝas ĝis la kreanto decidas ke ĝi indas fari, tiam ili sendas la finitan verkon.",
+        "step3": "Kiam ĝi estas kontrolita kiel liverita, via karto estas ŝargita — neniam antaŭe."
+      },
+      "creatorNote": "ĉu vi volas esti pagata por via propra laboro? fariĝu kreanto post registriĝo — kontrolu kromnomon, poste plenumu la impost- kaj pag-paŝojn."
+    },
+    "form": {
+      "sectionLabel": "krei konton",
+      "title": "aliĝu al Artypot",
+      "oauthRedirecting": "alidirektante…",
+      "or": "aŭ",
+      "modeEmail": "retpoŝto",
+      "modePhone": "telefono",
+      "emailLabel": "retpoŝto",
+      "emailPlaceholder": "vi@ekzemplo.com",
+      "phoneLabel": "telefonnumero",
+      "nameLabel": "Publika nomo",
+      "namePlaceholder": "Harry Baldwig",
+      "passwordLabel": "pasvorto",
+      "confirmPasswordLabel": "konfirmu pasvorton",
+      "tos": "Mi konsentas pri la <tosLink>kondiĉoj de servo</tosLink> kaj la <privacyLink>privateca politiko</privacyLink>",
+      "submitLoading": "Kreante konton…",
+      "submitPhone": "Krei konton kaj sendi kodon",
+      "submitEmail": "Krei mian konton",
+      "haveAccount": "Ĉu vi jam havas unu?",
+      "signIn": "Ensaluti →"
+    },
+    "otp": {
+      "sectionLabel": "kontroli telefonon",
+      "title": "kontrolu viajn mesaĝojn",
+      "subtitle": "Ni sendis 6-ciferan kodon al via telefonnumero. Enmetu ĝin sube por fini krei vian konton.",
+      "resentNotice": "Nova kodo sendita.",
+      "codeLabel": "kontrolkodo",
+      "verifyingButton": "Kontrolante…",
+      "verifyButton": "Kontroli kaj daŭrigi",
+      "didntGetIt": "Ĉu vi ne ricevis ĝin?",
+      "sendingButton": "Sendante…",
+      "resendButton": "Resendi kodon",
+      "errors": {
+        "invalidCode": "Nevalida kodo. Bonvolu reprovi.",
+        "resendFailed": "Malsukcesis resendi kodon."
+      }
+    },
+    "errors": {
+      "oauthStartFailed": "Malsukcesis komenci registriĝon. Bonvolu reprovi.",
+      "passwordMismatch": "La pasvortoj ne kongruas.",
+      "tosRequired": "Bonvolu konsenti pri la kondiĉoj de servo.",
+      "registrationFailed": "Registriĝo malsukcesis. Bonvolu reprovi."
+    }
+  },
+  "Support": {
+    "hero": {
+      "title": "kontaktu min",
+      "subtitle": "Demandoj, problemoj, aŭ vi simple volas diri ion. Mi vere legas ĉi tiujn."
+    },
+    "subjects": {
+      "bountyQuestion": "Mi havas demandon pri rekompenco",
+      "backingQuestion": "Mi havas demandon pri subteno de rekompenco",
+      "paymentsHelp": "Mi bezonas helpon pri pagoj aŭ fakturado",
+      "reportBug": "Mi volas raporti problemon aŭ cimon",
+      "reportContent": "Mi volas raporti enhavon",
+      "deleteAccount": "Mi volas forigi mian konton",
+      "other": "Io alia"
+    },
+    "success": {
+      "title": "Mesaĝo sendita",
+      "body": "Mi respondos al vi ĉe <strong>{email}</strong>. Kutime ene de unu aŭ du tagoj.",
+      "sendAnother": "Sendi alian mesaĝon"
+    },
+    "form": {
+      "honeypotLabel": "Retejo",
+      "nameLabel": "Via nomo",
+      "namePlaceholder": "Harry Baldwig",
+      "emailLabel": "Via retpoŝto",
+      "emailPlaceholder": "vi@ekzemplo.com",
+      "subjectLabel": "Temo",
+      "subjectPlaceholder": "Elektu temon…",
+      "messageLabel": "Mesaĝo",
+      "messagePlaceholder": "Diru al mi kio okazas…",
+      "charCount": "{count} / 5000",
+      "submitting": "Sendante…",
+      "submit": "Sendi mesaĝon",
+      "emailDirectly": "Aŭ skribu rekte:"
+    },
+    "errors": {
+      "generic": "Io misfunkciis. Bonvolu reprovi.",
+      "genericShort": "Io misfunkciis."
+    }
+  },
+  "Tos": {
+    "hero": {
+      "eyebrow": "Jura",
+      "title": "kondiĉoj de la servo",
+      "lastUpdated": "Laste ĝisdatigita: {date}"
+    },
+    "tldr": {
+      "label": "Resumo — en simpla lingvo",
+      "noMoneyMovesLead": "Neniu mono moviĝas kiam vi subtenas premion",
+      "noMoneyMovesRest": " — eĉ ne reteno. Via karto estas ŝarĝata nur post kiam La Konsilio konfirmas premion kompleta, kaj ŝarĝoj estas kolektataj kune en monata fakturado.",
+      "backOutLead": "Vi povas retiriĝi iam ajn",
+      "backOutRest": " antaŭ ol premio kompletiĝas, senkoste. Sen demandoj.",
+      "finalLead": "Sed post kiam ĝi kompletiĝas, la ŝarĝo estas fina.",
+      "finalRest": " Post kiam La Konsilio konfirmas premion kaj vi estas ŝarĝata, tiu pago estas fina kaj nerepagebla — via fenestro por retiriĝi estas antaŭ kompletiĝo, ne poste.",
+      "feeLead": "Artypot prenas 20% platforman kotizon",
+      "feeRest": ", deprenitan de la elpago al la kreinto. Tiu kotizo kovras ĉiujn transakciajn kostojn inkluzive de pagprilaborado — subtenantoj estas ŝarĝataj sian promesitan sumon plene, kaj kreintoj ricevas 80%.",
+      "globalLead": "Kreintoj tra la mondo povas esti pagataj",
+      "globalRest": " — per rektaj bankaj elpagoj kie subtenata, kaj alternativaj metodoj aliloke. Adorantoj ie ajn povas subteni premiojn. Kelkaj landoj estas limigitaj de leĝo.",
+      "neverLead": "Se premio neniam kompletiĝas, neniu mono moviĝas.",
+      "neverRest": " Neniam.",
+      "notPurchaseLead": "Subtenado ne estas aĉeto.",
+      "notPurchaseRest": " Vi financas publikan rezulton kiun ĉiuj ricevas egale — vi ne aĉetas privatajn avantaĝojn, varojn, aŭ aliron. Kreintoj ne povas aŭkcii personajn premiojn al ĉefaj subtenantoj, kaj vi ne devus peti tion de ili.",
+      "noOfficialLead": "Neniu aĉeto de oficialaj agoj aŭ financado de kampanjoj.",
+      "noOfficialRest": " Vi ne povas uzi premion por pagi registaran oficiston por io kion ili faras en sia ofico, aŭ por financi kandidaton, kampanjon, aŭ elektan klopodon — tio kolizias kun korupto kaj kampanj-financa leĝo.",
+      "allAgesLead": "Konservu Artypot por ĉiuj aĝoj.",
+      "allAgesRest": " Ĉio afiŝita al la Platformo — premia teksto, profiloj, komentoj, kompletigaj notoj — devas esti taŭga por ĉiuj, kaj vi ne povas uzi premion por financi enhavon por plenkreskuloj (niaj pagpartneroj malpermesas ĝin). Nenio kontraŭleĝa, neniam. Kion kreinto faras kaj gastigas aliloke estas ilia propra afero.",
+      "disclaimer": "Tiu ĉi resumo estas helpa sinoptiko, ne anstataŭaĵo por la plenaj kondiĉoj sube."
+    },
+    "toc": {
+      "heading": "Enhavo",
+      "acceptance": "Akcepto de la kondiĉoj",
+      "description": "Kio estas Artypot",
+      "accounts": "Kontoj",
+      "bounties": "Premioj",
+      "backing": "Subtenado kaj pagoj",
+      "creators": "Devoj de la kreinto",
+      "council": "La Konsilio",
+      "fees": "Kotizoj",
+      "content": "Enhava politiko",
+      "ip": "Intelekta proprieto",
+      "termination": "Ĉesigo",
+      "disclaimer": "Malgarantioj",
+      "liability": "Limigo de respondeco",
+      "governing": "Reganta leĝo",
+      "changes": "Ŝanĝoj al ĉi tiuj kondiĉoj",
+      "contact": "Kontakto"
+    },
+    "sections": {
+      "acceptance": {
+        "title": "1. Akcepto de la kondiĉoj",
+        "p1": "Artypot (\"the Platform,\" \"we,\" \"us\") is operated by Artypot LLC, a Florida limited liability company. By accessing or using Artypot, you agree to be bound by these Terms of Service. If you do not agree, do not use the Platform.",
+        "p2": "You must be at least 18 years old to create an account or back a bounty. By using the Platform, you represent that you meet this requirement."
+      },
+      "description": {
+        "title": "2. Kio estas Artypot",
+        "p1": "Artypot is a bounty-style crowdfunding platform. Fans (\"backers\") pool funding toward specific tasks from public entities (\"creators\"). Backing is a commitment of funds, but no money moves when you back a bounty. Charges only occur after The Council reviews and confirms a bounty as complete.",
+        "p2": "Artypot is not a tip jar, subscription service, or pre-order platform. It is a mechanism for coordinating demand signals and releasing payment only on delivery."
+      },
+      "accounts": {
+        "title": "3. Kontoj",
+        "p1": "You are responsible for maintaining the security of your account and all activity that occurs under it. Do not share your login credentials.",
+        "p2": "You agree to provide accurate, current, and complete information when registering. We reserve the right to suspend or terminate accounts with inaccurate or misleading information.",
+        "p3": "One person, one account. Creating multiple accounts to circumvent restrictions is prohibited."
+      },
+      "bounties": {
+        "title": "4. Premioj",
+        "p1": "Any registered user may open a bounty for any task a named creator could verifiably complete, subject to the Content Policy (Section 9). If it can be done, confirmed, and doesn't violate the Content Policy, it can be a bounty.",
+        "p2": "Opening a bounty does not guarantee the named creator will fulfil it. The creator is under no contractual obligation to Artypot or to backers. A bounty is an expression of collective demand, not a contract with the creator.",
+        "p3Lead": "A bounty funds public work, not private perks.",
+        "p3Rest": " Backing is a contribution toward a result that is released publicly and equally to backers and non-backers alike. It is not a purchase of goods or services for the backer, and it confers no private benefit, ownership, exclusive access, or preferential treatment. Creators may not offer, and backers may not solicit or demand, any personal or backer-exclusive reward in exchange for a backing or its size — for example, private meetings, physical goods, personalized work, or an experience auctioned to the highest backer. The one form of recognition that remains permitted is a simple public acknowledgment of an individual backer by name, and only as a discretionary courtesy: a backer is never owed it, acquires no right to it, and has no claim if it is omitted, with the creator free to give or withhold it at their sole option.",
+        "p4Lead": "No bounties for official acts or political campaigns.",
+        "p4Rest": " A bounty may not reward, induce, or be conditioned on an official act — anything a government office holder or employee does, or could do, in their official capacity. Nor may a bounty serve as a contribution to or expenditure for a candidate, campaign, party, or committee, or otherwise aim to influence an election. Funding pointed at an official act or an election can create legal exposure for backers and for Artypot regardless of intent, so we don't allow it. This turns on the purpose of a bounty, not the identity of its subject: a public servant who is also a creator can still be the subject of a bounty for ordinary creative work. We may remove bounties that cross this line and take action on the accounts behind them.",
+        "p5": "We reserve the right to remove any bounty at our sole discretion, including but not limited to bounties that are too vague, too difficult to verify completion, harmful, or illegal. We are not obligated to explain every removal, though we will attempt to provide a reason when possible.",
+        "p6": "While we are committed to being reasonable, the creator a bounty is directed at may also remove that bounty at their sole discretion, for any reason or no reason."
+      },
+      "backing": {
+        "title": "5. Subtenado kaj pagoj",
+        "p1Lead": "Subtenado kontraŭ ŝarĝo:",
+        "p1Rest": " When you back a bounty, no money moves and no authorization hold is placed on your card. Your card is only charged after The Council confirms a bounty is complete. Confirmed charges are collected together in a monthly billing run (on the 24th of each month), not instantly at the moment of approval.",
+        "p2Lead": "Retiriĝo:",
+        "p2Rest": " You may back out at any time before a bounty is confirmed completed by Council, even during the \"pending review\" stage.",
+        "p3Lead": "Malsukcesaj ŝarĝoj:",
+        "p3Rest": " If your card cannot be charged when payment is due (expired card, insufficient funds, etc.), the charge fails and you will be notified. You then have a short grace period to update your payment method. While a failed payment is unresolved you cannot back new bounties, and if it remains unresolved your affected backings will be cancelled.",
+        "p4Lead": "Repaga kaj nuliga politiko:",
+        "p4a": " You may cancel (revoke) any backing, free of charge and without giving a reason, at any time before The Council confirms the bounty complete — including while it is pending review. Once a bounty is confirmed complete, your backing is ",
+        "p4Locked": "locked",
+        "p4b": ": it can no longer be cancelled, and it will be charged in the next monthly billing run. Charged payments are ",
+        "p4Final": "final and non-refundable",
+        "p4c": ". We may, at our sole discretion, review a refund request after a charge in cases of genuine hardship or verified fraud — ",
+        "contactSupport": "kontaktu subtenon",
+        "p4d": " — but a post-charge refund is an exception we may grant, never an entitlement. This policy is also disclosed where you place a backing, in your backing confirmation email, in the pre-billing preview email, and on every receipt.",
+        "p5Lead": "Nekompletigitaj premioj:",
+        "p5Rest": " If a bounty is closed or revoked before completion, no charges are made. Nothing was ever held against your card.",
+        "p6Lead": "Rajto de retiriĝo (EU, UK, kaj similaj konsumantaj jurisdikcioj):",
+        "p6a": " If you are a consumer in a jurisdiction that grants a statutory right of withdrawal from distance contracts (such as the EU under Directive 2011/83/EU or the UK under the Consumer Contracts Regulations 2013), you are hereby informed that, to the extent a backing or any resulting charge is treated as such a contract, you have the right to withdraw from it within 14 days of placing the backing, without giving any reason and at no cost. To exercise this right, cancel the backing from your ",
+        "backingsPage": "paĝo de subtenoj",
+        "p6b": ", or notify us by an unequivocal statement to ",
+        "p6c": ". Because no money moves until a bounty completes, withdrawal before completion simply means you are never charged. Note that Artypot's standard back-out right is broader than the statutory minimum: you may cancel any backing, free of charge, at any time before The Council confirms the bounty complete — even after 14 days. ",
+        "p6Bold": "By placing a backing, you expressly request that performance begin before any withdrawal period expires, and you acknowledge that once the contract has been fully performed — that is, once The Council confirms the bounty complete and your card is charged — you lose your right of withdrawal.",
+        "p6d": " This disclosure is repeated in the confirmation email you receive when you place a backing and on each payment receipt.",
+        "p7a": "Payments are processed by Stripe, Inc. By backing a bounty, you also agree to ",
+        "stripeTos": "la Kondiĉojn de la Servo de Stripe",
+        "p7b": ".",
+        "p8": "If a fan disputes a charge for your work, the disputed amount may be deducted from your earnings."
+      },
+      "creators": {
+        "title": "6. Devoj de la kreinto",
+        "p1": "Creators who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith, as understood by their community.",
+        "p2": "Submission of a completion claim constitutes a representation that the submitted work satisfies the bounty description. Fraudulent submissions — submitting work that does not fulfil the bounty, or submitting work you do not own the rights to — may result in account termination and, where applicable, legal action.",
+        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Payouts are available in most countries — via direct bank payout where supported and alternative methods elsewhere — but are unavailable in countries we are legally restricted from serving. Artypot issues 1099 or 1042-S forms where required by law."
+      },
+      "council": {
+        "title": "7. La Konsilio",
+        "p1": "The Council is a group of human reviewers appointed by Artypot. Their role is to verify that a submitted work actually fulfils the bounty before any funds are collected.",
+        "p2": "The Council's decisions are final. There is no formal appeals process, though you may contact us to raise concerns.",
+        "p3": "Council members are not liable for reasonable errors in judgment made in good faith during the review process."
+      },
+      "fees": {
+        "title": "8. Kotizoj",
+        "p1a": "When a bounty pays out, Artypot deducts a ",
+        "p1Bold": "20% platform fee",
+        "p1b": " from the creator's payout. This single fee is all-inclusive: it covers Artypot's operating costs and all payment processing costs (including Stripe card transaction fees). Creators always receive 80% of the total amount backed.",
+        "p2": "Backers are charged their exact committed amount — no processing surcharges are ever added to a backer's charge.",
+        "p3": "Fee rates may change with notice. Changes apply to bounties opened after the effective date of the change."
+      },
+      "content": {
+        "title": "9. Enhava politiko",
+        "p1Lead": "La surfaco de Artypot estas por ĉiuj aĝoj.",
+        "p1Rest": " Anything you publish or post to the Platform itself — bounty titles and descriptions, profile text, display names, verified handles, comments, and the notes or links you attach to a completion — is hosted and publicly displayed by us and must be suitable for a general audience. It may not contain sexually explicit material, nudity, pornography, or gratuitous shock content. This is a rule about what appears on Artypot; it is not a judgment about the lawful creative work a creator produces and hosts elsewhere.",
+        "p2Lead": "Neniu komerco de plenkreskula enhavo.",
+        "p2Rest": " You may not use a bounty to request, commission, coordinate, or fund sexually explicit or pornographic work, whether or not the finished work is delivered off-platform. Artypot is the merchant of record for every charge, and our payment partners (including the card networks and Stripe) prohibit processing payments for adult content. A bounty whose purpose is to fund adult content is therefore not permitted, regardless of where the work is hosted.",
+        "p3Lead": "Absolutaj malpermesoj.",
+        "p3Rest": " The following are never permitted on the Platform or in any work funded through it, and apply regardless of where the work is hosted:",
+        "item1": "Content that is illegal under US federal or state law",
+        "item2": "Bounties that pay for an official government act or function as a political campaign contribution (see Section 4)",
+        "item3": "Harassment, credible threats, or targeted hate speech",
+        "item4": "Malware, malicious code, or attempts to compromise the Platform or its users",
+        "p4": "We reserve the right to remove any content and suspend or terminate any account that violates this policy, at our sole discretion and without prior notice."
+      },
+      "ip": {
+        "title": "10. Intelekta proprieto",
+        "p1": "Artypot does not claim ownership of any content created by creators in fulfilment of bounties. The creator retains all rights to their work.",
+        "p2": "Backers who fund a bounty receive no special rights to the finished work — they receive the same access as the general public. Artypot is not a commissioned work platform.",
+        "p3": "By posting content to Artypot (e.g., bounty descriptions, profile text), you grant us a non-exclusive, royalty-free licence to display that content on the Platform."
+      },
+      "termination": {
+        "title": "11. Ĉesigo",
+        "p1": "You may delete your account at any time from your settings page. Deletion cancels all active commitments (no charges) and removes your public profile.",
+        "p2": "We may suspend or terminate your account if you violate these Terms, engage in fraud, or abuse the Platform. In cases of serious violations, we reserve the right to take action without notice."
+      },
+      "disclaimer": {
+        "title": "12. Malgarantioj",
+        "p1": "Artypot is provided \"as is\" and \"as available\" without warranties of any kind, express or implied. We do not guarantee that the Platform will be uninterrupted, error-free, or that any bounty will be fulfilled.",
+        "p2": "We are not responsible for the actions of creators, backers, or third parties."
+      },
+      "liability": {
+        "title": "13. Limigo de respondeco",
+        "p1": "To the maximum extent permitted by applicable law, Artypot and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Platform.",
+        "p2": "Our total liability to you for any claim arising from these Terms or your use of Artypot shall not exceed the total amount you have paid to Artypot in the 12 months preceding the claim."
+      },
+      "governing": {
+        "title": "14. Reganta leĝo",
+        "p1": "These Terms are governed by and construed in accordance with the laws of the State of Florida, United States, without regard to conflict of law principles.",
+        "p2": "Any disputes arising from these Terms shall be resolved in the state or federal courts located in Florida. You consent to personal jurisdiction in those courts."
+      },
+      "changes": {
+        "title": "15. Ŝanĝoj al ĉi tiuj kondiĉoj",
+        "p1": "We may update these Terms from time to time. When we do, we'll update the \"Last updated\" date at the top. Continued use of the Platform after changes constitutes acceptance of the revised Terms.",
+        "p2": "For material changes, we'll make reasonable efforts to notify you by email or via the Platform."
+      },
+      "contact": {
+        "title": "16. Kontakto",
+        "question": "Demandoj pri ĉi tiuj kondiĉoj?",
+        "contactLink": "Kontaktu nin ĉi tie",
+        "orEmail": "aŭ retpoŝtu al"
+      }
+    }
+  },
+  "Backings": {
+    "heading": "miaj subtenoj",
+    "sectionLabel": {
+      "fan": "admiranto",
+      "backings": "subtenoj"
+    },
+    "count": {
+      "commitmentSingular": "promeso",
+      "commitmentPlural": "promesoj",
+      "activeAmount": "{amount} aktiva"
+    },
+    "nav": {
+      "dashboard": "← panelo"
+    },
+    "sort": {
+      "label": "ordigi laŭ",
+      "mostRecent": "plej lastatempaj",
+      "highestAmount": "plej alta sumo"
+    },
+    "empty": {
+      "message": "Ankoraŭ neniuj subtenoj",
+      "findCreators": "Trovi kreantojn →"
+    },
+    "row": {
+      "bountyFallback": "rekompenco n-ro {id}",
+      "expires": "eksvalidiĝas {date}",
+      "backOut": "retiri subtenon"
+    },
+    "pagination": {
+      "prev": "← antaŭa",
+      "next": "sekva →"
+    },
+    "sidebar": {
+      "nextCharge": "sekva ŝarĝo",
+      "onDate": "je {date}",
+      "viewAmount": "vidi sumon en fakturado →",
+      "paymentMethod": "pagmetodo",
+      "manageBilling": "administri fakturadon →",
+      "payments": "pagoj",
+      "paymentHistory": "paghistorio →"
+    },
+    "modal": {
+      "title": "Ĉu retiri vian subtenon al ĉi tiu rekompenco?",
+      "cancel": "Nuligi",
+      "confirm": "Retiri subtenon",
+      "body": "Via promeso de <strong>{amount}</strong> al <strong>{title}</strong> estos nuligita — vi ne estos ŝargita pro ĝi. Vi povas retiri subtenon nur dum la rekompenco ankoraŭ estas malfermita."
+    },
+    "toast": {
+      "backedOutBountyRemoved": "Subteno retirita — la rekompenco estis forigita.",
+      "backedOut": "Subteno retirita.",
+      "failed": "Malsukcesis retiri subtenon."
+    }
+  },
+  "Banners": {
+    "emailVerify": {
+      "title": "Bonvolu kontroli vian retpoŝtadreson",
+      "body": "Ni sendis kontrol-ligilon al <mono>{email}</mono>. Iuj funkcioj povas esti limigitaj ĝis vi kontrolas.",
+      "emailFallback": "via retpoŝtadreso",
+      "resend": "Resendi retmesaĝon",
+      "sending": "Sendante…",
+      "sent": "Sendita ✓",
+      "toastSent": "Kontrola retmesaĝo sendita! Kontrolu vian enirkeston.",
+      "toastError": "Malsukcesis sendi la kontrolan retmesaĝon."
+    },
+    "nudge": {
+      "setUpNow": "Agordi nun →",
+      "dismiss": "Forigi"
+    },
+    "fanMarket": {
+      "regionFallback": "via regiono",
+      "title": "Pagoj ankoraŭ ne disponeblas en {region}.",
+      "body": "Vi ankoraŭ povas subteni premiojn — viaj subtenoj estas valoraj postul-signaloj kiuj montras al kreantoj ke homoj volas ilian laboron. Nenio iam estas ŝargita dum ni ne funkcias en via regiono, kaj ni retmesaĝos al vi tuj kiam pagtraktado malfermiĝos tie."
+    },
+    "paymentAuth": {
+      "title": "Via banko bezonas ke vi konfirmu ŝargon.",
+      "bodyWithAmount": "Rajtigu la atendantan pagon de <strong>{amount}</strong> por teni viajn subtenojn aktivaj.",
+      "body": "Rajtigu la atendantan pagon por teni viajn subtenojn aktivaj.",
+      "cta": "Kompletigi aŭtentikigon →"
+    },
+    "paymentGrace": {
+      "title": "Via lasta pago ne sukcesis.",
+      "body": "Aldonu aŭ ĝisdatigu vian karton antaŭ la {date}.",
+      "cta": "Ĝisdatigi karton →"
+    },
+    "defaultUpdate": {
+      "amountHeadline": "Ĝisdatigi la implicitan subtenon al {amount}?",
+      "amountUpdate": "Ŝanĝi al {amount}",
+      "amountKeep": "Teni je {amount}",
+      "expiryHeadline": "Ĝisdatigi la implicitan limdaton al {expiry}?",
+      "expiryUpdate": "Ŝanĝi al {expiry}",
+      "expiryKeep": "Teni je {expiry}",
+      "expiryLabel": "{value, plural, =0 {{value} {unit, select, week {semajnoj} month {monatoj} year {jaroj} other {tagoj}}} one {{value} {unit, select, week {semajno} month {monato} year {jaro} other {tago}}} other {{value} {unit, select, week {semajnoj} month {monatoj} year {jaroj} other {tagoj}}}}",
+      "keepCurrent": "Teni nunan",
+      "saving": "Konservante…",
+      "toastAmountSaved": "Implicita subtena sumo konservita.",
+      "toastExpirySaved": "Implicita subtena limdato konservita.",
+      "toastError": "Ne eblis ĝisdatigi la implicitan valoron. Bonvolu reprovi."
+    }
+  },
+  "Billing": {
+    "toast": {
+      "paymentFailed": "Pago malsukcesis.",
+      "paymentAuthorized": "Pago rajtigita."
+    },
+    "breadcrumb": {
+      "fan": "ŝatanto",
+      "billing": "fakturado"
+    },
+    "heading": {
+      "upcomingCharge": "venonta ŝarĝo"
+    },
+    "brokeCooldown": {
+      "label": "senmona malvarmiĝa periodo efektiva",
+      "declaredOn": "Vi deklaris senmonecon je {date}.",
+      "blockedUntil": "Novaj subtenoj estas blokitaj ĝis <stamp>{date}</stamp>."
+    },
+    "charge": {
+      "label": "kio estos ŝarĝita",
+      "summary": "{amount} estos ŝarĝita aŭtomate je {date}. Neniu ago bezonata."
+    },
+    "table": {
+      "bounty": "Premio",
+      "state": "Stato",
+      "yourBacking": "Via subteno",
+      "bountyFallback": "Premio n-ro {id}"
+    },
+    "settle": {
+      "prompt": "ĉu vi preferas pagi nun?",
+      "processing": "traktante…",
+      "cta": "pagu {amount} nun →"
+    },
+    "paymentMethod": {
+      "label": "pagmetodo"
+    },
+    "howItWorks": {
+      "label": "kiel fakturado funkcias",
+      "commit": "Vi promesas sumon kiam vi subtenas premion. Nenio estas ŝarĝita tiumomente.",
+      "lockIn": "Kiam kreinto liveras sian laboron kaj la konsilio aprobas ĝin, via ŝarĝo estas fiksita. Vi povas retiriĝi nur dum la premio ankoraŭ estas malfermita.",
+      "collected": "Fiksitaj ŝarĝoj estas kolektitaj aŭtomate je la {day}-a tago de ĉiu monato, aŭ vi povas pagi pli frue.",
+      "noFees": "Vi ĉiam pagas ĝuste vian promesitan sumon — neniam aldoniĝas kotizoj."
+    },
+    "timeline": {
+      "label": "templinio de ĉi tiu monato",
+      "now": "nun",
+      "lockedIn": "aprobitaj subtenoj estas fiksitaj",
+      "previewSent": "fakturada antaŭrigardo sendita al via enirkesto",
+      "cardCharged": "via karto estas ŝarĝita"
+    }
+  },
+  "Bounties": {
+    "title": "Premioj",
+    "subtitle": "Financu la laboron, kiun vi volas vidi farita.",
+    "newBounty": "+ Nova premio",
+    "back": "← reen",
+    "error": "Malsukcesis ŝargi premiojn.",
+    "submitError": "Malsukcesis krei premion.",
+    "count": "{count, plural, one {# premio} other {# premioj}}",
+    "filters": {
+      "all": "Ĉiuj",
+      "open": "Malfermaj",
+      "pending": "Atendas kontrolon",
+      "completed": "Kompletaj",
+      "paidOut": "Elpagitaj"
+    },
+    "empty": {
+      "message": "Neniuj premioj trovitaj.",
+      "createOne": "Kreu unu"
+    },
+    "pagination": {
+      "previous": "Antaŭa",
+      "next": "Sekva",
+      "pageOf": "Paĝo {current} el {total}"
+    },
+    "badge": {
+      "verified": "kontrolita",
+      "unverified": "nekontrolita"
+    },
+    "displayName": {
+      "label": "montra nomo de la kreinto",
+      "optional": "(nedeviga)",
+      "placeholder": "ekz. Tom Scott",
+      "hintRequired": "Deviga por eksterplatformaj ligiloj — montrata sur via premio.",
+      "hintOptional": "Montrata sur via premio. Lasu malplena por uzi la kromnomon."
+    },
+    "units": {
+      "minute": "minuto(j)",
+      "hour": "horo(j)",
+      "day": "tago(j)",
+      "week": "semajno(j)",
+      "month": "monato(j)",
+      "year": "jaro(j)"
+    },
+    "loginRequired": {
+      "message": "Vi devas esti ensalutinta por krei premion.",
+      "signIn": "Ensaluti →"
+    },
+    "toast": {
+      "created": "Premio kreita!"
+    },
+    "stepper": {
+      "target": "celo",
+      "details": "detaloj",
+      "review": "kontrolo"
+    },
+    "step1": {
+      "sectionLabel": "ŝatanto",
+      "heading": "komencu premion",
+      "subtitle": "Nomu kreinton. La komunumo financas la laboron.",
+      "whoLabel": "kiu faru ĉi tion?",
+      "urlDetected": "Detektis {platform}-kromnomon el la URL",
+      "addNewCreator": "aldoni novan kreinton",
+      "addNewManually": "+ aldoni novan kreinton permane",
+      "search": {
+        "label": "kromnomo aŭ nomo de la kreinto",
+        "placeholder": "ekz. mrbeast",
+        "tooShort": "Daŭrigu tajpi — almenaŭ 2 signoj.",
+        "searching": "Serĉante…",
+        "noMatches": "Neniuj kongruoj por «{query}».",
+        "bountiesWaiting": "{count, plural, one {# premio atendanta} other {# premioj atendantaj}}"
+      },
+      "addNew": {
+        "back": "← Reen al serĉo de kreintoj",
+        "heading": "aldoni novan kreinton",
+        "platformLabel": "platformo - kie ili estas aktivaj",
+        "platformPlaceholder": "— elektu platformon —",
+        "submit": "Uzi ĉi tiun kreinton →",
+        "errors": {
+          "platformRequired": "Bonvolu elekti platformon.",
+          "urlRequired": "La retejo-URL estas deviga.",
+          "handleRequired": "La kromnomo estas deviga.",
+          "displayNameRequired": "La montra nomo de la kreinto estas deviga por eksterplatformaj ligiloj."
+        }
+      }
+    },
+    "step2": {
+      "heading": "detaloj de la premio",
+      "whatLabel": "kion ili faru?",
+      "titleLabel": "titolo",
+      "titlePlaceholder": "ekz. faru retrosalton dum kantado de la nacia himno",
+      "descriptionLabel": "priskribo",
+      "descriptionPlaceholder": "kio specife devas esti farita? ĉu iuj postuloj?",
+      "commitmentLabel": "via komenca engaĝiĝo",
+      "minimumHint": "Minimumo $1.",
+      "advanced": "Altnivela",
+      "expiresIn": "Eksvalidiĝas post",
+      "expiryHint": "Via subteno aŭtomate eksvalidiĝos post ĉi tiu periodo se la premio ankoraŭ estas malferma. Ŝanĝu vian defaŭlton en agordoj.",
+      "review": "Kontroli →"
+    },
+    "step3": {
+      "heading": "kontroli kaj sendi",
+      "creating": "Kreante…",
+      "submit": "Krei premion",
+      "fields": {
+        "displayName": "montra nomo de la kreinto",
+        "title": "titolo",
+        "description": "priskribo",
+        "commitment": "via engaĝiĝo",
+        "expiresAfter": "subteno eksvalidiĝas post"
+      }
+    }
+  },
+  "Components": {
+    "bountyStatus": {
+      "open": "Malfermita",
+      "pending": "Atendas kontrolon",
+      "completed": "Plenumita",
+      "paid_out": "Elpagita",
+      "revoked": "Nuligita"
+    },
+    "bountyCard": {
+      "for": "por",
+      "visitHandle": "Viziti {handle}",
+      "backerCount": "{count, plural, one {# subtenanto} other {# subtenantoj}}",
+      "cleared": "{cleared} el {total} likvidita",
+      "youBack": "✓ vi subtenas",
+      "youBackTooltip": "Vi subtenas ĉi tiun premion — malfermu ĝin por ĝustigi vian subtenon.",
+      "backDefaultTooltip": "Subtenu per via implicita sumo ({amount})",
+      "backing": "subtenante…",
+      "confirmAmount": "✓ konfirmi ${amount}",
+      "backAmount": "+ subteni ${amount}",
+      "toast": {
+        "youreIn": "Vi enestas por {amount}!",
+        "capExceeded": "Vi atingis vian bonfidan limon — aldonu pagmetodon por daŭrigi.",
+        "gracePeriod": "Novaj subtenoj estas paŭzigitaj ĝis vi solvos vian malsukcesan pagon.",
+        "marketUnavailable": "Subtenado ankoraŭ ne disponeblas en via lando.",
+        "failed": "Ne eblis subteni."
+      }
+    },
+    "creatorCard": {
+      "backer": "subtenanto",
+      "backers": "subtenantoj",
+      "creatorBadge": "Kreinto",
+      "noDescription": "Ankoraŭ neniu priskribo.",
+      "statBacked": "subtenita",
+      "statOpen": "malfermitaj",
+      "statCompleted": "plenumitaj"
+    }
+  },
+  "CreatorBounties": {
+    "header": {
+      "breadcrumbCreator": "kreanto",
+      "breadcrumbBounties": "mendoj",
+      "title": "miaj mendoj",
+      "count": "{count, plural, one {# mendo} other {# mendoj}}",
+      "newBounty": "+ Nova mendo →"
+    },
+    "stats": {
+      "openBounties": "malfermaj mendoj",
+      "totalBacked": "entute subtenata",
+      "inReview": "en kontrolo",
+      "completed": "plenumitaj"
+    },
+    "filters": {
+      "all": "Ĉiuj",
+      "open": "Malfermaj",
+      "pending": "Atendanta kontrolon",
+      "completed": "Plenumitaj",
+      "paidOut": "Pagitaj",
+      "revoked": "Nuligitaj"
+    },
+    "completionBadge": {
+      "pendingReview": "Atendanta kontrolon",
+      "approved": "Aprobita",
+      "rejected": "Malakceptita"
+    },
+    "empty": {
+      "none": "Ankoraŭ neniuj mendoj",
+      "revoked": "Neniuj nuligitaj mendoj",
+      "createOne": "Kreu unu →"
+    },
+    "pagination": {
+      "prev": "← antaŭa",
+      "next": "sekva →"
+    },
+    "row": {
+      "actions": {
+        "cancel": "Nuligi",
+        "submit": "Sendi →",
+        "resubmit": "Resendi →",
+        "refundBackers": "Repagi al subtenantoj"
+      },
+      "meta": {
+        "backed": "{amount} subtenata",
+        "fanSingular": "subtenanto",
+        "fanPlural": "subtenantoj",
+        "completed": "Plenumita la {date}",
+        "verified": "Kontrolita la {date}"
+      },
+      "councilNote": "Konsilio: “{note}”",
+      "form": {
+        "heading": "sendi plenumitan laboron",
+        "urlLabel": "Ligilo al la laboro (URL)",
+        "notesLabel": "Notoj (laŭvola)",
+        "notesPlaceholder": "Ajna kunteksto por la konsilio…",
+        "publiclyVisible": "Publike videbla",
+        "errorNoUrl": "Bonvolu enigi URL-on.",
+        "submittedToast": "Sendita por kontrolo!",
+        "submitFailed": "La sendo malsukcesis. Bonvolu reprovi.",
+        "cancel": "Nuligi",
+        "submit": "Sendi",
+        "submitting": "Sendante…"
+      }
+    },
+    "refundModal": {
+      "title": "Ĉu repagi al ĉiuj subtenantoj?",
+      "nothingLeft": "Nenio restas por repagi en ĉi tiu mendo — ĉiu subteno jam estis repagita aŭ nuligita.",
+      "intro": "Ĉiu subtenanto de <titled>{title}</titled> ricevas sian tutan pagon reen. La sumo venas el via saldo — repagi kostas al vi tion, kion viaj subtenantoj pagis, inkluzive de la platforma kotizo.",
+      "unsettled": "+ {count, plural, one {# subteno ankoraŭ ne fakturita} other {# subtenoj ankoraŭ ne fakturitaj}} ({total}) — nuligitaj senkoste por vi.",
+      "costToYou": "Kosto por vi",
+      "yourBalance": "Via saldo",
+      "reasonLabel": "Kialo (montrata al viaj subtenantoj) *",
+      "reasonPlaceholder": "ekz. Mi ne plu kapablas plenumi ĉi tiun laboron",
+      "reasonHint": "Deviga. Sendata al ĉiu subtenanto kun ilia repago, kaj al la teamo de Artypot.",
+      "irreversibleNote": "Viaj subtenantoj konservas sian monon — eldoni la repagon simple ne reverseblas de ĉi tie. Vi devus rekrei la mendon por ree enkasigi de ili.",
+      "insufficient": "Via saldo ne kovras ĉi tiun repagon. Kontaktu <mail>{email}</mail> kaj ni helpos solvi ĝin.",
+      "cancel": "Nuligi",
+      "close": "Fermi",
+      "refunding": "Repagante…",
+      "refundAmount": "Repagi {amount}",
+      "toasts": {
+        "loadFailed": "Ne eblis ŝargi la repagan antaŭrigardon.",
+        "refundedPart": "{count, plural, one {# subtenanto repagita} other {# subtenantoj repagitaj}}",
+        "cancelledPart": "{count, plural, one {# nefakturita subteno nuligita} other {# nefakturitaj subtenoj nuligitaj}}",
+        "nothingToRefund": "Nenio por repagi",
+        "success": "{summary}.",
+        "partialFailure": "{summary} — {failed} malsukcesis; subteno estis avertita.",
+        "refundFailed": "La repago malsukcesis. Bonvolu reprovi."
+      }
+    }
+  },
+  "CreatorDash": {
+    "header": {
+      "breadcrumb": {
+        "creator": "kreanto",
+        "dashboard": "panelo"
+      },
+      "publicProfile": "Publika profilo →"
+    },
+    "payoutHold": {
+      "title": "Viaj elpagoj estas nuntempe retenitaj.",
+      "body": "Stripe bezonas plian kontrolon antaŭ ol la fondusoj povas esti liberigitaj.",
+      "action": "Kompletigi kontrolon →"
+    },
+    "pipeline": {
+      "label": "enspeza fluo",
+      "explainer": "Kontribuoj fluas de maldekstre → dekstre. Konsilia aprobo movas la fondusojn al atendantaj. Pago de adorantoj je la {billingDay}-a movas ilin al kompensado. 7 tagojn poste ili disponeblas."
+    },
+    "stats": {
+      "openBacking": {
+        "label": "malferma subteno",
+        "solidSub": "solidaj subtenoj (aktiva pagmetodo)",
+        "softSub": "+ {amount} mola (neniu pagmetodo)"
+      },
+      "paidOut": {
+        "label": "dumviva elpagita",
+        "sub": "entute retirita al banko"
+      }
+    },
+    "transactions": {
+      "label": "lastaj transakcioj",
+      "fullLedger": "plena libro →",
+      "empty": "ankoraŭ neniuj transakcioj.",
+      "earningBadge": "enspezo"
+    },
+    "firstPayout": {
+      "label": "unua elpago"
+    },
+    "quickLinks": {
+      "newBounty": "+ Komenci novan premion",
+      "viewProfile": "Vidi publikan profilon"
+    }
+  },
+  "CreatorHandles": {
+    "heading": "kromnomoj",
+    "description": "Konektu kaj kontrolu viajn sociajn kontojn por ke admirantoj povu trovi vin kaj direkti premiojn al vi.",
+    "backLink": "← reen al kreinto-agordoj"
+  },
+  "CreatorMoney": {
+    "header": {
+      "crumbCreator": "kreanto",
+      "crumbMoney": "mono",
+      "title": "kasa libro",
+      "subtitle": "Viaj saldoj kaj ĉiu kredito kaj debeto en via kreanta konto, plej novaj unue.",
+      "overviewLink": "← superrigardo"
+    },
+    "regionBlocked": {
+      "body": "<strong>Elpagoj ne disponeblas en via regiono.</strong> Pro internaciaj pagrestriktoj, ni nuntempe ne povas procezi elpagojn al kreantoj en via lando. Via premia aktiveco cetere ne estas tuŝata. Se vi kredas ke tio estas eraro, <support>kontaktu subtenon</support>."
+    },
+    "filter": {
+      "all": "ĉio",
+      "earnings": "enspezoj",
+      "payouts": "elpagoj"
+    },
+    "badge": {
+      "earning": "enspezo",
+      "fee": "kotizo",
+      "refund": "repago"
+    },
+    "table": {
+      "date": "dato",
+      "description": "priskribo",
+      "type": "tipo",
+      "amount": "sumo"
+    },
+    "row": {
+      "ref": "ref: {id}",
+      "gross": "kruda {amount}",
+      "platformFee": "platforma kotizo",
+      "clearingAvailable": "kompensiĝas · disponebla {date}"
+    },
+    "empty": {
+      "all": {
+        "heading": "Ankoraŭ neniuj transakcioj",
+        "sub": "Plenumu premion, ricevu aprobon de la Konsilio, kaj via unua enspezo aperos ĉi tie."
+      },
+      "earnings": {
+        "heading": "Ankoraŭ neniuj enspezoj",
+        "sub": "Fanaj ŝargoj registriĝas je la fakturdato post via aprobo de la Konsilio."
+      },
+      "payouts": {
+        "heading": "Ankoraŭ neniuj elpagoj",
+        "sub": "Kiam vi havas disponeblan saldon, eltiru ĝin el la elpaga paĝo."
+      }
+    },
+    "pagination": {
+      "allCount": "{loaded} eroj ŝargitaj · paĝo {page} el {last}",
+      "filteredCount": "{shown} el {loaded} ŝargitaj eroj montrataj",
+      "loading": "ŝargante…",
+      "loadMore": "ŝargi pli ↓",
+      "loadMoreEntries": "ŝargi pli da eroj ↓"
+    },
+    "byProject": {
+      "label": "laŭ projekto",
+      "ofPotential": "el {total} ebla",
+      "incoming": "+{amount} alvenanta",
+      "note": "alvenantaj sumoj estas krudaj fanaj ŝargoj — neta kredito estas pli malalta post stripe kaj platformaj kotizoj"
+    },
+    "glance": {
+      "label": "unuavide",
+      "availableNow": "disponebla nun",
+      "clearing": "kompensiĝas",
+      "openBacking": "malferma subteno",
+      "soft": "+ {amount} mola",
+      "lifetimePaidOut": "elpagite entute",
+      "platformFees": "platformaj kotizoj",
+      "withheldToDate": "retenita ĝis nun",
+      "withdrawCta": "Eltiri {amount} →",
+      "backToOverview": "Reen al superrigardo"
+    },
+    "explainer": {
+      "label": "kiel tio funkcias",
+      "earning": "<term>Enspezo</term> — fanoj estas ŝargataj je la {day}-a. Ĉiu elpago registriĝas kiel kruda <earning>enspeza</earning> kredito kun la <fee>platforma kotizo</fee> montrata kiel propra linio, do via neto ĉiam estas klara.",
+      "clearing": "<term>Kompensiĝo</term> — fondusoj estas retenataj dum {days} tagoj por kovri disputojn. Poste ili moviĝas al Disponebla.",
+      "payoutManual": "<term>Elpago</term> — via lando postulas permanan elpagan procezadon. Elpagoj estas senditaj per Wise, PayPal aŭ banktranspago, kun minimuma eltiro de <amount>{min}</amount>.",
+      "payoutAuto": "<term>Elpago</term> — vi eltiras el la <link>elpaga paĝo</link>. Stripe atingas vian bankon en 1–3 labortagoj."
+    },
+    "payouts": {
+      "title": "elpagoj",
+      "subtitle": "Konektu vian bankon, sekvu vian disponeblan saldon, kaj eltiru viajn enspezojn.",
+      "holdWarning": "<strong>Viaj elpagoj estas nuntempe retenataj.</strong> Stripe bezonas pliajn kontrolojn antaŭ ol fondusoj povas esti liberigataj — uzu la bankkontan karton sube por kompletigi ĝin.",
+      "firstPayout": "unua elpago",
+      "clearNote": "Eltiroj atingas vian bankon en 1–3 labortagoj. Fanaj kontribuoj fariĝas disponeblaj 7 tagojn post kiam ili estas ŝargataj je la {day}-a."
+    }
+  },
+  "CreatorSettings": {
+    "header": {
+      "breadcrumbCreator": "kreanto",
+      "breadcrumbProfile": "profilo",
+      "title": "agordoj"
+    },
+    "picture": {
+      "sectionLabel": "profila bildo",
+      "alt": "Profila bildo",
+      "saving": "konservante…",
+      "changePhoto": "ŝanĝi foton…",
+      "uploadPhoto": "alŝuti foton…",
+      "unavailable": "Bildalŝutoj ne disponeblas — NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ne estas agordita.",
+      "uploadAnySize": "Alŝutu ajnan grandon",
+      "toastSaved": "Profila bildo ĝisdatigita!",
+      "toastError": "Ne eblis konservi la bildon."
+    },
+    "displayName": {
+      "sectionLabel": "montra nomo",
+      "saving": "Konservante…",
+      "save": "Konservi nomon",
+      "toastSaved": "Nomo ĝisdatigita!",
+      "toastError": "Ne eblis konservi la nomon."
+    },
+    "bio": {
+      "sectionLabel": "kreanta biografio",
+      "description": "Mallonga publika priskribo montrata en via kreanta profilo.",
+      "placeholder": "Kiu vi estas? Kian laboron vi faras?",
+      "saving": "Konservante…",
+      "save": "Konservi biografion",
+      "toastSaved": "Biografio ĝisdatigita!",
+      "toastError": "Ne eblis konservi la biografion."
+    },
+    "fanName": {
+      "sectionLabel": "nomo de adorantoj",
+      "description": "Kiel vi nomas viajn subtenantojn. Montrata sur viaj rekompencpaĝoj — ekz. „subtenata de 12 <emphasis>{example}</emphasis>”. Lasu malplena por uzi la ĝeneralan „adoranto / adorantoj”.",
+      "exampleFallback": "adorantoj",
+      "singularLabel": "singularo",
+      "singularPlaceholder": "adoranto",
+      "pluralLabel": "pluralo",
+      "pluralPlaceholder": "adorantoj",
+      "saving": "Konservante…",
+      "save": "Konservi nomon de adorantoj",
+      "toastSaved": "Nomo de adorantoj ĝisdatigita!",
+      "toastError": "Ne eblis konservi la nomon de adorantoj."
+    },
+    "handles": {
+      "sectionLabel": "kontoj",
+      "description": "Administru viajn kontrolitajn sociajn kontojn.",
+      "manage": "Administri kontojn →"
+    },
+    "location": {
+      "sectionLabel": "imposta loĝejo",
+      "description": "La lando (kaj ŝtato, kie aplikeble) kie vi pagas imposton pri viaj Artypot-enspezoj. Ni uzas ĉi tion por generi la ĝustajn impostformularojn — 1099-K por usonaj kreantoj, 1042-S por ne-usonaj. Ŝanĝoj estas registritaj por konformeco.",
+      "countryLabel": "lando",
+      "selectCountry": "— elektu landon —",
+      "selectSubdivision": "— elektu {label} —",
+      "saving": "Konservante…",
+      "save": "Konservi impostan loĝejon",
+      "toastSaved": "Imposta loĝejo konservita.",
+      "toastError": "Ne eblis konservi la impostan loĝejon.",
+      "confirm": {
+        "title": "Ĉu ĝisdatigi impostan loĝejon?",
+        "cancel": "Nuligi",
+        "saving": "Konservante…",
+        "submit": "Jes, ĝisdatigi",
+        "changeLine": "Vi estas ŝanĝonta vian impostan loĝejon de <strong>{from}</strong> al <strong>{to}</strong>.",
+        "reportingLine": "Ĉi tiu estas la adreso, kiun ni uzos por imposta raportado (1099-K por Usono, 1042-S por ekster Usono).",
+        "crossingCountry": " Ĉar la lando ŝanĝiĝas, ni eble petos vin reesendi impostan dokumentaron (W-9 aŭ W-8BEN) kaj fari mallongan konformec-kontrolon — elpagoj povas esti paŭzigitaj dum tio plenumiĝas.",
+        "sameCountry": " Gravaj ŝanĝoj povas ekigi mallongan konformec-kontrolon; elpagoj povas esti paŭzigitaj dum tio plenumiĝas.",
+        "loggedLine": "La ŝanĝo estas registrita por konformeco. Bonvolu ĝisdatigi nur se via efektiva jura loĝejo ŝanĝiĝis."
+      }
+    },
+    "notifications": {
+      "sectionLabel": "sciigoj",
+      "description": "Kreant-specifaj sciigaj preferoj.",
+      "loading": "ŝargante…",
+      "goToFan": "← iri al adorant-sciigoj",
+      "reset": "rekomencigi al defaŭltoj",
+      "resetting": "rekomencigante…",
+      "toastSaved": "Agordoj konservitaj.",
+      "toastError": "Ne eblis konservi. Bonvolu reprovi.",
+      "toastReset": "Sciigaj agordoj rekomencigitaj al defaŭltoj.",
+      "toastResetError": "Ne eblis rekomencigi. Bonvolu reprovi.",
+      "smsBanner": {
+        "verify": "Kontrolu vian telefonnumeron por ebligi SMS-sciigojn.",
+        "addAndVerify": "Aldonu kaj kontrolu vian telefonnumeron por ebligi SMS-sciigojn.",
+        "addPhone": "Aldoni telefonnumeron →"
+      },
+      "channels": {
+        "email": "retpoŝto",
+        "sms": "sms",
+        "bell": "sonorilo"
+      },
+      "toggleAria": {
+        "email": "retpoŝto: {label}",
+        "emailAlwaysOn": "retpoŝto: {label} (ĉiam ŝaltita)",
+        "sms": "sms: {label}",
+        "smsAlwaysOn": "sms: {label} (ĉiam ŝaltita)",
+        "bell": "sonorilo: {label}",
+        "bellAlwaysOn": "sonorilo: {label} (ĉiam ŝaltita)"
+      },
+      "rows": {
+        "newBounty": {
+          "label": "nova rekompenco",
+          "desc": "adoranto malfermis novan rekompencon por vi."
+        },
+        "bountyVerified": {
+          "label": "rekompenco kontrolita",
+          "desc": "la konsilio kontrolis kiel plenumitan rekompencon, kiun vi sendis."
+        },
+        "bountyRejected": {
+          "label": "rekompenco malakceptita",
+          "desc": "la konsilio malakceptis vian plenumo-senditon de rekompenco."
+        }
+      }
+    },
+    "fanSettingsLink": {
+      "text": "Por redakti vian retpoŝton, telefonnumeron, pasvorton aŭ aliajn kontagordojn, <link>iru al adorant-agordoj →</link>"
+    }
+  },
+  "CreatorTax": {
+    "breadcrumb": {
+      "creator": "kreinto",
+      "money": "mono"
+    },
+    "heading": "impostoj kaj plenumo",
+    "intro": "Viaj impostaj formularoj kaj raporta stato. Artypot uzas TaxBandits por sekura sendado — ni neniam vidas vian SSN aŭ viajn personajn impostajn detalojn.",
+    "residence": {
+      "label": "imposta loĝejo",
+      "declared": "deklarita",
+      "notSet": "ne agordita",
+      "formNote": "Difinas ĉu validas W-9 (Usono) aŭ W-8BEN (internacia).",
+      "updateLink": "Ĝisdatigi impostan loĝejon →"
+    },
+    "documents": {
+      "label": "impostaj dokumentoj",
+      "pending": "Viaj jaraj impostaj formularoj — {form} — aperos ĉi tie kiam la imposta jaro fermiĝos kaj viaj enspezoj atingos la raportan sojlon."
+    }
+  },
+  "History": {
+    "title": "pagohistorio",
+    "breadcrumb": {
+      "fan": "fano",
+      "payments": "pagoj"
+    },
+    "count": {
+      "singular": "pago",
+      "plural": "pagoj"
+    },
+    "nav": {
+      "dashboard": "← panelo"
+    },
+    "tabs": {
+      "all": "ĉiuj",
+      "completed": "kompletigitaj",
+      "failed": "malsukcesintaj"
+    },
+    "status": {
+      "completed": "Kompletigita",
+      "failed": "Malsukcesinta",
+      "requiresAction": "Ago bezonata",
+      "pending": "Atendanta"
+    },
+    "error": {
+      "message": "Ne eblis ŝargi pagojn",
+      "retry": "Reprovi"
+    },
+    "empty": {
+      "all": "Ankoraŭ neniuj pagoj",
+      "filtered": "Neniuj {filter} pagoj",
+      "findCreators": "Trovi kreantojn →",
+      "showAll": "Montri ĉiujn"
+    },
+    "remediation": {
+      "requiresActionMessage": "Ĉi tiu ŝargo bezonas konfirmon antaŭ ol ĝi povas kompletiĝi.",
+      "failedMessage": "Ĉi tiu ŝargo ne trapasis.",
+      "confirmPayment": "Konfirmi pagon →",
+      "updateCard": "Ĝisdatigi karton kaj reprovi →"
+    },
+    "items": {
+      "empty": "Neniuj detaligitaj subtenoj por ĉi tiu ŝargo.",
+      "bountyRef": "rekompenco n-ro {id}"
+    },
+    "pagination": {
+      "prev": "← antaŭa",
+      "next": "sekva →"
+    },
+    "more": {
+      "label": "pli",
+      "myBackings": "miaj subtenoj →",
+      "billing": "fakturado →"
+    }
+  },
+  "Profiles": {
+    "errors": {
+      "userNotFound": "Uzanto ne trovita."
+    },
+    "nav": {
+      "home": "Hejmo"
+    },
+    "header": {
+      "youBadge": "Vi",
+      "memberSince": "Membro ekde {date}",
+      "editSettings": "Redakti agordojn"
+    },
+    "backings": {
+      "title": "Plej grandaj subtenoj",
+      "topTenNote": "Montrante la 10 plej grandajn laŭ sumo",
+      "viewAll": "Vidi ĉiujn",
+      "anonymous": "Ĉi tiu uzanto elektis resti anonima.",
+      "emptyOwn": "Vi ankoraŭ subtenas nenion.",
+      "emptyOther": "Subtenas nenion.",
+      "projectFallback": "Projekto n-ro {id}",
+      "expires": "Eksvalidiĝas la {date}"
+    }
+  },
+  "PublicProfile": {
+    "notFound": {
+      "label": "kreinto",
+      "creatorHeading": "kreinto ne trovita",
+      "creatorBody": "Ni ne trovis kreinton kun tiu kromnomo.",
+      "backHome": "← reen al hejmo",
+      "slugHeading": "neniu kreinto ĉe /{slug}",
+      "slugBody": "Ĉi tiu kromnomo ankoraŭ ne estas prenita. Esploru aliajn kreintojn aŭ iru hejmen.",
+      "exploreCreators": "Esplori kreintojn",
+      "home": "← Hejmo"
+    },
+    "handleNotFound": {
+      "label": "platforma konto",
+      "heading": "paĝo ne trovita",
+      "body": "Ni ne rekonas ĉi tiun URL-on. Esploru kreintojn aŭ iru hejmen."
+    },
+    "error": {
+      "lookup": "io misfunkciis dum la serĉo. provu denove post momento.",
+      "heading": "io misfunkciis",
+      "bountiesBody": "Ne eblis ŝargi la rekompencojn de ĉi tiu kreinto."
+    },
+    "badge": {
+      "creator": "Kreinto",
+      "verified": "Konfirmita",
+      "unverified": "Nekonfirmita"
+    },
+    "stats": {
+      "supportedBy": "Subtenata de",
+      "fan": "ŝatanto",
+      "fans": "ŝatantoj",
+      "openBounties": "Malfermitaj rekompencoj",
+      "completed": "Finitaj",
+      "totalEarned": "Sumo gajnita",
+      "activeBacking": "Aktiva subteno"
+    },
+    "actions": {
+      "editProfile": "Redakti profilon"
+    },
+    "follow": {
+      "follow": "Sekvi",
+      "unfollow": "Ĉesi sekvi",
+      "followingToast": "Vi nun sekvas!",
+      "unfollowedToast": "Vi ĉesis sekvi.",
+      "errorToast": "Ne eblis ĝisdatigi la sekvo-staton."
+    },
+    "share": {
+      "creatorText": "Subtenu {name} ĉe Artypot!",
+      "claimedText": "{handle} ĉe {platform} — {name} estas ĉe Artypot. Subtenu rekompencon por ili!",
+      "unverifiedText": "{handle} ĉe {platform} — ŝatantoj envicigas rekompencojn por ili ĉe Artypot. Helpu altiri ilian atenton!"
+    },
+    "marketClosed": {
+      "body": "<strong>Rekompencoj por {name} estas paŭzigitaj.</strong> Artypot ankoraŭ ne lanĉis subtenon por kreintoj en ilia lando, do rekompencoj nuntempe ne povas esti finitaj nek pagitaj. Vi ankoraŭ povas sekvi — ni komencos ĉi tie tuj kiam ni ekspansiiĝos."
+    },
+    "bounties": {
+      "heading": "Rekompencoj por {name}",
+      "newBounty": "+ Nova rekompenco",
+      "emptyCreator": "Ankoraŭ neniuj rekompencoj por ĉi tiu kreinto.",
+      "emptyHandle": "Ankoraŭ neniuj rekompencoj envicigitaj por ĉi tiu konto.",
+      "createFirst": "Kreu la unuan",
+      "signInToStart": "Ensalutu por komenci unu",
+      "seeAll": "vidi ĉiujn →"
+    },
+    "claimed": {
+      "verifiedBlurb": "<strong>{name}</strong> konfirmis ĉi tiun konton — ilia kompleta kreinto-paĝo baldaŭ venos. Rekompencoj ĉi tie jam nombras por ili."
+    },
+    "unverified": {
+      "blurb": "<mono>{handle}</mono> ŝajne ankoraŭ ne aliĝis al Artypot. Etikedu ilin en sociaj retoj por sciigi ilin, ke ŝatantoj envicigas rekompencojn."
+    },
+    "claim": {
+      "cta": "Ĉu ĉi tio estas vi? Postulu ĉi tiun konton →",
+      "claiming": "Postulante…",
+      "helperLoggedIn": "Ni aldonos ĝin al via konto kaj helpos vin konfirmi ĝin.",
+      "helperLoggedOut": "Ensalutu por postuli ĝin kiel vian.",
+      "successToast": "Konto postulita — konfirmu ĝin sube por pruvi posedon.",
+      "errorToast": "Ne eblis postuli ĉi tiun konton. Bonvolu provi denove."
+    },
+    "spreadWord": {
+      "title": "Disvastigu la novaĵon",
+      "claimedBody": "<mono>{handle}</mono> estas ĉe Artypot — kunhavigu ĉi tiun paĝon por kunvenigi pli da subtenantoj malantaŭ iliaj rekompencoj.",
+      "unverifiedBody": "Helpu <mono>{handle}</mono> malkovri siajn ŝatantojn ĉe Artypot. Kunhavigu ilian paĝon kaj etikedu ilin ĉe {platform}.",
+      "shareLabel": "Kunhavigi kaj etikedi"
+    },
+    "filters": {
+      "all": "Ĉiuj",
+      "open": "Malfermitaj",
+      "pending": "Atendantaj",
+      "completed": "Finitaj",
+      "paidOut": "Pagitaj"
+    },
+    "list": {
+      "heading": "rekompencoj",
+      "emptyFiltered": "Neniuj {filter} rekompencoj.",
+      "emptyAll": "Ankoraŭ neniuj rekompencoj por ĉi tiu kreinto."
+    },
+    "pagination": {
+      "prev": "← antaŭa",
+      "next": "sekva →"
+    }
+  },
+  "Search": {
+    "header": {
+      "label": "malkovru",
+      "resultsFor": "Rezultoj por <highlight>{query}</highlight>",
+      "exploreTitle": "esploru",
+      "resultsSubtitle": "Kreantoj, premioj kaj uzantnomoj.",
+      "exploreSubtitle": "Foliumu kreantojn kaj la premiojn kiujn iliaj komunumoj subtenas."
+    },
+    "filters": {
+      "all": "Ĉio",
+      "people": "Homoj",
+      "bounties": "Premioj"
+    },
+    "sort": {
+      "newest": "plej novaj",
+      "mostBounties": "plej multaj premioj",
+      "mostCompleted": "plej multaj plenumitaj"
+    },
+    "sections": {
+      "people": "Homoj",
+      "bounties": "Premioj",
+      "creators": "Kreantoj",
+      "trending": "Tendencaj premioj"
+    },
+    "bounties": {
+      "includeCompleted": "inkluzivi plenumitajn"
+    },
+    "empty": {
+      "people": "Neniu homo kongruas kun ĉi tiu serĉo.",
+      "bounties": "Neniu premio kongruas kun ĉi tiu serĉo.",
+      "bountiesCreate": "Kreu unu celantan “{query}”",
+      "creators": "ankoraŭ neniuj kontrolitaj kreantoj"
+    },
+    "actions": {
+      "loading": "ŝargante…",
+      "showMore": "Montri pli"
+    },
+    "pagination": {
+      "prev": "← antaŭa",
+      "next": "sekva →"
+    },
+    "person": {
+      "openBounties": "{count, plural, one {# malferma premio} other {# malfermaj premioj}}",
+      "backed": "{amount} subtenita",
+      "creator": "Kreanto",
+      "unverified": "Nekontrolita",
+      "badgeCreator": "kreanto",
+      "badgeUnverified": "nekontrolita",
+      "matchedAlias": "kongrua kromnomo: {alias}"
+    }
+  },
+  "Pipeline": {
+    "pending": "atendanta",
+    "clearing": "kompensiĝanta",
+    "available": "disponebla",
+    "pendingNote": "kontrolita de La Konsilio — fakturiĝas la {day}-an tagon",
+    "softLine": "+ {amount} mola",
+    "clearingNote": "fanoj fakturitaj · 7-taga kompensa periodo",
+    "availableNote": "elprenu al via banko (min. $1)"
+  },
+  "BountyDetail": {
+    "creatorFallback": "La kreinto",
+    "fan": {
+      "singular": "ŝatanto",
+      "plural": "ŝatantoj"
+    },
+    "common": {
+      "cancel": "Nuligi"
+    },
+    "errors": {
+      "loadBounty": "Malsukcesis ŝargi la rekompencon.",
+      "loadHistory": "Malsukcesis ŝargi la historion.",
+      "notFound": "Rekompenco ne trovita."
+    },
+    "toast": {
+      "minimumAmount": "La minimumo estas $1,00",
+      "expiryRange": "La limdato devas esti entjero inter 1 kaj 999.",
+      "updated": "Ĝisdatigita!",
+      "youreInFor": "Vi vetas {amount}!",
+      "failedSubmit": "Malsukcesis sendi.",
+      "backedOutDeleted": "Vi retiriĝis — la rekompenco estis forigita.",
+      "backedOut": "Retiriĝis.",
+      "failedBackOut": "Malsukcesis retiriĝi.",
+      "bountyUpdated": "Rekompenco ĝisdatigita!",
+      "failedUpdate": "Malsukcesis ĝisdatigi la rekompencon.",
+      "bountyRemoved": "Rekompenco forigita.",
+      "failedRemove": "Malsukcesis forigi la rekompencon."
+    },
+    "backingError": {
+      "capExceeded": "Vi atingis vian bonfidan limon. <link>Aldonu pagmetodon</link> por daŭrigi.",
+      "gracePeriod": "Novaj subtenoj estas paŭzigitaj dum vi solvas malsukcesan pagon. <link>Ĝisdatigu vian karton</link> por daŭrigi.",
+      "marketUnavailable": "Subtenado ankoraŭ ne disponeblas en via lando — ni esperas subteni ĝin baldaŭ."
+    },
+    "expiry": {
+      "advanced": "Altnivela",
+      "expiresIn": "Eksvalidiĝas post",
+      "units": {
+        "years": "jaro(j)",
+        "months": "monato(j)",
+        "weeks": "semajno(j)",
+        "days": "tago(j)",
+        "hours": "horo(j)",
+        "minutes": "minuto(j)"
+      }
+    },
+    "panel": {
+      "yourVotive": "Via promeso",
+      "youreInFor": "Vi vetas",
+      "expires": "Eksvalidiĝas",
+      "backOut": "Retiriĝi",
+      "chipIn": "Kontribui",
+      "howBackingWorksHeading": "Kiel funkcias subtenado?",
+      "howBackingWorks1": "Vi devontigas vin <strong>pagi nur se ĉi tiu rekompenco estos plenumita</strong> kaj aprobita de La Konsilio.",
+      "howBackingWorks2": "Nenio okazas al via karto nun. Kostoj estas fakturataj monate por aprobitaj plenumoj.",
+      "howBackingWorks3": "Plej multaj rekompencoj neniam estas plenumitaj, do plej multaj devontigoj neniam estas ŝarĝitaj. Vi povas retiriĝi iam ajn.",
+      "changeCommitment": "Ŝanĝu kiom vi vetas enigante novan sumon kaj limdaton.",
+      "newAmountPlaceholder": "Nova sumo",
+      "amountPlaceholder": "Sumo",
+      "update": "Ĝisdatigi",
+      "backingLoading": "Subtenante…",
+      "backThisBounty": "Subteni ĉi tiun rekompencon"
+    },
+    "revokeWarning": {
+      "title": "Atendu, {name}.",
+      "proceed": "Daŭrigi tamen",
+      "nevermind": "Ne gravas",
+      "body": "<strong>{creator}</strong> jam sendis sian laboron por plenumo. Forigi vian promeson nuntempe povus esti vidata kiel fia ago.",
+      "aside": "(Vi ankoraŭ povas fari tion. Ni nur diras.)"
+    },
+    "removeDialog": {
+      "title": "Forigi ĉi tiun rekompencon",
+      "removing": "Forigante…",
+      "remove": "Forigi rekompencon",
+      "body": "Ĉiuj aktivaj subtenantoj estos sciigitaj per retpoŝto kaj iliaj devontigoj estos nuligitaj. Bonvolu doni kialon.",
+      "reasonPlaceholder": "Kial vi forigas ĉi tiun rekompencon?…"
+    },
+    "lastBacking": {
+      "title": "Tute retiriĝi?",
+      "confirm": "Jes, retiriĝi",
+      "body": "Vi estas la sola {fan} subtenanta ĉi tiun rekompencon. Per foriro, ĉi tiu rekompenco estos vicigita por forigo."
+    },
+    "header": {
+      "historicalView": "Historia vido",
+      "backToCurrent": "✕ Reen al la nuna",
+      "edit": "Redakti",
+      "for": "por",
+      "visit": "Viziti {label}",
+      "unverified": "nekonfirmita",
+      "startedBy": "komencita de"
+    },
+    "editForm": {
+      "warning": "<strong>Atentu:</strong> Redaktoj povas nur klarigi detalojn — vi ne povas ŝanĝi la esencan naturon aŭ celon de ĉi tiu rekompenco. La Konsilio kontrolas la tutan redaktan historion antaŭ ol aprobi iun ajn rekompencon.",
+      "titleLabel": "Titolo",
+      "descriptionLabel": "Priskribo",
+      "creatorNameLabel": "Nomo de la kreinto",
+      "creatorNameHint": "Afabla nomo montrata apud la identigilo (ekz. “bbno$”). La konfirmita identigilo ĉiam estas montrata — ĉi tio estas nur etikedo.",
+      "saving": "Konservante…",
+      "save": "Konservi ŝanĝojn"
+    },
+    "totals": {
+      "totalBacked": "entute subtenita",
+      "softBackings": "+ {amount} en molaj subtenoj",
+      "backedBy": "subtenita de {count} {fan}",
+      "cleared": "{cleared} el {total} likvidita",
+      "totalBackedOn": "*Entute subtenita je {date}",
+      "hideHistory": "Kaŝi historion",
+      "showHistory": "Montri historion"
+    },
+    "completion": {
+      "cardLabel": "sendi plenumon",
+      "intro": "Preta? Ligu al via finita laboro kaj la Konsilio kontrolos ĝin. Ŝatantoj estas ŝarĝataj post aprobo.",
+      "submitCta": "Sendi plenumon →"
+    },
+    "payoutBlocked": {
+      "heading": "Pago blokita",
+      "body": "Via konto ne rajtas ricevi pagojn. Kontaktu subtenon por solvi tion."
+    },
+    "marketClosed": {
+      "heading": "Ankoraŭ ne disponebla en via lando",
+      "body": "Artypot nuntempe disponeblas nur en Usono, do vi ankoraŭ ne povas sendi plenumojn. Ni retpoŝtos vin tuj kiam ni etendos subtenon al via lando."
+    },
+    "completionForm": {
+      "title": "Sendi finitan laboron",
+      "urlLabel": "Ligo al la laboro (URL)",
+      "urlPlaceholder": "ekzemplo.com/pruvo",
+      "publiclyVisible": "Publike videbla",
+      "notesLabel": "Notoj (laŭvola)",
+      "notesPlaceholder": "Io, kion la konsilio devus scii…",
+      "submitting": "Sendante…",
+      "submit": "Sendi"
+    },
+    "creatorNotices": {
+      "pending": {
+        "heading": "Sub kontrolo de la Konsilio",
+        "body": "Via sendaĵo estas kontrolata. Vi estos sciigita pri la decido."
+      },
+      "completed": {
+        "heading": "Aprobita — pago alvenas",
+        "body": "La Konsilio aprobis vian laboron. Ŝatantoj estos ŝarĝataj en la sekva fakturada ciklo."
+      },
+      "paidOut": {
+        "heading": "Pagita",
+        "body": "Via pago estis traktita. Dankon!"
+      },
+      "revoked": {
+        "heading": "Rekompenco nuligita",
+        "body": "Ĉi tiu rekompenco estis nuligita kaj ne plu estas aktiva."
+      }
+    },
+    "howThisWorks": {
+      "label": "Kiel ĉi tio funkcias",
+      "headline": "Vi pagas nur se ĝi estas farita.",
+      "body": "Kiom ĉi tio valoras por vi? Via karto estas ŝarĝata <strong>nur se la laboro estas liverita kaj aprobita</strong> — nenio okazas hodiaŭ, kaj vi povas retiriĝi iam ajn antaŭe.",
+      "bullet1": "Hodiaŭ nenio estas ŝarĝata",
+      "bullet2": "Fakturata nur post livero",
+      "bullet3": "Retiriĝu iam ajn",
+      "ctaBack": "Subteni ĉi tiun rekompencon →",
+      "ctaFirst": "Estu la unua subtenanto →",
+      "alreadyHaveAccount": "Ĉu vi jam havas konton? <link>Ensalutu</link>"
+    },
+    "fanNotices": {
+      "completed": {
+        "heading": "Plenumita — pago atendas",
+        "body": "La Konsilio aprobis ĉi tiun rekompencon. Devontigoj nun estas ŝlositaj — via karto estos ŝarĝata en la sekva fakturada ciklo."
+      },
+      "paidOut": {
+        "heading": "Pagita",
+        "body": "Ĉi tiu rekompenco estis pagita. {creator} estis kompensita pro sia laboro."
+      },
+      "revoked": {
+        "heading": "Rekompenco nuligita",
+        "body": "Ĉi tiu rekompenco estis nuligita kaj ne plu estas aktiva."
+      }
+    },
+    "submittedWork": {
+      "label": "Sendita laboro",
+      "pendingReview": "Atendas kontrolon",
+      "councilNotes": "Notoj de la Konsilio: {notes}"
+    },
+    "tabs": {
+      "comments": "Komentoj"
+    },
+    "backers": {
+      "empty": "Ankoraŭ neniu {fan}. Estu la unua!",
+      "anonymous": "[anonima]",
+      "unknown": "Nekonata",
+      "you": "(vi)",
+      "expires": "Eksvalidiĝas {date}"
+    },
+    "report": {
+      "trigger": "⚑ Raporti ĉi tiun rekompencon",
+      "title": "Raporti ĉi tiun rekompencon",
+      "received": "Raporto ricevita. La Konsilio kontrolos ĉi tiun rekompencon.",
+      "failed": "Malsukcesis sendi raporton.",
+      "intro": "Raportoj iras al la Konsilio por kontrolo laŭ la <link>Enhava Politiko</link>. La rekompenco restas aktiva krom se la Konsilio forigas ĝin.",
+      "reasons": {
+        "harassment": "Ĉikanado aŭ celita misuzo",
+        "illegal": "Kontraŭleĝa enhavo aŭ peto",
+        "adultContent": "Mendo de plenkreska enhavo",
+        "spam": "Trudmesaĝo aŭ trompo",
+        "other": "Io alia"
+      },
+      "detailsPlaceholder": "Io, kion la Konsilio devus scii (laŭvola)",
+      "submitting": "Sendante…",
+      "submit": "Sendi raporton"
+    },
+    "related": {
+      "label": "pli da rekompencoj",
+      "heading": "Aliaj rekompencoj por"
+    }
+  },
+  "AddCardForm": {
+    "errors": {
+      "billingCountryRequired": "Bonvolu elekti la fakturadan landon por ĉi tiu karto.",
+      "cardSetupFailed": "Agordo de la karto malsukcesis. Bonvolu reprovi.",
+      "marketUnavailable": "Aldoni pagmetodon ankoraŭ ne disponeblas en via lando — ni esperas subteni ĝin baldaŭ.",
+      "setupInitFailed": "Ne eblis komenci la pagagordon. Bonvolu reprovi."
+    },
+    "fields": {
+      "billingCountry": "Fakturada lando",
+      "selectPlaceholder": "— elektu —",
+      "postalCode": "Poŝtkodo",
+      "postalPlaceholder": "nedeviga"
+    },
+    "actions": {
+      "saving": "Konservante…",
+      "saveCard": "Konservi karton",
+      "cancel": "Nuligi"
+    }
+  },
+  "AvailableBalanceSummary": {
+    "sectionLabel": "disponebla",
+    "withdraw": "Elpreni →",
+    "managePayouts": "Administri elpagojn →"
+  },
+  "BankAccountCard": {
+    "sectionLabel": "bankkonto",
+    "connectedBadge": "konektita",
+    "stripeBlurb": "Artypot uzas Stripe por sekura, rekta banka kontrolo — viaj akreditaĵoj neniam estas konservataj de ni.",
+    "setLocationPrompt": "Agordu vian lokon antaŭ ol konekti bankkonton.",
+    "setLocationButton": "Agordi lokon →",
+    "startingSetup": "Komencante agordon…",
+    "connectBankButton": "Konekti bankkonton",
+    "loading": "Ŝargante…",
+    "continueSetupButton": "Daŭrigi agordon →",
+    "connectionPending": "Banka konekto atendas — kompletigu la agordon de Stripe por ebligi monelprenojn.",
+    "disconnectBankButton": "Malkonekti bankon",
+    "disconnectModalTitle": "Ĉu malkonekti la bankkonton?",
+    "cancelButton": "Nuligi",
+    "disconnecting": "Malkonektante…",
+    "confirmDisconnectButton": "Jes, malkonekti bankon",
+    "disconnectModalBody": "Ĉi tio forigas vian ligitan bankkonton de Artypot. Vi ne povos elpreni monon ĝis vi religo kaj kompletigos la agordon denove."
+  },
+  "BountyHistoryChart": {
+    "empty": "Ankoraŭ neniu historio.",
+    "eventCreated": "Pravalorizita",
+    "eventBackingAdded": "Subtenita",
+    "eventBackingUpdated": "Sinkronigis siajn sentojn",
+    "eventBackingRevoked": "Foriris",
+    "eventDetailsEdited": "Redaktis detalojn",
+    "eventPrivilegeTransfer": "Transdonis posedon",
+    "eventCreatorAssigned": "Kontrolita kaj postulita",
+    "eventPending": "Sendita por kontrolo",
+    "eventCompleted": "Aprobita",
+    "fieldTitle": "titolo",
+    "fieldDescription": "priskribo",
+    "fieldDisplayName": "nomo de la kreinto",
+    "originally": "origine",
+    "onPlatform": "ĉe {platform}",
+    "viewing": "rigardante",
+    "clickToView": "klaku por vidi"
+  },
+  "CommentSection": {
+    "heading": "Komentoj",
+    "emptyState": "Ankoraŭ neniuj komentoj. Estu la unua.",
+    "deletedMarker": "[forigita]",
+    "editedMarker": "redaktita",
+    "composePlaceholder": "Lasu komenton…",
+    "replyPlaceholder": "Skribu respondon…",
+    "charCount": "{count}/2000",
+    "deleteConfirm": "Ĉu forigi ĉi tiun komenton?",
+    "loginPrompt": "<login>Ensalutu</login> por lasi komenton.",
+    "repliesToggle": "{count, plural, one {# respondo} other {# respondoj}}",
+    "timeAgo": {
+      "justNow": "ĵus nun",
+      "minutes": "antaŭ {count} min",
+      "hours": "antaŭ {count} h",
+      "days": "antaŭ {count} t"
+    },
+    "reaction": {
+      "like": "Ŝati",
+      "dislike": "Malŝati"
+    },
+    "actions": {
+      "save": "Konservi",
+      "cancel": "Nuligi",
+      "reply": "Respondi",
+      "edit": "Redakti",
+      "delete": "Forigi",
+      "post": "Afiŝi",
+      "posting": "Afiŝante…",
+      "postReply": "Afiŝi respondon",
+      "loadMore": "Ŝargi pliajn komentojn",
+      "loading": "Ŝargante…"
+    },
+    "errors": {
+      "loadComments": "Malsukcesis ŝargi komentojn.",
+      "loadReplies": "Malsukcesis ŝargi respondojn.",
+      "postComment": "Malsukcesis afiŝi komenton.",
+      "postReply": "Malsukcesis afiŝi respondon.",
+      "saveEdit": "Malsukcesis konservi redakton.",
+      "deleteComment": "Malsukcesis forigi komenton.",
+      "react": "Malsukcesis reagi."
+    }
+  },
+  "ConfirmPaymentModal": {
+    "title": "rajtigu vian ŝarĝon",
+    "authenticating": {
+      "waiting": "Atendante, ke via banko konfirmu…",
+      "waitingWithAmount": "Atendante, ke via banko konfirmu la ŝarĝon de <strong>{amount}</strong>…",
+      "popupHint": "Eble aperos ŝprucfenestro de via banko — kompletigu ĝin por daŭrigi."
+    },
+    "success": {
+      "heading": "Rajtigita",
+      "body": "Via ŝarĝo estas traktata."
+    },
+    "error": {
+      "tryAgain": "Provu denove",
+      "useDifferentCard": "Uzu alian karton →"
+    },
+    "errors": {
+      "authFailed": "Aŭtentigo malsukcesis. Bonvolu provi denove.",
+      "notCompleted": "Aŭtentigo ne kompletiĝis. Provu denove aŭ uzu alian karton.",
+      "unexpectedStatus": "Neatendita stato: {status}. Bonvolu provi denove."
+    }
+  },
+  "CreatorSearchWidget": {
+    "searchPlaceholder": "Serĉu kreanton…",
+    "change": "Ŝanĝi",
+    "searching": "Serĉante…",
+    "viewProfile": "vidi profilon →",
+    "verified": "kontrolita",
+    "bountyCount": "{count, plural, one {# rekompenco} other {# rekompencoj}}",
+    "noCreatorsOrHandles": "Neniuj kreantoj aŭ uzantnomoj trovitaj.",
+    "noCreators": "Neniuj kreantoj trovitaj.",
+    "addAsNewCreator": "Aldoni <term>{query}</term> kiel novan kreanton",
+    "createNewProfile": "Krei novan kreantan profilon"
+  },
+  "CreatorSlugSection": {
+    "sectionLabel": "kreanta URL",
+    "description": "Via publika kreanto-paĝo troviĝas ĉe ĉi tiu URL.",
+    "changeButton": "ŝanĝi →",
+    "cooldownBanner": "Vi ŝanĝis vian slugon antaŭ nelonge — vi povos ŝanĝi ĝin denove je <date></date>.",
+    "neverMind": "← ne gravas",
+    "newUrlLabel": "nova kreanta URL",
+    "cooldownWarning": "Ŝanĝi vian slugon komencas atendoperiodon de {days} tagoj. La antaŭa URL <slug></slug> ĉiam plusendos ĉi tien.",
+    "cancelButton": "Nuligi",
+    "saveButton": "Konservi novan URL",
+    "savingButton": "Konservante…",
+    "toastUpdated": "Slugo ĝisdatigita al /{slug}.",
+    "toastFailed": "Malsukcesis ĝisdatigi la slugon."
+  },
+  "CreatorTosTldr": {
+    "eyebrow": "TL;DR — simpla lingvo",
+    "keep": {
+      "title": "Vi konservas {keepPct}% de la pagoj de la admirantoj.",
+      "body": "Artypot deprenas {feePct}% platforman komisionon, kiu kovras karto-prilaboradon, fraŭdo-protekton, gastigadon, subtenon kaj organikajn legomojn por la konsiliaj membroj, kiuj moderigas ĉion. Neniu registriĝa kotizo, neniu monata kotizo."
+    },
+    "paidAfter": {
+      "title": "Vi estas pagata POST kiam vi liveras.",
+      "body": "La admirantoj neniam estas ŝarĝataj ĝis vi sendas vian plenumon kaj la Konsilio konfirmas, ke ĝi kontentigas la premion."
+    },
+    "chargesFinal": {
+      "title": "Ŝarĝoj estas finaj por la admirantoj, sed repagoj ankoraŭ povas okazi.",
+      "body": "Admiranto ne povas postuli sian monon reen post kiam li estas ŝarĝita. Sed retroŝarĝo, repago kiun Artypot eldonas por solvi problemon, aŭ repago kiun vi elektas eldoni estas deprenata el via saldo — kiu povas iĝi negativa kaj estas kompensata kontraŭ estontaj enspezoj. Retroŝarĝoj kaj de-Artypot-eldonitaj repagoj redonas vian platforman komisionon; repagoj kiujn vi mem komencas ne."
+    },
+    "refundBounty": {
+      "title": "Vi povas repagi tutan premion.",
+      "body": "Se vi bezonas korekti aferojn, vi povas repagi ĉiujn subtenantojn de premio el via panelo — kondiĉe ke via saldo kovras ĝin. Alie, la subteno povas helpi."
+    },
+    "publicWork": {
+      "title": "Premioj financas publikan laboron, ne privatajn avantaĝojn.",
+      "body": "Via liverotaĵo iras al ĉiuj egale. Vi ne povas interŝanĝi subtenojn kontraŭ privata aliro, fizikaj varoj, renkontiĝoj aŭ rekompencoj — publika danko estas la sola permesata avantaĝo."
+    },
+    "noOfficialActs": {
+      "title": "Neniu pago por oficaj agoj aŭ kampanjoj.",
+      "body": "Vi ne povas akcepti premion por io ajn, kion vi faras en registara rolo, nek uzi Artypot por financi kampanjon, kandidaton aŭ balotan klopodon."
+    },
+    "realPeople": {
+      "title": "Nur realaj homoj, ne markoj (ankoraŭ).",
+      "body": "Kreintaj kontoj estas por individuoj registriĝantaj por si mem. Se vi mastrumas la sociajn retojn de firmao aŭ organizo, vi ankoraŭ ne povas registri tiun markon kiel kreinton — subteno por komercaj entoj venos poste."
+    },
+    "goodFaith": {
+      "title": "Agu bonfide.",
+      "body": "Misgvidaj komentoj, malsinceraj sendaĵoj, identeca trompo kaj alia malbonfida konduto ne estas tolerataj."
+    },
+    "belowTheLaw": {
+      "title": "Artypot estas sub la leĝo.",
+      "body": "Ni devas kolekti impostajn informojn. Multaj landoj ne subtenas aŭtomatan pago-prilaboradon kaj havas pli altan minimuman elpagan sojlon. Estas kelkaj landoj, en kiuj ni tute ne povas funkcii."
+    },
+    "fundsClear": {
+      "title": "Fondusoj liberiĝas post 7 tagoj.",
+      "body": "Kolektitaj fondusoj estas tenataj 7 tagojn (por fraŭda kaj disputa kontrolo) antaŭ ol fariĝi eltireblaj, kondiĉe de minimuma elpaga saldo."
+    },
+    "copyright": {
+      "title": "Vi konservas vian kopirajton.",
+      "body": "Nenio ĉi tie transdonas la posedon de via laboro al Artypot aŭ al iu admiranto. Vi donas nur limigitan licencon por montri kaj reklami plenumojn sur la platformo."
+    },
+    "familyFriendly": {
+      "title": "Artypot estas familiamika.",
+      "body": "Via premia teksto, profilo, uzantnomoj kaj plenumaj notoj estas publikaj kaj devas esti deca por ĉiuj. Vi ankaŭ ne povas uzi premion por financi plenkreskulan enhavon (niaj pago-partneroj malpermesas ĝin). Nenio kontraŭleĝa. Kion vi faras kaj gastigas aliloke estas via afero."
+    },
+    "footnote": "Ĉi tiu TL;DR estas helpa resumo, ne anstataŭaĵo por la plenaj kondiĉoj sube."
+  },
+  "HandlesSection": {
+    "sectionLabel": "handles",
+    "description": "Konektu viajn sociajn kontojn por kontroli vian identecon kiel kreanto.",
+    "common": {
+      "cancel": "Nuligi",
+      "close": "Fermi"
+    },
+    "list": {
+      "loading": "ŝargante handles…",
+      "badgeVerified": "kontrolita",
+      "badgePendingReview": "atendanta kontrolon",
+      "badgeUnverified": "nekontrolita",
+      "messagePrefix": "mesaĝo:",
+      "remove": "Forigi",
+      "connectVia": "Konekti per {platform} →",
+      "updateReviewRequest": "Ĝisdatigi kontrol-peton",
+      "requestAdminReview": "Peti kontrolon de administrantoj"
+    },
+    "add": {
+      "platformLabel": "platformo",
+      "selectPlatform": "Elektu platformon",
+      "adding": "Aldonante…",
+      "addHandle": "Aldoni handle →",
+      "addAnother": "+ aldoni alian handle",
+      "alreadyClaimedToast": "Vi jam havas postulon pri ĉi tiu handle.",
+      "addedToast": "Handle aldonita.",
+      "addFailed": "Malsukcesis aldoni la handle."
+    },
+    "remove": {
+      "removedToast": "Handle forigita.",
+      "removeFailed": "Malsukcesis forigi la handle."
+    },
+    "removeModal": {
+      "title": "Ĉu forigi handle?",
+      "verifiedWarning": "Ĉi tiu ago ne povas esti malfarita. Por readoni ĉi tiun handle estonte, vi devos denove trapasi la kontrol-procezon. Se ia premio nuntempe celas ĉi tiun handle, forigo postulas helpon de administranto.",
+      "confirm": "Ĉu forigi <handle>@{username}</handle> ĉe {platform}?",
+      "removing": "Forigante…",
+      "removeButton": "Forigi handle"
+    },
+    "blockedModal": {
+      "title": "Kontaktu administrantojn por forigi",
+      "referenced": "<mono>@{username}</mono> ĉe {platform} estas nuntempe referencita de <strong>{count, plural, one {# premio} other {# premioj}}</strong>.",
+      "explanation": "Kontrolitaj handles ligitaj al aktivaj premioj ne povas esti forigitaj el via konto aŭtomate — fari tion orfigus tiujn premiojn de ilia kontrolita posedanto. Bonvolu kontakti la teamon de Artypot kaj ili prizorgos la forigon por vi.",
+      "contactSupport": "Kontakti subtenon →"
+    },
+    "review": {
+      "title": "kontroli @{username}",
+      "intro": "Kiel ni povas rapide kontakti vin? Ni parolu por ke ni povu kontroli ke vi posedas vian <brand>{platform}</brand>-konton.",
+      "contactLabel": "kontakt-mesaĝo",
+      "contactPlaceholder": "Skribu al mi en Discord @uzanto, aŭ telefonu min en la venontaj 3 horoj je (555) 555-5555",
+      "contactHint": "Ĉi tio videblas nur al administrantoj de Artypot.",
+      "alreadySubmitted": "Vi jam sendis ĉi tion por kontrolo. Ĝisdatigi vian mesaĝon resendos ĝin.",
+      "errorTooShort": "Bonvolu doni almenaŭ unu frazon por ke administrantoj sciu kiel atingi vin.",
+      "submittedToast": "Kontrol-peto sendita — ni kontaktos vin.",
+      "submitFailed": "Malsukcesis sendi. Bonvolu reprovi.",
+      "submitting": "Sendante…",
+      "resubmit": "Resendi por kontrolo",
+      "submit": "Sendi por kontrolo"
+    },
+    "oauth": {
+      "title": "konekti {platform}",
+      "intro": "Konektu vian <strong>{platform}</strong>-konton per OAuth por tuja kontrolo. Vi estos redirektita al {brand} por rajtigi la konekton, kaj poste revenigita ĉi tien.",
+      "ownerNote": "Certigu ke vi uzas la {brand}-konton kiu posedas <strong>@{username}</strong>.",
+      "redirecting": "Redirektante…",
+      "connectButton": "Konekti {platform} →",
+      "startFailed": "Malsukcesis komenci OAuth. Bonvolu reprovi."
+    },
+    "verifyResult": {
+      "yourHandle": "via handle",
+      "verified": "{at} estas kontrolita! 🎉",
+      "notFound": "Ni ne povis kontroli {at} — tiu konto ne kongruis. Certigu ke vi ensalutis al la konto kiu posedas ĝin.",
+      "failed": "Ne eblis kompletigi la konekton por {at}. Bonvolu reprovi.",
+      "unknown": "Io misfunkciis dum kontrolo de {at}. Bonvolu reprovi."
+    },
+    "nudge": {
+      "submitted": "<bold>Kontrol-peto sendita.</bold> Bonvolu esti pacienca, kaj Baldwig kontaktos vin kiel eble plej baldaŭ! Aŭ vi povas provi vian bonŝancon kaj telefoni Baldwig rekte je <phone>+1 (727) 370-1237</phone>. Li neniam konfesos ĝin, sed li estas terure soleca. Li neniam eĉ promenis manon-en-mano kun virino. Se vi estas knabo, vi certe telefonu lin, sed se vi estas knabino vi DEFINITIVE telefonu lin.",
+      "unverified": "<bold>Vi aldonis handle — nun kontrolu ĝin.</bold> Konektu per OAuth aŭ petu kontrolon de administrantoj per la butonoj supre."
+    }
+  },
+  "HeaderSearch": {
+    "placeholder": "Serĉi…",
+    "tooShortHint": "Daŭrigu tajpadon — almenaŭ {min} signoj.",
+    "sectionRecent": "lastatempaj",
+    "sectionTrending": "popularaj rekompencoj",
+    "sectionPeople": "homoj",
+    "sectionBounties": "rekompencoj",
+    "emptyPrompt": "Serĉu kreantojn, rekompencojn kaj kromnomojn.",
+    "searching": "Serĉante…",
+    "noMatches": "Neniuj rezultoj por «{query}».",
+    "seeAll": "Vidi ĉiujn rezultojn por «{query}» →",
+    "matched": "kongruas",
+    "matchedAlias": "kongruas kun kromnomo",
+    "personOpenBounties": "{count, plural, one {# malferma rekompenco} other {# malfermaj rekompencoj}} · {amount} subtenita",
+    "roleCreator": "Kreanto",
+    "roleUnverified": "Nekontrolita",
+    "badgeCreator": "kreanto",
+    "badgeUnverified": "nekontrolita"
+  },
+  "LifecycleRail": {
+    "bountyOpens": {
+      "label": "Premio malfermiĝas",
+      "actor": "subtenanto"
+    },
+    "fansBackIt": {
+      "label": "Fanoj subtenas ĝin",
+      "actor": "fanoj"
+    },
+    "creatorSubmits": {
+      "label": "Kreinto liveras laboron",
+      "actor": "kreinto"
+    },
+    "councilSignsOff": {
+      "label": "Konsilio aprobas",
+      "actor": "konsilio"
+    },
+    "fansGetCharged": {
+      "label": "Fanoj estas ŝarĝataj",
+      "actor": "fanoj"
+    },
+    "creatorGetsPaid": {
+      "label": "Kreinto ricevas pagon",
+      "actor": "kreinto"
+    }
+  },
+  "PaymentMethodManager": {
+    "errorLoad": "Ne eblis ŝargi la pagmetodojn.",
+    "errorRemove": "Ne eblis forigi la pagmetodon.",
+    "removedWithRevocations": "Pagmetodo forigita — {count, plural, one {# subteno nuligita} other {# subtenoj nuligitaj}} ({amount}).",
+    "reason": {
+      "expired": "eksvalidiĝinta",
+      "detachedAtStripe": "forigita ĉe via banko",
+      "replacedByUpdater": "anstataŭigita de via karteldonanto",
+      "billingFailure": "fakturada malsukceso"
+    },
+    "modalTitle": "Ĉu forigi ĉi tiun pagmetodon?",
+    "modalIntro": "Ĉi tiu estas via <strong>sola valida pagmetodo</strong> en la dosiero. Se vi forigas ĝin:",
+    "modalBulletSoft": "Viaj <strong>{amount}</strong> en aktivaj subtenoj estos markitaj kiel «molaj» ĝis vi aldonos novan pagmetodon. Bonvolu fari tion antaŭ la sekva fakturada ciklo je <strong>{date}</strong>.",
+    "modalBulletAddAnyTime": "Vi povas aldoni novan pagmetodon iam ajn antaŭ tio por teni viajn subtenojn aktivaj.",
+    "modalBulletMissCycle": "Se vi maltrafas fakturadan ciklon, viaj subtenoj estos aŭtomate nuligitaj kaj vi devos resubteni iujn ajn premiojn, kiujn vi volas subteni.",
+    "cancel": "Nuligi",
+    "removing": "Forigante…",
+    "removeAnyway": "Forigi tamen",
+    "remove": "Forigi",
+    "updateCard": "Ĝisdatigi karton",
+    "emptyState": "Ankoraŭ neniuj pagmetodoj konservitaj.",
+    "addCard": "Aldoni karton",
+    "addPaymentMethod": "+ Aldoni pagmetodon"
+  },
+  "PayoutReadinessChecklist": {
+    "regionBlocked": {
+      "heading": "Elpagoj ne disponeblas en via regiono.",
+      "body": "Pro internaciaj pagrestriktoj, ni ne povas procezi elpagojn al kreantoj en via lando ĉi-momente.",
+      "contactSupport": "Kontaktu subtenon",
+      "ifError": "se vi kredas ke tio estas eraro."
+    },
+    "items": {
+      "emailVerified": "Retpoŝto kontrolita",
+      "creatorTosAgreed": "Kreantaj kondiĉoj akceptitaj",
+      "countryRegionSet": "Lando / regiono fiksita",
+      "handleVerified": "Uzantnomo kontrolita kaj aprobita",
+      "bankAccountManual": "Bankkonto (mana elpago — kontaktu subtenon)",
+      "bankAccountConnected": "Bankkonto konektita",
+      "taxFormSubmitted": "Imposta formularo sendita ({form})",
+      "minimumBalance": "Minimuma saldo atingita ({required} bezonata, {earned} gajnita)"
+    },
+    "allSet": "Vi estas tute preta por elpagoj.",
+    "payoutHold": {
+      "label": "Stripe postulas identecan kontrolon",
+      "completeNow": "Plenumi nun →"
+    },
+    "setUpNow": "Agordi nun →"
+  },
+  "PayoutRegionNotice": {
+    "blocked": {
+      "heading": "Elpagoj ne disponeblas en via regiono.",
+      "body": "Pro internaciaj pagaj limigoj, ni nuntempe ne povas procezi elpagojn al kreintoj en via lando. Via premia agado cetere ne estas tuŝita.",
+      "errorPrompt": "Se vi kredas ke tio estas eraro,",
+      "contactLink": "kontaktu subtenon"
+    },
+    "manual": {
+      "heading": "Manaj elpagoj en via regiono.",
+      "body": "Aŭtomataj bankaj elpagoj ne disponeblas kie vi estas — ni sendas elpagojn mane per Wise, PayPal aŭ ĝiro, kun minimuma elpreno de {min}.",
+      "contactLink": "Kontaktu nin por aranĝi transigon →"
+    }
+  },
+  "PlatformHandleInput": {
+    "websiteUrlLabel": "Retejo-URL",
+    "invalidUrlError": "Bonvolu enigi validan http(s)-URL.",
+    "otherUrlHint": "Algluu la plenan URL al la profilo de la kreinto en iu ajn platformo, kiun ni ne listigas supre.",
+    "label": {
+      "youtube": "Kanala identigilo",
+      "instagram": "IG-identigilo",
+      "twitter": "Identigilo",
+      "tiktok": "Uzantnomo",
+      "twitch": "Kanalnomo",
+      "bluesky": "Identigilo",
+      "kick": "Kanalnomo"
+    }
+  },
+  "SlugInput": {
+    "defaultLabel": "via kreinta URL",
+    "placeholder": "vianomo",
+    "checking": "Kontrolante…",
+    "checkingStatus": "kontrolante…",
+    "availableStatus": "disponebla",
+    "taken": "Tiu identigilo jam estas uzata.",
+    "hint": "3–30 signoj · minusklaj literoj, ciferoj, <code>_</code>, <code>-</code> · sen disigilo komence aŭ fine",
+    "formatErrors": {
+      "required": "La identigilo estas deviga.",
+      "tooShort": "La identigilo devas havi almenaŭ 3 signojn.",
+      "tooLong": "La identigilo devas havi 30 signojn aŭ malpli.",
+      "invalidChars": "Uzu nur minusklajn literojn, ciferojn, substrekojn kaj streketojn — kaj komencu kaj finu per litero aŭ cifero.",
+      "consecutiveSeparators": "Neniuj sinsekvaj substrekoj aŭ streketoj."
+    }
+  },
+  "TaxComplianceCard": {
+    "sectionLabel": "imposta plenumo",
+    "loading": "Ŝargante…",
+    "noCountry": "Agordu vian impostan loĝlokon en <link>agordoj</link> por ke ni sciu ĉu validas W-9 (Usono) aŭ W-8BEN (internacia).",
+    "toast": {
+      "w9Submitted": "W-9 sendita! Ni sciigos vin tuj kiam via SSN/TIN estos kontrolita.",
+      "w9Cancelled": "W-9 ne kompletigita — vi povas reveni kaj fini ĝin iam ajn.",
+      "w8benSubmitted": "W-8BEN sendita! Ni baldaŭ kontrolos kaj konfirmos.",
+      "w8benCancelled": "W-8BEN ne kompletigita — vi povas fini ĝin iam ajn."
+    },
+    "error": {
+      "w9LinkFailed": "Ne eblis akiri la ligilon de W-9. Bonvolu reprovi.",
+      "w8benLinkFailed": "Ne eblis akiri la ligilon de W-8BEN. Bonvolu reprovi."
+    },
+    "w9": {
+      "sectionLabel": "imposta plenumo — W-9",
+      "badge": {
+        "ssnVerified": "SSN kontrolita",
+        "submitted": "sendita",
+        "ssnMismatch": "SSN malkongruas",
+        "pending": "atendanta"
+      },
+      "body": {
+        "verified": "Via W-9 estas kompleta kaj via SSN/TIN estis kontrolita.",
+        "required": "Viaj enspezoj de {taxYear} atingis {earnings}. W-9 estas postulata antaŭ via sekva elpago.",
+        "belowThreshold": "Vi gajnis {earnings} ĉi-jare. Artypot postulas W-9 kiam vi atingas {threshold}."
+      },
+      "banner": {
+        "tinFailed": "La kontrolo de SSN/TIN malsukcesis. Bonvolu resendi kun korektita informo."
+      },
+      "button": {
+        "resubmit": "Resendi W-9 →",
+        "continue": "Daŭrigi W-9 →",
+        "complete": "Kompletigi W-9 per TaxBandits →"
+      },
+      "helper": "Malfermas TaxBandits en nova langeto. Artypot neniam vidas vian SSN."
+    },
+    "w8ben": {
+      "sectionLabel": "imposta plenumo — W-8BEN",
+      "badge": {
+        "submitted": "sendita",
+        "invalid": "nevalida",
+        "pending": "atendanta"
+      },
+      "body": {
+        "confirmed": "Via W-8BEN estis sendita kaj konfirmita.",
+        "required": "Vi gajnis {earnings} ĉi-jare. W-8BEN estas postulata antaŭ via sekva elpago.",
+        "belowThreshold": "Vi gajnis {earnings} ĉi-jare. Artypot postulas W-8BEN kiam vi atingas {threshold}."
+      },
+      "banner": {
+        "invalid": "Via W-8BEN estis markita kiel nevalida. Bonvolu resendi kun korektita informo."
+      },
+      "button": {
+        "resubmit": "Resendi W-8BEN →",
+        "continue": "Daŭrigi W-8BEN →",
+        "complete": "Kompletigi W-8BEN per TaxBandits →"
+      },
+      "helper": "Malfermas TaxBandits en nova langeto. Artypot neniam vidas viajn personajn impostajn detalojn."
+    }
+  },
+  "WithdrawCard": {
+    "sectionLabel": "disponebla",
+    "payoutHold": "Elpagoj estas prokrastitaj — kompletigu la kontrolon de Stripe por elpreni.",
+    "resolveNow": "Solvi nun →",
+    "completeBankSetup": "Kompletigu la bankan agordon por elpreni.",
+    "connectBank": "Konektu bankan konton por elpreni.",
+    "payoutsLink": "Elpagoj →",
+    "nothingToWithdraw": "Ankoraŭ nenio por elpreni.",
+    "confirmPrompt": "Ĉu sendi <strong>{amount}</strong> al via ligita banko?",
+    "sending": "Sendante…",
+    "confirmSend": "Jes, sendu ĝin",
+    "cancel": "Nuligi",
+    "withdraw": "Elpreni"
+  },
+  "DeleteAccount": {
+    "breadcrumb": {
+      "privacy": "Privateca politiko",
+      "current": "Forigi konton"
+    },
+    "heading": "kiel forigi vian konton",
+    "intro": "Vi povas porĉiame forigi vian Artypot-konton iam ajn — neniaj baroj, neniu atendoperiodo. Sekvu la subajn paŝojn. La tuta procezo daŭras malpli ol minuton.",
+    "whatHappens": {
+      "title": "Kio okazas kiam vi forigas",
+      "backings": "Ĉiuj viaj aktivaj engaĝiĝoj (subtenoj) tuj nuliĝas.",
+      "profile": "Via profilo, montra nomo kaj personaj datumoj foriĝas el niaj aktivaj sistemoj ene de 30 tagoj.",
+      "loggedOut": "Vi elsalutiĝas el ĉiuj aparatoj.",
+      "creator": "Se vi estas kreanto, via publika profilo kaj ĉiuj rilataj nomidentigiloj malaktiviĝas.",
+      "financialRecords": "Financaj registroj (pagsumoj, kvitancoj) konserviĝas dum 7 jaroj, kiel postulas la usona impostleĝo — sed ili estas anonimigitaj kaj ne ligitaj al via nomo aŭ retpoŝto.",
+      "emailReuse": "Via retpoŝtadreso povas esti reuzata por krei novan konton.",
+      "permanentLead": "Ĉi tiu ago estas porĉiama kaj ne malfareblas. Se vi havas nepagitan saldon kiel kreanto, bonvolu",
+      "contactSupport": "kontakti subtenon",
+      "beforeDeleting": "antaŭ ol forigi."
+    },
+    "steps": {
+      "login": {
+        "title": "Ensalutu en Artypot",
+        "go": "Iru al",
+        "signIn": "kaj ensalutu per via retpoŝto kaj pasvorto, aŭ per la socia konto, kiun vi uzis por registriĝi (Google, GitHub, Discord, ktp.)."
+      },
+      "settings": {
+        "title": "Malfermu Agordojn",
+        "once": "Post ensaluto, alklaku",
+        "settingsLabel": "Agordoj",
+        "sidebar": "en la maldekstra flankobreto (serĉu la ⚙-ikonon). Sur poŝtelefono, frapetu la menuikonon en la supra maldekstra angulo por unue malfermi la flankobreton.",
+        "direct": "Vi ankaŭ povas iri rekte al:"
+      },
+      "dangerZone": {
+        "title": "Rulumu al la Danĝera zono",
+        "scrollLead": "Rulumu ĝis la fino de la Agordoj-paĝo ĝis vi atingas la sekcion",
+        "label": "DANĜERA ZONO",
+        "scrollTrail": ". Ĝi estas la lasta sekcio sur la paĝo."
+      },
+      "clickDelete": {
+        "title": "Alklaku \"Forigi konton\"",
+        "findLead": "Trovu la vicon",
+        "rowLabel": "Forigi mian konton",
+        "clickMid": "kaj alklaku la ruĝan butonon",
+        "buttonLabel": "Forigi konton",
+        "findTrail": ". Aperos konfirma dialogo, kiu klarigas, kio estos forigita."
+      },
+      "confirm": {
+        "title": "Konfirmu la forigon",
+        "readLead": "Legu la konfirmon kaj tajpu vian montronomon kie la dialogo petas, poste alklaku",
+        "confirmLabel": "Jes, forigu mian konton",
+        "readTrail": ", kiu fariĝas alklakebla nur kiam la tajpita nomo kongruas. Via konto tiam tuj foriĝas kaj vi elsalutiĝos."
+      }
+    },
+    "cantLogin": {
+      "title": "Ĉu vi ne povas ensaluti?",
+      "lead": "Se vi ne plu havas aliron al via konto — ekzemple, vi perdis vian pasvorton kaj ne plu havas aliron al la registrita retpoŝtadreso — bonvolu",
+      "contactUs": "kontakti nin",
+      "orEmail": "aŭ skribi al",
+      "trail": "Inkluzivu la retpoŝtadreson ligitan al via konto, por ke ni povu trovi kaj forigi ĝin permane. Ni respondos ene de 5 labortagoj."
+    },
+    "footer": {
+      "privacy": "← Privateca politiko",
+      "support": "Kontakti subtenon",
+      "tos": "Kondiĉoj de servo"
+    }
+  },
+  "EmailChangeConfirm": {
+    "loading": "Konfirmante vian novan retpoŝton…",
+    "confirmedTitle": "Retpoŝta adreso ĝisdatigita",
+    "confirmedBody": "Via retpoŝto estis sukcese ŝanĝita.",
+    "goToSettings": "Iri al Agordoj",
+    "errorTitle": "Konfirmo malsukcesis",
+    "backToSettings": "Reen al Agordoj",
+    "errorIncomplete": "Ĉi tiu konfirma ligilo estas nevalida aŭ nekompleta.",
+    "errorExpired": "Ĉi tiu konfirma ligilo estas nevalida aŭ eksvalidiĝis."
+  },
+  "EmailVerify": {
+    "verifying": "Kontrolante vian retpoŝton…",
+    "verifiedTitle": "Retpoŝto sukcese kontrolita",
+    "alreadyVerifiedTitle": "Retpoŝto jam kontrolita",
+    "expiredTitle": "La kontrolligilo eksvalidiĝis",
+    "closeTab": "Vi povas fermi ĉi tiun langeton",
+    "resentInline": "Retpoŝto sendita ✓ — kontrolu vian enirkeston.",
+    "resending": "Sendante…",
+    "resendButton": "Resendi kontroldan retpoŝton",
+    "toastSent": "Kontrolda retpoŝto sendita! Kontrolu vian enirkeston.",
+    "toastFailed": "Malsukcesis sendi la kontroldan retpoŝton."
+  },
+  "HandleRedirect": {
+    "claimSuccess": "Identeco postulita — kontrolu ĝin sube por konfirmi posedon.",
+    "claimError": "Ne eblis postuli ĉi tiun identecon. Bonvolu reprovi.",
+    "sectionLabel": "handle",
+    "notFoundTitle": "paĝo ne trovita",
+    "notFoundBody": "Ni ne rekonas ĉi tiun handle. Foliumu kreantojn aŭ iru hejmen.",
+    "exploreCreators": "Esplori kreantojn",
+    "home": "← Hejmo",
+    "lookupError": "io misfunkciis dum la serĉo. reprovu post momento.",
+    "shareTextClaimed": "{username} — {name} estas en Artypot. Subtenu premion por tiu persono!",
+    "shareTextUnverified": "{username} — adorantoj amasigas premiojn por tiu persono en Artypot. Helpu altiri ilian atenton!",
+    "verified": "Kontrolita",
+    "unverified": "Nekontrolita",
+    "externalLink": "Ekstera ligilo",
+    "visit": "Viziti {domain}",
+    "verifiedBio": "<strong>{name}</strong> kontrolis ĉi tiun identecon — premioj ĉi tie jam kalkuliĝas por tiu persono.",
+    "unclaimedBio": "Neniu ankoraŭ postulis ĉi tiun identecon en Artypot. Se ĝi estas via, postulu ĝin por ricevi la premiojn, kiujn adorantoj amasigas por vi.",
+    "claiming": "Postulante…",
+    "claimCta": "Ĉu tio estas vi? Postulu ĉi tiun identecon →",
+    "claimHintSignedIn": "Ni aldonos ĝin al via konto kaj gvidos vin tra la kontrolo.",
+    "claimHintSignedOut": "Ensalutu por postuli ĝin kiel vian.",
+    "bountiesFor": "Premioj por {username}",
+    "newBounty": "+ Nova premio",
+    "noBounties": "Ankoraŭ neniuj premioj amasigitaj por ĉi tiu identeco.",
+    "createFirst": "Kreu la unuan",
+    "signInToStart": "Ensalutu por komenci unu",
+    "spreadTheWord": "Disvastigu la novaĵon",
+    "spreadHelp": "Helpu <handle>{username}</handle> malkovri siajn adorantojn en Artypot. Kunhavigu ĉi tiun paĝon kaj etikedu ilin.",
+    "shareAndTag": "Kunhavigi kaj etikedi"
+  },
+  "OAuthCallback": {
+    "heading": "Ensaluto malsukcesis",
+    "backToLogin": "Reen al ensaluto",
+    "fallbackProvider": "tiu provizanto",
+    "errorAccountLoad": "Ne eblis ŝargi vian konton. Bonvolu reprovi ensaluti.",
+    "errorProviderNotConfigured": "Ensaluto per {provider} ne disponeblas ĝuste nun — ni ankoraŭ agordas ĝin. Pardonu pro la ĝeno!",
+    "errorInvalidState": "La ensaluta peto eksvalidiĝis aŭ estis fuŝmodifita. Bonvolu reprovi.",
+    "errorInvalidProvider": "Nekonata ensaluta provizanto.",
+    "errorAuthenticationFailed": "La provizanto ne povis kompletigi la aŭtentigon. Bonvolu reprovi.",
+    "errorAccountError": "Estis problemo dum agordado de via konto. Bonvolu reprovi.",
+    "errorGeneric": "Ensaluto malsukcesis. Bonvolu reprovi."
+  },
+  "SettingsPassword": {
+    "heading": "Ŝanĝi pasvorton",
+    "subheading": "Elektu fortan, unikan pasvorton.",
+    "backToSettings": "Reen al agordoj",
+    "verifiedEmailRequired": "Vi bezonas kontrolitan retpoŝton por ŝanĝi vian pasvorton.",
+    "currentPasswordLabel": "Nuna pasvorto",
+    "newPasswordLabel": "Nova pasvorto",
+    "confirmPasswordLabel": "Konfirmi novan pasvorton",
+    "showPassword": "Montri pasvorton",
+    "hidePassword": "Kaŝi pasvorton",
+    "saving": "Konservante…",
+    "updateButton": "Ĝisdatigi pasvorton",
+    "mismatchError": "La novaj pasvortoj ne kongruas.",
+    "successMessage": "Pasvorto sukcese ŝanĝita.",
+    "failureMessage": "Malsukcesis ŝanĝi la pasvorton."
+  }
+}

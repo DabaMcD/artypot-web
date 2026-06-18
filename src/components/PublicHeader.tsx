@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
+import { usePathname, Link } from '@/i18n/routing';
 import Image from 'next/image';
 import HeaderSearch from '@/components/HeaderSearch';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { useTranslations } from 'next-intl';
 
 /**
  * Sticky public header shown on every page when the viewer is not logged in.
@@ -15,6 +16,7 @@ import HeaderSearch from '@/components/HeaderSearch';
 export function PublicHeader() {
   const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
+  const t = useTranslations('PublicHeader');
 
   // The landing page hosts its own large search field in the hero, so the
   // header search is suppressed there. Every other page keeps it.
@@ -46,7 +48,7 @@ export function PublicHeader() {
         {/* Desktop (≥sm): fixed-width search bar always visible (suppressed on landing) */}
         {!isLanding && (
         <div className="hidden sm:block w-64 lg:w-[340px] xl:w-[420px] shrink-0">
-          <HeaderSearch placeholder="find a creator, bounty, or handle…" />
+          <HeaderSearch placeholder={t('searchLong')} />
         </div>
         )}
 
@@ -67,12 +69,12 @@ export function PublicHeader() {
         {/* Mobile (<sm): expanded search bar */}
         {!isLanding && searchOpen && (
           <div className="sm:hidden flex items-center gap-2 flex-1 min-w-0">
-            <HeaderSearch autoFocus placeholder="search…" className="flex-1 min-w-0" />
+            <HeaderSearch autoFocus placeholder={t('searchShort')} className="flex-1 min-w-0" />
             <button
               onClick={() => setSearchOpen(false)}
               className="shrink-0 font-mono text-xs text-muted hover:text-foreground transition-colors"
             >
-              cancel
+              {t('cancel')}
             </button>
           </div>
         )}
@@ -83,17 +85,18 @@ export function PublicHeader() {
         {/* Right nav — hidden on mobile while the search bar is expanded */}
         {!searchOpen && (
           <nav className="flex items-center gap-1 sm:gap-3 shrink-0 ml-auto sm:ml-0">
+            <LanguageSwitcher variant="header" />
             <Link
               href="/login"
               className="text-sm text-muted hover:text-foreground transition-colors px-2 py-1"
             >
-              Log in
+              {t('logIn')}
             </Link>
             <Link
               href="/register"
               className="text-sm bg-creator text-brand-dark font-semibold px-3 py-1.5 rounded-md hover:brightness-110 transition-all whitespace-nowrap"
             >
-              Sign up
+              {t('signUp')}
             </Link>
           </nav>
         )}

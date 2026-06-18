@@ -26,6 +26,12 @@ export const DEFAULT_BACKING_AMOUNT_FALLBACK = Number(process.env.NEXT_PUBLIC_DE
  * this off so users only see the email path.
  *
  * Default OFF — set NEXT_PUBLIC_PHONE_SIGNUP_ENABLED=true to opt in.
+ *
+ * DEPENDENCY: this is only the UI gate. Phone-only signup also requires the
+ * backend SMS kill-switch to be ON (artypot-api: config/artypot.php `sms_enabled`
+ * / env `SMS_ENABLED`, plus `SmsService::send`). If this flag is true while
+ * SMS is disabled server-side, RegisterController rejects phone signups with a
+ * 422. Only enable this once the backend SMS capability is live.
  */
 export const PHONE_SIGNUP_ENABLED = process.env.NEXT_PUBLIC_PHONE_SIGNUP_ENABLED === 'true';
 
@@ -36,15 +42,17 @@ export const PHONE_SIGNUP_ENABLED = process.env.NEXT_PUBLIC_PHONE_SIGNUP_ENABLED
 export const WARP_SPEED = process.env.NEXT_PUBLIC_WARP_SPEED === 'true';
 
 /**
- * Returns the next billing occurrence as a Date and a human-readable label.
+ * Returns the next billing occurrence as a Date.
  *
- * Normal mode: next Nth-of-month → "Oct 15"
- * Warp mode:   next :Nth-past-the-hour → "3:15 PM"
+ * Normal mode: next Nth-of-month
+ * Warp mode:   next :Nth-past-the-hour
  *
  * Use this everywhere instead of inline next-billing date math so the
- * display automatically switches when WARP_SPEED is enabled.
+ * date automatically switches when WARP_SPEED is enabled. Format the returned
+ * `date` at the call site with a locale-aware formatter (e.g.
+ * `useDateFormats().short(date.toISOString())`).
  */
-export function nextBillingInfo(): { date: Date; label: string } {
+export function nextBillingInfo(): { date: Date } {
   const now = new Date();
 
   if (WARP_SPEED) {
@@ -56,18 +64,12 @@ export function nextBillingInfo(): { date: Date; label: string } {
     } else {
       d.setHours(now.getHours() + 1, BILLING_DAY, 0, 0);
     }
-    return {
-      date: d,
-      label: d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-    };
+    return { date: d };
   }
 
   const d =
     now.getDate() < BILLING_DAY
       ? new Date(now.getFullYear(), now.getMonth(), BILLING_DAY)
       : new Date(now.getFullYear(), now.getMonth() + 1, BILLING_DAY);
-  return {
-    date: d,
-    label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-  };
+  return { date: d };
 }

@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { billing, backings as backingsApi } from '@/lib/api';
 import type { PaymentMethod } from '@/lib/types';
 import { useToast } from '@/lib/toast-context';
 import { useNudgeContext } from '@/lib/nudge-context';
 import { nextBillingInfo } from '@/lib/config';
+import { useMoney, useDateFormats } from '@/lib/format';
 import AddCardForm from './AddCardForm';
 
 const BRAND_ICONS: Record<string, string> = {
@@ -22,11 +24,14 @@ function cardLabel(cardBrand: string) {
   return BRAND_ICONS[cardBrand.toLowerCase()] ?? `💳 ${cardBrand}`;
 }
 
-const REASON_LABEL: Record<NonNullable<PaymentMethod['invalidation_reason']>, string> = {
+// Maps each invalidation reason to a translation key under
+// PaymentMethodManager.reason.*; resolved with `t` inside the component since
+// hooks can't run at module scope.
+const REASON_KEY: Record<NonNullable<PaymentMethod['invalidation_reason']>, string> = {
   expired:              'expired',
-  detached_at_stripe:   'removed at your bank',
-  replaced_by_updater:  'replaced by your card issuer',
-  billing_failure:      'billing failure',
+  detached_at_stripe:   'detachedAtStripe',
+  replaced_by_updater:  'replacedByUpdater',
+  billing_failure:      'billingFailure',
 };
 
 interface Props {
@@ -37,6 +42,9 @@ interface Props {
 }
 
 export default function PaymentMethodManager({ onMethodsChange, compact = false }: Props) {
+  const t = useTranslations('PaymentMethodManager');
+  const money = useMoney();
+  const dates = useDateFormats();
   const { toast } = useToast();
   const { refresh: refreshNudge } = useNudgeContext();
 
@@ -60,11 +68,11 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
       setMethods(res.data);
       onMethodsChange?.(res.data);
     } catch {
-      setError('Could not load payment methods.');
+      setError(t('errorLoad'));
     } finally {
       setLoading(false);
     }
-  }, [onMethodsChange]);
+  }, [onMethodsChange, t]);
 
   useEffect(() => {
     fetchMethods();
@@ -93,12 +101,15 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
       // revocation; otherwise it's silent.
       if (res.data.revoked_count > 0) {
         toast(
-          `Payment method removed — ${res.data.revoked_count} commitment${res.data.revoked_count === 1 ? '' : 's'} ($${res.data.revoked_amount.toFixed(2)}) cancelled.`,
+          t('removedWithRevocations', {
+            count: res.data.revoked_count,
+            amount: money(res.data.revoked_amount),
+          }),
           'error',
         );
       }
     } catch {
-      setError('Could not remove payment method.');
+      setError(t('errorRemove'));
     } finally {
       setRemoving(null);
     }
@@ -120,7 +131,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
           setMethods(updated);
           onMethodsChange?.(updated);
         } catch {
-          setError('Could not remove payment method.');
+          setError(t('errorRemove'));
         } finally {
           setRemoving(null);
         }
@@ -130,7 +141,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
     setRemoveTarget(m);
   };
 
-  const { label: nextChargeLabel } = nextBillingInfo();
+  const nextChargeLabel = dates.short(nextBillingInfo().date.toISOString());
 
   if (loading) {
     return (
@@ -150,20 +161,23 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
           onClick={(e) => { if (e.target === e.currentTarget) setRemoveTarget(null); }}
         >
           <div className="bg-surface border border-border rounded-2xl w-full max-w-md p-6 shadow-2xl">
-            <h2 className="text-lg font-bold text-foreground mb-3">Remove this payment method?</h2>
+            <h2 className="text-lg font-bold text-foreground mb-3">{t('modalTitle')}</h2>
             <div className="text-sm text-muted leading-relaxed space-y-2 mb-6">
               <p>
-                This is your <strong className="text-foreground">only valid payment method</strong> on file. If you remove it:
+                {t.rich('modalIntro', {
+                  strong: (chunks) => <strong className="text-foreground">{chunks}</strong>,
+                })}
               </p>
               <ul className="list-disc pl-5 space-y-1.5">
                 <li>
-                  Your{' '}
-                  <strong className="text-foreground">${backingTotalAmount.toFixed(2)}</strong>{' '}
-                  in active backings will be marked "soft" until you add a new payment method. Please do so before the next billing cycle on{' '}
-                  <strong className="text-foreground">{nextChargeLabel}</strong>.
+                  {t.rich('modalBulletSoft', {
+                    amount: money(backingTotalAmount),
+                    date: nextChargeLabel,
+                    strong: (chunks) => <strong className="text-foreground">{chunks}</strong>,
+                  })}
                 </li>
-                <li>You can add a new payment method any time before then to keep your backings active.</li>
-                <li>If you miss a billing cycle, your backings will be automatically revoked and you&apos;ll need to re-back any bounties you want to support.</li>
+                <li>{t('modalBulletAddAnyTime')}</li>
+                <li>{t('modalBulletMissCycle')}</li>
               </ul>
             </div>
             <div className="flex gap-3">
@@ -173,7 +187,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
                 disabled={!!removing}
                 className="flex-1 border border-border text-foreground text-sm font-medium py-2.5 rounded-lg hover:border-foreground/30 transition-colors disabled:opacity-40"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 type="button"
@@ -181,7 +195,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
                 disabled={!!removing}
                 className="flex-1 bg-red-600 text-white text-sm font-semibold py-2.5 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-40"
               >
-                {removing ? 'Removing…' : 'Remove anyway'}
+                {removing ? t('removing') : t('removeAnyway')}
               </button>
             </div>
           </div>
@@ -208,7 +222,9 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
                     <span className="text-muted text-xs">{m.exp_month}/{m.exp_year}</span>
                     {!m.is_valid && m.invalidation_reason && (
                       <span className="font-mono text-[10px] uppercase tracking-widest text-warn">
-                        {REASON_LABEL[m.invalidation_reason] ?? m.invalidation_reason}
+                        {REASON_KEY[m.invalidation_reason]
+                          ? t(`reason.${REASON_KEY[m.invalidation_reason]}`)
+                          : m.invalidation_reason}
                       </span>
                     )}
                   </div>
@@ -218,7 +234,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
                       disabled={removing === m.id}
                       className="text-xs text-muted hover:text-red-400 transition-colors disabled:opacity-40"
                     >
-                      {removing === m.id ? 'Removing…' : 'Remove'}
+                      {removing === m.id ? t('removing') : t('remove')}
                     </button>
                   )}
                 </div>
@@ -232,7 +248,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
                       onClick={() => setShowAdd(true)}
                       className="text-sm font-semibold whitespace-nowrap hover:underline underline-offset-2"
                     >
-                      Update card
+                      {t('updateCard')}
                     </button>
                     <button
                       type="button"
@@ -240,7 +256,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
                       disabled={removing === m.id}
                       className="text-sm whitespace-nowrap text-foreground/50 hover:text-foreground/80 transition-colors disabled:opacity-50"
                     >
-                      {removing === m.id ? 'Removing…' : 'Remove'}
+                      {removing === m.id ? t('removing') : t('remove')}
                     </button>
                   </div>
                 )}
@@ -252,7 +268,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
         {/* Empty state */}
         {methods.length === 0 && !showAdd && (
           <p className={`text-muted text-sm ${compact ? '' : 'py-2'}`}>
-            No payment methods saved yet.
+            {t('emptyState')}
           </p>
         )}
 
@@ -260,7 +276,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
         {showAdd ? (
           <div className="border border-fan/30 rounded-xl p-5 bg-surface">
             {!compact && (
-              <p className="text-sm font-medium text-foreground mb-4">Add a card</p>
+              <p className="text-sm font-medium text-foreground mb-4">{t('addCard')}</p>
             )}
             <AddCardForm
               onSuccess={handleAdded}
@@ -272,7 +288,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
             onClick={() => setShowAdd(true)}
             className={`text-sm font-medium text-fan hover:underline ${compact ? '' : 'mt-1 block'}`}
           >
-            + Add payment method
+            {t('addPaymentMethod')}
           </button>
         )}
       </div>

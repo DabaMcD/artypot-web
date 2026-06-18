@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/routing';
 import { creators as creatorsApi, handles as handlesApi } from '@/lib/api';
 import { handleLink, formatPlatformHandle, platformLabel } from '@/lib/platforms';
 import type { Creator, HandleSearchResult } from '@/lib/types';
@@ -70,10 +71,11 @@ export default function CreatorSearchWidget({
   onClear,
   navigateOnSelect = false,
   onCreateNew,
-  placeholder = 'Search for a creator…',
+  placeholder,
   inputClassName,
   autoFocus,
 }: CreatorSearchWidgetProps) {
+  const t = useTranslations('CreatorSearchWidget');
   const router = useRouter();
   const [search, setSearch] = useState('');
   // Controlled mode (onSelect) searches creators. Navigate-on-select mode uses
@@ -98,7 +100,7 @@ export default function CreatorSearchWidget({
       return;
     }
     setSearchLoading(true);
-    const t = setTimeout(async () => {
+    const debounceTimer = setTimeout(async () => {
       try {
         if (useHandleSearch) {
           const res = await handlesApi.search(search);
@@ -113,7 +115,7 @@ export default function CreatorSearchWidget({
         setSearchLoading(false);
       }
     }, 350);
-    return () => clearTimeout(t);
+    return () => clearTimeout(debounceTimer);
   }, [search, selectedCreator, useHandleSearch]);
 
   // Reset highlight to first item whenever the result set changes.
@@ -213,7 +215,7 @@ export default function CreatorSearchWidget({
           onClick={onClear}
           className="text-sm text-muted hover:text-foreground transition-colors"
         >
-          Change
+          {t('change')}
         </button>
       </div>
     );
@@ -237,7 +239,7 @@ export default function CreatorSearchWidget({
         onBlur={() => {
           blurTimer.current = setTimeout(() => setFocused(false), 150);
         }}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t('searchPlaceholder')}
         className={inputClassName ?? defaultInputClass}
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus={autoFocus}
@@ -255,7 +257,7 @@ export default function CreatorSearchWidget({
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
               </svg>
-              Searching…
+              {t('searching')}
             </div>
           )}
 
@@ -283,7 +285,7 @@ export default function CreatorSearchWidget({
                 className="hidden lg:block shrink-0 pr-3 text-xs text-muted hover:text-creator transition-colors opacity-0 group-hover:opacity-100"
                 onClick={(e) => e.stopPropagation()}
               >
-                view profile →
+                {t('viewProfile')}
               </a>
             </div>
           ))}
@@ -308,10 +310,10 @@ export default function CreatorSearchWidget({
               </span>
               <span className="shrink-0 flex flex-col items-end gap-0.5">
                 {r.verified ? (
-                  <span className="text-[10px] font-mono uppercase tracking-wide text-creator">verified</span>
+                  <span className="text-[10px] font-mono uppercase tracking-wide text-creator">{t('verified')}</span>
                 ) : r.pending_bounty_count > 0 ? (
                   <span className="text-[10px] font-mono text-muted">
-                    {r.pending_bounty_count} {r.pending_bounty_count === 1 ? 'bounty' : 'bounties'}
+                    {t('bountyCount', { count: r.pending_bounty_count })}
                   </span>
                 ) : null}
               </span>
@@ -321,7 +323,7 @@ export default function CreatorSearchWidget({
           {/* No results */}
           {!searchLoading && search.trim().length > 0 && resultCount === 0 && (
             <div className="px-4 py-2.5 text-sm text-muted">
-              {useHandleSearch ? 'No creators or handles found.' : 'No creators found.'}
+              {useHandleSearch ? t('noCreatorsOrHandles') : t('noCreators')}
             </div>
           )}
 
@@ -341,8 +343,11 @@ export default function CreatorSearchWidget({
               >
                 <span className="text-lg leading-none">+</span>
                 {search.trim()
-                  ? <><span>Add </span><span className="font-semibold">&ldquo;{search.trim()}&rdquo;</span><span> as a new creator</span></>
-                  : 'Create a new creator profile'}
+                  ? t.rich('addAsNewCreator', {
+                      query: search.trim(),
+                      term: (chunks) => <span className="font-semibold">&ldquo;{chunks}&rdquo;</span>,
+                    })
+                  : t('createNewProfile')}
               </button>
             </>
           )}

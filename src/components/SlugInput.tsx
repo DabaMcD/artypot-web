@@ -1,8 +1,21 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { auth as authApi } from '@/lib/api';
 import { FieldLabel, FieldHint } from '@/components/ui/Input';
+
+/**
+ * Stable error keys for slug format validation. These map to entries under the
+ * `SlugInput` i18n namespace and are resolved to user-facing copy at render
+ * time (the validator runs at module scope and cannot call hooks).
+ */
+export type SlugFormatError =
+  | 'required'
+  | 'tooShort'
+  | 'tooLong'
+  | 'invalidChars'
+  | 'consecutiveSeparators';
 
 /**
  * Validation rules (must match backend App\Support\CreatorSlug).
@@ -11,17 +24,17 @@ import { FieldLabel, FieldHint } from '@/components/ui/Input';
  *   - starts + ends with [a-z0-9]
  *   - no consecutive separators (rejects `__`, `--`, `_-`, `-_`)
  *
- * Returns null if valid, otherwise a user-facing error message.
+ * Returns null if valid, otherwise a stable error key (see SlugFormatError).
  */
-export function validateSlugFormat(slug: string): string | null {
-  if (!slug) return 'Slug is required.';
-  if (slug.length < 3) return 'Slug must be at least 3 characters.';
-  if (slug.length > 30) return 'Slug must be 30 characters or fewer.';
+export function validateSlugFormat(slug: string): SlugFormatError | null {
+  if (!slug) return 'required';
+  if (slug.length < 3) return 'tooShort';
+  if (slug.length > 30) return 'tooLong';
   if (!/^[a-z0-9][a-z0-9_-]*[a-z0-9]$/.test(slug)) {
-    return 'Use only lowercase letters, numbers, underscores, and hyphens — and start and end with a letter or number.';
+    return 'invalidChars';
   }
   if (/[_-]{2,}/.test(slug)) {
-    return 'No consecutive underscores or hyphens.';
+    return 'consecutiveSeparators';
   }
   return null;
 }
@@ -29,7 +42,7 @@ export function validateSlugFormat(slug: string): string | null {
 interface SlugInputProps {
   value: string;
   onChange: (value: string) => void;
-  /** Optional label override. Defaults to "your creator URL". */
+  /** Optional label override. Falls back to the localized default label. */
   label?: string;
   /** Disable async availability checks (e.g. when re-rendering with the same value). */
   disabled?: boolean;
@@ -51,30 +64,32 @@ interface SlugInputProps {
 export default function SlugInput({
   value,
   onChange,
-  label = 'your creator URL',
+  label,
   disabled,
   onValidityChange,
 }: SlugInputProps) {
+  const t = useTranslations('SlugInput');
   const [checking, setChecking] = useState(false);
   const [remoteError, setRemoteError] = useState<string | null>(null);
   const [available, setAvailable] = useState<boolean | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const formatError = validateSlugFormat(value);
+  const formatErrorKey = validateSlugFormat(value);
+  const formatError = formatErrorKey ? t(`formatErrors.${formatErrorKey}`) : null;
   // The overall error: format issue wins; otherwise show whatever the server said.
   const error = formatError ?? remoteError;
 
   // Tell the parent whenever validity changes.
   useEffect(() => {
-    onValidityChange?.(checking ? 'Checking…' : error);
-  }, [error, checking, onValidityChange]);
+    onValidityChange?.(checking ? t('checking') : error);
+  }, [error, checking, onValidityChange, t]);
 
   // Debounce a remote availability check after each keystroke.
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     // Skip the network call if the value is clearly invalid.
-    if (formatError) {
+    if (formatErrorKey) {
       setRemoteError(null);
       setAvailable(null);
       setChecking(false);
@@ -86,7 +101,7 @@ export default function SlugInput({
       try {
         const res = await authApi.checkSlug(value);
         setAvailable(res.available);
-        setRemoteError(res.available ? null : (res.error ?? 'That slug is already taken.'));
+        setRemoteError(res.available ? null : (res.error ?? t('taken')));
       } catch {
         setRemoteError(null);
         setAvailable(null);
@@ -98,7 +113,7 @@ export default function SlugInput({
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [value, formatError]);
+  }, [value, formatErrorKey, t]);
 
   // Forgiving paste/typing handling — lowercase live (slugs are
   // lowercase-canonical) and strip an accidental leading '/', '@', or
@@ -110,7 +125,7 @@ export default function SlugInput({
 
   return (
     <div>
-      <FieldLabel>{label} <span className="text-bad">*</span></FieldLabel>
+      <FieldLabel>{label ?? t('defaultLabel')} <span className="text-bad">*</span></FieldLabel>
       <div className={`flex items-center w-full px-3 py-2.5 bg-background border rounded transition-colors text-base ${
         error
           ? 'border-bad/60 focus-within:border-bad'
@@ -123,7 +138,7 @@ export default function SlugInput({
           type="text"
           value={value}
           onChange={(e) => handleChange(e.target.value)}
-          placeholder="yourname"
+          placeholder={t('placeholder')}
           disabled={disabled}
           autoCapitalize="off"
           autoCorrect="off"
@@ -133,9 +148,9 @@ export default function SlugInput({
         />
         <span className="font-mono text-[10px] uppercase tracking-widest shrink-0 ml-2">
           {checking ? (
-            <span className="text-muted">checking…</span>
+            <span className="text-muted">{t('checkingStatus')}</span>
           ) : error ? null : available ? (
-            <span className="text-good">available</span>
+            <span className="text-good">{t('availableStatus')}</span>
           ) : null}
         </span>
       </div>
@@ -144,7 +159,9 @@ export default function SlugInput({
         <p className="text-xs text-bad mt-1">{error}</p>
       ) : (
         <FieldHint>
-          3–30 characters · lowercase letters, numbers, <code>_</code>, <code>-</code> · no leading or trailing separator
+          {t.rich('hint', {
+            code: (chunks) => <code>{chunks}</code>,
+          })}
         </FieldHint>
       )}
     </div>

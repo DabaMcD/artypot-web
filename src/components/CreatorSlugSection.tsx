@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { auth as authApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
+import { useDateFormats } from '@/lib/format';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Banner } from '@/components/ui/Banner';
@@ -21,6 +23,8 @@ interface SlugInfo {
  * Hidden entirely for non-creators (they pick their slug at become-creator time).
  */
 export default function CreatorSlugSection() {
+  const t = useTranslations('CreatorSlugSection');
+  const dateFormats = useDateFormats();
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -74,12 +78,12 @@ export default function CreatorSlugSection() {
     setSaving(true);
     try {
       const res = await authApi.updateSlug(newSlug);
-      toast(`Slug updated to /${res.slug}.`, 'success');
+      toast(t('toastUpdated', { slug: res.slug }), 'success');
       setView('show');
       fetchInfo();
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Failed to update slug.', 'error');
+      toast(e.message ?? t('toastFailed'), 'error');
     } finally {
       setSaving(false);
     }
@@ -88,9 +92,9 @@ export default function CreatorSlugSection() {
   return (
     <div id="slug">
       <Card>
-        <SectionLabel className="mb-3">creator URL</SectionLabel>
+        <SectionLabel className="mb-3">{t('sectionLabel')}</SectionLabel>
         <p className="text-sm text-muted mb-4">
-          Your public creator page lives at this URL.
+          {t('description')}
         </p>
 
         {view === 'show' && (
@@ -98,7 +102,7 @@ export default function CreatorSlugSection() {
             <span className="font-mono text-base text-foreground">
               artypot.com/<span className="text-creator">{info.slug}</span>
             </span>
-            <Button variant="default" size="sm" onClick={startEditing}>change →</Button>
+            <Button variant="default" size="sm" onClick={startEditing}>{t('changeButton')}</Button>
           </div>
         )}
 
@@ -110,15 +114,18 @@ export default function CreatorSlugSection() {
               </span>
             </div>
             <Banner tone="default">
-              You changed your slug recently — you can change it again on{' '}
-              <span className="text-foreground">{cooldownUntil!.toLocaleDateString()}</span>.
+              {t.rich('cooldownBanner', {
+                date: () => (
+                  <span className="text-foreground">{dateFormats.short(info.cooldown_until!)}</span>
+                ),
+              })}
             </Banner>
             <button
               type="button"
               onClick={cancelEditing}
               className="text-xs font-mono text-muted hover:text-foreground cursor-pointer transition-colors"
             >
-              ← never mind
+              {t('neverMind')}
             </button>
           </div>
         )}
@@ -128,19 +135,21 @@ export default function CreatorSlugSection() {
             <SlugInput
               value={newSlug}
               onChange={setNewSlug}
-              label="new creator URL"
+              label={t('newUrlLabel')}
               onValidityChange={setSlugError}
             />
 
             <Banner tone="warn">
-              Changing your slug starts a {info.cooldown_days}-day cooldown.
-              The previous URL <span className="font-mono">/{info.slug}</span> will redirect here forever.
+              {t.rich('cooldownWarning', {
+                days: info.cooldown_days,
+                slug: () => <span className="font-mono">/{info.slug}</span>,
+              })}
             </Banner>
 
             <div className="flex gap-3">
-              <Button variant="ghost" onClick={cancelEditing} disabled={saving}>Cancel</Button>
+              <Button variant="ghost" onClick={cancelEditing} disabled={saving}>{t('cancelButton')}</Button>
               <Button variant="primary" onClick={handleSave} disabled={saving || slugError !== null || newSlug === info.slug}>
-                {saving ? 'Saving…' : 'Save New URL'}
+                {saving ? t('savingButton') : t('saveButton')}
               </Button>
             </div>
           </div>

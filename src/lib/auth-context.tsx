@@ -1,7 +1,10 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useLocale } from 'next-intl';
 import { auth, setToken, clearToken, ensureSessionCookie } from './api';
+import { useRouter, usePathname } from '@/i18n/routing';
+import { pickPreferredLocale } from './preferred-locale';
 import type { User } from './types';
 
 export interface RegisterPayload {
@@ -10,6 +13,7 @@ export interface RegisterPayload {
   phone_number?: string;
   password: string;
   password_confirmation: string;
+  preferred_locale?: string;
 }
 
 interface AuthContextType {
@@ -18,7 +22,7 @@ interface AuthContextType {
   login: (identifier: string, password: string) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<{ phone_verification_required?: boolean }>;
   logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
+  refreshUser: () => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -26,6 +30,9 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
+  const currentLocale = useLocale();
 
   useEffect(() => {
     const token = localStorage.getItem('artypot_token');
@@ -36,12 +43,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ensureSessionCookie();
       auth
         .me()
-        .then((res) => setUser(res.data))
+        .then((res) => {
+          setUser(res.data);
+          // Returning user: honor their saved language as a one-shot redirect.
+          const loc = pickPreferredLocale(res.data, currentLocale);
+          if (loc) router.replace(pathname, { locale: loc });
+        })
         .catch(() => clearToken())
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = async (identifier: string, password: string) => {
@@ -65,9 +78,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
-  const refreshUser = async () => {
+  const refreshUser = async (): Promise<User> => {
     const res = await auth.me();
     setUser(res.data);
+    return res.data;
   };
 
   return (

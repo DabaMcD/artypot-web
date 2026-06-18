@@ -1,6 +1,9 @@
 'use client';
 
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+
+import { Link } from '@/i18n/routing';
+import { useMoney } from '@/lib/format';
 import type { CreatorPayouts } from '@/lib/hooks/useCreatorPayouts';
 
 /**
@@ -23,28 +26,28 @@ export default function PayoutRegionNotice({
   p: CreatorPayouts;
   compact?: boolean;
 }) {
+  const t = useTranslations('PayoutRegionNotice');
+  const money = useMoney();
   const leading = compact ? '' : ' leading-relaxed';
 
   if (p.isPayoutBlocked) {
     return (
       <p className={`text-sm text-bad${leading}`}>
-        <strong>Payouts unavailable in your region.</strong>{' '}
-        Due to international payment restrictions, we&apos;re unable to process payouts to
-        creators in your country at this time. Your bounty activity is otherwise unaffected.
-        If you believe this is an error,{' '}
-        <a href="mailto:support@artypot.com" className="ap-inline-link">contact support</a>.
+        <strong>{t('blocked.heading')}</strong>{' '}
+        {t('blocked.body')}{' '}
+        {t('blocked.errorPrompt')}{' '}
+        <a href="mailto:support@artypot.com" className="ap-inline-link">{t('blocked.contactLink')}</a>.
       </p>
     );
   }
 
   if (p.isManualPayout) {
-    const min = `$${p.payoutMinimum.toLocaleString('en-US')}`;
+    const min = money(p.payoutMinimum);
     return (
       <p className={`text-sm text-muted${leading}`}>
-        <strong className="text-foreground">Manual payouts in your region.</strong>{' '}
-        Automatic bank payouts aren&apos;t available where you are — we send payouts manually
-        via Wise, PayPal, or wire, with a {min} minimum withdrawal.{' '}
-        <Link href="/support" className="ap-inline-link">Contact us to arrange a transfer →</Link>
+        <strong className="text-foreground">{t('manual.heading')}</strong>{' '}
+        {t('manual.body', { min })}{' '}
+        <Link href="/support" className="ap-inline-link">{t('manual.contactLink')}</Link>
       </p>
     );
   }

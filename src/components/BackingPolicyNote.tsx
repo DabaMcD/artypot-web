@@ -10,15 +10,13 @@
  * Rendered beneath every backing submit action: the bounty page form, the
  * BountyCard quick-back confirm step, and the new-bounty opening commitment.
  */
+import { useTranslations } from 'next-intl';
+
 export default function BackingPolicyNote({ className = '' }: { className?: string }) {
+  const t = useTranslations('BackingPolicyNote');
   return (
     <p className={`text-[10px] leading-snug text-muted/70 ${className}`}>
-      Free to cancel anytime before the bounty completes. Once completed, your
-      backing is locked, charged on the next billing day, and final — refunds
-      after a charge are discretionary (hardship or verified fraud only). To the
-      extent this backing constitutes a contract for services, you agree any such
-      performance may begin immediately, and any EU/UK 14-day right of withdrawal
-      ends when the bounty completes.
+      {t('text')}
     </p>
   );
 }
