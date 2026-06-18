@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useRouter } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { useViewMode } from '@/lib/view-mode-context';
 import { Avatar } from './ui/Avatar';
@@ -66,6 +66,8 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
   const { user, logout } = useAuth();
   const { canSwitch, switchTo } = useViewMode();
   const router = useRouter();
+  const t = useTranslations('Sidebar');
+  const tc = useTranslations('Common');
 
   // Which role buttons should appear in the bottom widget?
   // Fan is always available; the others appear only when the user can actually access them.
@@ -85,24 +87,24 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
   // below it group pages by user goal (your own activity, finding new stuff,
   // money, account) rather than by page type.
   const fanItems: NavItem[] = [
-    { id: 'fan-home',      label: 'Dashboard',       icon: '◐', href: '/dashboard' },
+    { id: 'fan-home',      label: t('nav.dashboard'),      icon: '◐', href: '/dashboard' },
     // 'your activity' (not 'bounties') — this section holds the fan's own
     // backings + authoring, not the bounty directory (that's under discover).
-    { sec: 'your activity' },
-    { id: 'fan-backings',  label: 'My backings',     icon: '◇', href: '/backings' },
-    { id: 'fan-create',    label: 'Start a bounty',  icon: '+', href: '/bounties/new' },
-    { sec: 'discover' },
-    { id: 'fan-search',    label: 'Find creators',   icon: '⌕', href: '/search' },
-    { id: 'fan-bounties',  label: 'Browse bounties', icon: '◫', href: '/bounties' },
-    { sec: 'money' },
-    { id: 'fan-billing',   label: 'Billing',         icon: '$', href: '/billing' },
-    { id: 'fan-payments',  label: 'Payment history', icon: '◷', href: '/history' },
-    { sec: 'account' },
-    { id: 'fan-settings',  label: 'Settings',        icon: '⚙', href: '/settings' },
+    { sec: t('sections.yourActivity') },
+    { id: 'fan-backings',  label: t('nav.myBackings'),     icon: '◇', href: '/backings' },
+    { id: 'fan-create',    label: t('nav.startBounty'),    icon: '+', href: '/bounties/new' },
+    { sec: t('sections.discover') },
+    { id: 'fan-search',    label: t('nav.findCreators'),   icon: '⌕', href: '/search' },
+    { id: 'fan-bounties',  label: t('nav.browseBounties'), icon: '◫', href: '/bounties' },
+    { sec: t('sections.money') },
+    { id: 'fan-billing',   label: t('nav.billing'),        icon: '$', href: '/billing' },
+    { id: 'fan-payments',  label: t('nav.paymentHistory'), icon: '◷', href: '/history' },
+    { sec: t('sections.account') },
+    { id: 'fan-settings',  label: t('nav.settings'),       icon: '⚙', href: '/settings' },
     // Pitching creator mode to someone who already has it is just noise —
     // existing creators switch via the role widget below.
     ...(!canSwitch
-      ? [{ id: 'fan-become', label: 'Become a creator', icon: '✦', href: '/become-creator' }]
+      ? [{ id: 'fan-become', label: t('nav.becomeCreator'), icon: '✦', href: '/become-creator' }]
       : []),
   ];
 
@@ -111,37 +113,37 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
   // (redirects to /c). The money section leads with Payouts (the action) ahead
   // of the read-only Cash ledger, mirroring the fan side's Billing-before-history.
   const creatorItems: NavItem[] = [
-    { id: 'creator-dashboard',  label: 'Dashboard',        icon: '◐', href: '/c' },
-    { sec: 'bounties' },
-    { id: 'creator-bounties',   label: 'My bounties',      icon: '◇', href: '/c/bounties' },
-    { sec: 'money' },
-    { id: 'creator-payouts',    label: 'Payouts',          icon: '↗', href: '/c/payouts' },
-    { id: 'creator-money',      label: 'Cash ledger',      icon: '$', href: '/c/money' },
-    { id: 'creator-tax',        label: 'Tax & compliance', icon: '⚖', href: '/c/tax' },
-    { sec: 'account' },
-    { id: 'creator-handles',    label: 'Handles',          icon: '@', href: '/c/handles' },
-    { id: 'creator-settings',   label: 'Settings',         icon: '⚙', href: '/c/settings' },
+    { id: 'creator-dashboard',  label: t('nav.dashboard'),  icon: '◐', href: '/c' },
+    { sec: t('sections.bounties') },
+    { id: 'creator-bounties',   label: t('nav.myBounties'), icon: '◇', href: '/c/bounties' },
+    { sec: t('sections.money') },
+    { id: 'creator-payouts',    label: t('nav.payouts'),    icon: '↗', href: '/c/payouts' },
+    { id: 'creator-money',      label: t('nav.cashLedger'), icon: '$', href: '/c/money' },
+    { id: 'creator-tax',        label: t('nav.tax'),        icon: '⚖', href: '/c/tax' },
+    { sec: t('sections.account') },
+    { id: 'creator-handles',    label: t('nav.handles'),    icon: '@', href: '/c/handles' },
+    { id: 'creator-settings',   label: t('nav.settings'),   icon: '⚙', href: '/c/settings' },
   ];
 
   const councilItems: NavItem[] = [
-    { sec: 'queues' },
-    { id: 'council-completions',      label: 'Completion review',   icon: '✓', href: '/admin/completions' },
-    { id: 'council-handles',          label: 'Handle verification', icon: '@', href: '/admin/handles' },
-    { id: 'council-compliance',       label: 'Compliance',          icon: '⚖', href: '/admin/compliance' },
-    { id: 'council-reports',          label: 'Reports',             icon: '⚑', href: '/admin/reports' },
-    { sec: 'catalog' },
-    { id: 'council-users',            label: 'Users',               icon: '◍', href: '/admin/users' },
-    { id: 'council-creators',         label: 'Creators',            icon: '◐', href: '/admin/creators' },
-    { id: 'council-handle-registry',  label: 'Handle registry',     icon: '⊙', href: '/admin/handle-registry' },
-    { id: 'council-featured-bounties', label: 'Featured bounties',  icon: '★', href: '/admin/featured-bounties' },
-    { sec: 'operations' },
-    { id: 'council-billing',          label: 'Billing runs',        icon: '$', href: '/admin/billing' },
-    { id: 'council-refunds',          label: 'Refunds',             icon: '↩', href: '/admin/refunds' },
-    { id: 'council-payouts',          label: 'External payouts',    icon: '↗', href: '/admin/external-payouts' },
-    { id: 'council-members',          label: 'Council members',     icon: '◇', href: '/admin/council' },
-    { id: 'council-tiers',            label: 'Country tiers',       icon: '◉', href: '/admin/tiers' },
-    { id: 'council-markets',          label: 'Markets',             icon: '◎', href: '/admin/markets' },
-    { id: 'council-audit',            label: 'Audit log',           icon: '◫', href: '/admin/logs' },
+    { sec: t('sections.queues') },
+    { id: 'council-completions',      label: t('nav.completionReview'),   icon: '✓', href: '/admin/completions' },
+    { id: 'council-handles',          label: t('nav.handleVerification'), icon: '@', href: '/admin/handles' },
+    { id: 'council-compliance',       label: t('nav.compliance'),         icon: '⚖', href: '/admin/compliance' },
+    { id: 'council-reports',          label: t('nav.reports'),            icon: '⚑', href: '/admin/reports' },
+    { sec: t('sections.catalog') },
+    { id: 'council-users',            label: t('nav.users'),              icon: '◍', href: '/admin/users' },
+    { id: 'council-creators',         label: t('nav.creators'),           icon: '◐', href: '/admin/creators' },
+    { id: 'council-handle-registry',  label: t('nav.handleRegistry'),     icon: '⊙', href: '/admin/handle-registry' },
+    { id: 'council-featured-bounties', label: t('nav.featuredBounties'),  icon: '★', href: '/admin/featured-bounties' },
+    { sec: t('sections.operations') },
+    { id: 'council-billing',          label: t('nav.billingRuns'),        icon: '$', href: '/admin/billing' },
+    { id: 'council-refunds',          label: t('nav.refunds'),            icon: '↩', href: '/admin/refunds' },
+    { id: 'council-payouts',          label: t('nav.externalPayouts'),    icon: '↗', href: '/admin/external-payouts' },
+    { id: 'council-members',          label: t('nav.councilMembers'),     icon: '◇', href: '/admin/council' },
+    { id: 'council-tiers',            label: t('nav.countryTiers'),       icon: '◉', href: '/admin/tiers' },
+    { id: 'council-markets',          label: t('nav.markets'),            icon: '◎', href: '/admin/markets' },
+    { id: 'council-audit',            label: t('nav.auditLog'),           icon: '◫', href: '/admin/logs' },
   ];
 
   const items = role === 'council' ? councilItems : role === 'creator' ? creatorItems : fanItems;
@@ -224,7 +226,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
 
           {/* Role section label */}
           <div className="px-5 pt-3 pb-1.5 font-mono text-[10px] tracking-[1.5px] uppercase text-muted/60">
-            role
+            {t('sections.role')}
           </div>
 
           {/* Buttons */}
@@ -239,7 +241,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
                 }`}
                 onClick={switchHandlers[option]}
               >
-                {option}
+                {t(`roles.${option}`)}
               </button>
             ))}
           </div>
@@ -269,12 +271,12 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
             </Link>
           )}
           <div className="flex items-center justify-between gap-2 mt-0.5">
-            <div className="font-mono text-[9px] uppercase tracking-wide text-muted/60">{role}</div>
+            <div className="font-mono text-[9px] uppercase tracking-wide text-muted/60">{t(`roles.${role}`)}</div>
             <button
               onClick={handleLogout}
               className="shrink-0 font-mono text-[9px] uppercase text-muted/50 hover:text-muted transition-colors cursor-pointer"
             >
-              logout →
+              {t('userCard.signOut')} →
             </button>
           </div>
         </div>
@@ -285,11 +287,10 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
           viewport bottom now, so it can't scroll clear of it anymore. */}
       <div className="px-5 pb-[max(1rem,env(safe-area-inset-bottom))] flex items-center justify-between">
         {([
-          { href: '/about',   label: 'About' },
-          { href: '/guide',   label: 'Guide' },
-          { href: '/tos',     label: 'Terms' },
-          { href: '/privacy', label: 'Privacy' },
-          { href: '/support', label: 'Contact' },
+          { href: '/about',   label: tc('legal.about') },
+          { href: '/tos',     label: tc('legal.terms') },
+          { href: '/privacy', label: tc('legal.privacy') },
+          { href: '/support', label: tc('legal.contact') },
         ] as const).map(({ href, label }) => (
           <Link
             key={href}

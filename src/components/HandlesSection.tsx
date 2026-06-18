@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { auth as authApi, handles as handlesApi } from '@/lib/api';
 import { useToast } from '@/lib/toast-context';
 import type { HandleClaim, HandlePlatform } from '@/lib/types';
@@ -54,6 +55,7 @@ function RequestReviewModal({
   onClose: () => void;
   onSubmitted: (updated: HandleClaim) => void;
 }) {
+  const t = useTranslations('HandlesSection');
   const { toast } = useToast();
   const [message, setMessage] = useState(claim.contact_message ?? '');
   const [submitting, setSubmitting] = useState(false);
@@ -62,18 +64,18 @@ function RequestReviewModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim().length < 10) {
-      setError('Please provide at least a sentence so admins know how to reach you.');
+      setError(t('review.errorTooShort'));
       return;
     }
     setError('');
     setSubmitting(true);
     try {
       const res = await handlesApi.requestReview(claim.claim_id, message.trim());
-      toast('Review request submitted — we\'ll be in touch.', 'success');
+      toast(t('review.submittedToast'), 'success');
       onSubmitted(res.data);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setError(e.message ?? 'Failed to submit. Please try again.');
+      setError(e.message ?? t('review.submitFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -83,37 +85,39 @@ function RequestReviewModal({
   const alreadySubmitted = claim.pending_review;
 
   return (
-    <Modal title={`verify @${claim.handle.username}`} onClose={onClose}>
+    <Modal title={t('review.title', { username: claim.handle.username })} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <p className="text-sm text-muted">
-          How can we quickly get in touch? Let&apos;s chat so we can verify your{' '}
-          <span className="text-foreground">{platformLabel}</span> account ownership.
+          {t.rich('review.intro', {
+            platform: platformLabel,
+            brand: (chunks) => <span className="text-foreground">{chunks}</span>,
+          })}
         </p>
 
         <div>
-          <FieldLabel>contact message <span className="text-bad">*</span></FieldLabel>
+          <FieldLabel>{t('review.contactLabel')} <span className="text-bad">*</span></FieldLabel>
           <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={4}
-            placeholder="DM me on Discord @username, or call me in the next 3 hours at (555) 555-5555"
+            placeholder={t('review.contactPlaceholder')}
             autoFocus
           />
-          <FieldHint>This is only visible to Artypot admins.</FieldHint>
+          <FieldHint>{t('review.contactHint')}</FieldHint>
         </div>
 
         {alreadySubmitted && (
           <Banner tone="default">
-            You already submitted this for review. Updating your message will resubmit it.
+            {t('review.alreadySubmitted')}
           </Banner>
         )}
 
         {error && <Banner tone="bad">{error}</Banner>}
 
         <div className="flex gap-3 justify-end">
-          <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>Cancel</Button>
+          <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>{t('common.cancel')}</Button>
           <Button type="submit" variant="primary" disabled={submitting || message.trim().length < 10}>
-            {submitting ? 'Submitting…' : alreadySubmitted ? 'Resubmit for Review' : 'Submit for Review'}
+            {submitting ? t('review.submitting') : alreadySubmitted ? t('review.resubmit') : t('review.submit')}
           </Button>
         </div>
       </form>
@@ -130,6 +134,7 @@ function OAuthConnectModal({
   claim: HandleClaim;
   onClose: () => void;
 }) {
+  const t = useTranslations('HandlesSection');
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
@@ -162,29 +167,35 @@ function OAuthConnectModal({
       window.location.href = res.url;
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Failed to start OAuth. Please try again.', 'error');
+      toast(e.message ?? t('oauth.startFailed'), 'error');
       setLoading(false);
     }
   };
 
   return (
-    <Modal title={`connect ${platformLabel}`} onClose={onClose}>
+    <Modal title={t('oauth.title', { platform: platformLabel })} onClose={onClose}>
       <div className="space-y-4">
         <p className="text-sm text-muted">
-          Connect your <span className="text-foreground">{platformLabel}</span>{' '}account via OAuth for instant verification.
-          You&apos;ll be redirected to {authBrand} to authorize the connection, then brought back here.
+          {t.rich('oauth.intro', {
+            platform: platformLabel,
+            brand: authBrand,
+            strong: (chunks) => <span className="text-foreground">{chunks}</span>,
+          })}
         </p>
         <Banner tone="default">
-          Make sure you&apos;re using the {authBrand} account that owns{' '}
-          <span className="text-foreground">@{claim.handle.username}</span>.
+          {t.rich('oauth.ownerNote', {
+            brand: authBrand,
+            username: claim.handle.username,
+            strong: (chunks) => <span className="text-foreground">{chunks}</span>,
+          })}
         </Banner>
         <div className="flex gap-3 justify-end">
-          <Button variant="ghost" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button variant="ghost" onClick={onClose} disabled={loading}>{t('common.cancel')}</Button>
           <Button variant="primary" onClick={handleConnect} disabled={loading}>
-            {loading ? 'Redirecting…' : (
+            {loading ? t('oauth.redirecting') : (
               <>
                 <BrandIcon slug={platform} className="w-4 h-4 shrink-0" />
-                Connect {platformLabel} →
+                {t('oauth.connectButton', { platform: platformLabel })}
               </>
             )}
           </Button>
@@ -197,6 +208,7 @@ function OAuthConnectModal({
 // ── Main handles section ──────────────────────────────────────────────────────
 
 export default function HandlesSection({ bare = false }: { bare?: boolean } = {}) {
+  const t = useTranslations('HandlesSection');
   const { toast } = useToast();
 
   const [claims, setClaims] = useState<HandleClaim[]>([]);
@@ -256,22 +268,22 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
     } catch {
       return;
     }
-    const at = handle ? `@${handle}` : 'your handle';
+    const at = handle ? `@${handle}` : t('verifyResult.yourHandle');
 
     switch (result) {
       case 'verified':
-        toast(`${at} is verified! 🎉`, 'success');
+        toast(t('verifyResult.verified', { at }), 'success');
         break;
       case 'not_found':
-        toast(`We couldn't verify ${at} — that account didn't match. Make sure you signed in to the account that owns it.`, 'error');
+        toast(t('verifyResult.notFound', { at }), 'error');
         break;
       case 'failed':
-        toast(`Couldn't complete the connection for ${at}. Please try again.`, 'error');
+        toast(t('verifyResult.failed', { at }), 'error');
         break;
       default:
-        toast(`Something went wrong verifying ${at}. Please try again.`, 'error');
+        toast(t('verifyResult.unknown', { at }), 'error');
     }
-  }, [toast]);
+  }, [toast, t]);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -281,8 +293,8 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
       const res = await handlesApi.store(addPlatform, addUsername.trim());
       toast(
         res.already_claimed
-          ? 'You already have a claim on this handle.'
-          : 'Handle added.',
+          ? t('add.alreadyClaimedToast')
+          : t('add.addedToast'),
         'success',
       );
       setAddUsername('');
@@ -294,7 +306,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
       });
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Failed to add handle.', 'error');
+      toast(e.message ?? t('add.addFailed'), 'error');
     } finally {
       setAdding(false);
     }
@@ -305,7 +317,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
     setRemovingClaimId(removeTarget.claim_id);
     try {
       await handlesApi.destroy(removeTarget.claim_id);
-      toast('Handle removed.', 'success');
+      toast(t('remove.removedToast'), 'success');
       setClaims((prev) => prev.filter((c) => c.claim_id !== removeTarget.claim_id));
       setRemoveTarget(null);
     } catch (err: unknown) {
@@ -316,7 +328,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
         const count = Number(e.data?.bounty_count ?? 0);
         setRemoveBlocked({ bountyCount: count });
       } else {
-        toast(e.message ?? 'Failed to remove handle.', 'error');
+        toast(e.message ?? t('remove.removeFailed'), 'error');
         setRemoveTarget(null);
       }
     } finally {
@@ -338,7 +350,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
     <>
         {/* Existing handle list */}
         {loading ? (
-          <div className="text-sm text-muted font-mono mb-4">loading handles…</div>
+          <div className="text-sm text-muted font-mono mb-4">{t('list.loading')}</div>
         ) : claims.length > 0 ? (
           <ul className={`divide-y divide-border mb-4 border-y border-border ${bare ? '' : '-mx-5'}`}>
             {claims.map((claim) => {
@@ -356,16 +368,16 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
                         <span className="text-sm font-medium text-foreground font-mono">{prefix}{claim.handle.username}</span>
                         <span className="text-xs text-muted">{platformLabel}</span>
                         {claim.status === 'verified' ? (
-                          <Badge tone="good">verified</Badge>
+                          <Badge tone="good">{t('list.badgeVerified')}</Badge>
                         ) : pendingReview ? (
-                          <Badge tone="warn">pending review</Badge>
+                          <Badge tone="warn">{t('list.badgePendingReview')}</Badge>
                         ) : (
-                          <Badge tone="default">unverified</Badge>
+                          <Badge tone="default">{t('list.badgeUnverified')}</Badge>
                         )}
                       </div>
                       {pendingReview && claim.contact_message && (
                         <p className="font-mono text-[10px] text-muted mt-1 truncate">
-                          message: {claim.contact_message}
+                          {t('list.messagePrefix')} {claim.contact_message}
                         </p>
                       )}
                     </div>
@@ -376,7 +388,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
                       onClick={() => setRemoveTarget(claim)}
                       disabled={removingClaimId === claim.claim_id}
                     >
-                      {removingClaimId === claim.claim_id ? '…' : 'Remove'}
+                      {removingClaimId === claim.claim_id ? '…' : t('list.remove')}
                     </Button>
                   </div>
 
@@ -386,7 +398,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
                       {supportsOAuth && (
                         <Button size="sm" variant="primary" onClick={() => setOauthClaim(claim)}>
                           <BrandIcon slug={platform} className="w-3.5 h-3.5 shrink-0" />
-                          Connect via {platformLabel} →
+                          {t('list.connectVia', { platform: platformLabel })}
                         </Button>
                       )}
                       {/* If OAuth is available, it's the preferred path — keep
@@ -399,7 +411,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
                         variant={supportsOAuth ? 'default' : 'primary'}
                         onClick={() => setReviewingClaim(claim)}
                       >
-                        {pendingReview ? 'Update Review Request' : 'Request Admin Review'}
+                        {pendingReview ? t('list.updateReviewRequest') : t('list.requestAdminReview')}
                       </Button>
                     </div>
                   )}
@@ -416,12 +428,12 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
         {claims.length === 0 || showAddForm ? (
           <form onSubmit={handleAdd} className="space-y-3">
             <div>
-              <FieldLabel>platform</FieldLabel>
+              <FieldLabel>{t('add.platformLabel')}</FieldLabel>
               <Select
                 value={addPlatform}
                 onChange={(e) => setAddPlatform(e.target.value as HandlePlatform | '')}
               >
-                <option value="">Select a platform</option>
+                <option value="">{t('add.selectPlatform')}</option>
                 {PLATFORMS.map(({ value, label }) => (
                   <option key={value} value={value}>{label}</option>
                 ))}
@@ -444,7 +456,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
                 size="sm"
                 disabled={adding || !addPlatform || !addUsername.trim()}
               >
-                {adding ? 'Adding…' : 'Add Handle →'}
+                {adding ? t('add.adding') : t('add.addHandle')}
               </Button>
               {claims.length > 0 && (
                 <Button
@@ -458,7 +470,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
                   }}
                   disabled={adding}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
               )}
             </div>
@@ -470,7 +482,7 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
             size="sm"
             onClick={() => setShowAddForm(true)}
           >
-            + add another handle
+            {t('add.addAnother')}
           </Button>
         )}
 
@@ -482,18 +494,16 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
           <div className="mt-4">
             {claims.some((c) => c.status === 'unverified' && c.pending_review) ? (
               <Banner tone="default">
-                <span className="font-bold text-foreground">Review request submitted.</span>{' '}
-                Please be patient, and Baldwig will reach out as soon as possible!
-                Or you can try your luck and call Baldwig directly at{' '}
-                <a href="tel:+17273701237" className="underline text-foreground">+1 (727) 370-1237</a>.
-                He&apos;ll never admit it, but he&apos;s lonely af. He&apos;s never so much as
-                walked hand in hand with a woman before. If you&apos;re a guy, you should
-                definitely call him, but if you&apos;re a girl you should DEFINITELY call him.
+                {t.rich('nudge.submitted', {
+                  bold: (chunks) => <span className="font-bold text-foreground">{chunks}</span>,
+                  phone: (chunks) => <a href="tel:+17273701237" className="underline text-foreground">{chunks}</a>,
+                })}
               </Banner>
             ) : (
               <Banner tone="warn">
-                <span className="font-bold text-foreground">You&apos;ve added a handle — now verify it.</span>{' '}
-                Connect via OAuth or request admin review using the buttons above.
+                {t.rich('nudge.unverified', {
+                  bold: (chunks) => <span className="font-bold text-foreground">{chunks}</span>,
+                })}
               </Banner>
             )}
           </div>
@@ -505,9 +515,9 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
     <div id="handles">
       {bare ? body : (
         <Card>
-          <SectionLabel className="mb-3">handles</SectionLabel>
+          <SectionLabel className="mb-3">{t('sectionLabel')}</SectionLabel>
           <p className="text-sm text-muted mb-4">
-            Connect your social accounts to verify your identity as a creator.
+            {t('description')}
           </p>
           {body}
         </Card>
@@ -532,23 +542,24 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
 
       {/* Remove confirmation modal */}
       {removeTarget && !removeBlocked && (
-        <Modal title="Remove Handle?" onClose={closeRemoveModals}>
+        <Modal title={t('removeModal.title')} onClose={closeRemoveModals}>
           <div className="space-y-4">
             {removeTarget.status === 'verified' && (
               <Banner tone="warn">
-                This action cannot be undone. To add this handle back in the future,
-                you will need to go through the verification process again.
-                If any bounty currently targets this handle, removal requires admin assistance.
+                {t('removeModal.verifiedWarning')}
               </Banner>
             )}
             <p className="text-sm text-muted">
-              Remove <span className="font-mono text-foreground">@{removeTarget.handle.username}</span>{' '}
-              on {PLATFORM_LABELS[removeTarget.handle.platform as HandlePlatform] ?? removeTarget.handle.platform}?
+              {t.rich('removeModal.confirm', {
+                username: removeTarget.handle.username,
+                platform: PLATFORM_LABELS[removeTarget.handle.platform as HandlePlatform] ?? removeTarget.handle.platform,
+                handle: (chunks) => <span className="font-mono text-foreground">{chunks}</span>,
+              })}
             </p>
             <div className="flex gap-3 justify-end">
-              <Button variant="ghost" onClick={closeRemoveModals}>Cancel</Button>
+              <Button variant="ghost" onClick={closeRemoveModals}>{t('common.cancel')}</Button>
               <Button variant="danger" onClick={handleRemove} disabled={removingClaimId !== null}>
-                {removingClaimId !== null ? 'Removing…' : 'Remove Handle'}
+                {removingClaimId !== null ? t('removeModal.removing') : t('removeModal.removeButton')}
               </Button>
             </div>
           </div>
@@ -558,29 +569,28 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
       {/* Contact-admins modal — appears when the backend blocks removal because
           the verified handle is still referenced by active bounties. */}
       {removeTarget && removeBlocked && (
-        <Modal title="Contact admins to remove" onClose={closeRemoveModals}>
+        <Modal title={t('blockedModal.title')} onClose={closeRemoveModals}>
           <div className="space-y-4">
             <Banner tone="bad">
-              <span className="font-mono">@{removeTarget.handle.username}</span>{' '}
-              on {PLATFORM_LABELS[removeTarget.handle.platform as HandlePlatform] ?? removeTarget.handle.platform}{' '}
-              is currently referenced by{' '}
-              <strong className="text-foreground">
-                {removeBlocked.bountyCount} {removeBlocked.bountyCount === 1 ? 'bounty' : 'bounties'}
-              </strong>.
+              {t.rich('blockedModal.referenced', {
+                username: removeTarget.handle.username,
+                platform: PLATFORM_LABELS[removeTarget.handle.platform as HandlePlatform] ?? removeTarget.handle.platform,
+                count: removeBlocked.bountyCount,
+                mono: (chunks) => <span className="font-mono">{chunks}</span>,
+                strong: (chunks) => <strong className="text-foreground">{chunks}</strong>,
+              })}
             </Banner>
             <p className="text-sm text-muted">
-              Verified handles tied to live bounties can&apos;t be removed from your account
-              automatically — doing so would orphan those bounties from their verified owner.
-              Please reach out to the Artypot team and they&apos;ll handle removal for you.
+              {t('blockedModal.explanation')}
             </p>
             <div className="flex gap-3 justify-end">
-              <Button variant="ghost" onClick={closeRemoveModals}>Close</Button>
+              <Button variant="ghost" onClick={closeRemoveModals}>{t('common.close')}</Button>
               <a
                 href="/support"
                 className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold bg-fan text-black rounded-lg hover:opacity-90 transition-opacity"
                 onClick={closeRemoveModals}
               >
-                Contact support →
+                {t('blockedModal.contactSupport')}
               </a>
             </div>
           </div>

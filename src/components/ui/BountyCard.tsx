@@ -2,6 +2,7 @@
 
 import { Badge } from './Badge';
 import { BILLING_DAY } from '@/lib/config';
+import { useMoney } from '@/lib/format';
 
 type BountyState = 'collecting' | 'creator-verified' | 'submitted' | 'verified' | 'settled';
 
@@ -31,6 +32,7 @@ const stateMap: Record<BountyState, { tone: 'default' | 'info' | 'warn' | 'pendi
 };
 
 export function BountyCard({ b, onClick, hideTarget }: BountyCardProps) {
+  const money = useMoney();
   const st = stateMap[b.state] ?? { tone: 'default' as const, label: b.state };
   return (
     <div
@@ -61,7 +63,7 @@ export function BountyCard({ b, onClick, hideTarget }: BountyCardProps) {
 
         <div className="flex justify-between mt-2.5 font-mono text-[11px]">
           <span>
-            <strong className="text-foreground">${b.fundedTotal.toLocaleString()}</strong>
+            <strong className="text-foreground">{money(b.fundedTotal)}</strong>
             <span className="text-muted"> raised · {b.contributors} {b.contributors === 1 ? 'backer' : 'backers'}</span>
           </span>
           {b.yourBacking != null && (

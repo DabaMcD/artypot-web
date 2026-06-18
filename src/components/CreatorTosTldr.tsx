@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { PLATFORM_FEE_PCT } from '@/lib/config';
 
 const CREATOR_KEEP_PCT = 100 - PLATFORM_FEE_PCT;
@@ -13,109 +14,93 @@ const CREATOR_KEEP_PCT = 100 - PLATFORM_FEE_PCT;
  */
 export default function CreatorTosTldr({
   className = '',
-  footnote = 'This TL;DR is a helpful summary, not a substitute for the full terms below.',
+  footnote,
 }: {
   className?: string;
   footnote?: string;
 }) {
+  const t = useTranslations('CreatorTosTldr');
   return (
     <div className={`bg-creator/5 border border-creator/30 rounded-xl p-6 ${className}`}>
       <p className="text-xs font-mono text-creator uppercase tracking-wider mb-3 font-semibold">
-        TL;DR — plain English
+        {t('eyebrow')}
       </p>
       <ul className="space-y-2 text-sm text-foreground">
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
-            <strong>You keep {CREATOR_KEEP_PCT}% of fan payments.</strong>{' '}Artypot deducts a{' '}
-            {PLATFORM_FEE_PCT}% platform fee which covers card
-            processing, fraud protection, hosting, support, and organic veggies for the council
-            members that moderate everything. No signup fee, no monthly fee.
+            <strong>{t('keep.title', { keepPct: CREATOR_KEEP_PCT })}</strong>{' '}
+            {t('keep.body', { feePct: PLATFORM_FEE_PCT })}
           </span>
         </li>
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
-            <strong>You&apos;re paid AFTER you deliver.</strong>{' '}Fans are never charged until
-            you submit your completion and the Council confirms it satisfies the bounty.
+            <strong>{t('paidAfter.title')}</strong>{' '}{t('paidAfter.body')}
           </span>
         </li>
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
-            <strong>Charges are final to fans, but refunds can still happen.</strong>{' '}A fan
-            can&apos;t demand their money back once charged. But a chargeback, a refund Artypot
-            issues to fix a problem, or a refund you choose to issue is deducted from your
-            balance — which can go negative and is offset against future earnings. Chargebacks and
-            Artypot-issued refunds return your platform fee; refunds you start yourself don&apos;t.
+            <strong>{t('chargesFinal.title')}</strong>{' '}{t('chargesFinal.body')}
           </span>
         </li>
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
-            <strong>You can refund a whole bounty.</strong>{' '}If you need to make things right,
-            you can refund all of a bounty&apos;s backers from your dashboard — as long as your
-            balance covers it. Otherwise, support can help.
+            <strong>{t('refundBounty.title')}</strong>{' '}{t('refundBounty.body')}
           </span>
         </li>
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
-            <strong>Bounties fund public work, not private perks.</strong>{' '}Your deliverable
-            goes out to everyone equally. You can&apos;t trade backings for private access,
-            physical goods, meetups, or rewards — a public thank-you is the only perk allowed.
+            <strong>{t('publicWork.title')}</strong>{' '}{t('publicWork.body')}
           </span>
         </li>
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✗</span>
           <span>
-            <strong>No pay for official acts or campaigns.</strong>{' '}You can&apos;t accept a
-            bounty for anything you do in a government role, or use Artypot to fund a campaign,
-            candidate, or election effort.
+            <strong>{t('noOfficialActs.title')}</strong>{' '}{t('noOfficialActs.body')}
+          </span>
+        </li>
+        <li className="flex gap-2">
+          <span className="text-creator shrink-0 mt-0.5">✗</span>
+          <span>
+            <strong>{t('realPeople.title')}</strong>{' '}{t('realPeople.body')}
           </span>
         </li>
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
-            <strong>Act in good faith.</strong>{' '}Misleading comments, disingenuous
-            submissions, identity deception, and other bad-faith behavior is not tolerated.
+            <strong>{t('goodFaith.title')}</strong>{' '}{t('goodFaith.body')}
           </span>
         </li>
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
-            <strong>Artypot is below the law.</strong>{' '}We have to collect tax info. Many
-            countries don't support automated payment processing and have a higher minimum payout
-            threshold. There are some countries we can&apos;t operate in at all.
+            <strong>{t('belowTheLaw.title')}</strong>{' '}{t('belowTheLaw.body')}
           </span>
         </li>
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
-            <strong>Funds clear after 7 days.</strong>{' '}Collected funds are held 7 days
-            (for fraud and dispute review) before becoming withdrawable, subject to a minimum
-            payout balance.
+            <strong>{t('fundsClear.title')}</strong>{' '}{t('fundsClear.body')}
           </span>
         </li>
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
-            <strong>You keep your copyright.</strong>{' '}Nothing here transfers ownership of your
-            work to Artypot or to any fan. You grant only a limited license to display and
-            promote completions on the platform.
+            <strong>{t('copyright.title')}</strong>{' '}{t('copyright.body')}
           </span>
         </li>
         <li className="flex gap-2">
           <span className="text-creator shrink-0 mt-0.5">✓</span>
           <span>
-            <strong>Artypot is family friendly.</strong>{' '}Your bounty text, profile,
-            handles, and completion notes are public and must be PG. You also can&apos;t use a
-            bounty to fund adult content (our payment partners forbid it). Nothing illegal.
-            What you make and host elsewhere is your business.
+            <strong>{t('familyFriendly.title')}</strong>{' '}{t('familyFriendly.body')}
           </span>
         </li>
       </ul>
-      <p className="text-xs text-muted mt-4">{footnote}</p>
+      <p className="text-xs text-muted mt-4">{footnote ?? t('footnote')}</p>
     </div>
   );
 }

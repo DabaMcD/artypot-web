@@ -1,8 +1,8 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, Link } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 import { ReactNode, useState, useEffect } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
 import { bounties as bountiesApi } from '@/lib/api';
@@ -19,6 +19,7 @@ import { DefaultUpdatePromptBar } from '@/components/DefaultUpdatePromptBar';
 import { DefaultUpdatePromptProvider } from '@/lib/default-update-prompt-context';
 import { PublicHeader } from '@/components/PublicHeader';
 import { PublicFooter } from '@/components/PublicFooter';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password'];
 const AUTH_PREFIXES = ['/email/', '/oauth/'];
@@ -48,7 +49,6 @@ const FULL_BLEED_EXACT = new Set([
   '/about',
   '/for-creators',
   '/support',
-  '/guide',
   '/privacy',
   '/tos',
   '/creator-tos',
@@ -71,6 +71,8 @@ const APP_PADDED_EXACT = new Set(['/bounties/new']);
 const RESERVED_TOP_SEGMENTS = new Set([
   'about', 'admin', 'backings', 'become-creator', 'billing', 'bounties', 'c',
   'creator-tos', 'creators', 'dashboard', 'email', 'for-creators',
+  // 'guide' has no page anymore (308-redirects to /about via next.config) but
+  // stays reserved so it can never be claimed as a creator slug.
   'forgot-password', 'guide', 'history', 'login', 'oauth', 'obelisk',
   'privacy', 'register', 'reset-password', 'search', 'settings', 'support',
   'tos', 'users',
@@ -126,6 +128,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
+  const th = useTranslations('PublicHeader');
   const { user, loading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -156,9 +159,17 @@ export function AppShell({ children }: AppShellProps) {
   // Close mobile drawer + mobile search whenever the route changes.
   useEffect(() => { setSidebarOpen(false); setSearchOpen(false); }, [pathname]);
 
-  // Auth pages: full-bleed, no sidebar
+  // Auth pages: full-bleed, no sidebar. A compact language switcher floats in
+  // the corner so logged-out users can change language on /login, /register, etc.
   if (isAuthRoute(pathname)) {
-    return <>{children}</>;
+    return (
+      <>
+        <div className="fixed top-4 right-4 z-50">
+          <LanguageSwitcher variant="header" />
+        </div>
+        {children}
+      </>
+    );
   }
 
   // Loading: blank dark screen
@@ -238,7 +249,7 @@ export function AppShell({ children }: AppShellProps) {
           {/* Desktop (≥sm): fixed-width search bar always visible (suppressed on landing) */}
           {!isLanding && (
           <div className="hidden sm:block w-64 lg:w-[340px] xl:w-[420px] shrink-0">
-            <HeaderSearch placeholder="find a creator, bounty, or handle…" />
+            <HeaderSearch placeholder={th("searchLong")} />
           </div>
           )}
 

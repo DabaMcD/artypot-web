@@ -1,18 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
+import { useMoney } from '@/lib/format';
 import { useDefaultUpdatePrompt } from '@/lib/default-update-prompt-context';
 import { users as usersApi } from '@/lib/api';
 
 const AUTO_DISMISS_MS = 8000;
 const EXIT_ANIM_MS = 280;
-
-function formatExpiry(value: number, unit: string): string {
-  const plural = value === 1 ? unit : `${unit}s`;
-  return `${value} ${plural}`;
-}
 
 /**
  * Transient banner mounted near PaymentGraceBanner — fires when the user just
@@ -29,6 +26,8 @@ export function DefaultUpdatePromptBar() {
   const { current, clear } = useDefaultUpdatePrompt();
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
+  const t = useTranslations('Banners');
+  const money = useMoney();
   const [saving, setSaving] = useState(false);
   // `closing` flips the banner's class from entry-anim to exit-anim. The
   // actual context.clear() is deferred by EXIT_ANIM_MS so the user sees the
@@ -86,18 +85,18 @@ export function DefaultUpdatePromptBar() {
       if (current.kind === 'amount') {
         await usersApi.update(user.id, { default_backing_amount: current.payload.proposed });
         await refreshUser();
-        toast('Default backing amount saved.', 'success');
+        toast(t('defaultUpdate.toastAmountSaved'), 'success');
       } else {
         await usersApi.update(user.id, {
           default_expiry_value: current.payload.proposed_value,
           default_expiry_unit: current.payload.proposed_unit,
         });
         await refreshUser();
-        toast('Default backing expiry saved.', 'success');
+        toast(t('defaultUpdate.toastExpirySaved'), 'success');
       }
       beginDismiss();
     } catch {
-      toast('Could not update default. Please try again.', 'error');
+      toast(t('defaultUpdate.toastError'), 'error');
     } finally {
       setSaving(false);
     }
@@ -110,19 +109,27 @@ export function DefaultUpdatePromptBar() {
   let keepLabel: string;
 
   if (current.kind === 'amount') {
-    const proposed = current.payload.proposed.toFixed(2);
-    headline = `Update default backing to $${proposed}?`;
-    updateLabel = `Update to $${proposed}`;
+    const proposed = money(current.payload.proposed);
+    headline = t('defaultUpdate.amountHeadline', { amount: proposed });
+    updateLabel = t('defaultUpdate.amountUpdate', { amount: proposed });
     keepLabel = current.payload.current !== null
-      ? `Keep at $${current.payload.current.toFixed(2)}`
-      : 'Keep current';
+      ? t('defaultUpdate.amountKeep', { amount: money(current.payload.current) })
+      : t('defaultUpdate.keepCurrent');
   } else {
-    const proposed = formatExpiry(current.payload.proposed_value, current.payload.proposed_unit);
-    headline = `Update default expiry to ${proposed}?`;
-    updateLabel = `Update to ${proposed}`;
+    const proposed = t('defaultUpdate.expiryLabel', {
+      value: current.payload.proposed_value,
+      unit: current.payload.proposed_unit,
+    });
+    headline = t('defaultUpdate.expiryHeadline', { expiry: proposed });
+    updateLabel = t('defaultUpdate.expiryUpdate', { expiry: proposed });
     keepLabel = current.payload.current_value !== null && current.payload.current_unit !== null
-      ? `Keep at ${formatExpiry(current.payload.current_value, current.payload.current_unit)}`
-      : 'Keep current';
+      ? t('defaultUpdate.expiryKeep', {
+          expiry: t('defaultUpdate.expiryLabel', {
+            value: current.payload.current_value,
+            unit: current.payload.current_unit,
+          }),
+        })
+      : t('defaultUpdate.keepCurrent');
   }
 
   // Keying by the prompt's payload makes React remount the banner when the
@@ -146,7 +153,7 @@ export function DefaultUpdatePromptBar() {
           disabled={saving || closing}
           className="text-sm font-semibold whitespace-nowrap hover:underline underline-offset-2 disabled:opacity-50"
         >
-          {saving ? 'Saving…' : updateLabel}
+          {saving ? t('defaultUpdate.saving') : updateLabel}
         </button>
         <button
           type="button"

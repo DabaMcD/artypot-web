@@ -39,7 +39,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     try {
       const res = await notificationsApi.unreadCount();
       setUnreadCount(res.unread_count);
-      document.title = res.unread_count > 0 ? `(${res.unread_count}) artypot` : 'artypot';
+      // The tab-title unread badge is applied by <UnreadTitleBadge>, which
+      // prefixes the real page title instead of overwriting it.
     } catch {
       // Silently ignore errors (user may not be logged in)
     }
@@ -71,11 +72,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       setNotifs((prev) =>
         prev.map((n) => (n.id === id ? { ...n, read_at: updated.read_at } : n))
       );
-      setUnreadCount((c) => {
-        const next = Math.max(0, c - 1);
-        document.title = next > 0 ? `(${next}) artypot` : 'artypot';
-        return next;
-      });
+      setUnreadCount((c) => Math.max(0, c - 1));
     } catch {
       // ignore
     }

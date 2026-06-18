@@ -1,0 +1,3139 @@
+{
+  "Common": {
+    "actions": {
+      "save": "lock it in 🔒",
+      "cancel": "nah we good 🙅",
+      "submit": "SEND IT 🚀",
+      "continue": "we ball 🏀",
+      "back": "reverse uno ◀️",
+      "next": "gimme the next 1",
+      "previous": "the one b4",
+      "edit": "cook it ✏️",
+      "delete": "send to the shadow realm 💀",
+      "remove": "yeet 🗑️"
+    },
+    "states": {
+      "loading": "loading… my brain buffering 🧠⏳",
+      "saving": "saving rn, lock in 💾🙏"
+    },
+    "toast": {
+      "saved": "LOCKED IN 🔒 W",
+      "removed": "yeeted into the void 🕳️",
+      "genericError": "BRO it's so over 💀 what the sigma just happened"
+    },
+    "legal": {
+      "about": "lore",
+      "terms": "bro code",
+      "privacy": "no-snitch",
+      "contact": "@ us"
+    }
+  },
+  "Sidebar": {
+    "sections": {
+      "yourActivity": "ur whole arc 📈",
+      "discover": "find the ops 🔭",
+      "money": "the bag 💰",
+      "account": "ur file 🗂️",
+      "bounties": "the grind 💪",
+      "role": "who tf r u"
+    },
+    "nav": {
+      "dashboard": "the war room 🗺️",
+      "myBackings": "bags i dropped 💸",
+      "startBounty": "post an op 🎯",
+      "findCreators": "scout the goats 🐐",
+      "browseBounties": "doomscroll ops 👀",
+      "billing": "the damage 💀",
+      "paymentHistory": "the receipts 🧾",
+      "settings": "tweak ur vibe ⚙️",
+      "becomeCreator": "unlock creator arc ✨",
+      "myBounties": "my ops 📁",
+      "payouts": "secure the bag 🤑",
+      "cashLedger": "money diary 📒",
+      "tax": "uncle sam's cut 💀",
+      "handles": "ur @s 🔗"
+    },
+    "roles": {
+      "fan": "glazer",
+      "creator": "goat 🐐",
+      "council": "the opps 👮"
+    },
+    "userCard": {
+      "signOut": "bounce 🏃"
+    }
+  },
+  "PublicHeader": {
+    "logIn": "log in",
+    "signUp": "get in, it's free 🚪✨",
+    "searchLong": "find a creator, bounty, or @ (no cap)…",
+    "searchShort": "search… 🔍",
+    "cancel": "nvm"
+  },
+  "Settings": {
+    "language": {
+      "label": "language",
+      "title": "what tongue we yappin in 🗣️",
+      "blurb": "pick the lang Artypot yaps at u in 🌍 we glue it to ur acct so it stays no cap 🤝",
+      "hint": "pick ur whole vibe. saved to ur file no cap"
+    },
+    "breadcrumb": {
+      "fan": "fan arc 🗣️",
+      "settings": "tweak dimension ⚙️"
+    },
+    "hero": {
+      "title": "tweak ur whole vibe ⚙️🔥"
+    },
+    "common": {
+      "cancel": "nah im ghostin 🚪💨",
+      "save": "lock it in 🔒🗣️",
+      "saving": "saving… brain buffering 🧠⏳"
+    },
+    "email": {
+      "label": "ur email tho 📧",
+      "addBlurb": "drop an email or the pings + pwd login stay COOKED 💀 do it bestie 🙏",
+      "verifiedBadge": "✓ legit fr",
+      "placeholderExample": "you@email.com",
+      "placeholderNew": "fresh email goes here gng",
+      "addButton": "slap email on 📧✨",
+      "changeButton": "swap the email ⚡🔄",
+      "sending": "sending… buffering 📨🧠",
+      "sentBanner": "confirm email YEETED to <strong>{email}</strong> 🚀 tap the link or it's so over 💀",
+      "sentBannerShort": "confirm yeeted to <strong>{email}</strong> 🚀 tap the link bestie 🔥",
+      "pendingBanner": "glow-up pending on <strong>{email}</strong> 👀 go peep that inbox gng 📬"
+    },
+    "profilePicture": {
+      "label": "ur pfp 🤳✨",
+      "alt": "the pfp tho",
+      "saving": "saving… cookin 💾🍳",
+      "change": "swap the pic… 🖼️🔄",
+      "upload": "yeet a pic up… 📤🗣️",
+      "unavailable": "BRO pic uploads are COOKED 💀 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ain't even set what the sigma 🤡",
+      "anySize": "any size, just send it 🤷🔥"
+    },
+    "displayName": {
+      "label": "ur @ tho 🏷️🔥",
+      "saveButton": "lock the @ in 🔒🗣️"
+    },
+    "expiry": {
+      "label": "default backing expiry vibes ⏳💀",
+      "blurb": "how long ur backing stays cookin when u lock into a fresh bounty 🍳 override it per bounty whenever, zero stress gng 🤝",
+      "lengthLabel": "how long tho ⏳",
+      "unitLabel": "the unit thingy 📐",
+      "unitDay": "day(s) ☀️",
+      "unitWeek": "week(s) 📅",
+      "unitMonth": "month(s) 🌙",
+      "unitYear": "year(s) 🎂"
+    },
+    "backingAmount": {
+      "label": "default backing bag 💸🔥",
+      "blurb": "pre-loaded in the backing form so ur brain don't gotta lock in 🧠 override it per bounty whenever fr 🤝",
+      "amountLabel": "the bag ($) 💰"
+    },
+    "privacy": {
+      "label": "lowkey mode 🤫🕶️",
+      "anonTitle": "full ghost mode 👻",
+      "beta": "(beta lol)",
+      "anonDesc": "hide ur backing off ur public page so nobody peeps it 🕶️ ur @ shows up as [anonymous] on the supporter lists, full incognito aura gng 👻"
+    },
+    "billing": {
+      "label": "the money biz 💳💀",
+      "blurb": "run ur saved cards n peep every single thing u backed, the WHOLE bag 👀💸",
+      "cta": "off to billing we go →💳"
+    },
+    "creatorProfile": {
+      "label": "creator drip page 🎨✨",
+      "blurb": "tweak ur public creator page — the @, the bio, the handles, all of it bestie 🔥",
+      "cta": "go fix the drip →🎨"
+    },
+    "phone": {
+      "label": "ur digits 📱🔥",
+      "blurb": "drop a verified number so the SMS pings can slide in ur dms 📲✨",
+      "verifiedBadge": "✓ legit fr",
+      "removing": "yeeting it… 🗑️💨",
+      "remove": "yeet it 🗑️",
+      "codeSentTo": "6-digit code got YEETED to <strong>{phone}</strong> 📲 go peep it gng 👀",
+      "verifying": "checking the vibes… 🔍🧠",
+      "verify": "verify it ✅🔥",
+      "useDifferent": "← nah gimme a diff number",
+      "sending": "sending… 📨⏳",
+      "sendCode": "yeet the code 📲🚀"
+    },
+    "notifications": {
+      "label": "the pings 🔔🗣️",
+      "addEmailWarn": "drop an email up top or the email pings stay COOKED 💀 fr",
+      "verifyEmailWarn": "verify ur email or zero email pings for u gng 🙅💀",
+      "verifyPhoneWarn": "verify ur number or the SMS pings stay GHOSTED 📵👻",
+      "addPhoneWarn": "drop + verify ur number so the SMS pings can pop off 📲🔥",
+      "loading": "loading… my brain buffering 🧠⏳",
+      "notAvailable": "nope, locked 🔒💀",
+      "creatorCrossLink": "slide over to creator pings →🎨",
+      "resetting": "resetting… spinning 🔄💀",
+      "resetToDefaults": "nuke it back to factory 💣🔄",
+      "channels": {
+        "email": "mail 📧",
+        "sms": "txt 💬",
+        "bell": "ding 🔔"
+      },
+      "aria": {
+        "email": "mail: {row}",
+        "emailAlwaysOn": "mail: {row} (always on, no escape 💀)",
+        "sms": "txt: {row}",
+        "smsAlwaysOn": "txt: {row} (always on, no escape 💀)",
+        "bell": "ding: {row}",
+        "bellAlwaysOn": "ding: {row} (always on, no escape 💀)"
+      },
+      "rows": {
+        "creatorVerified": {
+          "label": "creator finally pulled up ✨🗣️",
+          "desc": "a creator u dropped a bounty on FINALLY joins Artypot 🔥 they got the aura now"
+        },
+        "bountyPendingReview": {
+          "label": "bounty awaitin the verdict 👀💀",
+          "desc": "a creator says they cooked ur bounty, time to peep if it slaps gng 🍳"
+        },
+        "bountyConfirmed": {
+          "label": "bounty passed the vibe check ✅🔥",
+          "desc": "the council said bet on a bounty n the bag is queued up 💰🗣️"
+        },
+        "backingConfirmed": {
+          "label": "u locked into a bounty 🤝🔒",
+          "desc": "u backed a bounty, sigma move fr 🗿"
+        },
+        "backingExpired": {
+          "label": "ur backing it's so over 💀⏳",
+          "desc": "ur backing hit its expiry n got yeeted off the bounty, rip the aura 🪦"
+        },
+        "billingPreview": {
+          "label": "bag-about-to-dip heads up 👀💸",
+          "desc": "lil warning b4 ur card catches the charge, brace urself gng 😬"
+        },
+        "billingReceipt": {
+          "label": "the receipts 🧾💀",
+          "desc": "the whole breakdown after ur monthly bag gets pulled, peep it 👀"
+        },
+        "bountyActivity": {
+          "label": "bounty poppin off 💬🔥",
+          "desc": "a comment or update on a bounty u been lurkin on, stay locked in gng 👀"
+        },
+        "creatorActivity": {
+          "label": "creator out here doin stuff 🗣️✨",
+          "desc": "a creator u follow posts smth or drops a bounty, lock in bestie 🔒"
+        },
+        "commentReply": {
+          "label": "somebody @'d u back 💬🔥",
+          "desc": "someone hit u back in a comment thread u were yappin in 🗣️"
+        },
+        "regionAvailable": {
+          "label": "ur region just UNLOCKED 🌍🔓",
+          "desc": "payments finally open in ur ends so ur backings can get charged, it's so back 🔥🗣️"
+        },
+        "accountManagement": {
+          "label": "the boring-but-important pings 🛡️💀",
+          "desc": "must-do actions, admin yappin, handle verdicts n all that gng"
+        }
+      }
+    },
+    "password": {
+      "label": "ur secret rizz code 🔑🤫",
+      "blurb": "switch up ur login pwd whenever bestie, stay sealed up tight gng 🔐",
+      "cta": "go change the pwd →🔑"
+    },
+    "danger": {
+      "label": "danger zone ⚠️💀",
+      "brokeTitle": "💸 tap this if ur DOWN BAD broke!!",
+      "brokeDesc": "don't be yeetin cash u ain't even got bestie 💀 this instantly bails on EVERY single thing u locked into 🏃💨",
+      "brokeButton": "im broke fr fr 💀",
+      "deleteTitle": "delete my whole acct 🗑️💀",
+      "deleteDesc": "nukes ur acct FOREVER n cancels every commitment u got 💣 ur email can get reused tho, lil silver lining 🤷",
+      "deleteButton": "nuke the acct 💣🗑️",
+      "brokeDone": "bet — {count, plural, one {# commitment got yeeted} other {# commitments got yeeted}} 💀🔥",
+      "genericError": "BRO it's so over 💀 what the sigma just broke, run it back 🔄"
+    },
+    "brokeModal": {
+      "title": "bail on literally EVERYTHING 🏃💨💀",
+      "working": "cookin it up… 🍳⏳",
+      "confirm": "yea bail on EVERYTHING 💀🔥",
+      "body": "this instantly <strong>nukes every active commitment u got</strong> n rips ur backing off every project, zero take-backs gng 💣💀",
+      "amountWarning": "{amount} in active commitments bout to get YEETED 💸💨",
+      "undoNote": "this ain't easy to undo bestie 😭 u'd hafta lock into every project one by one all over again, painful fr 💀"
+    },
+    "deleteModal": {
+      "title": "delete my whole acct 🗑️💀",
+      "deleting": "nuking… 💣⏳",
+      "confirm": "yea nuke my acct fr fr 💀",
+      "body": "this <strong>deletes ur acct for GOOD</strong>, cancels every active commitment, n boots u out on SIGHT 🚪💨💀",
+      "recoverNote": "ur acct is GONE gone, zero recovery no cap 💀 u can re-sign-up with the same email tho 🤷",
+      "typePrompt": "type <strong>{name}</strong> to prove u really mean it gng:"
+    },
+    "toasts": {
+      "settingsSaved": "saved fr ✅🔥",
+      "saveFailed": "BRO it's so over 💀 couldn't save, run it back 🔄",
+      "notifReset": "pings NUKED back to factory 💣✅",
+      "resetFailed": "couldn't reset 💀 run it back gng 🔄",
+      "nameUpdated": "name locked in 🔒🔥",
+      "nameFailed": "couldn't save the @ 💀",
+      "expirySaved": "default expiry locked in ⏳✅",
+      "expiryFailed": "couldn't save the expiry 💀",
+      "backingAmountSaved": "default bag locked in 💸✅",
+      "backingAmountFailed": "couldn't save the default bag 💀",
+      "codeSent": "code YEETED 📲🔥",
+      "codeSendFailed": "couldn't send the code 💀",
+      "phoneVerified": "digits verified, legit fr ✅📱",
+      "codeInvalid": "code's cap or expired 💀 nah gng",
+      "phoneRemoved": "digits yeeted 🗑️💨",
+      "phoneRemoveFailed": "couldn't yeet the digits 💀",
+      "confirmEmailSent": "confirm email YEETED 📨🔥",
+      "confirmEmailFailed": "couldn't send the confirm email 💀",
+      "pictureUpdated": "pfp glowed up ✨🤳",
+      "pictureFailed": "couldn't save the pic 💀"
+    }
+  },
+  "About": {
+    "hero": {
+      "taglines": {
+        "kickstarter": "skibidi Kickstarter but the bag stays FROZEN 🧊 til the thing actually drops fr, no cap 🗣️",
+        "changeOrg": "Change.org if the petition ate AND had rizz 💸 actual bag behind it gng, no cap",
+        "device": "Artypot is just one big gc for the yearning 📢 we coordinate the demand, what the sigma"
+      },
+      "titleLine1": "money got the maxxed-out aura ☢️",
+      "titleLine2Prefix": "when it's just vibin",
+      "titleLine2Sketch": "in ur pocket 🫦",
+      "lede": "the besties pool the bag 💰 on ONE specific ask aimed at a creator gng. nobody's card gets touched til the thing ships AND the Council says it's bussin 🔥 dip whenever before that, zero risk, you stay UNcooked no cap 🙏",
+      "ledeEmphasis": "one lil wish, multiplied by the gang, mutates into an offer that hits SO different 🗣️🔥 un-ignorable, it's so over for them ☠️",
+      "browseBounties": "peep the bounties 👀",
+      "exploreCreators": "go scout ur creators ✨",
+      "notSure": "wait what the sigma is this even 💀 → how it works gng"
+    },
+    "psychology": {
+      "label": "the psyop arc",
+      "titleLine1": "a bounty pressures NOBODY bestie 🤲",
+      "titleLine2": "it just posts up there, farmin aura,",
+      "titleSketch": "bein mad visible 👁️",
+      "subtitle": "the yearning was ALREADY in the air gng. we just slapped a lil number on it fr 🔢",
+      "usualLabel": "how it usually flops 💀",
+      "usualBody": "you drop a comment. you quote-tweet. you ask all polite n sweet bestie. you get left on read 💀 or hit with a 'soon™' and bro that's diabolical. the moment evaporates into Ohio 🌽. the thing? never cooked. straight up so over.",
+      "oursLabel": "how WE lock in 🔒",
+      "oursBody": "you n 200 randos with the EXACT same gyatt-tier taste yeet the bag into one bounty 💸. now it's un-ignorable, sigma behavior. some ppl only pull up when the price got rizz, that's the lore bestie 📖"
+    },
+    "howItWorks": {
+      "label": "the lore drop 📜",
+      "title": "how it works",
+      "steps": {
+        "open": {
+          "title": "some bestie cracks open a bounty 🚪✨",
+          "description": "anybody can start one, zero gatekeep gng. lock onto a creator, name the EXACT thing u want cooked — a song, a video essay, a lil sketch, whatever's clankin 🤖. slap ur dollar number on it n let it ride 💵"
+        },
+        "grow": {
+          "title": "the bounty starts MOGGIN 📈🗣️",
+          "description": "other ppl cravin the same exact thing yeet the bag in too. the creator just watches it stack live like aura points goin brrr 🧠💨. sometimes that's the ONLY signal they need fr, no cap."
+        },
+        "ship": {
+          "title": "work ships. the bag MOVES. yeah boiii 🤑",
+          "description": "creator submits the dub. the Council checks it actually matches the ask, zero funny business gng 🧐. cards get tapped, bounty pays OUT. no delivery = no charge, simple as that 🧾"
+        }
+      }
+    },
+    "roles": {
+      "label": "the whole roster gng 🎭",
+      "title": "who's in the room where it be poppin off rn 👁️👄👁️",
+      "subtitle": "three types of guys n you're 1000% one of em bestie, no escape 🤝",
+      "cast": {
+        "fans": {
+          "name": "the besties",
+          "badge": "yeah that's u 🫵",
+          "body": "you crave one specific thing to happen SO bad it's giving obsession 😤 and you're ready to back it with the actual bag 💸 not just lil vibes n a prayer."
+        },
+        "creator": {
+          "name": "the creator",
+          "badge": "the GOAT 🐐",
+          "body": "whoever the bounty's locked onto. they owe NObody a single thing fr — but there's real bag just sittin there with their @ glued on it 👀. it's only a matter of time bestie, the rizz is undefeated..."
+        },
+        "council": {
+          "name": "the Council",
+          "badge": "the refs 🦓",
+          "body": "me n a few homies I trust w my life. we make ABSOLUTELY sure the thing is the thing before a single bag moves 🧐. nobody eats without us blessin it, we're the final boss gng 👑"
+        }
+      }
+    },
+    "money": {
+      "label": "follow the bag 🤑",
+      "title": "the nerd part 🤓",
+      "intro": "we KNOW how crowdfunding usually be goin bestie. you pay, you wait, you get a Discord link n a 'soon™' 💀 absolutely cooked. nah gng — here ur card stays UNtouched til the work is straight up DONE. the Council verifies the dub before a single dollar twitches. lock in 🔒",
+      "guarantees": {
+        "charged": {
+          "title": "charged ONLY when it ships 📦",
+          "detail": "ur card don't get tapped til the work's done n the Council blessed it 🙏. dip out anytime before the finish line — zero risk while u wait, you stay UNcooked forever gng."
+        },
+        "fee": {
+          "title": "{pct}% platform cut, all-in, zero surprise fees 🍽️",
+          "detail": "covers literally EVERYTHING — a guy gotta eat, file the taxes, n the payment processors want their lil bag too gng 💸 it is what it is."
+        },
+        "payout": {
+          "title": "bag teleports STRAIGHT to the bank 🏦💨",
+          "detail": "when a bounty clears, the money speedruns right into the creator's bank account. zero middleman shenanigans, no glaze."
+        },
+        "noAccess": {
+          "title": "no secret VIP rizz for backers 🚫",
+          "detail": "the content stays public for the whole gang fr. the besties who funded it get the EXACT same thing as everybody else, no glaze, no sneaky perks 🤝"
+        }
+      },
+      "lifecycleTitle": "a bounty's whole arc 🌀",
+      "lifecycleLabel": "six stops · color = who's locked in"
+    },
+    "finePrint": {
+      "label": "no plot twists",
+      "title": "the fine print 🤝",
+      "recordTitle": "for the record gng 📢",
+      "recordBody1": "nah I don't got some shady content policy that silently glows up at 2am on a friday 😬. I don't decide what's worth makin, that ain't my job. you n ur besties do. that's the ENTIRE lore, full stop 🛑",
+      "recordBody2": "obviously there's limits — illegal stays illegal, don't even try it 💀 — but the platform got ZERO opinions on art fr fr, we don't judge ur cooking 🍳",
+      "statusTitle": "lil note on where the vibe's at rn 📍",
+      "statusBody1": "ok so rn Artypot ONLY rocks with <emph>credit card payments</emph>, and payouts can only slide to creators who are <emph>based in the United States</emph> 🇺🇸. that ain't some grand vision statement bestie — it's literally just where the legal paperwork is currently locked in 📑",
+      "statusBody2": "I'm cookin on it HARD, trust 🙏🔥. the goal is eventually the WHOLE globe gng, it's gonna be so back 🌍. for now: if you're a bestie anywhere on this rock you can still back bounties no cap. but if you're the one collectin the bag, you NEED a US bank account, zero ways around it gng 🏦"
+    },
+    "cta": {
+      "titleLine1": "there's prob already a bounty",
+      "titleLine2": "for somethin u been cravin 👀",
+      "subtitle": "go peep it bestie. n if there ain't one yet... you already KNOW what to do, lock in 🗣️🔒",
+      "browse": "peep the open bounties 🔥",
+      "start": "or just start ur own bounty, lock in gng →"
+    }
+  },
+  "BackingPolicyNote": {
+    "text": "free to bail anytime before the bounty wraps, zero cap. once it's done? ur backing locks in, gets charged on the next billing day, n it's FINAL — refunds after a charge are vibes-based only (hardship or legit fraud). n look, to the extent this backing counts as a contract for services, u agree the work can kick off immediately n any EU/UK 14-day right to withdraw dips the moment the bounty completes 📜✌️"
+  },
+  "BecomeCreator": {
+    "hero": {
+      "sectionLabel": "just a fan rn 🧍",
+      "title": "lock in as a creator 🔒🗣️",
+      "subtitle": "flip the creator switch, snag the bounties, secure the bag fr 💰 broke era is so over bestie"
+    },
+    "economics": {
+      "keepHeadline": "u pocket {pct}% of every bounty, GYATT 🤑 that's ur bag gng",
+      "feeExplainer": "the lil {fee}% Artypot nibbles? just card magic + fraud goblins gettin clapped, the hosting, the support, and ORGANIC veggies for the council gremlins moderating the whole Ohio 🥦 we ain't even sniffin ur bag pinky promise",
+      "noFees": "zero signup toll 🚫 zero monthly toll 🚫 zero sales tax nonsense 🚫 only shaved off the W payouts no cap 💅"
+    },
+    "alreadyCreator": {
+      "sectionLabel": "certified creator 😤",
+      "heading": "bro ur ALREADY a creator 💀🔥",
+      "body": "ur creator era is LIVE and glazing bestie 🗣️ slide to the dashboard, wrangle them bounties, peep the bag stack, and bask in the aura 📈✨",
+      "dashboardButton": "zoooom to the dashboard 🏃💨"
+    },
+    "gates": {
+      "completeBadge": "cooked ✅🔥",
+      "defaultLockText": "do the earlier steps or it stays locked, it's so over rn 💀"
+    },
+    "gate1": {
+      "title": "verify ur email gng 📧",
+      "description": "we NEED a verified email or it's zero creator pings AND zero tax tea, lock in bestie"
+    },
+    "gate2": {
+      "title": "verify a handle bestie 🪪",
+      "description": "link a social so the fans clock it's the REAL u and not some Ohio impostor lurkin 🧍💀",
+      "lockText": "verify ur email first or it stays locked 🔒💀",
+      "editButton": "tweak it ✏️",
+      "doneButton": "we good ✅"
+    },
+    "gate3": {
+      "title": "drop ur tax addy 🏠",
+      "description": "we just need it to know where to snitch ur bag to later 🫡 it's so over for the taxman fr",
+      "lockText": "verify a handle first or it stays locked gng 🔒",
+      "editButton": "tweak it ✏️"
+    },
+    "gate4": {
+      "title": "sign the bro code 🤝 and claim ur main handle gng",
+      "description": "vibe with the creator bro code and lock in ur artypot.com/[slug] URL FOREVER 🔒🗣️",
+      "lockText": "do steps 1 thru 3 or it stays locked, what the sigma 💀"
+    },
+    "email": {
+      "noEmailPrefix": "BRO there's literally no email on ur account 💀🫥",
+      "noEmailLink": "go yeet one into Settings",
+      "noEmailSuffix": "so the verify link can actually pull up, it's giving ghost inbox rn 👻",
+      "linkSentBanner": "yoooo a verify link just flew into ur inbox 📨🔥 go peep it (and check spam, that folder be lowkey starvin 👀)",
+      "sentToast": "verify email sent 📬 go peep ur inbox bestie 🗣️",
+      "sendErrorToast": "BRO it's so over 💀 the verify email refused to launch, run it back gng",
+      "sending": "sending… my server buffering 🧠⏳",
+      "resendButton": "yeet the verify email AGAIN 📤🔥"
+    },
+    "residence": {
+      "countryLabel": "ur country fr 🌍",
+      "selectCountry": "— pick ur country bestie 🗺️ —",
+      "selectSubdivision": "— pick ur {subdivision} gng —",
+      "saving": "saving… brain buffering 🧠⏳",
+      "saveButton": "lock in the tax addy 🔒✨",
+      "cancel": "nah we good 🙅",
+      "savedToast": "tax addy locked in ✅ MASSIVE W 🏆",
+      "saveErrorToast": "it's so over 💀 the tax addy refused to save, run it back gng"
+    },
+    "handles": {
+      "loading": "loading… my brain buffering 🧠⏳"
+    },
+    "tos": {
+      "slugRequired": "BRO u need a slug 💀 it's giving completely empty",
+      "slugLabel": "cook up ur creator URL 🔗🔥",
+      "termsFieldLabel": "creator bro code 🤝",
+      "tldrFootnote": "this lil TL;DR is just a vibe summary bestie, NOT a sub for the full bro code, no cap 🙏",
+      "readFullTerms": "peep the WHOLE creator bro code 📜→",
+      "agreePrefix": "icl I read the thing and I'm fully vibing with the",
+      "agreeLinkText": "Artypot creator bro code 🤝",
+      "activating": "activating… lock in 🔒⏳",
+      "enableButton": "flip on creator mode 🔛🔥",
+      "activatedToast": "creator mode is LIVE 🗣️🔥 yoooo welcome bestie!",
+      "genericError": "BRO it's so over 💀 what the sigma just happened, run it back gng"
+    },
+    "backToDashboard": "← bounce back to the dashboard 🏃💨"
+  },
+  "CreatorTos": {
+    "hero": {
+      "eyebrow": "legal lore · creator gng 🧑‍⚖️🔥",
+      "title": "creator bro code 🤝 (legally cooked edition 💀)",
+      "lastUpdated": "last tweaked the whole vibe: {date} ⏳🧠",
+      "supplementA": "this lil creator bro code stacks RIGHT on top of the",
+      "generalTosLink": "main bro code 🤝",
+      "supplementB": "and locks in 🔒 the SECOND u flip creator mode on yeah boiii. if these two start beefing over creator stuff?? THIS one wins the rizz battle no cap, other one is so cooked 💀"
+    },
+    "toc": {
+      "heading": "what's in the bag 🎒👀",
+      "commitments": "stuff u pinky-promised 🤙🔒",
+      "role": "what tf artypot even does 🤨",
+      "payouts": "the bag + our lil cut 💸🪝",
+      "refunds": "money doing a backflip 🔙💀",
+      "content": "vibe check or get clapped 🚫👮",
+      "termination": "getting YEETED 🚪💨",
+      "disclaimer": "no promises bestie 🤷‍♂️🚫",
+      "governing": "courtroom Ohio arc ⚖️🐊",
+      "misc": "the leftover gng 📦✨"
+    },
+    "sections": {
+      "commitments": {
+        "title": "1. stuff u pinky-promised 🤙🔒",
+        "p0": "u flip creator mode on and BAM 💥 ur legally married to Artypot LLC now (lil Florida gremlin company) UNDER OATH bestie, and u nodded yes to literally all of this 🤝 no take-backsies gng.",
+        "p1Lead": "1.1 actually COOK the thing.",
+        "p1Rest": " u gotta fr fr make the thing the bounty asked for, ZERO faking 🙏 then toss it in for review. nobody's card gets tapped til AFTER u drop the finished W and the Council says \"yeah this slaps\" — the bag NEVER comes before u deliver, what the sigma did u think this was 💀 faking work u didn't make, don't own, or that doesn't even hit the bounty?? ur instantly cooked, benched, n YEETED outta creator-ville bestie ⚰️",
+        "p2Lead": "1.2 don't lie abt who u are.",
+        "p2Rest": " the socials + sites u verify on here gotta ACTUALLY be u, the realest u 🪞 no skinwalking some other gng, no faking ur besties with a platform u never even touched. caught lacking on this?? it's so over for u 💀 fake aura gets detected fr.",
+        "p3Lead": "1.3 cough up the tax paperwork when we say so.",
+        "p3Rest": " once ur yearly bag clears the IRS snitch-line (or whatever ur local law screams), u hand over a W-9 (US gng) or W-8BEN (non-US gng) the literal SECOND we ask 📄 ghost us on the tax docs?? payouts get HARD-walled 🧱💀 til u pony up. no docs no bag bestie, them's the rules 🙅",
+        "p4Lead": "1.4 keep ur tax-home addy fresh.",
+        "p4Rest": " keep ur real tax-country (+ US state if that's u) loaded n updated in ur creator profile 🏠✨ it's ONLY for earnings reports n tax stuff, we are NOT being weird abt it pinky promise 🤞",
+        "p5Lead": "1.5 obey the actual laws gng 👮",
+        "p5Rest": " u and ONLY u r on the hook for every single law touching ur Artypot grind — taxes, export rules, local content laws, all of it fr. we are NOT ur lawyer bestie, lock in n handle it urself 🤷‍♂️",
+        "p6Lead": "1.6 bounties pay for PUBLIC dubs, not secret lil perks.",
+        "p6Rest": " a backing = a tip toward a PUBLIC drop, it's NOT a purchase 🚫 n it does NOT score the backer anything the random public doesn't ALSO get, full stop. no private access, no 1-on-1 yap seshes, no physical goodies, no custom backer-owned art, no trips, no irl link-ups, no early/secret access, zero special treatment — not for a backing n not bc theirs was extra chonky 🐘 the thing u drop = ONE public result, SAME for backers n randoms alike, equal aura for everybody. the ONLY shoutout u may toss is saying a real human's name out loud in public, n purely as a vibe 🫶 they're NEVER owed it, get zero rights to it, n cannot cry if u skip it. n NAH u can't make the shoutout thiccer for thiccer backers — no tiers, no leaderboard glaze 🚫, nothing where a fat backing buys more spotlight (yes that includes slapping the top backer in a video title, that's SO over 💀). shoutouts = real humans ONLY, never a brand name, logo, link, or ad blast. auctioning off access or perks (\"experience goes to the biggest backer\" 🙅) is BANNED on god n turns a not-a-sale into a sale our payment homies will straight up NOT touch 🚪",
+        "p7Lead": "1.7 no getting the bag for gov stuff or campaigns.",
+        "p7Rest": " if u hold office or work for a government, u absolutely CANNOT grab a bounty that rewards, bribes, or hinges on anything u do in that official seat — hard NO 🚫🪑 also u canNOT use Artypot to fund a political campaign, candidate, party, committee, or ANY election thing. doesn't matter ur lil ~intentions~, BANNED regardless gng. bounties for ur normal creative grind tho?? totally chill, glaze away — this is abt official acts + campaigns, NOT abt who u are bestie 🫶",
+        "p8Lead": "1.8 real humans ONLY, no brands (yet 👀).",
+        "p8Rest": " creator accounts r ONLY for actual individual humans repping their own self rn 🧍 no corporations, no LLCs, no partnerships, no business entities — n u CANNOT run creator mode FOR one either. flipping it on = u swearing under oath ur a real natural person 🧬, acting purely for urself, n that ur bag gets reported under YOUR personal tax identity (W-9 / W-8BEN, NOT some entity tax form). business entities?? coming later, big maybe soon™️ — til we announce it brand accounts r a HARD no, n if we catch an account run by/for a business its bag gets frozen 🧊💀 or its creator status benched til we sort the whole arc out."
+      },
+      "role": {
+        "title": "2. what tf artypot even does 🤨",
+        "p1Lead": "2.1 we're a platform, NOT ur boss.",
+        "p1Rest": " Artypot just hooks up fan-funded commissions n that's IT bestie. we r NOT ur boss, ur client, ur agent, or ur bestie-partner 🚫 ur an independent creator doing ur own sigma thing. nothing in here makes us a job, an agency, a joint venture, or a partnership — we r the vibes middleman n nothing more, don't get attached 🫶",
+        "p2Lead": "2.2 we're the money middleman fr.",
+        "p2Rest": " Artypot vibes BETWEEN fans n creators holding the whole bag 💰 we scoop fan backings, sit on em per our billing + refund rules, n slide u the net after platform cuts n processing costs. that's the entire arc, no funny business 🤝",
+        "p3Lead": "2.3 NO promise u get rich.",
+        "p3Rest": " Artypot does NOT swear any bounty hits any number, that fans actually pay up, or that u make ANY specific bag 🚫 it could be so over OR so back, we genuinely have NO clue bestie 🤷‍♂️ pray to the rizz gods idk.",
+        "p4Lead": "2.4 the Council judges ur drop ⚖️.",
+        "p4Rest": " ur finished bounties get judged by the Artypot Council, a lil squad of verified users 🧑‍⚖️ their yes/no is FINAL, zero take-backsies, that's the law of the land. no fancy appeals courtroom either — tho u CAN slide into our DMs to lowkey gripe abt a call 📩 (we might read it 👀)."
+      },
+      "payouts": {
+        "title": "3. the bag + our lil cut 💸🪝",
+        "p1Lead": "3.1 who even gets the bag.",
+        "p1Rest": " to grab the bag u need: (a) a verified tax-country on file; (b) a hooked-up payout account (Stripe Connect where it works, or another approved way); n (c) ur tax docs handed in (W-9 if US, W-8BEN if not). no checklist = no cashout, the gate stays shut 🚪💀",
+        "p2Lead": "3.2 the minimum-bag wall 🧱.",
+        "p2Rest": " payouts ONLY fire once ur balance clears a minimum that depends on ur country + payout method (posted on the site + ur dashboard, it moves sometimes). below the line?? it just stacks up n marinates 📈 til u finally clear it bestie.",
+        "p3Lead": "3.3 our lil cut 🪙.",
+        "p3Rest": " Artypot skims a platform fee off EVERY payout (exact % living on ur dashboard + the pricing page). we CAN switch the fee but we'll ping active creators 30 days b4 it hits — no ninja-patch, no sneaky biz 🤝🚫",
+        "p4Lead": "3.4 the chill-out timeout ⏳.",
+        "p4Rest": " cash scooped from fans sits in timeout (rn 7 days) 🪑 before u can yoink it. that lil window exists so we can sniff for fraud n let fan disputes cook all the way out 🍳 patience bestie.",
+        "p5Lead": "3.5 it's ALL USD bestie 💵.",
+        "p5Rest": " everything's counted in US dollars unless we say otherwise, no exceptions 🇺🇸 any currency-conversion fees ur bank slaps on?? that's YOUR L not ours, sry gng 🤷‍♂️"
+      },
+      "refunds": {
+        "title": "4. money doing a backflip 🔙💀",
+        "p1Lead": "4.1 fans can BAIL.",
+        "p1Rest": " fans can yank open backings WHENEVER b4 a bounty gets marked done 🏃💨 pulled backings zoom fully back to the fan, n u get a fat ZERO — no comp for backings that walked out the door. it's just how it be bestie, don't cry abt it 😭",
+        "p2Lead": "4.2 Council says nah 🙅.",
+        "p2Rest": " if the Council rejects ur drop, not a SINGLE fan gets charged a cent 🚫 fix what they flagged n resubmit — easy lil redemption arc, lock back in 🔒",
+        "p3Lead": "4.3 chargebacks (the sneaky reversal 😈).",
+        "p3Rest": " if a fan's bank reverses a charge (a chargeback), the disputed amount — minus the fee we already held — gets clawed STRAIGHT outta ur creator balance 🪝 doesn't matter if it's still in timeout OR already cleared OR already slid into ur pocket, it's coming BACK gng. if one charge covered multiple creators the chargeback gets split fairly across everyone hit, n a partial chargeback gets clawed proportionally. since these can hit AFTER u already withdrew, ur balance can go NEGATIVE 📉💀 (peep 4.6). if the chargeback later flips in Artypot's favor u get the clawed amount back — redemption secured, it's so back ✨",
+        "p4Lead": "4.4 refunds WE decide to throw 🤲.",
+        "p4Rest": " Artypot can refund a fan, whole OR partial, whenever we feel it's right — squashing a complaint, undoing an oopsie 🤡, handling no-delivery or mid work, or bc a law / payment-homie makes us. when we do, the net u got for that backing gets yanked from ur balance n we hand back OUR fee. same energy as a chargeback, this can drop u below zero 📉 we can ALSO claw back already-paid cash if we catch verified fraud or u straight up lied 🧢🚨",
+        "p5Lead": "4.5 refunds U choose to throw 🔄.",
+        "p5a": " u can refund every single backer of ur OWN finished or paid-out bounty right from ur dashboard 🔄 backings not billed yet = cancelled for free, no L taken. ones already charged = each fan gets their FULL money back, n that full amount — INCLUDING our fee — comes outta ur balance; since u CHOSE this, Artypot keeps its fee on a creator-started refund (yeah that's the catch 😬💀). u can only kick off a whole-bounty refund if ur available balance covers the WHOLE thing. if it doesn't?? hit up ",
+        "p5b": " n we'll help u sort the chaos out 🙏",
+        "p6Lead": "4.6 going negative + the offset arc 📉.",
+        "p6Rest": " a chargeback (4.3), an Artypot refund (4.4), or a fraud/lie clawback can SHOVE ur balance below zero 📉💀 a negative balance follows u around like a lil shadow n gets eaten outta ur future earnings b4 ANY new payout fires. dip outta creator mode, close ur account, or stop earning while ur deep in the red?? u STILL owe it bestie 🚨 n Artypot can come collect by any legal means. that debt has AURA n it remembers ur whole face 👁️👁️",
+        "p7Lead": "4.7 finished charges = locked for the fan 🔒.",
+        "p7Rest": " once the Council confirms ur drop n fans get charged, those charges r FINAL — a fan canNOT just demand their money back bc they caught a lil feeling 🙅 refunds ONLY happen in the cases above: a chargeback (4.3), a refund Artypot chooses (4.4), a refund U choose (4.5), or a fraud/lie clawback. otherwise?? it's LOCKED in, no notes 🔒💀",
+        "p8Lead": "4.8 u signed up for the risk, NO crying later 😤.",
+        "p8Rest": " backings on open bounties r just ~vibes of intent~, NOT guaranteed money, n any backer can pull, shrink, or bail on a backing whenever b4 a bounty's confirmed done (see 4.1 + 2.3). if u start, grind, or finish work betting on a bounty, that's on U n ur own judgment ALONE 🫵 — NOT on any backing, projected total, or anything a backer or Artypot ~said~. u openly accept that backings can vanish, shrink, or never charge, n a bounty can close or expire paying u absolutely NOTHING 💀 as far as the law lets u, u wave bye 👋 to ANY claim against any backer or Artypot — reliance, promissory estoppel, broken implied promise, lost profits, the value of work u did — for anything tied to a backing getting pulled, shrunk, or never-paid b4 a bounty's confirmed done. u KNEW the risk gng, zero take-backs, it's sealed 🔏"
+      },
+      "content": {
+        "title": "5. vibe check or get clapped 🚫👮",
+        "p1Lead": "5.1 NO stealing other ppl's stuff.",
+        "p1Rest": " u CANNOT submit, claim, or pass off as ur own ANY work that yoinks someone else's copyrights, trademarks, trade secrets, or other IP 🚫🪝 make ur OWN stuff bestie, the plagiarism arc is SO over, get clapped instantly 💀",
+        "p2Lead": "5.2 the Artypot surface is squeaky CLEAN 👶.",
+        "p2Rest": " everything u post or submit ON Artypot itself — bounty titles + descriptions, ur profile, display name, verified handles, comments, n the notes/links u staple to a completion — gotta be PG for EVERYBODY 👀 we host + show this publicly, so a HARD no on sexually explicit stuff, porn, nudity, or edgy shock-bait 🚫 this is ONLY abt the on-platform surface tho — we are NOT judging the legit creative work u cook + host somewhere else, do ur thing over there gng 🫶",
+        "p3Lead": "5.3 no spicy-content commerce 🌶️🚫.",
+        "p3Rest": " u canNOT use Artypot to ask for, set up, or collect money for sexually explicit / porn work, even if the actual thing gets delivered off-platform 🙅 Artypot is the merchant of record for EVERY bounty charge, n our payment homies (the card networks + Stripe) straight up FORBID processing adult content. so a bounty whose whole point is funding spicy content = BANNED on god 💀 doesn't matter where the final thing lives, it's so over.",
+        "p4Lead": "5.4 illegal + harmful stuff = absolutely NOT ☠️.",
+        "p4Rest": " u must NEVER submit, help with, pass off as a completion, or use a bounty to fund anything that: (a) is illegal under the law; (b) is harassment, a real threat, or targeted hate speech; or (c) packs malware or evil code 🦠💀 this ban is TOTAL n hits both on-platform stuff AND anything delivered off-platform for a bounty. ZERO tolerance, it's that deep gng, instant yeet 🚪",
+        "p5Lead": "5.5 the lil license u hand Artypot 🪧.",
+        "p5Rest": " for the stuff u post/submit ON Artypot itself (completion notes, links, profile content), u hand Artypot a small, non-exclusive, no-royalty license to show, copy, n hype that material — ONLY to run + market the platform 🪧 nothing sus, no funny business, JUST so we can display ur stuff fr 🤝",
+        "p6Lead": "5.6 ur rights stay YOURS 🫵.",
+        "p6Rest": " u keep ALL ownership of ur creative work, every bit of it 🫵 nothing in here hands ur copyright or other IP to Artypot or to any fan. ur art = ur AURA, we don't touch it, it stays in ur grip bestie 💪✨"
+      },
+      "termination": {
+        "title": "6. getting YEETED 🚪💨",
+        "p1Lead": "6.1 u bounce 🚶.",
+        "p1Rest": " u can flip OFF creator mode anytime in ur account settings ⚙️ BUT ur still on the hook for any loose ends (open bounties, pending payouts, or live disputes). pay ur tab b4 u dip bestie, don't ghost on ur obligations 🫥🚫",
+        "p2Lead": "6.2 WE yeet U 🚪.",
+        "p2Rest": " Artypot can bench or BOOT ur creator status INSTANTLY if u: (a) break this bro code or the main one; (b) pull fraud or sneaky deception 🧢; (c) keep flopping on delivery after fans got charged; (d) break any law; or (e) become a threat to Artypot or its ppl 🚨 cross the line = it's SO over for u, instant boot 🥾💀",
+        "p3Lead": "6.3 what happens after the boot 🥾.",
+        "p3Rest": " once it's over: open bounties get closed n their backings cancelled (nobody gets charged, since open-bounty backings never get charged anyway 🤷‍♂️); any available creator balance gets slid to u (pending tax docs + any live disputes) within a reasonable bit ⏳ clean-ish exit, mostly, no hard feelings gng 🫡"
+      },
+      "disclaimer": {
+        "title": "7. no promises bestie 🤷‍♂️🚫",
+        "p1Lead": "7.1",
+        "p1Rest": " Artypot hands u the platform \"as is\" 🤷‍♂️ ZERO warranties, spoken or implied, abt it being up, fit for ur specific lil dream, or never glitching. if it's down it's down gng 💀 we did NOT pinky-swear it'd be flawless, never claimed that.",
+        "p2Lead": "7.2",
+        "p2Rest": " as far as the law allows, Artypot's TOTAL liability to u for anything tied to this bro code caps HARD at the platform fees u paid (or we collected for u) in the 12 months b4 the claim 🧢 that's the ceiling bestie, don't expect a cent more, it's so over above that line 🚫",
+        "p3Lead": "7.3",
+        "p3Rest": " Artypot is NOT on the hook for ANY indirect, incidental, knock-on, or punishment damages — even if we straight up KNEW it could happen 😐 we warned u fair n square, zero surprise-pikachu energy allowed 😮🚫"
+      },
+      "governing": {
+        "title": "8. courtroom Ohio arc ⚖️🐊",
+        "p1Lead": "8.1",
+        "p1Rest": " this bro code runs on Florida law, ignoring ALL that conflict-of-laws mumbo jumbo 🌀 Florida said so n Florida won, what the sigma ⚖️🐊",
+        "p2Lead": "8.2",
+        "p2Rest": " any beef tied to this bro code gets settled by binding arbitration in Hillsborough County, Florida 🥊 under AAA rules — EXCEPT either side can still sprint to a real Florida court for an injunction or other equitable save 🏃 no jury-trial main-character moment for u tho, sry bestie, it's so over for that dream 💀",
+        "p3Lead": "8.3",
+        "p3Rest": " u wave bye 👋 to ur right to join a class action or class-wide arbitration. SOLO queue only bestie 🎮 no squad lawsuit, no five-stack, just u vs the arc 💀"
+      },
+      "misc": {
+        "title": "9. the leftover gng 📦✨",
+        "p1Lead": "9.1 we can edit this whenever ⚙️.",
+        "p1Rest": " Artypot can tweak this whole bro code whenever we feel like it ⚙️ big changes get pinged to ur account email or an in-app heads-up at LEAST 30 days b4 they go live 🔔 we will NOT ninja-patch it on u, relax bestie, no sneaky biz 🤝",
+        "p2Lead": "9.2 one dead clause ≠ all dead 💀.",
+        "p2Rest": " if some lil piece of this bro code turns out unenforceable, the REST of it still stands strong 💪 one bad apple does NOT cook the whole barrel gng, the rest keeps its aura ✨",
+        "p3Lead": "9.3 this is the WHOLE entire deal 📜.",
+        "p3a": " this creator bro code, PLUS the Artypot ",
+        "generalTosLink": "main bro code 🤝",
+        "p3b": "and the",
+        "privacyLink": "privacy policy 🕵️",
+        "p3c": ", IS the whole entire agreement between u n Artypot abt ur creator arc, full stop 🔒 nothing else counts, no side deals, that's the LORE bestie 📜✨",
+        "questions": "questions abt this bro code?? yap at us 🗣️",
+        "questionsEmail": "legal@artypot.com"
+      }
+    }
+  },
+  "Dashboard": {
+    "header": {
+      "fan": "ride or die bestie 🫶",
+      "title": "ur skibidi war room 🗣️",
+      "newBounty": "+ cook a fresh bounty 🍳🔥"
+    },
+    "billing": {
+      "notice": "<strong>BRO the bill hits {date}</strong> 💀💸 ur card finna catch a fade for <strong>{amount}</strong> across every bounty that passed the vibe check, no cap 🧾",
+      "payNow": "pay up gng it's not negotiable 💸🙏"
+    },
+    "stats": {
+      "bountiesJoined": {
+        "label": "bounties u locked tf in 🔒",
+        "info": "bounties u currently glazing OR already helped drop fr fr. that lil number under? thats the ones u cooked up urself bestie, sigma move 🫡",
+        "sub": "{count} u cooked solo, chef behavior 🔥"
+      },
+      "creatorsPetitioned": {
+        "label": "creators u summoned 🗣️",
+        "info": "diff creators u threw the bag behind ong. the lil number = how many actually pulled thru — dropped the goods n secured ur bag, certified W's 🤝✨",
+        "sub": "{count} delivered, absolute W creators ✅"
+      },
+      "nextCharge": {
+        "label": "next L ur card finna take 💀",
+        "info": "what ur card finna get tapped for on the next billing day, covering bounties that got cooked n passed the vibe check since ur last charge. go peep the whole lore on the billing page, it's giving receipts 🧾",
+        "due": "due {date} the clock tickin ⏳😬",
+        "nothingDue": "u owe literally nada 😮‍💨🤙",
+        "viewAmount": "go peep the damage in billing →",
+        "settledUp": "ur squared up bestie, certified W aura 😌✨"
+      },
+      "lifetimePaid": {
+        "label": "all-time bag u dropped 💰",
+        "info": "what u ACTUALLY got tapped for, in ur whole arc. stays a clean $0 til a bounty u backed actually drops n passes the vibe check — ur card stays UNTOUCHED til the bounty fully cooks, lock in 🔒🙏",
+        "sub": "{amount} yeeted in total, big spender gyatt 💪"
+      }
+    },
+    "backings": {
+      "sectionLabel": "stuff im bankrolling rn 💸",
+      "allHistory": "peep the whole lore →",
+      "empty": {
+        "message": "u bankrolling absolutely NOTHIN rn 💀 it's so over bestie, go lock in",
+        "findCreators": "go find sm creators rq →"
+      },
+      "bountyRef": "bounty #{id} (mystery edition, what the sigma) 🕵️",
+      "revoke": "pull the plug 🔌",
+      "more": "+{count} more lurkin in the shadows →"
+    },
+    "featured": {
+      "sectionLabel": "the chosen ones ✨",
+      "browseAll": "go scope em all →",
+      "empty": {
+        "message": "go scope bounties from creators all over Artypot, the gng is straight up COOKIN rn 🔥🗣️",
+        "browse": "scope the bounties rq →",
+        "findCreators": "go find creators →"
+      }
+    }
+  },
+  "FeaturedBounties": {
+    "heading": "live n open rn 🔥",
+    "subheading": "a few bounties worth knowing about no cap 👀"
+  },
+  "ForCreators": {
+    "hero": {
+      "titleLine1": "yo just YAP at the opps fr 🗣️🔥",
+      "titleLine2": "the thing ur tryna cook? say it w chest 😤",
+      "titleLine3": "n the gng funds it?? nah it's so back 💸🗣️",
+      "body": "ok so Artypot is a bounty platform n it's lowkey GYATT 🧢💀 u drop a bounty for one specific banger, slide it to the gng, they start FOLDING stacks into it. no subs. no paywalls. what the sigma. u cook the thing → bag SECURED 🤑. ghost the delivery tho?? cards stay UNTOUCHED bestie the money don't even flinch, it's so over for the L takes 💀✨",
+      "getStarted": "lock in 🔒🔥",
+      "howYouGetPaid": "how the bag be hittin 💰🗣️"
+    },
+    "different": {
+      "titleLine1": "not a tip jar. not a sub. them two? cooked. negative aura 💀",
+      "titleLine2": "it's a funded project request n the rizz is INSANE ✨🗣️",
+      "body": "bro u ALREADY KNOW what the gng wants 🤔... but like how bad tho?? deadass?? Artypot grabs them \"pls do X\" comments n SLAPS a dollar sign on it 💸 real number, real rizz, no cap fr 🔥",
+      "patreon": "monthly subs 😴 cool if u post like a sigma every single day — but it's GG if ur grind drops in random Ohio bursts. fans payin for ACCESS bestie not for one specific banger, mid energy 💀",
+      "kofi": "low friction but the signal? ghosted 👻 tips don't tell u what nobody actually wants made gng. it's just a lil glaze on stuff u ALREADY cooked, sweet but useless ngl 🤷",
+      "artypot": "the gng FOLDS stacks into ONE specific thing u tryna cook 🔥 nothing moves til it's done no cap 💯. u only catch the bag when u DELIVER — n THAT right there?? that's why fans cozy enuf to drop real money. trust so bussin it's giving 😩💸"
+    },
+    "appeal": {
+      "fans": {
+        "label": "why the gng pull up 🗣️",
+        "titleLine1": "nah they ain't donating bestie 🙅",
+        "titleLine2": "they straight COMMISSIONING w aura 🎨✨",
+        "points": {
+          "card": {
+            "title": "card stays UNTOUCHED til u deliver, on god 🔒",
+            "detail": "no delivery = no payment. EVER. like never ever. that's why backing feel safe n cozy fr fr 🛡️🤝"
+          },
+          "oneThing": {
+            "title": "they back ONE thing, not a monthly ball n chain ⛓️💀",
+            "detail": "zero sub guilt gng. they yeet money at one specific thing they want to EXIST, simple as, sigma move 💅"
+          },
+          "backOut": {
+            "title": "they can dip ANYTIME b4 it's cooked 🚪💨",
+            "detail": "changed they mind? they yoink the backing n bounce. no beef no money lost we SO chill 🤝✨"
+          }
+        }
+      },
+      "creators": {
+        "label": "why creators be locked tf in 🔒",
+        "titleLine1": "vibe-check the demand b4 u even 🧪👀",
+        "titleLine2": "torch them precious hours on it ⏳💀",
+        "points": {
+          "worthMaking": {
+            "title": "find out if it's even worth cooking b4 u cook, big brain 👀🧠",
+            "detail": "drop the bounty. share it. if the backings don't justify the grind?? nothing happens n NOBODY lost a dime, ez clap, we good 🤷✨"
+          },
+          "stayPublic": {
+            "title": "ur content stays public, zero gatekeep, pure W ✨",
+            "detail": "this AIN'T a paywall gng 🙅 backers don't get no secret access — they get the SAME W as everybody, PLUS the aura of makin it happen 🏆🔥"
+          },
+          "payoutSchedule": {
+            "title": "no platform bossin ur payout around, we don't do that here 😤",
+            "detail": "u cash out WHENEVER, ur the main character. the {billingDay}th the gng get charged — after that the bag clears in {waitDays} days, ez money 💰🗣️"
+          }
+        }
+      }
+    },
+    "howPaid": {
+      "label": "the whole entire lore 📖",
+      "title": "from sign-up to the bag faceplanting in ur bank 🏦💸",
+      "body": "every step, in order, no skips. zero surprises zero gotchas we TRANSPARENT fr 🫡✨"
+    },
+    "steps": {
+      "signUp": {
+        "label": "sign up n become a creator, yeah boiii 🎬🔥",
+        "sub": "link a social handle so we KNOW it's actually u n not some Ohio imposter 💀. stuck? we got u no stress bestie, we lockin in together 🤝"
+      },
+      "openBounty": {
+        "label": "drop a bounty for ur OWN project 📜🔥",
+        "sub": "write EXACTLY what u tryna cook — a vid, an album, an illustration series, literally whatever bestie. be specific tho 👀 vague bounties back at sloth-in-Ohio speed 🐌💀"
+      },
+      "share": {
+        "label": "slide that link to the gng 🔗🗣️",
+        "sub": "post it wherever ur fans be lurkin. two clicks n they backed it — no account needed to back, tho they DO need one to pay up, real talk 💳"
+      },
+      "backingsComeIn": {
+        "label": "backings rollin in (no money moves yet, chill bestie) 📈",
+        "sub": "fans commit amounts. NOTHING gets charged, relax 🧘. watch the total stack up LIVE it's so satisfying ngl. cash out when them numbers got u grinning like a sigma 😏💰"
+      },
+      "makeThing": {
+        "label": "cook the thing 🔥🍳",
+        "sub": "on ur OWN schedule gng. no deadline unless u set one urself (don't lol). when it's cooked, submit it from ur dashboard, ez clap 👏✨"
+      },
+      "councilReviews": {
+        "label": "the Council peeps it 👁️👀",
+        "sub": "a lil squad of human reviewers checks ur submission actually matches what the bounty asked for, no funny biz. the clean ones clear in a few days, zero drama ⚖️✨"
+      },
+      "fansCharged": {
+        "label": "fans FINALLY get charged 💳🗣️",
+        "sub": "cards get hit on the {billingDay}th of the month after approval. backers get a heads-up b4 it lands, no Ohio ambush, we classy 📬✨"
+      },
+      "clearingWindow": {
+        "label": "{waitDays}-day clearing window ⏳🧾",
+        "sub": "lil buffer so any disputed charges can surface n show themselves. standard payment processing biz, totally normal, don't spiral 🧘✨"
+      },
+      "withdraw": {
+        "label": "YOINK the bag to ur bank 🏦💰",
+        "sub": "u keep {creatorPct}% of what the gng paid. send it to ur bank via Stripe Global Payouts, bag SECURED, sigma behavior 🤑🔥"
+      }
+    },
+    "fee": {
+      "label": "the fee",
+      "title": "{feePct}%. flat. all-in. zero hidden Ohio ops 🫡💯",
+      "body1": "ONE fee covers EVERYTHING — Artypot's whole operating costs n all that Stripe payment processing. no monthly fee to drop a bounty. no charge if a bounty never finishes. u only pay when u catch the bag, that's it that's the tweet 💯🔥",
+      "body2": "backers get charged they EXACT backed amount, no funny biz no skimming. the fee comes outta UR side only, not theirs — we don't tax the homies fr 🤝✨",
+      "exampleLabel": "example bag 💰👀",
+      "totalBacked": "total stacked by the gng 🗣️",
+      "softFallThrough": "most soft backings straight up ghost u 👻💀",
+      "platformFee": "platform fee ({feePct}%) 😤",
+      "youReceive": "u pocket this fr 🤑🔥"
+    },
+    "cta": {
+      "titleLine1": "pick a thing u ACTUALLY tryna cook 🔥🍳",
+      "titleLine2": "drop a bounty. share the link. lock in bestie 🔒🗣️",
+      "body": "if the gng want it, the bag WILL pull up, trust 💸✨. if the support ain't there or u ghost the delivery?? nobody pays a single dime, simple as, no harm done 🤷",
+      "createAccount": "make ur account, get in 🚪✨",
+      "alreadyHaveOne": "already got one bestie?",
+      "logIn": "log in →",
+      "howItWorks": "how Artypot be cookin 🍳",
+      "terms": "bro code 🤝",
+      "contact": "got Qs? slide in our dms 📨🗣️"
+    }
+  },
+  "Home": {
+    "hero": {
+      "titleLine1": "yapparino to the whole skibidi globe 🗣️🌍",
+      "titleLine2": "whatever ur lil heart fiending for ngl 😤",
+      "subtitle": "type in any creator, any artist, any rando opp w max aura 👀 — sling a bounty n let the gng cook it into existence 🔥 no delivery?? wallet stays locked fr fr, zero dollar zero cap, u keep ur whole gyatt of cash 🔒💀",
+      "searchPlaceholder": "search ur fav goat, artist, or random Ohio public figure… 🔍✨",
+      "browseBounties": "go peep the open bounties rn →",
+      "areYouCreator": "u got the creator rizz?? 👁️🔥"
+    },
+    "trending": {
+      "label": "buzzin sooo hard rn 🐝",
+      "title": "what the gng absolutely fiending for rn 🔥💀",
+      "browseAll": "peep em all bestie →",
+      "empty": "zero spotlight bounties… it's so over chat 💀🪦",
+      "emptyLink": "lock in n peep every bounty fr"
+    },
+    "howItWorks": {
+      "label": "the deep lore 📜",
+      "title": "ok but whats the whole sigma vibe tho?? 🤔",
+      "steps": {
+        "one": "tell ur fav goat to do sum w max aura OR sum unhinged Ohio behavior, no in between 💀",
+        "two": "the real gng who GET IT pile up bag on bag til that bounty literally cannot be ignored no cap 🤝💰",
+        "three": "creator LOCKS IN n cooks, the gng pay the man, chat goes full skibidi spammin Ws YEAH BOIII 🗣️🔥"
+      }
+    },
+    "cta": {
+      "title": "ok so what u tryna manifest into the timeline?? ✨🧠",
+      "subtitle": "lock in ur fav goat n yeet a bounty into the void. if the crowd fiending too?? the bag just teleports into existence, it's so back 💰😤🔥",
+      "createAccount": "get in lil bro, the acct free 🚪✨",
+      "browseBounties": "go peep the bounties",
+      "haveAccount": "u already got an acct bestie?? 👀",
+      "logIn": "slide back in king →👑"
+    }
+  },
+  "Login": {
+    "hero": {
+      "title": "<accent>money</accent> got that GYATT rizz 🤑🗣️",
+      "subtitle": "yo throw a bounty n some random creator locks in n cooks a free W for the whole Ohio timeline 🔥 the gng all chip in no cap 💸 work drops?? bro catches the BAG it's so back yeah boiii 💰💀"
+    },
+    "stats": {
+      "charged": {
+        "label": "wallet go owwie 😭",
+        "value": "monthly",
+        "note": "only after the dub lands gng no cap 📦✨"
+      },
+      "creatorsKeep": {
+        "label": "creators keep the WHOLE bag 🤑",
+        "note": "ZERO tax that's sigma aura ✨💀"
+      },
+      "payouts": {
+        "label": "BAG go brrr 💰",
+        "note": "yeeted to 50+ Ohios worldwide fr 🌍🗣️"
+      }
+    },
+    "sectionLabel": "slide in bestie 👀",
+    "heading": "yooo ur back 🗣️🔥",
+    "oauth": {
+      "redirecting": "hold up yeeting u over rn… 🚀💨"
+    },
+    "divider": "or",
+    "modeToggle": {
+      "email": "email",
+      "phone": "phone"
+    },
+    "fields": {
+      "email": {
+        "label": "drop the email gng 📧🫵",
+        "placeholder": "you@example.com"
+      },
+      "phone": {
+        "label": "gimme them digits bestie 📱✨"
+      },
+      "password": {
+        "label": "the secret sauce 🤫🔐 (no glaze)"
+      }
+    },
+    "forgotPassword": "brain ate ur password?? 💀🧠",
+    "submit": {
+      "label": "LOCK IN 🔒🗣️",
+      "loading": "locking in… my brain buffering rn 🧠⏳💀"
+    },
+    "register": {
+      "prompt": "fresh meat fr?? 👀",
+      "cta": "cook a whole new acct 🍳🔥",
+      "creatorNote": "icl turning creator is its own boss arc gng 💀 lock in an acct first, snag a handle, then beat the tax + bank final bosses 🏦🗡️✨"
+    },
+    "errors": {
+      "loginFailed": "BRO it's so over 💀 that login FLOPPED hard, run it back gng 🗣️",
+      "oauthFailed": "what the sigma 😭 sign-in wouldn't even spawn, u cooked, try again bestie 💀🔁"
+    }
+  },
+  "PasswordReset": {
+    "forgot": {
+      "sectionLabel": "pw went to ohio 💀",
+      "title": "who deadass let the pw escape 🤨",
+      "subtitle": "drop the email gng n a reset link go ZOOM into ur inbox 🔗🚀 but it's so over for that link in 60 min ⏳ lock in or cry",
+      "subtitleSent": "peep the inbox bestie 📬 reset link sliding in w max rizz rn no cap",
+      "sent": {
+        "label": "yeeted 📤",
+        "before": "icl if",
+        "after": "actually exists ur catching that link in a sec gng 🗣️🔥 if not. skill issue 💀",
+        "backToSignIn": "← nvm scurry back to login 🏃"
+      },
+      "emailLabel": "the email tho 📧",
+      "submit": "YEET the reset link 🚀🗣️",
+      "submitLoading": "yeeting it… my wifi buffering hold 🧠⏳",
+      "rememberedPrompt": "WAIT it just hit u?? 🤯",
+      "signIn": "slide in →✨",
+      "errors": {
+        "generic": "BRO it's so over 💀 what the sigma just happened, run it back 🔁"
+      }
+    },
+    "reset": {
+      "sectionLabel": "pw glow up arc ✨",
+      "title": "cook up a fresh pw 🔒🔥",
+      "forPrefix": "this whole arc is for",
+      "loading": "loading… brain straight buffering 🧠⏳",
+      "newPasswordLabel": "new pw who dis 🆕",
+      "newPasswordPlaceholder": "gimme 8+ chars or it's so over no cap",
+      "confirmPasswordLabel": "run that new pw back one mo gng 🔁",
+      "confirmPasswordPlaceholder": "deadass type that same pw again bestie",
+      "submit": "lock the new pw IN 🔒🔥",
+      "submitLoading": "resetting… cooking rn hold up 🍳⏳",
+      "rememberedPrompt": "WAIT it just hit u?? 🤯",
+      "signIn": "slide in →✨",
+      "success": {
+        "label": "fat W 🏆",
+        "title": "pw glowed all the way up 💅✨",
+        "body": "the pw got swapped no cap 🔒 n every other session got yeeted straight to ohio 👋💀 it's so back",
+        "signIn": "slide in w the drip pw →🔥"
+      },
+      "errors": {
+        "mismatch": "nah these pws ain't twinning fr 🚫💀 run it back",
+        "tooShort": "gng that pw is mad short 📏 it's giving 4 chars, gimme 8+ no cap",
+        "failed": "the reset got COOKED 💀🔥 link prob expired, it's so over bestie"
+      }
+    }
+  },
+  "Privacy": {
+    "hero": {
+      "eyebrow": "the legal lore arc 📜💀",
+      "title": "privacy lore (real ones only) 🔒🗣️",
+      "lastUpdated": "freshly cooked n plated: {date} 🍳🔥"
+    },
+    "tldr": {
+      "eyebrow": "tl;dr — zero yap, max rizz 🗣️💨",
+      "collect": {
+        "bold": "we only yoink what's mandatory bestie 🤏",
+        "rest": "to keep this thing alive — name, email, n payment stuff. that's the WHOLE haul, no shadow inventory 💼✨"
+      },
+      "noSell": {
+        "bold": "ur data is NOT on the menu gng 🚫🍽️",
+        "rest": "we don't rent it, we don't toss it to the ad goblins, zero glaze, it's giving locked vault."
+      },
+      "stripe": {
+        "bold": "Stripe is the designated card babysitter 💳🍼",
+        "rest": "WE never peep ur full number — that's not our arc, no cap fr fr."
+      },
+      "private": {
+        "bold": "ur backing history? out in the open by default 👀📢",
+        "rest": "flip ur profile to anon mode in settings to hide it 🤫👻"
+      },
+      "delete": {
+        "bold": "u can absolutely nuke ur account 💣🗑️",
+        "rest": "n POOF — ur personal data is so over, deleted into the Ohio void."
+      },
+      "cookies": {
+        "bold": "cookies? we're basically crumb-broke 🍪😭",
+        "rest": "— literally just what the site needs to not flop on the floor."
+      },
+      "disclaimer": "this tl;dr is the cliffnotes NOT the holy scroll — scroll down n read the real lore or get cooked unprepared 💀📜"
+    },
+    "toc": {
+      "heading": "the whole menu 📋👇"
+    },
+    "sections": {
+      "controller": {
+        "title": "who's holding the aux on ur data 👀🎛️",
+        "body": "this whole operation? it's Artypot LLC, some lil Florida LLC (\"Artypot,\" \"we,\" \"us,\" \"our\" — same gng, different costumes 🎭). got beef, got questions, got the ick about this scroll? slide thru to"
+      },
+      "collected": {
+        "title": "the stuff we yoink 🪝💀",
+        "account": {
+          "label": "account stuff:",
+          "body": "ur name, email, n password (hashed into the SHADOW REALM so even WE can't read it 🧂👁️). optionally a pfp n a phone number so we can clock that ur a real one n not some bot army, no cap. n if u sign in w a social (Google, GitHub, Discord, etc.) we keep that provider n ur account id w it just to link the login 🔗."
+        },
+        "financial": {
+          "label": "the money stuff 💰:",
+          "body": "backers: payment deets (Stripe's problem now, peep Section 5). creators getting that bag: bank/payout info (Stripe Connect or some other payout gng), ur declared tax residence (country, n US state if it applies, kept as a receipt trail for taxes), PLUS tax id stuff for the dreaded IRS arc (W-9 n 1099 if ur US, W-8BEN n 1042-S if ur overseas). we also log the IP u used for certain account n compliance moments 👁️. yeah it's a lot, just lock in 🔒."
+        },
+        "activity": {
+          "label": "the receipts of ur grind:",
+          "body": "bounties u cooked, bounties u backed, bounties u closed out, notifs u caught — the whole sigma grindset, logged n stamped 📈🔥"
+        },
+        "usage": {
+          "label": "the behind-the-scenes goofy stuff:",
+          "body": "mid boring server logs — IP, browser type, pages u tapped, timestamps. it's purely to debug when stuff gets cooked, NOT to build some weird creepy marketing dossier on ur whole aura 👁️🚫"
+        },
+        "comms": {
+          "label": "the dms n slidethroughs:",
+          "body": "if u hit the support form or email us, we keep those msgs so we can ACTUALLY fix ur thing instead of ghosting u like a fumbled situationship 🫡"
+        }
+      },
+      "howUsed": {
+        "title": "what we even DO with it ⚙️🤔",
+        "intro": "we run ur data thru the machine to, like:",
+        "item1": "keep the joint breathing — log u in, shove payments thru, fire off payouts yeah boiii 🚀",
+        "item2": "ping u with receipts n bounty updates (the necessary pings, NOT the spammy aura-draining ones, we'd never)",
+        "item3": "stay outta the slammer — tax filings (1099s), sniffing out fraudsters like a bloodhound 🕵️🚓",
+        "item4": "make the platform less mid — clock bugs n patterns in bulk, lock in on the fixes",
+        "item5": "actually pull up when u need help, none of that left-on-read energy",
+        "outro": "we do NOT use ur data for ads, profiling, or selling to randos. that's diabolical behavior n it's just NOT the vibe, never was, never will be 🚫💅"
+      },
+      "sharing": {
+        "title": "who else gets a sneaky peek 👥👀",
+        "intro": "we ONLY pass ur data to the day-one homies we literally NEED to keep the lights on:",
+        "stripe": "moves the bag n pays out creators 💸🏃",
+        "stripeConnect": "verifies bank accounts n pays out creators, no funny business",
+        "taxbandits": "files the 1099 n 1042-S when the gov comes knocking 📑👮",
+        "emailLabel": "the email gng",
+        "email": "yeets ur receipts straight into ur inbox 📬💨",
+        "hostingLabel": "the server gng",
+        "hosting": "the actual house where this whole thing physically lives 🏠",
+        "dpa": "every single one of em signed the data-handling pinky promise (a DPA, real legal one). they CANNOT take ur data on their own little side quest, ever, full stop ✋📜",
+        "legal": "we MIGHT also cough it up if the LAW makes us — like a real court order or subpoena pulls up unannounced. not by choice bestie, our hands be tied ⚖️😔"
+      },
+      "payments": {
+        "title": "payment data n stripe 💳🔐",
+        "p1": "ALL ur card data sprints STRAIGHT to Stripe, Inc — when u type that card in, it flies to Stripe's servers, NOT ours, fr fr. we never EVER peep or stash ur full number, CVV, or expiry. it's so locked it's in Ohio 🔐💀",
+        "p2": "we keep a lil Stripe customer ID n a tiny reference to ur saved card (like last 4 digits, card type) so u can manage ur billing without losing it. that ref literally CAN'T charge u btw — only Stripe pulls that trigger, n ONLY when we politely ask, no rogue moves 🙏",
+        "p3pre": "Stripe doing its OWN whole privacy arc is governed by the",
+        "p3link": "Stripe Privacy Policy",
+        "p4": "creator bank info gets run thru Stripe Connect via Stripe Financial Connections. we stash ONLY a Stripe Connect account id — not ur actual bank number. we are NOT built like that, never were 🚫🏦"
+      },
+      "retention": {
+        "title": "how long we be clutching it 🕰️🤲",
+        "p1": "we hold ur account data while ur account is alive n vibing. u delete it? we scrub ur personal info from active systems within 30 days. squeaky clean, gone reduced to atoms ✨🧼",
+        "p2": "money records (payment amounts, payout logs, receipts) we gotta clutch for 7 WHOLE YEARS bc US tax law said so 😭⛓️ even after u dip. we anonymize em where we can tho, we're not monsters.",
+        "p3": "server logs? they ghost themselves after 90 days max. poof, deleted, never seen again 👻"
+      },
+      "rights": {
+        "title": "ur rights = ur whole power arc ✊🔥",
+        "intro": "u got the certified right to:",
+        "access": {
+          "label": "peep it",
+          "body": "ask for a copy of EVERY lil piece of personal data we got on u, no gatekeeping"
+        },
+        "correct": {
+          "label": "fix it",
+          "body": "patch up wrong info straight from ur settings page, easy W 🔧"
+        },
+        "delete": {
+          "label": "nuke it",
+          "body": "delete ur account n personal data into oblivion (minus the stuff the law forces us to clutch)",
+          "link": "the full step-by-step recipe"
+        },
+        "portability": {
+          "label": "take it n bounce",
+          "body": "grab ur data in a format a machine can actually read, it's urs"
+        },
+        "object": {
+          "label": "say nah to it",
+          "body": "object to processing when we're leaning on that 'legit interests' excuse"
+        },
+        "exercisePre": "wanna flex these rights bestie?",
+        "contactLink": "hit us up",
+        "exerciseMid": "or email",
+        "exercisePost": "we'll pull up within 30 days, zero leaving u on read, that's a promise 🙏💯",
+        "regional": "if ur in the EU/EEA or Cali u might've unlocked EXTRA rights under GDPR or CCPA 🗽. we'll honor those even if u don't drop the exact law name — we are NOT gatekeeping ur rights, that's diabolical."
+      },
+      "cookies": {
+        "title": "cookies 🍪",
+        "intro": "Artypot runs on basically NOTHING but crumbs:",
+        "auth": {
+          "label": "the login token",
+          "body": "kept in localStorage to keep u logged in, plus ONE strictly-necessary first-party session cookie (artypot_session), we're being honest 🤝. both get wiped the EXACT sec u log out, no lingering 🧹"
+        },
+        "stripe": {
+          "label": "Stripe's cookies",
+          "body": "dropped by Stripe's own JS to sniff fraud during checkout. that's Stripe's lore, governed by their policy, take it up with them 🤷"
+        },
+        "noTracking": "we run ZERO analytics cookies, ZERO tracking pixels, ZERO creepy ad cookies. no annoying cookie banner either bc there's literally NOTHING extra to consent to. we keep it squeaky clean fr fr 🧼✨"
+      },
+      "children": {
+        "title": "lil bros under 18 🚸🚫",
+        "body": "Artypot is NOT for anyone under 18, full stop, no exceptions, this ain't the place lil bro. we don't knowingly yoink data from minors. if u think we accidentally caught a kid's info, PING us immediately n we'll delete it ASAP, no questions, no yap 🫡⚡"
+      },
+      "international": {
+        "title": "the overseas gng 🌍✈️",
+        "p1": "Artypot runs OUTTA the USA 🦅. if u pull up from outside the US, ur data gets shipped n processed on US soil. using the platform basically = u nodded yes to that transfer, bet, locked in.",
+        "p2": "we keep data protection consistent with US law. we don't got that fancy formal EU SCC framework rn (we KNOW, we KNOW, don't @ us 😭) but we WILL honor any legit data request that slides in. on god, on everything 🙏"
+      },
+      "changes": {
+        "title": "when this scroll gets a glow-up 🔄✨",
+        "body": "we might tweak this Privacy lore every now n then, vibes evolve. changes show up in the \"Last updated\" date at the top, peep it. if it's a BIG change we'll ping u by email or in the platform — ZERO sneaky edits in the dark, we'd never pull that Ohio behavior 👀🚫"
+      },
+      "contact": {
+        "title": "holla at us 📨🗣️",
+        "pre": "got privacy questions or requests bestie?",
+        "link": "hit us up right here",
+        "mid": "or email"
+      }
+    }
+  },
+  "Register": {
+    "hero": {
+      "title": "the bag got MAD rizz when it's still <highlight>vibin in ur pocket 🫰🔥</highlight>",
+      "subtitle": "yo every artypot acc just spawns u in as a fan, no cap 🗣️ — back the bounties u wanna manifest into the timeline, or open ur own n bully sum creator into cooking smth oddly hyperspecific gng.",
+      "howItWorks": {
+        "label": "how a bounty be lowkey cookin",
+        "step1": "back a bounty u want to exist 🙏 or drop a fresh one. literally zero dollarinos yoinked upfront, we SO chill.",
+        "step2": "fans dogpile on it til the creator's all \"aight bet this finna slap\" 💅 then they ship the dub fr.",
+        "step3": "soon as it's verified delivered ur card FINALLY gets tapped 💳 — never a millisecond sooner, lock in gng."
+      },
+      "creatorNote": "wanna catch the bag for ur OWN grind?? 🤑 unlock creator mode after u sign up — verify a handle, then lock in thru the tax + payout boss fight, it's giving final dungeon 🐉"
+    },
+    "form": {
+      "sectionLabel": "spawn acc rn",
+      "title": "lock into Artypot 🔐🗣️",
+      "oauthRedirecting": "yeeting u over there…",
+      "or": "or ig",
+      "modeEmail": "email mode",
+      "modePhone": "phone mode",
+      "emailLabel": "drop the email 📧",
+      "emailPlaceholder": "u@example.com",
+      "phoneLabel": "the digits 📱",
+      "nameLabel": "ur @ for the streets (public) 🗣️",
+      "namePlaceholder": "Harry Baldwig",
+      "passwordLabel": "the secret sauce 🤫",
+      "confirmPasswordLabel": "spit the sauce one mo time",
+      "tos": "ye im SO vibing w the <tosLink>bro code 🤝</tosLink> n the <privacyLink>no-snitch pinky promise 🤐</privacyLink>",
+      "submitLoading": "cooking ur acc… 🍳🔥",
+      "submitPhone": "spawn acc + ping me that code 📲✨",
+      "submitEmail": "spawn my whole acc, get me in 🚪✨",
+      "haveAccount": "already got one bestie? 👀",
+      "signIn": "slide back in →"
+    },
+    "otp": {
+      "sectionLabel": "verify them digits",
+      "title": "go peep ur texts rn 📲",
+      "subtitle": "aight we yeeted a 6-digit code to ur phone fr 🔢 punch it in below n we seal this acc forever, lock in bestie.",
+      "resentNotice": "fresh code yeeted, it's so back ✅🔥",
+      "codeLabel": "the lil code 🔢",
+      "verifyingButton": "verifying… my brain buffering 🧠⏳",
+      "verifyButton": "verify n send it to the moon 🚀",
+      "didntGetIt": "code straight up ghosted u?? 👻",
+      "sendingButton": "sending… hold up ⏳",
+      "resendButton": "yeet it again gng",
+      "errors": {
+        "invalidCode": "nahhh that code's cooked 💀 run it back gng",
+        "resendFailed": "couldn't re-yeet the code 😭 it's so over bestie"
+      }
+    },
+    "errors": {
+      "oauthStartFailed": "couldn't even START the signup 💀 what the sigma just happened, run it back",
+      "passwordMismatch": "ur passwords ain't matchin bestie 🤨🤨 lock in",
+      "tosRequired": "yo vibe w the bro code first 🤝 cmon gng",
+      "registrationFailed": "signup got mega cooked 💀 it's so over, run it back gng"
+    }
+  },
+  "Support": {
+    "hero": {
+      "title": "yap at me bestie 🗣️🔥",
+      "subtitle": "got beef? got bugs? brain just leaking thoughts? 💀 dump it here gng, these literally hit my eyeballs raw, no cap fr 👀"
+    },
+    "subjects": {
+      "bountyQuestion": "wait so this bounty… 🤨 explain it like im in Ohio",
+      "backingQuestion": "backing a bounty got me cooked, what the sigma is even happening 💸💀",
+      "paymentsHelp": "BILLING IS BULLYING ME rn 🆘 my wallet has zero aura left",
+      "reportBug": "yo a bug is loose and it's giving full Ohio 🐛💀 lock in pls",
+      "reportContent": "finna snitch on some content real quick 🚨👮",
+      "deleteAccount": "nuke my acc into the shadow realm, im so done bestie 🚪💨",
+      "other": "smthn else gng, my brain wont buffer the label 🧠🤷"
+    },
+    "success": {
+      "title": "msg YEETED into the void ✅🚀",
+      "body": "ima slide back at <strong>{email}</strong> gng 🗣️ gimme like a day or two, no thoughts just vibes, lock in 🔒",
+      "sendAnother": "go yap again bestie 🗣️📨"
+    },
+    "form": {
+      "honeypotLabel": "Website",
+      "nameLabel": "what we even callin u rn 🏷️👀",
+      "namePlaceholder": "Harry Baldwig",
+      "emailLabel": "drop the email gng 📧✨",
+      "emailPlaceholder": "u@example.com",
+      "subjectLabel": "what u even on abt rn 🎯💭",
+      "subjectPlaceholder": "pick a vibe or stay lost… 🎲🌀",
+      "messageLabel": "spill the whole tea 🍵🗣️",
+      "messagePlaceholder": "tell me what's so over rn, no gatekeep… 💀🙏",
+      "charCount": "{count} / 5000 (chill bestie ur not writing a thesis 🧊✍️)",
+      "submitting": "yeeting it rn… my brain buffering 🛸🧠",
+      "submit": "SEND IT BOIII 🚀🔥",
+      "emailDirectly": "or hmu raw dawg no app 📬:"
+    },
+    "errors": {
+      "generic": "BROO it's so over 💀 what the sigma just happened, mash it again gng 🙏",
+      "genericShort": "nah it's so over 💀"
+    }
+  },
+  "Tos": {
+    "hero": {
+      "eyebrow": "legal-coded ahh scroll 📜💀",
+      "title": "the bro code 🤝 (binding ong no escape)",
+      "lastUpdated": "last time we touched grass: {date} 🌱"
+    },
+    "tldr": {
+      "label": "tldr 4 the 0 attention span gng (lock in fr) 🧠⏳",
+      "noMoneyMovesLead": "BROO nothin leaves the bank when u back a bounty 💸🚫",
+      "noMoneyMovesRest": " — not a hold, not a penny, NADA. the card stays asleep til The Council goes \"yeah it's confirmed 🫡\", then every charge gets herded up once a month like collection day fr. chill.",
+      "backOutLead": "dip WHENEVER bestie 🚪💨 no questions",
+      "backOutRest": " — before a bounty finishes it's a free escape, no cap. nobody's tweakin, nobody's interrogating u gng.",
+      "finalLead": "but once it's done?? it's so OVER 🔒💀",
+      "finalRest": " — Council confirms, card eats the charge, n that bag is GONE gng. no refunds. the escape window slammed shut the second it finished, shoulda dipped earlier bestie 💀.",
+      "feeLead": "Artypot snags a 20% gyatt-sized cut 🪙",
+      "feeRest": " — off the creator's bag, NOT urs btw. one fee, covers literally everything incl payment processing, no sneaky Ohio surcharges 🚫. backers pay the full promised amount, creators walk w 80%, the math is mathing fr.",
+      "globalLead": "creators worldwide securin the bag 🌍💰 yeah boiii",
+      "globalRest": " — direct bank deposits where it works, slick alt methods everywhere else. fans from anywhere can back stuff. a couple countries got locked out bc the law said nuh uh 🚫.",
+      "neverLead": "bounty never finishes?? then NO money moves 🙅 fr",
+      "neverRest": " — like ever ever ever. zero. ghost town. tumbleweed aura 🌵.",
+      "notPurchaseLead": "backing ≠ buying smth bestie 🛒❌ get that out ur head",
+      "notPurchaseRest": " — ur funding a public W that EVERYBODY gets equally, ur not coppin private perks or goodies or secret access. creators can't auction off personal rizz to the top backers, n dont u dare ask gng, that's weird ahh behavior 💀.",
+      "noOfficialLead": "no buyin official acts, no bankrollin campaigns 🏛️🚫",
+      "noOfficialRest": " — u literally CANNOT use a bounty to pay a gov official for their job stuff, or fund some candidate/campaign/election grind. that's straight bribery + campaign-finance law smoke, instant L, do not pass go do not collect aura 💀.",
+      "allAgesLead": "keep Artypot baby-safe 🍼✨ PG only",
+      "allAgesRest": " — everything on here (bounty text, profiles, comments, completion notes) gotta be squeaky PG no exceptions, n NO funding adult content (the payment besties hard-banned it 🚫). nothin illegal, not once not ever. what a creator cooks n hosts somewhere ELSE tho? not our circus, not our monkeys, their business gng.",
+      "disclaimer": "this tldr is just a lil cheat sheet, NOT the real thing — go read the whole bro code below or stay cooked, ur choice 📜💀"
+    },
+    "toc": {
+      "heading": "what's lurkin in this scroll 📜👀",
+      "acceptance": "u said yes (no takebacks 💀)",
+      "description": "what even IS this thing 🤔",
+      "accounts": "ur lil account 🔐",
+      "bounties": "the bounties 🎯",
+      "backing": "backing n the bag 💰",
+      "creators": "creator chores 🛠️",
+      "council": "The Council 🫡",
+      "fees": "the cut 🪙",
+      "content": "vibe check rules 🚦",
+      "ip": "who owns the W 🏆",
+      "termination": "gettin yeeted 🚪",
+      "disclaimer": "no promises lmaooo 🤷",
+      "liability": "not our fault clause ⚖️",
+      "governing": "whose courtroom 🏛️",
+      "changes": "we might switch it up 🔄",
+      "contact": "holler at us 📨"
+    },
+    "sections": {
+      "acceptance": {
+        "title": "1. u said yes (zero takebacks fr)",
+        "p1": "Artypot (aka \"the Platform,\" \"we,\" \"us\") is run by Artypot LLC, some lil Florida company gng. u TOUCHED Artypot? congrats u already agreed to this whole bro code 🤝 ong, no fine print escape. not vibing w it? then BOUNCE, simple as 🚪.",
+        "p2": "u gotta be 18+ to make an account or back a bounty, no cap. usin the Platform = u swearin on it that u are. lying abt it is the most Ohio move imaginable 💀 don't."
+      },
+      "description": {
+        "title": "2. what even IS Artypot 🤔💭",
+        "p1": "ok so it's a bounty-style crowdfunding situation. fans (the \"backers\") pile up money toward specific tasks from public ppl (the \"creators\"). backing = u PROMISED the bag, but ZERO money actually moves when u back. charges only hit after The Council peeps it n confirms the bounty is fully cooked ✅.",
+        "p2": "Artypot is NOT a tip jar, NOT a subscription, NOT a pre-order thingy, stop it. it's just a machine for the crowd screaming \"WE WANT THIS 🗣️🔥\" in unison n only droppin the bag once the thing actually gets delivered."
+      },
+      "accounts": {
+        "title": "3. ur lil account 🔐",
+        "p1": "lock down ur own account n everything poppin off on it, that's on u. do NOT be handin out ur login like halloween candy bestie 🍬🚫 ever.",
+        "p2": "gimme real, current, full info when u sign up. feed us sus fake info n the account gets frozen or yeeted, zero hesitation, no glaze 💀.",
+        "p3": "one human, ONE account. spinning up a buncha accounts to dodge the rules?? banned behavior fr — lock TF in or get out 🔒."
+      },
+      "bounties": {
+        "title": "4. the bounties 🎯",
+        "p1": "any signed-up user can open a bounty for any task a named creator could actually-fr-verifiably pull off, long as it passes the vibe check rules (Section 9). can be done + confirmed + doesn't break the content rules = valid bounty, lessgooo 🔥.",
+        "p2": "openin a bounty does NOT mean the creator's gonna do it, calm down. they owe Artypot nothin n owe the backers nothin. a bounty is just the crowd yellin \"plsss 🙏🙏\" — it ain't a contract w the creator, period.",
+        "p3Lead": "a bounty funds PUBLIC dubs, not private perks gng.",
+        "p3Rest": " backing = u chippin in toward a result that drops publicly n EQUALLY to backers n randoms alike. it's not u buyin goods or services, n it gets u zero private benefit, zero ownership, zero secret access, zero special-treatment rizz. creators can't offer, n backers can't beg for, ANY personal or backer-only reward for backing or backing big — no private hangouts, no physical goodies, no custom work, no \"experience auctioned to the biggest spender,\" that's ALL cooked 💀. the ONE thing still allowed is a simple lil public shoutout of a backer by name, n only as a discretionary nicety: ur never owed it, u get no right to it, u can't cry if it's skipped, n the creator hands it out or withholds it whenever they feel like it. that's the whole aura, take it or leave it ✨.",
+        "p4Lead": "no bounties for official acts or political campaigns 🏛️🚫.",
+        "p4Rest": " a bounty cannot reward, bait, or hinge on an official act — anything a gov office-haver or worker does, or COULD do, in their official job mode. n a bounty can't be a donation or a spend for a candidate, campaign, party, or committee, or try to sway an election in any way. money aimed at an official act or an election can drop a legal L on the backers AND on Artypot no matter what u intended, so it's a HARD no 💀. this is about the PURPOSE of a bounty not who it's pointed at — a public servant who's also a creator can still catch a bounty for normal creative cooking. cross this line n we yeet the bounty n come straight for the accounts behind it, no warning shot.",
+        "p5": "we reserve the right to delete ANY bounty whenever, on a whim — too vague, too hard to confirm, harmful, or illegal, all of em catch the boot 👢. we don't gotta explain every removal, but we'll TRY to drop a reason when we can, we're not heartless gng.",
+        "p6": "n while we stay chill n reasonable, the creator a bounty is pointed at can ALSO nuke that bounty whenever, for any reason or LITERALLY no reason 💀. their call, their aura, not urs."
+      },
+      "backing": {
+        "title": "5. backing n the bag 💰",
+        "p1Lead": "backing vs actually gettin charged:",
+        "p1Rest": " when u back a bounty, no money moves n no spooky authorization hold lands on the card 🚫👻. the card only eats it AFTER The Council confirms the bounty done. confirmed charges get scooped up together in one monthly billing run (the 24th every month), NOT the instant it's approved. patience bestie, let it cook 🍳.",
+        "p2Lead": "dipping out:",
+        "p2Rest": " back out WHENEVER before Council confirms the bounty done — yes even mid \"pending review\" limbo stage. free escape hatch, always open, no questions 🚪💨.",
+        "p3Lead": "charges that flop:",
+        "p3Rest": " if the card can't be charged when it's due (expired card, broke acct, whatever 💀), the charge flops n we ping u. then u get a lil grace period to fix ur payment method. while a failed payment is just sittin there u can't back new bounties, n if u ghost it?? ur affected backings get cancelled, it's so over for em ☠️.",
+        "p4Lead": "refund n cancel policy:",
+        "p4a": " u can cancel (revoke) ANY backing, free, no reason needed, anytime before The Council confirms the bounty done — even mid pending review. once it's confirmed done tho, ur backing is officially ",
+        "p4Locked": "LOCKED IN 🔒💀",
+        "p4b": ": no more cancelling, it's gettin charged next monthly billing run, no escape. charges that already hit r ",
+        "p4Final": "final n NO refunds 💀🚫",
+        "p4c": ". we MIGHT, purely if we're feelin generous, peep a refund request after a charge for real hardship or confirmed fraud — ",
+        "contactSupport": "yell at support",
+        "p4d": " — but a post-charge refund is a rare lil mercy we MIGHT bless u with, never smth ur owed gng. n this policy is plastered everywhere: where u place a backing, ur confirmation email, the pre-billing preview email, n every single receipt. we told u like five times, can't say u didn't know 💀.",
+        "p5Lead": "bounties that never finish:",
+        "p5Rest": " if a bounty closes or gets revoked before it's done, NO charges, zero, nada. nothin was ever held against the card, clean slate, walk away whistlin 🚶.",
+        "p6Lead": "right of withdrawal (EU, UK n similar consumer lands):",
+        "p6a": " if ur a consumer somewhere that hands u a legal right to withdraw from distance contracts (EU under Directive 2011/83/EU, UK under the Consumer Contracts Regulations 2013, that whole vibe), heads up bestie: as far as a backing or its charge counts as that kinda contract, u got 14 days from placing it to withdraw, no reason needed, no cost. to do it, cancel the backing from ur ",
+        "backingsPage": "backings page",
+        "p6b": ", or ping us w a crystal-clear statement at ",
+        "p6c": ". since no money moves til a bounty finishes, withdrawing before it's done just means u never got charged anyway lmaooo. n ngl Artypot's normal back-out right is WAY more generous than the legal minimum: cancel any backing, free, anytime before The Council confirms done — even WAY past 14 days. we eat good here 🍽️. ",
+        "p6Bold": "by placing a backing u expressly ask us to start the performance before ur withdrawal window closes, n u get that once the contract is fully cooked — aka once The Council confirms the bounty done n the card is charged — ur right of withdrawal is GONE, poof, it's so over 💀✨.",
+        "p6d": " we repeat this exact disclosure in the confirmation email when u back n on every payment receipt. consider urself thoroughly n repeatedly warned gng 🫡.",
+        "p7a": "payments r run by Stripe, Inc. by backing a bounty u also agree to ",
+        "stripeTos": "Stripe's whole bro code",
+        "p7b": ".",
+        "p8": "if a fan disputes a charge for ur work, that disputed bag might get yanked STRAIGHT outta ur earnings 💀 rip."
+      },
+      "creators": {
+        "title": "6. creator chores 🛠️",
+        "p1": "creators who claim their profile n accept a bounty r basically pinky-promising 🤙 to deliver the exact work described, in good faith, the way their community reads it. no funny business gng.",
+        "p2": "droppin a completion claim = u swearin the work actually fulfills the bounty. fraud submissions — turnin in work that doesn't do the thing, or work u don't even own the rights to — can get the account YEETED 🚪 n, where it applies, real legal smoke 🚬💀.",
+        "p3": "creators gettin paid gotta hand over accurate payment n tax info. US creators do a W-9; non-US creators do a W-8BEN. payouts work in most countries (direct bank payout where supported, alt methods elsewhere) but they're straight DEAD in countries we're legally banned from serving 💀. Artypot drops 1099 or 1042-S forms where the law says so."
+      },
+      "council": {
+        "title": "7. The Council 🫡",
+        "p1": "The Council is a squad of actual human reviewers handpicked by Artypot. their WHOLE job is to verify a submitted work REALLY fulfills the bounty before ANY bag gets collected. they peep everything 👀.",
+        "p2": "The Council's word is FINAL, full stop, no notes 💀. no formal appeals process, tho u can holler at us w concerns if it's eatin at u gng.",
+        "p3": "Council members aren't on the hook for reasonable lil judgment slip-ups made in good faith durin review. they're human gng, give em grace, don't be glazin the L 🫶."
+      },
+      "fees": {
+        "title": "8. the cut 🪙",
+        "p1a": "when a bounty pays out, Artypot snags a ",
+        "p1Bold": "20% platform fee",
+        "p1b": " off the creator's payout. one fee, all-inclusive: it covers Artypot's running costs AND all the payment processing costs (incl Stripe card fees). creators ALWAYS walk away w 80% of the total backed. clean, no asterisks ✨.",
+        "p2": "backers get charged their EXACT promised amount — zero sneaky processing surcharges ever bolted onto a backer's charge. what u see is what u pay, no Ohio fees 🚫.",
+        "p3": "fee rates might switch up w notice. changes ONLY hit bounties opened after the change goes live. ur old bounties stay safe n cozy 🛡️."
+      },
+      "content": {
+        "title": "9. vibe check rules 🚦",
+        "p1Lead": "the Artypot surface is all-ages, keep it squeaky clean gng.",
+        "p1Rest": " anything u publish or post ON the Platform itself — bounty titles n descriptions, profile text, display names, verified handles, comments, n the notes or links u slap on a completion — is hosted n shown publicly by us, so it's GOTTA be fine for a general audience. NO sexually explicit stuff, no nudity, no p*rn, no gratuitous shock content 🚫. this is purely a rule about what shows up ON Artypot; it's NOT us judging the lawful creative work a creator makes n hosts somewhere else, that's their lane fr.",
+        "p2Lead": "no adult-content commerce, hard stop 🛑.",
+        "p2Rest": " u CANNOT use a bounty to request, commission, coordinate, or fund sexually explicit or p*rn work, whether or not the finished thing gets delivered off-platform. Artypot is the merchant of record for every charge, n our payment partners (card networks + Stripe) flat-out BAN processing payments for adult content. so a bounty whose whole purpose is funding adult content?? not allowed, doesn't matter where it's hosted, it's so over 💀.",
+        "p3Lead": "absolute hard NOs.",
+        "p3Rest": " the following r NEVER allowed on the Platform or in ANY work funded thru it, no matter where the work lives:",
+        "item1": "anything illegal under US federal or state law (obviously 💀 cmon)",
+        "item2": "bounties that pay for an official gov act or act like a political campaign donation (peep Section 4)",
+        "item3": "harassment, real credible threats, or targeted hate speech — touch grass immediately 🌱",
+        "item4": "malware, malicious code, or tryna hack the Platform or its users (instant L, the biggest L 💀)",
+        "p4": "we reserve the right to NUKE any content n freeze or yeet any account that breaks this policy, whenever we want, with ZERO warning. don't test it gng 🚫."
+      },
+      "ip": {
+        "title": "10. who owns the W 🏆",
+        "p1": "Artypot does NOT claim ownership of any content creators make to fulfill bounties. the creator keeps ALL the rights to their work, it's theirs fr fr, hands off 🙅.",
+        "p2": "backers who fund a bounty get NO special rights to the finished work — same access as literally any random walkin down the street. Artypot is not a commissioned-work platform bestie, never was.",
+        "p3": "by posting content to Artypot (bounty descriptions, profile text, etc.) u hand us a non-exclusive, royalty-free license to just DISPLAY that content on the Platform. that's it. chill. nothin sneaky 🤝."
+      },
+      "termination": {
+        "title": "11. gettin yeeted 🚪",
+        "p1": "delete ur account whenever from ur settings page. deleting cancels all active commitments (no charges) n wipes ur public profile. clean exit, GG, no hard feelings 🫡.",
+        "p2": "we can freeze or yeet ur account if u break this bro code, pull fraud, or abuse the Platform. for the truly cooked violations we reserve the right to act with NO warning whatsoever 💀. don't be that guy gng."
+      },
+      "disclaimer": {
+        "title": "12. no promises lmaooo 🤷",
+        "p1": "Artypot is served \"as is\" n \"as available\" with ZERO warranties, spoken or implied. we don't guarantee the Platform won't break, won't be buggy, or that ANY bounty actually gets fulfilled. icl it might be janky sometimes, it is what it is 🤷.",
+        "p2": "we're NOT responsible for whatever creators, backers, or rando third parties get up to. not our circus, not our monkeys 🐒."
+      },
+      "liability": {
+        "title": "13. not our fault clause ⚖️",
+        "p1": "to the max the law allows, Artypot n its operators r NOT liable for any indirect, incidental, special, consequential, or punitive damages from u usin the Platform. it's SO not our problem gng 💀.",
+        "p2": "our total liability to u for ANY claim from this bro code or ur use of Artypot won't go over the total bag u've paid Artypot in the 12 months before the claim. that's the ceiling bestie, not a penny higher 🧢."
+      },
+      "governing": {
+        "title": "14. whose courtroom 🏛️",
+        "p1": "this bro code is governed by the laws of the State of Florida, USA, ignorin conflict-of-law principles. Florida-coded fr fr 🐊.",
+        "p2": "any beef from these terms gets settled in the state or federal courts in Florida. by bein here u consent to personal jurisdiction in those courts, no escapin it gng 💀."
+      },
+      "changes": {
+        "title": "15. we might switch it up 🔄",
+        "p1": "we can update this bro code whenever. when we do, we'll refresh the \"last touched grass\" date at the top 🌱. keep usin the Platform after a change n boom, that means u accepted the new version, no cap.",
+        "p2": "for the big spicy changes we'll make a REAL effort to ping u by email or thru the Platform. we wouldn't leave u on read bestie 🫶."
+      },
+      "contact": {
+        "title": "16. holler at us 📨",
+        "question": "got questions about this bro code? 🤝🗣️",
+        "contactLink": "hit us up here",
+        "orEmail": "or slide into"
+      }
+    }
+  },
+  "Backings": {
+    "heading": "bags i be glazing 🤑 (max rizz only)",
+    "sectionLabel": {
+      "fan": "stan gng 🫶",
+      "backings": "the backings ong 💀"
+    },
+    "count": {
+      "commitmentSingular": "1 pinky promise 🤙 lowkey binding fr 😭",
+      "commitmentPlural": "promises stacked 🤙 binding no cap 😭",
+      "activeAmount": "{amount} still cookin 🔥🍳 lock in"
+    },
+    "nav": {
+      "dashboard": "← skrt back to the lair 🛹🫡"
+    },
+    "sort": {
+      "label": "sort the vibes bestie 🌀",
+      "mostRecent": "freshest drops fr 🆕✨",
+      "highestAmount": "fattest gyatt bag 💰🍑"
+    },
+    "empty": {
+      "message": "it's barren out here gng 🏜️💀 zero backs, certified Ohio, aura at -100",
+      "findCreators": "go scout some goats rn →🐐🔥"
+    },
+    "row": {
+      "bountyFallback": "bounty #{id} 💀 no name no aura no rizz",
+      "expires": "this thing perishes {date} ⏳💀 it's so over",
+      "backOut": "bail rn skrt 🏃💨"
+    },
+    "pagination": {
+      "prev": "← rewind gng 🔙🌀",
+      "next": "next one lessgooo →😋"
+    },
+    "sidebar": {
+      "nextCharge": "when they tax ur aura next 💸😭",
+      "onDate": "it's hittin {date} 📆💀 brace urself",
+      "viewAmount": "peep the damage in billing →👀💀",
+      "paymentMethod": "how the bag yeets out 💳💨",
+      "manageBilling": "go fix ur billing gng →🔧🫡",
+      "payments": "the receipts 🧾👀",
+      "paymentHistory": "every L u ever paid →📜💀"
+    },
+    "modal": {
+      "title": "u really finna bail on this bounty?? 😶‍🌫️💀 say less",
+      "cancel": "nah nvm keep it 🫶",
+      "confirm": "yeah bail lock it in 🫡🔒",
+      "body": "ur <strong>{amount}</strong> pinky promise to <strong>{title}</strong> bout to get yeeted into the shadow realm 💨 no charge no cap fr. u can ONLY dip while the bounty still breathin 🫁 after that?? it's so over bestie 💀🪦."
+    },
+    "toast": {
+      "backedOutBountyRemoved": "u dipped n the whole bounty got vaporized 💨💀 gng evaporated it",
+      "backedOut": "bailed 🫡 ur free now bestie, fly lil bird 🕊️✨",
+      "failed": "BRO it's so over 💀 the bail straight up flopped, what the sigma just happened 😭"
+    }
+  },
+  "Banners": {
+    "emailVerify": {
+      "title": "bro ur email unverified rn?? 💀 that's so Ohio, prove u real bestie 📧",
+      "body": "ok so a lil verify link got SKIBIDI yeeted into <mono>{email}</mono> 📨🚽 tap that thang or like half ur features stay COOKED in the gulag, no cap fr fr 💀",
+      "emailFallback": "ur email or whatever idk 🤷💨",
+      "resend": "yeet that thang AGAIN 📤🔥",
+      "sending": "sending… my brain straight buffering 🧠⏳💀",
+      "sent": "BOOM sent ✓ pure sigma energy 🔥🫡",
+      "toastSent": "verify email got BLASTED into ur inbox bestie 📬💥 go peep it rn, lock in 🫡",
+      "toastError": "BRO it's so over 💀💀 what the sigma, the email straight up REFUSED 🚫🤡"
+    },
+    "nudge": {
+      "setUpNow": "lock it in RN gng → 🔒🗣️",
+      "dismiss": "nah im ghosting this ✕👻"
+    },
+    "fanMarket": {
+      "regionFallback": "wherever u be lurking 🌍👀",
+      "title": "payments in {region}?? 💀 it's SO over rn, we ain't even live there yet bestie 🏜️",
+      "body": "but real talk u can STILL back them bounties 🤝🔥 ur backings be PURE aura signals screaming at the creators that the gng be craving their drip fr. zero dollarinos get yoinked while we ghost in ur zone 👻💸, and the SECOND payments unlock over there we sliding into ur inbox YEAH BOIII no cap 📬🚀"
+    },
+    "paymentAuth": {
+      "title": "yo ur bank straight WILDIN 🏦💀 it want u to confirm a charge or smth fr",
+      "bodyWithAmount": "go approve that <strong>{amount}</strong> pending bag 🤑💰 or ur backings finna go GHOST 👻💀 lock in gng",
+      "body": "go approve the pending bag 🤑💰 or ur backings finna go GHOST 👻 lock in bestie no cap",
+      "cta": "finish the auth thingy ig → 🔐💨"
+    },
+    "paymentGrace": {
+      "title": "ngl ur last payment straight FLOPPED 💀🤡 it's so over bestie",
+      "body": "slap a fresh card on by {date} or it's straight CURTAINS gng 🃏⏳💀",
+      "cta": "go fix the card rn → 💳🔧🗣️"
+    },
+    "defaultUpdate": {
+      "amountHeadline": "make {amount} ur default backing?? 🤑 say LESS bestie, that's goated 🐐",
+      "amountUpdate": "send it to {amount} 🔒🤑",
+      "amountKeep": "nah we keepin it {amount} 🫡💯",
+      "expiryHeadline": "make ur default expiry {expiry}?? 🤝 lock that thang in fr",
+      "expiryUpdate": "send it to {expiry} 🔒⏳",
+      "expiryKeep": "nah keep {expiry} bestie 🫡💯",
+      "expiryLabel": "{value, plural, =0 {{value} {unit, select, week {weeks} month {months} year {years} other {days}}} one {{value} {unit, select, week {week} month {month} year {year} other {day}}} other {{value} {unit, select, week {weeks} month {months} year {years} other {days}}}}",
+      "keepCurrent": "keep what we got ig 🤷💨",
+      "saving": "saving… brain buffering hard rn 🧠⏳💀",
+      "toastAmountSaved": "default bag LOCKED in 🤑🔒 sigma grindset secured 💪",
+      "toastExpirySaved": "default expiry LOCKED in ⏳🔒 yeah boiii we cooking 🔥",
+      "toastError": "BRO it didn't save 💀💀 what the sigma just happened, run it back gng 🔁"
+    }
+  },
+  "Billing": {
+    "toast": {
+      "paymentFailed": "BRO the payment is so cooked 💀 what the sigma it's so over",
+      "paymentAuthorized": "secured the bag yeah boiii 🤑 money go BRRR no cap 🔥"
+    },
+    "breadcrumb": {
+      "fan": "ride-or-die stan 🫡",
+      "billing": "the bag receipts 🧾💀"
+    },
+    "heading": {
+      "upcomingCharge": "bag incoming, lock in 💀🤑 ohio charge loading"
+    },
+    "brokeCooldown": {
+      "label": "broke jail arc rn 🚓💀 zero rizz allowed",
+      "declaredOn": "u declared broke on {date} 💀 caught LACKIN bestie, aura: -1000",
+      "blockedUntil": "no new backings gng, u in the timeout corner til <stamp>{date}</stamp> 🔒💀 it's so over"
+    },
+    "charge": {
+      "label": "what's bouta yoink ur funds 👀💀",
+      "summary": "{amount} gettin yoinked on God automatically on {date} 🤑 sit back n let it cook 🔥 u do LITERALLY nothing bestie"
+    },
+    "table": {
+      "bounty": "the quest 🗺️",
+      "state": "vibe check 💅",
+      "yourBacking": "ur bag tho 🤑",
+      "bountyFallback": "quest #{id} (lowkey ohio coded 💀 anon af)"
+    },
+    "settle": {
+      "prompt": "tryna clear the bag rn?? 👀 lock in",
+      "processing": "cooking… my brain buffering 🧠⏳ no cap",
+      "cta": "lock it in 🔒 {amount} rn yeah boiii →"
+    },
+    "paymentMethod": {
+      "label": "where the bag spawns from 💳👀"
+    },
+    "howItWorks": {
+      "label": "how this bag math be workin ngl 🧠💀",
+      "commit": "u pinky promise a number when u back a quest fr 🤝 zero dollars yoinked yet so chill 😮‍💨 no aura lost",
+      "lockIn": "creator drops the dub 🏆 council says bet 🫡 — now ur charge is LOCKED 🔒 no cap. u can ONLY dip while the quest still poppin, after that it's so over gng 💀",
+      "collected": "locked charges auto-yoink on the {day}th every month 🤑 OR be a whole sigma n pay early, ur choice king 👑",
+      "noFees": "u pay EXACTLY what u promised, zero sneaky fees, we don't glaze ourselves wit hidden charges gng 🤝💯"
+    },
+    "timeline": {
+      "label": "this month's whole saga 📜💀",
+      "now": "rn ⏰",
+      "lockedIn": "approved backings LOCKED in 🔒 no take-backsies gng",
+      "previewSent": "billing sneak peek slid into ur inbox 📬👀",
+      "cardCharged": "ur card finna get yoinked 💳💀 it's so over"
+    }
+  },
+  "Bounties": {
+    "title": "bounty trenches 💀🪦",
+    "subtitle": "fling ur whole bag at content that LOWKEY needs to exist or it's so over 🤑🗿",
+    "newBounty": "+ cook a bounty 🔥🍳",
+    "back": "← nahhh take me back gng",
+    "error": "BRO it's so over 💀 the bounties refused to load what the sigma even happened 😭",
+    "submitError": "it's so over 💀 bro the bounty straight up didn't cook gng 🥀",
+    "count": "{count, plural, one {# lonely lil bounty 🥀😔} other {# bounties stacked to the moon 📈🤑}}",
+    "filters": {
+      "all": "all of em everywhere all at once 🌍✨",
+      "open": "live n loaded n cookin 🔫🔥",
+      "pending": "on trial in ohio court ⚖️🗿",
+      "completed": "we COOKED bestie ✅🍳",
+      "paidOut": "bag fully secured 🤑💰"
+    },
+    "empty": {
+      "message": "it's barren out here 🏜️💀 zero bounties no cap the aura is GONE 😭",
+      "createOne": "be the goat n cook one 🐐🔥"
+    },
+    "pagination": {
+      "previous": "← rewind it gng ⏪",
+      "next": "lemme peep more 👀➡️",
+      "pageOf": "page {current} of {total} bestie don't get lost 🫡"
+    },
+    "badge": {
+      "verified": "verified aura fr ✅😤",
+      "unverified": "kinda sus ngl 🤨🚩"
+    },
+    "displayName": {
+      "label": "the goat's @ tag 🐐",
+      "optional": "(skip it idc fr)",
+      "placeholder": "ts sumn like Tom Scott or whatever bestie",
+      "hintRequired": "bro you GOTTA slap a name on the random links or it reads mad cooked 💀 shows on ur bounty no cap.",
+      "hintOptional": "shows on ur bounty bestie. leave it blank n we just yoink the handle 🫳✨"
+    },
+    "units": {
+      "minute": "minute(s) ⏱️💨",
+      "hour": "hour(s) ⏰😴",
+      "day": "day(s) ☀️🗿",
+      "week": "week(s) 📅😮‍💨",
+      "month": "month(s) 🌙🥀",
+      "year": "year(s) 🎂💀"
+    },
+    "loginRequired": {
+      "message": "bro you're not even logged in 💀 no bounty for u gng go lock in first 🔒😭",
+      "signIn": "log in n lock in 🔒→"
+    },
+    "toast": {
+      "created": "bounty COOKED 🔥🍳 yeah boiii we up 🤑"
+    },
+    "stepper": {
+      "target": "the target 🎯",
+      "details": "the deets 📝",
+      "review": "final boss 👀🐉"
+    },
+    "step1": {
+      "sectionLabel": "the fan 🫵",
+      "heading": "summon a bounty 🪄💀",
+      "subtitle": "@ a creator n the whole gang funds the chaos no cap 🤝🔥",
+      "whoLabel": "who's getting bullied into this one 😈?",
+      "urlDetected": "caught that {platform} @ straight outta the link 👀 sneaky lil guy",
+      "addNewCreator": "spawn a fresh creator ✨🥚",
+      "addNewManually": "+ spawn a fresh creator by hand fr 🤲",
+      "search": {
+        "label": "the creator's @ or gov name 🪪",
+        "placeholder": "ts sumn like mrbeast or whatever",
+        "tooShort": "keep cookin bestie — 2 letters MINIMUM ⌨️🔥",
+        "searching": "scanning the whole ohio database… 🔍🗿",
+        "noMatches": "zero hits for “{query}” 💀 it's so over for that search gng",
+        "bountiesWaiting": "{count, plural, one {# bounty out here thirsting 🥀😩} other {# bounties out here thirsting 🥀😩}}"
+      },
+      "addNew": {
+        "back": "← back to the creator hunt 🏹",
+        "heading": "spawn a fresh creator 🥚",
+        "platformLabel": "the app - where this goat lowkey lurks 👀",
+        "platformPlaceholder": "— pick an app bestie 🫳 —",
+        "submit": "yeah this the one →🫡",
+        "errors": {
+          "platformRequired": "pick an app first bestie 💀 don't fumble this",
+          "urlRequired": "drop the website link rn or it's so over 🔗😭",
+          "handleRequired": "the @ is straight up mandatory gng, no @ no rizz 🚫",
+          "displayNameRequired": "random links NEED a name bestie 💀 otherwise it reads cooked fr."
+        }
+      }
+    },
+    "step2": {
+      "heading": "the bounty deets 📝🔥",
+      "whatLabel": "wdym they gotta cook exactly 🍳?",
+      "titleLabel": "the title 🏷️",
+      "titlePlaceholder": "ts sumn like do a backflip while BELTING the anthem 🤸🎤",
+      "descriptionLabel": "the lore (skippable)",
+      "descriptionPlaceholder": "wdym EXACTLY gotta be cooked? any demands? spill it allll out bestie 🫗😤",
+      "commitmentLabel": "ur opening bag 🤑💸",
+      "minimumHint": "lowest is $1 gng, don't come here broke 💀🪙",
+      "advanced": "nerd mode 🤓📐",
+      "expiresIn": "self-destructs in 💣⏳",
+      "expiryHint": "ur backing just auto-evaporates after this if the bounty's still chillin open 💨 swap the default in settings bestie.",
+      "review": "aight lemme peep it →👀"
+    },
+    "step3": {
+      "heading": "peep it n yeet it 🚀👀",
+      "creating": "cooking… 🍳 my brain straight buffering rn 🧠⏳",
+      "submit": "DROP the bounty 🔥🪂",
+      "fields": {
+        "displayName": "the goat's @ tag 🐐",
+        "title": "the title 🏷️",
+        "description": "the lore 📜",
+        "commitment": "ur bag 🤑",
+        "expiresAfter": "backing self-destructs after 💣💨"
+      }
+    }
+  },
+  "Components": {
+    "bountyStatus": {
+      "open": "gathering rizz… 🧑‍🍳⏳",
+      "pending": "on Ohio trial ⚖️🗿",
+      "completed": "cooked it 🔥🗣️",
+      "paid_out": "bag SECURED 🤑🤝",
+      "revoked": "NAH it's so over 💀⚰️"
+    },
+    "bountyCard": {
+      "for": "🙏🙏",
+      "visitHandle": "yo go peep {handle} rn 👀🫵 mad rizz prolly",
+      "backerCount": "{count, plural, one {# certified real one 🫡🔥} other {# certified real ones 🫡🔥 mwah}}",
+      "cleared": "{cleared} / {total} smacked da bag 🤑💥 we lockin in",
+      "youBack": "✓ u LOCKED in bestie 🔒🗣️",
+      "youBackTooltip": "ayo u backin this one already bestie 🫶💀 tap in n switch up da bag, no cap",
+      "backDefaultTooltip": "just yeet ur usual bag ({amount}) 🪙😤 zero thoughts head empty",
+      "backing": "backing… brain straight up bufferin 🧠⏳💀 hold pls",
+      "confirmAmount": "✓ BET. lock ${amount} in 🤝🔒 sigma move",
+      "backAmount": "+ toss ${amount} in da pot 🪙🔥 yeah boiii",
+      "toast": {
+        "youreIn": "AYOOO u in for {amount} YEAH BOIII 🔥🤑🗣️ certified W aura unlocked",
+        "capExceeded": "BRO 💀 u maxed da good-faith aura, it's so over 🪫 slap a card down to keep cookin gng",
+        "gracePeriod": "yo new bags on PAUSE ⏸️😬 til u un-flop that cooked payment bestie, lock in",
+        "marketUnavailable": "bruh backing aint even dropped in ur lil Ohio yet 🏜️💀 it's barren, hold tight gng",
+        "failed": "backing FLOPPED 💀🪦 what the sigma, it's so over rn"
+      }
+    },
+    "creatorCard": {
+      "backer": "real one 🫡",
+      "backers": "real ones 🫡🔥",
+      "creatorBadge": "da GOAT 🐐👑 sigma fr",
+      "noDescription": "bio's straight up barren out here 🏜️💀 tumbleweeds gng",
+      "statBacked": "bag 🤑",
+      "statOpen": "live 👀",
+      "statCompleted": "cooked 🔥"
+    }
+  },
+  "CreatorBounties": {
+    "header": {
+      "breadcrumbCreator": "the goat 🐐",
+      "breadcrumbBounties": "bounty dump 🗑️",
+      "title": "my lil bounty empire bestie 👑💅",
+      "count": "{count, plural, one {# bounty n that's it gng 🤏} other {# bounties stacked in the Ohio stash 💀🗃️}}",
+      "newBounty": "+ cook up a fresh one 🔥🤌 →"
+    },
+    "stats": {
+      "openBounties": "still cookin 🍳",
+      "totalBacked": "the whole bag fr 🤑",
+      "inReview": "council side-eyein u 👀💀",
+      "completed": "W's bagged, sigma grindset ✅🐐"
+    },
+    "filters": {
+      "all": "the whole shabang no cap",
+      "open": "still in the oven 🍳🔥",
+      "pending": "council lowkey judging 👀",
+      "completed": "W'd allll the way up ✅🗿",
+      "paidOut": "bag fully secured 🤑🔒",
+      "revoked": "it's so over, nuked 💀☢️"
+    },
+    "completionBadge": {
+      "pendingReview": "council still vibin on it 👀",
+      "approved": "we are SO back boiii ✅🗿",
+      "rejected": "nah they cooked u 💀🔥"
+    },
+    "empty": {
+      "none": "barren out here gng, zero bounties no cap 🏜️💀",
+      "revoked": "ain't a single thing nuked here 🏜️🤷",
+      "createOne": "lock in n cook one up rn 🔒🔥 →"
+    },
+    "pagination": {
+      "prev": "← bestie rewind",
+      "next": "gimme moar 🫳 →"
+    },
+    "row": {
+      "actions": {
+        "cancel": "nahhh nvm 🙅💀",
+        "submit": "yeet it 🚀 →",
+        "resubmit": "run it back gng 🔁🗿 →",
+        "refundBackers": "yeet the bag back 💸🫳"
+      },
+      "meta": {
+        "backed": "{amount} chillin in the bag 🤑",
+        "fanSingular": "lil homie",
+        "fanPlural": "the whole gang 🫂",
+        "completed": "W'd up {date}, locked in ✅🔒",
+        "verified": "council blessed it {date} 🙏✨"
+      },
+      "councilNote": "council straight up yapped: “{note}” 🗣️🔥",
+      "form": {
+        "heading": "drop the goods bestie 📦💅",
+        "urlLabel": "slap the cooked work here (URL) 🔗🔥",
+        "notesLabel": "notes (only if u feelin it gng)",
+        "notesPlaceholder": "spill the whole tea for the council bestie… ☕👀",
+        "publiclyVisible": "the whole gang gon peep this 👀🌍",
+        "errorNoUrl": "BROOO where the URL 💀 it's so over w/o one fr",
+        "submittedToast": "yeeted it to the council, we COOKIN 🔥🚀",
+        "submitFailed": "send flopped 💀 what the sigma just happened, run it back",
+        "cancel": "nahhh nvm 🙅",
+        "submit": "yeet it 🚀",
+        "submitting": "sending… my brain buffering rn 🧠⏳💀"
+      }
+    },
+    "refundModal": {
+      "title": "yeet the WHOLE bag back to errybody?? 💸😭",
+      "nothingLeft": "nothin left to yeet on this one bestie 💀 every backing already got refunded or nuked, it's barren out here 🏜️",
+      "intro": "every lil homie who backed <titled>{title}</titled> gets their whole bag back no cap fr. n it ALL comes outta YOUR balance gng 💀 refunding costs u whatever the gang paid, platform cut included, big big yikes 😭",
+      "unsettled": "+ {count, plural, one {# backing} other {# backings}} never even got billed ({total}) — nuked at zero cost to u, sigma move 🤝🗿",
+      "costToYou": "this finna cost u 💸💀",
+      "yourBalance": "ur bag rn 🤑👀",
+      "reasonLabel": "why tho?? (the whole gang peeps this) * 🗣️",
+      "reasonPlaceholder": "e.g. ngl i'm so cooked, can't finish this one 💀🔥",
+      "reasonHint": "u GOTTA gng. it hits every lil homie w/ their refund AND pings the Artypot team 👀📨",
+      "irreversibleNote": "the gang keeps their money — once u yeet the refund there's ZERO takesies-backsies from here 💀☠️ you'd have to cook the whole bounty up again to collect, n at that point it's so over.",
+      "insufficient": "ur bag don't even cover this refund bestie 💀😭 hmu at <mail>{email}</mail> n we'll help u un-cook this mess.",
+      "cancel": "nahhh nvm 🙅",
+      "close": "bounce 🚪💨",
+      "refunding": "yeeting the bag… hold up ⏳💸",
+      "refundAmount": "yeet {amount} back 💸🫳",
+      "toasts": {
+        "loadFailed": "couldn't load the refund preview 💀 what the sigma fr",
+        "refundedPart": "{count, plural, one {# lil homie got the bag back 🫳} other {# lil homies got the bag back 🫳}}",
+        "cancelledPart": "{count, plural, one {# unbilled backing got nuked ☢️} other {# unbilled backings got nuked ☢️}}",
+        "nothingToRefund": "nothin to yeet back gng 🤷💀",
+        "success": "{summary}. we COOKED 🔥🗿",
+        "partialFailure": "{summary} — {failed} straight flopped 💀 support got pinged, big yikes 😭",
+        "refundFailed": "refund flopped 💀 it's so over bestie, run it back"
+      }
+    }
+  },
+  "CreatorDash": {
+    "header": {
+      "breadcrumb": {
+        "creator": "the goat fr 🐐",
+        "dashboard": "ur skibidi lair 🚽✨"
+      },
+      "publicProfile": "go flex ur gyatt aura out there bestie →"
+    },
+    "payoutHold": {
+      "title": "BRO ur bag is FROZE rn 🔒💀 it's so over gng",
+      "body": "Stripe lowkey demanding more receipts bestie 🧾🤨 no gyatt funds escaping til u prove ur not in Ohio fr fr 🚨",
+      "action": "lock in n verify or stay cooked 📸💀 →"
+    },
+    "pipeline": {
+      "label": "the bag pipeline 🤑🚿",
+      "explainer": "moneyyy goes vrooom left → right yeah boiii 💨 council says BET n it's pending era 😤 fans cough up the cash on the {billingDay}th n boom clearing arc activated 🔥 7 lil days later it's SO back n the gyatt bag is urs no cap 💸💸 lock in"
+    },
+    "stats": {
+      "openBacking": {
+        "label": "open bag energy 💰",
+        "solidSub": "sigma backers 💳✨ (card actually slaps, mad aura)",
+        "softSub": "+ {amount} soft (no card lmaooo cooked 💀🥀)"
+      },
+      "paidOut": {
+        "label": "lifetime bag secured 🤑🏆",
+        "sub": "total yeeted str8 to the bank gyatt 🏦💨"
+      }
+    },
+    "transactions": {
+      "label": "fresh skibidi moves 💅🚽",
+      "fullLedger": "peep the whole lore 📜👀 →",
+      "empty": "it's barren out here 🏜️💀 zero moves bestie it's so over",
+      "earningBadge": "W bag 🤑🔥"
+    },
+    "firstPayout": {
+      "label": "first bag gng 🥇🤑"
+    },
+    "quickLinks": {
+      "newBounty": "+ go cook a new bounty 🔥🍳",
+      "viewProfile": "peep ur gyatt aura 👀✨"
+    }
+  },
+  "CreatorHandles": {
+    "heading": "handles fr 📲💀",
+    "description": "yo bestie slap ur socials in n verify em so the fans peep that GYATT aura n start yeetin bounties at u skibidi style 💸✨ no cap the rizz is mathing 🤑 lock in gng",
+    "backLink": "← bro we so back, dippin to creator settings 🫡💀"
+  },
+  "CreatorMoney": {
+    "header": {
+      "crumbCreator": "the goat 🐐",
+      "crumbMoney": "the bag 🤑",
+      "title": "money receipts (gyatt edition) 🧾💀",
+      "subtitle": "every coin that rizzed its way IN n every coin that ghosted, freshest on top no cap fr fr 💸✨",
+      "overviewLink": "← nahhh take me back 🏃"
+    },
+    "regionBlocked": {
+      "body": "<strong>bestie ur region is SO cooked, zero bag for u 💀🌍 it's so over</strong> some skibidi Ohio international rules hit the no-rizz button, coins legally cannot slide to ur country rn 😭 ur bounty grind still lowkey eatin tho. think this a glitch?? go <support>sob to support</support> gng they gotchu maybe idk 🤷."
+    },
+    "filter": {
+      "all": "everything everything",
+      "earnings": "the bag 🤑",
+      "payouts": "yeetin it out 💨"
+    },
+    "badge": {
+      "earning": "fat W bag 💰🔥",
+      "fee": "they SNATCHED a cut 😭✂️",
+      "refund": "gng gave it back 🔙💀"
+    },
+    "table": {
+      "date": "the when 📅",
+      "description": "the lore 📖",
+      "type": "the vibe 🎭",
+      "amount": "how much fr"
+    },
+    "row": {
+      "ref": "tag thingy: {id}",
+      "gross": "raw n uncut {amount} 🥩",
+      "platformFee": "platform's lil gyatt snack 🍪💀",
+      "clearingAvailable": "still in the oven rn · unlocks {date} 🔓🍳"
+    },
+    "empty": {
+      "all": {
+        "heading": "it's barren out here 🏜️💀",
+        "sub": "smash a bounty, let the Council glaze it, n ur first bag plops right here bestie no cap 🫡."
+      },
+      "earnings": {
+        "heading": "zero bag aura detected rn 😭📉",
+        "sub": "fan charges only hit on billing day once the Council confirms u ATE n left no crumbs fr 🔥."
+      },
+      "payouts": {
+        "heading": "no cashouts yet gng 💸💀",
+        "sub": "once a bag is just chillin there available, yoink it outta the payouts page gyatt 🏃💨."
+      }
+    },
+    "pagination": {
+      "allCount": "{loaded} rows yoinked · page {page}/{last} we lockin in 🔒",
+      "filteredCount": "{shown}/{loaded} rows on screen, the rest hidin in the Ohio backrooms 👀💀",
+      "loading": "loading… my brain buffering 🧠⏳",
+      "loadMore": "gimme more I'm starvin ↓😩",
+      "loadMoreEntries": "more rows pls pls ↓🙏"
+    },
+    "byProject": {
+      "label": "per grind 💪",
+      "ofPotential": "outta {total} u COULD be baggin lowkey",
+      "incoming": "+{amount} incoming YEAH BOIII 📈🔥",
+      "note": "incoming numbers are the RAW uncut fan charges 🥩 — ur real bag gets cooked smaller after stripe n the platform take their lil gyatt bites 🦷💀"
+    },
+    "glance": {
+      "label": "quick peek no glaze 👀",
+      "availableNow": "ready rn fr ✅🔥",
+      "clearing": "still cookin lowkey 🍳",
+      "openBacking": "backers stayin sigma 🫡",
+      "soft": "+ {amount} soft (kinda sus ngl) 😬",
+      "lifetimePaidOut": "bagged all-time GOATED 🐐👑",
+      "platformFees": "fees they straight swiped 😭",
+      "withheldToDate": "yoinked off the top so far 🪙",
+      "withdrawCta": "SNATCH {amount} → 🤲💨",
+      "backToOverview": "bounce to overview ✌️"
+    },
+    "explainer": {
+      "label": "how this even works ong 🤔",
+      "earning": "<term>bag szn</term> — fans get charged the {day}th n it's so back 🔥. every payout plops down as a raw <earning>W</earning> credit with the <fee>platform's lil cut</fee> just vibin on its own line, so ur net stays unsus 24/7.",
+      "clearing": "<term>cookin</term> — coins gotta marinate {days} days in case of beef 🥩. after that they teleport to Available, ez clap 👏.",
+      "payoutManual": "<term>cashout</term> — ur country makes us do it by HAND fr (so unsigma 😤). bag gets slid via Wise, PayPal, or wire, but u gotta pull at least <amount>{min}</amount> or it's a no 💀.",
+      "payoutAuto": "<term>cashout</term> — u yoink it straight from the <link>payouts page</link>. Stripe slaps it in ur bank in 1–3 biz days, secure the bag bestie 🤑🔒."
+    },
+    "payouts": {
+      "title": "secure the bag 🤑🔒",
+      "subtitle": "plug in ur bank, eyeball that available stack 👀, n yoink them earnings gng no cap 💨.",
+      "holdWarning": "<strong>BRO ur payouts on pause rn ⏸️💀 it's so over fr</strong> Stripe wants more proof before it lets the coins fly free 🕊️ — tap the bank card down there to lock it in n we so back 🔒.",
+      "firstPayout": "the first bag 🥇",
+      "clearNote": "cashouts slap ur bank in 1–3 biz days. fan coins go available 7 days after they get charged on the {day}th, lock in n be patient bestie 🙏⏳."
+    }
+  },
+  "CreatorSettings": {
+    "header": {
+      "breadcrumbCreator": "creator",
+      "breadcrumbProfile": "the lore 📖",
+      "title": "tweak the aura 🔧✨"
+    },
+    "picture": {
+      "sectionLabel": "pfp glowup arc",
+      "alt": "the face card (never declines) 💳💅",
+      "saving": "saving… brain on 2% 🧠🪫",
+      "changePhoto": "swap the pfp rq 📸",
+      "uploadPhoto": "yeet a pfp in here 📸",
+      "unavailable": "BROOO uploads r SO over 💀 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME straight up ghosted us no cap, it's giving abandonment 😭",
+      "uploadAnySize": "any size we don't gatekeep gng 🤷‍♂️",
+      "toastSaved": "pfp serving GYATT levels of aura now 💅🔥",
+      "toastError": "it's so over 💀 pfp refused to lock in, what the sigma"
+    },
+    "displayName": {
+      "sectionLabel": "the @ / gov name",
+      "saving": "saving… hold up bestie 🫷",
+      "save": "lock the @ in 🔒",
+      "toastSaved": "name secured, certified W bestie 🤝✨",
+      "toastError": "BROOO the name flopped 💀 what the sigma fr"
+    },
+    "bio": {
+      "sectionLabel": "the bio drop",
+      "description": "lil public blurb that glazes u to death on ur creator page 😩🙏 keep it BUSSIN or stay mid",
+      "placeholder": "who r u?? 🤨 what kinda goated cooked-up stuff u even make?? 🍳🔥",
+      "saving": "saving… just vibin 🫠",
+      "save": "ship the bio rn 🚀",
+      "toastSaved": "bio bussin now fr fr the rizz is up 🔥📈",
+      "toastError": "it's so over 💀 the bio said nah gng"
+    },
+    "fanName": {
+      "sectionLabel": "what u even call the gng",
+      "description": "what u call ur ride-or-die day-one backers 🫡. flexed all over ur bounty pages — like „backed by 12 <emphasis>{example}</emphasis>” YEAH BOIII 🤝🔥. leave it blank n we hit u w the mid default „fan / fans” 🥱💤",
+      "exampleFallback": "the whole gng 🫂",
+      "singularLabel": "just the one 🧍",
+      "singularPlaceholder": "fan",
+      "pluralLabel": "the entire gng 🫂",
+      "pluralPlaceholder": "fans",
+      "saving": "saving… cooking sumn up 🍳",
+      "save": "lock the gng name in 🔒",
+      "toastSaved": "gng name locked in, certified aura 🤝✨",
+      "toastError": "BROOO it flopped 💀 the gng name said no diddy"
+    },
+    "handles": {
+      "sectionLabel": "the @s / linked ops 🔗",
+      "description": "run ur verified socials, keep the whole aura airtight no cap 🌐💅",
+      "manage": "go run the @s →"
+    },
+    "location": {
+      "sectionLabel": "where the taxman sniffs u out 👃💸",
+      "description": "the country (n state if it even applies 🙄) where the IRS taxman comes for ur Artypot bag 🤑👮. we use it to spit the right tax papers — 1099-K if ur deep in Ohio (US 🇺🇸), 1042-S if u escaped. every lil change gets LOGGED so don't be acting sus 👀📝",
+      "countryLabel": "ur whole ahh country 🌍",
+      "selectCountry": "— pick a country bestie 🌍 —",
+      "selectSubdivision": "— pick a {label} bestie 🗺️ —",
+      "saving": "saving… buffering hard 🧠🪫",
+      "save": "lock the tax stuff in 🔒",
+      "toastSaved": "tax residence secured, no snitches 🔐✨",
+      "toastError": "it's so over 💀 the tax stuff ghosted, didn't save",
+      "confirm": {
+        "title": "fr fr u changing where the taxman finds u?? 👀💸",
+        "cancel": "nah jk get me outta here 🙅‍♂️",
+        "saving": "saving… locking it in 🔒",
+        "submit": "YEAH BOIII send it 🤝🚀",
+        "changeLine": "ok so ur straight up YEETING ur tax residence from <strong>{from}</strong> to <strong>{to}</strong> 🧳💨 big sigma move bestie 🌍",
+        "reportingLine": "this the addy that's getting slapped on the tax papers (1099-K if Ohio/US 🇺🇸, 1042-S if u dipped). it's giving paperwork 📄😩",
+        "crossingCountry": " bc u switched whole entire countries 🌍😳 we might make u re-drop the tax docs (W-9 or W-8BEN) n run a lil compliance check 👮👀 — the bag stays FROZEN til it wraps, it's giving paused 🧊🤑😭",
+        "sameCountry": " big moves can trigger a lil compliance check 👮👀; the bag might get iced til it wraps, it's so over for ur wallet rn 🧊🤑",
+        "loggedLine": "this whole move gets LOGGED no cap 📝👁️. only do it if ur ACTUAL legal residence rlly moved, don't be sus or it's so over for u 🙏💀"
+      }
+    },
+    "notifications": {
+      "sectionLabel": "the pings 🔔",
+      "description": "creator-only ping vibes, curate the chaos how u want it 🔔🎛️",
+      "loading": "loading… brain at 2% 🧠🪫",
+      "goToFan": "← bounce over to fan pings",
+      "reset": "NUKE it back to factory 💣",
+      "resetting": "nuking… stand back 💣⏳",
+      "toastSaved": "settings locked in, certified W 🔒✨",
+      "toastError": "it's so over 💀 didn't save gng, run it back",
+      "toastReset": "pings NUKED back to default, clean slate 💣✨",
+      "toastResetError": "BROOO the reset flopped 💀 run it back bestie",
+      "smsBanner": {
+        "verify": "verify ur digits to unlock the SMS pings bestie 📲🔓",
+        "addAndVerify": "drop n verify ur digits to unlock SMS pings, lock in 📲🔓",
+        "addPhone": "drop ur digits here →"
+      },
+      "channels": {
+        "email": "the mail 📬",
+        "sms": "the texts 📲",
+        "bell": "the bell 🔔"
+      },
+      "toggleAria": {
+        "email": "the mail 📬: {label}",
+        "emailAlwaysOn": "the mail 📬: {label} (always on, no escaping this one 😭⛓️)",
+        "sms": "the texts 📲: {label}",
+        "smsAlwaysOn": "the texts 📲: {label} (always on, no escaping this one 😭⛓️)",
+        "bell": "the bell 🔔: {label}",
+        "bellAlwaysOn": "the bell 🔔: {label} (always on, no escaping this one 😭⛓️)"
+      },
+      "rows": {
+        "newBounty": {
+          "label": "fresh bounty just dropped 🆕🔥",
+          "desc": "a fan straight up dropped a new bounty on u, LOCK IN 🔒👀"
+        },
+        "bountyVerified": {
+          "label": "bounty W secured ✅🐐",
+          "desc": "the council said ur bounty is GOATED n done fr, certified dub 🐐🏆"
+        },
+        "bountyRejected": {
+          "label": "bounty L taken 💀📉",
+          "desc": "the council said no diddy to ur completion drop, it's so over for this one 😭💀"
+        }
+      }
+    },
+    "fanSettingsLink": {
+      "text": "wanna mess w ur mail, digits, password or other account ops?? 🛠️ <link>bounce to fan settings →</link>"
+    }
+  },
+  "CreatorTax": {
+    "breadcrumb": {
+      "creator": "the goat 🐐",
+      "money": "secure the bag 🤑"
+    },
+    "heading": "taxes n compliance 💀⚰️ what the sigma is this paperwork ohio",
+    "intro": "ayo ur tax papers n ur whole reporting aura just chillin here gng 📋✨. taxbandits be lowkey cookin the secure submission no cap 🔒🤝 — ur SSN?? ur lil personal tax tea?? we NEVER peep that bestie, that's locked in skibidi vault sigma style, between u n ohio fr fr 🤐🚽 (we genuinely cannot see it gng that's the rizz).",
+    "residence": {
+      "label": "tax crib 🏠🔥",
+      "declared": "yeah this what u said u was 💅",
+      "notSet": "BRO ain't even set it 💀 it's barren out here 🏜️",
+      "formNote": "this lil thing decides if it's W-9 (US gng 🦅) or W-8BEN (international rizz 🌍) finna lock in, real ones know.",
+      "updateLink": "go fix ur tax crib bestie → 🛠️"
+    },
+    "documents": {
+      "label": "tax docs 📄💀",
+      "pending": "ayo ur yearly tax papers — {form} — gonna SPAWN right here yeah boiii once the tax year is so over ⏳ n ur bag clears the reporting threshold 🤑📈 (it's so back when that hits gng, lock in)."
+    }
+  },
+  "History": {
+    "title": "skibidi bag receipts 🧾💀 where the gyatt went",
+    "breadcrumb": {
+      "fan": "fan bestie 🫶",
+      "payments": "the bag fr 🤑"
+    },
+    "count": {
+      "singular": "one lil skibidi paymo",
+      "plural": "mad paymos gng 🧾"
+    },
+    "nav": {
+      "dashboard": "← bounce back to the rizz lair 🏠💀"
+    },
+    "tabs": {
+      "all": "the whole Ohio 🌍",
+      "completed": "Ws only no cap ✅🐐",
+      "failed": "Ls fr it's so over 💀"
+    },
+    "status": {
+      "completed": "secured the gyatt bag 🤑🔥",
+      "failed": "it's SO over bestie 💀⚰️",
+      "requiresAction": "BRO lock in n do smth rn ⚠️🫵",
+      "pending": "brain buffering rn 🧠⏳"
+    },
+    "error": {
+      "message": "BRO the receipts ghosted 👻💀 what the sigma it's so over",
+      "retry": "run it back gng 🔁🔥"
+    },
+    "empty": {
+      "all": "it's barren out here 🏜️💀 zero bag, crickets fr",
+      "filtered": "nada {filter} ones... aura: zero 🦗💀",
+      "findCreators": "go scout the goats 🐐 lock in →",
+      "showAll": "show me the WHOLE Ohio bestie 👀🌍"
+    },
+    "remediation": {
+      "requiresActionMessage": "this charge mad sus 🫵 gotta glaze it w a yes b4 it locks in fr 💀",
+      "failedMessage": "ngl this one straight up got cooked 💀🍳 it's so over",
+      "confirmPayment": "lock it in 🔒 yeah boiii →",
+      "updateCard": "fix the lil card n run it back 💳🔁 no cap →"
+    },
+    "items": {
+      "empty": "no breakdown gng, it's a mystery box, zero aura 📦💀",
+      "bountyRef": "bounty #{id} ong 🫡"
+    },
+    "pagination": {
+      "prev": "← rewind that skibidi ⏪",
+      "next": "gimme more more more 🔥 →"
+    },
+    "more": {
+      "label": "extra rizz ✨💀",
+      "myBackings": "my backings gng 🫡 →",
+      "billing": "where tf the bag goes 💸💀 →"
+    }
+  },
+  "Profiles": {
+    "errors": {
+      "userNotFound": "BROO this user?? 💀 NOWHERE 🫥 what the sigma, they got Ohio'd off the map fr no cap it's SO over 🪦🚽"
+    },
+    "nav": {
+      "home": "skibidi crib 🏠 yeah boiii ✨"
+    },
+    "header": {
+      "youBadge": "YOU YOU YOU bestie 😼 main character gyatt 🪞",
+      "memberSince": "been lockin in since {date} 🔒 sigma grindset since day 1 gng fr",
+      "editSettings": "go tweak ur aura ⚙️💅 rizz up the settings"
+    },
+    "backings": {
+      "title": "goated backings, max aura only 🐐🤑 no glaze",
+      "topTenNote": "only flexin the top 10 bags by gyatt size 💰 the rest got cooked 🔥",
+      "viewAll": "show me the WHOLE buffet gng 👀🍽️",
+      "anonymous": "this one in full stealth ninja mode 🥷 anonymous aura, zero leaks, what the sigma 🤫",
+      "emptyOwn": "BRO you bankrollin NOTHIN rn 🏜️💀 it's so over bestie LOCK IN 🔒",
+      "emptyOther": "backin zero, account barren as Ohio out here 🏜️💀 cooked",
+      "projectFallback": "project #{id} (no name no aura, anonymous skibidi 🫥)",
+      "expires": "bag goes BOOM and self-destructs {date} ⏳💀 it's so over"
+    }
+  },
+  "PublicProfile": {
+    "notFound": {
+      "label": "creator?? who is that 💀",
+      "creatorHeading": "creator? nah that's a ghost gng 👻💀",
+      "creatorBody": "bro this @ straight up does NOT exist 🫥 the database said who?? 😭 nobody home, it's so over",
+      "backHome": "← skibidi bounce home gng 🏃",
+      "slugHeading": "it's BARREN at /{slug} 🏜️💀 ohio energy",
+      "slugBody": "this @ unclaimed n lonely fr 😭 go scope other creators or just dip home bestie no cap",
+      "exploreCreators": "go scope the goats 👀✨",
+      "home": "← home gng 🏠"
+    },
+    "handleNotFound": {
+      "label": "@ on WHAT platform tho 🤨",
+      "heading": "this page?? it's so over 💀 gone reduced to atoms",
+      "body": "BRO we do NOT know this URL 😭💀 it's giving made-up. scope creators or dip home gng"
+    },
+    "error": {
+      "lookup": "BRO 💀 it's SO over, the lookup got absolutely cooked 🍳 refresh n pray to the sigma gods 🙏",
+      "heading": "it's so over 💀 WHAT the sigma just happened gng 😭",
+      "bountiesBody": "couldn't load the bounties bestie 😭 the server is COOKED, fried, finished 🍳💀 not the aura loss"
+    },
+    "badge": {
+      "creator": "certified goat creator 😤🐐",
+      "verified": "verified ✅ no cap fr",
+      "unverified": "unverified 🤨 lowkey sus ngl"
+    },
+    "stats": {
+      "supportedBy": "getting GLAZED by 😤",
+      "fan": "ride-or-die soldier",
+      "fans": "ride-or-die soldiers 🫡",
+      "openBounties": "bounties live rn 🔥💸",
+      "completed": "cooked n DONE ✅🍳",
+      "totalEarned": "total bag SECURED 🤑💰",
+      "activeBacking": "backing live n breathing 💸🫀"
+    },
+    "actions": {
+      "editProfile": "switch up ya drip 🎨💅"
+    },
+    "follow": {
+      "follow": "lock in 🔒",
+      "unfollow": "unfollow 💔😔",
+      "followingToast": "LOCKED in bestie 🔒🔥 it's giving ride-or-die aura ✨",
+      "unfollowedToast": "unfollowed 💔 it's so over for them gng 😭 aura gone",
+      "errorToast": "BRO the follow button got COOKED 💀🍳 what the sigma, try again gng"
+    },
+    "share": {
+      "creatorText": "GLAZE {name} on Artypot rn 😤🔥 go secure their bag bestie no cap 🤑",
+      "claimedText": "{handle} on {platform} — {name} pulled UP to Artypot fr 😤🔥 throw a bounty their way no cap, big aura move 💸",
+      "unverifiedText": "{handle} on {platform} — the fans STACKING bounties on Artypot rn 😭🔥 help us yoink their attention gng, lock in 🫡"
+    },
+    "marketClosed": {
+      "body": "<strong>bounties for {name} are on PAUSE rn 🛑💀 it's so over (for now)</strong> Artypot ain't pulled up in their country yet so bounties can't get cooked or pay out 😭 zero bag motion. but STAY locked in bestie 🔒 — we pull up the SECOND we expand, yeah boiii 🔥 it's so back soon"
+    },
+    "bounties": {
+      "heading": "bounties for {name} 🔥💸",
+      "newBounty": "+ drop a bounty 🤑✨",
+      "emptyCreator": "it's BARREN out here for this creator 🏜️💀 ohio vibes",
+      "emptyHandle": "zero bounties stacked for this @ yet 🏜️😭 it's so quiet",
+      "createFirst": "be the GOAT 🐐 drop the first one gng",
+      "signInToStart": "log in to cook one up 🍳🫡",
+      "seeAll": "peep em ALL →👀"
+    },
+    "claimed": {
+      "verifiedBlurb": "<strong>{name}</strong> verified this @ no cap ✅😤 their full creator page is buffering in soon fr ⏳. bounties here already GLAZE them 🤑🔥 big aura"
+    },
+    "unverified": {
+      "blurb": "<mono>{handle}</mono> ain't pulled up to Artypot yet 😭💀 @ them on the socials SO HARD so they KNOW the fans stacking bounties fr 🔥 make em lock in 🫡"
+    },
+    "claim": {
+      "cta": "is this YOU?? 👀 claim this @ rn before it's so over →",
+      "claiming": "claiming… 🫡⏳",
+      "helperLoggedIn": "we'll slap it on ya account n help u verify, easy W bestie 🏆✨",
+      "helperLoggedOut": "log in to claim it as ya OWN bestie 🔐😤",
+      "successToast": "@ CLAIMED bestie 😤🔥 now verify it below to prove it's yours fr no cap",
+      "errorToast": "couldn't claim this @ 💀😭 it's so over, what the sigma, try again gng"
+    },
+    "spreadWord": {
+      "title": "spread the rizz 📣✨",
+      "claimedBody": "<mono>{handle}</mono> is on Artypot rn 🔥😤 share this page to rally MORE backers behind their bounties, go secure the bag bestie 🤑💸",
+      "unverifiedBody": "help <mono>{handle}</mono> find their ride-or-dies on Artypot fr 😤🔥 share their page n @ them on {platform} gng, make it loud 📣",
+      "shareLabel": "share & @ em 📣🔥"
+    },
+    "filters": {
+      "all": "all of em 🌀",
+      "open": "live 🔥",
+      "pending": "cooking 🍳",
+      "completed": "cooked ✅",
+      "paidOut": "bagged 🤑"
+    },
+    "list": {
+      "heading": "bounties 🔥💸",
+      "emptyFiltered": "zero {filter} bounties gng, it's BARREN 🏜️💀 ohio",
+      "emptyAll": "it's BARREN out here for this creator 🏜️💀 so over"
+    },
+    "pagination": {
+      "prev": "← back gng 🔙",
+      "next": "gimme more →🔥"
+    }
+  },
+  "Search": {
+    "header": {
+      "label": "lore unlocked 👁️🫦",
+      "resultsFor": "BRO peep what we cooked for <highlight>{query}</highlight> no cap 🔥👀",
+      "exploreTitle": "go scope the ohio rizzlands fr 🌿💀",
+      "resultsSubtitle": "creators, bounties, handles, the whole gyatt bestie 🍑",
+      "exploreSubtitle": "lurk thru the goats n watch the gng throw mad bag at they bounties yeah boiii 🤑🔥"
+    },
+    "filters": {
+      "all": "gimme it ALL 🗿",
+      "people": "the npcs 🧍",
+      "bounties": "the bag 💰"
+    },
+    "sort": {
+      "newest": "freshest drip 💧",
+      "mostBounties": "most bag stacked 🤑",
+      "mostCompleted": "most COOKED 🔥"
+    },
+    "sections": {
+      "people": "the npcs 🧍💀",
+      "bounties": "the bag 💰🤑",
+      "creators": "the goats 🐐✨",
+      "trending": "bounties goin SKIBIDI 🔥💀"
+    },
+    "bounties": {
+      "includeCompleted": "lemme see the cooked ones too 🍳"
+    },
+    "empty": {
+      "people": "no npcs pulled up, barren ohio out here 🏜️💀",
+      "bounties": "zero bag matched, crickets only gng 🦗💀",
+      "bountiesCreate": "lock in n be the sigma, cook one for “{query}” 🗿🔒",
+      "creators": "no goats verified yet, it's SO over bestie 💀😭"
+    },
+    "actions": {
+      "loading": "loading… my brain buffering rn 🧠⏳💀",
+      "showMore": "drop MORE on me 👀🔥"
+    },
+    "pagination": {
+      "prev": "← rewind it gng",
+      "next": "MORE pls boiii →"
+    },
+    "person": {
+      "openBounties": "{count, plural, one {# bounty wide tf open 🫦} other {# bounties wide tf open 🫦}}",
+      "backed": "{amount} secured in the bag 🤑🔒",
+      "creator": "certified goat aura +1000 🐐✨",
+      "unverified": "who tf even is bro 👻💀",
+      "badgeCreator": "goat 🐐",
+      "badgeUnverified": "rando 💀",
+      "matchedAlias": "caught lackin as: {alias} 👀💀"
+    }
+  },
+  "Pipeline": {
+    "pending": "pending 🫠",
+    "clearing": "in transit 🚚",
+    "available": "the bag 🤑",
+    "pendingNote": "Council peeped it ✅ card gets tapped the {day}th 💸",
+    "softLine": "+ {amount} no-card 🫠",
+    "clearingNote": "fans got charged · 7-day clearing arc ⏳",
+    "availableNote": "yoink it to ur bank (min $1) 🏦"
+  },
+  "BountyDetail": {
+    "creatorFallback": "the goat 🐐",
+    "fan": {
+      "singular": "glazer",
+      "plural": "glazers"
+    },
+    "common": {
+      "cancel": "nvm 🙅"
+    },
+    "errors": {
+      "loadBounty": "bounty refused to load it's so over 💀",
+      "loadHistory": "history ghosted us 👻 no cap",
+      "notFound": "this bounty got vanished into the Ohio backrooms 🌀💀"
+    },
+    "toast": {
+      "minimumAmount": "bro put in at least a whole dollar 💵 don't be broke",
+      "expiryRange": "expiry gotta be a real number 1 to 999 lock in fr",
+      "updated": "bag adjusted ✅ slay",
+      "youreInFor": "you locked in {amount} 🤑 secure the bag",
+      "failedSubmit": "it didn't send it's cooked 💀",
+      "backedOutDeleted": "you bailed and the bounty straight up evaporated 💨💀",
+      "backedOut": "you dipped out 🚪 no cap",
+      "failedBackOut": "couldn't dip out it's so over 😭",
+      "bountyUpdated": "bounty got a glow up ✨ slay",
+      "failedUpdate": "couldn't glow it up it's cooked 💀",
+      "bountyRemoved": "bounty got deleted off the face of Ohio 🗑️💀",
+      "failedRemove": "couldn't yeet the bounty it's so over 😭"
+    },
+    "backingError": {
+      "capExceeded": "you maxed out the good faith aura 😬 <link>drop a payment method</link> to keep cooking.",
+      "gracePeriod": "new bags on pause til you fix that flopped payment 💀 <link>fix ur card</link> to keep going.",
+      "marketUnavailable": "throwing bags ain't unlocked in ur country yet 🌍 we got u soon no cap."
+    },
+    "expiry": {
+      "advanced": "tryhard mode 🤓",
+      "expiresIn": "it's so over in",
+      "units": {
+        "years": "year(s)",
+        "months": "month(s)",
+        "weeks": "week(s)",
+        "days": "day(s)",
+        "hours": "hour(s)",
+        "minutes": "minute(s)"
+      }
+    },
+    "panel": {
+      "yourVotive": "ur promise 🤞",
+      "youreInFor": "you locked in",
+      "expires": "it's so over",
+      "backOut": "dip out 🚪",
+      "chipIn": "throw a bag 🤑",
+      "howBackingWorksHeading": "how does throwing bags even work??",
+      "howBackingWorks1": "you're pinky promising to <strong>only pay if this bounty gets COOKED ✅</strong> and the Council gives the W.",
+      "howBackingWorks2": "nothing touches ur card rn chill. charges drop monthly only for approved Ws.",
+      "howBackingWorks3": "most bounties never get cooked so most promises never get charged. dip out whenever bestie.",
+      "changeCommitment": "wanna change ur bag? just type a new number n expiry it's that easy gng.",
+      "newAmountPlaceholder": "new bag 🤑",
+      "amountPlaceholder": "bag 🤑",
+      "update": "fix the bag ✅",
+      "backingLoading": "throwing bag…",
+      "backThisBounty": "throw ur bag in 🤑"
+    },
+    "revokeWarning": {
+      "title": "hold up {name} 🛑",
+      "proceed": "i don't care let me cook",
+      "nevermind": "my bad nvm",
+      "body": "<strong>{creator}</strong> already dropped their work bro. yanking ur promise rn is kinda diabolical ngl 💀",
+      "aside": "(you CAN still do it. we're just sayin 👀)"
+    },
+    "removeDialog": {
+      "title": "yeet this bounty 🗑️",
+      "removing": "yeeting…",
+      "remove": "yeet it 🗑️",
+      "body": "every glazer backing this gets a sad email n their bags get cancelled. spill ur reason fr.",
+      "reasonPlaceholder": "why u yeeting this bounty bestie?…"
+    },
+    "lastBacking": {
+      "title": "bail completely??",
+      "confirm": "yea i'm dipping",
+      "body": "you're the ONLY {fan} on this bounty 💀 you bounce, this bounty gets queued for the shadow realm."
+    },
+    "header": {
+      "historicalView": "throwback vibes 📼",
+      "backToCurrent": "✕ back to rn",
+      "edit": "tweak it ✏️",
+      "for": "for",
+      "visit": "pull up to {label} ↗",
+      "unverified": "sus ⚠️",
+      "startedBy": "cooked up by"
+    },
+    "editForm": {
+      "warning": "<strong>heads up gng:</strong> edits can only add lore — you can't switch up the whole vibe or purpose of this bounty. the Council reads the ENTIRE edit history before they hand out the W 👀",
+      "titleLabel": "title",
+      "descriptionLabel": "the lore",
+      "creatorNameLabel": "creator's @",
+      "creatorNameHint": "a cute lil name next to the handle (e.g. “bbno$”). the verified handle ALWAYS shows up — this is just a sticker no cap.",
+      "saving": "saving…",
+      "save": "lock it in ✅"
+    },
+    "totals": {
+      "totalBacked": "total bag 🤑",
+      "softBackings": "+ {amount} in soft bags 🫠",
+      "backedBy": "backed by {count} {fan}",
+      "cleared": "{cleared} of {total} cleared the bag",
+      "totalBackedOn": "*total bag on {date}",
+      "hideHistory": "hide the lore",
+      "showHistory": "show the lore 📜"
+    },
+    "completion": {
+      "cardLabel": "drop ur work 📤",
+      "intro": "you ready? link the finished work n the Council reviews it. glazers get charged once it gets the W ✅",
+      "submitCta": "drop the work →"
+    },
+    "payoutBlocked": {
+      "heading": "bag blocked 🚫",
+      "body": "ur account can't catch payouts rn. slide into support to fix it fr."
+    },
+    "marketClosed": {
+      "heading": "not unlocked in ur country yet 🌍",
+      "body": "Artypot is US-only rn so you can't drop work yet 😔 we'll email u THE SECOND we go live in ur country no cap."
+    },
+    "completionForm": {
+      "title": "drop the finished work 📤",
+      "urlLabel": "link to the work (URL)",
+      "urlPlaceholder": "example.com/proof",
+      "publiclyVisible": "everyone sees this 👀",
+      "notesLabel": "notes (optional)",
+      "notesPlaceholder": "anything the council should know…",
+      "submitting": "dropping…",
+      "submit": "send it 🚀"
+    },
+    "creatorNotices": {
+      "pending": {
+        "heading": "the Council is locked in 👀",
+        "body": "ur drop is under review. we'll ping u with the verdict bestie."
+      },
+      "completed": {
+        "heading": "you got the W ✅ bag incoming",
+        "body": "the Council blessed ur work fr. glazers get charged next billing cycle 🤑"
+      },
+      "paidOut": {
+        "heading": "bag secured 💰",
+        "body": "ur payout went through. ty for cooking 🙏"
+      },
+      "revoked": {
+        "heading": "bounty revoked 💀",
+        "body": "this bounty got revoked n it's dead it's so over."
+      }
+    },
+    "howThisWorks": {
+      "label": "how this works",
+      "headline": "you only pay if it actually gets made fr.",
+      "body": "how much is this worth to u? ur card gets hit <strong>ONLY if the work drops n gets the W</strong> — nothing happens today, n you can dip out anytime before then no cap.",
+      "bullet1": "nothing charged today 😌",
+      "bullet2": "billed only after it drops",
+      "bullet3": "dip out anytime 🚪",
+      "ctaBack": "throw ur bag in →",
+      "ctaFirst": "be the FIRST to throw a bag →",
+      "alreadyHaveAccount": "already got an account? <link>log in</link>"
+    },
+    "fanNotices": {
+      "completed": {
+        "heading": "cooked ✅ bag pending",
+        "body": "the Council blessed this bounty. bags are LOCKED now — ur card gets hit next billing cycle 🤑"
+      },
+      "paidOut": {
+        "heading": "bag secured 💰",
+        "body": "this bounty got paid out. {creator} caught their bag for the work 🐐"
+      },
+      "revoked": {
+        "heading": "bounty revoked 💀",
+        "body": "this bounty got revoked n it's dead it's so over."
+      }
+    },
+    "submittedWork": {
+      "label": "the dropped work 📤",
+      "pendingReview": "under review 👀",
+      "councilNotes": "council tea ☕: {notes}"
+    },
+    "tabs": {
+      "comments": "yap section 🗣️"
+    },
+    "backers": {
+      "empty": "zero {fan} it's barren out here 🏜️💀 be the first!",
+      "anonymous": "[mystery gng 🥷]",
+      "unknown": "who's this 🤨",
+      "you": "(u)",
+      "expires": "it's so over {date}"
+    },
+    "report": {
+      "trigger": "⚑ snitch on this bounty",
+      "title": "snitch on this bounty 🚨",
+      "received": "snitch received 🫡 the Council gon peep this bounty.",
+      "failed": "snitch didn't send it's cooked 💀",
+      "intro": "snitches go to the Council to get checked against the <link>Content Policy</link>. the bounty stays up unless the Council yeets it.",
+      "reasons": {
+        "harassment": "harassment or targeted hate 😡",
+        "illegal": "illegal content or ask 🚔",
+        "adultContent": "spicy content commission 🌶️",
+        "spam": "spam or scam 🤖",
+        "other": "smth else"
+      },
+      "detailsPlaceholder": "anything the Council should know (optional)",
+      "submitting": "snitching…",
+      "submit": "send the snitch 🚨"
+    },
+    "related": {
+      "label": "more bounties",
+      "heading": "other bounties for"
+    }
+  },
+  "AddCardForm": {
+    "errors": {
+      "billingCountryRequired": "drop the country this card reps gng 🌍 no answer no aura, account fully cooked 💀",
+      "cardSetupFailed": "card got DENIED an opp, setup cooked itself 💀 lock in and run it back bestie 🔁🫡",
+      "marketUnavailable": "ur whole country got benched from linking cards rn, it's so over 😭 cope, the bag drops there soon fr 🍳💀",
+      "setupInitFailed": "payment setup never even spawned, zero rizz, full Ohio behavior 💀 try again gng 🔁"
+    },
+    "fields": {
+      "billingCountry": "where this card got its gyatt 🏠💳",
+      "selectPlaceholder": "— pick one or stay NPC gng —",
+      "postalCode": "zip / postal, the secret digits 📮✨",
+      "postalPlaceholder": "skip it, nobody's pressed bestie 🤷"
+    },
+    "actions": {
+      "saving": "locking in the bag… 🔒🫡",
+      "saveCard": "secure the bag, glaze this card 💳✨",
+      "cancel": "nah we ghostin ✋💨"
+    }
+  },
+  "AvailableBalanceSummary": {
+    "sectionLabel": "bag's just sitting there unsecured rn 💰😭",
+    "withdraw": "secure the bag bestie no cap →💸✨",
+    "managePayouts": "lock in on ur payouts before it's so over gng →🏦💀"
+  },
+  "BankAccountCard": {
+    "sectionLabel": "the bag depot 🏦💰",
+    "connectedBadge": "locked in fr ✅🔒",
+    "stripeBlurb": "Stripe sniffs the bank so nobody has to, peak sigma verification 🔒✨ — ur login stuff never even grazes the server, zero peeking, zero aura lost, no cap 👀💀",
+    "setLocationPrompt": "where u at tho 📍 drop the location or the bank stays ghosting u, it's so over 💀",
+    "setLocationButton": "spill the location →",
+    "startingSetup": "lock in… cooking 🔥🤫",
+    "connectBankButton": "link the bank n secure the bag 🏦✨",
+    "loading": "loading, hold tight bestie… ⏳💀",
+    "continueSetupButton": "finish what got started gng →",
+    "connectionPending": "bank's stuck in the backrooms rn 💀🌫️ — wrap the Stripe setup or them withdrawals stay locked in Ohio fr",
+    "disconnectBankButton": "yeet the bank 🚪💨",
+    "disconnectModalTitle": "unlink the bank for real for real? 💀🥀",
+    "cancelButton": "nah jk we good",
+    "disconnecting": "yeeting it out the building… 👋💨",
+    "confirmDisconnectButton": "yea unlink it, the bag era is so over 🪦💀",
+    "disconnectModalBody": "this rips ur whole bank off Artypot, gone, vanished, zero aura 🪦 — the cashing-out era is COOKED til u crawl back, re-link, n grind the entire setup from scratch again, secure-the-bag speedrun reset fr 💀🔁"
+  },
+  "BountyHistoryChart": {
+    "empty": "timeline's a ghost town 🦗💀 nothin ever happened here gng no cap",
+    "eventCreated": "spawned outta the void into Ohio ✨🗿 it's so back",
+    "eventBackingAdded": "somebody locked in n secured the bag 🤝💰 sigma move fr",
+    "eventBackingUpdated": "switched up the whole aura mid-game 🔄😭 bestie really said new feelings who dis",
+    "eventBackingRevoked": "rage quit n dipped 🚪💀 it's so over gng",
+    "eventDetailsEdited": "rewrote the lore on the sly 📝👀 sneaky edits fr",
+    "eventPrivilegeTransfer": "crown got yeeted to a new goat 👑✨ fresh owner just dropped sheeesh",
+    "eventCreatorAssigned": "verified n locked in 🔒🐐 receipts checked out, that's the rizz no cap",
+    "eventPending": "flung at the robe gang to judge 🧑‍⚖️🙏 pray it ain't cooked",
+    "eventCompleted": "the suits said bet ✅🔥 blessed n approved, secure the bag",
+    "fieldTitle": "the title fr 🏷️",
+    "fieldDescription": "the lore 📖✨",
+    "fieldDisplayName": "the creator's @ handle 😤✨",
+    "originally": "way back it was lowkey givin 🕰️👀",
+    "onPlatform": "over on {platform} 📱✨",
+    "viewing": "lowkey peepin 👀",
+    "clickToView": "tap to peep the receipts 🧾👁️"
+  },
+  "CommentSection": {
+    "heading": "the yap arena 🗣️🥊",
+    "emptyState": "crickets in here 🦗💀 not a single soul cooked yet, say something gng",
+    "deletedMarker": "[got yeeted to the shadow realm 🕳️💀]",
+    "editedMarker": "caught lacking, sneak-edited 👀✏️",
+    "composePlaceholder": "spill the unfiltered lore bestie 🎤✨",
+    "replyPlaceholder": "clap back, no thoughts just vibes 👇💬",
+    "charCount": "{count}/2000 aura spent, ration the gyatt 📏💀",
+    "deleteConfirm": "wipe this off the timeline fr? it's so over for this take 💀⚰️",
+    "loginPrompt": "<login>lock in</login> or keep lurking like a ghost, guests get zero rizz privileges 🔒👻",
+    "repliesToggle": "{count, plural, one {# goober crashed out in the replies} other {# goobers crashed out in the replies}} 👇🔥",
+    "timeAgo": {
+      "justNow": "literally this exact second, no cap ⚡",
+      "minutes": "{count}m ago, basically a fossil now 🕰️💀",
+      "hours": "{count}h ago, that's Ohio time tho ⏳😩",
+      "days": "{count}d ago, ancient lore unlocked 📜🦖"
+    },
+    "reaction": {
+      "like": "glaze the goat 🐐🔥",
+      "dislike": "fumble it, throw the whole L 👎💀"
+    },
+    "actions": {
+      "save": "secure the bag 💾🤑",
+      "cancel": "nah bail, this never happened 🏃💨",
+      "reply": "crash out in the replies 💬🔥",
+      "edit": "patch up the yap ✍️🩹",
+      "delete": "yeet to oblivion 🗑️💀",
+      "post": "yeet it to the masses 🚀",
+      "posting": "cooking, do NOT touch the stove 👨‍🍳🔥",
+      "postReply": "launch the clapback 🚀💥",
+      "loadMore": "feed me more yappage 📜👀",
+      "loading": "summoning the lore… ⏳✨"
+    },
+    "errors": {
+      "loadComments": "the comments are so cooked they ghosted, no load 💀👻",
+      "loadReplies": "replies pulled an Ohio vanish, couldn't load 👻🌀",
+      "postComment": "fumbled the bag, ur take didn't even send 😭🪣",
+      "postReply": "clapback got intercepted at the goal line, no send 🚫🧤",
+      "saveEdit": "edit refused to lock in, it's so over rn 💀🔒",
+      "deleteComment": "couldn't yeet it, this comment is built different 🪨💪",
+      "react": "ur reaction got left on read, ghosted by the void 💀📵"
+    }
+  },
+  "ConfirmPaymentModal": {
+    "title": "bless the bag or stay broke in ohio 💸💀",
+    "authenticating": {
+      "waiting": "the bank in its little villain era rn… on god the aura is plummeting 🙏💀",
+      "waitingWithAmount": "the bank deciding if that <strong>{amount}</strong> charge got rizz… lock in bestie no cap 💸🫡",
+      "popupHint": "a sigma lil popup bouta spawn from the bank — tap that gyatt or it's so over 📲💀"
+    },
+    "success": {
+      "heading": "bag = secured, aura maxxed 🤑✅",
+      "body": "the charge cooking in the back like a goat fr fr, no cap on a stack."
+    },
+    "error": {
+      "tryAgain": "run it back gng, lock in 🔁🔥",
+      "useDifferentCard": "slide thru with a sigma card →"
+    },
+    "errors": {
+      "authFailed": "the auth got cooked into ohio, biggest L 💀 hit it again gng what the sigma.",
+      "notCompleted": "bro ghosted the auth like a whole skibidi 👻💀 run it back or yeet a fresh card.",
+      "unexpectedStatus": "gng the status said {status}?? mad sus aura crashing 😭💀 lock in n try again."
+    }
+  },
+  "CreatorSearchWidget": {
+    "searchPlaceholder": "who u tryna find bestie 🔍✨ manifest the goat",
+    "change": "nah that ain't it, switch it up 🔄💀",
+    "searching": "lemme cook rn… lock in 🍳⏳",
+    "viewProfile": "go peep the aura →👀🔥",
+    "verified": "certified goat no cap ✅😤",
+    "bountyCount": "{count, plural, one {# bag waiting to get secured 💰} other {# bags on deck fr 💰🔥}}",
+    "noCreatorsOrHandles": "crickets fr 🦗💀 nobody and no @ either gng it's so over",
+    "noCreators": "Ohio ghost town 👻💀 zero creators, cooked",
+    "addAsNewCreator": "summon <term>{query}</term> into existence 🌱✨ certified new goat",
+    "createNewProfile": "birth a whole new creator out the mud 🆕💅 secure the bag"
+  },
+  "CreatorSlugSection": {
+    "sectionLabel": "ur creator url, the holy slug 🔗👑",
+    "description": "this lil string is where ur ENTIRE public aura be living bestie 🌐✨ ppl judge u off this no cap",
+    "changeButton": "switch the whole vibe →",
+    "cooldownBanner": "babe u JUST fumbled the slug 😭💀 sit DOWN — the cooldown gods say u may run it back on <date></date> and not a sigma second sooner 📅🔒",
+    "neverMind": "← nvm we lock back in",
+    "newUrlLabel": "fresh slug who dis 🆕🔥 manifest it",
+    "cooldownWarning": "touch this slug and boom — {days} days in slug jail gyatt 💀⛓️ no take-backsies. the old url <slug></slug> gonna keep redirecting here til Ohio freezes over and the universe is so cooked 🌌💀",
+    "cancelButton": "nah we chillin actually",
+    "saveButton": "LOCK IN the new slug 🔒🐐",
+    "savingButton": "cooking it up… 🍳🔥",
+    "toastUpdated": "/{slug} secured 🤝 bag locked, aura maxed, it's so back ✅👑",
+    "toastFailed": "the slug update got COOKED 💀 it's so over, run it back gng 🔁"
+  },
+  "CreatorTosTldr": {
+    "eyebrow": "tl;dr — for the gng who don't read 💀📜",
+    "keep": {
+      "title": "{keepPct}% of the fan bag stays in YOUR pocket no cap 💸👑",
+      "body": "a measly {feePct}% gets yoinked for card goblins, fraud demons, hosting, support, and organic veggies for the council goats moderating this whole skibidi circus 🥦🐐. no signup fee, no monthly fee, we don't even know her. that's free real estate 🤑✨"
+    },
+    "paidAfter": {
+      "title": "secure the bag AFTER you deliver bestie, that's the rule 🛍️✨",
+      "body": "not a single fan gets charged a crumb til you drop the completion and the Council vibe-checks it actually slaps the bounty 🤌. no delivery? no bag. stay broke gng, simple as 💀"
+    },
+    "chargesFinal": {
+      "title": "charges locked in for fans but refunds still lowkey lurking 👀🔒",
+      "body": "a fan can't just sob and snatch their money back once charged, that ship sailed straight to Ohio 🚢💀. BUT a chargeback, a refund that magically appears to fix a mess, or one you fire off yourself gets YEETED off your balance — which can go negative and haunt your future earnings fr fr 👻. chargebacks n auto-refunds hand the platform fee back, but the ones YOU start? it's so over bestie, that fee's gone goblin mode 🪦"
+    },
+    "refundBounty": {
+      "title": "you can nuke a whole bounty refund gng 🔄💖💥",
+      "body": "gotta make it right? refund every single backer on a bounty straight from the dashboard, easy clap 👏 — long as the balance covers the damage. if it's cooked beyond saving, slide into support's DMs and they got chu 🫶"
+    },
+    "publicWork": {
+      "title": "bounties fund PUBLIC dubs, not secret little gremlin perks 🌍✋",
+      "body": "the deliverable hits everybody equally, ZERO VIP rizz allowed 🚷. no trading backings for sneaky access, physical goodies, hangouts, or rewards — a public thank-you is the ONLY perk on the menu bestie, that's the whole gyatt 🙏✨"
+    },
+    "noOfficialActs": {
+      "title": "no bag for official acts or campaigns, what the sigma 🚫🏛️",
+      "body": "can't grab a bounty for anything done wearing the lil government hat 🎩, and Artypot ain't funding your campaign, your candidate, or any election shenanigans. not the vibe, touch grass 💀🌱"
+    },
+    "realPeople": {
+      "title": "real humans only, no brands (yet) — show ID gng 🧍🚫🏢",
+      "body": "creator accounts are for actual flesh-and-blood individuals signing up as themselves, periodt. running some company's or org's socials? that brand ain't getting slapped in as a creator yet — business-entity support is loading… buffering… coming later, stay tuned bestie 📶⏳"
+    },
+    "goodFaith": {
+      "title": "keep it a buck, act in good faith or get clapped 🤝💯",
+      "body": "misleading comments, sneaky lil submissions, pretending you're somebody you're not, and other shady gremlin behavior? straight up not tolerated, you WILL get cooked into oblivion 🔨💀🍳"
+    },
+    "belowTheLaw": {
+      "title": "artypot is below the law lowkey, humbly 📉⚖️",
+      "body": "tax info gets collected, no slithering out of it 🧾. a whole army of countries don't rock with automated payments and flex a higher minimum payout threshold. and some countries? straight up can't operate there at all, it's so over for them 🌍🚫💀"
+    },
+    "fundsClear": {
+      "title": "funds clear after 7 days, lock in and wait ⏳💰",
+      "body": "collected funds gotta chill for 7 days (fraud n dispute review, the council's watching 👁️🔍) before going withdrawable, and you STILL gotta clear the minimum payout balance. patience secures the bag, no rushing the aura 🏦✨"
+    },
+    "copyright": {
+      "title": "you keep your copyright, it's YOURS fr nobody's touching it 🖊️🔒",
+      "body": "nothing here hands ownership of your work to Artypot or any fan, that aura stays unstolen 💎. you grant ONLY a lil limited license so completions can get shown n promoted on the platform. that's it, that's the tweet ✨💀"
+    },
+    "familyFriendly": {
+      "title": "artypot stays family friendly, keep it PG bestie 🧸✨",
+      "body": "your bounty text, profile, handles, and completion notes are all PUBLIC and gotta stay PG, absolutely zero gyatt content 🙅. also no using a bounty to fund grown content (the payment partners said nah, hard pass 🚫). nothing illegal either. whatever you cook n host somewhere else is your business gng, we don't see nothin 🤫👀"
+    },
+    "footnote": "this tl;dr is just a lil helpful summary bestie, NOT a swap for the full terms cooking down below 👇💀🔥"
+  },
+  "HandlesSection": {
+    "sectionLabel": "handles",
+    "description": "link ur socials so the algorithm gods bless u with creator aura 📲✨ no proof = zero rizz, certified npc, no cap 🧢❌",
+    "common": {
+      "cancel": "nah we good 🙅💀",
+      "close": "bounce gng 🚪💨"
+    },
+    "list": {
+      "loading": "summoning the handles from the void… 🌀👻",
+      "badgeVerified": "verified ✅ goated w the sauce",
+      "badgePendingReview": "rotting in review jail ⏳⛓️💀",
+      "badgeUnverified": "unverified 🫥 mad sus npc energy",
+      "messagePrefix": "the lore they dropped:",
+      "remove": "yeet it 🗑️💀",
+      "connectVia": "link {platform} or stay a ghost 🔗👻",
+      "updateReviewRequest": "redo the review beg ✍️😭",
+      "requestAdminReview": "beg the admins on ur knees 🙏💀"
+    },
+    "add": {
+      "platformLabel": "platform",
+      "selectPlatform": "pick a platform bestie 👀✨",
+      "adding": "cooking it up… 🍳🔥",
+      "addHandle": "drop the handle gng 📥✨",
+      "addAnother": "+ stack another handle, secure the bag 📚💰",
+      "alreadyClaimedToast": "u already snagged this one gng 😭 chill ur not slick",
+      "addedToast": "handle secured 🔒 bag fully locked, goated 🐐",
+      "addFailed": "handle add got cooked 💀🍳 run it back"
+    },
+    "remove": {
+      "removedToast": "handle yeeted into the shadow realm 🫳🌀💀 it's so over for it",
+      "removeFailed": "couldn't yeet the handle 💀 it locked in, run it back"
+    },
+    "removeModal": {
+      "title": "delete this handle fr fr? 💀⚰️",
+      "verifiedWarning": "zero take-backsies, this is FINAL and it's so over ⚰️💀. wanna add it back later? u gotta grind thru the WHOLE verify saga from scratch AGAIN 😩🔁. and if a bounty's still clinging to this handle for dear life, an admin's gotta lock in or it ain't moving 🪝🔒.",
+      "confirm": "yeet <handle>@{username}</handle> on {platform} into the void? 🫳🌀",
+      "removing": "yeeting it… 🫳💨",
+      "removeButton": "yeet handle 💀🗑️"
+    },
+    "blockedModal": {
+      "title": "go cry to the admins to nuke this one 😭🙏",
+      "referenced": "<mono>@{username}</mono> on {platform} is being clung to for dear life by <strong>{count, plural, one {# bounty 🪝} other {# bounties 🪝}}</strong> rn 💀🔒",
+      "explanation": "verified handles glued to live bounties can't just poof outta ur account 🚫✨ — pulling that would leave those bounties orphaned w no goated owner, big sad 😢🐐. slide into the Artypot team's DMs and they'll handle the yeet for u, secure 🤝💀",
+      "contactSupport": "ping support, it's an SOS 🆘✨"
+    },
+    "review": {
+      "title": "prove u own @{username} or it's cap 🔍🧢",
+      "intro": "how do we slide in ur DMs real quick? let's yap so we can confirm u ACTUALLY own that <brand>{platform}</brand> acc, zero cap 🧢❌🔒",
+      "contactLabel": "how to slide in ur dms",
+      "contactPlaceholder": "DM me on Discord @username, or call me in the next 3 hrs at (555) 555-5555 📞👀",
+      "contactHint": "only the Artypot admins get to peep this, sealed 👀🔒",
+      "alreadySubmitted": "u already fired this off to review bestie 😭 editing ur msg just resends it gng",
+      "errorTooShort": "gimme at least ONE full sentence so the admins know how to reach u gng 🙏💀 don't ghost urself",
+      "submittedToast": "review beg fired off 📨🔥 we got u, lock in 🔒✨",
+      "submitFailed": "send flopped 💀🍳 run it back gng",
+      "submitting": "firing it off… 📨💨",
+      "resubmit": "resend the beg ✍️😭",
+      "submit": "fire the beg 📨🔥"
+    },
+    "oauth": {
+      "title": "link {platform} 🔗✨",
+      "intro": "link ur <strong>{platform}</strong> acc thru OAuth for instant verified rizz, no waiting in jail ⚡🔒. we yeet u over to {brand} to tap yes, then teleport u right back here 🔁🚀",
+      "ownerNote": "make DEAD SURE ur on the {brand} acc that ACTUALLY owns <strong>@{username}</strong> 🫵💀 zero impostor energy, no sus",
+      "redirecting": "yeeting u over there… 🚀💨",
+      "connectButton": "link {platform} 🔗✨",
+      "startFailed": "OAuth straight up refused to lock in 💀🔒 run it back"
+    },
+    "verifyResult": {
+      "yourHandle": "ur handle",
+      "verified": "{at} is verified 🎉🐐 GOATED w the sauce, zero cap",
+      "notFound": "couldn't verify {at} 💀🧢 that acc didn't match fr. make ABSOLUTELY sure u logged into the one that ACTUALLY owns it bestie 🫵",
+      "failed": "{at} connection got fully cooked 🍳💀 run it back gng",
+      "unknown": "something went full Ohio verifying {at} 🌀💀 the aura collapsed, try again"
+    },
+    "nudge": {
+      "submitted": "<bold>review beg is sent 📨✅🔥</bold> chill and lock in, Baldwig will slide in asap 🙏💀. or test ur luck and ring Baldwig directly at <phone>+1 (727) 370-1237</phone> ☎️👀. he'll never admit it but bro is lonely af 💀😭, never once held a girl's hand in his life fr. if u a guy u should def call him, but if u a girl u should DEFINITELY call him 😭🫵",
+      "unverified": "<bold>u dropped a handle — now go verify it or it's cap 🫵🧢</bold> link thru OAuth or beg the admins w the buttons up top ⬆️✨💀"
+    }
+  },
+  "HeaderSearch": {
+    "placeholder": "type sumn or stay lost 🔍💀",
+    "tooShortHint": "thats it?? cook harder gng, {min} characters minimum or it's so over 😭⌨️",
+    "sectionRecent": "ur recent obsessions, no judgement 👀✨",
+    "sectionTrending": "bags servin unspoken rizz rn 📈🔥",
+    "sectionPeople": "the whole gng fr 🫂💯",
+    "sectionBounties": "the bags 💰🔒",
+    "emptyPrompt": "lock in n hunt creators bounties n handles bestie, secure the bag 🕵️💸",
+    "searching": "lemme cook real quick… 🍳⏳",
+    "noMatches": "“{query}”?? crickets in here 🦗💀 absolutely nothin matched gng it's so over",
+    "seeAll": "spill EVERY “{query}” result no cap →💀",
+    "matched": "this one hit different ✨",
+    "matchedAlias": "caught it slippin under an alias no cap 👀",
+    "personOpenBounties": "{count, plural, one {# bag wide tf open} other {# bags wide tf open}} · {amount} secured n locked 💸🔒",
+    "roleCreator": "certified goat creator, aura maxxed 🐐👑",
+    "roleUnverified": "unverified n lowkey sus, who let bro in 👀💀",
+    "badgeCreator": "goat 🐐",
+    "badgeUnverified": "sus 👀"
+  },
+  "LifecycleRail": {
+    "bountyOpens": {
+      "label": "the bounty woke up n chose chaos 🔓🗽 no cap",
+      "actor": "some sigma fan gng"
+    },
+    "fansBackIt": {
+      "label": "the fandom locked in n threw the whole bag fr 💸🔒 aura +1000",
+      "actor": "the gyatt-tier fandom bestie"
+    },
+    "creatorSubmits": {
+      "label": "the goat cooked in the kitchen n shipped it skibidi 🧑‍🍳🔥 it's so back",
+      "actor": "literally the goat gng"
+    },
+    "councilSignsOff": {
+      "label": "the council squinted n said it passes the vibe check ✅👀 rizz certified",
+      "actor": "the shadowy Ohio council fr"
+    },
+    "fansGetCharged": {
+      "label": "the bag got yoinked outta the fandom's pockets 💳💀 it's so over for them",
+      "actor": "the cooked broke fandom"
+    },
+    "creatorGetsPaid": {
+      "label": "the goat secured the whole entire bag 🤑🐐 sigma grindset glazed",
+      "actor": "the bag-securing goat gng"
+    }
+  },
+  "PaymentMethodManager": {
+    "errorLoad": "the cards ghosted, nobody knows where they went, it's so over 💀📉",
+    "errorRemove": "this card got that demon aura, it will NOT be yeeted today bestie 🚫💳",
+    "removedWithRevocations": "card got yeeted into the shadow realm 🫡 and {count, plural, one {# commitment} other {# commitments}} got cooked clean ({amount}) no cap 💀🔥",
+    "reason": {
+      "expired": "expired, the aura ran dry, it's so over 💀",
+      "detachedAtStripe": "the bank yeeted it, Ohio behavior 🏦💀",
+      "replacedByUpdater": "got swapped in the night, sigma issuer move 🔄✨",
+      "billingFailure": "the bill simply did not get secured 📉💀"
+    },
+    "modalTitle": "send this card to Ohio for real?? 💳💀",
+    "modalIntro": "this is the <strong>only card still serving gyatt-level rizz</strong> on this account gng. delete it and watch what happens:",
+    "modalBulletSoft": "<strong>{amount}</strong> of backings go limp \"soft\" mode 🫠 with zero aura till a fresh card pulls up. lock TF in before the bill drops <strong>{date}</strong> or it's cooked fr 🔥",
+    "modalBulletAddAnyTime": "slide a new card in any time before then and the backings stay glazed up, alive n thriving, secure the bag ✨🐐",
+    "modalBulletMissCycle": "fumble one billing cycle and every backing gets auto-yeeted into Ohio 💀 then it's hand-re-backing each bounty one by one like a NPC, brutal gng 🫠",
+    "cancel": "nahhh nvm 🙅",
+    "removing": "yeeting to Ohio… 🫡💨",
+    "removeAnyway": "send it anyway, lock in 💀🔥",
+    "remove": "yeet it 🗑️💀",
+    "updateCard": "glow the card up 🔧✨",
+    "emptyState": "straight crickets in here 🦗💀 link a card gng it's so empty",
+    "addCard": "link a card or stay broke 💳✨",
+    "addPaymentMethod": "+ link a card, secure the bag 💳🔥"
+  },
+  "PayoutReadinessChecklist": {
+    "regionBlocked": {
+      "heading": "ur region? the bag? it's so over gng 💀🌍",
+      "body": "some suit in ohio decided ur whole country don't get to eat — money's locked, no cap, nobody's coming 🚫💸",
+      "contactSupport": "scream at support 📨",
+      "ifError": "if this is a glitch in the matrix, allegedly 🤨"
+    },
+    "items": {
+      "emailVerified": "email? locked in fr ✅📧",
+      "creatorTosAgreed": "signed the scary scroll w/o reading it, sigma 📜💀",
+      "countryRegionSet": "country pinned, ohio confirmed 📍🌎",
+      "handleVerified": "handle blessed n approved, aura through the roof ✨🪪",
+      "bankAccountManual": "bank acct on manual mode (go beg support, it's so over 🏦🙏)",
+      "bankAccountConnected": "bank linked or stay broke forever bestie 🏦💀",
+      "taxFormSubmitted": "tax demons fed ({form}) and they're still hungry 🧾😭",
+      "minimumBalance": "min bag hit ({required} to unlock, {earned} secured) — we cooking 💰📈"
+    },
+    "allSet": "fully cooked, bag is officially securable, glaze urself bestie 🤑🎉",
+    "payoutHold": {
+      "label": "stripe gatekeeping ur ID before u touch a single dime, the gall 🪪🔒",
+      "completeNow": "lock in rn →"
+    },
+    "setUpNow": "go secure it gng →"
+  },
+  "PayoutRegionNotice": {
+    "blocked": {
+      "heading": "the bag is so over in ur region 💀🔒",
+      "body": "some shadowy 'international payment restrictions' boogeyman appeared and now the bag physically refuses to reach u, this is in Ohio gng, nobody pulled a lever it just Happened 🚫💸 ur bounty aura stays untouched tho, that grind hits the same no cap.",
+      "errorPrompt": "if this is giving sus and u think the system fumbled,",
+      "contactLink": "ping support gng 🆘"
+    },
+    "manual": {
+      "heading": "manual payouts only, ur region built different 🏦💀",
+      "body": "auto bank payouts? never heard of her where u at fr 💀 the bag gets hand-delivered like artisan rizz via Wise, PayPal, or wire, but u gotta lock in a {min} minimum first or it's so over, secure it bestie 🤝✨",
+      "contactLink": "slide in n we'll cook up a transfer →"
+    }
+  },
+  "PlatformHandleInput": {
+    "websiteUrlLabel": "drop the site or get left on read 🔗💀",
+    "invalidUrlError": "bestie that link is COOKED 💀 it's so over, paste a real http(s) one no cap 🔗✨",
+    "otherUrlHint": "yeet the WHOLE profile link from whatever sigma platform got left off the list up top 🛸🤙 half a link is straight Ohio gng",
+    "label": {
+      "youtube": "channel @ — the goat dropped here 📺🐐",
+      "instagram": "ig @ — post it or it never happened bestie 📸✨",
+      "twitter": "the @ — that app is so cooked 🐦💀",
+      "tiktok": "user @ — skibidi clock app gng 🕺💀",
+      "twitch": "channel name — purple aura farm 🟣✨",
+      "bluesky": "the @ — lock in and touch sky ☁️🤙",
+      "kick": "channel name — secure the green bag 🟢💚"
+    }
+  },
+  "SlugInput": {
+    "defaultLabel": "ur url, ur whole aura, claim that corner of ohio 🌐👑",
+    "placeholder": "ur_government_name_fr",
+    "checking": "hold up lemme lock in… 🔒👀",
+    "checkingStatus": "cooking it up… 🍳🔥",
+    "availableStatus": "WIDE OPEN secure the bag gng 🟢💰",
+    "taken": "nahhh someone already snatched that gyatt 💀 it's so over, manifest a new one bestie ✨",
+    "hint": "3–30 chars · all lowercase no caps-lock rizz, numbers, <code>_</code>, <code>-</code> · don't bookend it with a separator or it's straight ohio 💀✋",
+    "formatErrors": {
+      "required": "the box is EMPTY bestie 🫠 type literally anything gng, lock in 🔒",
+      "tooShort": "that's microscopic 🤏💀 need 3+ chars to even have aura, glow it up",
+      "tooLong": "WAY too cooked 💀 30 chars is the cap fr, trim that gyatt down ✂️",
+      "invalidChars": "lowercase letters, numbers, <code>_</code> and <code>-</code> ONLY no cap, and bookend it with a letter or number — anything else got zero aura, straight ohio 💀🚫",
+      "consecutiveSeparators": "TWO separators back to back?? 💀 that ain't it gng, no double dashes, lock in 🔒✋"
+    }
+  },
+  "TaxComplianceCard": {
+    "sectionLabel": "the irs arc 💀 lock in",
+    "loading": "cooking… 🍳",
+    "noCountry": "where u even pay taxes?? drop it in <link>settings</link> 📍 so the W-9 (US gng) vs W-8BEN (global rizz) thing sorts itself out, nobody's reading minds here 🌍✨",
+    "toast": {
+      "w9Submitted": "W-9 yeeted into the void 📨🔥 the second that SSN/TIN gets the lil verified checkmark u gettin pinged bestie ✅",
+      "w9Cancelled": "W-9 left on read fr 💀 it's chill, slide back and finish it whenever gng, no shade 🫡",
+      "w8benSubmitted": "W-8BEN secured the bag 📨✨ gonna peep it and the confirm lands real quick, no cap",
+      "w8benCancelled": "W-8BEN ghosted mid-arc 👻 finish it whenever bestie, the form ain't going nowhere fr"
+    },
+    "error": {
+      "w9LinkFailed": "the W-9 link is SO cooked rn 💀🔥 hit it again gng it'll catch the rizz eventually",
+      "w8benLinkFailed": "W-8BEN link said nah 💀 give it another go bestie, it's having a moment"
+    },
+    "w9": {
+      "sectionLabel": "the irs arc 💀 W-9",
+      "badge": {
+        "ssnVerified": "SSN passed the vibe check ✅",
+        "submitted": "yeeted 📨",
+        "ssnMismatch": "SSN ain't matching 💀",
+        "pending": "in limbo ⏳"
+      },
+      "body": {
+        "verified": "W-9 fully locked in and the SSN/TIN passed the vibe check, it's so over (the good over) ✅✨ aura intact",
+        "required": "the {taxYear} bag hit {earnings} 💰 so the W-9 gotta be done before any cashing out happens again, that's just how it be fr 🔒 no skips gng",
+        "belowThreshold": "{earnings} already secured this year 💸 once that number kisses {threshold} the W-9 enters the chat, just a lil heads up gng 👀"
+      },
+      "banner": {
+        "tinFailed": "SSN/TIN check flopped SO hard 💀 it's so over — slide it back through with the right info and we eatin again bestie 🙏"
+      },
+      "button": {
+        "resubmit": "run the W-9 back →",
+        "continue": "finish the W-9 →",
+        "complete": "lock in the W-9 on TaxBandits →"
+      },
+      "helper": "yeets u to TaxBandits in a fresh tab 🔗 ur SSN never even gets peeped on this end, that tea stays sealed fr 🤐"
+    },
+    "w8ben": {
+      "sectionLabel": "the irs arc 💀 W-8BEN",
+      "badge": {
+        "submitted": "yeeted 📨",
+        "invalid": "it's cooked 💀",
+        "pending": "in limbo ⏳"
+      },
+      "body": {
+        "confirmed": "W-8BEN yeeted and confirmed, it's so over (the goated kind) ✅✨ aura maxed",
+        "required": "{earnings} secured this year 💰 so the W-8BEN gotta be done before any cashing out happens again, no skipping that arc fr 🔒",
+        "belowThreshold": "{earnings} already racked up this year 💸 once it kisses {threshold} the W-8BEN slides into the chat gng 👀"
+      },
+      "banner": {
+        "invalid": "the W-8BEN got flagged cooked 💀 it's so over — run it back with the right info and we good bestie 🙏"
+      },
+      "button": {
+        "resubmit": "run the W-8BEN back →",
+        "continue": "finish the W-8BEN →",
+        "complete": "lock in the W-8BEN on TaxBandits →"
+      },
+      "helper": "yeets u to TaxBandits in a fresh tab 🔗 ur personal tax tea never gets peeped on this end, sealed and locked fr 🤐"
+    }
+  },
+  "WithdrawCard": {
+    "sectionLabel": "the bag rn 💰😼",
+    "payoutHold": "yeah no the bag got benched 😭🔒 some Stripe verification fairy decided u don't get money till u finish it. it's so over till it's so back gng ✨",
+    "resolveNow": "unbench it rn 🫡→",
+    "completeBankSetup": "the bank setup is sitting there unfinished giving Ohio 💀 wrap it or the bag stays sealed forever bestie 🏦🔒",
+    "connectBank": "no bank linked = no rizz = stay broke 🏦💀 plug one in gng ✨",
+    "payoutsLink": "where the bag lives →",
+    "nothingToWithdraw": "balance giving crickets 🦗💀 ain't a single coin to yoink yet, cooked fr",
+    "confirmPrompt": "we really yeeting <strong>{amount}</strong> into the linked bank? no cap that's a sigma move 💸😼",
+    "sending": "launching the bag…🚀",
+    "confirmSend": "send it. lock in. goated ✅🔥",
+    "cancel": "nah i'm ghosting this 🙅👻",
+    "withdraw": "secure the bag 💰🤑"
+  },
+  "DeleteAccount": {
+    "breadcrumb": {
+      "privacy": "privacy lore scroll 📜",
+      "current": "nuke the whole acc ☢️💀"
+    },
+    "heading": "how to delete urself off the grid forever 🪦☢️",
+    "intro": "u can vaporize ur Artypot existence WHENEVER, no hoops, no waiting-room purgatory, the exit door is RIGHT there gng 🚪💨 do the steps n it's so over in under a minute, no cap, the account gets sent straight to Ohio fr ⏱️💀",
+    "whatHappens": {
+      "title": "what goes down when u press the doom button 😭☠️",
+      "backings": "every backing u ever locked in?? GONE. cancelled on sight, instant Ohio, no take-backsies, the receipts cry 🪦💔",
+      "profile": "ur profile, ur name, ur entire digital aura just evaporates into the void within 30 days, ghosted by the system itself 👻✨",
+      "loggedOut": "u get yeeted off EVERY device at once, logged out across the whole multiverse, bye bestie it's so over 📲💥",
+      "creator": "creator?? bro ur public profile gets DEACTIVATED, every handle goes dark, the rizz revoked, the aura confiscated 💀🔒",
+      "financialRecords": "the money receipts gotta chill for 7 years bc Uncle Sam said so (US tax law, NOT us being weird i promise) but they're anonymized into pure ghost-mode, zero link to ur name or email, what the sigma 🫥💵",
+      "emailReuse": "good news ur email respawns — u can reroll a fresh acc with it later, new game plus arc, glow up incoming 🔄✨",
+      "permanentLead": "this is PERMANENT, no undo, no ctrl+z, no resurrection — it's so over FOREVER 😭🪦 if u still got creator bag owed to u pls",
+      "contactSupport": "ping the support gng",
+      "beforeDeleting": "BEFORE u send it to the shadow realm 🙏"
+    },
+    "steps": {
+      "login": {
+        "title": "slide into Artypot (log in fr)",
+        "go": "cruise on over to",
+        "signIn": "n lock in w ur email + password, or whatever social u rizzed up with (Google, GitHub, Discord, the whole gang) 🔐"
+      },
+      "settings": {
+        "title": "crack open settings",
+        "once": "once ur in, smash",
+        "settingsLabel": "Settings",
+        "sidebar": "in the left sidebar (hunt the ⚙ thingy). on mobile, tap the menu icon top-left to summon the sidebar first, lock in bestie 🔓",
+        "direct": "or just teleport straight to:"
+      },
+      "dangerZone": {
+        "title": "scroll to the danger zone 🚨💀",
+        "scrollLead": "scroll ALL the way down the Settings page til u hit the",
+        "label": "DANGER ZONE ⚠️💀",
+        "scrollTrail": "section. it's the final boss, the last thing standing on the page, no escape 👹🔥"
+      },
+      "clickDelete": {
+        "title": "tap \"delete account\" 💣☢️",
+        "findLead": "find the",
+        "rowLabel": "Delete My Account",
+        "clickMid": "row n smack that big red",
+        "buttonLabel": "Delete Account",
+        "findTrail": "button. a confirm popup spawns telling u exactly what's bout to get yeeted into Ohio ⚠️💀"
+      },
+      "confirm": {
+        "title": "confirm the doom (point of no return) 🪦",
+        "readLead": "read the confirm fr read it bestie, then type ur display name where it asks, then tap",
+        "confirmLabel": "Yes, Delete My Account",
+        "readTrail": " — which only unlocks once the name u typed matches fr. then? account vaporized on the spot, u get logged out, gg no re, ur gone to Ohio forever 💀✌️"
+      }
+    },
+    "cantLogin": {
+      "title": "locked out?? can't even log in?? it's so over 😩",
+      "lead": "if u lost the keys to the kingdom — password gone, email on file also gone, full lockout arc, cooked — pls",
+      "contactUs": "hit the gng up",
+      "orEmail": "or email",
+      "trail": "drop the email tied to ur acc so we can hunt it down n delete it by hand, manual sigma mode 🤝 we hit u back within 5 business days, hold tight bestie ⏳💀"
+    },
+    "footer": {
+      "privacy": "← privacy lore scroll",
+      "support": "yell at the support gng",
+      "tos": "the terms scroll 📜"
+    }
+  },
+  "EmailChangeConfirm": {
+    "loading": "sniffin ur new email for rizz rn… hold tight gng 📨🧪",
+    "confirmedTitle": "new email locked in, sigma grindset 🔒🐐",
+    "confirmedBody": "email got swapped no cap, the aura is astronomical, certified W bestie 🫡✨",
+    "goToSettings": "skibidi slide into settings 🛝🚪",
+    "errorTitle": "it's so over 💀 the confirmation got cooked in ohio",
+    "backToSettings": "crawl back to settings on ur knees lil bro 🐌🙏",
+    "errorIncomplete": "this link half-baked fr, zero aura, what the sigma is this gng 🚫📉",
+    "errorExpired": "this link expired n got sent to ohio, deadass cooked, it's so over 🪦💀"
+  },
+  "EmailVerify": {
+    "verifying": "sniffin ur email for that rizz aura… hold pls 📨🔍",
+    "verifiedTitle": "email caught lackin nothin, sigma certified W 🔒🐐",
+    "alreadyVerifiedTitle": "bestie this email already locked in, we been moved gng 🙄✅",
+    "expiredTitle": "link went full ohio n died, it's so over cooked ⏱️💀",
+    "closeTab": "tab dismissed, u may exit the simulation free gng 🫡✨",
+    "resentInline": "email yeeted ✓ — go peep ur inbox no cap fr 📬💅",
+    "resending": "shippin it rn, everybody lock in… 📤🔥",
+    "resendButton": "yeet anotha verification email into the void 📨🔁",
+    "toastSent": "verification email launched skibidi style! peep ur inbox bestie 📬🔥",
+    "toastFailed": "email said nah n ghosted, what the sigma fr 💀📭"
+  },
+  "HandleRedirect": {
+    "claimSuccess": "this identity? yours now, no cap 🫡✨ go verify it below or the whole aura is so over 🔒💀",
+    "claimError": "the claim got absolutely cooked in ohio 💀🚽 mash it again bestie",
+    "sectionLabel": "handle",
+    "notFoundTitle": "what the sigma, this page got vanished 💀🕳️",
+    "notFoundBody": "this handle? never heard of her, zero aura 🤨 go peep some creators or yeet urself back home 🏠",
+    "exploreCreators": "peep the creators 👀🔥",
+    "home": "← home base, lock in 🏠",
+    "lookupError": "the lookup got skibidi'd in ohio 💀🚽 mash it again in a sec gng",
+    "shareTextClaimed": "{username} — {name} just pulled up on Artypot 🗣️🔥 throw a bounty their way, certified W no cap!",
+    "shareTextUnverified": "{username} — the fans are stacking bounties on Artypot fr fr 📈🫰 help em catch this aura gng!",
+    "verified": "verified, gyatt-tier aura ✅🐐",
+    "unverified": "unverified, lowkey sus 🤨💀",
+    "externalLink": "portal that yeets u outta ohio 🔗🚪",
+    "visit": "pull up to {domain}, lock in 🚪🔥",
+    "verifiedBio": "<strong>{name}</strong> locked this identity in fr 🔒🐐 every bounty here already glazes them, big aura no cap.",
+    "unclaimedBio": "nobody snatched this identity on Artypot yet, it's giving free real estate 🫥🤲 if it's u, lock it in n scoop the bounties the fans been stacking for u gng.",
+    "claiming": "claiming rn, hold the rizz… ⏳✨",
+    "claimCta": "wait is this u?? lock in this identity →🔥",
+    "claimHintSignedIn": "we'll yeet it onto ur account n walk u thru verification, easiest W of ur life 🫡🐐",
+    "claimHintSignedOut": "sign in to claim it as ur own gng, lock in 🔑✨",
+    "bountiesFor": "bounties stacked sky high for {username} 💰📈",
+    "newBounty": "+ fresh bounty fr 🔥",
+    "noBounties": "zero bounties stacked here yet, it's so quiet the crickets got aura 🦗💀",
+    "createFirst": "be the goat, drop the first one 🐐🔥",
+    "signInToStart": "sign in to start one gng, lock in 🔑",
+    "spreadTheWord": "spread the word, max aura 📣🔥",
+    "spreadHelp": "help <handle>{username}</handle> find their fans on Artypot bestie 🫶 share this page n tag em, big aura energy ✨.",
+    "shareAndTag": "share & tag, certified W 🔥🫶"
+  },
+  "OAuthCallback": {
+    "heading": "the sign-in? it ain't signing in 💀🚪 it's so over",
+    "backToLogin": "rewind to the login arc bestie 🏃💨🔙",
+    "fallbackProvider": "whatever the sigma that provider even is gng",
+    "errorAccountLoad": "ur whole account caught the ghosting arc, zero aura 👻💀 lock in n log in again no cap 🔑",
+    "errorProviderNotConfigured": "{provider} sign-in is NOT bussin rn 😭 it's still marinating in the Ohio lab 🧪 my bad gng it's so over for the moment 🙏✨",
+    "errorInvalidState": "ngl this sign-in request either timed out or got tampered with, mad sus skibidi behavior ⏳🕵️ run it back fr",
+    "errorInvalidProvider": "who even IS this provider?? unknown rizzler, never caught his aura, never heard of him 🤨🚫",
+    "errorAuthenticationFailed": "the provider got fully cooked mid-auth n couldn't seal the deal 🔥💀 what the sigma, hit it again gng",
+    "errorAccountError": "something went lowkey gyatt-level feral wiring up ur account 💀⚡ smash it again bestie, lock in",
+    "errorGeneric": "sign-in is so over rn 😩 it's giving cooked, run it back fr fr ✨"
+  },
+  "SettingsPassword": {
+    "heading": "yeet the old pw into ohio 🔑💀",
+    "subheading": "cook up a pw so sigma it's got gyatt-level aura, nobody cracking this fr fr 🛡️🔥✨",
+    "backToSettings": "skibidi back to settings bestie 🚪",
+    "verifiedEmailRequired": "no verified email?? it's so over for the pw glow up, lock in n verify first gng 📧💀🚫",
+    "currentPasswordLabel": "the pw u been rizzing rn",
+    "newPasswordLabel": "the drippy fresh pw 💅✨",
+    "confirmPasswordLabel": "spit the new pw again, no cap, prove it's bussin 🗣️",
+    "showPassword": "lemme peep that pw real quick 👀",
+    "hidePassword": "stealth mode the pw, hide it gng 🙈🤫",
+    "saving": "locking tf in… ⏳🔒",
+    "updateButton": "make this pw goated n official 🔒🐐",
+    "mismatchError": "the new pws got mad beef, they ain't matching bestie 💀🤝🚫",
+    "successMessage": "new pw locked in, certified W, aura through the roof 🔒✨🏆",
+    "failureMessage": "pw swap got absolutely cooked, didn't even go through 😭💀"
+  }
+}

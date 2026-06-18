@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 
 export default function Footer() {
   return (
@@ -7,7 +7,6 @@ export default function Footer() {
         <span>© {new Date().getFullYear()} Artypot</span>
         <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
           <Link href="/about" className="hover:text-foreground transition-colors">About</Link>
-          <Link href="/guide" className="hover:text-foreground transition-colors">Guide</Link>
           <Link href="/support" className="hover:text-foreground transition-colors">Support</Link>
           <Link href="/tos" className="hover:text-foreground transition-colors">Terms</Link>
           <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
