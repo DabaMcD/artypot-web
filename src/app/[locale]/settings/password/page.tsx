@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { auth as authApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -9,7 +10,11 @@ import { useToast } from '@/lib/toast-context';
 // Local password input matching this page's bespoke styling, with a show/hide
 // eye toggle. (The settings/password surface predates the shared <Input>; kept
 // visually consistent rather than migrating it here.)
-function PasswordField(props: React.InputHTMLAttributes<HTMLInputElement>) {
+function PasswordField({
+  hideLabel,
+  showLabel,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & { hideLabel: string; showLabel: string }) {
   const [visible, setVisible] = useState(false);
   return (
     <div className="relative">
@@ -21,7 +26,7 @@ function PasswordField(props: React.InputHTMLAttributes<HTMLInputElement>) {
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
-        aria-label={visible ? 'Hide password' : 'Show password'}
+        aria-label={visible ? hideLabel : showLabel}
         aria-pressed={visible}
         tabIndex={-1}
         className="absolute inset-y-0 right-0 flex items-center px-3 text-muted hover:text-foreground transition-colors"
@@ -42,6 +47,7 @@ function PasswordField(props: React.InputHTMLAttributes<HTMLInputElement>) {
 }
 
 export default function ChangePasswordPage() {
+  const t = useTranslations('SettingsPassword');
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -54,7 +60,7 @@ export default function ChangePasswordPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (newPassword !== newPasswordConfirm) {
-      toast('New passwords do not match.', 'error');
+      toast(t('mismatchError'), 'error');
       return;
     }
     setLoading(true);
@@ -64,7 +70,7 @@ export default function ChangePasswordPage() {
         password: newPassword,
         password_confirmation: newPasswordConfirm,
       });
-      toast('Password changed successfully.', 'success');
+      toast(t('successMessage'), 'success');
       setCurrentPassword('');
       setNewPassword('');
       setNewPasswordConfirm('');
@@ -72,7 +78,7 @@ export default function ChangePasswordPage() {
       setTimeout(() => router.push('/settings'), 900);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Failed to change password.', 'error');
+      toast(e.message ?? t('failureMessage'), 'error');
     } finally {
       setLoading(false);
     }
@@ -94,9 +100,9 @@ export default function ChangePasswordPage() {
   if (!user.email_verified_at) {
     return (
       <div className="max-w-md mx-auto px-4 py-20 text-center">
-        <p className="text-muted text-sm mb-4">You need a verified email to change your password.</p>
+        <p className="text-muted text-sm mb-4">{t('verifiedEmailRequired')}</p>
         <Link href="/settings" className="text-fan hover:underline text-sm">
-          ← Back to settings
+          ← {t('backToSettings')}
         </Link>
       </div>
     );
@@ -109,29 +115,31 @@ export default function ChangePasswordPage() {
           href="/settings"
           className="text-sm text-muted hover:text-foreground transition-colors inline-flex items-center gap-1 mb-4"
         >
-          ← Back to settings
+          ← {t('backToSettings')}
         </Link>
-        <h1 className="text-2xl font-bold text-foreground">Change Password</h1>
-        <p className="text-sm text-muted mt-1">Choose a strong, unique password.</p>
+        <h1 className="text-2xl font-bold text-foreground">{t('heading')}</h1>
+        <p className="text-sm text-muted mt-1">{t('subheading')}</p>
       </div>
 
       <div className="bg-surface border border-border rounded-xl p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-1.5">
-              Current password
+              {t('currentPasswordLabel')}
             </label>
             <PasswordField
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               required
               autoComplete="current-password"
+              hideLabel={t('hidePassword')}
+              showLabel={t('showPassword')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-1.5">
-              New password
+              {t('newPasswordLabel')}
             </label>
             <PasswordField
               value={newPassword}
@@ -139,12 +147,14 @@ export default function ChangePasswordPage() {
               required
               minLength={8}
               autoComplete="new-password"
+              hideLabel={t('hidePassword')}
+              showLabel={t('showPassword')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-1.5">
-              Confirm new password
+              {t('confirmPasswordLabel')}
             </label>
             <PasswordField
               value={newPasswordConfirm}
@@ -152,6 +162,8 @@ export default function ChangePasswordPage() {
               required
               minLength={8}
               autoComplete="new-password"
+              hideLabel={t('hidePassword')}
+              showLabel={t('showPassword')}
             />
           </div>
 
@@ -160,7 +172,7 @@ export default function ChangePasswordPage() {
             disabled={loading || !currentPassword || !newPassword || !newPasswordConfirm}
             className="w-full bg-fan text-black font-semibold py-2.5 text-sm rounded-lg hover:bg-fan-dim disabled:opacity-50 transition-colors"
           >
-            {loading ? 'Saving…' : 'Update password'}
+            {loading ? t('saving') : t('updateButton')}
           </button>
         </form>
       </div>

@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import { setToken } from '@/lib/api';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { pickPreferredLocale } from '@/lib/preferred-locale';
 import { nextTarget, OAUTH_NEXT_KEY, OAUTH_VERIFY_KEY, OAUTH_VERIFY_RESULT_KEY } from '@/lib/next-redirect';
@@ -14,6 +14,7 @@ function OAuthCallbackContent() {
   const router = useRouter();
   const { refreshUser } = useAuth();
   const currentLocale = useLocale();
+  const t = useTranslations('OAuthCallback');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -63,7 +64,7 @@ function OAuthCallbackContent() {
           const loc = pickPreferredLocale(u, currentLocale);
           router.replace(dest, loc ? { locale: loc } : undefined);
         })
-        .catch(() => setError('Failed to load your account. Please try logging in again.'));
+        .catch(() => setError(t('errorAccountLoad')));
       return;
     }
 
@@ -94,16 +95,16 @@ function OAuthCallbackContent() {
         twitch:    'Twitch',
       };
       const slug  = searchParams.get('provider') ?? '';
-      const label = PLATFORM_LABELS[slug] ?? (slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : 'that provider');
-      setError(`Sign-in with ${label} isn't available right now — we're still setting it up. Sorry for the inconvenience!`);
+      const label = PLATFORM_LABELS[slug] ?? (slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : t('fallbackProvider'));
+      setError(t('errorProviderNotConfigured', { provider: label }));
     } else {
       const messages: Record<string, string> = {
-        invalid_state:        'The sign-in request expired or was tampered with. Please try again.',
-        invalid_provider:     'Unknown sign-in provider.',
-        authentication_failed:'The provider could not complete authentication. Please try again.',
-        account_error:        'There was a problem setting up your account. Please try again.',
+        invalid_state:        t('errorInvalidState'),
+        invalid_provider:     t('errorInvalidProvider'),
+        authentication_failed:t('errorAuthenticationFailed'),
+        account_error:        t('errorAccountError'),
       };
-      setError(messages[err ?? ''] ?? 'Sign-in failed. Please try again.');
+      setError(messages[err ?? ''] ?? t('errorGeneric'));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -113,13 +114,13 @@ function OAuthCallbackContent() {
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="bg-surface border border-border rounded-2xl p-8 w-full max-w-sm text-center shadow-xl">
           <div className="text-4xl mb-4">⚠️</div>
-          <h1 className="text-xl font-bold text-foreground mb-2">Sign-in failed</h1>
+          <h1 className="text-xl font-bold text-foreground mb-2">{t('heading')}</h1>
           <p className="text-sm text-muted mb-6">{error}</p>
           <Link
             href="/login"
             className="inline-block bg-fan text-black font-semibold px-6 py-2.5 rounded-lg text-sm hover:opacity-90 transition-opacity"
           >
-            Back to login
+            {t('backToLogin')}
           </Link>
         </div>
       </div>

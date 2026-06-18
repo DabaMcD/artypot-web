@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, use, useCallback, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { handles as handlesApi } from '@/lib/api';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
@@ -78,6 +79,7 @@ function HandleBountyCard({ bounty }: { bounty: SimpleBounty }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function HandleByIdPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const t = useTranslations('HandleRedirect');
   const router = useRouter();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -98,17 +100,17 @@ export default function HandleByIdPage({ params }: { params: Promise<{ id: strin
     setClaiming(true);
     try {
       await handlesApi.store('other', externalUrl(state.handle));
-      toast('Identity claimed — verify it below to confirm ownership.', 'success');
+      toast(t('claimSuccess'), 'success');
       const dest = user.role === 'creator' || user.role === 'council'
         ? '/c/handles'
         : '/become-creator';
       router.push(dest);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Could not claim this identity. Please try again.', 'error');
+      toast(e.message ?? t('claimError'), 'error');
       setClaiming(false);
     }
-  }, [state, user, router, id, toast]);
+  }, [state, user, router, id, toast, t]);
 
   // Resume a claim interrupted by the login round-trip (?claim=1 on return).
   useEffect(() => {
@@ -176,15 +178,15 @@ export default function HandleByIdPage({ params }: { params: Promise<{ id: strin
     return (
       <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
         <div>
-          <SectionLabel>handle</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">page not found</h1>
+          <SectionLabel>{t('sectionLabel')}</SectionLabel>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('notFoundTitle')}</h1>
           <p className="text-sm text-muted mt-2">
-            We don&apos;t recognize this handle. Browse creators or head home.
+            {t('notFoundBody')}
           </p>
         </div>
         <div className="flex gap-3">
-          <Link href="/search"><Button variant="primary">Explore Creators</Button></Link>
-          <Link href="/"><Button variant="ghost">← Home</Button></Link>
+          <Link href="/search"><Button variant="primary">{t('exploreCreators')}</Button></Link>
+          <Link href="/"><Button variant="ghost">{t('home')}</Button></Link>
         </div>
       </div>
     );
@@ -195,7 +197,7 @@ export default function HandleByIdPage({ params }: { params: Promise<{ id: strin
     return (
       <div className="max-w-6xl mx-auto px-7 py-10 space-y-6">
         <p className="text-sm text-bad">
-          something went wrong looking that up. try again in a moment.
+          {t('lookupError')}
         </p>
       </div>
     );
@@ -208,8 +210,8 @@ export default function HandleByIdPage({ params }: { params: Promise<{ id: strin
   const domain = domainOf(handle);
   const sharePath = `/h/${handle.id}`;
   const shareText = claimedOwner
-    ? `${handle.username} — ${claimedOwner.display_name} is on Artypot. Back a bounty for them!`
-    : `${handle.username} — fans are queueing bounties for them on Artypot. Help get their attention!`;
+    ? t('shareTextClaimed', { username: handle.username, name: claimedOwner.display_name })
+    : t('shareTextUnverified', { username: handle.username });
 
   return (
     <div className="max-w-6xl mx-auto px-7 py-10">
@@ -241,13 +243,13 @@ export default function HandleByIdPage({ params }: { params: Promise<{ id: strin
                 <div className="flex items-center gap-3 flex-wrap mb-1">
                   <h1 className="text-2xl font-display font-bold text-foreground break-all">{handle.username}</h1>
                   {claimedOwner ? (
-                    <Badge tone="good" lg>Verified</Badge>
+                    <Badge tone="good" lg>{t('verified')}</Badge>
                   ) : (
-                    <Badge tone="default" lg>Unverified</Badge>
+                    <Badge tone="default" lg>{t('unverified')}</Badge>
                   )}
                 </div>
                 <p className="text-sm text-muted mb-3">
-                  {claimedOwner ? `${claimedOwner.display_name} · External link` : 'External link'}
+                  {claimedOwner ? `${claimedOwner.display_name} · ${t('externalLink')}` : t('externalLink')}
                 </p>
 
                 {/* Visit the actual URL — the headline action for an 'other' handle */}
@@ -257,28 +259,27 @@ export default function HandleByIdPage({ params }: { params: Promise<{ id: strin
                   rel="noopener noreferrer nofollow"
                   className="inline-flex items-center gap-1.5 text-sm bg-surface-2 border border-border hover:border-fan/50 text-foreground font-medium px-4 py-2 rounded-lg transition-colors"
                 >
-                  Visit {domain} <span aria-hidden>↗</span>
+                  {t('visit', { domain })} <span aria-hidden>↗</span>
                 </a>
 
                 {claimedOwner ? (
                   <p className="text-muted text-sm leading-relaxed mt-4">
-                    <span className="text-foreground font-medium">{claimedOwner.display_name}</span> has verified this
-                    identity — bounties here already count toward them.
+                    {t.rich('verifiedBio', {
+                      name: claimedOwner.display_name,
+                      strong: (chunks) => <span className="text-foreground font-medium">{chunks}</span>,
+                    })}
                   </p>
                 ) : (
                   <>
                     <p className="text-muted text-sm leading-relaxed mt-4">
-                      No one has claimed this identity on Artypot yet. If it&apos;s yours, claim it to receive the
-                      bounties fans are queueing for you.
+                      {t('unclaimedBio')}
                     </p>
                     <div className="mt-4 flex items-center gap-3 flex-wrap">
                       <Button variant="primary" size="sm" onClick={handleClaim} disabled={claiming}>
-                        {claiming ? 'Claiming…' : 'Is this you? Claim this identity →'}
+                        {claiming ? t('claiming') : t('claimCta')}
                       </Button>
                       <span className="text-xs text-muted">
-                        {user
-                          ? 'We’ll add it to your account and walk you through verification.'
-                          : 'Sign in to claim it as your own.'}
+                        {user ? t('claimHintSignedIn') : t('claimHintSignedOut')}
                       </span>
                     </div>
                   </>
@@ -295,31 +296,31 @@ export default function HandleByIdPage({ params }: { params: Promise<{ id: strin
           <div>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-xl font-bold text-foreground break-all">
-                Bounties for {handle.username}
+                {t('bountiesFor', { username: handle.username })}
               </h2>
               {user && (
                 <Link
                   href={`/bounties/new?platform=other&handle=${encodeURIComponent(handle.username)}`}
                   className="text-sm bg-fan text-black font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity shrink-0"
                 >
-                  + New Bounty
+                  {t('newBounty')}
                 </Link>
               )}
             </div>
 
             {state.bounties.length === 0 ? (
               <div className="text-center py-16 text-muted border border-border border-dashed rounded-xl">
-                No bounties queued for this identity yet.{' '}
+                {t('noBounties')}{' '}
                 {user ? (
                   <Link
                     href={`/bounties/new?platform=other&handle=${encodeURIComponent(handle.username)}`}
                     className="text-fan hover:underline"
                   >
-                    Create the first one
+                    {t('createFirst')}
                   </Link>
                 ) : (
                   <Link href={`/login?next=${encodeURIComponent(sharePath)}`} className="text-fan hover:underline">
-                    Sign in to start one
+                    {t('signInToStart')}
                   </Link>
                 )}
               </div>
@@ -337,14 +338,16 @@ export default function HandleByIdPage({ params }: { params: Promise<{ id: strin
         <div className="w-full lg:w-72 shrink-0">
           <div className="bg-surface border border-border rounded-xl p-4">
             <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">
-              Spread the word
+              {t('spreadTheWord')}
             </h3>
             <p className="text-xs text-muted leading-relaxed mb-4">
-              Help <span className="font-mono text-creator break-all">{handle.username}</span> discover their fans on
-              Artypot. Share this page and tag them.
+              {t.rich('spreadHelp', {
+                username: handle.username,
+                handle: (chunks) => <span className="font-mono text-creator break-all">{chunks}</span>,
+              })}
             </p>
             <div className="flex justify-end">
-              <ShareButton path={sharePath} title={handle.username} text={shareText} size="md" label="Share & Tag" />
+              <ShareButton path={sharePath} title={handle.username} text={shareText} size="md" label={t('shareAndTag')} />
             </div>
           </div>
         </div>

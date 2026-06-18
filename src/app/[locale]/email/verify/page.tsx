@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { auth as authApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
@@ -13,6 +14,7 @@ function EmailVerifyContent() {
   const searchParams = useSearchParams();
   const { user, refreshUser } = useAuth();
   const { toast } = useToast();
+  const t = useTranslations('EmailVerify');
 
   const [state, setState] = useState<VerifyState>('loading');
   const [resending, setResending] = useState(false);
@@ -51,10 +53,10 @@ function EmailVerifyContent() {
     try {
       await authApi.resendVerification();
       setResent(true);
-      toast('Verification email sent! Check your inbox.', 'success');
+      toast(t('toastSent'), 'success');
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Failed to send verification email.', 'error');
+      toast(e.message ?? t('toastFailed'), 'error');
     } finally {
       setResending(false);
     }
@@ -63,7 +65,7 @@ function EmailVerifyContent() {
   // ── Shared footer shown on success ─────────────────────────────────────
   const successFooter = (
     <div className="mt-6 text-center">
-      <p className="text-lg text-foreground">You can close this tab</p>
+      <p className="text-lg text-foreground">{t('closeTab')}</p>
     </div>
   );
 
@@ -75,7 +77,7 @@ function EmailVerifyContent() {
         {state === 'loading' && (
           <>
             <div className="w-10 h-10 rounded-full border-2 border-fan border-t-transparent animate-spin mx-auto mb-4" />
-            <p className="text-foreground font-medium">Verifying your email…</p>
+            <p className="text-foreground font-medium">{t('verifying')}</p>
           </>
         )}
 
@@ -83,7 +85,7 @@ function EmailVerifyContent() {
         {state === 'verified' && (
           <>
             <div className="text-4xl mb-4">✅</div>
-            <h1 className="text-xl font-bold text-foreground">Email successfully verified</h1>
+            <h1 className="text-xl font-bold text-foreground">{t('verifiedTitle')}</h1>
             {successFooter}
           </>
         )}
@@ -92,7 +94,7 @@ function EmailVerifyContent() {
         {state === 'already_verified' && (
           <>
             <div className="text-4xl mb-4">✅</div>
-            <h1 className="text-xl font-bold text-foreground">Email already verified</h1>
+            <h1 className="text-xl font-bold text-foreground">{t('alreadyVerifiedTitle')}</h1>
             {successFooter}
           </>
         )}
@@ -101,11 +103,11 @@ function EmailVerifyContent() {
         {state === 'expired' && (
           <>
             <div className="text-4xl mb-4">⏱️</div>
-            <h1 className="text-xl font-bold text-foreground">Verification link expired</h1>
+            <h1 className="text-xl font-bold text-foreground">{t('expiredTitle')}</h1>
             {user && (
               <div className="mt-6">
                 {resent ? (
-                  <p className="text-sm text-green-400 font-medium">Email sent ✓ — check your inbox.</p>
+                  <p className="text-sm text-green-400 font-medium">{t('resentInline')}</p>
                 ) : (
                   <button
                     type="button"
@@ -113,7 +115,7 @@ function EmailVerifyContent() {
                     disabled={resending}
                     className="bg-fan text-black font-semibold px-6 py-2.5 rounded-lg text-sm hover:bg-fan-dim disabled:opacity-50 transition-colors"
                   >
-                    {resending ? 'Sending…' : 'Resend verification email'}
+                    {resending ? t('resending') : t('resendButton')}
                   </button>
                 )}
               </div>

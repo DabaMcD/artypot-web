@@ -2983,5 +2983,151 @@
     "confirmSend": "send it. lock in. goated ✅🔥",
     "cancel": "nah i'm ghosting this 🙅👻",
     "withdraw": "secure the bag 💰🤑"
+  },
+  "DeleteAccount": {
+    "breadcrumb": {
+      "privacy": "privacy lore scroll 📜",
+      "current": "nuke the whole acc ☢️💀"
+    },
+    "heading": "how to delete urself off the grid forever 🪦☢️",
+    "intro": "u can vaporize ur Artypot existence WHENEVER, no hoops, no waiting-room purgatory, the exit door is RIGHT there gng 🚪💨 do the steps n it's so over in under a minute, no cap, the account gets sent straight to Ohio fr ⏱️💀",
+    "whatHappens": {
+      "title": "what goes down when u press the doom button 😭☠️",
+      "backings": "every backing u ever locked in?? GONE. cancelled on sight, instant Ohio, no take-backsies, the receipts cry 🪦💔",
+      "profile": "ur profile, ur name, ur entire digital aura just evaporates into the void within 30 days, ghosted by the system itself 👻✨",
+      "loggedOut": "u get yeeted off EVERY device at once, logged out across the whole multiverse, bye bestie it's so over 📲💥",
+      "creator": "creator?? bro ur public profile gets DEACTIVATED, every handle goes dark, the rizz revoked, the aura confiscated 💀🔒",
+      "financialRecords": "the money receipts gotta chill for 7 years bc Uncle Sam said so (US tax law, NOT us being weird i promise) but they're anonymized into pure ghost-mode, zero link to ur name or email, what the sigma 🫥💵",
+      "emailReuse": "good news ur email respawns — u can reroll a fresh acc with it later, new game plus arc, glow up incoming 🔄✨",
+      "permanentLead": "this is PERMANENT, no undo, no ctrl+z, no resurrection — it's so over FOREVER 😭🪦 if u still got creator bag owed to u pls",
+      "contactSupport": "ping the support gng",
+      "beforeDeleting": "BEFORE u send it to the shadow realm 🙏"
+    },
+    "steps": {
+      "login": {
+        "title": "slide into Artypot (log in fr)",
+        "go": "cruise on over to",
+        "signIn": "n lock in w ur email + password, or whatever social u rizzed up with (Google, GitHub, Discord, the whole gang) 🔐"
+      },
+      "settings": {
+        "title": "crack open settings",
+        "once": "once ur in, smash",
+        "settingsLabel": "Settings",
+        "sidebar": "in the left sidebar (hunt the ⚙ thingy). on mobile, tap the menu icon top-left to summon the sidebar first, lock in bestie 🔓",
+        "direct": "or just teleport straight to:"
+      },
+      "dangerZone": {
+        "title": "scroll to the \"danger zone\" 🚨💀",
+        "scrollLead": "scroll ALL the way down the Settings page til u hit the",
+        "label": "danger zone",
+        "scrollTrail": "section. it's the final boss, the last thing standing on the page, no escape 👹🔥"
+      },
+      "clickDelete": {
+        "title": "tap \"delete account\" 💣☢️",
+        "findLead": "find the",
+        "rowLabel": "Delete My Account",
+        "clickMid": "row n smack that big red",
+        "buttonLabel": "Delete Account",
+        "findTrail": "button. a confirm popup spawns telling u exactly what's bout to get yeeted into Ohio ⚠️💀"
+      },
+      "confirm": {
+        "title": "confirm the doom (point of no return) 🪦",
+        "readLead": "read the confirm fr read it bestie, then tap",
+        "confirmLabel": "Yes, Delete My Account",
+        "readTrail": ". n that's it — account vaporized on the spot, u get logged out, gg no re, ur gone to Ohio forever 💀✌️"
+      }
+    },
+    "cantLogin": {
+      "title": "locked out?? can't even log in?? it's so over 😩",
+      "lead": "if u lost the keys to the kingdom — password gone, email on file also gone, full lockout arc, cooked — pls",
+      "contactUs": "hit the gng up",
+      "orEmail": "or email",
+      "trail": "drop the email tied to ur acc so we can hunt it down n delete it by hand, manual sigma mode 🤝 we hit u back within 5 business days, hold tight bestie ⏳💀"
+    },
+    "footer": {
+      "privacy": "← privacy lore scroll",
+      "support": "yell at the support gng",
+      "tos": "the terms scroll 📜"
+    }
+  },
+  "EmailChangeConfirm": {
+    "loading": "sniffin ur new email for rizz rn… hold tight gng 📨🧪",
+    "confirmedTitle": "new email locked in, sigma grindset 🔒🐐",
+    "confirmedBody": "email got swapped no cap, the aura is astronomical, certified W bestie 🫡✨",
+    "goToSettings": "skibidi slide into settings 🛝🚪",
+    "errorTitle": "it's so over 💀 the confirmation got cooked in ohio",
+    "backToSettings": "crawl back to settings on ur knees lil bro 🐌🙏",
+    "errorIncomplete": "this link half-baked fr, zero aura, what the sigma is this gng 🚫📉",
+    "errorExpired": "this link expired n got sent to ohio, deadass cooked, it's so over 🪦💀"
+  },
+  "EmailVerify": {
+    "verifying": "sniffin ur email for that rizz aura… hold pls 📨🔍",
+    "verifiedTitle": "email caught lackin nothin, sigma certified W 🔒🐐",
+    "alreadyVerifiedTitle": "bestie this email already locked in, we been moved gng 🙄✅",
+    "expiredTitle": "link went full ohio n died, it's so over cooked ⏱️💀",
+    "closeTab": "tab dismissed, u may exit the simulation free gng 🫡✨",
+    "resentInline": "email yeeted ✓ — go peep ur inbox no cap fr 📬💅",
+    "resending": "shippin it rn, everybody lock in… 📤🔥",
+    "resendButton": "yeet anotha verification email into the void 📨🔁",
+    "toastSent": "verification email launched skibidi style! peep ur inbox bestie 📬🔥",
+    "toastFailed": "email said nah n ghosted, what the sigma fr 💀📭"
+  },
+  "HandleRedirect": {
+    "claimSuccess": "this identity? yours now, no cap 🫡✨ go verify it below or the whole aura is so over 🔒💀",
+    "claimError": "the claim got absolutely cooked in ohio 💀🚽 mash it again bestie",
+    "sectionLabel": "handle",
+    "notFoundTitle": "what the sigma, this page got vanished 💀🕳️",
+    "notFoundBody": "this handle? never heard of her, zero aura 🤨 go peep some creators or yeet urself back home 🏠",
+    "exploreCreators": "peep the creators 👀🔥",
+    "home": "← home base, lock in 🏠",
+    "lookupError": "the lookup got skibidi'd in ohio 💀🚽 mash it again in a sec gng",
+    "shareTextClaimed": "{username} — {name} just pulled up on Artypot 🗣️🔥 throw a bounty their way, certified W no cap!",
+    "shareTextUnverified": "{username} — the fans are stacking bounties on Artypot fr fr 📈🫰 help em catch this aura gng!",
+    "verified": "verified, gyatt-tier aura ✅🐐",
+    "unverified": "unverified, lowkey sus 🤨💀",
+    "externalLink": "portal that yeets u outta ohio 🔗🚪",
+    "visit": "pull up to {domain}, lock in 🚪🔥",
+    "verifiedBio": "<strong>{name}</strong> locked this identity in fr 🔒🐐 every bounty here already glazes them, big aura no cap.",
+    "unclaimedBio": "nobody snatched this identity on Artypot yet, it's giving free real estate 🫥🤲 if it's u, lock it in n scoop the bounties the fans been stacking for u gng.",
+    "claiming": "claiming rn, hold the rizz… ⏳✨",
+    "claimCta": "wait is this u?? lock in this identity →🔥",
+    "claimHintSignedIn": "we'll yeet it onto ur account n walk u thru verification, easiest W of ur life 🫡🐐",
+    "claimHintSignedOut": "sign in to claim it as ur own gng, lock in 🔑✨",
+    "bountiesFor": "bounties stacked sky high for {username} 💰📈",
+    "newBounty": "+ fresh bounty fr 🔥",
+    "noBounties": "zero bounties stacked here yet, it's so quiet the crickets got aura 🦗💀",
+    "createFirst": "be the goat, drop the first one 🐐🔥",
+    "signInToStart": "sign in to start one gng, lock in 🔑",
+    "spreadTheWord": "spread the word, max aura 📣🔥",
+    "spreadHelp": "help <handle>{username}</handle> find their fans on Artypot bestie 🫶 share this page n tag em, big aura energy ✨.",
+    "shareAndTag": "share & tag, certified W 🔥🫶"
+  },
+  "OAuthCallback": {
+    "heading": "the sign-in? it ain't signing in 💀🚪 it's so over",
+    "backToLogin": "rewind to the login arc bestie 🏃💨🔙",
+    "fallbackProvider": "whatever the sigma that provider even is gng",
+    "errorAccountLoad": "ur whole account caught the ghosting arc, zero aura 👻💀 lock in n log in again no cap 🔑",
+    "errorProviderNotConfigured": "{provider} sign-in is NOT bussin rn 😭 it's still marinating in the Ohio lab 🧪 my bad gng it's so over for the moment 🙏✨",
+    "errorInvalidState": "ngl this sign-in request either timed out or got tampered with, mad sus skibidi behavior ⏳🕵️ run it back fr",
+    "errorInvalidProvider": "who even IS this provider?? unknown rizzler, never caught his aura, never heard of him 🤨🚫",
+    "errorAuthenticationFailed": "the provider got fully cooked mid-auth n couldn't seal the deal 🔥💀 what the sigma, hit it again gng",
+    "errorAccountError": "something went lowkey gyatt-level feral wiring up ur account 💀⚡ smash it again bestie, lock in",
+    "errorGeneric": "sign-in is so over rn 😩 it's giving cooked, run it back fr fr ✨"
+  },
+  "SettingsPassword": {
+    "heading": "yeet the old pw into ohio 🔑💀",
+    "subheading": "cook up a pw so sigma it's got gyatt-level aura, nobody cracking this fr fr 🛡️🔥✨",
+    "backToSettings": "skibidi back to settings bestie 🚪",
+    "verifiedEmailRequired": "no verified email?? it's so over for the pw glow up, lock in n verify first gng 📧💀🚫",
+    "currentPasswordLabel": "the pw u been rizzing rn",
+    "newPasswordLabel": "the drippy fresh pw 💅✨",
+    "confirmPasswordLabel": "spit the new pw again, no cap, prove it's bussin 🗣️",
+    "showPassword": "lemme peep that pw real quick 👀",
+    "hidePassword": "stealth mode the pw, hide it gng 🙈🤫",
+    "saving": "locking tf in… ⏳🔒",
+    "updateButton": "make this pw goated n official 🔒🐐",
+    "mismatchError": "the new pws got mad beef, they ain't matching bestie 💀🤝🚫",
+    "successMessage": "new pw locked in, certified W, aura through the roof 🔒✨🏆",
+    "failureMessage": "pw swap got absolutely cooked, didn't even go through 😭💀"
   }
 }

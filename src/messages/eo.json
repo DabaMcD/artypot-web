@@ -2983,5 +2983,151 @@
     "confirmSend": "Jes, sendu ĝin",
     "cancel": "Nuligi",
     "withdraw": "Elpreni"
+  },
+  "DeleteAccount": {
+    "breadcrumb": {
+      "privacy": "Privateca politiko",
+      "current": "Forigi konton"
+    },
+    "heading": "kiel forigi vian konton",
+    "intro": "Vi povas porĉiame forigi vian Artypot-konton iam ajn — neniaj baroj, neniu atendoperiodo. Sekvu la subajn paŝojn. La tuta procezo daŭras malpli ol minuton.",
+    "whatHappens": {
+      "title": "Kio okazas kiam vi forigas",
+      "backings": "Ĉiuj viaj aktivaj engaĝiĝoj (subtenoj) tuj nuliĝas.",
+      "profile": "Via profilo, montra nomo kaj personaj datumoj foriĝas el niaj aktivaj sistemoj ene de 30 tagoj.",
+      "loggedOut": "Vi elsalutiĝas el ĉiuj aparatoj.",
+      "creator": "Se vi estas kreanto, via publika profilo kaj ĉiuj rilataj nomidentigiloj malaktiviĝas.",
+      "financialRecords": "Financaj registroj (pagsumoj, kvitancoj) konserviĝas dum 7 jaroj, kiel postulas la usona impostleĝo — sed ili estas anonimigitaj kaj ne ligitaj al via nomo aŭ retpoŝto.",
+      "emailReuse": "Via retpoŝtadreso povas esti reuzata por krei novan konton.",
+      "permanentLead": "Ĉi tiu ago estas porĉiama kaj ne malfareblas. Se vi havas nepagitan saldon kiel kreanto, bonvolu",
+      "contactSupport": "kontakti subtenon",
+      "beforeDeleting": "antaŭ ol forigi."
+    },
+    "steps": {
+      "login": {
+        "title": "Ensalutu en Artypot",
+        "go": "Iru al",
+        "signIn": "kaj ensalutu per via retpoŝto kaj pasvorto, aŭ per la socia konto, kiun vi uzis por registriĝi (Google, GitHub, Discord, ktp.)."
+      },
+      "settings": {
+        "title": "Malfermu Agordojn",
+        "once": "Post ensaluto, alklaku",
+        "settingsLabel": "Agordoj",
+        "sidebar": "en la maldekstra flankobreto (serĉu la ⚙-ikonon). Sur poŝtelefono, frapetu la menuikonon en la supra maldekstra angulo por unue malfermi la flankobreton.",
+        "direct": "Vi ankaŭ povas iri rekte al:"
+      },
+      "dangerZone": {
+        "title": "Rulumu al \"Danĝera zono\"",
+        "scrollLead": "Rulumu ĝis la fino de la Agordoj-paĝo ĝis vi atingas la sekcion",
+        "label": "danĝera zono",
+        "scrollTrail": ". Ĝi estas la lasta sekcio sur la paĝo."
+      },
+      "clickDelete": {
+        "title": "Alklaku \"Forigi konton\"",
+        "findLead": "Trovu la vicon",
+        "rowLabel": "Forigi mian konton",
+        "clickMid": "kaj alklaku la ruĝan butonon",
+        "buttonLabel": "Forigi konton",
+        "findTrail": ". Aperos konfirma dialogo, kiu klarigas, kio estos forigita."
+      },
+      "confirm": {
+        "title": "Konfirmu la forigon",
+        "readLead": "Legu la konfirmon, poste alklaku",
+        "confirmLabel": "Jes, forigu mian konton",
+        "readTrail": ". Via konto tuj foriĝas kaj vi elsalutiĝos."
+      }
+    },
+    "cantLogin": {
+      "title": "Ĉu vi ne povas ensaluti?",
+      "lead": "Se vi ne plu havas aliron al via konto — ekzemple, vi perdis vian pasvorton kaj ne plu havas aliron al la registrita retpoŝtadreso — bonvolu",
+      "contactUs": "kontakti nin",
+      "orEmail": "aŭ skribi al",
+      "trail": "Inkluzivu la retpoŝtadreson ligitan al via konto, por ke ni povu trovi kaj forigi ĝin permane. Ni respondos ene de 5 labortagoj."
+    },
+    "footer": {
+      "privacy": "← Privateca politiko",
+      "support": "Kontakti subtenon",
+      "tos": "Kondiĉoj de servo"
+    }
+  },
+  "EmailChangeConfirm": {
+    "loading": "Konfirmante vian novan retpoŝton…",
+    "confirmedTitle": "Retpoŝta adreso ĝisdatigita",
+    "confirmedBody": "Via retpoŝto estis sukcese ŝanĝita.",
+    "goToSettings": "Iri al Agordoj",
+    "errorTitle": "Konfirmo malsukcesis",
+    "backToSettings": "Reen al Agordoj",
+    "errorIncomplete": "Ĉi tiu konfirma ligilo estas nevalida aŭ nekompleta.",
+    "errorExpired": "Ĉi tiu konfirma ligilo estas nevalida aŭ eksvalidiĝis."
+  },
+  "EmailVerify": {
+    "verifying": "Kontrolante vian retpoŝton…",
+    "verifiedTitle": "Retpoŝto sukcese kontrolita",
+    "alreadyVerifiedTitle": "Retpoŝto jam kontrolita",
+    "expiredTitle": "La kontrolligilo eksvalidiĝis",
+    "closeTab": "Vi povas fermi ĉi tiun langeton",
+    "resentInline": "Retpoŝto sendita ✓ — kontrolu vian enirkeston.",
+    "resending": "Sendante…",
+    "resendButton": "Resendi kontroldan retpoŝton",
+    "toastSent": "Kontrolda retpoŝto sendita! Kontrolu vian enirkeston.",
+    "toastFailed": "Malsukcesis sendi la kontroldan retpoŝton."
+  },
+  "HandleRedirect": {
+    "claimSuccess": "Identeco postulita — kontrolu ĝin sube por konfirmi posedon.",
+    "claimError": "Ne eblis postuli ĉi tiun identecon. Bonvolu reprovi.",
+    "sectionLabel": "handle",
+    "notFoundTitle": "paĝo ne trovita",
+    "notFoundBody": "Ni ne rekonas ĉi tiun handle. Foliumu kreantojn aŭ iru hejmen.",
+    "exploreCreators": "Esplori kreantojn",
+    "home": "← Hejmo",
+    "lookupError": "io misfunkciis dum la serĉo. reprovu post momento.",
+    "shareTextClaimed": "{username} — {name} estas en Artypot. Subtenu premion por tiu persono!",
+    "shareTextUnverified": "{username} — adorantoj amasigas premiojn por tiu persono en Artypot. Helpu altiri ilian atenton!",
+    "verified": "Kontrolita",
+    "unverified": "Nekontrolita",
+    "externalLink": "Ekstera ligilo",
+    "visit": "Viziti {domain}",
+    "verifiedBio": "<strong>{name}</strong> kontrolis ĉi tiun identecon — premioj ĉi tie jam kalkuliĝas por tiu persono.",
+    "unclaimedBio": "Neniu ankoraŭ postulis ĉi tiun identecon en Artypot. Se ĝi estas via, postulu ĝin por ricevi la premiojn, kiujn adorantoj amasigas por vi.",
+    "claiming": "Postulante…",
+    "claimCta": "Ĉu tio estas vi? Postulu ĉi tiun identecon →",
+    "claimHintSignedIn": "Ni aldonos ĝin al via konto kaj gvidos vin tra la kontrolo.",
+    "claimHintSignedOut": "Ensalutu por postuli ĝin kiel vian.",
+    "bountiesFor": "Premioj por {username}",
+    "newBounty": "+ Nova premio",
+    "noBounties": "Ankoraŭ neniuj premioj amasigitaj por ĉi tiu identeco.",
+    "createFirst": "Kreu la unuan",
+    "signInToStart": "Ensalutu por komenci unu",
+    "spreadTheWord": "Disvastigu la novaĵon",
+    "spreadHelp": "Helpu <handle>{username}</handle> malkovri siajn adorantojn en Artypot. Kunhavigu ĉi tiun paĝon kaj etikedu ilin.",
+    "shareAndTag": "Kunhavigi kaj etikedi"
+  },
+  "OAuthCallback": {
+    "heading": "Ensaluto malsukcesis",
+    "backToLogin": "Reen al ensaluto",
+    "fallbackProvider": "tiu provizanto",
+    "errorAccountLoad": "Ne eblis ŝargi vian konton. Bonvolu reprovi ensaluti.",
+    "errorProviderNotConfigured": "Ensaluto per {provider} ne disponeblas ĝuste nun — ni ankoraŭ agordas ĝin. Pardonu pro la ĝeno!",
+    "errorInvalidState": "La ensaluta peto eksvalidiĝis aŭ estis fuŝmodifita. Bonvolu reprovi.",
+    "errorInvalidProvider": "Nekonata ensaluta provizanto.",
+    "errorAuthenticationFailed": "La provizanto ne povis kompletigi la aŭtentigon. Bonvolu reprovi.",
+    "errorAccountError": "Estis problemo dum agordado de via konto. Bonvolu reprovi.",
+    "errorGeneric": "Ensaluto malsukcesis. Bonvolu reprovi."
+  },
+  "SettingsPassword": {
+    "heading": "Ŝanĝi pasvorton",
+    "subheading": "Elektu fortan, unikan pasvorton.",
+    "backToSettings": "Reen al agordoj",
+    "verifiedEmailRequired": "Vi bezonas kontrolitan retpoŝton por ŝanĝi vian pasvorton.",
+    "currentPasswordLabel": "Nuna pasvorto",
+    "newPasswordLabel": "Nova pasvorto",
+    "confirmPasswordLabel": "Konfirmi novan pasvorton",
+    "showPassword": "Montri pasvorton",
+    "hidePassword": "Kaŝi pasvorton",
+    "saving": "Konservante…",
+    "updateButton": "Ĝisdatigi pasvorton",
+    "mismatchError": "La novaj pasvortoj ne kongruas.",
+    "successMessage": "Pasvorto sukcese ŝanĝita.",
+    "failureMessage": "Malsukcesis ŝanĝi la pasvorton."
   }
 }

@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { auth as authApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -9,6 +10,7 @@ import { useAuth } from '@/lib/auth-context';
 type ConfirmState = 'loading' | 'confirmed' | 'error';
 
 function EmailChangeConfirmContent() {
+  const t = useTranslations('EmailChangeConfirm');
   const params = useParams<{ id: string; hash: string }>();
   const searchParams = useSearchParams();
   const { refreshUser } = useAuth();
@@ -24,7 +26,7 @@ function EmailChangeConfirmContent() {
   useEffect(() => {
     if (!id || !hash || !expires || !signature) {
       setState('error');
-      setErrorMsg('This confirmation link is invalid or incomplete.');
+      setErrorMsg(t('errorIncomplete'));
       return;
     }
 
@@ -37,7 +39,7 @@ function EmailChangeConfirmContent() {
       .catch((err: unknown) => {
         const e = err as { message?: string };
         setState('error');
-        setErrorMsg(e.message ?? 'This confirmation link is invalid or has expired.');
+        setErrorMsg(e.message ?? t('errorExpired'));
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -49,20 +51,20 @@ function EmailChangeConfirmContent() {
         {state === 'loading' && (
           <>
             <div className="w-10 h-10 rounded-full border-2 border-fan border-t-transparent animate-spin mx-auto mb-4" />
-            <p className="text-foreground font-medium">Confirming your new email…</p>
+            <p className="text-foreground font-medium">{t('loading')}</p>
           </>
         )}
 
         {state === 'confirmed' && (
           <>
             <div className="text-4xl mb-4">✅</div>
-            <h1 className="text-xl font-bold text-foreground mb-2">Email address updated</h1>
-            <p className="text-sm text-muted mb-6">Your email has been changed successfully.</p>
+            <h1 className="text-xl font-bold text-foreground mb-2">{t('confirmedTitle')}</h1>
+            <p className="text-sm text-muted mb-6">{t('confirmedBody')}</p>
             <Link
               href="/settings"
               className="inline-block bg-fan text-black font-semibold px-6 py-2.5 rounded-lg text-sm hover:bg-fan-dim transition-colors"
             >
-              Go to Settings
+              {t('goToSettings')}
             </Link>
           </>
         )}
@@ -70,13 +72,13 @@ function EmailChangeConfirmContent() {
         {state === 'error' && (
           <>
             <div className="text-4xl mb-4">⚠️</div>
-            <h1 className="text-xl font-bold text-foreground mb-2">Confirmation failed</h1>
+            <h1 className="text-xl font-bold text-foreground mb-2">{t('errorTitle')}</h1>
             <p className="text-sm text-muted mb-6">{errorMsg}</p>
             <Link
               href="/settings"
               className="inline-block bg-surface-2 border border-border text-foreground font-medium px-6 py-2.5 rounded-lg text-sm hover:border-foreground/30 transition-colors"
             >
-              Back to Settings
+              {t('backToSettings')}
             </Link>
           </>
         )}

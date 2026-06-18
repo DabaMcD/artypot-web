@@ -2983,5 +2983,151 @@
     "confirmSend": "Sí, enviar",
     "cancel": "Cancelar",
     "withdraw": "Retirar"
+  },
+  "DeleteAccount": {
+    "breadcrumb": {
+      "privacy": "Política de privacidad",
+      "current": "Eliminar cuenta"
+    },
+    "heading": "cómo eliminar tu cuenta",
+    "intro": "Puedes eliminar permanentemente tu cuenta de Artypot en cualquier momento, sin trabas ni periodos de espera. Sigue los pasos que aparecen a continuación. Todo el proceso tarda menos de un minuto.",
+    "whatHappens": {
+      "title": "Qué ocurre cuando eliminas tu cuenta",
+      "backings": "Todos tus compromisos activos (apoyos) se cancelan de inmediato.",
+      "profile": "Tu perfil, nombre visible y datos personales se eliminan de nuestros sistemas activos en un plazo de 30 días.",
+      "loggedOut": "Se cierra tu sesión en todos los dispositivos.",
+      "creator": "Si eres creador o creadora, tu perfil público y todos los identificadores asociados quedan desactivados.",
+      "financialRecords": "Los registros financieros (importes de pago, recibos) se conservan durante 7 años, según exige la legislación fiscal de EE. UU., pero se anonimizan y no quedan vinculados a tu nombre ni a tu correo electrónico.",
+      "emailReuse": "Tu dirección de correo electrónico puede reutilizarse para crear una cuenta nueva.",
+      "permanentLead": "Esta acción es permanente y no se puede deshacer. Si tienes un saldo pendiente como creador o creadora, por favor",
+      "contactSupport": "contacta con soporte",
+      "beforeDeleting": "antes de eliminar la cuenta."
+    },
+    "steps": {
+      "login": {
+        "title": "Inicia sesión en Artypot",
+        "go": "Ve a",
+        "signIn": "e inicia sesión con tu correo electrónico y contraseña, o con la cuenta social que usaste para registrarte (Google, GitHub, Discord, etc.)."
+      },
+      "settings": {
+        "title": "Abre Ajustes",
+        "once": "Una vez que hayas iniciado sesión, haz clic en",
+        "settingsLabel": "Ajustes",
+        "sidebar": "en la barra lateral izquierda (busca el icono ⚙). En el móvil, toca el icono de menú de la esquina superior izquierda para abrir primero la barra lateral.",
+        "direct": "También puedes ir directamente a:"
+      },
+      "dangerZone": {
+        "title": "Desplázate hasta \"Zona de peligro\"",
+        "scrollLead": "Desplázate hasta el final de la página de Ajustes hasta llegar a la sección",
+        "label": "zona de peligro",
+        "scrollTrail": ". Es la última sección de la página."
+      },
+      "clickDelete": {
+        "title": "Haz clic en \"Eliminar cuenta\"",
+        "findLead": "Busca la fila",
+        "rowLabel": "Eliminar mi cuenta",
+        "clickMid": "y haz clic en el botón rojo",
+        "buttonLabel": "Eliminar cuenta",
+        "findTrail": ". Aparecerá un cuadro de confirmación que explica qué se eliminará."
+      },
+      "confirm": {
+        "title": "Confirma la eliminación",
+        "readLead": "Lee la confirmación y luego haz clic en",
+        "confirmLabel": "Sí, eliminar mi cuenta",
+        "readTrail": ". Tu cuenta se elimina de inmediato y se cerrará tu sesión."
+      }
+    },
+    "cantLogin": {
+      "title": "¿No puedes iniciar sesión?",
+      "lead": "Si ya no tienes acceso a tu cuenta (por ejemplo, has perdido la contraseña y ya no tienes acceso al correo electrónico registrado), por favor",
+      "contactUs": "contáctanos",
+      "orEmail": "o escribe a",
+      "trail": "Incluye la dirección de correo electrónico asociada a tu cuenta para que podamos localizarla y eliminarla manualmente. Responderemos en un plazo de 5 días hábiles."
+    },
+    "footer": {
+      "privacy": "← Política de privacidad",
+      "support": "Contactar con soporte",
+      "tos": "Términos del servicio"
+    }
+  },
+  "EmailChangeConfirm": {
+    "loading": "Confirmando tu nuevo correo electrónico…",
+    "confirmedTitle": "Dirección de correo actualizada",
+    "confirmedBody": "Tu correo electrónico se ha cambiado correctamente.",
+    "goToSettings": "Ir a Ajustes",
+    "errorTitle": "Error de confirmación",
+    "backToSettings": "Volver a Ajustes",
+    "errorIncomplete": "Este enlace de confirmación no es válido o está incompleto.",
+    "errorExpired": "Este enlace de confirmación no es válido o ha caducado."
+  },
+  "EmailVerify": {
+    "verifying": "Verificando tu correo…",
+    "verifiedTitle": "Correo verificado correctamente",
+    "alreadyVerifiedTitle": "El correo ya estaba verificado",
+    "expiredTitle": "El enlace de verificación caducó",
+    "closeTab": "Ya puedes cerrar esta pestaña",
+    "resentInline": "Correo enviado ✓ — revisa tu bandeja de entrada.",
+    "resending": "Enviando…",
+    "resendButton": "Reenviar correo de verificación",
+    "toastSent": "¡Correo de verificación enviado! Revisa tu bandeja de entrada.",
+    "toastFailed": "No se pudo enviar el correo de verificación."
+  },
+  "HandleRedirect": {
+    "claimSuccess": "Identidad reclamada — verifícala abajo para confirmar que es tuya.",
+    "claimError": "No se pudo reclamar esta identidad. Inténtalo de nuevo.",
+    "sectionLabel": "handle",
+    "notFoundTitle": "página no encontrada",
+    "notFoundBody": "No reconocemos este handle. Explora creadores o vuelve al inicio.",
+    "exploreCreators": "Explorar creadores",
+    "home": "← Inicio",
+    "lookupError": "algo salió mal al buscar eso. inténtalo de nuevo en un momento.",
+    "shareTextClaimed": "{username} — {name} está en Artypot. ¡Respalda una recompensa para esta persona!",
+    "shareTextUnverified": "{username} — los fans están acumulando recompensas para esta persona en Artypot. ¡Ayuda a captar su atención!",
+    "verified": "Verificado",
+    "unverified": "Sin verificar",
+    "externalLink": "Enlace externo",
+    "visit": "Visitar {domain}",
+    "verifiedBio": "<strong>{name}</strong> ha verificado esta identidad — las recompensas de aquí ya cuentan a su favor.",
+    "unclaimedBio": "Nadie ha reclamado esta identidad en Artypot todavía. Si es tuya, recláma­la para recibir las recompensas que los fans están acumulando para ti.",
+    "claiming": "Reclamando…",
+    "claimCta": "¿Eres tú? Reclama esta identidad →",
+    "claimHintSignedIn": "La añadiremos a tu cuenta y te guiaremos por la verificación.",
+    "claimHintSignedOut": "Inicia sesión para reclamarla como tuya.",
+    "bountiesFor": "Recompensas para {username}",
+    "newBounty": "+ Nueva recompensa",
+    "noBounties": "Aún no hay recompensas acumuladas para esta identidad.",
+    "createFirst": "Crea la primera",
+    "signInToStart": "Inicia sesión para empezar una",
+    "spreadTheWord": "Corre la voz",
+    "spreadHelp": "Ayuda a <handle>{username}</handle> a descubrir a sus fans en Artypot. Comparte esta página y etiquétala.",
+    "shareAndTag": "Compartir y etiquetar"
+  },
+  "OAuthCallback": {
+    "heading": "Error al iniciar sesión",
+    "backToLogin": "Volver al inicio de sesión",
+    "fallbackProvider": "ese proveedor",
+    "errorAccountLoad": "No se pudo cargar tu cuenta. Inténtalo de nuevo iniciando sesión.",
+    "errorProviderNotConfigured": "El inicio de sesión con {provider} no está disponible en este momento — todavía lo estamos configurando. ¡Lamentamos las molestias!",
+    "errorInvalidState": "La solicitud de inicio de sesión caducó o fue manipulada. Inténtalo de nuevo.",
+    "errorInvalidProvider": "Proveedor de inicio de sesión desconocido.",
+    "errorAuthenticationFailed": "El proveedor no pudo completar la autenticación. Inténtalo de nuevo.",
+    "errorAccountError": "Hubo un problema al configurar tu cuenta. Inténtalo de nuevo.",
+    "errorGeneric": "Error al iniciar sesión. Inténtalo de nuevo."
+  },
+  "SettingsPassword": {
+    "heading": "Cambiar contraseña",
+    "subheading": "Elige una contraseña fuerte y única.",
+    "backToSettings": "Volver a ajustes",
+    "verifiedEmailRequired": "Necesitas un correo verificado para cambiar tu contraseña.",
+    "currentPasswordLabel": "Contraseña actual",
+    "newPasswordLabel": "Nueva contraseña",
+    "confirmPasswordLabel": "Confirmar nueva contraseña",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
+    "saving": "Guardando…",
+    "updateButton": "Actualizar contraseña",
+    "mismatchError": "Las contraseñas nuevas no coinciden.",
+    "successMessage": "Contraseña cambiada correctamente.",
+    "failureMessage": "No se pudo cambiar la contraseña."
   }
 }

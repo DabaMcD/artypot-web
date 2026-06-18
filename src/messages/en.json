@@ -3001,5 +3001,151 @@
     "confirmSend": "Yes, Send It",
     "cancel": "Cancel",
     "withdraw": "Withdraw"
+  },
+  "DeleteAccount": {
+    "breadcrumb": {
+      "privacy": "Privacy Policy",
+      "current": "Delete Account"
+    },
+    "heading": "how to delete your account",
+    "intro": "You can permanently delete your Artypot account at any time — no hoops, no waiting period. Follow the steps below. The whole process takes under a minute.",
+    "whatHappens": {
+      "title": "What happens when you delete",
+      "backings": "All your active commitments (backings) are cancelled immediately.",
+      "profile": "Your profile, display name, and personal data are removed from our active systems within 30 days.",
+      "loggedOut": "You are logged out of all devices.",
+      "creator": "If you are a creator, your public profile and all associated handles are deactivated.",
+      "financialRecords": "Financial records (payment amounts, receipts) are kept for 7 years as required by US tax law — but they are anonymised and not linked to your name or email.",
+      "emailReuse": "Your email address can be reused to create a new account.",
+      "permanentLead": "This action is permanent and cannot be undone. If you have an outstanding balance as a creator, please",
+      "contactSupport": "contact support",
+      "beforeDeleting": "before deleting."
+    },
+    "steps": {
+      "login": {
+        "title": "Log in to Artypot",
+        "go": "Go to",
+        "signIn": "and sign in with your email and password, or the social account you used to register (Google, GitHub, Discord, etc.)."
+      },
+      "settings": {
+        "title": "Open Settings",
+        "once": "Once logged in, click",
+        "settingsLabel": "Settings",
+        "sidebar": "in the left sidebar (look for the ⚙ icon). On mobile, tap the menu icon in the top-left corner to open the sidebar first.",
+        "direct": "You can also go directly to:"
+      },
+      "dangerZone": {
+        "title": "Scroll to \"Danger Zone\"",
+        "scrollLead": "Scroll to the bottom of the Settings page until you reach the",
+        "label": "danger zone",
+        "scrollTrail": "section. It is the last section on the page."
+      },
+      "clickDelete": {
+        "title": "Click \"Delete Account\"",
+        "findLead": "Find the",
+        "rowLabel": "Delete My Account",
+        "clickMid": "row and click the red",
+        "buttonLabel": "Delete Account",
+        "findTrail": "button. A confirmation dialog will appear explaining what will be deleted."
+      },
+      "confirm": {
+        "title": "Confirm deletion",
+        "readLead": "Read the confirmation, then click",
+        "confirmLabel": "Yes, Delete My Account",
+        "readTrail": ". Your account is deleted immediately and you will be logged out."
+      }
+    },
+    "cantLogin": {
+      "title": "Can't log in?",
+      "lead": "If you no longer have access to your account — for example, you've lost your password and no longer have access to the email address on file — please",
+      "contactUs": "contact us",
+      "orEmail": "or email",
+      "trail": "Include the email address associated with your account so we can locate and delete it manually. We will respond within 5 business days."
+    },
+    "footer": {
+      "privacy": "← Privacy Policy",
+      "support": "Contact Support",
+      "tos": "Terms of Service"
+    }
+  },
+  "EmailChangeConfirm": {
+    "loading": "Confirming your new email…",
+    "confirmedTitle": "Email address updated",
+    "confirmedBody": "Your email has been changed successfully.",
+    "goToSettings": "Go to Settings",
+    "errorTitle": "Confirmation failed",
+    "backToSettings": "Back to Settings",
+    "errorIncomplete": "This confirmation link is invalid or incomplete.",
+    "errorExpired": "This confirmation link is invalid or has expired."
+  },
+  "EmailVerify": {
+    "verifying": "Verifying your email…",
+    "verifiedTitle": "Email successfully verified",
+    "alreadyVerifiedTitle": "Email already verified",
+    "expiredTitle": "Verification link expired",
+    "closeTab": "You can close this tab",
+    "resentInline": "Email sent ✓ — check your inbox.",
+    "resending": "Sending…",
+    "resendButton": "Resend verification email",
+    "toastSent": "Verification email sent! Check your inbox.",
+    "toastFailed": "Failed to send verification email."
+  },
+  "HandleRedirect": {
+    "claimSuccess": "Identity claimed — verify it below to confirm ownership.",
+    "claimError": "Could not claim this identity. Please try again.",
+    "sectionLabel": "handle",
+    "notFoundTitle": "page not found",
+    "notFoundBody": "We don't recognize this handle. Browse creators or head home.",
+    "exploreCreators": "Explore Creators",
+    "home": "← Home",
+    "lookupError": "something went wrong looking that up. try again in a moment.",
+    "shareTextClaimed": "{username} — {name} is on Artypot. Back a bounty for them!",
+    "shareTextUnverified": "{username} — fans are queueing bounties for them on Artypot. Help get their attention!",
+    "verified": "Verified",
+    "unverified": "Unverified",
+    "externalLink": "External link",
+    "visit": "Visit {domain}",
+    "verifiedBio": "<strong>{name}</strong> has verified this identity — bounties here already count toward them.",
+    "unclaimedBio": "No one has claimed this identity on Artypot yet. If it's yours, claim it to receive the bounties fans are queueing for you.",
+    "claiming": "Claiming…",
+    "claimCta": "Is this you? Claim this identity →",
+    "claimHintSignedIn": "We'll add it to your account and walk you through verification.",
+    "claimHintSignedOut": "Sign in to claim it as your own.",
+    "bountiesFor": "Bounties for {username}",
+    "newBounty": "+ New Bounty",
+    "noBounties": "No bounties queued for this identity yet.",
+    "createFirst": "Create the first one",
+    "signInToStart": "Sign in to start one",
+    "spreadTheWord": "Spread the word",
+    "spreadHelp": "Help <handle>{username}</handle> discover their fans on Artypot. Share this page and tag them.",
+    "shareAndTag": "Share & Tag"
+  },
+  "OAuthCallback": {
+    "heading": "Sign-in failed",
+    "backToLogin": "Back to login",
+    "fallbackProvider": "that provider",
+    "errorAccountLoad": "Failed to load your account. Please try logging in again.",
+    "errorProviderNotConfigured": "Sign-in with {provider} isn't available right now — we're still setting it up. Sorry for the inconvenience!",
+    "errorInvalidState": "The sign-in request expired or was tampered with. Please try again.",
+    "errorInvalidProvider": "Unknown sign-in provider.",
+    "errorAuthenticationFailed": "The provider could not complete authentication. Please try again.",
+    "errorAccountError": "There was a problem setting up your account. Please try again.",
+    "errorGeneric": "Sign-in failed. Please try again."
+  },
+  "SettingsPassword": {
+    "heading": "Change Password",
+    "subheading": "Choose a strong, unique password.",
+    "backToSettings": "Back to settings",
+    "verifiedEmailRequired": "You need a verified email to change your password.",
+    "currentPasswordLabel": "Current password",
+    "newPasswordLabel": "New password",
+    "confirmPasswordLabel": "Confirm new password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "saving": "Saving…",
+    "updateButton": "Update password",
+    "mismatchError": "New passwords do not match.",
+    "successMessage": "Password changed successfully.",
+    "failureMessage": "Failed to change password."
   }
 }
