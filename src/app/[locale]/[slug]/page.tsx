@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useFormatter } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { creators as creatorsApi, bounties as bountiesApi, following as followingApi } from '@/lib/api';
 import { useMoney } from '@/lib/format';
@@ -34,6 +34,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   const router = useRouter();
   const t = useTranslations('PublicProfile');
   const money = useMoney();
+  const format = useFormatter();
   const { user } = useAuth();
   const { toast } = useToast();
   const { mode } = useViewMode();
@@ -206,7 +207,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
 
                   <p className="text-sm text-muted mb-2">
                     {t('stats.supportedBy')}{' '}
-                    <span className="text-foreground">{(creator.supporter_count ?? 0).toLocaleString()}</span>{' '}
+                    <span className="text-foreground">{format.number(creator.supporter_count ?? 0)}</span>{' '}
                     <span className="text-foreground">
                       {creator.supporter_count === 1
                         ? (creator.fan_name ?? t('stats.fan'))

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
-import { useMoney } from '@/lib/format';
+import { useMoney, useDateFormats } from '@/lib/format';
 import { bounties as bountiesApi, billing, backings as backingsApi, featuredBounties as featuredBountiesApi } from '@/lib/api';
 import { nextBillingInfo } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const t = useTranslations('Dashboard');
   const money = useMoney();
+  const dates = useDateFormats();
 
   const [featured, setFeatured] = useState<Bounty[]>([]);
   const [cash, setCash] = useState<CashBalance | null>(null);
@@ -107,7 +108,7 @@ export default function DashboardPage() {
   const balanceIsNegative = balance < 0;
   const outstandingAmount = balanceIsNegative ? Math.abs(balance) : 0;
 
-  const { label: nextBillingStr } = nextBillingInfo();
+  const nextBillingStr = dates.short(nextBillingInfo().date.toISOString());
 
   const activeBackings = myBackings.filter((v) => v.bounty?.status !== 'revoked' && v.bounty?.status !== 'paid_out');
 

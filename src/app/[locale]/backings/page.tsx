@@ -89,7 +89,7 @@ export default function MyBackingsPage() {
     }
   };
 
-  const { label: billingDateStr } = nextBillingInfo();
+  const billingDateStr = dateFmt.short(nextBillingInfo().date.toISOString());
 
   if (authLoading || !user) {
     return (

@@ -7,7 +7,7 @@ import type { PaymentMethod } from '@/lib/types';
 import { useToast } from '@/lib/toast-context';
 import { useNudgeContext } from '@/lib/nudge-context';
 import { nextBillingInfo } from '@/lib/config';
-import { useMoney } from '@/lib/format';
+import { useMoney, useDateFormats } from '@/lib/format';
 import AddCardForm from './AddCardForm';
 
 const BRAND_ICONS: Record<string, string> = {
@@ -44,6 +44,7 @@ interface Props {
 export default function PaymentMethodManager({ onMethodsChange, compact = false }: Props) {
   const t = useTranslations('PaymentMethodManager');
   const money = useMoney();
+  const dates = useDateFormats();
   const { toast } = useToast();
   const { refresh: refreshNudge } = useNudgeContext();
 
@@ -140,7 +141,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
     setRemoveTarget(m);
   };
 
-  const { label: nextChargeLabel } = nextBillingInfo();
+  const nextChargeLabel = dates.short(nextBillingInfo().date.toISOString());
 
   if (loading) {
     return (

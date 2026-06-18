@@ -12,6 +12,7 @@ import ShareButton from '@/components/ShareButton';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
 import { Badge } from '@/components/ui/Badge';
 import { KNOWN_PLATFORMS } from '@/lib/platforms';
+import { useMoney } from '@/lib/format';
 
 /**
  * Universal handle page, keyed by numeric id: artypot.com/h/{id}.
@@ -48,6 +49,7 @@ function domainOf(handle: OtherHandle): string {
 // ── Mini bounty card (handle bounties aren't full Bounty objects) ──────────────
 
 function HandleBountyCard({ bounty }: { bounty: SimpleBounty }) {
+  const money = useMoney();
   return (
     <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-fan/50 transition-colors group">
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -66,7 +68,7 @@ function HandleBountyCard({ bounty }: { bounty: SimpleBounty }) {
       </div>
       <div className="pt-3 border-t border-border">
         <div className="text-fan font-bold text-lg">
-          ${Number(bounty.total_backed).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {money(Number(bounty.total_backed))}
         </div>
       </div>
     </div>

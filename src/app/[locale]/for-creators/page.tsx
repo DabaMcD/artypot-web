@@ -1,4 +1,4 @@
-import { useTranslations } from 'next-intl';
+import { useTranslations, useFormatter } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import FeaturedBountiesSection from '@/components/FeaturedBountiesSection';
 import { SmoothHashLink } from '@/components/SmoothHashLink';
@@ -13,6 +13,7 @@ const creatorReceivesPct = 100 - PLATFORM_FEE_PCT;
 
 export default function ForCreatorsPage() {
   const t = useTranslations('ForCreators');
+  const format = useFormatter();
 
   // ── Steps to money in the bank ───────────────────────────────────────────
   const PAYOUT_STEPS: { label: string; sub: string; color: string }[] = [
@@ -276,7 +277,12 @@ export default function ForCreatorsPage() {
                 <div className="flex items-center justify-between px-5 py-4 bg-creator/5">
                   <span className="text-foreground font-semibold text-sm">{t('fee.youReceive')}</span>
                   <span className="font-mono font-bold text-creator text-xl">
-                    ${(2000 * creatorReceivesPct / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {format.number(2000 * creatorReceivesPct / 100, {
+                      style: 'currency',
+                      currency: 'USD',
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                   </span>
                 </div>
               </div>

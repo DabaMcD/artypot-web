@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useFormatter } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
@@ -22,6 +22,7 @@ export default function BillingPage() {
   const t = useTranslations('Billing');
   const money = useMoney();
   const dates = useDateFormats();
+  const format = useFormatter();
 
   const [balance, setBalance] = useState<number | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
@@ -87,7 +88,7 @@ export default function BillingPage() {
   const hasOutstandingBalance = balance !== null && balance < 0;
   const outstandingAmount = hasOutstandingBalance ? Math.abs(balance) : 0;
 
-  const { label: chargeDate } = nextBillingInfo();
+  const chargeDate = dates.short(nextBillingInfo().date.toISOString());
   // Preview fires one "unit" before billing (one day normal, one minute warp)
   const previewDate = (() => {
     if (WARP_SPEED) {
@@ -100,14 +101,14 @@ export default function BillingPage() {
       } else {
         d.setHours(now.getHours() + 1, previewMinute, 0, 0);
       }
-      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      return format.dateTime(d, { hour: 'numeric', minute: '2-digit' });
     }
     const now = new Date();
     const previewDay = BILLING_DAY - 1;
     const d = now.getDate() < previewDay
       ? new Date(now.getFullYear(), now.getMonth(), previewDay)
       : new Date(now.getFullYear(), now.getMonth() + 1, previewDay);
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return format.dateTime(d, { month: 'short', day: 'numeric' });
   })();
 
   return (
