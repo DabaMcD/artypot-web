@@ -50,7 +50,7 @@ const HOW_IT_WORKS: { step: string; chip: string; spot: string; title: string; d
     spot: 'var(--color-fan)',
     title: 'Someone opens a bounty',
     description:
-      'Anyone can start one. Pick a creator, name the exact thing you want made — a song, a video essay, a drawing, whatever. Put your money in.',
+      'Anyone can start one. Pick a creator, name the exact thing you want made — a song, a video essay, a drawing, whatever. Set your dollar figure.',
   },
   {
     step: '02',
@@ -66,7 +66,7 @@ const HOW_IT_WORKS: { step: string; chip: string; spot: string; title: string; d
     spot: 'var(--color-council)',
     title: 'Work ships. Money moves.',
     description:
-      'The creator submits. The Council checks it\'s actually the thing. After a short window, the bounty pays out. No delivery? No payout. Simple.',
+      'The creator submits completion. The Council checks it matches the request. Cards are charged and the bounty pays out. No delivery = no charge.',
   },
 ];
 
@@ -88,7 +88,7 @@ const ROLES: {
     skin: 'border-fan/30 bg-fan/5',
     dot: 'bg-fan',
     text: 'text-fan',
-    body: 'You. You want a specific thing made and you\'re willing to back it with real money instead of a strongly-worded tweet.',
+    body: 'You want a specific thing to happen and you\'re willing to back it with real money.',
   },
   {
     name: 'The Creator',
@@ -199,7 +199,7 @@ export default function AboutPage() {
               <br /><span className="ap-sketch-u" style={fanRole}>being very visible.</span>
             </h2>
             <p className="text-lg text-muted">
-              The demand was already there. I just gave it a number.
+              The demand was already there. We gave it a number.
             </p>
           </div>
 
@@ -213,11 +213,11 @@ export default function AboutPage() {
             </SpotCard>
 
             <SpotCard spotColor="var(--color-fan)" className="border-fan/30 bg-background p-7">
-              <p className="font-mono text-[10px] uppercase tracking-[2px] text-fan mb-4">the way this works</p>
+              <p className="font-mono text-[10px] uppercase tracking-[2px] text-fan mb-4">the way we work</p>
               <p className="text-foreground leading-relaxed">
-                You and 200 strangers who have extremely specific taste put money in a bounty.
+                You and 200 strangers who have extremely similar taste put money in a bounty.
                 The bounty becomes impossible to ignore. Some people only show up when the
-                price is right. No judgment, that&apos;s just physics.
+                price is right.
               </p>
             </SpotCard>
           </div>
@@ -229,7 +229,6 @@ export default function AboutPage() {
         <div className="max-w-6xl mx-auto px-7 py-20">
           <p className={`${microLabel} mb-3`}>the mechanics</p>
           <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-3">How it works</h2>
-          <p className="text-muted mb-12">Three steps. Smart people usually have it by step two.</p>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {HOW_IT_WORKS.map(({ step, chip, spot, title, description }) => (

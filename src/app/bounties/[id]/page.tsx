@@ -1329,7 +1329,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     You only pay if it gets made.
                   </p>
                   <p className="text-muted text-sm leading-relaxed mb-4">
-                    Pledge what this is worth to you. Your card is charged{' '}
+                    How much is this worth to you? Your card is charged{' '}
                     <strong className="text-foreground font-medium">only if the work is delivered and approved</strong>
                     {' '}— nothing happens today, and you can back out anytime before then.
                   </p>

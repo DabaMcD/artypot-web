@@ -52,7 +52,7 @@ export default function HomePage() {
           </h1>
           <p className="text-muted text-lg sm:text-xl mb-9 leading-relaxed max-w-xl mx-auto">
             Search for any creator, artist, or public figure — start a bounty and
-            let the community fund it. No delivery, no charge.
+            let the community fund it. No delivery = no charge.
           </p>
 
           {/* Search — same widget as the header, just the larger size. */}
