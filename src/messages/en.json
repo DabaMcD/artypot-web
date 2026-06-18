@@ -2509,5 +2509,497 @@
       "label": "more bounties",
       "heading": "Other bounties for"
     }
+  },
+  "AddCardForm": {
+    "errors": {
+      "billingCountryRequired": "Please select the billing country for this card.",
+      "cardSetupFailed": "Card setup failed. Please try again.",
+      "marketUnavailable": "Adding a payment method isn't available in your country yet — we hope to support it soon.",
+      "setupInitFailed": "Could not initialise payment setup. Please try again."
+    },
+    "fields": {
+      "billingCountry": "Billing country",
+      "selectPlaceholder": "— select —",
+      "postalCode": "ZIP / postal code",
+      "postalPlaceholder": "optional"
+    },
+    "actions": {
+      "saving": "Saving…",
+      "saveCard": "Save card",
+      "cancel": "Cancel"
+    }
+  },
+  "AvailableBalanceSummary": {
+    "sectionLabel": "available",
+    "withdraw": "Withdraw →",
+    "managePayouts": "Manage payouts →"
+  },
+  "BankAccountCard": {
+    "sectionLabel": "bank account",
+    "connectedBadge": "connected",
+    "stripeBlurb": "Artypot uses Stripe for secure, direct bank verification — your credentials are never stored by us.",
+    "setLocationPrompt": "Set your location before connecting a bank account.",
+    "setLocationButton": "Set Location →",
+    "startingSetup": "Starting setup…",
+    "connectBankButton": "Connect Bank Account",
+    "loading": "Loading…",
+    "continueSetupButton": "Continue Setup →",
+    "connectionPending": "Bank connection pending — complete Stripe setup to enable withdrawals.",
+    "disconnectBankButton": "Disconnect Bank",
+    "disconnectModalTitle": "Disconnect bank account?",
+    "cancelButton": "Cancel",
+    "disconnecting": "Disconnecting…",
+    "confirmDisconnectButton": "Yes, Disconnect Bank",
+    "disconnectModalBody": "This removes your linked bank account from Artypot. You won't be able to withdraw funds until you re-link and complete setup again."
+  },
+  "BountyHistoryChart": {
+    "empty": "No history yet.",
+    "eventCreated": "Initialized",
+    "eventBackingAdded": "Backed",
+    "eventBackingUpdated": "Synced their feelings",
+    "eventBackingRevoked": "Left",
+    "eventDetailsEdited": "Edited details",
+    "eventPrivilegeTransfer": "Transferred ownership",
+    "eventCreatorAssigned": "Verified & claimed",
+    "eventPending": "Submitted for review",
+    "eventCompleted": "Approved",
+    "fieldTitle": "title",
+    "fieldDescription": "description",
+    "fieldDisplayName": "creator display name",
+    "originally": "originally",
+    "onPlatform": "on {platform}",
+    "viewing": "viewing",
+    "clickToView": "click to view"
+  },
+  "CommentSection": {
+    "heading": "Comments",
+    "emptyState": "No comments yet. Be the first.",
+    "deletedMarker": "[deleted]",
+    "editedMarker": "edited",
+    "composePlaceholder": "Leave a comment…",
+    "replyPlaceholder": "Write a reply…",
+    "charCount": "{count}/2000",
+    "deleteConfirm": "Delete this comment?",
+    "loginPrompt": "<login>Log in</login> to leave a comment.",
+    "repliesToggle": "{count, plural, one {# reply} other {# replies}}",
+    "timeAgo": {
+      "justNow": "just now",
+      "minutes": "{count}m ago",
+      "hours": "{count}h ago",
+      "days": "{count}d ago"
+    },
+    "reaction": {
+      "like": "Like",
+      "dislike": "Dislike"
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "reply": "Reply",
+      "edit": "Edit",
+      "delete": "Delete",
+      "post": "Post",
+      "posting": "Posting…",
+      "postReply": "Post reply",
+      "loadMore": "Load more comments",
+      "loading": "Loading…"
+    },
+    "errors": {
+      "loadComments": "Failed to load comments.",
+      "loadReplies": "Failed to load replies.",
+      "postComment": "Failed to post comment.",
+      "postReply": "Failed to post reply.",
+      "saveEdit": "Failed to save edit.",
+      "deleteComment": "Failed to delete comment.",
+      "react": "Failed to react."
+    }
+  },
+  "ConfirmPaymentModal": {
+    "title": "authorize your charge",
+    "authenticating": {
+      "waiting": "Waiting for your bank to confirm…",
+      "waitingWithAmount": "Waiting for your bank to confirm the <strong>{amount}</strong> charge…",
+      "popupHint": "You may see a popup from your bank — complete it to continue."
+    },
+    "success": {
+      "heading": "Authorized",
+      "body": "Your charge is being processed."
+    },
+    "error": {
+      "tryAgain": "Try again",
+      "useDifferentCard": "Use a different card →"
+    },
+    "errors": {
+      "authFailed": "Authentication failed. Please try again.",
+      "notCompleted": "Authentication was not completed. Try again or use a different card.",
+      "unexpectedStatus": "Unexpected status: {status}. Please try again."
+    }
+  },
+  "CreatorSearchWidget": {
+    "searchPlaceholder": "Search for a creator…",
+    "change": "Change",
+    "searching": "Searching…",
+    "viewProfile": "view profile →",
+    "verified": "verified",
+    "bountyCount": "{count, plural, one {# bounty} other {# bounties}}",
+    "noCreatorsOrHandles": "No creators or handles found.",
+    "noCreators": "No creators found.",
+    "addAsNewCreator": "Add <term>{query}</term> as a new creator",
+    "createNewProfile": "Create a new creator profile"
+  },
+  "CreatorSlugSection": {
+    "sectionLabel": "creator URL",
+    "description": "Your public creator page lives at this URL.",
+    "changeButton": "change →",
+    "cooldownBanner": "You changed your slug recently — you can change it again on <date></date>.",
+    "neverMind": "← never mind",
+    "newUrlLabel": "new creator URL",
+    "cooldownWarning": "Changing your slug starts a {days}-day cooldown. The previous URL <slug></slug> will redirect here forever.",
+    "cancelButton": "Cancel",
+    "saveButton": "Save New URL",
+    "savingButton": "Saving…",
+    "toastUpdated": "Slug updated to /{slug}.",
+    "toastFailed": "Failed to update slug."
+  },
+  "CreatorTosTldr": {
+    "eyebrow": "TL;DR — plain English",
+    "keep": {
+      "title": "You keep {keepPct}% of fan payments.",
+      "body": "Artypot deducts a {feePct}% platform fee which covers card processing, fraud protection, hosting, support, and organic veggies for the council members that moderate everything. No signup fee, no monthly fee."
+    },
+    "paidAfter": {
+      "title": "You're paid AFTER you deliver.",
+      "body": "Fans are never charged until you submit your completion and the Council confirms it satisfies the bounty."
+    },
+    "chargesFinal": {
+      "title": "Charges are final to fans, but refunds can still happen.",
+      "body": "A fan can't demand their money back once charged. But a chargeback, a refund Artypot issues to fix a problem, or a refund you choose to issue is deducted from your balance — which can go negative and is offset against future earnings. Chargebacks and Artypot-issued refunds return your platform fee; refunds you start yourself don't."
+    },
+    "refundBounty": {
+      "title": "You can refund a whole bounty.",
+      "body": "If you need to make things right, you can refund all of a bounty's backers from your dashboard — as long as your balance covers it. Otherwise, support can help."
+    },
+    "publicWork": {
+      "title": "Bounties fund public work, not private perks.",
+      "body": "Your deliverable goes out to everyone equally. You can't trade backings for private access, physical goods, meetups, or rewards — a public thank-you is the only perk allowed."
+    },
+    "noOfficialActs": {
+      "title": "No pay for official acts or campaigns.",
+      "body": "You can't accept a bounty for anything you do in a government role, or use Artypot to fund a campaign, candidate, or election effort."
+    },
+    "realPeople": {
+      "title": "Real people only, not brands (yet).",
+      "body": "Creator accounts are for individuals signing up for themselves. If you run a company's or organization's social media, you can't register that brand as a creator yet — business-entity support is coming later."
+    },
+    "goodFaith": {
+      "title": "Act in good faith.",
+      "body": "Misleading comments, disingenuous submissions, identity deception, and other bad-faith behavior is not tolerated."
+    },
+    "belowTheLaw": {
+      "title": "Artypot is below the law.",
+      "body": "We have to collect tax info. Many countries don't support automated payment processing and have a higher minimum payout threshold. There are some countries we can't operate in at all."
+    },
+    "fundsClear": {
+      "title": "Funds clear after 7 days.",
+      "body": "Collected funds are held 7 days (for fraud and dispute review) before becoming withdrawable, subject to a minimum payout balance."
+    },
+    "copyright": {
+      "title": "You keep your copyright.",
+      "body": "Nothing here transfers ownership of your work to Artypot or to any fan. You grant only a limited license to display and promote completions on the platform."
+    },
+    "familyFriendly": {
+      "title": "Artypot is family friendly.",
+      "body": "Your bounty text, profile, handles, and completion notes are public and must be PG. You also can't use a bounty to fund adult content (our payment partners forbid it). Nothing illegal. What you make and host elsewhere is your business."
+    },
+    "footnote": "This TL;DR is a helpful summary, not a substitute for the full terms below."
+  },
+  "HandlesSection": {
+    "sectionLabel": "handles",
+    "description": "Connect your social accounts to verify your identity as a creator.",
+    "common": {
+      "cancel": "Cancel",
+      "close": "Close"
+    },
+    "list": {
+      "loading": "loading handles…",
+      "badgeVerified": "verified",
+      "badgePendingReview": "pending review",
+      "badgeUnverified": "unverified",
+      "messagePrefix": "message:",
+      "remove": "Remove",
+      "connectVia": "Connect via {platform} →",
+      "updateReviewRequest": "Update Review Request",
+      "requestAdminReview": "Request Admin Review"
+    },
+    "add": {
+      "platformLabel": "platform",
+      "selectPlatform": "Select a platform",
+      "adding": "Adding…",
+      "addHandle": "Add Handle →",
+      "addAnother": "+ add another handle",
+      "alreadyClaimedToast": "You already have a claim on this handle.",
+      "addedToast": "Handle added.",
+      "addFailed": "Failed to add handle."
+    },
+    "remove": {
+      "removedToast": "Handle removed.",
+      "removeFailed": "Failed to remove handle."
+    },
+    "removeModal": {
+      "title": "Remove Handle?",
+      "verifiedWarning": "This action cannot be undone. To add this handle back in the future, you will need to go through the verification process again. If any bounty currently targets this handle, removal requires admin assistance.",
+      "confirm": "Remove <handle>@{username}</handle> on {platform}?",
+      "removing": "Removing…",
+      "removeButton": "Remove Handle"
+    },
+    "blockedModal": {
+      "title": "Contact admins to remove",
+      "referenced": "<mono>@{username}</mono> on {platform} is currently referenced by <strong>{count, plural, one {# bounty} other {# bounties}}</strong>.",
+      "explanation": "Verified handles tied to live bounties can't be removed from your account automatically — doing so would orphan those bounties from their verified owner. Please reach out to the Artypot team and they'll handle removal for you.",
+      "contactSupport": "Contact support →"
+    },
+    "review": {
+      "title": "verify @{username}",
+      "intro": "How can we quickly get in touch? Let's chat so we can verify your <brand>{platform}</brand> account ownership.",
+      "contactLabel": "contact message",
+      "contactPlaceholder": "DM me on Discord @username, or call me in the next 3 hours at (555) 555-5555",
+      "contactHint": "This is only visible to Artypot admins.",
+      "alreadySubmitted": "You already submitted this for review. Updating your message will resubmit it.",
+      "errorTooShort": "Please provide at least a sentence so admins know how to reach you.",
+      "submittedToast": "Review request submitted — we'll be in touch.",
+      "submitFailed": "Failed to submit. Please try again.",
+      "submitting": "Submitting…",
+      "resubmit": "Resubmit for Review",
+      "submit": "Submit for Review"
+    },
+    "oauth": {
+      "title": "connect {platform}",
+      "intro": "Connect your <strong>{platform}</strong> account via OAuth for instant verification. You'll be redirected to {brand} to authorize the connection, then brought back here.",
+      "ownerNote": "Make sure you're using the {brand} account that owns <strong>@{username}</strong>.",
+      "redirecting": "Redirecting…",
+      "connectButton": "Connect {platform} →",
+      "startFailed": "Failed to start OAuth. Please try again."
+    },
+    "verifyResult": {
+      "yourHandle": "your handle",
+      "verified": "{at} is verified! 🎉",
+      "notFound": "We couldn't verify {at} — that account didn't match. Make sure you signed in to the account that owns it.",
+      "failed": "Couldn't complete the connection for {at}. Please try again.",
+      "unknown": "Something went wrong verifying {at}. Please try again."
+    },
+    "nudge": {
+      "submitted": "<bold>Review request submitted.</bold> Please be patient, and Baldwig will reach out as soon as possible! Or you can try your luck and call Baldwig directly at <phone>+1 (727) 370-1237</phone>. He'll never admit it, but he's lonely af. He's never so much as walked hand in hand with a woman before. If you're a guy, you should definitely call him, but if you're a girl you should DEFINITELY call him.",
+      "unverified": "<bold>You've added a handle — now verify it.</bold> Connect via OAuth or request admin review using the buttons above."
+    }
+  },
+  "HeaderSearch": {
+    "placeholder": "Search…",
+    "tooShortHint": "Keep typing — at least {min} characters.",
+    "sectionRecent": "recent",
+    "sectionTrending": "trending bounties",
+    "sectionPeople": "people",
+    "sectionBounties": "bounties",
+    "emptyPrompt": "Search creators, bounties, and handles.",
+    "searching": "Searching…",
+    "noMatches": "No matches for “{query}”.",
+    "seeAll": "See all results for “{query}” →",
+    "matched": "matched",
+    "matchedAlias": "matched alias",
+    "personOpenBounties": "{count, plural, one {# open bounty} other {# open bounties}} · {amount} backed",
+    "roleCreator": "Creator",
+    "roleUnverified": "Unverified",
+    "badgeCreator": "creator",
+    "badgeUnverified": "unverified"
+  },
+  "LifecycleRail": {
+    "bountyOpens": {
+      "label": "Bounty opens",
+      "actor": "fan"
+    },
+    "fansBackIt": {
+      "label": "Fans back it",
+      "actor": "fans"
+    },
+    "creatorSubmits": {
+      "label": "Creator submits work",
+      "actor": "creator"
+    },
+    "councilSignsOff": {
+      "label": "Council signs off",
+      "actor": "council"
+    },
+    "fansGetCharged": {
+      "label": "Fans get charged",
+      "actor": "fans"
+    },
+    "creatorGetsPaid": {
+      "label": "Creator gets paid",
+      "actor": "creator"
+    }
+  },
+  "PaymentMethodManager": {
+    "errorLoad": "Could not load payment methods.",
+    "errorRemove": "Could not remove payment method.",
+    "removedWithRevocations": "Payment method removed — {count, plural, one {# commitment} other {# commitments}} ({amount}) cancelled.",
+    "reason": {
+      "expired": "expired",
+      "detachedAtStripe": "removed at your bank",
+      "replacedByUpdater": "replaced by your card issuer",
+      "billingFailure": "billing failure"
+    },
+    "modalTitle": "Remove this payment method?",
+    "modalIntro": "This is your <strong>only valid payment method</strong> on file. If you remove it:",
+    "modalBulletSoft": "Your <strong>{amount}</strong> in active backings will be marked \"soft\" until you add a new payment method. Please do so before the next billing cycle on <strong>{date}</strong>.",
+    "modalBulletAddAnyTime": "You can add a new payment method any time before then to keep your backings active.",
+    "modalBulletMissCycle": "If you miss a billing cycle, your backings will be automatically revoked and you'll need to re-back any bounties you want to support.",
+    "cancel": "Cancel",
+    "removing": "Removing…",
+    "removeAnyway": "Remove anyway",
+    "remove": "Remove",
+    "updateCard": "Update card",
+    "emptyState": "No payment methods saved yet.",
+    "addCard": "Add a card",
+    "addPaymentMethod": "+ Add payment method"
+  },
+  "PayoutReadinessChecklist": {
+    "regionBlocked": {
+      "heading": "Payouts unavailable in your region.",
+      "body": "Due to international payment restrictions, we're unable to process payouts to creators in your country at this time.",
+      "contactSupport": "Contact support",
+      "ifError": "if you believe this is an error."
+    },
+    "items": {
+      "emailVerified": "Email verified",
+      "creatorTosAgreed": "Creator TOS agreed",
+      "countryRegionSet": "Country / region set",
+      "handleVerified": "Handle verified and approved",
+      "bankAccountManual": "Bank account (manual payout — contact support)",
+      "bankAccountConnected": "Bank account connected",
+      "taxFormSubmitted": "Tax form submitted ({form})",
+      "minimumBalance": "Minimum balance reached ({required} required, {earned} earned)"
+    },
+    "allSet": "You're all set for payouts.",
+    "payoutHold": {
+      "label": "Identity verification required by Stripe",
+      "completeNow": "Complete now →"
+    },
+    "setUpNow": "Set up now →"
+  },
+  "PayoutRegionNotice": {
+    "blocked": {
+      "heading": "Payouts unavailable in your region.",
+      "body": "Due to international payment restrictions, we're unable to process payouts to creators in your country at this time. Your bounty activity is otherwise unaffected.",
+      "errorPrompt": "If you believe this is an error,",
+      "contactLink": "contact support"
+    },
+    "manual": {
+      "heading": "Manual payouts in your region.",
+      "body": "Automatic bank payouts aren't available where you are — we send payouts manually via Wise, PayPal, or wire, with a {min} minimum withdrawal.",
+      "contactLink": "Contact us to arrange a transfer →"
+    }
+  },
+  "PlatformHandleInput": {
+    "websiteUrlLabel": "Website URL",
+    "invalidUrlError": "Please enter a valid http(s) URL.",
+    "otherUrlHint": "Paste the full URL to the creator's profile on any platform we don't list above.",
+    "label": {
+      "youtube": "Channel Handle",
+      "instagram": "IG Handle",
+      "twitter": "Handle",
+      "tiktok": "Username",
+      "twitch": "Channel Name",
+      "bluesky": "Handle",
+      "kick": "Channel Name"
+    }
+  },
+  "SlugInput": {
+    "defaultLabel": "your creator URL",
+    "placeholder": "yourname",
+    "checking": "Checking…",
+    "checkingStatus": "checking…",
+    "availableStatus": "available",
+    "taken": "That slug is already taken.",
+    "hint": "3–30 characters · lowercase letters, numbers, <code>_</code>, <code>-</code> · no leading or trailing separator",
+    "formatErrors": {
+      "required": "Slug is required.",
+      "tooShort": "Slug must be at least 3 characters.",
+      "tooLong": "Slug must be 30 characters or fewer.",
+      "invalidChars": "Use only lowercase letters, numbers, underscores, and hyphens — and start and end with a letter or number.",
+      "consecutiveSeparators": "No consecutive underscores or hyphens."
+    }
+  },
+  "TaxComplianceCard": {
+    "sectionLabel": "tax compliance",
+    "loading": "Loading…",
+    "noCountry": "Set your tax residence in <link>settings</link> so we know whether a W-9 (US) or W-8BEN (international) applies.",
+    "toast": {
+      "w9Submitted": "W-9 submitted! We'll notify you once your SSN/TIN has been verified.",
+      "w9Cancelled": "W-9 not completed — you can come back and finish it any time.",
+      "w8benSubmitted": "W-8BEN submitted! We'll review and confirm shortly.",
+      "w8benCancelled": "W-8BEN not completed — you can finish it any time."
+    },
+    "error": {
+      "w9LinkFailed": "Failed to get W-9 link. Please try again.",
+      "w8benLinkFailed": "Failed to get W-8BEN link. Please try again."
+    },
+    "w9": {
+      "sectionLabel": "tax compliance — W-9",
+      "badge": {
+        "ssnVerified": "SSN verified",
+        "submitted": "submitted",
+        "ssnMismatch": "SSN mismatch",
+        "pending": "pending"
+      },
+      "body": {
+        "verified": "Your W-9 is complete and your SSN/TIN has been verified.",
+        "required": "Your {taxYear} earnings have reached {earnings}. A W-9 is required before your next withdrawal.",
+        "belowThreshold": "You've earned {earnings} this year. Artypot requires a W-9 once you hit {threshold}."
+      },
+      "banner": {
+        "tinFailed": "SSN/TIN verification failed. Please re-submit with corrected information."
+      },
+      "button": {
+        "resubmit": "Re-submit W-9 →",
+        "continue": "Continue W-9 →",
+        "complete": "Complete W-9 with TaxBandits →"
+      },
+      "helper": "Opens TaxBandits in a new tab. Artypot never sees your SSN."
+    },
+    "w8ben": {
+      "sectionLabel": "tax compliance — W-8BEN",
+      "badge": {
+        "submitted": "submitted",
+        "invalid": "invalid",
+        "pending": "pending"
+      },
+      "body": {
+        "confirmed": "Your W-8BEN has been submitted and confirmed.",
+        "required": "You've earned {earnings} this year. A W-8BEN is required before your next withdrawal.",
+        "belowThreshold": "You've earned {earnings} this year. Artypot requires a W-8BEN once you hit {threshold}."
+      },
+      "banner": {
+        "invalid": "Your W-8BEN was flagged as invalid. Please re-submit with corrected information."
+      },
+      "button": {
+        "resubmit": "Re-submit W-8BEN →",
+        "continue": "Continue W-8BEN →",
+        "complete": "Complete W-8BEN with TaxBandits →"
+      },
+      "helper": "Opens TaxBandits in a new tab. Artypot never sees your personal tax details."
+    }
+  },
+  "WithdrawCard": {
+    "sectionLabel": "available",
+    "payoutHold": "Payouts are on hold — complete Stripe verification to withdraw.",
+    "resolveNow": "Resolve now →",
+    "completeBankSetup": "Complete bank setup to withdraw.",
+    "connectBank": "Connect a bank account to withdraw.",
+    "payoutsLink": "Payouts →",
+    "nothingToWithdraw": "Nothing to withdraw yet.",
+    "confirmPrompt": "Send <strong>{amount}</strong> to your linked bank?",
+    "sending": "Sending…",
+    "confirmSend": "Yes, Send It",
+    "cancel": "Cancel",
+    "withdraw": "Withdraw"
   }
 }

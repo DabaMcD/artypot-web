@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -14,6 +15,7 @@ import type { CreatorPayouts } from '@/lib/hooks/useCreatorPayouts';
  * from the shared {@link useCreatorPayouts} hook.
  */
 export default function BankAccountCard({ p }: { p: CreatorPayouts }) {
+  const t = useTranslations('BankAccountCard');
   const { bankConnected, canWithdraw, needsLocation, stripeLoading, isPayoutBlocked, isManualPayout } = p;
 
   return (
@@ -21,8 +23,8 @@ export default function BankAccountCard({ p }: { p: CreatorPayouts }) {
       <div id="bank-account">
         <Card>
           <div className="flex items-start justify-between mb-3">
-            <SectionLabel>bank account</SectionLabel>
-            {canWithdraw && <Badge tone="good">connected</Badge>}
+            <SectionLabel>{t('sectionLabel')}</SectionLabel>
+            {canWithdraw && <Badge tone="good">{t('connectedBadge')}</Badge>}
           </div>
           {isPayoutBlocked || isManualPayout ? (
             /* Stripe self-serve onboarding can never lead to a payout in these
@@ -31,29 +33,29 @@ export default function BankAccountCard({ p }: { p: CreatorPayouts }) {
           ) : (
             <>
               <p className="text-sm text-muted leading-relaxed mb-4">
-                Artypot uses Stripe for secure, direct bank verification — your credentials are never stored by us.
+                {t('stripeBlurb')}
               </p>
               {needsLocation ? (
                 <div>
-                  <p className="text-sm text-muted mb-3">Set your location before connecting a bank account.</p>
+                  <p className="text-sm text-muted mb-3">{t('setLocationPrompt')}</p>
                   <Link href="/c/settings#location">
-                    <Button variant="primary">Set Location →</Button>
+                    <Button variant="primary">{t('setLocationButton')}</Button>
                   </Link>
                 </div>
               ) : !bankConnected ? (
                 <Button variant="primary" disabled={stripeLoading} onClick={p.handleConnectBank}>
-                  {stripeLoading ? 'Starting setup…' : 'Connect Bank Account'}
+                  {stripeLoading ? t('startingSetup') : t('connectBankButton')}
                 </Button>
               ) : !canWithdraw ? (
                 <div>
                   <Button variant="primary" disabled={stripeLoading} onClick={p.handleContinueOnboarding}>
-                    {stripeLoading ? 'Loading…' : 'Continue Setup →'}
+                    {stripeLoading ? t('loading') : t('continueSetupButton')}
                   </Button>
-                  <p className="text-xs text-warn mt-2">Bank connection pending — complete Stripe setup to enable withdrawals.</p>
+                  <p className="text-xs text-warn mt-2">{t('connectionPending')}</p>
                 </div>
               ) : (
                 <Button variant="danger" size="sm" disabled={stripeLoading} onClick={() => p.setShowDisconnectConfirm(true)}>
-                  Disconnect Bank
+                  {t('disconnectBankButton')}
                 </Button>
               )}
             </>
@@ -63,20 +65,19 @@ export default function BankAccountCard({ p }: { p: CreatorPayouts }) {
 
       {p.showDisconnectConfirm && (
         <Modal
-          title="Disconnect bank account?"
+          title={t('disconnectModalTitle')}
           onClose={() => { if (!stripeLoading) p.setShowDisconnectConfirm(false); }}
           actions={
             <>
-              <Button variant="ghost" onClick={() => p.setShowDisconnectConfirm(false)} disabled={stripeLoading}>Cancel</Button>
+              <Button variant="ghost" onClick={() => p.setShowDisconnectConfirm(false)} disabled={stripeLoading}>{t('cancelButton')}</Button>
               <Button variant="danger" onClick={p.handleDisconnect} disabled={stripeLoading}>
-                {stripeLoading ? 'Disconnecting…' : 'Yes, Disconnect Bank'}
+                {stripeLoading ? t('disconnecting') : t('confirmDisconnectButton')}
               </Button>
             </>
           }
         >
           <p className="text-sm text-muted leading-relaxed">
-            This removes your linked bank account from Artypot. You won&apos;t be able to
-            withdraw funds until you re-link and complete setup again.
+            {t('disconnectModalBody')}
           </p>
         </Modal>
       )}

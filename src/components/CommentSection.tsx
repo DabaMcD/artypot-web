@@ -1,24 +1,32 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
+import { useDateFormats } from '@/lib/format';
 import { comments as commentsApi } from '@/lib/api';
 import type { Comment } from '@/lib/types';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function timeAgo(dateStr: string): string {
+type CommentTranslator = ReturnType<typeof useTranslations<'CommentSection'>>;
+
+function timeAgo(
+  dateStr: string,
+  t: CommentTranslator,
+  formatDate: (iso: string) => string
+): string {
   const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-  if (seconds < 60) return 'just now';
+  if (seconds < 60) return t('timeAgo.justNow');
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return t('timeAgo.minutes', { count: minutes });
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return t('timeAgo.hours', { count: hours });
   const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  return new Date(dateStr).toLocaleDateString();
+  if (days < 30) return t('timeAgo.days', { count: days });
+  return formatDate(dateStr);
 }
 
 // ── Avatar ────────────────────────────────────────────────────────────────────
@@ -73,6 +81,7 @@ function ReactionButton({
   disabled: boolean;
   onClick: () => void;
 }) {
+  const t = useTranslations('CommentSection');
   const icon = type === 'like' ? '▲' : '▼';
   const activeClass =
     type === 'like'
@@ -84,7 +93,7 @@ function ReactionButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      title={type === 'like' ? 'Like' : 'Dislike'}
+      title={type === 'like' ? t('reaction.like') : t('reaction.dislike')}
       className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${active ? activeClass : idleClass}`}
     >
       <span>{icon}</span>
@@ -135,6 +144,8 @@ function CommentRow({
   onDelete,
   onReact,
 }: CommentRowProps) {
+  const t = useTranslations('CommentSection');
+  const dateFormats = useDateFormats();
   const isOwn    = !!currentUserId && comment.user?.id === currentUserId;
   const canDelete = isOwn || isCouncil;
   const showReplyBox = replyText !== undefined && !isReply;
@@ -153,7 +164,7 @@ function CommentRow({
         {/* Header */}
         <div className="flex items-baseline gap-2 mb-1">
           {comment.deleted || !comment.user ? (
-            <span className="text-sm text-muted italic">[deleted]</span>
+            <span className="text-sm text-muted italic">{t('deletedMarker')}</span>
           ) : (
             <Link
               href={`/users/${comment.user.id}`}
@@ -162,9 +173,9 @@ function CommentRow({
               {comment.user.display_name}
             </Link>
           )}
-          <span className="text-xs text-muted">{timeAgo(comment.created_at)}</span>
+          <span className="text-xs text-muted">{timeAgo(comment.created_at, t, dateFormats.short)}</span>
           {comment.is_edited && !comment.deleted && (
-            <span className="text-xs text-muted/60 italic">edited</span>
+            <span className="text-xs text-muted/60 italic">{t('editedMarker')}</span>
           )}
         </div>
 
@@ -185,13 +196,13 @@ function CommentRow({
                 disabled={!editingText.trim() || editingText === comment.content}
                 className="text-xs px-3 py-1.5 bg-fan text-black font-semibold rounded-lg hover:bg-fan-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
-                Save
+                {t('actions.save')}
               </button>
               <button
                 onClick={onCancelEdit}
                 className="text-xs px-3 py-1.5 text-muted hover:text-foreground transition-colors"
               >
-                Cancel
+                {t('actions.cancel')}
               </button>
             </div>
           </div>
@@ -230,7 +241,7 @@ function CommentRow({
                 onClick={() => onSetReplyText(replyText !== undefined ? '\x00CLOSE' : '')}
                 className="text-xs text-muted hover:text-foreground transition-colors"
               >
-                {replyText !== undefined ? 'Cancel' : 'Reply'}
+                {replyText !== undefined ? t('actions.cancel') : t('actions.reply')}
               </button>
             )}
 
@@ -243,7 +254,7 @@ function CommentRow({
                 onClick={onStartEdit}
                 className="text-xs text-muted hover:text-foreground transition-colors"
               >
-                Edit
+                {t('actions.edit')}
               </button>
             )}
             {/* Delete (own or council) */}
@@ -252,7 +263,7 @@ function CommentRow({
                 onClick={onDelete}
                 className="text-xs text-muted hover:text-red-400 transition-colors"
               >
-                Delete
+                {t('actions.delete')}
               </button>
             )}
           </div>
@@ -266,7 +277,7 @@ function CommentRow({
               value={replyText ?? ''}
               onChange={(e) => onSetReplyText(e.target.value)}
               maxLength={2000}
-              placeholder="Write a reply…"
+              placeholder={t('replyPlaceholder')}
               className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
             />
             <div className="flex gap-2">
@@ -275,13 +286,13 @@ function CommentRow({
                 disabled={!replyText.trim()}
                 className="text-xs px-3 py-1.5 bg-fan text-black font-semibold rounded-lg hover:bg-fan-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
-                Post reply
+                {t('actions.postReply')}
               </button>
               <button
                 onClick={() => onSetReplyText('\x00CLOSE')}
                 className="text-xs px-3 py-1.5 text-muted hover:text-foreground transition-colors"
               >
-                Cancel
+                {t('actions.cancel')}
               </button>
             </div>
           </div>
@@ -295,7 +306,7 @@ function CommentRow({
                 onClick={onLoadReplies}
                 className="text-xs text-fan hover:text-fan-dim transition-colors"
               >
-                {comment.reply_count} {comment.reply_count === 1 ? 'reply' : 'replies'} ↓
+                {t('repliesToggle', { count: comment.reply_count })} ↓
               </button>
             )}
             {replies === 'loading' && (
@@ -355,6 +366,7 @@ interface CommentSectionProps {
 }
 
 export default function CommentSection({ bountyId, inline = false, onTotalChange, highlightCommentId }: CommentSectionProps) {
+  const t = useTranslations('CommentSection');
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -394,12 +406,12 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
       setTotal(res.total);
       onTotalChange?.(res.total);
     } catch {
-      if (!append) toast('Failed to load comments.', 'error');
+      if (!append) toast(t('errors.loadComments'), 'error');
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [bountyId, toast, onTotalChange]);
+  }, [bountyId, toast, onTotalChange, t]);
 
   useEffect(() => {
     loadComments(1);
@@ -468,7 +480,7 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
       const res = await commentsApi.replies(commentId);
       setRepliesMap((prev) => ({ ...prev, [commentId]: res.data }));
     } catch {
-      toast('Failed to load replies.', 'error');
+      toast(t('errors.loadReplies'), 'error');
       setRepliesMap((prev) => {
         const next = { ...prev };
         delete next[commentId];
@@ -488,7 +500,7 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
       setTotal((t) => t + 1);
       setNewText('');
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message ?? 'Failed to post comment.';
+      const msg = (err as { message?: string })?.message ?? t('errors.postComment');
       toast(msg, 'error');
     } finally {
       setSubmitting(false);
@@ -518,7 +530,7 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
         return next;
       });
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message ?? 'Failed to post reply.';
+      const msg = (err as { message?: string })?.message ?? t('errors.postReply');
       toast(msg, 'error');
     }
   };
@@ -547,19 +559,19 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
       // Close edit mode
       setEditingMap((prev) => ({ ...prev, [commentId]: false }));
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message ?? 'Failed to save edit.';
+      const msg = (err as { message?: string })?.message ?? t('errors.saveEdit');
       toast(msg, 'error');
     }
   };
 
   const deleteComment = async (commentId: number) => {
-    if (!confirm('Delete this comment?')) return;
+    if (!confirm(t('deleteConfirm'))) return;
     try {
       await commentsApi.delete(commentId);
       // Mark as deleted in list
       const markDeleted = (c: Comment): Comment =>
         c.id === commentId
-          ? { ...c, deleted: true, content: '[deleted]', user: null }
+          ? { ...c, deleted: true, content: t('deletedMarker'), user: null }
           : c;
       setCommentList((prev) => prev.map(markDeleted));
       setRepliesMap((prev) => {
@@ -572,7 +584,7 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
         return next;
       });
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message ?? 'Failed to delete comment.';
+      const msg = (err as { message?: string })?.message ?? t('errors.deleteComment');
       toast(msg, 'error');
     }
   };
@@ -601,7 +613,7 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
         setCommentList((prev) => prev.map(applyReaction));
       }
     } catch {
-      toast('Failed to react.', 'error');
+      toast(t('errors.react'), 'error');
     }
   };
 
@@ -657,7 +669,7 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
     <>
       {!inline && (
         <h2 className="text-lg font-semibold text-foreground mb-6">
-          Comments
+          {t('heading')}
           {total > 0 && <span className="text-muted font-normal ml-2 text-base">({total})</span>}
         </h2>
       )}
@@ -672,31 +684,34 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
               value={newText}
               onChange={(e) => setNewText(e.target.value)}
               maxLength={2000}
-              placeholder="Leave a comment…"
+              placeholder={t('composePlaceholder')}
               className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
             />
             <div className="flex justify-between items-center">
-              <span className="text-xs text-muted">{newText.length}/2000</span>
+              <span className="text-xs text-muted">{t('charCount', { count: newText.length })}</span>
               <button
                 onClick={submitComment}
                 disabled={!newText.trim() || submitting}
                 className="text-sm px-4 py-1.5 bg-fan text-black font-semibold rounded-lg hover:bg-fan-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
-                {submitting ? 'Posting…' : 'Post'}
+                {submitting ? t('actions.posting') : t('actions.post')}
               </button>
             </div>
           </div>
         </div>
       ) : (
         <div className="mb-8 text-sm text-muted">
-          <Link href="/login" className="text-fan hover:underline">Log in</Link>
-          {' '}to leave a comment.
+          {t.rich('loginPrompt', {
+            login: (chunks) => (
+              <Link href="/login" className="text-fan hover:underline">{chunks}</Link>
+            ),
+          })}
         </div>
       )}
 
       {/* Comment list */}
       {commentList.length === 0 ? (
-        <p className="text-muted text-sm py-6 text-center">No comments yet. Be the first.</p>
+        <p className="text-muted text-sm py-6 text-center">{t('emptyState')}</p>
       ) : (
         <div>
           {commentList.map((comment) => {
@@ -747,7 +762,7 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
                 disabled={loadingMore}
                 className="text-sm text-muted hover:text-foreground border border-border hover:border-foreground/30 px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
               >
-                {loadingMore ? 'Loading…' : 'Load more comments'}
+                {loadingMore ? t('actions.loading') : t('actions.loadMore')}
               </button>
             </div>
           )}

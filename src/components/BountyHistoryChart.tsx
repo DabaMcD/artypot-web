@@ -1,9 +1,11 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import type { BountyHistoryEvent } from '@/lib/types';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
+import { useDateFormats } from '@/lib/format';
 
 interface Props {
   events: BountyHistoryEvent[];
@@ -17,48 +19,41 @@ interface Props {
  *   'neg'    → `−$x.xx`
  *   'delta'  → two stacked lines: `−$old` over `+$new`
  *   'none'   → suppressed
+ * `labelKey` is resolved against the `BountyHistoryChart` namespace at render.
  */
 const EVENT_META: Record<
   string,
-  { label: string; amountSign: 'pos' | 'neg' | 'delta' | 'none' }
+  { labelKey: string; amountSign: 'pos' | 'neg' | 'delta' | 'none' }
 > = {
-  created:            { label: 'Initialized',           amountSign: 'pos'   },
-  backing_added:       { label: 'Backed',                amountSign: 'pos'   },
-  backing_updated:     { label: 'Synced their feelings', amountSign: 'delta' },
-  backing_revoked:     { label: 'Left',                  amountSign: 'neg'   },
-  details_edited:     { label: 'Edited details',        amountSign: 'none'  },
-  privilege_transfer: { label: 'Transferred ownership', amountSign: 'none'  },
-  creator_assigned:   { label: 'Verified & claimed',    amountSign: 'none'  },
-  pending:            { label: 'Submitted for review',  amountSign: 'none'  },
-  completed:          { label: 'Approved',              amountSign: 'none'  },
+  created:            { labelKey: 'eventCreated',          amountSign: 'pos'   },
+  backing_added:       { labelKey: 'eventBackingAdded',     amountSign: 'pos'   },
+  backing_updated:     { labelKey: 'eventBackingUpdated',   amountSign: 'delta' },
+  backing_revoked:     { labelKey: 'eventBackingRevoked',   amountSign: 'neg'   },
+  details_edited:     { labelKey: 'eventDetailsEdited',    amountSign: 'none'  },
+  privilege_transfer: { labelKey: 'eventPrivilegeTransfer', amountSign: 'none'  },
+  creator_assigned:   { labelKey: 'eventCreatorAssigned',  amountSign: 'none'  },
+  pending:            { labelKey: 'eventPending',          amountSign: 'none'  },
+  completed:          { labelKey: 'eventCompleted',        amountSign: 'none'  },
 };
 
 // Clicking these event types snaps the header to the historical state
 const CLICKABLE_TYPES = new Set<string>(['created', 'details_edited']);
 
-// Friendly labels for edited fields; falls back to the raw field name.
-const FIELD_LABELS: Record<string, string> = {
-  title: 'title',
-  description: 'description',
-  display_name: 'creator display name',
+// Friendly translation keys for edited fields; falls back to the raw field name.
+const FIELD_LABEL_KEYS: Record<string, string> = {
+  title: 'fieldTitle',
+  description: 'fieldDescription',
+  display_name: 'fieldDisplayName',
 };
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString('en-US', {
-    month:  'short',
-    day:    'numeric',
-    year:   'numeric',
-    hour:   'numeric',
-    minute: '2-digit',
-    hour12: true,
-  });
-}
-
 export default function BountyHistoryChart({ events, selectedEvent, onSelect }: Props) {
+  const t = useTranslations('BountyHistoryChart');
+  const dateFormats = useDateFormats();
+
   if (events.length === 0) {
     return (
       <p className="font-mono text-[10px] uppercase tracking-widest text-muted/60">
-        No history yet.
+        {t('empty')}
       </p>
     );
   }
@@ -66,7 +61,9 @@ export default function BountyHistoryChart({ events, selectedEvent, onSelect }: 
   return (
     <ul className="divide-y divide-border/60 border-y border-border/60">
       {events.map((event, i) => {
-        const meta      = EVENT_META[event.type] ?? { label: event.type, amountSign: 'none' as const };
+        const meta      = EVENT_META[event.type];
+        const eventLabel = meta ? t(meta.labelKey) : event.type;
+        const amountSign = meta?.amountSign ?? 'none';
         const clickable = CLICKABLE_TYPES.has(event.type);
         // Identity match on type + timestamp (events are unique by these two)
         const isSelected =
@@ -75,7 +72,7 @@ export default function BountyHistoryChart({ events, selectedEvent, onSelect }: 
         // Render `backing_updated` as a stacked pair: −$old above +$new.
         // Other types render a single signed amount in the right column.
         let amountNode: ReactNode = null;
-        if (meta.amountSign === 'delta' && event.amount != null && event.old_amount != null) {
+        if (amountSign === 'delta' && event.amount != null && event.old_amount != null) {
           amountNode = (
             <div className="flex flex-col items-end leading-tight">
               <span className="font-mono text-sm font-semibold tabular-nums text-bad">
@@ -86,9 +83,9 @@ export default function BountyHistoryChart({ events, selectedEvent, onSelect }: 
               </span>
             </div>
           );
-        } else if (event.amount != null && meta.amountSign !== 'none') {
-          const sign = meta.amountSign === 'neg' ? '−' : '+';
-          const cls  = meta.amountSign === 'neg' ? 'text-bad' : 'text-fan';
+        } else if (event.amount != null && amountSign !== 'none') {
+          const sign = amountSign === 'neg' ? '−' : '+';
+          const cls  = amountSign === 'neg' ? 'text-bad' : 'text-fan';
           amountNode = (
             <span className={`font-mono text-sm font-semibold tabular-nums ${cls}`}>
               {sign}${event.amount.toFixed(2)}
@@ -169,22 +166,22 @@ export default function BountyHistoryChart({ events, selectedEvent, onSelect }: 
                       <span className="text-muted/60">{u.display_name}</span>
                     )
                   )}
-                  {u && ' '}{meta.label}
+                  {u && ' '}{eventLabel}
                 </span>
               </div>
               {event.field != null && event.old_value != null && (
                 <p className="font-mono text-[10px] text-muted/60 mt-1 truncate">
-                  {FIELD_LABELS[event.field] ?? event.field}: &ldquo;{event.old_value}&rdquo;
+                  {FIELD_LABEL_KEYS[event.field] ? t(FIELD_LABEL_KEYS[event.field]) : event.field}: &ldquo;{event.old_value}&rdquo;
                 </p>
               )}
               {event.type === 'creator_assigned' && event.meta != null && (
                 <p className="font-mono text-[10px] text-muted/60 mt-1 truncate">
-                  originally{' '}
+                  {t('originally')}{' '}
                   {typeof event.meta.handle_username === 'string' && (
                     <span className="text-muted/80">
                       {String(event.meta.handle_username)}
                       {typeof event.meta.handle_platform === 'string'
-                        ? ` on ${String(event.meta.handle_platform)}`
+                        ? ` ${t('onPlatform', { platform: String(event.meta.handle_platform) })}`
                         : ''}
                     </span>
                   )}
@@ -194,10 +191,10 @@ export default function BountyHistoryChart({ events, selectedEvent, onSelect }: 
                 </p>
               )}
               <p className="font-mono text-[10px] text-muted/50 tabular-nums mt-1">
-                {formatDate(event.at)}
+                {dateFormats.full(event.at)}
                 {clickable && (
                   <span className={`ml-2 uppercase tracking-widest ${isSelected ? 'text-fan/70' : 'text-muted/40 group-hover:text-muted/70'}`}>
-                    {isSelected ? '● viewing' : 'click to view'}
+                    {isSelected ? `● ${t('viewing')}` : t('clickToView')}
                   </span>
                 )}
               </p>

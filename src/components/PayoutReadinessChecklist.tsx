@@ -1,8 +1,10 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { useAuth } from '@/lib/auth-context';
 import { PAYOUT_MINIMUM_AUTOMATED } from '@/lib/config';
+import { useMoney } from '@/lib/format';
 
 interface ChecklistItem {
   label: string;
@@ -49,6 +51,8 @@ export default function PayoutReadinessChecklist({
   taxFormDone: taxFormDoneProp,
 }: PayoutReadinessChecklistProps = {}) {
   const { user } = useAuth();
+  const t = useTranslations('PayoutReadinessChecklist');
+  const money = useMoney();
 
   if (!user || !user.creator) return null;
 
@@ -61,11 +65,10 @@ export default function PayoutReadinessChecklist({
   if (creator.payout_category === 3) {
     return (
       <p className="text-sm text-bad leading-relaxed">
-        <strong>Payouts unavailable in your region.</strong>{' '}
-        Due to international payment restrictions, we&apos;re unable to process payouts to
-        creators in your country at this time.{' '}
-        <a href="mailto:support@artypot.com" className="ap-inline-link">Contact support</a>{' '}
-        if you believe this is an error.
+        <strong>{t('regionBlocked.heading')}</strong>{' '}
+        {t('regionBlocked.body')}{' '}
+        <a href="mailto:support@artypot.com" className="ap-inline-link">{t('regionBlocked.contactSupport')}</a>{' '}
+        {t('regionBlocked.ifError')}
       </p>
     );
   }
@@ -91,36 +94,36 @@ export default function PayoutReadinessChecklist({
 
   const items: ChecklistItem[] = [
     {
-      label: 'Email verified',
+      label: t('items.emailVerified'),
       done: user.email_verified_at !== null && user.email_verified_at !== undefined,
       href: '/settings#email',
     },
     {
-      label: 'Creator TOS agreed',
+      label: t('items.creatorTosAgreed'),
       done: (user as unknown as Record<string, unknown>).creator_tos_accepted_at != null,
       href: '/creator-tos',
     },
     {
-      label: 'Country / region set',
+      label: t('items.countryRegionSet'),
       done: user.location_complete === true,
       href: '/c/settings#location',
     },
     {
-      label: 'Handle verified and approved',
+      label: t('items.handleVerified'),
       done: user.has_verified_handle === true,
       href: '/c/handles',
     },
     ...(isManualPayout
       ? [
           {
-            label: 'Bank account (manual payout — contact support)',
+            label: t('items.bankAccountManual'),
             done: false,
             href: '/support',
           } as ChecklistItem,
         ]
       : [
           {
-            label: 'Bank account connected',
+            label: t('items.bankAccountConnected'),
             done: creator.bank_connected === true,
             href: '/c/payouts#bank-account',
           } as ChecklistItem,
@@ -128,14 +131,17 @@ export default function PayoutReadinessChecklist({
     ...(showTaxForm
       ? [
           {
-            label: `Tax form submitted (${taxFormLabel})`,
+            label: t('items.taxFormSubmitted', { form: taxFormLabel }),
             done: taxFormDone,
             href: '/c/tax',
           } as ChecklistItem,
         ]
       : []),
     {
-      label: `Minimum balance reached ($${payoutMin} required, $${amountEarned.toFixed(2)} earned)`,
+      label: t('items.minimumBalance', {
+        required: money(payoutMin),
+        earned: money(amountEarned),
+      }),
       done: meetsMinimum,
       // No link — informational only
     },
@@ -155,7 +161,7 @@ export default function PayoutReadinessChecklist({
     return (
       <div className="flex items-center gap-3 py-1">
         <CheckIcon done />
-        <span className="text-sm text-good">You&apos;re all set for payouts.</span>
+        <span className="text-sm text-good">{t('allSet')}</span>
       </div>
     );
   }
@@ -167,13 +173,13 @@ export default function PayoutReadinessChecklist({
           <CheckIcon done={false} error />
           <div className="flex-1 min-w-0">
             <span className="text-sm text-bad font-medium">
-              Identity verification required by Stripe
+              {t('payoutHold.label')}
             </span>
             <Link
               href="/c/payouts#payout-hold"
               className="ml-2 text-xs text-bad underline underline-offset-2 hover:opacity-80 transition-opacity"
             >
-              Complete now →
+              {t('payoutHold.completeNow')}
             </Link>
           </div>
         </div>
@@ -213,7 +219,7 @@ export default function PayoutReadinessChecklist({
                   href={item.href}
                   className="ml-2 text-xs text-fan underline underline-offset-2 hover:opacity-80 transition-opacity"
                 >
-                  Set up now →
+                  {t('setUpNow')}
                 </Link>
               )}
             </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
+import { useTranslations } from 'next-intl';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { stripePromise } from '@/lib/stripe';
 import { billing } from '@/lib/api';
@@ -31,6 +32,7 @@ interface InnerProps {
 }
 
 function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
+  const t = useTranslations('AddCardForm');
   const stripe = useStripe();
   const elements = useElements();
 
@@ -55,7 +57,7 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
     if (!cardElement) return;
 
     if (!billingCountry) {
-      setError('Please select the billing country for this card.');
+      setError(t('errors.billingCountryRequired'));
       return;
     }
 
@@ -76,7 +78,7 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
     });
 
     if (stripeError) {
-      setError(stripeError.message ?? 'Card setup failed. Please try again.');
+      setError(stripeError.message ?? t('errors.cardSetupFailed'));
       setSubmitting(false);
     } else {
       onSuccess();
@@ -97,7 +99,7 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
       <div className="grid grid-cols-2 gap-2">
         <div>
           <label htmlFor="billing-country" className="block text-xs text-muted mb-1">
-            Billing country
+            {t('fields.billingCountry')}
           </label>
           <select
             id="billing-country"
@@ -106,7 +108,7 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
             className={fieldClass}
             required
           >
-            <option value="">— select —</option>
+            <option value="">{t('fields.selectPlaceholder')}</option>
             {COUNTRIES.map((c) => (
               <option key={c.code} value={c.code}>{c.name}</option>
             ))}
@@ -114,7 +116,7 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
         </div>
         <div>
           <label htmlFor="billing-postal" className="block text-xs text-muted mb-1">
-            ZIP / postal code
+            {t('fields.postalCode')}
           </label>
           <input
             id="billing-postal"
@@ -123,7 +125,7 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
             autoComplete="postal-code"
             value={postalCode}
             onChange={(e) => setPostalCode(e.target.value)}
-            placeholder="optional"
+            placeholder={t('fields.postalPlaceholder')}
             className={fieldClass}
           />
         </div>
@@ -139,7 +141,7 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
           disabled={!stripe || submitting}
           className="flex-1 bg-fan text-black font-semibold py-2.5 text-sm rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
         >
-          {submitting ? 'Saving…' : 'Save card'}
+          {submitting ? t('actions.saving') : t('actions.saveCard')}
         </button>
         {onCancel && (
           <button
@@ -147,7 +149,7 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
             onClick={onCancel}
             className="px-4 py-2.5 text-sm text-muted hover:text-foreground transition-colors"
           >
-            Cancel
+            {t('actions.cancel')}
           </button>
         )}
       </div>
@@ -162,6 +164,7 @@ interface AddCardFormProps {
 }
 
 export default function AddCardForm({ onSuccess, onCancel }: AddCardFormProps) {
+  const t = useTranslations('AddCardForm');
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [fetchError, setFetchError] = useState('');
 
@@ -172,15 +175,12 @@ export default function AddCardForm({ onSuccess, onCancel }: AddCardFormProps) {
       .catch((err: { reason?: string; message?: string }) => {
         // Market gate: the API blocks adding a card outside open fan markets.
         if (err?.reason === 'market_unavailable') {
-          setFetchError(
-            err.message
-              ?? "Adding a payment method isn't available in your country yet — we hope to support it soon.",
-          );
+          setFetchError(err.message ?? t('errors.marketUnavailable'));
           return;
         }
-        setFetchError('Could not initialise payment setup. Please try again.');
+        setFetchError(t('errors.setupInitFailed'));
       });
-  }, []);
+  }, [t]);
 
   if (fetchError) {
     return <div className="text-red-400 text-sm py-2">{fetchError}</div>;

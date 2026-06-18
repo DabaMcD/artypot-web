@@ -2491,5 +2491,497 @@
       "label": "pli da rekompencoj",
       "heading": "Aliaj rekompencoj por"
     }
+  },
+  "AddCardForm": {
+    "errors": {
+      "billingCountryRequired": "Bonvolu elekti la fakturadan landon por ĉi tiu karto.",
+      "cardSetupFailed": "Agordo de la karto malsukcesis. Bonvolu reprovi.",
+      "marketUnavailable": "Aldoni pagmetodon ankoraŭ ne disponeblas en via lando — ni esperas subteni ĝin baldaŭ.",
+      "setupInitFailed": "Ne eblis komenci la pagagordon. Bonvolu reprovi."
+    },
+    "fields": {
+      "billingCountry": "Fakturada lando",
+      "selectPlaceholder": "— elektu —",
+      "postalCode": "Poŝtkodo",
+      "postalPlaceholder": "nedeviga"
+    },
+    "actions": {
+      "saving": "Konservante…",
+      "saveCard": "Konservi karton",
+      "cancel": "Nuligi"
+    }
+  },
+  "AvailableBalanceSummary": {
+    "sectionLabel": "disponebla",
+    "withdraw": "Elpreni →",
+    "managePayouts": "Administri elpagojn →"
+  },
+  "BankAccountCard": {
+    "sectionLabel": "bankkonto",
+    "connectedBadge": "konektita",
+    "stripeBlurb": "Artypot uzas Stripe por sekura, rekta banka kontrolo — viaj akreditaĵoj neniam estas konservataj de ni.",
+    "setLocationPrompt": "Agordu vian lokon antaŭ ol konekti bankkonton.",
+    "setLocationButton": "Agordi lokon →",
+    "startingSetup": "Komencante agordon…",
+    "connectBankButton": "Konekti bankkonton",
+    "loading": "Ŝargante…",
+    "continueSetupButton": "Daŭrigi agordon →",
+    "connectionPending": "Banka konekto atendas — kompletigu la agordon de Stripe por ebligi monelprenojn.",
+    "disconnectBankButton": "Malkonekti bankon",
+    "disconnectModalTitle": "Ĉu malkonekti la bankkonton?",
+    "cancelButton": "Nuligi",
+    "disconnecting": "Malkonektante…",
+    "confirmDisconnectButton": "Jes, malkonekti bankon",
+    "disconnectModalBody": "Ĉi tio forigas vian ligitan bankkonton de Artypot. Vi ne povos elpreni monon ĝis vi religo kaj kompletigos la agordon denove."
+  },
+  "BountyHistoryChart": {
+    "empty": "Ankoraŭ neniu historio.",
+    "eventCreated": "Pravalorizita",
+    "eventBackingAdded": "Subtenita",
+    "eventBackingUpdated": "Sinkronigis siajn sentojn",
+    "eventBackingRevoked": "Foriris",
+    "eventDetailsEdited": "Redaktis detalojn",
+    "eventPrivilegeTransfer": "Transdonis posedon",
+    "eventCreatorAssigned": "Kontrolita kaj postulita",
+    "eventPending": "Sendita por kontrolo",
+    "eventCompleted": "Aprobita",
+    "fieldTitle": "titolo",
+    "fieldDescription": "priskribo",
+    "fieldDisplayName": "nomo de la kreinto",
+    "originally": "origine",
+    "onPlatform": "ĉe {platform}",
+    "viewing": "rigardante",
+    "clickToView": "klaku por vidi"
+  },
+  "CommentSection": {
+    "heading": "Komentoj",
+    "emptyState": "Ankoraŭ neniuj komentoj. Estu la unua.",
+    "deletedMarker": "[forigita]",
+    "editedMarker": "redaktita",
+    "composePlaceholder": "Lasu komenton…",
+    "replyPlaceholder": "Skribu respondon…",
+    "charCount": "{count}/2000",
+    "deleteConfirm": "Ĉu forigi ĉi tiun komenton?",
+    "loginPrompt": "<login>Ensalutu</login> por lasi komenton.",
+    "repliesToggle": "{count, plural, one {# respondo} other {# respondoj}}",
+    "timeAgo": {
+      "justNow": "ĵus nun",
+      "minutes": "antaŭ {count} min",
+      "hours": "antaŭ {count} h",
+      "days": "antaŭ {count} t"
+    },
+    "reaction": {
+      "like": "Ŝati",
+      "dislike": "Malŝati"
+    },
+    "actions": {
+      "save": "Konservi",
+      "cancel": "Nuligi",
+      "reply": "Respondi",
+      "edit": "Redakti",
+      "delete": "Forigi",
+      "post": "Afiŝi",
+      "posting": "Afiŝante…",
+      "postReply": "Afiŝi respondon",
+      "loadMore": "Ŝargi pliajn komentojn",
+      "loading": "Ŝargante…"
+    },
+    "errors": {
+      "loadComments": "Malsukcesis ŝargi komentojn.",
+      "loadReplies": "Malsukcesis ŝargi respondojn.",
+      "postComment": "Malsukcesis afiŝi komenton.",
+      "postReply": "Malsukcesis afiŝi respondon.",
+      "saveEdit": "Malsukcesis konservi redakton.",
+      "deleteComment": "Malsukcesis forigi komenton.",
+      "react": "Malsukcesis reagi."
+    }
+  },
+  "ConfirmPaymentModal": {
+    "title": "rajtigu vian ŝarĝon",
+    "authenticating": {
+      "waiting": "Atendante, ke via banko konfirmu…",
+      "waitingWithAmount": "Atendante, ke via banko konfirmu la ŝarĝon de <strong>{amount}</strong>…",
+      "popupHint": "Eble aperos ŝprucfenestro de via banko — kompletigu ĝin por daŭrigi."
+    },
+    "success": {
+      "heading": "Rajtigita",
+      "body": "Via ŝarĝo estas traktata."
+    },
+    "error": {
+      "tryAgain": "Provu denove",
+      "useDifferentCard": "Uzu alian karton →"
+    },
+    "errors": {
+      "authFailed": "Aŭtentigo malsukcesis. Bonvolu provi denove.",
+      "notCompleted": "Aŭtentigo ne kompletiĝis. Provu denove aŭ uzu alian karton.",
+      "unexpectedStatus": "Neatendita stato: {status}. Bonvolu provi denove."
+    }
+  },
+  "CreatorSearchWidget": {
+    "searchPlaceholder": "Serĉu kreanton…",
+    "change": "Ŝanĝi",
+    "searching": "Serĉante…",
+    "viewProfile": "vidi profilon →",
+    "verified": "kontrolita",
+    "bountyCount": "{count, plural, one {# rekompenco} other {# rekompencoj}}",
+    "noCreatorsOrHandles": "Neniuj kreantoj aŭ uzantnomoj trovitaj.",
+    "noCreators": "Neniuj kreantoj trovitaj.",
+    "addAsNewCreator": "Aldoni <term>{query}</term> kiel novan kreanton",
+    "createNewProfile": "Krei novan kreantan profilon"
+  },
+  "CreatorSlugSection": {
+    "sectionLabel": "kreanta URL",
+    "description": "Via publika kreanto-paĝo troviĝas ĉe ĉi tiu URL.",
+    "changeButton": "ŝanĝi →",
+    "cooldownBanner": "Vi ŝanĝis vian slugon antaŭ nelonge — vi povos ŝanĝi ĝin denove je <date></date>.",
+    "neverMind": "← ne gravas",
+    "newUrlLabel": "nova kreanta URL",
+    "cooldownWarning": "Ŝanĝi vian slugon komencas atendoperiodon de {days} tagoj. La antaŭa URL <slug></slug> ĉiam plusendos ĉi tien.",
+    "cancelButton": "Nuligi",
+    "saveButton": "Konservi novan URL",
+    "savingButton": "Konservante…",
+    "toastUpdated": "Slugo ĝisdatigita al /{slug}.",
+    "toastFailed": "Malsukcesis ĝisdatigi la slugon."
+  },
+  "CreatorTosTldr": {
+    "eyebrow": "TL;DR — simpla lingvo",
+    "keep": {
+      "title": "Vi konservas {keepPct}% de la pagoj de la admirantoj.",
+      "body": "Artypot deprenas {feePct}% platforman komisionon, kiu kovras karto-prilaboradon, fraŭdo-protekton, gastigadon, subtenon kaj organikajn legomojn por la konsiliaj membroj, kiuj moderigas ĉion. Neniu registriĝa kotizo, neniu monata kotizo."
+    },
+    "paidAfter": {
+      "title": "Vi estas pagata POST kiam vi liveras.",
+      "body": "La admirantoj neniam estas ŝarĝataj ĝis vi sendas vian plenumon kaj la Konsilio konfirmas, ke ĝi kontentigas la premion."
+    },
+    "chargesFinal": {
+      "title": "Ŝarĝoj estas finaj por la admirantoj, sed repagoj ankoraŭ povas okazi.",
+      "body": "Admiranto ne povas postuli sian monon reen post kiam li estas ŝarĝita. Sed retroŝarĝo, repago kiun Artypot eldonas por solvi problemon, aŭ repago kiun vi elektas eldoni estas deprenata el via saldo — kiu povas iĝi negativa kaj estas kompensata kontraŭ estontaj enspezoj. Retroŝarĝoj kaj de-Artypot-eldonitaj repagoj redonas vian platforman komisionon; repagoj kiujn vi mem komencas ne."
+    },
+    "refundBounty": {
+      "title": "Vi povas repagi tutan premion.",
+      "body": "Se vi bezonas korekti aferojn, vi povas repagi ĉiujn subtenantojn de premio el via panelo — kondiĉe ke via saldo kovras ĝin. Alie, la subteno povas helpi."
+    },
+    "publicWork": {
+      "title": "Premioj financas publikan laboron, ne privatajn avantaĝojn.",
+      "body": "Via liverotaĵo iras al ĉiuj egale. Vi ne povas interŝanĝi subtenojn kontraŭ privata aliro, fizikaj varoj, renkontiĝoj aŭ rekompencoj — publika danko estas la sola permesata avantaĝo."
+    },
+    "noOfficialActs": {
+      "title": "Neniu pago por oficaj agoj aŭ kampanjoj.",
+      "body": "Vi ne povas akcepti premion por io ajn, kion vi faras en registara rolo, nek uzi Artypot por financi kampanjon, kandidaton aŭ balotan klopodon."
+    },
+    "realPeople": {
+      "title": "Nur realaj homoj, ne markoj (ankoraŭ).",
+      "body": "Kreintaj kontoj estas por individuoj registriĝantaj por si mem. Se vi mastrumas la sociajn retojn de firmao aŭ organizo, vi ankoraŭ ne povas registri tiun markon kiel kreinton — subteno por komercaj entoj venos poste."
+    },
+    "goodFaith": {
+      "title": "Agu bonfide.",
+      "body": "Misgvidaj komentoj, malsinceraj sendaĵoj, identeca trompo kaj alia malbonfida konduto ne estas tolerataj."
+    },
+    "belowTheLaw": {
+      "title": "Artypot estas sub la leĝo.",
+      "body": "Ni devas kolekti impostajn informojn. Multaj landoj ne subtenas aŭtomatan pago-prilaboradon kaj havas pli altan minimuman elpagan sojlon. Estas kelkaj landoj, en kiuj ni tute ne povas funkcii."
+    },
+    "fundsClear": {
+      "title": "Fondusoj liberiĝas post 7 tagoj.",
+      "body": "Kolektitaj fondusoj estas tenataj 7 tagojn (por fraŭda kaj disputa kontrolo) antaŭ ol fariĝi eltireblaj, kondiĉe de minimuma elpaga saldo."
+    },
+    "copyright": {
+      "title": "Vi konservas vian kopirajton.",
+      "body": "Nenio ĉi tie transdonas la posedon de via laboro al Artypot aŭ al iu admiranto. Vi donas nur limigitan licencon por montri kaj reklami plenumojn sur la platformo."
+    },
+    "familyFriendly": {
+      "title": "Artypot estas familiamika.",
+      "body": "Via premia teksto, profilo, uzantnomoj kaj plenumaj notoj estas publikaj kaj devas esti deca por ĉiuj. Vi ankaŭ ne povas uzi premion por financi plenkreskulan enhavon (niaj pago-partneroj malpermesas ĝin). Nenio kontraŭleĝa. Kion vi faras kaj gastigas aliloke estas via afero."
+    },
+    "footnote": "Ĉi tiu TL;DR estas helpa resumo, ne anstataŭaĵo por la plenaj kondiĉoj sube."
+  },
+  "HandlesSection": {
+    "sectionLabel": "handles",
+    "description": "Konektu viajn sociajn kontojn por kontroli vian identecon kiel kreanto.",
+    "common": {
+      "cancel": "Nuligi",
+      "close": "Fermi"
+    },
+    "list": {
+      "loading": "ŝargante handles…",
+      "badgeVerified": "kontrolita",
+      "badgePendingReview": "atendanta kontrolon",
+      "badgeUnverified": "nekontrolita",
+      "messagePrefix": "mesaĝo:",
+      "remove": "Forigi",
+      "connectVia": "Konekti per {platform} →",
+      "updateReviewRequest": "Ĝisdatigi kontrol-peton",
+      "requestAdminReview": "Peti kontrolon de administrantoj"
+    },
+    "add": {
+      "platformLabel": "platformo",
+      "selectPlatform": "Elektu platformon",
+      "adding": "Aldonante…",
+      "addHandle": "Aldoni handle →",
+      "addAnother": "+ aldoni alian handle",
+      "alreadyClaimedToast": "Vi jam havas postulon pri ĉi tiu handle.",
+      "addedToast": "Handle aldonita.",
+      "addFailed": "Malsukcesis aldoni la handle."
+    },
+    "remove": {
+      "removedToast": "Handle forigita.",
+      "removeFailed": "Malsukcesis forigi la handle."
+    },
+    "removeModal": {
+      "title": "Ĉu forigi handle?",
+      "verifiedWarning": "Ĉi tiu ago ne povas esti malfarita. Por readoni ĉi tiun handle estonte, vi devos denove trapasi la kontrol-procezon. Se ia premio nuntempe celas ĉi tiun handle, forigo postulas helpon de administranto.",
+      "confirm": "Ĉu forigi <handle>@{username}</handle> ĉe {platform}?",
+      "removing": "Forigante…",
+      "removeButton": "Forigi handle"
+    },
+    "blockedModal": {
+      "title": "Kontaktu administrantojn por forigi",
+      "referenced": "<mono>@{username}</mono> ĉe {platform} estas nuntempe referencita de <strong>{count, plural, one {# premio} other {# premioj}}</strong>.",
+      "explanation": "Kontrolitaj handles ligitaj al aktivaj premioj ne povas esti forigitaj el via konto aŭtomate — fari tion orfigus tiujn premiojn de ilia kontrolita posedanto. Bonvolu kontakti la teamon de Artypot kaj ili prizorgos la forigon por vi.",
+      "contactSupport": "Kontakti subtenon →"
+    },
+    "review": {
+      "title": "kontroli @{username}",
+      "intro": "Kiel ni povas rapide kontakti vin? Ni parolu por ke ni povu kontroli ke vi posedas vian <brand>{platform}</brand>-konton.",
+      "contactLabel": "kontakt-mesaĝo",
+      "contactPlaceholder": "Skribu al mi en Discord @uzanto, aŭ telefonu min en la venontaj 3 horoj je (555) 555-5555",
+      "contactHint": "Ĉi tio videblas nur al administrantoj de Artypot.",
+      "alreadySubmitted": "Vi jam sendis ĉi tion por kontrolo. Ĝisdatigi vian mesaĝon resendos ĝin.",
+      "errorTooShort": "Bonvolu doni almenaŭ unu frazon por ke administrantoj sciu kiel atingi vin.",
+      "submittedToast": "Kontrol-peto sendita — ni kontaktos vin.",
+      "submitFailed": "Malsukcesis sendi. Bonvolu reprovi.",
+      "submitting": "Sendante…",
+      "resubmit": "Resendi por kontrolo",
+      "submit": "Sendi por kontrolo"
+    },
+    "oauth": {
+      "title": "konekti {platform}",
+      "intro": "Konektu vian <strong>{platform}</strong>-konton per OAuth por tuja kontrolo. Vi estos redirektita al {brand} por rajtigi la konekton, kaj poste revenigita ĉi tien.",
+      "ownerNote": "Certigu ke vi uzas la {brand}-konton kiu posedas <strong>@{username}</strong>.",
+      "redirecting": "Redirektante…",
+      "connectButton": "Konekti {platform} →",
+      "startFailed": "Malsukcesis komenci OAuth. Bonvolu reprovi."
+    },
+    "verifyResult": {
+      "yourHandle": "via handle",
+      "verified": "{at} estas kontrolita! 🎉",
+      "notFound": "Ni ne povis kontroli {at} — tiu konto ne kongruis. Certigu ke vi ensalutis al la konto kiu posedas ĝin.",
+      "failed": "Ne eblis kompletigi la konekton por {at}. Bonvolu reprovi.",
+      "unknown": "Io misfunkciis dum kontrolo de {at}. Bonvolu reprovi."
+    },
+    "nudge": {
+      "submitted": "<bold>Kontrol-peto sendita.</bold> Bonvolu esti pacienca, kaj Baldwig kontaktos vin kiel eble plej baldaŭ! Aŭ vi povas provi vian bonŝancon kaj telefoni Baldwig rekte je <phone>+1 (727) 370-1237</phone>. Li neniam konfesos ĝin, sed li estas terure soleca. Li neniam eĉ promenis manon-en-mano kun virino. Se vi estas knabo, vi certe telefonu lin, sed se vi estas knabino vi DEFINITIVE telefonu lin.",
+      "unverified": "<bold>Vi aldonis handle — nun kontrolu ĝin.</bold> Konektu per OAuth aŭ petu kontrolon de administrantoj per la butonoj supre."
+    }
+  },
+  "HeaderSearch": {
+    "placeholder": "Serĉi…",
+    "tooShortHint": "Daŭrigu tajpadon — almenaŭ {min} signoj.",
+    "sectionRecent": "lastatempaj",
+    "sectionTrending": "popularaj rekompencoj",
+    "sectionPeople": "homoj",
+    "sectionBounties": "rekompencoj",
+    "emptyPrompt": "Serĉu kreantojn, rekompencojn kaj kromnomojn.",
+    "searching": "Serĉante…",
+    "noMatches": "Neniuj rezultoj por «{query}».",
+    "seeAll": "Vidi ĉiujn rezultojn por «{query}» →",
+    "matched": "kongruas",
+    "matchedAlias": "kongruas kun kromnomo",
+    "personOpenBounties": "{count, plural, one {# malferma rekompenco} other {# malfermaj rekompencoj}} · {amount} subtenita",
+    "roleCreator": "Kreanto",
+    "roleUnverified": "Nekontrolita",
+    "badgeCreator": "kreanto",
+    "badgeUnverified": "nekontrolita"
+  },
+  "LifecycleRail": {
+    "bountyOpens": {
+      "label": "Premio malfermiĝas",
+      "actor": "subtenanto"
+    },
+    "fansBackIt": {
+      "label": "Fanoj subtenas ĝin",
+      "actor": "fanoj"
+    },
+    "creatorSubmits": {
+      "label": "Kreinto liveras laboron",
+      "actor": "kreinto"
+    },
+    "councilSignsOff": {
+      "label": "Konsilio aprobas",
+      "actor": "konsilio"
+    },
+    "fansGetCharged": {
+      "label": "Fanoj estas ŝarĝataj",
+      "actor": "fanoj"
+    },
+    "creatorGetsPaid": {
+      "label": "Kreinto ricevas pagon",
+      "actor": "kreinto"
+    }
+  },
+  "PaymentMethodManager": {
+    "errorLoad": "Ne eblis ŝargi la pagmetodojn.",
+    "errorRemove": "Ne eblis forigi la pagmetodon.",
+    "removedWithRevocations": "Pagmetodo forigita — {count, plural, one {# subteno nuligita} other {# subtenoj nuligitaj}} ({amount}).",
+    "reason": {
+      "expired": "eksvalidiĝinta",
+      "detachedAtStripe": "forigita ĉe via banko",
+      "replacedByUpdater": "anstataŭigita de via karteldonanto",
+      "billingFailure": "fakturada malsukceso"
+    },
+    "modalTitle": "Ĉu forigi ĉi tiun pagmetodon?",
+    "modalIntro": "Ĉi tiu estas via <strong>sola valida pagmetodo</strong> en la dosiero. Se vi forigas ĝin:",
+    "modalBulletSoft": "Viaj <strong>{amount}</strong> en aktivaj subtenoj estos markitaj kiel «molaj» ĝis vi aldonos novan pagmetodon. Bonvolu fari tion antaŭ la sekva fakturada ciklo je <strong>{date}</strong>.",
+    "modalBulletAddAnyTime": "Vi povas aldoni novan pagmetodon iam ajn antaŭ tio por teni viajn subtenojn aktivaj.",
+    "modalBulletMissCycle": "Se vi maltrafas fakturadan ciklon, viaj subtenoj estos aŭtomate nuligitaj kaj vi devos resubteni iujn ajn premiojn, kiujn vi volas subteni.",
+    "cancel": "Nuligi",
+    "removing": "Forigante…",
+    "removeAnyway": "Forigi tamen",
+    "remove": "Forigi",
+    "updateCard": "Ĝisdatigi karton",
+    "emptyState": "Ankoraŭ neniuj pagmetodoj konservitaj.",
+    "addCard": "Aldoni karton",
+    "addPaymentMethod": "+ Aldoni pagmetodon"
+  },
+  "PayoutReadinessChecklist": {
+    "regionBlocked": {
+      "heading": "Elpagoj ne disponeblas en via regiono.",
+      "body": "Pro internaciaj pagrestriktoj, ni ne povas procezi elpagojn al kreantoj en via lando ĉi-momente.",
+      "contactSupport": "Kontaktu subtenon",
+      "ifError": "se vi kredas ke tio estas eraro."
+    },
+    "items": {
+      "emailVerified": "Retpoŝto kontrolita",
+      "creatorTosAgreed": "Kreantaj kondiĉoj akceptitaj",
+      "countryRegionSet": "Lando / regiono fiksita",
+      "handleVerified": "Uzantnomo kontrolita kaj aprobita",
+      "bankAccountManual": "Bankkonto (mana elpago — kontaktu subtenon)",
+      "bankAccountConnected": "Bankkonto konektita",
+      "taxFormSubmitted": "Imposta formularo sendita ({form})",
+      "minimumBalance": "Minimuma saldo atingita ({required} bezonata, {earned} gajnita)"
+    },
+    "allSet": "Vi estas tute preta por elpagoj.",
+    "payoutHold": {
+      "label": "Stripe postulas identecan kontrolon",
+      "completeNow": "Plenumi nun →"
+    },
+    "setUpNow": "Agordi nun →"
+  },
+  "PayoutRegionNotice": {
+    "blocked": {
+      "heading": "Elpagoj ne disponeblas en via regiono.",
+      "body": "Pro internaciaj pagaj limigoj, ni nuntempe ne povas procezi elpagojn al kreintoj en via lando. Via premia agado cetere ne estas tuŝita.",
+      "errorPrompt": "Se vi kredas ke tio estas eraro,",
+      "contactLink": "kontaktu subtenon"
+    },
+    "manual": {
+      "heading": "Manaj elpagoj en via regiono.",
+      "body": "Aŭtomataj bankaj elpagoj ne disponeblas kie vi estas — ni sendas elpagojn mane per Wise, PayPal aŭ ĝiro, kun minimuma elpreno de {min}.",
+      "contactLink": "Kontaktu nin por aranĝi transigon →"
+    }
+  },
+  "PlatformHandleInput": {
+    "websiteUrlLabel": "Retejo-URL",
+    "invalidUrlError": "Bonvolu enigi validan http(s)-URL.",
+    "otherUrlHint": "Algluu la plenan URL al la profilo de la kreinto en iu ajn platformo, kiun ni ne listigas supre.",
+    "label": {
+      "youtube": "Kanala identigilo",
+      "instagram": "IG-identigilo",
+      "twitter": "Identigilo",
+      "tiktok": "Uzantnomo",
+      "twitch": "Kanalnomo",
+      "bluesky": "Identigilo",
+      "kick": "Kanalnomo"
+    }
+  },
+  "SlugInput": {
+    "defaultLabel": "via kreinta URL",
+    "placeholder": "vianomo",
+    "checking": "Kontrolante…",
+    "checkingStatus": "kontrolante…",
+    "availableStatus": "disponebla",
+    "taken": "Tiu identigilo jam estas uzata.",
+    "hint": "3–30 signoj · minusklaj literoj, ciferoj, <code>_</code>, <code>-</code> · sen disigilo komence aŭ fine",
+    "formatErrors": {
+      "required": "La identigilo estas deviga.",
+      "tooShort": "La identigilo devas havi almenaŭ 3 signojn.",
+      "tooLong": "La identigilo devas havi 30 signojn aŭ malpli.",
+      "invalidChars": "Uzu nur minusklajn literojn, ciferojn, substrekojn kaj streketojn — kaj komencu kaj finu per litero aŭ cifero.",
+      "consecutiveSeparators": "Neniuj sinsekvaj substrekoj aŭ streketoj."
+    }
+  },
+  "TaxComplianceCard": {
+    "sectionLabel": "imposta plenumo",
+    "loading": "Ŝargante…",
+    "noCountry": "Agordu vian impostan loĝlokon en <link>agordoj</link> por ke ni sciu ĉu validas W-9 (Usono) aŭ W-8BEN (internacia).",
+    "toast": {
+      "w9Submitted": "W-9 sendita! Ni sciigos vin tuj kiam via SSN/TIN estos kontrolita.",
+      "w9Cancelled": "W-9 ne kompletigita — vi povas reveni kaj fini ĝin iam ajn.",
+      "w8benSubmitted": "W-8BEN sendita! Ni baldaŭ kontrolos kaj konfirmos.",
+      "w8benCancelled": "W-8BEN ne kompletigita — vi povas fini ĝin iam ajn."
+    },
+    "error": {
+      "w9LinkFailed": "Ne eblis akiri la ligilon de W-9. Bonvolu reprovi.",
+      "w8benLinkFailed": "Ne eblis akiri la ligilon de W-8BEN. Bonvolu reprovi."
+    },
+    "w9": {
+      "sectionLabel": "imposta plenumo — W-9",
+      "badge": {
+        "ssnVerified": "SSN kontrolita",
+        "submitted": "sendita",
+        "ssnMismatch": "SSN malkongruas",
+        "pending": "atendanta"
+      },
+      "body": {
+        "verified": "Via W-9 estas kompleta kaj via SSN/TIN estis kontrolita.",
+        "required": "Viaj enspezoj de {taxYear} atingis {earnings}. W-9 estas postulata antaŭ via sekva elpago.",
+        "belowThreshold": "Vi gajnis {earnings} ĉi-jare. Artypot postulas W-9 kiam vi atingas {threshold}."
+      },
+      "banner": {
+        "tinFailed": "La kontrolo de SSN/TIN malsukcesis. Bonvolu resendi kun korektita informo."
+      },
+      "button": {
+        "resubmit": "Resendi W-9 →",
+        "continue": "Daŭrigi W-9 →",
+        "complete": "Kompletigi W-9 per TaxBandits →"
+      },
+      "helper": "Malfermas TaxBandits en nova langeto. Artypot neniam vidas vian SSN."
+    },
+    "w8ben": {
+      "sectionLabel": "imposta plenumo — W-8BEN",
+      "badge": {
+        "submitted": "sendita",
+        "invalid": "nevalida",
+        "pending": "atendanta"
+      },
+      "body": {
+        "confirmed": "Via W-8BEN estis sendita kaj konfirmita.",
+        "required": "Vi gajnis {earnings} ĉi-jare. W-8BEN estas postulata antaŭ via sekva elpago.",
+        "belowThreshold": "Vi gajnis {earnings} ĉi-jare. Artypot postulas W-8BEN kiam vi atingas {threshold}."
+      },
+      "banner": {
+        "invalid": "Via W-8BEN estis markita kiel nevalida. Bonvolu resendi kun korektita informo."
+      },
+      "button": {
+        "resubmit": "Resendi W-8BEN →",
+        "continue": "Daŭrigi W-8BEN →",
+        "complete": "Kompletigi W-8BEN per TaxBandits →"
+      },
+      "helper": "Malfermas TaxBandits en nova langeto. Artypot neniam vidas viajn personajn impostajn detalojn."
+    }
+  },
+  "WithdrawCard": {
+    "sectionLabel": "disponebla",
+    "payoutHold": "Elpagoj estas prokrastitaj — kompletigu la kontrolon de Stripe por elpreni.",
+    "resolveNow": "Solvi nun →",
+    "completeBankSetup": "Kompletigu la bankan agordon por elpreni.",
+    "connectBank": "Konektu bankan konton por elpreni.",
+    "payoutsLink": "Elpagoj →",
+    "nothingToWithdraw": "Ankoraŭ nenio por elpreni.",
+    "confirmPrompt": "Ĉu sendi <strong>{amount}</strong> al via ligita banko?",
+    "sending": "Sendante…",
+    "confirmSend": "Jes, sendu ĝin",
+    "cancel": "Nuligi",
+    "withdraw": "Elpreni"
   }
 }

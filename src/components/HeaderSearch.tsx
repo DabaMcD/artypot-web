@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslations, useFormatter } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { search as searchApi } from '@/lib/api';
 import type { SearchResponse, SearchPerson, SearchBountyResult } from '@/lib/types';
@@ -31,8 +32,19 @@ type NavItem =
   | { kind: 'bounty'; href: string }
   | { kind: 'see-all'; href: string };
 
-const fmtMoney = (n: number) =>
-  `$${Math.round(n).toLocaleString('en-US')}`;
+// Locale-aware money: USD, rounded to whole dollars (the search dropdown shows
+// no cents). Returns a hook-bound formatter so the thousands separators follow
+// the active locale instead of being hard-coded to en-US.
+function useWholeMoney() {
+  const format = useFormatter();
+  return (n: number) =>
+    format.number(Math.round(n), {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+}
 
 const isExternal = (url: string | null | undefined): boolean =>
   !!url && /^https?:\/\//i.test(url);
@@ -68,8 +80,10 @@ function PersonAvatar({ person }: { person: SearchPerson }) {
   );
 }
 
-export default function HeaderSearch({ placeholder = 'Search…', size = 'sm', autoFocus, className = '' }: HeaderSearchProps) {
+export default function HeaderSearch({ placeholder, size = 'sm', autoFocus, className = '' }: HeaderSearchProps) {
+  const t = useTranslations('HeaderSearch');
   const router = useRouter();
+  const resolvedPlaceholder = placeholder ?? t('placeholder');
   const [query, setQuery] = useState('');
   const [focused, setFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -229,7 +243,7 @@ export default function HeaderSearch({ placeholder = 'Search…', size = 'sm', a
         onBlur={() => {
           blurTimer.current = setTimeout(() => setFocused(false), 150);
         }}
-        placeholder={placeholder}
+        placeholder={resolvedPlaceholder}
         className={inputClass}
         role="combobox"
         aria-expanded={showDropdown}
@@ -248,7 +262,7 @@ export default function HeaderSearch({ placeholder = 'Search…', size = 'sm', a
           <div ref={listRef} className="overflow-y-auto">
             {/* Too-short hint */}
             {!queryActive && trimmed.length > 0 && (
-              <div className="px-4 py-3 text-sm text-muted">Keep typing — at least {MIN_CHARS} characters.</div>
+              <div className="px-4 py-3 text-sm text-muted">{t('tooShortHint', { min: MIN_CHARS })}</div>
             )}
 
             {/* Empty-input state: recent searches + trending */}
@@ -256,7 +270,7 @@ export default function HeaderSearch({ placeholder = 'Search…', size = 'sm', a
               <>
                 {recent.length > 0 && (
                   <div>
-                    <SectionHeader>recent</SectionHeader>
+                    <SectionHeader>{t('sectionRecent')}</SectionHeader>
                     {recent.map((term) => (
                       <button
                         key={term}
@@ -272,7 +286,7 @@ export default function HeaderSearch({ placeholder = 'Search…', size = 'sm', a
                 )}
                 {trending.length > 0 && (
                   <div>
-                    <SectionHeader>trending bounties</SectionHeader>
+                    <SectionHeader>{t('sectionTrending')}</SectionHeader>
                     {trending.map((b) => (
                       <BountyRow
                         key={b.id}
@@ -285,7 +299,7 @@ export default function HeaderSearch({ placeholder = 'Search…', size = 'sm', a
                   </div>
                 )}
                 {recent.length === 0 && trending.length === 0 && (
-                  <div className="px-4 py-3 text-sm text-muted">Search creators, bounties, and handles.</div>
+                  <div className="px-4 py-3 text-sm text-muted">{t('emptyPrompt')}</div>
                 )}
               </>
             )}
@@ -297,14 +311,14 @@ export default function HeaderSearch({ placeholder = 'Search…', size = 'sm', a
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                 </svg>
-                Searching…
+                {t('searching')}
               </div>
             )}
 
             {/* People section */}
             {queryActive && people.length > 0 && (
               <div>
-                <SectionHeader>people</SectionHeader>
+                <SectionHeader>{t('sectionPeople')}</SectionHeader>
                 {people.map((p) => {
                   const idx = nextIndex();
                   return (
@@ -323,7 +337,7 @@ export default function HeaderSearch({ placeholder = 'Search…', size = 'sm', a
             {/* Bounties section */}
             {queryActive && bounties.length > 0 && (
               <div>
-                <SectionHeader>bounties</SectionHeader>
+                <SectionHeader>{t('sectionBounties')}</SectionHeader>
                 {bounties.map((b) => {
                   const idx = nextIndex();
                   return (
@@ -342,7 +356,7 @@ export default function HeaderSearch({ placeholder = 'Search…', size = 'sm', a
             {/* Empty state */}
             {queryActive && !loading && !hasResults && (
               <div className="px-4 py-3">
-                <p className="text-sm text-muted">No matches for &ldquo;{trimmed}&rdquo;.</p>
+                <p className="text-sm text-muted">{t('noMatches', { query: trimmed })}</p>
               </div>
             )}
           </div>
@@ -359,7 +373,7 @@ export default function HeaderSearch({ placeholder = 'Search…', size = 'sm', a
                   activeIndex === idx ? 'bg-border' : 'bg-surface-2 hover:bg-border'
                 }`}
               >
-                See all results for &ldquo;{trimmed}&rdquo; →
+                {t('seeAll', { query: trimmed })}
               </button>
             );
           })()}
@@ -380,9 +394,10 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
 }
 
 function MatchReasonNote({ kind, value }: { kind?: string; value?: string | null }) {
+  const t = useTranslations('HeaderSearch');
   if (!value) return null;
   const label =
-    kind === 'alias' ? 'matched alias' : 'matched';
+    kind === 'alias' ? t('matchedAlias') : t('matched');
   return (
     <span className="block text-[11px] text-muted/70 truncate">
       {label}: {value}
@@ -401,12 +416,17 @@ function PersonRow({
   onActivate: () => void;
   onHover: () => void;
 }) {
+  const t = useTranslations('HeaderSearch');
+  const money = useWholeMoney();
   const subline =
     person.open_bounty_count > 0
-      ? `${person.open_bounty_count} open ${person.open_bounty_count === 1 ? 'bounty' : 'bounties'} · ${fmtMoney(person.total_backed_open)} backed`
+      ? t('personOpenBounties', {
+          count: person.open_bounty_count,
+          amount: money(person.total_backed_open),
+        })
       : person.type === 'creator'
-        ? 'Creator'
-        : 'Unverified';
+        ? t('roleCreator')
+        : t('roleUnverified');
 
   return (
     <button
@@ -429,7 +449,7 @@ function PersonRow({
         )}
       </span>
       <Badge tone={person.type === 'creator' ? 'creator' : 'default'} className="shrink-0 self-center">
-        {person.type === 'creator' ? 'creator' : 'unverified'}
+        {person.type === 'creator' ? t('badgeCreator') : t('badgeUnverified')}
       </Badge>
     </button>
   );
@@ -446,6 +466,7 @@ function BountyRow({
   onActivate: () => void;
   onHover: () => void;
 }) {
+  const money = useWholeMoney();
   const snippet = bounty.match_reason?.kind === 'description'
     ? sanitizeSnippet(bounty.match_reason?.snippet)
     : '';
@@ -464,7 +485,7 @@ function BountyRow({
         <span className={`text-sm text-foreground truncate ${active ? 'underline underline-offset-2' : ''}`}>{bounty.title}</span>
         <span className="shrink-0 flex items-center gap-1.5">
           <BountyStatusBadge status={bounty.status} xs />
-          <span className="text-fan font-semibold text-xs">{fmtMoney(bounty.amount_backed)}</span>
+          <span className="text-fan font-semibold text-xs">{money(bounty.amount_backed)}</span>
         </span>
       </span>
       {/* Matching handle, right below the title. */}

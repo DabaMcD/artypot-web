@@ -1,8 +1,10 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { useMoney } from '@/lib/format';
 import type { CreatorPayouts } from '@/lib/hooks/useCreatorPayouts';
 
 /**
@@ -14,9 +16,10 @@ import type { CreatorPayouts } from '@/lib/hooks/useCreatorPayouts';
  * machinery (the full WithdrawCard) lives.
  */
 export default function AvailableBalanceSummary({ p }: { p: CreatorPayouts }) {
+  const t = useTranslations('AvailableBalanceSummary');
+  const fmt = useMoney();
   const { balance, balanceLoading, canWithdraw, isPayoutBlocked, isManualPayout } = p;
   const availableBalance = balance?.available_balance ?? 0;
-  const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
   // Offer a direct "Withdraw →" only when the creator can self-serve a payout
   // right now; otherwise send them to /c/payouts to finish bank setup or read
@@ -25,13 +28,13 @@ export default function AvailableBalanceSummary({ p }: { p: CreatorPayouts }) {
 
   return (
     <Card>
-      <SectionLabel className="mb-1">available</SectionLabel>
+      <SectionLabel className="mb-1">{t('sectionLabel')}</SectionLabel>
       <div className="font-mono text-[32px] font-medium tabular-nums text-foreground">
         {balanceLoading ? '—' : fmt(availableBalance)}
       </div>
       <Link href={canSelfWithdraw ? '/c/payouts#available' : '/c/payouts'} className="block mt-3">
         <Button variant={canSelfWithdraw ? 'primary' : 'default'} className="w-full justify-center">
-          {canSelfWithdraw ? 'Withdraw →' : 'Manage payouts →'}
+          {canSelfWithdraw ? t('withdraw') : t('managePayouts')}
         </Button>
       </Link>
     </Card>

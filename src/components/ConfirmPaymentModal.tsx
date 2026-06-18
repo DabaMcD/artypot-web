@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { Elements, useStripe } from '@stripe/react-stripe-js';
 import { stripePromise } from '@/lib/stripe';
 import { Modal } from './ui/Modal';
 import { Button } from './ui/Button';
+import { useMoney } from '@/lib/format';
 
 interface ConfirmPaymentModalProps {
   /** Stripe PaymentIntent client_secret from /v1/billing/pending-action or pay-now. */
@@ -35,11 +37,13 @@ export function ConfirmPaymentModal(props: ConfirmPaymentModalProps) {
 }
 
 function ConfirmInner({ clientSecret, amountCents, onSuccess, onClose }: ConfirmPaymentModalProps) {
+  const t = useTranslations('ConfirmPaymentModal');
+  const money = useMoney();
   const stripe = useStripe();
   const [status, setStatus] = useState<'idle' | 'authenticating' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const dollarAmount = amountCents != null ? (amountCents / 100).toFixed(2) : null;
+  const dollarAmount = amountCents != null ? money(amountCents / 100) : null;
 
   // Fire `confirmCardPayment` once Stripe.js is ready. Stripe handles the
   // entire 3DS UI (modal / redirect to bank); we just await the result.
@@ -49,7 +53,7 @@ function ConfirmInner({ clientSecret, amountCents, onSuccess, onClose }: Confirm
     setStatus('authenticating');
     stripe.confirmCardPayment(clientSecret).then(({ error, paymentIntent }) => {
       if (error) {
-        setErrorMessage(error.message ?? 'Authentication failed. Please try again.');
+        setErrorMessage(error.message ?? t('errors.authFailed'));
         setStatus('error');
         return;
       }
@@ -62,14 +66,14 @@ function ConfirmInner({ clientSecret, amountCents, onSuccess, onClose }: Confirm
         setTimeout(onSuccess, 600);
       } else if (paymentIntent?.status === 'requires_action') {
         // User dismissed the bank's challenge — keep modal open so they can retry.
-        setErrorMessage('Authentication was not completed. Try again or use a different card.');
+        setErrorMessage(t('errors.notCompleted'));
         setStatus('error');
       } else {
-        setErrorMessage(`Unexpected status: ${paymentIntent?.status}. Please try again.`);
+        setErrorMessage(t('errors.unexpectedStatus', { status: paymentIntent?.status ?? '' }));
         setStatus('error');
       }
     });
-  }, [stripe, clientSecret, status, onSuccess]);
+  }, [stripe, clientSecret, status, onSuccess, t]);
 
   const retry = () => {
     setErrorMessage('');
@@ -77,16 +81,22 @@ function ConfirmInner({ clientSecret, amountCents, onSuccess, onClose }: Confirm
   };
 
   return (
-    <Modal title="Authorize your charge" onClose={onClose}>
+    <Modal title={t('title')} onClose={onClose}>
       {status === 'authenticating' && (
         <div className="py-6 text-center">
           <div className="w-8 h-8 border-2 border-fan border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-sm text-muted">
-            Waiting for your bank to confirm
-            {dollarAmount && <> the <strong className="text-foreground">${dollarAmount}</strong> charge</>}…
+            {dollarAmount
+              ? t.rich('authenticating.waitingWithAmount', {
+                  amount: dollarAmount,
+                  strong: (chunks) => (
+                    <strong className="text-foreground">{chunks}</strong>
+                  ),
+                })
+              : t('authenticating.waiting')}
           </p>
           <p className="text-xs text-muted/60 mt-2">
-            You may see a popup from your bank — complete it to continue.
+            {t('authenticating.popupHint')}
           </p>
         </div>
       )}
@@ -94,8 +104,8 @@ function ConfirmInner({ clientSecret, amountCents, onSuccess, onClose }: Confirm
       {status === 'success' && (
         <div className="py-6 text-center">
           <div className="text-creator text-3xl mb-3">✓</div>
-          <p className="text-foreground font-semibold mb-1">Authorized</p>
-          <p className="text-sm text-muted">Your charge is being processed.</p>
+          <p className="text-foreground font-semibold mb-1">{t('success.heading')}</p>
+          <p className="text-sm text-muted">{t('success.body')}</p>
         </div>
       )}
 
@@ -103,13 +113,13 @@ function ConfirmInner({ clientSecret, amountCents, onSuccess, onClose }: Confirm
         <div className="py-2">
           <p className="text-sm text-bad mb-4">{errorMessage}</p>
           <div className="flex flex-col gap-2">
-            <Button onClick={retry}>Try again</Button>
+            <Button onClick={retry}>{t('error.tryAgain')}</Button>
             <Link
               href="/billing"
               className="text-center text-sm text-muted hover:text-foreground py-2 transition-colors"
               onClick={onClose}
             >
-              Use a different card →
+              {t('error.useDifferentCard')}
             </Link>
           </div>
         </div>
