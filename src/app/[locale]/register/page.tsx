@@ -243,11 +243,7 @@ export default function RegisterPage() {
       }
     } catch (err: unknown) {
       const e = err as { status?: number; message?: string };
-      if (e.status === 501) {
-        setError(t('errors.notAvailable'));
-      } else {
-        setError(e.message ?? t('errors.registrationFailed'));
-      }
+      setError(e.message ?? t('errors.registrationFailed'));
     } finally {
       setLoading(false);
     }

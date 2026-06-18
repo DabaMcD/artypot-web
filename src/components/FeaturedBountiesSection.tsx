@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { featuredBounties as featuredBountiesApi } from '@/lib/api';
 import BountyCard from '@/components/BountyCard';
 import type { Bounty } from '@/lib/types';
 
 export default function FeaturedBountiesSection() {
+  const t = useTranslations('FeaturedBounties');
   const [bounties, setBounties] = useState<Bounty[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,8 +25,8 @@ export default function FeaturedBountiesSection() {
   return (
     <section className="border-t border-border">
       <div className="max-w-6xl mx-auto px-7 py-20">
-        <h2 className="text-2xl font-display font-bold text-foreground mb-2">Open right now.</h2>
-        <p className="text-muted mb-10">A few bounties worth knowing about.</p>
+        <h2 className="text-2xl font-display font-bold text-foreground mb-2">{t('heading')}</h2>
+        <p className="text-muted mb-10">{t('subheading')}</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
           {loading

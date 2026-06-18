@@ -398,6 +398,9 @@
       "start": "or just start ur own bounty, lock in gng →"
     }
   },
+  "BackingPolicyNote": {
+    "text": "free to bail anytime before the bounty wraps, zero cap. once it's done? ur backing locks in, gets charged on the next billing day, n it's FINAL — refunds after a charge are vibes-based only (hardship or legit fraud). n look, to the extent this backing counts as a contract for services, u agree the work can kick off immediately n any EU/UK 14-day right to withdraw dips the moment the bounty completes 📜✌️"
+  },
   "BecomeCreator": {
     "hero": {
       "sectionLabel": "just a fan rn 🧍",
@@ -679,6 +682,10 @@
         "findCreators": "go find creators →"
       }
     }
+  },
+  "FeaturedBounties": {
+    "heading": "live n open rn 🔥",
+    "subheading": "a few bounties worth knowing about no cap 👀"
   },
   "ForCreators": {
     "hero": {
@@ -962,8 +969,8 @@
         "rest": "WE never peep ur full number — that's not our arc, no cap fr fr."
       },
       "private": {
-        "bold": "ur backing history? ghost mode by default 🤫👻",
-        "rest": "go anonymous in settings whenever bestie, nobody's clocking u."
+        "bold": "ur backing history? out in the open by default 👀📢",
+        "rest": "flip ur profile to anon mode in settings to hide it 🤫👻"
       },
       "delete": {
         "bold": "u can absolutely nuke ur account 💣🗑️",
@@ -987,11 +994,11 @@
         "title": "the stuff we yoink 🪝💀",
         "account": {
           "label": "account stuff:",
-          "body": "ur name, email, n password (hashed into the SHADOW REALM so even WE can't read it 🧂👁️). optionally a pfp n a phone number so we can clock that ur a real one n not some bot army, no cap."
+          "body": "ur name, email, n password (hashed into the SHADOW REALM so even WE can't read it 🧂👁️). optionally a pfp n a phone number so we can clock that ur a real one n not some bot army, no cap. n if u sign in w a social (Google, GitHub, Discord, etc.) we keep that provider n ur account id w it just to link the login 🔗."
         },
         "financial": {
           "label": "the money stuff 💰:",
-          "body": "backers: payment deets (Stripe's problem now, peep Section 5). creators getting that bag: bank/payout info (Stripe Connect or some other payout gng) PLUS tax id stuff for the dreaded IRS arc (W-9 n 1099 if ur US, W-8BEN n 1042-S if ur overseas). yeah it's a lot, just lock in 🔒."
+          "body": "backers: payment deets (Stripe's problem now, peep Section 5). creators getting that bag: bank/payout info (Stripe Connect or some other payout gng), ur declared tax residence (country, n US state if it applies, kept as a receipt trail for taxes), PLUS tax id stuff for the dreaded IRS arc (W-9 n 1099 if ur US, W-8BEN n 1042-S if ur overseas). we also log the IP u used for certain account n compliance moments 👁️. yeah it's a lot, just lock in 🔒."
         },
         "activity": {
           "label": "the receipts of ur grind:",
@@ -1078,7 +1085,7 @@
         "intro": "Artypot runs on basically NOTHING but crumbs:",
         "auth": {
           "label": "the login token",
-          "body": "kept in localStorage (NOT technically a cookie, we're being honest) to keep u logged in. wiped the EXACT sec u log out, no lingering 🧹"
+          "body": "kept in localStorage to keep u logged in, plus ONE strictly-necessary first-party session cookie (artypot_session), we're being honest 🤝. both get wiped the EXACT sec u log out, no lingering 🧹"
         },
         "stripe": {
           "label": "Stripe's cookies",
@@ -1160,7 +1167,6 @@
       "oauthStartFailed": "couldn't even START the signup 💀 what the sigma just happened, run it back",
       "passwordMismatch": "ur passwords ain't matchin bestie 🤨🤨 lock in",
       "tosRequired": "yo vibe w the bro code first 🤝 cmon gng",
-      "notAvailable": "signup ain't cooking yet ⏳ pull up later fr fr! 🙏",
       "registrationFailed": "signup got mega cooked 💀 it's so over, run it back gng"
     }
   },
@@ -1644,14 +1650,14 @@
   },
   "Components": {
     "bountyStatus": {
-      "open": "live n lurkin in da Ohio shadows 👀💀 sneak sneak",
-      "pending": "council in da kitchen lowkey cookin 🍳😭 chill gng",
-      "completed": "COOKED. cooked it cooked it 🔥🗣️ no crumbs left fr",
-      "paid_out": "bag SECURED skibidi style 🤑🤝 we eatin tonite",
-      "revoked": "NAH it's so over 💀⚰️ aura wiped, poof, gone gng"
+      "open": "gathering rizz… 🧑‍🍳⏳",
+      "pending": "on Ohio trial ⚖️🗿",
+      "completed": "cooked it 🔥🗣️",
+      "paid_out": "bag SECURED 🤑🤝",
+      "revoked": "NAH it's so over 💀⚰️"
     },
     "bountyCard": {
-      "for": "fr fr backin da",
+      "for": "🙏🙏",
       "visitHandle": "yo go peep {handle} rn 👀🫵 mad rizz prolly",
       "backerCount": "{count, plural, one {# certified real one 🫡🔥} other {# certified real ones 🫡🔥 mwah}}",
       "cleared": "{cleared} / {total} smacked da bag 🤑💥 we lockin in",
@@ -3017,9 +3023,9 @@
         "direct": "or just teleport straight to:"
       },
       "dangerZone": {
-        "title": "scroll to the \"danger zone\" 🚨💀",
+        "title": "scroll to the danger zone 🚨💀",
         "scrollLead": "scroll ALL the way down the Settings page til u hit the",
-        "label": "danger zone",
+        "label": "DANGER ZONE ⚠️💀",
         "scrollTrail": "section. it's the final boss, the last thing standing on the page, no escape 👹🔥"
       },
       "clickDelete": {
@@ -3032,9 +3038,9 @@
       },
       "confirm": {
         "title": "confirm the doom (point of no return) 🪦",
-        "readLead": "read the confirm fr read it bestie, then tap",
+        "readLead": "read the confirm fr read it bestie, then type ur display name where it asks, then tap",
         "confirmLabel": "Yes, Delete My Account",
-        "readTrail": ". n that's it — account vaporized on the spot, u get logged out, gg no re, ur gone to Ohio forever 💀✌️"
+        "readTrail": " — which only unlocks once the name u typed matches fr. then? account vaporized on the spot, u get logged out, gg no re, ur gone to Ohio forever 💀✌️"
       }
     },
     "cantLogin": {

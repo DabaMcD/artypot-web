@@ -26,6 +26,12 @@ export const DEFAULT_BACKING_AMOUNT_FALLBACK = Number(process.env.NEXT_PUBLIC_DE
  * this off so users only see the email path.
  *
  * Default OFF — set NEXT_PUBLIC_PHONE_SIGNUP_ENABLED=true to opt in.
+ *
+ * DEPENDENCY: this is only the UI gate. Phone-only signup also requires the
+ * backend SMS kill-switch to be ON (artypot-api: config/artypot.php `sms_enabled`
+ * / env `SMS_ENABLED`, plus `SmsService::send`). If this flag is true while
+ * SMS is disabled server-side, RegisterController rejects phone signups with a
+ * 422. Only enable this once the backend SMS capability is live.
  */
 export const PHONE_SIGNUP_ENABLED = process.env.NEXT_PUBLIC_PHONE_SIGNUP_ENABLED === 'true';
 

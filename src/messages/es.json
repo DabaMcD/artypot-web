@@ -398,6 +398,9 @@
       "start": "o abre tú mismo una recompensa →"
     }
   },
+  "BackingPolicyNote": {
+    "text": "Free to cancel anytime before the bounty completes. Once completed, your backing is locked, charged on the next billing day, and final — refunds after a charge are discretionary (hardship or verified fraud only). To the extent this backing constitutes a contract for services, you agree any such performance may begin immediately, and any EU/UK 14-day right of withdrawal ends when the bounty completes. [ES: pending professional review]"
+  },
   "BecomeCreator": {
     "hero": {
       "sectionLabel": "fan",
@@ -680,6 +683,10 @@
       }
     }
   },
+  "FeaturedBounties": {
+    "heading": "Abiertas ahora mismo.",
+    "subheading": "Algunas recompensas que vale la pena conocer."
+  },
   "ForCreators": {
     "hero": {
       "titleLine1": "dile a tus fans",
@@ -881,12 +888,12 @@
     },
     "forgotPassword": "¿olvidaste tu contraseña?",
     "submit": {
-      "label": "Iniciar sesión",
-      "loading": "Iniciando sesión…"
+      "label": "iniciar sesión",
+      "loading": "iniciando sesión…"
     },
     "register": {
       "prompt": "¿nuevo por aquí?",
-      "cta": "Crear una cuenta",
+      "cta": "crear una cuenta",
       "creatorNote": "convertirse en creador es un proceso aparte: primero regístrate, luego verifica un identificador y completa los requisitos fiscales y bancarios."
     },
     "errors": {
@@ -962,8 +969,8 @@
         "rest": "Nunca vemos ni almacenamos el número completo de tu tarjeta."
       },
       "private": {
-        "bold": "Tu historial de apoyo es privado por defecto.",
-        "rest": "Puedes hacer tu perfil anónimo en los ajustes."
+        "bold": "Tu historial de apoyo es público por defecto.",
+        "rest": "Puedes hacer tu perfil anónimo en los ajustes para ocultarlo."
       },
       "delete": {
         "bold": "Puedes eliminar tu cuenta",
@@ -987,11 +994,11 @@
         "title": "qué recopilamos",
         "account": {
           "label": "Información de la cuenta:",
-          "body": "Your name, email address, and password (hashed — we can't read it). Optionally: a profile picture and phone number for verification purposes. [ES: pending professional review]"
+          "body": "Your name, email address, and password (hashed — we can't read it). Optionally: a profile picture and phone number for verification purposes. If you sign in with a social provider (Google, GitHub, Discord, etc.), we store that provider and your account ID with it so we can link the login. [ES: pending professional review]"
         },
         "financial": {
           "label": "Información financiera:",
-          "body": "For backers: payment method details (processed by Stripe — see Section 5). For creators receiving payouts: bank account or payout-method information (processed by Stripe Connect or an alternative payout provider), and tax identification details for tax reporting (W-9 and 1099 for US creators; W-8BEN and 1042-S for creators outside the US). [ES: pending professional review]"
+          "body": "For backers: payment method details (processed by Stripe — see Section 5). For creators receiving payouts: bank account or payout-method information (processed by Stripe Connect or an alternative payout provider), your declared tax residence (country, and US state if applicable, kept as an audit trail for tax reporting), and tax identification details for tax reporting (W-9 and 1099 for US creators; W-8BEN and 1042-S for creators outside the US). We also record the IP address used for certain account and compliance events. [ES: pending professional review]"
         },
         "activity": {
           "label": "Datos de actividad:",
@@ -1078,7 +1085,7 @@
         "intro": "Artypot usa cookies mínimas:",
         "auth": {
           "label": "Token de autenticación",
-          "body": "almacenado en localStorage (no es una cookie) para mantener tu sesión iniciada. Se borra al cerrar sesión."
+          "body": "guardado en localStorage para mantener tu sesión iniciada, junto con una cookie de sesión propia estrictamente necesaria (artypot_session). Ambos se borran al cerrar sesión."
         },
         "stripe": {
           "label": "Cookies de Stripe",
@@ -1160,7 +1167,6 @@
       "oauthStartFailed": "No se pudo iniciar el registro. Inténtalo de nuevo.",
       "passwordMismatch": "Las contraseñas no coinciden.",
       "tosRequired": "Por favor acepta los términos de servicio.",
-      "notAvailable": "El registro aún no está disponible. ¡Vuelve pronto!",
       "registrationFailed": "Error en el registro. Inténtalo de nuevo."
     }
   },
@@ -3017,9 +3023,9 @@
         "direct": "También puedes ir directamente a:"
       },
       "dangerZone": {
-        "title": "Desplázate hasta \"Zona de peligro\"",
+        "title": "Desplázate hasta la Zona de peligro",
         "scrollLead": "Desplázate hasta el final de la página de Ajustes hasta llegar a la sección",
-        "label": "zona de peligro",
+        "label": "ZONA DE PELIGRO",
         "scrollTrail": ". Es la última sección de la página."
       },
       "clickDelete": {
@@ -3032,9 +3038,9 @@
       },
       "confirm": {
         "title": "Confirma la eliminación",
-        "readLead": "Lee la confirmación y luego haz clic en",
+        "readLead": "Lee la confirmación y escribe tu nombre visible donde el diálogo te lo pida, luego haz clic en",
         "confirmLabel": "Sí, eliminar mi cuenta",
-        "readTrail": ". Tu cuenta se elimina de inmediato y se cerrará tu sesión."
+        "readTrail": ", que solo se podrá pulsar cuando el nombre escrito coincida. Tu cuenta se elimina entonces de inmediato y se cerrará tu sesión."
       }
     },
     "cantLogin": {

@@ -416,6 +416,9 @@
       "start": "or start a bounty yourself →"
     }
   },
+  "BackingPolicyNote": {
+    "text": "Free to cancel anytime before the bounty completes. Once completed, your backing is locked, charged on the next billing day, and final — refunds after a charge are discretionary (hardship or verified fraud only). To the extent this backing constitutes a contract for services, you agree any such performance may begin immediately, and any EU/UK 14-day right of withdrawal ends when the bounty completes."
+  },
   "BecomeCreator": {
     "hero": {
       "sectionLabel": "fan",
@@ -698,6 +701,10 @@
       }
     }
   },
+  "FeaturedBounties": {
+    "heading": "Open right now.",
+    "subheading": "A few bounties worth knowing about."
+  },
   "ForCreators": {
     "hero": {
       "titleLine1": "Tell your fans",
@@ -899,12 +906,12 @@
     },
     "forgotPassword": "forgot password?",
     "submit": {
-      "label": "Sign In",
-      "loading": "Signing in…"
+      "label": "sign in",
+      "loading": "signing in…"
     },
     "register": {
       "prompt": "new here?",
-      "cta": "Create an Account",
+      "cta": "create an account",
       "creatorNote": "becoming a creator is a separate flow — first sign up, then verify a handle and complete tax + bank gates."
     },
     "errors": {
@@ -980,8 +987,8 @@
         "rest": "We never see or store your full card number."
       },
       "private": {
-        "bold": "Your backing history is private by default.",
-        "rest": "You can make your profile anonymous in settings."
+        "bold": "Your backing history is public by default.",
+        "rest": "You can make your profile anonymous in Settings to hide it."
       },
       "delete": {
         "bold": "You can delete your account",
@@ -1005,11 +1012,11 @@
         "title": "What We Collect",
         "account": {
           "label": "Account information:",
-          "body": "Your name, email address, and password (hashed — we can't read it). Optionally: a profile picture and phone number for verification purposes."
+          "body": "Your name, email address, and password (hashed — we can't read it). Optionally: a profile picture and phone number for verification purposes. If you sign in with a social provider (Google, GitHub, Discord, etc.), we store that provider and your account ID with it so we can link the login."
         },
         "financial": {
           "label": "Financial information:",
-          "body": "For backers: payment method details (processed by Stripe — see Section 5). For creators receiving payouts: bank account or payout-method information (processed by Stripe Connect or an alternative payout provider), and tax identification details for tax reporting (W-9 and 1099 for US creators; W-8BEN and 1042-S for creators outside the US)."
+          "body": "For backers: payment method details (processed by Stripe — see Section 5). For creators receiving payouts: bank account or payout-method information (processed by Stripe Connect or an alternative payout provider), your declared tax residence (country, and US state if applicable, kept as an audit trail for tax reporting), and tax identification details for tax reporting (W-9 and 1099 for US creators; W-8BEN and 1042-S for creators outside the US). We also record the IP address used for certain account and compliance events."
         },
         "activity": {
           "label": "Activity data:",
@@ -1096,7 +1103,7 @@
         "intro": "Artypot uses minimal cookies:",
         "auth": {
           "label": "Authentication token",
-          "body": "stored in localStorage (not a cookie) to keep you logged in. Cleared when you log out."
+          "body": "kept in localStorage to keep you logged in, alongside one strictly-necessary first-party session cookie (artypot_session). Both are cleared when you log out."
         },
         "stripe": {
           "label": "Stripe's cookies",
@@ -1178,7 +1185,6 @@
       "oauthStartFailed": "Failed to start sign-up. Please try again.",
       "passwordMismatch": "Passwords do not match.",
       "tosRequired": "Please agree to the terms of service.",
-      "notAvailable": "Registration is not yet available. Check back soon!",
       "registrationFailed": "Registration failed. Please try again."
     }
   },
@@ -3035,9 +3041,9 @@
         "direct": "You can also go directly to:"
       },
       "dangerZone": {
-        "title": "Scroll to \"Danger Zone\"",
+        "title": "Scroll to the Danger Zone",
         "scrollLead": "Scroll to the bottom of the Settings page until you reach the",
-        "label": "danger zone",
+        "label": "DANGER ZONE",
         "scrollTrail": "section. It is the last section on the page."
       },
       "clickDelete": {
@@ -3050,9 +3056,9 @@
       },
       "confirm": {
         "title": "Confirm deletion",
-        "readLead": "Read the confirmation, then click",
+        "readLead": "Read the confirmation and type your display name where the dialog prompts you, then click",
         "confirmLabel": "Yes, Delete My Account",
-        "readTrail": ". Your account is deleted immediately and you will be logged out."
+        "readTrail": " — which only becomes clickable once the typed name matches. Your account is then deleted immediately and you will be logged out."
       }
     },
     "cantLogin": {

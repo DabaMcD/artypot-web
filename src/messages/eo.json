@@ -398,6 +398,9 @@
       "start": "aŭ komencu premion mem →"
     }
   },
+  "BackingPolicyNote": {
+    "text": "Free to cancel anytime before the bounty completes. Once completed, your backing is locked, charged on the next billing day, and final — refunds after a charge are discretionary (hardship or verified fraud only). To the extent this backing constitutes a contract for services, you agree any such performance may begin immediately, and any EU/UK 14-day right of withdrawal ends when the bounty completes. [EO: atendas profesian revizion]"
+  },
   "BecomeCreator": {
     "hero": {
       "sectionLabel": "adoranto",
@@ -680,6 +683,10 @@
       }
     }
   },
+  "FeaturedBounties": {
+    "heading": "Malfermitaj ĝuste nun.",
+    "subheading": "Kelkaj premioj indaj je via atento."
+  },
   "ForCreators": {
     "hero": {
       "titleLine1": "diru al viaj adorantoj",
@@ -881,12 +888,12 @@
     },
     "forgotPassword": "ĉu vi forgesis la pasvorton?",
     "submit": {
-      "label": "Ensaluti",
-      "loading": "Ensalutante…"
+      "label": "ensaluti",
+      "loading": "ensalutante…"
     },
     "register": {
       "prompt": "ĉu nova ĉi tie?",
-      "cta": "Krei konton",
+      "cta": "krei konton",
       "creatorNote": "fariĝi kreanto estas aparta procezo — unue registriĝu, poste konfirmu identigilon kaj plenumu la impostajn kaj bankajn postulojn."
     },
     "errors": {
@@ -962,8 +969,8 @@
         "rest": "Ni neniam vidas nek konservas vian plenan kartnumeron."
       },
       "private": {
-        "bold": "Via subtena historio estas privata defaŭlte.",
-        "rest": "Vi povas anonimigi vian profilon en la agordoj."
+        "bold": "Via subtena historio estas publika defaŭlte.",
+        "rest": "Vi povas anonimigi vian profilon en la agordoj por kaŝi ĝin."
       },
       "delete": {
         "bold": "Vi povas forigi vian konton",
@@ -987,11 +994,11 @@
         "title": "kion ni kolektas",
         "account": {
           "label": "Kontaj informoj:",
-          "body": "Your name, email address, and password (hashed — we can't read it). Optionally: a profile picture and phone number for verification purposes. [EO: atendas profesian revizion]"
+          "body": "Your name, email address, and password (hashed — we can't read it). Optionally: a profile picture and phone number for verification purposes. If you sign in with a social provider (Google, GitHub, Discord, etc.), we store that provider and your account ID with it so we can link the login. [EO: atendas profesian revizion]"
         },
         "financial": {
           "label": "Financaj informoj:",
-          "body": "For backers: payment method details (processed by Stripe — see Section 5). For creators receiving payouts: bank account or payout-method information (processed by Stripe Connect or an alternative payout provider), and tax identification details for tax reporting (W-9 and 1099 for US creators; W-8BEN and 1042-S for creators outside the US). [EO: atendas profesian revizion]"
+          "body": "For backers: payment method details (processed by Stripe — see Section 5). For creators receiving payouts: bank account or payout-method information (processed by Stripe Connect or an alternative payout provider), your declared tax residence (country, and US state if applicable, kept as an audit trail for tax reporting), and tax identification details for tax reporting (W-9 and 1099 for US creators; W-8BEN and 1042-S for creators outside the US). We also record the IP address used for certain account and compliance events. [EO: atendas profesian revizion]"
         },
         "activity": {
           "label": "Agad-datumoj:",
@@ -1078,7 +1085,7 @@
         "intro": "Artypot uzas minimumajn kuketojn:",
         "auth": {
           "label": "Aŭtentiga ĵetono",
-          "body": "konservita en localStorage (ne kuketo) por teni vin ensalutinta. Forigata kiam vi elsalutas."
+          "body": "konservita en localStorage por teni vin ensalutinta, kune kun unu strikte necesa propra seancokuketo (artypot_session). Ambaŭ estas forigataj kiam vi elsalutas."
         },
         "stripe": {
           "label": "Kuketoj de Stripe",
@@ -1160,7 +1167,6 @@
       "oauthStartFailed": "Malsukcesis komenci registriĝon. Bonvolu reprovi.",
       "passwordMismatch": "La pasvortoj ne kongruas.",
       "tosRequired": "Bonvolu konsenti pri la kondiĉoj de servo.",
-      "notAvailable": "Registriĝo ankoraŭ ne disponeblas. Revenu baldaŭ!",
       "registrationFailed": "Registriĝo malsukcesis. Bonvolu reprovi."
     }
   },
@@ -3017,9 +3023,9 @@
         "direct": "Vi ankaŭ povas iri rekte al:"
       },
       "dangerZone": {
-        "title": "Rulumu al \"Danĝera zono\"",
+        "title": "Rulumu al la Danĝera zono",
         "scrollLead": "Rulumu ĝis la fino de la Agordoj-paĝo ĝis vi atingas la sekcion",
-        "label": "danĝera zono",
+        "label": "DANĜERA ZONO",
         "scrollTrail": ". Ĝi estas la lasta sekcio sur la paĝo."
       },
       "clickDelete": {
@@ -3032,9 +3038,9 @@
       },
       "confirm": {
         "title": "Konfirmu la forigon",
-        "readLead": "Legu la konfirmon, poste alklaku",
+        "readLead": "Legu la konfirmon kaj tajpu vian montronomon kie la dialogo petas, poste alklaku",
         "confirmLabel": "Jes, forigu mian konton",
-        "readTrail": ". Via konto tuj foriĝas kaj vi elsalutiĝos."
+        "readTrail": ", kiu fariĝas alklakebla nur kiam la tajpita nomo kongruas. Via konto tiam tuj foriĝas kaj vi elsalutiĝos."
       }
     },
     "cantLogin": {
