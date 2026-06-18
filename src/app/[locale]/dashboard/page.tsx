@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
+import { useMoney } from '@/lib/format';
 import { bounties as bountiesApi, billing, backings as backingsApi, featuredBounties as featuredBountiesApi } from '@/lib/api';
 import { nextBillingInfo } from '@/lib/config';
 import { useAuth } from '@/lib/auth-context';
@@ -18,6 +20,8 @@ import ShareButton from '@/components/ShareButton';
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const t = useTranslations('Dashboard');
+  const money = useMoney();
 
   const [featured, setFeatured] = useState<Bounty[]>([]);
   const [cash, setCash] = useState<CashBalance | null>(null);
@@ -114,11 +118,11 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <SectionLabel>fan · {user.display_name.split(' ')[0]}</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">dashboard</h1>
+          <SectionLabel>{t('header.fan')} · {user.display_name.split(' ')[0]}</SectionLabel>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('header.title')}</h1>
         </div>
         <Button variant="primary" onClick={() => router.push('/bounties/new')}>
-          + New Bounty
+          {t('header.newBounty')}
         </Button>
       </div>
 
@@ -127,12 +131,14 @@ export default function DashboardPage() {
         <Banner tone="warn">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <span>
-              <strong>billing on {nextBillingStr}</strong> — you&apos;ll be charged{' '}
-              <strong>${outstandingAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong>{' '}
-              across approved bounties.
+              {t.rich('billing.notice', {
+                date: nextBillingStr,
+                amount: money(outstandingAmount),
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </span>
             <Link href="/billing">
-              <Button variant="default" size="sm">Pay Now →</Button>
+              <Button variant="default" size="sm">{t('billing.payNow')}</Button>
             </Link>
           </div>
         </Banner>
@@ -143,8 +149,8 @@ export default function DashboardPage() {
         {/* Bounties joined — breadth of involvement */}
         <Card>
           <div className="flex items-center gap-1 mb-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">bounties joined</span>
-            <InfoDot>Bounties you&apos;re actively backing or have already helped deliver. The subline counts the ones you started yourself.</InfoDot>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('stats.bountiesJoined.label')}</span>
+            <InfoDot>{t('stats.bountiesJoined.info')}</InfoDot>
           </div>
           <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
             {statsLoading || !fanStats ? '—' : fanStats.bounties_supported}
@@ -152,15 +158,15 @@ export default function DashboardPage() {
           <div className="font-mono text-[10px] text-muted mt-0.5">
             {statsLoading || !fanStats
               ? ''
-              : `${fanStats.bounties_started} you started`}
+              : t('stats.bountiesJoined.sub', { count: fanStats.bounties_started })}
           </div>
         </Card>
 
         {/* Creators petitioned — breadth, with how many actually delivered */}
         <Card>
           <div className="flex items-center gap-1 mb-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">creators petitioned</span>
-            <InfoDot>Distinct creators handles you&apos;ve backed a bounty for. The subline is how many came through — delivered a bounty you backed and got paid by you.</InfoDot>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('stats.creatorsPetitioned.label')}</span>
+            <InfoDot>{t('stats.creatorsPetitioned.info')}</InfoDot>
           </div>
           <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
             {statsLoading || !fanStats ? '—' : fanStats.creators_supported}
@@ -168,7 +174,7 @@ export default function DashboardPage() {
           <div className="font-mono text-[10px] text-good mt-0.5">
             {statsLoading || !fanStats
               ? ''
-              : `${fanStats.creators_paid} delivered`}
+              : t('stats.creatorsPetitioned.sub', { count: fanStats.creators_paid })}
           </div>
         </Card>
 
@@ -178,19 +184,19 @@ export default function DashboardPage() {
             amount + Pay Now still appears in the banner above when a balance is owed. */}
         <Card>
           <div className="flex items-center gap-1 mb-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">next charge</span>
-            <InfoDot>What you&apos;ll be billed on the next billing date, covering bounties that were completed and approved since your last charge. See the full breakdown on the billing page.</InfoDot>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('stats.nextCharge.label')}</span>
+            <InfoDot>{t('stats.nextCharge.info')}</InfoDot>
           </div>
           <div className="font-mono text-[20px] font-medium text-foreground">
-            {cashLoading ? '—' : balanceIsNegative ? `due ${nextBillingStr}` : 'Nothing due'}
+            {cashLoading ? '—' : balanceIsNegative ? t('stats.nextCharge.due', { date: nextBillingStr }) : t('stats.nextCharge.nothingDue')}
           </div>
           <div className="font-mono text-[10px] mt-0.5">
             {cashLoading ? (
               ''
             ) : balanceIsNegative ? (
-              <Link href="/billing" className="text-warn hover:opacity-80 transition-opacity">view amount in billing →</Link>
+              <Link href="/billing" className="text-warn hover:opacity-80 transition-opacity">{t('stats.nextCharge.viewAmount')}</Link>
             ) : (
-              <span className="text-muted">you&apos;re all settled up</span>
+              <span className="text-muted">{t('stats.nextCharge.settledUp')}</span>
             )}
           </div>
         </Card>
@@ -198,18 +204,18 @@ export default function DashboardPage() {
         {/* Lifetime paid — the "your card isn't touched" reassurance */}
         <Card>
           <div className="flex items-center gap-1 mb-1">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">lifetime paid</span>
-            <InfoDot>What you&apos;ve actually been charged, ever. It stays $0 until a bounty you backed is delivered and approved — your card is never touched until bounty completion.</InfoDot>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('stats.lifetimePaid.label')}</span>
+            <InfoDot>{t('stats.lifetimePaid.info')}</InfoDot>
           </div>
           <div className="font-mono text-[28px] font-medium tabular-nums text-foreground">
             {statsLoading || !fanStats
               ? '—'
-              : `$${fanStats.lifetime_paid.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+              : money(fanStats.lifetime_paid)}
           </div>
           <div className="font-mono text-[10px] text-muted mt-0.5">
             {statsLoading || !fanStats
               ? ''
-              : `$${fanStats.total_backed.toLocaleString('en-US', { minimumFractionDigits: 2 })} total backed`}
+              : t('stats.lifetimePaid.sub', { amount: money(fanStats.total_backed) })}
           </div>
         </Card>
       </div>
@@ -217,9 +223,9 @@ export default function DashboardPage() {
       {/* Active contributions */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <SectionLabel>my backings</SectionLabel>
+          <SectionLabel>{t('backings.sectionLabel')}</SectionLabel>
           <Link href="/backings" className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors">
-            all history →
+            {t('backings.allHistory')}
           </Link>
         </div>
 
@@ -230,8 +236,8 @@ export default function DashboardPage() {
             </div>
           </Card>
         ) : activeBackings.length === 0 ? (
-          <Empty icon="◇" message="Not backing anything yet">
-            <Link href="/search"><Button variant="default" size="sm">Find creators →</Button></Link>
+          <Empty icon="◇" message={t('backings.empty.message')}>
+            <Link href="/search"><Button variant="default" size="sm">{t('backings.empty.findCreators')}</Button></Link>
           </Empty>
         ) : (
           <Card>
@@ -250,7 +256,7 @@ export default function DashboardPage() {
                           {backing.bounty.title}
                         </Link>
                       ) : (
-                        <span className="text-sm text-muted">bounty #{backing.bounty_id}</span>
+                        <span className="text-sm text-muted">{t('backings.bountyRef', { id: backing.bounty_id })}</span>
                       )}
                     </div>
                     <BountyStatusBadge status={status} />
@@ -258,7 +264,7 @@ export default function DashboardPage() {
                       <ShareButton path={`/bounties/${backing.bounty_id}`} title={backing.bounty.title} />
                     )}
                     <span className="font-mono text-sm font-medium text-fan tabular-nums shrink-0">
-                      ${Number(backing.amount).toFixed(2)}
+                      {money(Number(backing.amount))}
                     </span>
                     {canRevoke && (
                       <button
@@ -266,7 +272,7 @@ export default function DashboardPage() {
                         disabled={revoking.has(backing.id)}
                         className="font-mono text-[10px] uppercase text-muted/50 hover:text-bad transition-colors disabled:opacity-40 shrink-0"
                       >
-                        {revoking.has(backing.id) ? '…' : 'revoke'}
+                        {revoking.has(backing.id) ? '…' : t('backings.revoke')}
                       </button>
                     )}
                   </div>
@@ -275,7 +281,7 @@ export default function DashboardPage() {
               {activeBackings.length > 10 && (
                 <div className="px-5 py-3">
                   <Link href="/backings" className="font-mono text-[10px] uppercase text-muted hover:text-foreground transition-colors">
-                    +{activeBackings.length - 10} more →
+                    {t('backings.more', { count: activeBackings.length - 10 })}
                   </Link>
                 </div>
               )}
@@ -287,9 +293,9 @@ export default function DashboardPage() {
       {/* Featured bounties — a curated few, with a link out to the full directory */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <SectionLabel>featured bounties</SectionLabel>
+          <SectionLabel>{t('featured.sectionLabel')}</SectionLabel>
           <Link href="/bounties" className="font-mono text-[10px] uppercase tracking-widest text-muted hover:text-foreground transition-colors">
-            browse all →
+            {t('featured.browseAll')}
           </Link>
         </div>
 
@@ -301,10 +307,10 @@ export default function DashboardPage() {
           // No editorial picks right now — point to the directory + creator search
           // rather than re-listing the global feed inline.
           <Card dashed>
-            <p className="text-sm text-muted mb-3">Discover bounties from creators across Artypot.</p>
+            <p className="text-sm text-muted mb-3">{t('featured.empty.message')}</p>
             <div className="flex flex-wrap gap-2">
-              <Link href="/bounties"><Button variant="default" size="sm">Browse bounties →</Button></Link>
-              <Link href="/search"><Button variant="ghost" size="sm">Find creators →</Button></Link>
+              <Link href="/bounties"><Button variant="default" size="sm">{t('featured.empty.browse')}</Button></Link>
+              <Link href="/search"><Button variant="ghost" size="sm">{t('featured.empty.findCreators')}</Button></Link>
             </div>
           </Card>
         ) : (

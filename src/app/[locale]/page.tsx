@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import HeaderSearch from '@/components/HeaderSearch';
 import BountyCard from '@/components/BountyCard';
@@ -8,16 +9,17 @@ import { featuredBounties } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import type { Bounty } from '@/lib/types';
 
-// ── "How it works" steps ───────────────────────────────────────────────────────
-const STEPS: { n: number; body: string }[] = [
-  { n: 1, body: 'Ask your favorite creator to do something cool or stupid.' },
-  { n: 2, body: "Like-minded fans chip in until the bounty can't be ignored." },
-  { n: 3, body: 'The creator delivers, the fans pay them. Spam Ws in chat.' },
-];
-
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function HomePage() {
+  const t = useTranslations('Home');
   const { user } = useAuth();
+
+  // ── "How it works" steps ──────────────────────────────────────────────────
+  const STEPS: { n: number; body: string }[] = [
+    { n: 1, body: t('howItWorks.steps.one') },
+    { n: 2, body: t('howItWorks.steps.two') },
+    { n: 3, body: t('howItWorks.steps.three') },
+  ];
   const [trendingBounties, setTrendingBounties] = useState<Bounty[]>([]);
   const [bountiesLoading, setBountiesLoading] = useState(true);
 
@@ -46,31 +48,30 @@ export default function HomePage() {
 
         <div className="max-w-2xl mx-auto text-center">
           <h1 className="font-display font-bold text-5xl sm:text-6xl text-foreground tracking-tight mb-4 leading-[1.05]">
-            tell the world
+            {t('hero.titleLine1')}
             <br />
-            <span className="text-creator">what you want.</span>
+            <span className="text-creator">{t('hero.titleLine2')}</span>
           </h1>
           <p className="text-muted text-lg sm:text-xl mb-9 leading-relaxed max-w-xl mx-auto">
-            Search for any creator, artist, or public figure — start a bounty and
-            let the community fund it. No delivery = no charge.
+            {t('hero.subtitle')}
           </p>
 
           {/* Search — same widget as the header, just the larger size. */}
           <div className="w-full text-left">
             <HeaderSearch
               size="lg"
-              placeholder="Search for a creator, artist, or public figure…"
+              placeholder={t('hero.searchPlaceholder')}
             />
           </div>
 
           {/* Secondary links */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
             <Link href="/bounties" className="text-foreground hover:text-creator transition-colors font-medium">
-              Browse open bounties →
+              {t('hero.browseBounties')}
             </Link>
             <span className="text-border" aria-hidden>·</span>
             <Link href="/for-creators" className="text-muted hover:text-foreground transition-colors">
-              Are you a creator?
+              {t('hero.areYouCreator')}
             </Link>
           </div>
         </div>
@@ -81,16 +82,16 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-7 py-16 sm:py-20">
           <div className="flex items-end justify-between mb-8 gap-4">
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-[2px] text-muted mb-2">trending now</p>
+              <p className="font-mono text-[10px] uppercase tracking-[2px] text-muted mb-2">{t('trending.label')}</p>
               <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground leading-tight">
-                what people want right now
+                {t('trending.title')}
               </h2>
             </div>
             <Link
               href="/bounties"
               className="shrink-0 text-sm text-creator hover:brightness-110 transition-all font-medium whitespace-nowrap"
             >
-              Browse all →
+              {t('trending.browseAll')}
             </Link>
           </div>
 
@@ -102,9 +103,9 @@ export default function HomePage() {
             </div>
           ) : trendingBounties.length === 0 ? (
             <div className="text-center py-16 text-muted border border-dashed border-border rounded-md">
-              No featured bounties yet.{' '}
+              {t('trending.empty')}{' '}
               <Link href="/bounties" className="text-creator hover:underline">
-                Browse all bounties
+                {t('trending.emptyLink')}
               </Link>
             </div>
           ) : (
@@ -120,9 +121,9 @@ export default function HomePage() {
       {/* ── HOW IT WORKS ────────────────────────────────────────────────────── */}
       <section id="how-it-works" className="border-t border-border">
         <div className="max-w-5xl mx-auto px-7 py-16 sm:py-24 text-center">
-          <p className="font-mono text-[10px] uppercase tracking-[2px] text-muted mb-2">the gist</p>
+          <p className="font-mono text-[10px] uppercase tracking-[2px] text-muted mb-2">{t('howItWorks.label')}</p>
           <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-14">
-            what&apos;s the big idea?
+            {t('howItWorks.title')}
           </h2>
 
           <div className="grid sm:grid-cols-3 gap-12 sm:gap-8">
@@ -145,30 +146,29 @@ export default function HomePage() {
         <section className="border-t border-border bg-surface">
           <div className="max-w-3xl mx-auto px-7 py-20 text-center">
             <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-4 leading-tight">
-              what do you want to see made?
+              {t('cta.title')}
             </h2>
             <p className="text-muted text-lg mb-8 max-w-md mx-auto leading-relaxed">
-              Find your favorite creator and start a bounty. If the crowd wants it
-              too, the money shows up.
+              {t('cta.subtitle')}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/register"
                 className="bg-creator text-brand-dark font-semibold px-6 py-3 rounded-md shadow-[3px_3px_0_#000] transition-[transform,box-shadow,filter] duration-75 hover:brightness-110 hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_#000] active:translate-x-0 active:translate-y-0 active:shadow-[2px_2px_0_#000]"
               >
-                Create your account →
+                {t('cta.createAccount')}
               </Link>
               <Link
                 href="/bounties"
                 className="bg-surface-2 border border-border text-foreground font-semibold px-6 py-3 rounded-md shadow-[3px_3px_0_#000] transition-[transform,box-shadow,border-color] duration-75 hover:border-creator/60 hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_#000] active:translate-x-0 active:translate-y-0 active:shadow-[2px_2px_0_#000]"
               >
-                Browse bounties
+                {t('cta.browseBounties')}
               </Link>
             </div>
             <p className="text-sm text-muted mt-6">
-              Already have an account?{' '}
+              {t('cta.haveAccount')}{' '}
               <Link href="/login" className="text-creator hover:brightness-110 transition-all">
-                Log in →
+                {t('cta.logIn')}
               </Link>
             </p>
           </div>

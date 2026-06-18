@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import Image from 'next/image';
 import { auth as authApi } from '@/lib/api';
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Input, FieldLabel } from '@/components/ui/Input';
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations('PasswordReset');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -22,7 +24,7 @@ export default function ForgotPasswordPage() {
       setSubmitted(true);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setError(e.message ?? 'Something went wrong. Please try again.');
+      setError(e.message ?? t('forgot.errors.generic'));
     } finally {
       setLoading(false);
     }
@@ -41,22 +43,22 @@ export default function ForgotPasswordPage() {
           />
         </Link>
 
-        <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">password reset</div>
-        <h1 className="font-display font-bold text-[30px] text-foreground mb-2">Forgot Your Password?</h1>
+        <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">{t('forgot.sectionLabel')}</div>
+        <h1 className="font-display font-bold text-[30px] text-foreground mb-2">{t('forgot.title')}</h1>
         <p className="text-sm text-muted mb-8 leading-relaxed">
           {submitted
-            ? 'Check your inbox — a reset link is on its way.'
-            : "Enter your email and we'll send a reset link. It expires in 60 minutes."}
+            ? t('forgot.subtitleSent')
+            : t('forgot.subtitle')}
         </p>
 
         {submitted ? (
           <div className="bg-surface border border-border rounded p-6 space-y-4">
-            <div className="font-mono text-[10px] uppercase tracking-widest text-good mb-1">sent</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-good mb-1">{t('forgot.sent.label')}</div>
             <p className="text-sm text-muted leading-relaxed">
-              If <span className="font-mono text-foreground">{email}</span>{" "}is registered, you&apos;ll receive the link shortly.
+              {t('forgot.sent.before')} <span className="font-mono text-foreground">{email}</span>{" "}{t('forgot.sent.after')}
             </p>
             <Link href="/login" className="ap-inline-link text-sm">
-              ← Back to Sign In
+              {t('forgot.sent.backToSignIn')}
             </Link>
           </div>
         ) : (
@@ -68,7 +70,7 @@ export default function ForgotPasswordPage() {
             )}
 
             <div>
-              <FieldLabel>email address</FieldLabel>
+              <FieldLabel>{t('forgot.emailLabel')}</FieldLabel>
               <Input
                 type="email"
                 required
@@ -86,12 +88,12 @@ export default function ForgotPasswordPage() {
               className="w-full justify-center"
               disabled={loading || !email}
             >
-              {loading ? 'Sending…' : 'Send Reset Link'}
+              {loading ? t('forgot.submitLoading') : t('forgot.submit')}
             </Button>
 
             <p className="text-sm text-muted text-center pt-1">
-              Remembered it?{' '}
-              <Link href="/login" className="ap-inline-link">Sign In →</Link>
+              {t('forgot.rememberedPrompt')}{' '}
+              <Link href="/login" className="ap-inline-link">{t('forgot.signIn')}</Link>
             </p>
           </form>
         )}

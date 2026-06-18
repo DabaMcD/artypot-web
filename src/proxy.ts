@@ -4,8 +4,8 @@ import type { NextRequest } from 'next/server';
 import { routing } from './i18n/routing';
 
 /**
- * Composed middleware: next-intl locale handling + the original admin/obelisk
- * session-cookie guard.
+ * Composed proxy (Next 16's renamed "middleware"): next-intl locale handling +
+ * the original admin/obelisk session-cookie guard.
  *
  * The guard predates i18n and matched raw pathnames (`/admin/*`). Once routes
  * live under `[locale]`, a request to `/es/admin/...` carries the locale prefix,
@@ -24,7 +24,7 @@ const PROTECTED_PREFIXES = ['/admin', '/obelisk'];
 // Non-default locale prefixes (default `en` is unprefixed under `as-needed`).
 const LOCALE_PREFIX_RE = /^\/(es|eo|en-x-brainrot)(?=\/|$)/;
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Let next-intl resolve the locale (redirect/rewrite + NEXT_LOCALE cookie).
   const i18nResponse = handleI18n(request);
 

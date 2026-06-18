@@ -93,6 +93,1310 @@
       "title": "language",
       "blurb": "Choose the language Artypot is displayed in. Your choice is saved to your account.",
       "hint": "Choose your preferred language. Saved to your account."
+    },
+    "breadcrumb": {
+      "fan": "fan",
+      "settings": "settings"
+    },
+    "hero": {
+      "title": "settings"
+    },
+    "common": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…"
+    },
+    "email": {
+      "label": "email address",
+      "addBlurb": "Add an email address to enable email notifications and password-based login.",
+      "verifiedBadge": "✓ verified",
+      "placeholderExample": "your@email.com",
+      "placeholderNew": "new email address",
+      "addButton": "Add Email",
+      "changeButton": "Change Email",
+      "sending": "Sending…",
+      "sentBanner": "Confirmation email sent to <strong>{email}</strong>. Click the link to complete.",
+      "sentBannerShort": "Confirmation sent to <strong>{email}</strong>. Click the link to complete.",
+      "pendingBanner": "Pending change to <strong>{email}</strong> — check that inbox."
+    },
+    "profilePicture": {
+      "label": "profile picture",
+      "alt": "Profile picture",
+      "saving": "saving…",
+      "change": "change photo…",
+      "upload": "upload photo…",
+      "unavailable": "Image uploads are unavailable — NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is not set.",
+      "anySize": "Upload any size"
+    },
+    "displayName": {
+      "label": "display name",
+      "saveButton": "Save Name"
+    },
+    "expiry": {
+      "label": "default backing expiry",
+      "blurb": "How long your backing stays active when you back a new bounty. You can always override this per bounty.",
+      "lengthLabel": "length",
+      "unitLabel": "unit",
+      "unitDay": "day(s)",
+      "unitWeek": "week(s)",
+      "unitMonth": "month(s)",
+      "unitYear": "year(s)"
+    },
+    "backingAmount": {
+      "label": "default backing amount",
+      "blurb": "Prefilled in the backing form. You can always override this per bounty.",
+      "amountLabel": "amount ($)"
+    },
+    "privacy": {
+      "label": "privacy",
+      "anonTitle": "Anonymous mode",
+      "beta": "(beta)",
+      "anonDesc": "Hide your backing from your public profile. Your name appears as [anonymous] on supporter lists."
+    },
+    "billing": {
+      "label": "billing",
+      "blurb": "Manage saved payment methods and see what you've backed.",
+      "cta": "Go to Billing →"
+    },
+    "creatorProfile": {
+      "label": "creator profile",
+      "blurb": "Edit your public creator page — display name, bio, handles.",
+      "cta": "Edit Profile →"
+    },
+    "phone": {
+      "label": "phone number",
+      "blurb": "Add a verified phone number to receive SMS notifications.",
+      "verifiedBadge": "✓ verified",
+      "removing": "removing…",
+      "remove": "remove",
+      "codeSentTo": "A 6-digit code was sent to <strong>{phone}</strong>.",
+      "verifying": "Verifying…",
+      "verify": "Verify",
+      "useDifferent": "← Use a Different Number",
+      "sending": "Sending…",
+      "sendCode": "Send Code"
+    },
+    "notifications": {
+      "label": "notifications",
+      "addEmailWarn": "Add an email address above to enable email notifications.",
+      "verifyEmailWarn": "Verify your email to enable email notifications.",
+      "verifyPhoneWarn": "Verify your phone number to enable SMS notifications.",
+      "addPhoneWarn": "Add and verify your phone number to enable SMS notifications.",
+      "loading": "loading…",
+      "notAvailable": "Not available",
+      "creatorCrossLink": "go to creator-related notifications →",
+      "resetting": "resetting…",
+      "resetToDefaults": "reset to defaults",
+      "channels": {
+        "email": "email",
+        "sms": "sms",
+        "bell": "bell"
+      },
+      "aria": {
+        "email": "email: {row}",
+        "emailAlwaysOn": "email: {row} (always on)",
+        "sms": "sms: {row}",
+        "smsAlwaysOn": "sms: {row} (always on)",
+        "bell": "bell: {row}",
+        "bellAlwaysOn": "bell: {row} (always on)"
+      },
+      "rows": {
+        "creatorVerified": {
+          "label": "creator verified",
+          "desc": "a creator you left a bounty for joins Artypot."
+        },
+        "bountyPendingReview": {
+          "label": "bounty pending review",
+          "desc": "a creator submits completion for your bounty."
+        },
+        "bountyConfirmed": {
+          "label": "bounty confirmed",
+          "desc": "council approves a bounty and payment is queued."
+        },
+        "backingConfirmed": {
+          "label": "backing confirmed",
+          "desc": "you backed a bounty."
+        },
+        "backingExpired": {
+          "label": "backing expired",
+          "desc": "your backing on a bounty reached its expiry and was removed."
+        },
+        "billingPreview": {
+          "label": "billing preview",
+          "desc": "heads-up before your payment method is charged."
+        },
+        "billingReceipt": {
+          "label": "billing receipt",
+          "desc": "breakdown after your monthly payment is processed."
+        },
+        "bountyActivity": {
+          "label": "bounty activity",
+          "desc": "a comment or update on a bounty you're following."
+        },
+        "creatorActivity": {
+          "label": "creator activity",
+          "desc": "a creator you follow posts something or submits a bounty."
+        },
+        "commentReply": {
+          "label": "comment reply",
+          "desc": "someone replied to a comment thread you participated in."
+        },
+        "regionAvailable": {
+          "label": "region available",
+          "desc": "payment processing opens in your region, so your backings can be charged."
+        },
+        "accountManagement": {
+          "label": "account management",
+          "desc": "required actions, admin messages, handle verification results."
+        }
+      }
+    },
+    "password": {
+      "label": "password",
+      "blurb": "Update your login password.",
+      "cta": "Change Password →"
+    },
+    "danger": {
+      "label": "danger zone",
+      "brokeTitle": "💸 Click This If You're Broke!!",
+      "brokeDesc": "Do not give away cash you don't have. Instantly backs out of everything you've committed to.",
+      "brokeButton": "I'm Broke",
+      "deleteTitle": "Delete My Account",
+      "deleteDesc": "Permanently deletes your account and cancels all your commitments. Your email can be reused.",
+      "deleteButton": "Delete Account",
+      "brokeDone": "done — {count, plural, one {# commitment} other {# commitments}} cancelled.",
+      "genericError": "something went wrong. please try again."
+    },
+    "brokeModal": {
+      "title": "Back Out of Everything",
+      "working": "Working…",
+      "confirm": "Yes, Back Out of Everything",
+      "body": "This will immediately <strong>cancel all your active commitments</strong> and remove your backing from every project.",
+      "amountWarning": "{amount} in active commitments will be cancelled.",
+      "undoNote": "This cannot easily be undone. You would need to back each project individually again."
+    },
+    "deleteModal": {
+      "title": "Delete My Account",
+      "deleting": "Deleting…",
+      "confirm": "Yes, Delete My Account",
+      "body": "This will <strong>permanently delete your account</strong>, cancel all your active commitments, and log you out immediately.",
+      "recoverNote": "Your account cannot be recovered. You may re-register with the same email address.",
+      "typePrompt": "Type <strong>{name}</strong> to confirm:"
+    },
+    "toasts": {
+      "settingsSaved": "Settings saved.",
+      "saveFailed": "Failed to save. Please try again.",
+      "notifReset": "Notification settings reset to defaults.",
+      "resetFailed": "Failed to reset. Please try again.",
+      "nameUpdated": "Name updated!",
+      "nameFailed": "Failed to save name.",
+      "expirySaved": "Default expiry saved.",
+      "expiryFailed": "Failed to save expiry.",
+      "backingAmountSaved": "Default backing amount saved.",
+      "backingAmountFailed": "Failed to save default backing amount.",
+      "codeSent": "Verification code sent!",
+      "codeSendFailed": "Failed to send code.",
+      "phoneVerified": "Phone number verified!",
+      "codeInvalid": "Invalid or expired code.",
+      "phoneRemoved": "Phone number removed.",
+      "phoneRemoveFailed": "Failed to remove phone number.",
+      "confirmEmailSent": "Confirmation email sent!",
+      "confirmEmailFailed": "Failed to send confirmation email.",
+      "pictureUpdated": "Profile picture updated!",
+      "pictureFailed": "Failed to save picture."
+    }
+  },
+  "About": {
+    "hero": {
+      "taglines": {
+        "kickstarter": "Like Kickstarter, but no money moves until the thing is done.",
+        "changeOrg": "Like Change.org, but with accurate financial incentives.",
+        "device": "Artypot is a communication device. A demand coordinator."
+      },
+      "titleLine1": "Money talks loudest",
+      "titleLine2Prefix": "when it's",
+      "titleLine2Sketch": "in your pocket.",
+      "lede": "Fans pool money on specific requests aimed at creators and public entities. Nobody's card is charged until the thing is delivered and Council-approved — back out anytime before then. No risk while you wait.",
+      "ledeEmphasis": "A wish, multiplied, becomes an offer no one can ignore.",
+      "browseBounties": "Browse bounties",
+      "exploreCreators": "Explore creators",
+      "notSure": "Not sure what any of this is? → How it works"
+    },
+    "psychology": {
+      "label": "the psychology",
+      "titleLine1": "A bounty doesn't pressure anyone.",
+      "titleLine2": "It just sits there, growing,",
+      "titleSketch": "being very visible.",
+      "subtitle": "The demand was already there. We gave it a number.",
+      "usualLabel": "the way it usually works",
+      "usualBody": "You leave a comment. You quote-tweet. You ask nicely. You get ignored, or you get a 'soon.' The moment passes. The thing never gets made.",
+      "oursLabel": "the way we work",
+      "oursBody": "You and 200 strangers who have extremely similar taste put money in a bounty. The bounty becomes impossible to ignore. Some people only show up when the price is right."
+    },
+    "howItWorks": {
+      "label": "the mechanics",
+      "title": "How it works",
+      "steps": {
+        "open": {
+          "title": "Someone opens a bounty",
+          "description": "Anyone can start one. Pick a creator, name the exact thing you want made — a song, a video essay, a drawing, whatever. Set your dollar figure."
+        },
+        "grow": {
+          "title": "The bounty grows",
+          "description": "Other people who want the same thing chip in. The creator can see the bounty growing in real time. Sometimes that's all the signal they need."
+        },
+        "ship": {
+          "title": "Work ships. Money moves.",
+          "description": "The creator submits completion. The Council checks it matches the request. Cards are charged and the bounty pays out. No delivery = no charge."
+        }
+      }
+    },
+    "roles": {
+      "label": "the cast",
+      "title": "Who's in the room where it happens?",
+      "subtitle": "Three kinds of people. You're probably one of them.",
+      "cast": {
+        "fans": {
+          "name": "Fans",
+          "badge": "that's you",
+          "body": "You want a specific thing to happen and you're willing to back it with real money."
+        },
+        "creator": {
+          "name": "The Creator",
+          "badge": "the talent",
+          "body": "Whoever the bounty is for. They don't owe anyone anything — but there's real money sitting there with their name on it. It's only a matter of time..."
+        },
+        "council": {
+          "name": "The Council",
+          "badge": "the referees",
+          "body": "Me and some people I trust. We check that the thing is actually the thing before any money moves. Nobody gets paid without us."
+        }
+      }
+    },
+    "money": {
+      "label": "follow the money",
+      "title": "The technical part",
+      "intro": "We know how crowdfunding usually goes. You pay, you wait, you get a link to a Discord. Here, your card isn't charged until the work is DONE. The Council verifies completion before any money moves.",
+      "guarantees": {
+        "charged": {
+          "title": "Charged only on delivery",
+          "detail": "Your card isn't touched until the work is done and the Council has approved it. Back out anytime before completion — no risk while you wait."
+        },
+        "fee": {
+          "title": "{pct}% platform fee, all-in",
+          "detail": "Covers everything — I need to eat, file taxes, and payment processors needs to get paid."
+        },
+        "payout": {
+          "title": "Direct bank payout",
+          "detail": "When a bounty clears, the money goes straight to the creator's bank account."
+        },
+        "noAccess": {
+          "title": "No special access for backers",
+          "detail": "The content stays public. Fans who funded it get the same thing as everyone else."
+        }
+      },
+      "lifecycleTitle": "A bounty's life",
+      "lifecycleLabel": "six stops · color = who acts"
+    },
+    "finePrint": {
+      "label": "no surprises",
+      "title": "The fine print",
+      "recordTitle": "For the record",
+      "recordBody1": "I don't have a content policy that quietly updates on a Friday night. I don't decide what's worth making. You and your fans do. That's the whole thing.",
+      "recordBody2": "There are obvious limits — illegal is illegal — but the platform doesn't have opinions about art.",
+      "statusTitle": "A note on where I'm at",
+      "statusBody1": "Right now, Artypot only supports <emph>credit card payments</emph>, and payouts can only go to creators who are <emph>based in the United States</emph>. That's not a vision statement — it's just where the legal paperwork is currently in order.",
+      "statusBody2": "I'm working on it. The goal is eventually worldwide. For now: if you're a fan anywhere in the world, you can still back bounties. If you're the one getting paid, you'll need a US bank account."
+    },
+    "cta": {
+      "titleLine1": "There's probably already a bounty",
+      "titleLine2": "for something you want.",
+      "subtitle": "Go look. If there isn't one yet, you know what to do.",
+      "browse": "Browse open bounties",
+      "start": "or start a bounty yourself →"
+    }
+  },
+  "BecomeCreator": {
+    "hero": {
+      "sectionLabel": "fan",
+      "title": "become a creator",
+      "subtitle": "Unlock the creator view to accept bounties and get paid for your work."
+    },
+    "economics": {
+      "keepHeadline": "You keep {pct}% of every bounty.",
+      "feeExplainer": "Artypot's {fee}% covers card processing & fraud protection, hosting, support, and organic veggies for the council members that moderate everything.",
+      "noFees": "no signup fee · no monthly fee · no sales tax · deducted only from completed payouts"
+    },
+    "alreadyCreator": {
+      "sectionLabel": "creator",
+      "heading": "you're already a creator",
+      "body": "Your creator account is active. Head to your creator dashboard to manage bounties, track earnings, and more.",
+      "dashboardButton": "Go to Dashboard →"
+    },
+    "gates": {
+      "completeBadge": "complete",
+      "defaultLockText": "complete previous steps to unlock"
+    },
+    "gate1": {
+      "title": "Verify Your Email Address",
+      "description": "A verified email is required to receive creator notifications and tax communications"
+    },
+    "gate2": {
+      "title": "Verify a Handle",
+      "description": "Link a social account so fans know you're the real deal",
+      "lockText": "Verify your email to unlock",
+      "editButton": "Edit",
+      "doneButton": "Done"
+    },
+    "gate3": {
+      "title": "Add Your Tax Residence",
+      "description": "We use this to know where to report your earnings later",
+      "lockText": "Verify a handle to unlock",
+      "editButton": "Edit"
+    },
+    "gate4": {
+      "title": "Agree to Creator TOS and Choose Your Primary Handle",
+      "description": "Accept the creator terms and lock in your artypot.com/[slug] URL",
+      "lockText": "Complete steps 1–3 to unlock"
+    },
+    "email": {
+      "noEmailPrefix": "No email on your account.",
+      "noEmailLink": "Add one in Settings",
+      "noEmailSuffix": "to receive a verification link.",
+      "linkSentBanner": "A verification link was sent to your email address. Check your inbox (and spam folder).",
+      "sentToast": "Verification email sent — check your inbox.",
+      "sendErrorToast": "Could not send verification email. Please try again.",
+      "sending": "Sending…",
+      "resendButton": "Resend Verification Email"
+    },
+    "residence": {
+      "countryLabel": "country",
+      "selectCountry": "— select country —",
+      "selectSubdivision": "— select {subdivision} —",
+      "saving": "Saving…",
+      "saveButton": "Save Tax Residence",
+      "cancel": "Cancel",
+      "savedToast": "Tax residence saved.",
+      "saveErrorToast": "Failed to save tax residence."
+    },
+    "handles": {
+      "loading": "loading…"
+    },
+    "tos": {
+      "slugRequired": "Slug is required.",
+      "slugLabel": "choose your creator URL",
+      "termsFieldLabel": "creator terms of service",
+      "tldrFootnote": "This TL;DR is a helpful summary, not a substitute for the full terms.",
+      "readFullTerms": "Read the full Creator Terms of Service →",
+      "agreePrefix": "I have read and agree to the",
+      "agreeLinkText": "Artypot Creator Terms of Service",
+      "activating": "Activating…",
+      "enableButton": "Enable Creator Mode →",
+      "activatedToast": "Creator mode activated — welcome!",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "backToDashboard": "← Back to Dashboard"
+  },
+  "CreatorTos": {
+    "hero": {
+      "eyebrow": "Legal · Creators",
+      "title": "Creator Terms of Service",
+      "lastUpdated": "Last updated: {date}",
+      "supplementA": "These Creator Terms supplement the",
+      "generalTosLink": "general Terms of Service",
+      "supplementB": "and apply once you enable creator mode. Where the two conflict on creator-specific matters, these terms control."
+    },
+    "toc": {
+      "heading": "Contents",
+      "commitments": "Creator's Commitments",
+      "role": "Artypot's Role",
+      "payouts": "Payouts and Fees",
+      "refunds": "Refunds and Revocations",
+      "content": "Content Rules",
+      "termination": "Termination",
+      "disclaimer": "Disclaimers and Limitation of Liability",
+      "governing": "Governing Law and Disputes",
+      "misc": "Miscellaneous"
+    },
+    "sections": {
+      "commitments": {
+        "title": "1. Creator's Commitments",
+        "p0": "By enabling creator mode, you form a binding agreement with Artypot LLC, a Florida limited liability company, and agree to the following.",
+        "p1Lead": "1.1 Deliver commissioned work.",
+        "p1Rest": " You commit to producing the work described in a bounty in good faith and submitting it for review. Funds are only collected from fans after you submit your completed work and the Artypot Council confirms it satisfies the bounty — payment never precedes delivery. Submitting work you have not actually produced, do not own the rights to, or that does not fulfil the bounty may result in suspension or termination of your creator account.",
+        "p2Lead": "1.2 Maintain accurate handle information.",
+        "p2Rest": " The social handles and websites you verify through Artypot must genuinely represent your identity as a creator. You must not impersonate another person or entity or misrepresent your affiliation with any platform account.",
+        "p3Lead": "1.3 Provide accurate tax information when requested.",
+        "p3Rest": " When your cumulative annual payouts reach IRS reporting thresholds (or equivalent thresholds under applicable local law), you agree to provide a completed W-9 (for U.S. persons) or W-8BEN (for non-U.S. persons) upon request. Failure to provide required tax documentation will result in a hard block on payouts until documentation is provided.",
+        "p4Lead": "1.4 Keep your tax residence current.",
+        "p4Rest": " You must maintain an accurate country of tax residence (and U.S. state or territory, if applicable) in your creator profile. This information is used solely for earnings reporting and tax compliance purposes.",
+        "p5Lead": "1.5 Comply with all applicable laws.",
+        "p5Rest": " You are solely responsible for complying with all laws applicable to your activities on Artypot, including tax obligations, export controls, and local content regulations.",
+        "p6Lead": "1.6 Bounties fund public work, not private perks.",
+        "p6Rest": " A backing is a contribution toward a public deliverable — it is not a purchase, and it does not entitle the backer to anything the general public does not also receive. You must not offer, promise, or provide any private, personal, or backer-exclusive benefit in exchange for a backing or in recognition of its size, including (without limitation) private access, one-on-one time, physical goods, personalized or backer-owned work, travel, in-person meetings, early or exclusive access, or any preferential treatment. The work you deliver for a bounty must be a single public result, equally accessible to backers and non-backers alike. The only recognition you may give a backer is a simple public acknowledgment of that individual by name, and only as a discretionary courtesy: a backer is never owed it, acquires no right to it, and has no claim if you choose not to give it. You may not scale recognition by backing size — no tiers, no leaderboard-style prominence, and nothing in which a larger backing buys greater visibility, such as naming the top backer in a video's title. Acknowledgment is for natural persons only: never a business name, mark, logo, URL, or promotional message. Auctioning or selling personal access or private benefits — for example, offering an experience to the highest backer — is prohibited, and converts a non-sale contribution into a transaction our platform and payment partners do not support.",
+        "p7Lead": "1.7 No payment for official acts or campaigns.",
+        "p7Rest": " If you hold public office or are employed by a government, you may not accept or fulfil a bounty that rewards, induces, or is conditioned on anything you do in that official capacity. You also may not use Artypot to raise money for a political campaign, candidate, party, or committee, or for any other election-related purpose. This applies regardless of intent. Bounties for your ordinary creative work are unaffected — this is about official acts and campaigns, not about who you are.",
+        "p8Lead": "1.8 Individual creators only.",
+        "p8Rest": " Creator accounts are currently available only to individuals acting on their own behalf. Artypot does not yet support participation by corporations, LLCs, partnerships, or other business entities, and you may not enable or operate creator mode for or on behalf of any such entity. By enabling creator mode, you represent that you are a natural person, that you are acting solely on your own behalf and not for any business entity, and that your payouts will be reported under your personal taxpayer identity (such as a W-9 or W-8BEN, not an entity tax form). We expect to support business entities in the future; until we announce that support, entity-based participation is not permitted, and an account found to be operated by or for a business entity may have its payouts held or its creator status suspended until the matter is resolved."
+      },
+      "role": {
+        "title": "2. Artypot's Role",
+        "p1Lead": "2.1 Platform, not employer.",
+        "p1Rest": " Artypot is a platform that facilitates fan-funded commissions. Artypot is not your employer, client, agent, or partner. You are an independent creator. Nothing in these terms creates an employment, agency, joint venture, or partnership relationship between you and Artypot.",
+        "p2Lead": "2.2 Payment intermediary.",
+        "p2Rest": " Artypot acts as a payment intermediary between fans and creators. Artypot collects fan backings, holds them in accordance with its billing and refund policies, and disburses net proceeds to creators after any applicable platform fees and processing costs.",
+        "p3Lead": "2.3 No guarantee of earnings.",
+        "p3Rest": " Artypot does not guarantee that any bounty will reach any amount, that fans will fulfill their backings, or that any particular level of earnings will result from your participation.",
+        "p4Lead": "2.4 Council review.",
+        "p4Rest": " Bounty completion submissions are reviewed by the Artypot Council, an independent body of verified users. Council decisions regarding approval or rejection of completions are final. There is no formal appeals process, though you may contact us to raise concerns about a decision."
+      },
+      "payouts": {
+        "title": "3. Payouts and Fees",
+        "p1Lead": "3.1 Payout eligibility.",
+        "p1Rest": " To receive a payout you must: (a) have a verified country of tax residence on file; (b) have a connected payout account (via Stripe Connect where available, or another approved payout method); and (c) have provided required tax documentation (a W-9 for U.S. persons, or a W-8BEN for non-U.S. persons) as applicable.",
+        "p2Lead": "3.2 Minimum payout threshold.",
+        "p2Rest": " Payouts are subject to a minimum balance threshold that depends on your country and payout method, as published on the Artypot website and shown in your creator dashboard from time to time. Balances below the applicable threshold will accumulate until the threshold is met.",
+        "p3Lead": "3.3 Platform fee.",
+        "p3Rest": " Artypot deducts a platform fee from each payout, as specified in your creator dashboard and on the Artypot pricing page. Fees are subject to change with 30 days' notice to active creators.",
+        "p4Lead": "3.4 Hold period.",
+        "p4Rest": " Funds collected from fans are subject to a hold period (currently 7 days) before becoming available for withdrawal. This period exists to allow for fraud review and fan dispute resolution.",
+        "p5Lead": "3.5 Currency.",
+        "p5Rest": " All transactions are denominated in U.S. dollars unless otherwise stated. You are responsible for any currency conversion costs incurred by you or your bank."
+      },
+      "refunds": {
+        "title": "4. Refunds and Revocations",
+        "p1Lead": "4.1 Fan revocations.",
+        "p1Rest": " Fans may revoke open backings at any time before a bounty is marked complete. Revoked backings are returned to the fan in full; you are not entitled to compensation for revoked backings.",
+        "p2Lead": "4.2 Council rejection.",
+        "p2Rest": " If the Council rejects a completion submission, no funds are collected from fans. You may resubmit after addressing the Council's feedback.",
+        "p3Lead": "4.3 Chargebacks.",
+        "p3Rest": " If a fan's bank reverses a charge (a chargeback), the disputed amount — net of the platform fee that was withheld from it — is deducted from your creator balance. This deduction applies whether or not the funds are still within the clearing hold period, and applies even if the funds have already cleared or been paid out to you. Where a single charge covers backings for more than one creator, a chargeback is allocated proportionally across the affected creators, and a chargeback for only part of a charge is clawed back proportionally. Because a chargeback can arrive after you have withdrawn the funds, this deduction may reduce your balance below zero (see 4.6). If a chargeback is later resolved in Artypot's favour, the deducted amount is restored to your balance.",
+        "p4Lead": "4.4 Artypot-initiated refunds.",
+        "p4Rest": " Artypot may refund a fan, in whole or in part, at its discretion — for example to resolve a complaint, correct an error, address non-delivery or deficient work, or satisfy a legal or payment-partner requirement. When Artypot issues such a refund, the net amount you received for the affected backing is deducted from your balance and Artypot returns its own platform fee. As with a chargeback, this deduction may reduce your balance below zero. Artypot also reserves the right to claw back disbursed funds in cases of verified fraud or material misrepresentation.",
+        "p5Lead": "4.5 Refunds you choose to issue.",
+        "p5a": " You may refund every backer of one of your own completed or paid-out bounties from your creator dashboard. Backings that have not yet been billed are cancelled at no cost to you. For backings that have already been charged, each fan is refunded the full amount they paid, and that full amount — including the platform fee — is deducted from your balance; because the refund is voluntary, Artypot does not return its fee on a creator-initiated refund. You may only start a bounty-wide refund when your available balance covers the full amount to be refunded. If it does not, contact ",
+        "p5b": " and we will help arrange it.",
+        "p6Lead": "4.6 Negative balances and offset.",
+        "p6Rest": " A chargeback (4.3), an Artypot-initiated refund (4.4), or a clawback for fraud or material misrepresentation may reduce your creator balance below zero. A negative balance is carried forward and offset against your future earnings before any further payout is made. If you disable creator mode, close your account, or stop earning while carrying a negative balance, you remain responsible for the outstanding amount, and Artypot may recover it by any lawful means.",
+        "p7Lead": "4.7 Completed charges are final to the fan.",
+        "p7Rest": " Once the Council confirms a completion and fans are charged, those charges are final and are not refundable at a fan's unilateral request. Refunds occur only in the cases described above: a chargeback (4.3), a refund Artypot elects to issue (4.4), a refund you choose to issue (4.5), or a clawback for verified fraud or material misrepresentation.",
+        "p8Lead": "4.8 Assumption of revocation risk; waiver of reliance claims.",
+        "p8Rest": " Backings on open bounties are expressions of intent, not guaranteed payments, and any backer may revoke, reduce, or withdraw a backing at any time before a bounty is confirmed complete (see 4.1 and 2.3). If you begin, perform, or complete work in anticipation of a bounty, you do so at your own risk and in reliance solely on your own judgment — not on any backing, projected total, or any representation by a backer or by Artypot. You expressly assume the risk that backings may be revoked, reduced, or never charged, and that a bounty may close or expire without any payment. To the fullest extent permitted by law, you waive and release any claim against any backer and against Artypot — including any claim for detrimental reliance, promissory estoppel, breach of an implied promise, lost profits, or the value of work performed — arising out of or relating to the revocation, reduction, or non-fulfilment of any backing before a bounty is confirmed complete."
+      },
+      "content": {
+        "title": "5. Content Rules",
+        "p1Lead": "5.1 No intellectual property infringement.",
+        "p1Rest": " You must not submit, represent, or claim as your own any work that infringes the copyrights, trademarks, trade secrets, or other intellectual property rights of any third party.",
+        "p2Lead": "5.2 The Artypot surface is all-ages.",
+        "p2Rest": " Everything you publish or submit to Artypot itself — bounty descriptions and titles, your profile, display name, verified handles, comments, and the notes or links you attach to a completion — must be suitable for a general audience. This material is hosted and publicly displayed by Artypot, so it may not contain sexually explicit material, pornography, nudity, or gratuitous shock content. This is a rule about the on-platform surface; it is not a judgment about the legitimate creative work you produce and host elsewhere.",
+        "p3Lead": "5.3 No adult-content commerce.",
+        "p3Rest": " You may not use Artypot to solicit, coordinate, or collect payment for sexually explicit or pornographic work, whether or not the work itself is delivered off-platform. Artypot is the merchant of record for every bounty charge, and our payment partners (including the card networks and Stripe) prohibit processing payments for adult content. A bounty whose purpose is to fund adult content is therefore not permitted, regardless of where the finished work is hosted.",
+        "p4Lead": "5.4 Illegal and harmful content.",
+        "p4Rest": " You must never submit, facilitate, represent as a completion, or use a bounty to fund any content that: (a) is illegal under applicable law; (b) constitutes harassment, a credible threat, or targeted hate speech; or (c) contains malware or malicious code. This prohibition is absolute and applies to both on-platform material and any work delivered off-platform in fulfilment of a bounty.",
+        "p5Lead": "5.5 Your license to Artypot.",
+        "p5Rest": " For the material you publish or submit to Artypot itself (such as completion notes, links, and profile content), you grant Artypot a limited, non-exclusive, royalty-free license to display, reproduce, and promote that material solely for the purpose of operating and marketing the Artypot platform.",
+        "p6Lead": "5.6 Your rights.",
+        "p6Rest": " You retain all ownership rights in your creative work. Nothing in these terms transfers copyright or other intellectual property rights to Artypot or to any fan."
+      },
+      "termination": {
+        "title": "6. Termination",
+        "p1Lead": "6.1 By you.",
+        "p1Rest": " You may disable creator mode at any time from your account settings, subject to any outstanding obligations (open bounties, pending payouts, or active disputes).",
+        "p2Lead": "6.2 By Artypot.",
+        "p2Rest": " Artypot may suspend or terminate your creator status immediately if you: (a) breach these Creator Terms or the General Terms of Service; (b) engage in fraudulent or deceptive conduct; (c) fail to deliver work after funds are collected, repeatedly; (d) violate any applicable law; or (e) pose a risk to Artypot or its users.",
+        "p3Lead": "6.3 Effect of termination.",
+        "p3Rest": " Upon termination: existing open bounties are closed and their backings are cancelled (no charges are made, since backings on open bounties are never charged); any available creator balance will be disbursed to you (subject to tax documentation requirements and any outstanding disputes) within a reasonable period."
+      },
+      "disclaimer": {
+        "title": "7. Disclaimers and Limitation of Liability",
+        "p1Lead": "7.1",
+        "p1Rest": " Artypot provides its platform \"as is\" and makes no warranties, express or implied, regarding availability, fitness for a particular purpose, or uninterrupted operation.",
+        "p2Lead": "7.2",
+        "p2Rest": " To the maximum extent permitted by law, Artypot's total liability to you arising out of or related to these Creator Terms shall not exceed the total platform fees paid by you (or collected on your behalf) in the twelve months preceding the claim.",
+        "p3Lead": "7.3",
+        "p3Rest": " Artypot is not liable for any indirect, incidental, consequential, or punitive damages, even if advised of the possibility of such damages."
+      },
+      "governing": {
+        "title": "8. Governing Law and Disputes",
+        "p1Lead": "8.1",
+        "p1Rest": " These Creator Terms are governed by the laws of the State of Florida, without regard to conflict-of-law principles.",
+        "p2Lead": "8.2",
+        "p2Rest": " Any dispute arising out of or related to these Creator Terms shall be resolved by binding arbitration administered in Hillsborough County, Florida, under the rules of the American Arbitration Association (AAA), except that either party may seek injunctive or other equitable relief in a court of competent jurisdiction in Florida.",
+        "p3Lead": "8.3",
+        "p3Rest": " You waive your right to participate in a class action or class-wide arbitration."
+      },
+      "misc": {
+        "title": "9. Miscellaneous",
+        "p1Lead": "9.1 Amendments.",
+        "p1Rest": " Artypot may update these Creator Terms at any time. Material changes will be communicated to you via the email address on your account or via an in-app notice at least 30 days before taking effect.",
+        "p2Lead": "9.2 Severability.",
+        "p2Rest": " If any provision of these Creator Terms is found to be unenforceable, the remaining provisions continue in full force.",
+        "p3Lead": "9.3 Entire Agreement.",
+        "p3a": " These Creator Terms, together with the Artypot ",
+        "generalTosLink": "General Terms of Service",
+        "p3b": "and",
+        "privacyLink": "Privacy Policy",
+        "p3c": ", constitute the entire agreement between you and Artypot with respect to your role as a creator.",
+        "questions": "Questions about these terms? Email",
+        "questionsEmail": "legal@artypot.com"
+      }
+    }
+  },
+  "Dashboard": {
+    "header": {
+      "fan": "fan",
+      "title": "dashboard",
+      "newBounty": "+ New Bounty"
+    },
+    "billing": {
+      "notice": "<strong>billing on {date}</strong> — you'll be charged <strong>{amount}</strong> across approved bounties.",
+      "payNow": "Pay Now →"
+    },
+    "stats": {
+      "bountiesJoined": {
+        "label": "bounties joined",
+        "info": "Bounties you're actively backing or have already helped deliver. The subline counts the ones you started yourself.",
+        "sub": "{count} you started"
+      },
+      "creatorsPetitioned": {
+        "label": "creators petitioned",
+        "info": "Distinct creators handles you've backed a bounty for. The subline is how many came through — delivered a bounty you backed and got paid by you.",
+        "sub": "{count} delivered"
+      },
+      "nextCharge": {
+        "label": "next charge",
+        "info": "What you'll be billed on the next billing date, covering bounties that were completed and approved since your last charge. See the full breakdown on the billing page.",
+        "due": "due {date}",
+        "nothingDue": "Nothing due",
+        "viewAmount": "view amount in billing →",
+        "settledUp": "you're all settled up"
+      },
+      "lifetimePaid": {
+        "label": "lifetime paid",
+        "info": "What you've actually been charged, ever. It stays $0 until a bounty you backed is delivered and approved — your card is never touched until bounty completion.",
+        "sub": "{amount} total backed"
+      }
+    },
+    "backings": {
+      "sectionLabel": "my backings",
+      "allHistory": "all history →",
+      "empty": {
+        "message": "Not backing anything yet",
+        "findCreators": "Find creators →"
+      },
+      "bountyRef": "bounty #{id}",
+      "revoke": "revoke",
+      "more": "+{count} more →"
+    },
+    "featured": {
+      "sectionLabel": "featured bounties",
+      "browseAll": "browse all →",
+      "empty": {
+        "message": "Discover bounties from creators across Artypot.",
+        "browse": "Browse bounties →",
+        "findCreators": "Find creators →"
+      }
+    }
+  },
+  "ForCreators": {
+    "hero": {
+      "titleLine1": "Tell your fans",
+      "titleLine2": "what you want to make.",
+      "titleLine3": "Let them fund it.",
+      "body": "Artypot is a bounty platform. Create a bounty for a specific project, share it with your audience, and they put money toward it. No subscriptions. No paywalls. You do the thing, you get paid. If you don't deliver, credit cards are never touched.",
+      "getStarted": "Get started →",
+      "howYouGetPaid": "How you get paid"
+    },
+    "different": {
+      "titleLine1": "Not a tip jar. Not a subscription.",
+      "titleLine2": "A funded project request.",
+      "body": "You already know what your audience wants... but how much do they want it? Artypot turns their \"plz do X\" comments into a number with a dollar sign in front of it.",
+      "patreon": "Monthly subscriptions. Good for creators with consistent output — tough if your work comes in bursts. Fans are paying for access, not for anything specific.",
+      "kofi": "Low friction, but also low signal. Tips don't tell you what anyone actually wants made. They're appreciation for things you've already done.",
+      "artypot": "Fans put money toward one specific thing you want to make. Nothing moves until it's done. You only get paid when you deliver — which is exactly why fans are comfortable putting real money in."
+    },
+    "appeal": {
+      "fans": {
+        "label": "Why fans back it",
+        "titleLine1": "They're not donating.",
+        "titleLine2": "They're commissioning.",
+        "points": {
+          "card": {
+            "title": "Their card isn't charged until you deliver",
+            "detail": "No delivery means no payment. Ever. That makes backing feel safe."
+          },
+          "oneThing": {
+            "title": "They back one thing, not a monthly commitment",
+            "detail": "No subscription guilt. They put money toward a specific thing they want to exist."
+          },
+          "backOut": {
+            "title": "They can back out any time before completion",
+            "detail": "Changed their mind? They withdraw their backing. No hard feelings, no money lost."
+          }
+        }
+      },
+      "creators": {
+        "label": "Why creators use it",
+        "titleLine1": "Test demand before",
+        "titleLine2": "investing the time.",
+        "points": {
+          "worthMaking": {
+            "title": "Know if it's worth making before you make it",
+            "detail": "Open the bounty. Share it. If backings don't justify the work, nothing happens and nobody lost money."
+          },
+          "stayPublic": {
+            "title": "Your content stays public",
+            "detail": "This isn't a paywall. Backers don't get exclusive access — they get the same thing everyone else gets, plus the satisfaction of having made it happen."
+          },
+          "payoutSchedule": {
+            "title": "No platform decides your payout schedule",
+            "detail": "You withdraw when you want. The {billingDay}th is when fans are charged — after that, funds clear in {waitDays} days."
+          }
+        }
+      }
+    },
+    "howPaid": {
+      "label": "The full picture",
+      "title": "From sign-up to bank transfer",
+      "body": "Every step, in order. No surprises."
+    },
+    "steps": {
+      "signUp": {
+        "label": "Sign up and become a creator",
+        "sub": "Link a social handle so we can confirm it's you. We will help if if you have trouble."
+      },
+      "openBounty": {
+        "label": "Open a bounty for your own project",
+        "sub": "Write exactly what you want to make — a video, an album, an illustration series, anything. Be specific. Vague bounties back slowly."
+      },
+      "share": {
+        "label": "Share the link with your audience",
+        "sub": "Post it wherever your fans are. They can back it in two clicks — no account required to back, though they'll need one to pay."
+      },
+      "backingsComeIn": {
+        "label": "Backings come in (no money moves yet)",
+        "sub": "Fans commit amounts. Nothing is charged. You can watch the total grow in real time. Decide when you're happy with the return."
+      },
+      "makeThing": {
+        "label": "Make the thing",
+        "sub": "On your own schedule. No deadline unless you set one. When it's done, submit it from your dashboard."
+      },
+      "councilReviews": {
+        "label": "The Council reviews it",
+        "sub": "A small group of human reviewers checks that your submission actually matches what the bounty asked for. Straightforward ones clear in a few days."
+      },
+      "fansCharged": {
+        "label": "Fans get charged",
+        "sub": "Cards are charged on the {billingDay}th of the month following approval. Backers who backed get notified before it hits."
+      },
+      "clearingWindow": {
+        "label": "{waitDays}-day clearing window",
+        "sub": "A short buffer for any disputed charges to surface. Standard payment processing practice."
+      },
+      "withdraw": {
+        "label": "Withdraw to your bank",
+        "sub": "You keep {creatorPct}% of what fans paid. Transfer it to your bank via Stripe Global Payouts."
+      }
+    },
+    "fee": {
+      "label": "The fee",
+      "title": "{feePct}%. Flat. All-in.",
+      "body1": "One fee covers everything — Artypot's operating costs and all Stripe payment processing. No monthly fee to list a bounty. No charge if a bounty never completes. You only pay when you get paid.",
+      "body2": "Backers are charged their exact backed amount. The fee comes out of your side only, not theirs.",
+      "exampleLabel": "Example payout",
+      "totalBacked": "Total backed by fans",
+      "softFallThrough": "Most soft backings fall through",
+      "platformFee": "Platform fee ({feePct}%)",
+      "youReceive": "You receive"
+    },
+    "cta": {
+      "titleLine1": "Pick something you want to make.",
+      "titleLine2": "Open a bounty. Share the link.",
+      "body": "If your audience wants it, the money will show up. If there's not enough support or you don't deliver, nobody pays anything.",
+      "createAccount": "Create your account →",
+      "alreadyHaveOne": "Already have one?",
+      "logIn": "Log in →",
+      "howItWorks": "How Artypot works",
+      "terms": "Terms of Service",
+      "contact": "Questions? Contact us"
+    }
+  },
+  "Home": {
+    "hero": {
+      "titleLine1": "tell the world",
+      "titleLine2": "what you want.",
+      "subtitle": "Search for any creator, artist, or public figure — start a bounty and let the community fund it. No delivery = no charge.",
+      "searchPlaceholder": "Search for a creator, artist, or public figure…",
+      "browseBounties": "Browse open bounties →",
+      "areYouCreator": "Are you a creator?"
+    },
+    "trending": {
+      "label": "trending now",
+      "title": "what people want right now",
+      "browseAll": "Browse all →",
+      "empty": "No featured bounties yet.",
+      "emptyLink": "Browse all bounties"
+    },
+    "howItWorks": {
+      "label": "the gist",
+      "title": "what's the big idea?",
+      "steps": {
+        "one": "Ask your favorite creator to do something cool or stupid.",
+        "two": "Like-minded fans chip in until the bounty can't be ignored.",
+        "three": "The creator delivers, the fans pay them. Spam Ws in chat."
+      }
+    },
+    "cta": {
+      "title": "what do you want to see made?",
+      "subtitle": "Find your favorite creator and start a bounty. If the crowd wants it too, the money shows up.",
+      "createAccount": "Create your account →",
+      "browseBounties": "Browse bounties",
+      "haveAccount": "Already have an account?",
+      "logIn": "Log in →"
+    }
+  },
+  "Login": {
+    "hero": {
+      "title": "<accent>money</accent> talks.",
+      "subtitle": "start a bounty for a creator to make a public, free piece of work. others can chip in. when the work is delivered, the creator gets paid."
+    },
+    "stats": {
+      "charged": {
+        "label": "charged",
+        "value": "monthly",
+        "note": "only after delivery"
+      },
+      "creatorsKeep": {
+        "label": "creators keep",
+        "note": "no sales tax"
+      },
+      "payouts": {
+        "label": "payouts",
+        "note": "to 50+ countries"
+      }
+    },
+    "sectionLabel": "sign in",
+    "heading": "welcome back",
+    "oauth": {
+      "redirecting": "redirecting…"
+    },
+    "divider": "or",
+    "modeToggle": {
+      "email": "email",
+      "phone": "phone"
+    },
+    "fields": {
+      "email": {
+        "label": "email address",
+        "placeholder": "you@example.com"
+      },
+      "phone": {
+        "label": "phone number"
+      },
+      "password": {
+        "label": "password"
+      }
+    },
+    "forgotPassword": "forgot password?",
+    "submit": {
+      "label": "Sign In",
+      "loading": "Signing in…"
+    },
+    "register": {
+      "prompt": "new here?",
+      "cta": "Create an Account",
+      "creatorNote": "becoming a creator is a separate flow — first sign up, then verify a handle and complete tax + bank gates."
+    },
+    "errors": {
+      "loginFailed": "Login failed. Please try again.",
+      "oauthFailed": "Failed to start sign-in. Please try again."
+    }
+  },
+  "PasswordReset": {
+    "forgot": {
+      "sectionLabel": "password reset",
+      "title": "forgot your password?",
+      "subtitle": "Enter your email and we'll send a reset link. It expires in 60 minutes.",
+      "subtitleSent": "Check your inbox — a reset link is on its way.",
+      "sent": {
+        "label": "sent",
+        "before": "If",
+        "after": "is registered, you'll receive the link shortly.",
+        "backToSignIn": "← Back to Sign In"
+      },
+      "emailLabel": "email address",
+      "submit": "Send Reset Link",
+      "submitLoading": "Sending…",
+      "rememberedPrompt": "Remembered it?",
+      "signIn": "Sign In →",
+      "errors": {
+        "generic": "Something went wrong. Please try again."
+      }
+    },
+    "reset": {
+      "sectionLabel": "password reset",
+      "title": "set a new password",
+      "forPrefix": "For",
+      "loading": "loading…",
+      "newPasswordLabel": "new password",
+      "newPasswordPlaceholder": "at least 8 characters",
+      "confirmPasswordLabel": "confirm new password",
+      "confirmPasswordPlaceholder": "repeat your new password",
+      "submit": "Set New Password",
+      "submitLoading": "Resetting…",
+      "rememberedPrompt": "Remembered it?",
+      "signIn": "Sign In →",
+      "success": {
+        "label": "done",
+        "title": "password updated",
+        "body": "Your password has been changed. All other sessions have been signed out.",
+        "signIn": "Sign In with New Password →"
+      },
+      "errors": {
+        "mismatch": "Passwords do not match.",
+        "tooShort": "Password must be at least 8 characters.",
+        "failed": "Failed to reset password. The link may have expired."
+      }
+    }
+  },
+  "Privacy": {
+    "hero": {
+      "eyebrow": "Legal",
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated: {date}"
+    },
+    "tldr": {
+      "eyebrow": "TL;DR — plain English",
+      "collect": {
+        "bold": "We collect only what we need",
+        "rest": "to run the platform — your name, email, and payment info."
+      },
+      "noSell": {
+        "bold": "We don't sell your data.",
+        "rest": "We don't rent it. We don't use it for ads."
+      },
+      "stripe": {
+        "bold": "Stripe handles your card details.",
+        "rest": "We never see or store your full card number."
+      },
+      "private": {
+        "bold": "Your backing history is private by default.",
+        "rest": "You can make your profile anonymous in settings."
+      },
+      "delete": {
+        "bold": "You can delete your account",
+        "rest": "and we'll remove your personal data."
+      },
+      "cookies": {
+        "bold": "We use minimal cookies",
+        "rest": "— just what's needed for the site to function."
+      },
+      "disclaimer": "This TL;DR is a helpful summary, not a substitute for the full policy below."
+    },
+    "toc": {
+      "heading": "Contents"
+    },
+    "sections": {
+      "controller": {
+        "title": "1. Who Controls Your Data",
+        "body": "Artypot is operated by Artypot LLC, a Florida limited liability company (\"Artypot,\" \"we,\" \"us,\" \"our\"). For questions about this policy, contact"
+      },
+      "collected": {
+        "title": "2. What We Collect",
+        "account": {
+          "label": "Account information:",
+          "body": "Your name, email address, and password (hashed — we can't read it). Optionally: a profile picture and phone number for verification purposes."
+        },
+        "financial": {
+          "label": "Financial information:",
+          "body": "For backers: payment method details (processed by Stripe — see Section 5). For creators receiving payouts: bank account or payout-method information (processed by Stripe Connect or an alternative payout provider), and tax identification details for tax reporting (W-9 and 1099 for US creators; W-8BEN and 1042-S for creators outside the US)."
+        },
+        "activity": {
+          "label": "Activity data:",
+          "body": "Bounties you've created, bounties you've backed, bounties you've fulfilled, notifications you've received."
+        },
+        "usage": {
+          "label": "Usage data:",
+          "body": "Standard server logs — IP addresses, browser type, pages visited, timestamps. We use this to diagnose problems, not to build marketing profiles."
+        },
+        "comms": {
+          "label": "Communications:",
+          "body": "If you contact us via the support form or email, we retain those messages to resolve your request."
+        }
+      },
+      "howUsed": {
+        "title": "3. How We Use It",
+        "intro": "We use your data to:",
+        "item1": "Run the Platform — authenticate your account, process payments, trigger payouts",
+        "item2": "Send you transactional emails (payment confirmations, bounty updates, payment receipts)",
+        "item3": "Comply with legal obligations — tax reporting (1099s), fraud prevention",
+        "item4": "Improve the Platform — identify bugs and usage patterns in aggregate",
+        "item5": "Respond to support requests",
+        "outro": "We do not use your data for advertising, profiling, or sale to third parties."
+      },
+      "sharing": {
+        "title": "4. Who We Share It With",
+        "intro": "We share data only with the service providers needed to operate the Platform:",
+        "stripe": "payment processing and creator payouts",
+        "stripeConnect": "bank account verification and creator payouts",
+        "taxbandits": "1099 and 1042-S filing where required",
+        "emailLabel": "Email service provider",
+        "email": "transactional email delivery",
+        "hostingLabel": "Hosting / infrastructure providers",
+        "hosting": "servers and databases",
+        "dpa": "All service providers are bound by data processing agreements. We do not allow them to use your data for their own purposes.",
+        "legal": "We may also disclose data where required by law, such as in response to a valid court order or subpoena."
+      },
+      "payments": {
+        "title": "5. Payment Data and Stripe",
+        "p1": "All payment card data is handled directly by Stripe, Inc. When you enter your card details, that information goes to Stripe's servers — not ours. We never see or store your full card number, CVV, or expiry.",
+        "p2": "We store a Stripe customer ID and a reference to your saved payment method (e.g., last four digits, card type) so you can manage your billing. This reference is not sufficient to initiate a charge — only Stripe can do that on our instruction.",
+        "p3pre": "Stripe's privacy practices are governed by the",
+        "p3link": "Stripe Privacy Policy",
+        "p4": "Creator bank account information is processed by Stripe Connect via Stripe Financial Connections. We store only a Stripe Connect account identifier — not the bank account number itself."
+      },
+      "retention": {
+        "title": "6. How Long We Keep It",
+        "p1": "We retain your account data for as long as your account is active. If you delete your account, we remove your personal information from active systems within 30 days.",
+        "p2": "Financial records (payment amounts, payout records, receipts) are retained for 7 years as required by US tax law, even after account deletion. These records are anonymised where possible.",
+        "p3": "Server logs are retained for up to 90 days and then deleted."
+      },
+      "rights": {
+        "title": "7. Your Rights",
+        "intro": "You have the right to:",
+        "access": {
+          "label": "Access",
+          "body": "request a copy of the personal data we hold about you"
+        },
+        "correct": {
+          "label": "Correct",
+          "body": "update inaccurate information via your settings page"
+        },
+        "delete": {
+          "label": "Delete",
+          "body": "delete your account and personal data (subject to legal retention requirements)",
+          "link": "step-by-step instructions"
+        },
+        "portability": {
+          "label": "Portability",
+          "body": "request your data in a machine-readable format"
+        },
+        "object": {
+          "label": "Object",
+          "body": "object to processing where we rely on legitimate interests"
+        },
+        "exercisePre": "To exercise these rights,",
+        "contactLink": "contact us",
+        "exerciseMid": "or email",
+        "exercisePost": "We will respond within 30 days.",
+        "regional": "If you are in the EU/EEA or California, you may have additional rights under GDPR or CCPA. We'll honour those requests even if you don't cite the specific regulation."
+      },
+      "cookies": {
+        "title": "8. Cookies",
+        "intro": "Artypot uses minimal cookies:",
+        "auth": {
+          "label": "Authentication token",
+          "body": "stored in localStorage (not a cookie) to keep you logged in. Cleared when you log out."
+        },
+        "stripe": {
+          "label": "Stripe's cookies",
+          "body": "set by Stripe's JavaScript for fraud detection during payment flows. Governed by Stripe's policy."
+        },
+        "noTracking": "We do not use analytics cookies, tracking pixels, or third-party advertising cookies. There is no cookie consent banner because there is nothing to consent to beyond what's necessary."
+      },
+      "children": {
+        "title": "9. Children",
+        "body": "Artypot is not intended for anyone under 18. We do not knowingly collect personal information from minors. If you believe we have inadvertently collected data from a minor, please contact us and we will delete it promptly."
+      },
+      "international": {
+        "title": "10. International Users",
+        "p1": "Artypot is operated from the United States. If you are accessing the Platform from outside the US, your data will be transferred to and processed in the US. By using the Platform, you consent to this transfer.",
+        "p2": "We apply data protection measures consistent with US law. We do not currently have a formal EU Standard Contractual Clause (SCC) framework in place, but we will comply with any lawful data subject requests we receive."
+      },
+      "changes": {
+        "title": "11. Changes to This Policy",
+        "body": "We may update this Privacy Policy from time to time. Changes will be reflected in the \"Last updated\" date at the top. For material changes, we will notify you by email or via the Platform."
+      },
+      "contact": {
+        "title": "12. Contact",
+        "pre": "Privacy questions or requests?",
+        "link": "Contact us here",
+        "mid": "or email"
+      }
+    }
+  },
+  "Register": {
+    "hero": {
+      "title": "money talks louder when it's still <highlight>in your pocket</highlight>",
+      "subtitle": "every artypot account starts as a fan — back the bounties you want to see made, or start your own and ask a creator to make something specific.",
+      "howItWorks": {
+        "label": "how a bounty works",
+        "step1": "Back a bounty you want to exist — or open a new one. Nothing is charged upfront.",
+        "step2": "Fans pile on until the creator decides it's worth making, then they submit the finished work.",
+        "step3": "Once it's verified as delivered, your card is charged — never before."
+      },
+      "creatorNote": "want to get paid for your own work? become a creator after signing up — verify a handle, then clear the tax + payout steps."
+    },
+    "form": {
+      "sectionLabel": "create account",
+      "title": "join Artypot",
+      "oauthRedirecting": "redirecting…",
+      "or": "or",
+      "modeEmail": "email",
+      "modePhone": "phone",
+      "emailLabel": "email",
+      "emailPlaceholder": "you@example.com",
+      "phoneLabel": "phone number",
+      "nameLabel": "Public name",
+      "namePlaceholder": "Harry Baldwig",
+      "passwordLabel": "password",
+      "confirmPasswordLabel": "confirm password",
+      "tos": "I agree to the <tosLink>terms of service</tosLink> and <privacyLink>privacy policy</privacyLink>",
+      "submitLoading": "Creating account…",
+      "submitPhone": "Create Account & Send Code",
+      "submitEmail": "Create My Account",
+      "haveAccount": "Already have one?",
+      "signIn": "Sign In →"
+    },
+    "otp": {
+      "sectionLabel": "verify phone",
+      "title": "check your texts",
+      "subtitle": "We sent a 6-digit code to your phone number. Enter it below to finish creating your account.",
+      "resentNotice": "New code sent.",
+      "codeLabel": "verification code",
+      "verifyingButton": "Verifying…",
+      "verifyButton": "Verify & Continue",
+      "didntGetIt": "Didn't get it?",
+      "sendingButton": "Sending…",
+      "resendButton": "Resend code",
+      "errors": {
+        "invalidCode": "Invalid code. Please try again.",
+        "resendFailed": "Failed to resend code."
+      }
+    },
+    "errors": {
+      "oauthStartFailed": "Failed to start sign-up. Please try again.",
+      "passwordMismatch": "Passwords do not match.",
+      "tosRequired": "Please agree to the terms of service.",
+      "notAvailable": "Registration is not yet available. Check back soon!",
+      "registrationFailed": "Registration failed. Please try again."
+    }
+  },
+  "Support": {
+    "hero": {
+      "title": "get in touch",
+      "subtitle": "Questions, problems, or just want to say something. I actually read these."
+    },
+    "subjects": {
+      "bountyQuestion": "I have a question about a bounty",
+      "backingQuestion": "I have a question about backing a bounty",
+      "paymentsHelp": "I need help with payments or billing",
+      "reportBug": "I want to report a problem or bug",
+      "reportContent": "I want to report content",
+      "deleteAccount": "I want to delete my account",
+      "other": "Something else"
+    },
+    "success": {
+      "title": "Message sent",
+      "body": "I'll get back to you at <strong>{email}</strong>. Usually within a day or two.",
+      "sendAnother": "Send another message"
+    },
+    "form": {
+      "honeypotLabel": "Website",
+      "nameLabel": "Your name",
+      "namePlaceholder": "Harry Baldwig",
+      "emailLabel": "Your email",
+      "emailPlaceholder": "you@example.com",
+      "subjectLabel": "Subject",
+      "subjectPlaceholder": "Select a topic…",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Tell me what's going on…",
+      "charCount": "{count} / 5000",
+      "submitting": "Sending…",
+      "submit": "Send message",
+      "emailDirectly": "Or email directly:"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "genericShort": "Something went wrong."
+    }
+  },
+  "Tos": {
+    "hero": {
+      "eyebrow": "Legal",
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated: {date}"
+    },
+    "tldr": {
+      "label": "TL;DR — plain English",
+      "noMoneyMovesLead": "No money moves when you back a bounty",
+      "noMoneyMovesRest": " — not even a hold. Your card is only charged after The Council confirms a bounty complete, and charges are collected together in a monthly billing run.",
+      "backOutLead": "You can back out any time",
+      "backOutRest": " before a bounty completes, for free. No questions asked.",
+      "finalLead": "But once it completes, the charge is final.",
+      "finalRest": " After The Council confirms a bounty and you're charged, that payment is final and non-refundable — your window to back out is before completion, not after.",
+      "feeLead": "Artypot takes a 20% platform fee",
+      "feeRest": ", deducted from the creator's payout. This fee covers all transaction costs including payment processing — backers are charged their committed amount in full, creators receive 80%.",
+      "globalLead": "Creators around the world can get paid",
+      "globalRest": " — via direct bank payouts where supported, and alternative methods elsewhere. Fans anywhere can back bounties. A few countries are restricted by law.",
+      "neverLead": "If a bounty never completes, no money moves.",
+      "neverRest": " Ever.",
+      "notPurchaseLead": "Backing isn't a purchase.",
+      "notPurchaseRest": " You're funding a public result everyone gets equally — not buying private perks, goods, or access. Creators can't auction personal rewards to top backers, and you shouldn't ask them to.",
+      "noOfficialLead": "No buying official acts or funding campaigns.",
+      "noOfficialRest": " You can't use a bounty to pay a government official for something they do in office, or to bankroll a candidate, campaign, or election effort — that runs into bribery and campaign-finance law.",
+      "allAgesLead": "Keep Artypot all-ages.",
+      "allAgesRest": " Everything posted to the Platform — bounty text, profiles, comments, completion notes — must be PG, and you can't use a bounty to fund adult content (our payment partners forbid it). Nothing illegal, ever. What a creator makes and hosts elsewhere is their own business.",
+      "disclaimer": "This TL;DR is a helpful summary, not a substitute for the full terms below."
+    },
+    "toc": {
+      "heading": "Contents",
+      "acceptance": "Acceptance of Terms",
+      "description": "What Artypot Is",
+      "accounts": "Accounts",
+      "bounties": "Bounties",
+      "backing": "Backing and Payments",
+      "creators": "Creator Obligations",
+      "council": "The Council",
+      "fees": "Fees",
+      "content": "Content Policy",
+      "ip": "Intellectual Property",
+      "termination": "Termination",
+      "disclaimer": "Disclaimers",
+      "liability": "Limitation of Liability",
+      "governing": "Governing Law",
+      "changes": "Changes to These Terms",
+      "contact": "Contact"
+    },
+    "sections": {
+      "acceptance": {
+        "title": "1. Acceptance of Terms",
+        "p1": "Artypot (\"the Platform,\" \"we,\" \"us\") is operated by Artypot LLC, a Florida limited liability company. By accessing or using Artypot, you agree to be bound by these Terms of Service. If you do not agree, do not use the Platform.",
+        "p2": "You must be at least 18 years old to create an account or back a bounty. By using the Platform, you represent that you meet this requirement."
+      },
+      "description": {
+        "title": "2. What Artypot Is",
+        "p1": "Artypot is a bounty-style crowdfunding platform. Fans (\"backers\") pool funding toward specific tasks from public entities (\"creators\"). Backing is a commitment of funds, but no money moves when you back a bounty. Charges only occur after The Council reviews and confirms a bounty as complete.",
+        "p2": "Artypot is not a tip jar, subscription service, or pre-order platform. It is a mechanism for coordinating demand signals and releasing payment only on delivery."
+      },
+      "accounts": {
+        "title": "3. Accounts",
+        "p1": "You are responsible for maintaining the security of your account and all activity that occurs under it. Do not share your login credentials.",
+        "p2": "You agree to provide accurate, current, and complete information when registering. We reserve the right to suspend or terminate accounts with inaccurate or misleading information.",
+        "p3": "One person, one account. Creating multiple accounts to circumvent restrictions is prohibited."
+      },
+      "bounties": {
+        "title": "4. Bounties",
+        "p1": "Any registered user may open a bounty for any task a named creator could verifiably complete, subject to the Content Policy (Section 9). If it can be done, confirmed, and doesn't violate the Content Policy, it can be a bounty.",
+        "p2": "Opening a bounty does not guarantee the named creator will fulfil it. The creator is under no contractual obligation to Artypot or to backers. A bounty is an expression of collective demand, not a contract with the creator.",
+        "p3Lead": "A bounty funds public work, not private perks.",
+        "p3Rest": " Backing is a contribution toward a result that is released publicly and equally to backers and non-backers alike. It is not a purchase of goods or services for the backer, and it confers no private benefit, ownership, exclusive access, or preferential treatment. Creators may not offer, and backers may not solicit or demand, any personal or backer-exclusive reward in exchange for a backing or its size — for example, private meetings, physical goods, personalized work, or an experience auctioned to the highest backer. The one form of recognition that remains permitted is a simple public acknowledgment of an individual backer by name, and only as a discretionary courtesy: a backer is never owed it, acquires no right to it, and has no claim if it is omitted, with the creator free to give or withhold it at their sole option.",
+        "p4Lead": "No bounties for official acts or political campaigns.",
+        "p4Rest": " A bounty may not reward, induce, or be conditioned on an official act — anything a government office holder or employee does, or could do, in their official capacity. Nor may a bounty serve as a contribution to or expenditure for a candidate, campaign, party, or committee, or otherwise aim to influence an election. Funding pointed at an official act or an election can create legal exposure for backers and for Artypot regardless of intent, so we don't allow it. This turns on the purpose of a bounty, not the identity of its subject: a public servant who is also a creator can still be the subject of a bounty for ordinary creative work. We may remove bounties that cross this line and take action on the accounts behind them.",
+        "p5": "We reserve the right to remove any bounty at our sole discretion, including but not limited to bounties that are too vague, too difficult to verify completion, harmful, or illegal. We are not obligated to explain every removal, though we will attempt to provide a reason when possible.",
+        "p6": "While we are committed to being reasonable, the creator a bounty is directed at may also remove that bounty at their sole discretion, for any reason or no reason."
+      },
+      "backing": {
+        "title": "5. Backing and Payments",
+        "p1Lead": "Backing vs. charge:",
+        "p1Rest": " When you back a bounty, no money moves and no authorization hold is placed on your card. Your card is only charged after The Council confirms a bounty is complete. Confirmed charges are collected together in a monthly billing run (on the 24th of each month), not instantly at the moment of approval.",
+        "p2Lead": "Backing out:",
+        "p2Rest": " You may back out at any time before a bounty is confirmed completed by Council, even during the \"pending review\" stage.",
+        "p3Lead": "Failed charges:",
+        "p3Rest": " If your card cannot be charged when payment is due (expired card, insufficient funds, etc.), the charge fails and you will be notified. You then have a short grace period to update your payment method. While a failed payment is unresolved you cannot back new bounties, and if it remains unresolved your affected backings will be cancelled.",
+        "p4Lead": "Refund and cancellation policy:",
+        "p4a": " You may cancel (revoke) any backing, free of charge and without giving a reason, at any time before The Council confirms the bounty complete — including while it is pending review. Once a bounty is confirmed complete, your backing is ",
+        "p4Locked": "locked",
+        "p4b": ": it can no longer be cancelled, and it will be charged in the next monthly billing run. Charged payments are ",
+        "p4Final": "final and non-refundable",
+        "p4c": ". We may, at our sole discretion, review a refund request after a charge in cases of genuine hardship or verified fraud — ",
+        "contactSupport": "contact support",
+        "p4d": " — but a post-charge refund is an exception we may grant, never an entitlement. This policy is also disclosed where you place a backing, in your backing confirmation email, in the pre-billing preview email, and on every receipt.",
+        "p5Lead": "Uncompleted bounties:",
+        "p5Rest": " If a bounty is closed or revoked before completion, no charges are made. Nothing was ever held against your card.",
+        "p6Lead": "Right of withdrawal (EU, UK, and similar consumer jurisdictions):",
+        "p6a": " If you are a consumer in a jurisdiction that grants a statutory right of withdrawal from distance contracts (such as the EU under Directive 2011/83/EU or the UK under the Consumer Contracts Regulations 2013), you are hereby informed that, to the extent a backing or any resulting charge is treated as such a contract, you have the right to withdraw from it within 14 days of placing the backing, without giving any reason and at no cost. To exercise this right, cancel the backing from your ",
+        "backingsPage": "backings page",
+        "p6b": ", or notify us by an unequivocal statement to ",
+        "p6c": ". Because no money moves until a bounty completes, withdrawal before completion simply means you are never charged. Note that Artypot's standard back-out right is broader than the statutory minimum: you may cancel any backing, free of charge, at any time before The Council confirms the bounty complete — even after 14 days. ",
+        "p6Bold": "By placing a backing, you expressly request that performance begin before any withdrawal period expires, and you acknowledge that once the contract has been fully performed — that is, once The Council confirms the bounty complete and your card is charged — you lose your right of withdrawal.",
+        "p6d": " This disclosure is repeated in the confirmation email you receive when you place a backing and on each payment receipt.",
+        "p7a": "Payments are processed by Stripe, Inc. By backing a bounty, you also agree to ",
+        "stripeTos": "Stripe's Terms of Service",
+        "p7b": ".",
+        "p8": "If a fan disputes a charge for your work, the disputed amount may be deducted from your earnings."
+      },
+      "creators": {
+        "title": "6. Creator Obligations",
+        "p1": "Creators who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith, as understood by their community.",
+        "p2": "Submission of a completion claim constitutes a representation that the submitted work satisfies the bounty description. Fraudulent submissions — submitting work that does not fulfil the bounty, or submitting work you do not own the rights to — may result in account termination and, where applicable, legal action.",
+        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Payouts are available in most countries — via direct bank payout where supported and alternative methods elsewhere — but are unavailable in countries we are legally restricted from serving. Artypot issues 1099 or 1042-S forms where required by law."
+      },
+      "council": {
+        "title": "7. The Council",
+        "p1": "The Council is a group of human reviewers appointed by Artypot. Their role is to verify that a submitted work actually fulfils the bounty before any funds are collected.",
+        "p2": "The Council's decisions are final. There is no formal appeals process, though you may contact us to raise concerns.",
+        "p3": "Council members are not liable for reasonable errors in judgment made in good faith during the review process."
+      },
+      "fees": {
+        "title": "8. Fees",
+        "p1a": "When a bounty pays out, Artypot deducts a ",
+        "p1Bold": "20% platform fee",
+        "p1b": " from the creator's payout. This single fee is all-inclusive: it covers Artypot's operating costs and all payment processing costs (including Stripe card transaction fees). Creators always receive 80% of the total amount backed.",
+        "p2": "Backers are charged their exact committed amount — no processing surcharges are ever added to a backer's charge.",
+        "p3": "Fee rates may change with notice. Changes apply to bounties opened after the effective date of the change."
+      },
+      "content": {
+        "title": "9. Content Policy",
+        "p1Lead": "The Artypot surface is all-ages.",
+        "p1Rest": " Anything you publish or post to the Platform itself — bounty titles and descriptions, profile text, display names, verified handles, comments, and the notes or links you attach to a completion — is hosted and publicly displayed by us and must be suitable for a general audience. It may not contain sexually explicit material, nudity, pornography, or gratuitous shock content. This is a rule about what appears on Artypot; it is not a judgment about the lawful creative work a creator produces and hosts elsewhere.",
+        "p2Lead": "No adult-content commerce.",
+        "p2Rest": " You may not use a bounty to request, commission, coordinate, or fund sexually explicit or pornographic work, whether or not the finished work is delivered off-platform. Artypot is the merchant of record for every charge, and our payment partners (including the card networks and Stripe) prohibit processing payments for adult content. A bounty whose purpose is to fund adult content is therefore not permitted, regardless of where the work is hosted.",
+        "p3Lead": "Absolute prohibitions.",
+        "p3Rest": " The following are never permitted on the Platform or in any work funded through it, and apply regardless of where the work is hosted:",
+        "item1": "Content that is illegal under US federal or state law",
+        "item2": "Bounties that pay for an official government act or function as a political campaign contribution (see Section 4)",
+        "item3": "Harassment, credible threats, or targeted hate speech",
+        "item4": "Malware, malicious code, or attempts to compromise the Platform or its users",
+        "p4": "We reserve the right to remove any content and suspend or terminate any account that violates this policy, at our sole discretion and without prior notice."
+      },
+      "ip": {
+        "title": "10. Intellectual Property",
+        "p1": "Artypot does not claim ownership of any content created by creators in fulfilment of bounties. The creator retains all rights to their work.",
+        "p2": "Backers who fund a bounty receive no special rights to the finished work — they receive the same access as the general public. Artypot is not a commissioned work platform.",
+        "p3": "By posting content to Artypot (e.g., bounty descriptions, profile text), you grant us a non-exclusive, royalty-free licence to display that content on the Platform."
+      },
+      "termination": {
+        "title": "11. Termination",
+        "p1": "You may delete your account at any time from your settings page. Deletion cancels all active commitments (no charges) and removes your public profile.",
+        "p2": "We may suspend or terminate your account if you violate these Terms, engage in fraud, or abuse the Platform. In cases of serious violations, we reserve the right to take action without notice."
+      },
+      "disclaimer": {
+        "title": "12. Disclaimers",
+        "p1": "Artypot is provided \"as is\" and \"as available\" without warranties of any kind, express or implied. We do not guarantee that the Platform will be uninterrupted, error-free, or that any bounty will be fulfilled.",
+        "p2": "We are not responsible for the actions of creators, backers, or third parties."
+      },
+      "liability": {
+        "title": "13. Limitation of Liability",
+        "p1": "To the maximum extent permitted by applicable law, Artypot and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Platform.",
+        "p2": "Our total liability to you for any claim arising from these Terms or your use of Artypot shall not exceed the total amount you have paid to Artypot in the 12 months preceding the claim."
+      },
+      "governing": {
+        "title": "14. Governing Law",
+        "p1": "These Terms are governed by and construed in accordance with the laws of the State of Florida, United States, without regard to conflict of law principles.",
+        "p2": "Any disputes arising from these Terms shall be resolved in the state or federal courts located in Florida. You consent to personal jurisdiction in those courts."
+      },
+      "changes": {
+        "title": "15. Changes to These Terms",
+        "p1": "We may update these Terms from time to time. When we do, we'll update the \"Last updated\" date at the top. Continued use of the Platform after changes constitutes acceptance of the revised Terms.",
+        "p2": "For material changes, we'll make reasonable efforts to notify you by email or via the Platform."
+      },
+      "contact": {
+        "title": "16. Contact",
+        "question": "Questions about these Terms?",
+        "contactLink": "Contact us here",
+        "orEmail": "or email"
+      }
     }
   }
 }

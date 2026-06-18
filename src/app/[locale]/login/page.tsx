@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Link, useRouter } from '@/i18n/routing';
 import Image from 'next/image';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { pickPreferredLocale } from '@/lib/preferred-locale';
 import { auth as authApi } from '@/lib/api';
@@ -39,6 +39,7 @@ export default function LoginPage() {
   const { user, loading: authLoading, login } = useAuth();
   const router = useRouter();
   const currentLocale = useLocale();
+  const t = useTranslations('Login');
 
   type IdentifierMode = 'email' | 'phone';
   const [mode, setMode] = useState<IdentifierMode>('email');
@@ -80,7 +81,7 @@ export default function LoginPage() {
       await login(identifier, password);
     } catch (err: unknown) {
       const e = err as { status?: number; message?: string };
-      setError(e.message ?? 'Login failed. Please try again.');
+      setError(e.message ?? t('errors.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -103,7 +104,7 @@ export default function LoginPage() {
       window.location.href = url;
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setError(e.message ?? 'Failed to start sign-in. Please try again.');
+      setError(e.message ?? t('errors.oauthFailed'));
       setOauthLoading(null);
     }
   };
@@ -125,28 +126,29 @@ export default function LoginPage() {
         </Link>
 
         <h1 className="font-display font-bold text-[54px] leading-[1.05] tracking-tight text-foreground mb-5">
-          <span className="ap-sketch-u text-fan">money</span> talks.
+          {t.rich('hero.title', {
+            accent: (chunks) => <span className="ap-sketch-u text-fan">{chunks}</span>,
+          })}
         </h1>
         <p className="text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
-          start a bounty for a creator to make a public, free piece of work.
-          others can chip in. when the work is delivered, the creator gets paid.
+          {t('hero.subtitle')}
         </p>
 
         <div className="flex gap-8 max-w-[460px]">
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">charged</div>
-            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">monthly</div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">only after delivery</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('stats.charged.label')}</div>
+            <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">{t('stats.charged.value')}</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">{t('stats.charged.note')}</div>
           </div>
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">creators keep</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('stats.creatorsKeep.label')}</div>
             <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">{100 - PLATFORM_FEE_PCT}%</div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">no sales tax</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">{t('stats.creatorsKeep.note')}</div>
           </div>
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">payouts</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('stats.payouts.label')}</div>
             <div className="font-mono text-[22px] font-medium text-foreground tabular-nums">${PAYOUT_MINIMUM_AUTOMATED} min</div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">to 50+ countries</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted mt-1">{t('stats.payouts.note')}</div>
           </div>
         </div>
       </div>
@@ -164,8 +166,8 @@ export default function LoginPage() {
           />
         </Link>
 
-        <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">sign in</div>
-        <h2 className="font-display font-bold text-[30px] text-foreground mb-6">Welcome Back</h2>
+        <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">{t('sectionLabel')}</div>
+        <h2 className="font-display font-bold text-[30px] text-foreground mb-6">{t('heading')}</h2>
 
         {/* OAuth */}
         <div className="grid grid-cols-2 gap-2 mb-5">
@@ -180,7 +182,7 @@ export default function LoginPage() {
               {oauthLoading === id
                 ? <span className="w-3.5 h-3.5 rounded-full border border-current border-t-transparent animate-spin shrink-0" />
                 : <BrandIcon slug={id} className="w-3.5 h-3.5 shrink-0" />}
-              {oauthLoading === id ? 'redirecting…' : label}
+              {oauthLoading === id ? t('oauth.redirecting') : label}
             </button>
           ))}
         </div>
@@ -188,7 +190,7 @@ export default function LoginPage() {
         {/* Divider */}
         <div className="flex items-center gap-3 mb-4">
           <div className="flex-1 h-px bg-border" />
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted">or</span>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('divider')}</span>
           <div className="flex-1 h-px bg-border" />
         </div>
 
@@ -202,7 +204,7 @@ export default function LoginPage() {
                 mode === 'email' ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
               }`}
             >
-              email
+              {t('modeToggle.email')}
             </button>
             <button
               type="button"
@@ -211,7 +213,7 @@ export default function LoginPage() {
                 mode === 'phone' ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
               }`}
             >
-              phone
+              {t('modeToggle.phone')}
             </button>
           </div>
         )}
@@ -226,19 +228,19 @@ export default function LoginPage() {
           {/* Identifier field */}
           {mode === 'email' ? (
             <div>
-              <FieldLabel>email address</FieldLabel>
+              <FieldLabel>{t('fields.email.label')}</FieldLabel>
               <Input
                 type="email"
                 required
                 autoComplete="email"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="you@example.com"
+                placeholder={t('fields.email.placeholder')}
               />
             </div>
           ) : (
             <div>
-              <FieldLabel>phone number</FieldLabel>
+              <FieldLabel>{t('fields.phone.label')}</FieldLabel>
               <PhoneNumberInput
                 value={phoneInput}
                 onChange={setPhoneInput}
@@ -248,7 +250,7 @@ export default function LoginPage() {
           )}
 
           <div>
-            <FieldLabel>password</FieldLabel>
+            <FieldLabel>{t('fields.password.label')}</FieldLabel>
             <PasswordInput
               required
               autoComplete="current-password"
@@ -259,7 +261,7 @@ export default function LoginPage() {
           </div>
 
           <div className="flex justify-end">
-            <Link href="/forgot-password" className="ap-inline-link text-sm">forgot password?</Link>
+            <Link href="/forgot-password" className="ap-inline-link text-sm">{t('forgotPassword')}</Link>
           </div>
 
           <Button
@@ -268,22 +270,22 @@ export default function LoginPage() {
             className="w-full justify-center mt-2"
             disabled={anyLoading || !identifierReady || !password}
           >
-            {loading ? 'Signing in…' : 'Sign In'}
+            {loading ? t('submit.loading') : t('submit.label')}
           </Button>
         </form>
 
         <div className="border-t border-dashed border-border my-5" />
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted text-center mb-3">new here?</div>
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted text-center mb-3">{t('register.prompt')}</div>
         <Button
           variant="default"
           className="w-full justify-center"
           onClick={() => router.push(withNext('/register'))}
         >
-          Create an Account
+          {t('register.cta')}
         </Button>
 
         <p className="text-sm text-muted mt-5 pl-5 relative before:content-['→'] before:absolute before:left-0 before:text-fan">
-          becoming a creator is a separate flow — first sign up, then verify a handle and complete tax + bank gates.
+          {t('register.creatorNote')}
         </p>
       </div>
     </div>

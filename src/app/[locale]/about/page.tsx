@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import type { CSSProperties } from 'react';
 import FeaturedBountiesSection from '@/components/FeaturedBountiesSection';
@@ -25,114 +26,61 @@ const pressBtn =
 const pressBtnSecondary =
   'inline-block bg-surface-2 border border-border text-foreground font-semibold px-6 py-3 rounded-md shadow-[3px_3px_0_#000] transition-[transform,box-shadow,border-color] duration-75 hover:border-creator/60 hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_#000] active:translate-x-0 active:translate-y-0 active:shadow-[2px_2px_0_#000]';
 
-const TAGLINES: { text: string; pill: string; dot: string }[] = [
-  {
-    text: 'Like Kickstarter, but no money moves until the thing is done.',
-    pill: 'bg-fan/10 border-fan/30 text-fan',
-    dot: 'bg-fan',
-  },
-  {
-    text: 'Like Change.org, but with accurate financial incentives.',
-    pill: 'bg-fan/10 border-fan/30 text-fan',
-    dot: 'bg-fan',
-  },
-  {
-    text: 'Artypot is a communication device. A demand coordinator.',
-    pill: 'bg-creator/10 border-creator/30 text-creator',
-    dot: 'bg-creator',
-  },
+// Style metadata for each tagline pill; copy lives in the "About" catalog.
+const TAGLINES: { key: string; pill: string; dot: string }[] = [
+  { key: 'kickstarter', pill: 'bg-fan/10 border-fan/30 text-fan', dot: 'bg-fan' },
+  { key: 'changeOrg', pill: 'bg-fan/10 border-fan/30 text-fan', dot: 'bg-fan' },
+  { key: 'device', pill: 'bg-creator/10 border-creator/30 text-creator', dot: 'bg-creator' },
 ];
 
-const HOW_IT_WORKS: { step: string; chip: string; spot: string; title: string; description: string }[] = [
-  {
-    step: '01',
-    chip: 'bg-fan',
-    spot: 'var(--color-fan)',
-    title: 'Someone opens a bounty',
-    description:
-      'Anyone can start one. Pick a creator, name the exact thing you want made — a song, a video essay, a drawing, whatever. Set your dollar figure.',
-  },
-  {
-    step: '02',
-    chip: 'bg-creator',
-    spot: 'var(--color-creator)',
-    title: 'The bounty grows',
-    description:
-      'Other people who want the same thing chip in. The creator can see the bounty growing in real time. Sometimes that\'s all the signal they need.',
-  },
-  {
-    step: '03',
-    chip: 'bg-council',
-    spot: 'var(--color-council)',
-    title: 'Work ships. Money moves.',
-    description:
-      'The creator submits completion. The Council checks it matches the request. Cards are charged and the bounty pays out. No delivery = no charge.',
-  },
+// Style metadata for each how-it-works step; copy lives in the "About" catalog.
+const HOW_IT_WORKS: { key: string; step: string; chip: string; spot: string }[] = [
+  { key: 'open', step: '01', chip: 'bg-fan', spot: 'var(--color-fan)' },
+  { key: 'grow', step: '02', chip: 'bg-creator', spot: 'var(--color-creator)' },
+  { key: 'ship', step: '03', chip: 'bg-council', spot: 'var(--color-council)' },
 ];
 
+// Style metadata for each role; copy lives in the "About" catalog.
 const ROLES: {
-  name: string;
-  badge: string;
+  key: string;
   tone: 'fan' | 'creator' | 'council';
   spot: string;
   skin: string;
   dot: string;
   text: string;
-  body: string;
 }[] = [
   {
-    name: 'Fans',
-    badge: 'that\'s you',
+    key: 'fans',
     tone: 'fan',
     spot: 'var(--color-fan)',
     skin: 'border-fan/30 bg-fan/5',
     dot: 'bg-fan',
     text: 'text-fan',
-    body: 'You want a specific thing to happen and you\'re willing to back it with real money.',
   },
   {
-    name: 'The Creator',
-    badge: 'the talent',
+    key: 'creator',
     tone: 'creator',
     spot: 'var(--color-creator)',
     skin: 'border-creator/30 bg-creator/5',
     dot: 'bg-creator',
     text: 'text-creator',
-    body: 'Whoever the bounty is for. They don\'t owe anyone anything — but there\'s real money sitting there with their name on it. It\'s only a matter of time...',
   },
   {
-    name: 'The Council',
-    badge: 'the referees',
+    key: 'council',
     tone: 'council',
     spot: 'var(--color-council)',
     skin: 'border-council/30 bg-council/5',
     dot: 'bg-council',
     text: 'text-council',
-    body: 'Me and some people I trust. We check that the thing is actually the thing before any money moves. Nobody gets paid without us.',
   },
 ];
 
-const GUARANTEES: { title: string; detail: string }[] = [
-  {
-    title: 'Charged only on delivery',
-    detail:
-      'Your card isn\'t touched until the work is done and the Council has approved it. Back out anytime before completion — no risk while you wait.',
-  },
-  {
-    title: `${PLATFORM_FEE_PCT}% platform fee, all-in`,
-    detail: 'Covers everything — I need to eat, file taxes, and payment processors needs to get paid.',
-  },
-  {
-    title: 'Direct bank payout',
-    detail: 'When a bounty clears, the money goes straight to the creator\'s bank account.',
-  },
-  {
-    title: 'No special access for backers',
-    detail: 'The content stays public. Fans who funded it get the same thing as everyone else.',
-  },
-];
+// Keys for each guarantee card; copy lives in the "About" catalog.
+const GUARANTEES = ['charged', 'fee', 'payout', 'noAccess'] as const;
 
 export default function AboutPage() {
+  const t = useTranslations('About');
+
   return (
     <div className="min-h-screen">
 
@@ -150,35 +98,34 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 items-center">
             <div>
               <div className="flex flex-col items-start gap-2 mb-8">
-                {TAGLINES.map(({ text, pill, dot }) => (
-                  <p key={text} className={`inline-flex items-center gap-2 border text-xs font-medium px-3 py-1.5 rounded-full ${pill}`}>
+                {TAGLINES.map(({ key, pill, dot }) => (
+                  <p key={key} className={`inline-flex items-center gap-2 border text-xs font-medium px-3 py-1.5 rounded-full ${pill}`}>
                     <span aria-hidden className={`w-1.5 h-1.5 rounded-full shrink-0 ${dot}`} />
-                    {text}
+                    {t(`hero.taglines.${key}`)}
                   </p>
                 ))}
               </div>
 
               <h1 className="font-display font-bold text-5xl sm:text-6xl tracking-tight text-foreground leading-[1.1] mb-6">
-                Money talks loudest
+                {t('hero.titleLine1')}
                 <br />
                 <span className="text-fan">
-                  when it&apos;s <span className="ap-sketch-u" style={fanRole}>in your pocket.</span>
+                  {t('hero.titleLine2Prefix')}{' '}
+                  <span className="ap-sketch-u" style={fanRole}>{t('hero.titleLine2Sketch')}</span>
                 </span>
               </h1>
 
               <p className="text-xl text-muted max-w-xl leading-relaxed mb-10">
-                Fans pool money on specific requests aimed at creators and public entities.
-                Nobody&apos;s card is charged until the thing is delivered and Council-approved —
-                back out anytime before then. No risk while you wait.{' '}
-                <span className="text-foreground">A wish, multiplied, becomes an offer no one can ignore.</span>
+                {t('hero.lede')}{' '}
+                <span className="text-foreground">{t('hero.ledeEmphasis')}</span>
               </p>
 
               <div className="flex flex-wrap gap-4 mb-6">
-                <Link href="/bounties" className={pressBtn}>Browse bounties</Link>
-                <Link href="/search" className={pressBtnSecondary}>Explore creators</Link>
+                <Link href="/bounties" className={pressBtn}>{t('hero.browseBounties')}</Link>
+                <Link href="/search" className={pressBtnSecondary}>{t('hero.exploreCreators')}</Link>
               </div>
               <a href="#how-it-works" className="text-sm text-muted hover:text-foreground transition-colors">
-                Not sure what any of this is? → How it works
+                {t('hero.notSure')}
               </a>
             </div>
 
@@ -192,32 +139,29 @@ export default function AboutPage() {
       <section className="border-t border-border bg-surface">
         <div className="max-w-6xl mx-auto px-7 py-24">
           <div className="max-w-3xl mx-auto text-center mb-14">
-            <p className={`${microLabel} mb-3`}>the psychology</p>
+            <p className={`${microLabel} mb-3`}>{t('psychology.label')}</p>
             <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground leading-snug mb-5">
-              A bounty doesn&apos;t pressure anyone.
-              <br />It just sits there, growing,
-              <br /><span className="ap-sketch-u" style={fanRole}>being very visible.</span>
+              {t('psychology.titleLine1')}
+              <br />{t('psychology.titleLine2')}
+              <br /><span className="ap-sketch-u" style={fanRole}>{t('psychology.titleSketch')}</span>
             </h2>
             <p className="text-lg text-muted">
-              The demand was already there. We gave it a number.
+              {t('psychology.subtitle')}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <SpotCard spotColor="var(--color-muted)" className="border-border bg-background p-7">
-              <p className={`${microLabel} mb-4`}>the way it usually works</p>
+              <p className={`${microLabel} mb-4`}>{t('psychology.usualLabel')}</p>
               <p className="text-muted leading-relaxed">
-                You leave a comment. You quote-tweet. You ask nicely. You get ignored, or you
-                get a &lsquo;soon.&rsquo; The moment passes. The thing never gets made.
+                {t('psychology.usualBody')}
               </p>
             </SpotCard>
 
             <SpotCard spotColor="var(--color-fan)" className="border-fan/30 bg-background p-7">
-              <p className="font-mono text-[10px] uppercase tracking-[2px] text-fan mb-4">the way we work</p>
+              <p className="font-mono text-[10px] uppercase tracking-[2px] text-fan mb-4">{t('psychology.oursLabel')}</p>
               <p className="text-foreground leading-relaxed">
-                You and 200 strangers who have extremely similar taste put money in a bounty.
-                The bounty becomes impossible to ignore. Some people only show up when the
-                price is right.
+                {t('psychology.oursBody')}
               </p>
             </SpotCard>
           </div>
@@ -227,17 +171,17 @@ export default function AboutPage() {
       {/* ── How it works ──────────────────────────────────────────────────── */}
       <section id="how-it-works" className="border-t border-border">
         <div className="max-w-6xl mx-auto px-7 py-20">
-          <p className={`${microLabel} mb-3`}>the mechanics</p>
-          <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-3">How it works</h2>
+          <p className={`${microLabel} mb-3`}>{t('howItWorks.label')}</p>
+          <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-3">{t('howItWorks.title')}</h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {HOW_IT_WORKS.map(({ step, chip, spot, title, description }) => (
+            {HOW_IT_WORKS.map(({ key, step, chip, spot }) => (
               <SpotCard key={step} spotColor={spot} className="border-border bg-surface p-6">
                 <div className={`w-12 h-12 rounded-md font-mono font-bold text-lg flex items-center justify-center shadow-[3px_3px_0_#000] text-brand-dark mb-5 ${chip}`}>
                   {step}
                 </div>
-                <h3 className="font-display font-bold text-xl text-foreground mb-2">{title}</h3>
-                <p className="text-base text-muted leading-relaxed">{description}</p>
+                <h3 className="font-display font-bold text-xl text-foreground mb-2">{t(`howItWorks.steps.${key}.title`)}</h3>
+                <p className="text-base text-muted leading-relaxed">{t(`howItWorks.steps.${key}.description`)}</p>
               </SpotCard>
             ))}
           </div>
@@ -247,23 +191,23 @@ export default function AboutPage() {
       {/* ── Who's in the room ─────────────────────────────────────────────── */}
       <section id="roles" className="border-t border-border bg-surface">
         <div className="max-w-6xl mx-auto px-7 py-20">
-          <p className={`${microLabel} mb-3`}>the cast</p>
+          <p className={`${microLabel} mb-3`}>{t('roles.label')}</p>
           <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-3">
-            Who&apos;s in the room where it happens?
+            {t('roles.title')}
           </h2>
-          <p className="text-muted mb-12">Three kinds of people. You&apos;re probably one of them.</p>
+          <p className="text-muted mb-12">{t('roles.subtitle')}</p>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {ROLES.map(({ name, badge, tone, spot, skin, dot, text, body }) => (
-              <SpotCard key={name} spotColor={spot} className={`${skin} p-6`}>
+            {ROLES.map(({ key, tone, spot, skin, dot, text }) => (
+              <SpotCard key={key} spotColor={spot} className={`${skin} p-6`}>
                 <div className="flex items-center justify-between gap-3 mb-4">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span aria-hidden className={`w-3 h-3 rounded-full shrink-0 ${dot}`} />
-                    <h3 className={`font-display font-bold text-2xl ${text}`}>{name}</h3>
+                    <h3 className={`font-display font-bold text-2xl ${text}`}>{t(`roles.cast.${key}.name`)}</h3>
                   </div>
-                  <Badge tone={tone} className="shrink-0">{badge}</Badge>
+                  <Badge tone={tone} className="shrink-0">{t(`roles.cast.${key}.badge`)}</Badge>
                 </div>
-                <p className="text-base text-muted leading-relaxed">{body}</p>
+                <p className="text-base text-muted leading-relaxed">{t(`roles.cast.${key}.body`)}</p>
               </SpotCard>
             ))}
           </div>
@@ -274,31 +218,29 @@ export default function AboutPage() {
       <section id="the-money" className="border-t border-border">
         <div className="max-w-6xl mx-auto px-7 py-20">
           <div className="max-w-3xl mb-12">
-            <p className={`${microLabel} mb-3`}>follow the money</p>
-            <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-4">The technical part</h2>
+            <p className={`${microLabel} mb-3`}>{t('money.label')}</p>
+            <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-4">{t('money.title')}</h2>
             <p className="text-muted leading-relaxed">
-              We know how crowdfunding usually goes. You pay, you wait, you get a link to a
-              Discord. Here, your card isn&apos;t charged until the work is DONE. The Council
-              verifies completion before any money moves.
+              {t('money.intro')}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {GUARANTEES.map(({ title, detail }) => (
-              <div key={title} className="rounded-xl border border-border bg-surface p-5">
+            {GUARANTEES.map((key) => (
+              <div key={key} className="rounded-xl border border-border bg-surface p-5">
                 <p className="font-semibold text-foreground mb-2">
                   <span aria-hidden className="text-fan mr-2">✓</span>
-                  {title}
+                  {t(`money.guarantees.${key}.title`, { pct: PLATFORM_FEE_PCT })}
                 </p>
-                <p className="text-sm text-muted leading-relaxed">{detail}</p>
+                <p className="text-sm text-muted leading-relaxed">{t(`money.guarantees.${key}.detail`)}</p>
               </div>
             ))}
           </div>
 
           <div id="lifecycle" className="mt-14 rounded-xl border border-border bg-surface p-6 sm:p-10">
             <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 mb-10">
-              <h3 className="font-display font-bold text-2xl text-foreground">A bounty&apos;s life</h3>
-              <p className={microLabel}>six stops · color = who acts</p>
+              <h3 className="font-display font-bold text-2xl text-foreground">{t('money.lifecycleTitle')}</h3>
+              <p className={microLabel}>{t('money.lifecycleLabel')}</p>
             </div>
             <LifecycleRail />
           </div>
@@ -309,35 +251,30 @@ export default function AboutPage() {
       <section id="fine-print" className="border-t border-border bg-surface">
         <div className="max-w-6xl mx-auto px-7 py-20">
           <div className="max-w-3xl mb-12">
-            <p className={`${microLabel} mb-3`}>no surprises</p>
-            <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground">The fine print</h2>
+            <p className={`${microLabel} mb-3`}>{t('finePrint.label')}</p>
+            <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground">{t('finePrint.title')}</h2>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
             <div>
-              <h3 className="font-display font-bold text-xl text-foreground mb-3">For the record</h3>
+              <h3 className="font-display font-bold text-xl text-foreground mb-3">{t('finePrint.recordTitle')}</h3>
               <p className="text-base text-muted leading-relaxed mb-3">
-                I don&apos;t have a content policy that quietly updates on a Friday night. I don&apos;t
-                decide what&apos;s worth making. You and your fans do. That&apos;s the whole thing.
+                {t('finePrint.recordBody1')}
               </p>
               <p className="text-base text-muted leading-relaxed">
-                There are obvious limits — illegal is illegal — but the platform doesn&apos;t have
-                opinions about art.
+                {t('finePrint.recordBody2')}
               </p>
             </div>
 
             <div>
-              <h3 className="font-display font-bold text-xl text-foreground mb-3">A note on where I&apos;m at</h3>
+              <h3 className="font-display font-bold text-xl text-foreground mb-3">{t('finePrint.statusTitle')}</h3>
               <p className="text-base text-muted leading-relaxed mb-3">
-                Right now, Artypot only supports <span className="text-foreground">credit card payments</span>,
-                and payouts can only go to creators who are <span className="text-foreground">based in the
-                United States</span>. That&apos;s not a vision statement — it&apos;s just where the legal
-                paperwork is currently in order.
+                {t.rich('finePrint.statusBody1', {
+                  emph: (chunks) => <span className="text-foreground">{chunks}</span>,
+                })}
               </p>
               <p className="text-base text-muted leading-relaxed">
-                I&apos;m working on it. The goal is eventually worldwide. For now: if you&apos;re a fan
-                anywhere in the world, you can still back bounties. If you&apos;re the one getting paid,
-                you&apos;ll need a US bank account.
+                {t('finePrint.statusBody2')}
               </p>
             </div>
           </div>
@@ -358,20 +295,20 @@ export default function AboutPage() {
 
         <div className="max-w-3xl mx-auto px-7 py-24 text-center">
           <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground leading-tight mb-4">
-            There&apos;s probably already a bounty
-            <br />for something you want.
+            {t('cta.titleLine1')}
+            <br />{t('cta.titleLine2')}
           </h2>
           <p className="text-muted text-lg mb-9">
-            Go look. If there isn&apos;t one yet, you know what to do.
+            {t('cta.subtitle')}
           </p>
           <Link href="/bounties" className={`${pressBtn} px-8`}>
-            Browse open bounties
+            {t('cta.browse')}
           </Link>
           <Link
             href="/bounties/new"
             className="block text-sm text-muted hover:text-foreground transition-colors mt-5"
           >
-            or start a bounty yourself →
+            {t('cta.start')}
           </Link>
         </div>
       </section>

@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Link, useRouter } from '@/i18n/routing';
 import Image from 'next/image';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { auth as authApi, phone as phoneApi } from '@/lib/api';
 import { nextTarget, readNextFromLocation, OAUTH_NEXT_KEY } from '@/lib/next-redirect';
@@ -46,6 +46,7 @@ function OtpStep({
   onResend: () => Promise<void>;
 }) {
   const { refreshUser } = useAuth();
+  const t = useTranslations('Register');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -63,7 +64,7 @@ function OtpStep({
       onVerified();
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setError(e.message ?? 'Invalid code. Please try again.');
+      setError(e.message ?? t('otp.errors.invalidCode'));
       setOtp('');
     } finally {
       setLoading(false);
@@ -79,7 +80,7 @@ function OtpStep({
       setTimeout(() => setResent(false), 4000);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setError(e.message ?? 'Failed to resend code.');
+      setError(e.message ?? t('otp.errors.resendFailed'));
     } finally {
       setResending(false);
     }
@@ -87,10 +88,10 @@ function OtpStep({
 
   return (
     <div>
-      <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">verify phone</div>
-      <h2 className="font-display font-bold text-[30px] text-foreground mb-2">Check your texts</h2>
+      <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">{t('otp.sectionLabel')}</div>
+      <h2 className="font-display font-bold text-[30px] text-foreground mb-2">{t('otp.title')}</h2>
       <p className="text-sm text-muted mb-6">
-        We sent a 6-digit code to your phone number. Enter it below to finish creating your account.
+        {t('otp.subtitle')}
       </p>
 
       {error && (
@@ -100,13 +101,13 @@ function OtpStep({
       )}
       {resent && (
         <div className="bg-good-soft border border-good text-good text-sm rounded px-4 py-3 mb-4">
-          New code sent.
+          {t('otp.resentNotice')}
         </div>
       )}
 
       <form onSubmit={handleVerify} className="space-y-4">
         <div>
-          <FieldLabel>verification code</FieldLabel>
+          <FieldLabel>{t('otp.codeLabel')}</FieldLabel>
           <Input
             type="text"
             inputMode="numeric"
@@ -126,19 +127,19 @@ function OtpStep({
           className="w-full justify-center"
           disabled={otp.length !== 6 || loading}
         >
-          {loading ? 'Verifying…' : 'Verify & Continue'}
+          {loading ? t('otp.verifyingButton') : t('otp.verifyButton')}
         </Button>
       </form>
 
       <p className="text-sm text-muted text-center mt-4">
-        Didn&apos;t get it?{' '}
+        {t('otp.didntGetIt')}{' '}
         <button
           type="button"
           onClick={handleResend}
           disabled={resending}
           className="ap-inline-link disabled:opacity-50"
         >
-          {resending ? 'Sending…' : 'Resend code'}
+          {resending ? t('otp.sendingButton') : t('otp.resendButton')}
         </button>
       </p>
     </div>
@@ -151,6 +152,7 @@ export default function RegisterPage() {
   const { user, loading: authLoading, register } = useAuth();
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations('Register');
 
   type Mode = 'email' | 'phone';
   const [mode, setMode] = useState<Mode>('email');
@@ -206,7 +208,7 @@ export default function RegisterPage() {
       window.location.href = url;
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setError(e.message ?? 'Failed to start sign-up. Please try again.');
+      setError(e.message ?? t('errors.oauthStartFailed'));
       setOauthLoading(null);
     }
   };
@@ -218,11 +220,11 @@ export default function RegisterPage() {
     setError('');
 
     if (password !== confirm) {
-      setError('Passwords do not match.');
+      setError(t('errors.passwordMismatch'));
       return;
     }
     if (!tos) {
-      setError('Please agree to the terms of service.');
+      setError(t('errors.tosRequired'));
       return;
     }
 
@@ -242,9 +244,9 @@ export default function RegisterPage() {
     } catch (err: unknown) {
       const e = err as { status?: number; message?: string };
       if (e.status === 501) {
-        setError('Registration is not yet available. Check back soon!');
+        setError(t('errors.notAvailable'));
       } else {
-        setError(e.message ?? 'Registration failed. Please try again.');
+        setError(e.message ?? t('errors.registrationFailed'));
       }
     } finally {
       setLoading(false);
@@ -275,21 +277,21 @@ export default function RegisterPage() {
         </Link>
 
         <h1 className="font-display font-bold text-[54px] leading-[1.05] tracking-tight text-foreground mb-5">
-          money talks louder when it's still{' '}
-          <span className="ap-sketch-u text-fan">in your pocket</span>
+          {t.rich('hero.title', {
+            highlight: (chunks) => <span className="ap-sketch-u text-fan">{chunks}</span>,
+          })}
         </h1>
         <p className="text-[17px] text-muted max-w-[460px] leading-relaxed mb-10">
-          every artypot account starts as a fan — back the bounties you want to
-          see made, or start your own and ask a creator to make something specific.
+          {t('hero.subtitle')}
         </p>
 
         <Card dashed className="max-w-[420px]">
-          <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">how a bounty works</div>
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">{t('hero.howItWorks.label')}</div>
           <ul className="space-y-2.5">
             {[
-              'Back a bounty you want to exist — or open a new one. Nothing is charged upfront.',
-              "Fans pile on until the creator decides it's worth making, then they submit the finished work.",
-              "Once it's verified as delivered, your card is charged — never before.",
+              t('hero.howItWorks.step1'),
+              t('hero.howItWorks.step2'),
+              t('hero.howItWorks.step3'),
             ].map((line) => (
               <li key={line} className="flex gap-2.5 text-sm text-foreground leading-snug">
                 <span className="text-fan mt-0.5 shrink-0" aria-hidden>✓</span>
@@ -300,8 +302,7 @@ export default function RegisterPage() {
         </Card>
 
         <p className="text-sm text-muted leading-relaxed max-w-[420px] mt-6 pl-5 relative before:content-['→'] before:absolute before:left-0 before:text-fan">
-          want to get paid for your own work? become a creator after signing up —
-          verify a handle, then clear the tax + payout steps.
+          {t('hero.creatorNote')}
         </p>
       </div>
 
@@ -326,8 +327,8 @@ export default function RegisterPage() {
           />
         ) : (
           <>
-            <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">create account</div>
-            <h2 className="font-display font-bold text-[30px] text-foreground mb-6">Join Artypot</h2>
+            <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">{t('form.sectionLabel')}</div>
+            <h2 className="font-display font-bold text-[30px] text-foreground mb-6">{t('form.title')}</h2>
 
             {/* OAuth */}
             <div className="grid grid-cols-2 gap-2 mb-5">
@@ -342,7 +343,7 @@ export default function RegisterPage() {
                   {oauthLoading === id
                     ? <span className="w-3.5 h-3.5 rounded-full border border-current border-t-transparent animate-spin shrink-0" />
                     : <BrandIcon slug={id} className="w-3.5 h-3.5 shrink-0" />}
-                  {oauthLoading === id ? 'redirecting…' : label}
+                  {oauthLoading === id ? t('form.oauthRedirecting') : label}
                 </button>
               ))}
             </div>
@@ -350,7 +351,7 @@ export default function RegisterPage() {
             {/* Divider + mode toggle */}
             <div className="flex items-center gap-3 mb-4">
               <div className="flex-1 h-px bg-border" />
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted">or</span>
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('form.or')}</span>
               <div className="flex-1 h-px bg-border" />
             </div>
 
@@ -366,7 +367,7 @@ export default function RegisterPage() {
                       : 'text-muted hover:text-foreground'
                   }`}
                 >
-                  email
+                  {t('form.modeEmail')}
                 </button>
                 <button
                   type="button"
@@ -377,7 +378,7 @@ export default function RegisterPage() {
                       : 'text-muted hover:text-foreground'
                   }`}
                 >
-                  phone
+                  {t('form.modePhone')}
                 </button>
               </div>
             )}
@@ -392,19 +393,19 @@ export default function RegisterPage() {
               {/* Identifier field — email or phone depending on mode */}
               {mode === 'email' ? (
                 <div>
-                  <FieldLabel>email</FieldLabel>
+                  <FieldLabel>{t('form.emailLabel')}</FieldLabel>
                   <Input
                     type="email"
                     required
                     autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
+                    placeholder={t('form.emailPlaceholder')}
                   />
                 </div>
               ) : (
                 <div>
-                  <FieldLabel>phone number</FieldLabel>
+                  <FieldLabel>{t('form.phoneLabel')}</FieldLabel>
                   <PhoneNumberInput
                     value={phone}
                     onChange={setPhone}
@@ -415,18 +416,18 @@ export default function RegisterPage() {
 
               <FieldGrid2>
                 <div>
-                  <FieldLabel>Public name</FieldLabel>
+                  <FieldLabel>{t('form.nameLabel')}</FieldLabel>
                   <Input
                     type="text"
                     required
                     autoComplete="username"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Harry Baldwig"
+                    placeholder={t('form.namePlaceholder')}
                   />
                 </div>
                 <div>
-                  <FieldLabel>password</FieldLabel>
+                  <FieldLabel>{t('form.passwordLabel')}</FieldLabel>
                   <PasswordInput
                     required
                     autoComplete="new-password"
@@ -438,7 +439,7 @@ export default function RegisterPage() {
               </FieldGrid2>
 
               <div>
-                <FieldLabel>confirm password</FieldLabel>
+                <FieldLabel>{t('form.confirmPasswordLabel')}</FieldLabel>
                 <PasswordInput
                   required
                   autoComplete="new-password"
@@ -451,10 +452,14 @@ export default function RegisterPage() {
               <div className="flex items-start gap-3 pt-1">
                 <Toggle on={tos} onChange={setTos} label="" />
                 <p className="text-sm text-muted leading-snug pt-0.5">
-                  I agree to the{' '}
-                  <Link href="/tos" target="_blank" className="ap-inline-link">terms of service</Link>
-                  {' '}and{' '}
-                  <Link href="/privacy" target="_blank" className="ap-inline-link">privacy policy</Link>
+                  {t.rich('form.tos', {
+                    tosLink: (chunks) => (
+                      <Link href="/tos" target="_blank" className="ap-inline-link">{chunks}</Link>
+                    ),
+                    privacyLink: (chunks) => (
+                      <Link href="/privacy" target="_blank" className="ap-inline-link">{chunks}</Link>
+                    ),
+                  })}
                 </p>
               </div>
 
@@ -465,17 +470,17 @@ export default function RegisterPage() {
                 disabled={anyLoading || (mode === 'phone' && (phone == null || !isValidPhoneNumber(phone)))}
               >
                 {loading
-                  ? 'Creating account…'
+                  ? t('form.submitLoading')
                   : mode === 'phone'
-                    ? 'Create Account & Send Code'
-                    : 'Create My Account'}
+                    ? t('form.submitPhone')
+                    : t('form.submitEmail')}
               </Button>
             </form>
 
             <div className="border-t border-dashed border-border my-5" />
             <p className="text-sm text-muted text-center">
-              Already have one?{' '}
-              <Link href={`/login${nextQuery}`} className="ap-inline-link">Sign In →</Link>
+              {t('form.haveAccount')}{' '}
+              <Link href={`/login${nextQuery}`} className="ap-inline-link">{t('form.signIn')}</Link>
             </p>
           </>
         )}

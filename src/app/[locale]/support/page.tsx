@@ -1,18 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-
-const SUBJECTS = [
-  'I have a question about a bounty',
-  'I have a question about backing a bounty',
-  'I need help with payments or billing',
-  'I want to report a problem or bug',
-  'I want to report content',
-  'I want to delete my account',
-  'Something else',
-];
+import { useTranslations } from 'next-intl';
 
 export default function SupportPage() {
+  const t = useTranslations('Support');
+  const SUBJECTS = [
+    t('subjects.bountyQuestion'),
+    t('subjects.backingQuestion'),
+    t('subjects.paymentsHelp'),
+    t('subjects.reportBug'),
+    t('subjects.reportContent'),
+    t('subjects.deleteAccount'),
+    t('subjects.other'),
+  ];
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
@@ -36,12 +38,12 @@ export default function SupportPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data?.message ?? 'Something went wrong. Please try again.');
+        throw new Error(data?.message ?? t('errors.generic'));
       }
 
       setStatus('success');
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.');
+      setErrorMsg(err instanceof Error ? err.message : t('errors.genericShort'));
       setStatus('error');
     }
   };
@@ -54,18 +56,21 @@ export default function SupportPage() {
       <div className="max-w-2xl mx-auto px-4 pt-16 pb-24">
         {/* Header */}
         <div className="mb-10">
-          <h1 className="text-3xl font-display font-bold text-foreground mb-2">Get in touch</h1>
+          <h1 className="text-3xl font-display font-bold text-foreground mb-2">{t('hero.title')}</h1>
           <p className="text-muted">
-            Questions, problems, or just want to say something. I actually read these.
+            {t('hero.subtitle')}
           </p>
         </div>
 
         {status === 'success' ? (
           <div className="bg-surface border border-fan/30 rounded-xl p-8 text-center">
             <div className="text-3xl mb-4">✓</div>
-            <h2 className="text-lg font-semibold text-foreground mb-2">Message sent</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-2">{t('success.title')}</h2>
             <p className="text-muted text-sm">
-              I&apos;ll get back to you at <span className="text-foreground">{email}</span>. Usually within a day or two.
+              {t.rich('success.body', {
+                email,
+                strong: (chunks) => <span className="text-foreground">{chunks}</span>,
+              })}
             </p>
             <button
               onClick={() => {
@@ -78,7 +83,7 @@ export default function SupportPage() {
               }}
               className="mt-6 text-sm text-fan hover:underline"
             >
-              Send another message
+              {t('success.sendAnother')}
             </button>
           </div>
         ) : (
@@ -86,7 +91,7 @@ export default function SupportPage() {
             {/* Honeypot — positioned far off-screen; ignored by real users,
                 filled by bots. No logic here — the backend handles it silently. */}
             <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }} aria-hidden="true">
-              <label htmlFor="support_website">Website</label>
+              <label htmlFor="support_website">{t('form.honeypotLabel')}</label>
               <input
                 id="support_website"
                 type="text"
@@ -100,38 +105,38 @@ export default function SupportPage() {
 
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-xs font-medium text-muted mb-1.5">Your name</label>
+                <label className="block text-xs font-medium text-muted mb-1.5">{t('form.nameLabel')}</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  placeholder="Harry Baldwig"
+                  placeholder={t('form.namePlaceholder')}
                   className={inputClass}
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-muted mb-1.5">Your email</label>
+                <label className="block text-xs font-medium text-muted mb-1.5">{t('form.emailLabel')}</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="you@example.com"
+                  placeholder={t('form.emailPlaceholder')}
                   className={inputClass}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-muted mb-1.5">Subject</label>
+              <label className="block text-xs font-medium text-muted mb-1.5">{t('form.subjectLabel')}</label>
               <select
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 required
                 className={`${inputClass} appearance-none cursor-pointer`}
               >
-                <option value="" disabled>Select a topic…</option>
+                <option value="" disabled>{t('form.subjectPlaceholder')}</option>
                 {SUBJECTS.map((s) => (
                   <option key={s} value={s}>{s}</option>
                 ))}
@@ -139,16 +144,16 @@ export default function SupportPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-muted mb-1.5">Message</label>
+              <label className="block text-xs font-medium text-muted mb-1.5">{t('form.messageLabel')}</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 required
                 rows={6}
-                placeholder="Tell me what's going on…"
+                placeholder={t('form.messagePlaceholder')}
                 className={`${inputClass} resize-none`}
               />
-              <p className="text-xs text-muted mt-1.5">{message.length} / 5000</p>
+              <p className="text-xs text-muted mt-1.5">{t('form.charCount', { count: message.length })}</p>
             </div>
 
             {status === 'error' && (
@@ -160,11 +165,11 @@ export default function SupportPage() {
               disabled={status === 'submitting'}
               className="w-full bg-fan text-black font-semibold py-3 rounded-lg hover:bg-fan-dim transition-colors disabled:opacity-50"
             >
-              {status === 'submitting' ? 'Sending…' : 'Send message'}
+              {status === 'submitting' ? t('form.submitting') : t('form.submit')}
             </button>
 
             <p className="text-xs text-muted text-center">
-              Or email directly:{' '}
+              {t('form.emailDirectly')}{' '}
               <a href="mailto:baldwig@artypot.com" className="text-fan hover:underline">
                 baldwig@artypot.com
               </a>

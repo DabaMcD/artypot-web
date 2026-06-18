@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { auth as authApi } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
-import { Input, PasswordInput, FieldLabel } from '@/components/ui/Input';
+import { PasswordInput, FieldLabel } from '@/components/ui/Input';
 
 function ResetPasswordForm() {
+  const t = useTranslations('PasswordReset');
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -32,11 +34,11 @@ function ResetPasswordForm() {
     setError('');
 
     if (password !== passwordConfirm) {
-      setError('Passwords do not match.');
+      setError(t('reset.errors.mismatch'));
       return;
     }
     if (password.length < 8) {
-      setError('Password must be at least 8 characters.');
+      setError(t('reset.errors.tooShort'));
       return;
     }
 
@@ -51,7 +53,7 @@ function ResetPasswordForm() {
       setSuccess(true);
     } catch (err: unknown) {
       const e = err as { message?: string };
-      setError(e.message ?? 'Failed to reset password. The link may have expired.');
+      setError(e.message ?? t('reset.errors.failed'));
     } finally {
       setLoading(false);
     }
@@ -60,17 +62,17 @@ function ResetPasswordForm() {
   if (success) {
     return (
       <div className="text-center space-y-4">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-good">done</div>
-        <h2 className="font-display font-bold text-[24px] text-foreground">Password Updated</h2>
+        <div className="font-mono text-[10px] uppercase tracking-widest text-good">{t('reset.success.label')}</div>
+        <h2 className="font-display font-bold text-[24px] text-foreground">{t('reset.success.title')}</h2>
         <p className="text-sm text-muted leading-relaxed">
-          Your password has been changed. All other sessions have been signed out.
+          {t('reset.success.body')}
         </p>
         <Button
           variant="primary"
           className="justify-center"
           onClick={() => router.push('/login')}
         >
-          Sign In with New Password →
+          {t('reset.success.signIn')}
         </Button>
       </div>
     );
@@ -78,10 +80,10 @@ function ResetPasswordForm() {
 
   return (
     <>
-      <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">password reset</div>
-      <h1 className="font-display font-bold text-[30px] text-foreground mb-2">Set a New Password</h1>
+      <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">{t('reset.sectionLabel')}</div>
+      <h1 className="font-display font-bold text-[30px] text-foreground mb-2">{t('reset.title')}</h1>
       <p className="text-sm text-muted mb-8 leading-relaxed">
-        For <span className="font-mono text-foreground">{email}</span>
+        {t('reset.forPrefix')} <span className="font-mono text-foreground">{email}</span>
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -92,7 +94,7 @@ function ResetPasswordForm() {
         )}
 
         <div>
-          <FieldLabel>new password</FieldLabel>
+          <FieldLabel>{t('reset.newPasswordLabel')}</FieldLabel>
           <PasswordInput
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -100,19 +102,19 @@ function ResetPasswordForm() {
             minLength={8}
             autoComplete="new-password"
             autoFocus
-            placeholder="at least 8 characters"
+            placeholder={t('reset.newPasswordPlaceholder')}
           />
         </div>
 
         <div>
-          <FieldLabel>confirm new password</FieldLabel>
+          <FieldLabel>{t('reset.confirmPasswordLabel')}</FieldLabel>
           <PasswordInput
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
             required
             minLength={8}
             autoComplete="new-password"
-            placeholder="repeat your new password"
+            placeholder={t('reset.confirmPasswordPlaceholder')}
           />
         </div>
 
@@ -122,19 +124,20 @@ function ResetPasswordForm() {
           className="w-full justify-center"
           disabled={loading || !password || !passwordConfirm}
         >
-          {loading ? 'Resetting…' : 'Set New Password'}
+          {loading ? t('reset.submitLoading') : t('reset.submit')}
         </Button>
       </form>
 
       <p className="text-sm text-muted text-center mt-6">
-        Remembered it?{' '}
-        <Link href="/login" className="ap-inline-link">Sign In →</Link>
+        {t('reset.rememberedPrompt')}{' '}
+        <Link href="/login" className="ap-inline-link">{t('reset.signIn')}</Link>
       </p>
     </>
   );
 }
 
 export default function ResetPasswordPage() {
+  const t = useTranslations('PasswordReset');
   return (
     <div data-role="auth" className="min-h-screen flex flex-col items-center justify-center px-6 py-16 bg-background">
       <div className="w-full max-w-[420px]">
@@ -148,7 +151,7 @@ export default function ResetPasswordPage() {
           />
         </Link>
 
-        <Suspense fallback={<div className="font-mono text-xs text-muted">loading…</div>}>
+        <Suspense fallback={<div className="font-mono text-xs text-muted">{t('reset.loading')}</div>}>
           <ResetPasswordForm />
         </Suspense>
       </div>

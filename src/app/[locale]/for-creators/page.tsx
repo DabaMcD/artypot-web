@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import FeaturedBountiesSection from '@/components/FeaturedBountiesSection';
 import { SmoothHashLink } from '@/components/SmoothHashLink';
@@ -10,56 +11,76 @@ export const metadata = {
 
 const creatorReceivesPct = 100 - PLATFORM_FEE_PCT;
 
-// ── Steps to money in the bank ─────────────────────────────────────────────────
-const PAYOUT_STEPS: { label: string; sub: string; color: string }[] = [
-  {
-    label: 'Sign up and become a creator',
-    sub: 'Link a social handle so we can confirm it\'s you. We will help if if you have trouble.',
-    color: 'bg-creator',
-  },
-  {
-    label: 'Open a bounty for your own project',
-    sub: 'Write exactly what you want to make — a video, an album, an illustration series, anything. Be specific. Vague bounties back slowly.',
-    color: 'bg-creator',
-  },
-  {
-    label: 'Share the link with your audience',
-    sub: 'Post it wherever your fans are. They can back it in two clicks — no account required to back, though they\'ll need one to pay.',
-    color: 'bg-creator',
-  },
-  {
-    label: 'Backings come in (no money moves yet)',
-    sub: 'Fans commit amounts. Nothing is charged. You can watch the total grow in real time. Decide when you\'re happy with the return.',
-    color: 'bg-creator',
-  },
-  {
-    label: 'Make the thing',
-    sub: 'On your own schedule. No deadline unless you set one. When it\'s done, submit it from your dashboard.',
-    color: 'bg-creator',
-  },
-  {
-    label: 'The Council reviews it',
-    sub: 'A small group of human reviewers checks that your submission actually matches what the bounty asked for. Straightforward ones clear in a few days.',
-    color: 'bg-council',
-  },
-  {
-    label: 'Fans get charged',
-    sub: `Cards are charged on the ${BILLING_DAY}th of the month following approval. Backers who backed get notified before it hits.`,
-    color: 'bg-fan',
-  },
-  {
-    label: `${PLATFORM_PAYOUT_WAIT_DAYS}-day clearing window`,
-    sub: 'A short buffer for any disputed charges to surface. Standard payment processing practice.',
-    color: 'bg-fan',
-  },
-  {
-    label: 'Withdraw to your bank',
-    sub: `You keep ${creatorReceivesPct}% of what fans paid. Transfer it to your bank via Stripe Global Payouts.`,
-    color: 'bg-creator',
-  },
-];
-
 export default function ForCreatorsPage() {
+  const t = useTranslations('ForCreators');
+
+  // ── Steps to money in the bank ───────────────────────────────────────────
+  const PAYOUT_STEPS: { label: string; sub: string; color: string }[] = [
+    {
+      label: t('steps.signUp.label'),
+      sub: t('steps.signUp.sub'),
+      color: 'bg-creator',
+    },
+    {
+      label: t('steps.openBounty.label'),
+      sub: t('steps.openBounty.sub'),
+      color: 'bg-creator',
+    },
+    {
+      label: t('steps.share.label'),
+      sub: t('steps.share.sub'),
+      color: 'bg-creator',
+    },
+    {
+      label: t('steps.backingsComeIn.label'),
+      sub: t('steps.backingsComeIn.sub'),
+      color: 'bg-creator',
+    },
+    {
+      label: t('steps.makeThing.label'),
+      sub: t('steps.makeThing.sub'),
+      color: 'bg-creator',
+    },
+    {
+      label: t('steps.councilReviews.label'),
+      sub: t('steps.councilReviews.sub'),
+      color: 'bg-council',
+    },
+    {
+      label: t('steps.fansCharged.label'),
+      sub: t('steps.fansCharged.sub', { billingDay: BILLING_DAY }),
+      color: 'bg-fan',
+    },
+    {
+      label: t('steps.clearingWindow.label', { waitDays: PLATFORM_PAYOUT_WAIT_DAYS }),
+      sub: t('steps.clearingWindow.sub'),
+      color: 'bg-fan',
+    },
+    {
+      label: t('steps.withdraw.label'),
+      sub: t('steps.withdraw.sub', { creatorPct: creatorReceivesPct }),
+      color: 'bg-creator',
+    },
+  ];
+
+  const fanReasons: [string, string][] = [
+    [t('appeal.fans.points.card.title'), t('appeal.fans.points.card.detail')],
+    [t('appeal.fans.points.oneThing.title'), t('appeal.fans.points.oneThing.detail')],
+    [t('appeal.fans.points.backOut.title'), t('appeal.fans.points.backOut.detail')],
+  ];
+
+  const creatorReasons: [string, string][] = [
+    [t('appeal.creators.points.worthMaking.title'), t('appeal.creators.points.worthMaking.detail')],
+    [t('appeal.creators.points.stayPublic.title'), t('appeal.creators.points.stayPublic.detail')],
+    [
+      t('appeal.creators.points.payoutSchedule.title'),
+      t('appeal.creators.points.payoutSchedule.detail', {
+        billingDay: BILLING_DAY,
+        waitDays: PLATFORM_PAYOUT_WAIT_DAYS,
+      }),
+    ],
+  ];
+
   return (
     <div className="min-h-screen">
 
@@ -67,16 +88,14 @@ export default function ForCreatorsPage() {
       <section className="max-w-6xl mx-auto px-4 pt-24 pb-20">
         <div className="max-w-3xl">
           <h1 className="text-5xl sm:text-6xl font-display font-bold tracking-tight text-foreground leading-tight mb-6">
-            Tell your fans
+            {t('hero.titleLine1')}
             <br />
-            what you want to make.
-            <br /><span className="text-creator">Let them fund it.</span>
+            {t('hero.titleLine2')}
+            <br /><span className="text-creator">{t('hero.titleLine3')}</span>
           </h1>
 
           <p className="text-xl text-muted max-w-xl leading-relaxed mb-10">
-            Artypot is a bounty platform. Create a bounty for a specific project, share it with
-            your audience, and they put money toward it. No subscriptions. No paywalls. You do
-            the thing, you get paid. If you don't deliver, credit cards are never touched.
+            {t('hero.body')}
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -84,13 +103,13 @@ export default function ForCreatorsPage() {
               href="/register"
               className="bg-creator text-brand-dark font-semibold px-6 py-3 rounded-lg hover:brightness-110 transition-all"
             >
-              Get started →
+              {t('hero.getStarted')}
             </Link>
             <SmoothHashLink
               href="#how-you-get-paid"
               className="bg-surface border border-border text-foreground font-semibold px-6 py-3 rounded-lg hover:border-creator/50 hover:text-creator transition-colors"
             >
-              How you get paid
+              {t('hero.howYouGetPaid')}
             </SmoothHashLink>
           </div>
         </div>
@@ -101,12 +120,11 @@ export default function ForCreatorsPage() {
         <div className="max-w-6xl mx-auto px-4 py-20">
           <div className="max-w-3xl mx-auto text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground leading-snug mb-4">
-              Not a tip jar. Not a subscription.
-              <br /><span className="text-creator">A funded project request.</span>
+              {t('different.titleLine1')}
+              <br /><span className="text-creator">{t('different.titleLine2')}</span>
             </h2>
             <p className="text-lg text-muted">
-              You already know what your audience wants... but how much do they want it? Artypot turns their
-              "plz do X" comments into a number with a dollar sign in front of it.
+              {t('different.body')}
             </p>
           </div>
 
@@ -114,25 +132,21 @@ export default function ForCreatorsPage() {
             <div className="bg-background border border-border rounded-xl p-6">
               <p className="text-xs font-mono text-muted uppercase tracking-wider mb-3">Patreon</p>
               <p className="text-muted text-sm leading-relaxed">
-                Monthly subscriptions. Good for creators with consistent output — tough if your
-                work comes in bursts. Fans are paying for access, not for anything specific.
+                {t('different.patreon')}
               </p>
             </div>
 
             <div className="bg-background border border-border rounded-xl p-6">
               <p className="text-xs font-mono text-muted uppercase tracking-wider mb-3">Ko-fi / tips</p>
               <p className="text-muted text-sm leading-relaxed">
-                Low friction, but also low signal. Tips don&apos;t tell you what anyone actually
-                wants made. They&apos;re appreciation for things you&apos;ve already done.
+                {t('different.kofi')}
               </p>
             </div>
 
             <div className="bg-surface border border-creator/30 rounded-xl p-6">
               <p className="text-xs font-mono text-creator uppercase tracking-wider mb-3">Artypot</p>
               <p className="text-foreground text-sm leading-relaxed">
-                Fans put money toward one specific thing you want to make. Nothing moves until
-                it&apos;s done. You only get paid when you deliver — which is exactly why fans
-                are comfortable putting real money in.
+                {t('different.artypot')}
               </p>
             </div>
           </div>
@@ -145,18 +159,14 @@ export default function ForCreatorsPage() {
           <div className="grid sm:grid-cols-2 gap-16 items-start max-w-5xl">
 
             <div>
-              <p className="text-xs font-mono text-muted uppercase tracking-wider mb-4">Why fans back it</p>
+              <p className="text-xs font-mono text-muted uppercase tracking-wider mb-4">{t('appeal.fans.label')}</p>
               <h2 className="text-2xl font-display font-bold text-foreground mb-6">
-                They&apos;re not donating.
-                <br />They&apos;re commissioning.
+                {t('appeal.fans.titleLine1')}
+                <br />{t('appeal.fans.titleLine2')}
               </h2>
               <ul className="space-y-4">
-                {[
-                  ['Their card isn\'t charged until you deliver', 'No delivery means no payment. Ever. That makes backing feel safe.'],
-                  ['They back one thing, not a monthly commitment', 'No subscription guilt. They put money toward a specific thing they want to exist.'],
-                  ['They can back out any time before completion', 'Changed their mind? They withdraw their backing. No hard feelings, no money lost.'],
-                ].map(([title, detail]) => (
-                  <li key={title as string} className="flex gap-3">
+                {fanReasons.map(([title, detail]) => (
+                  <li key={title} className="flex gap-3">
                     <span className="text-creator mt-1 shrink-0">✓</span>
                     <div>
                       <p className="text-foreground text-sm font-medium mb-0.5">{title}</p>
@@ -168,18 +178,14 @@ export default function ForCreatorsPage() {
             </div>
 
             <div>
-              <p className="text-xs font-mono text-muted uppercase tracking-wider mb-4">Why creators use it</p>
+              <p className="text-xs font-mono text-muted uppercase tracking-wider mb-4">{t('appeal.creators.label')}</p>
               <h2 className="text-2xl font-display font-bold text-foreground mb-6">
-                Test demand before
-                <br />investing the time.
+                {t('appeal.creators.titleLine1')}
+                <br />{t('appeal.creators.titleLine2')}
               </h2>
               <ul className="space-y-4">
-                {[
-                  ['Know if it\'s worth making before you make it', 'Open the bounty. Share it. If backings don\'t justify the work, nothing happens and nobody lost money.'],
-                  ['Your content stays public', 'This isn\'t a paywall. Backers don\'t get exclusive access — they get the same thing everyone else gets, plus the satisfaction of having made it happen.'],
-                  ['No platform decides your payout schedule', `You withdraw when you want. The ${BILLING_DAY}th is when fans are charged — after that, funds clear in ${PLATFORM_PAYOUT_WAIT_DAYS} days.`],
-                ].map(([title, detail]) => (
-                  <li key={title as string} className="flex gap-3">
+                {creatorReasons.map(([title, detail]) => (
+                  <li key={title} className="flex gap-3">
                     <span className="text-creator mt-1 shrink-0">✓</span>
                     <div>
                       <p className="text-foreground text-sm font-medium mb-0.5">{title}</p>
@@ -197,12 +203,12 @@ export default function ForCreatorsPage() {
       {/* ── How you get paid ──────────────────────────────────────────────── */}
       <section id="how-you-get-paid" className="border-t border-border bg-surface">
         <div className="max-w-6xl mx-auto px-4 py-20">
-          <p className="text-xs font-mono text-muted uppercase tracking-wider mb-3">The full picture</p>
+          <p className="text-xs font-mono text-muted uppercase tracking-wider mb-3">{t('howPaid.label')}</p>
           <h2 className="text-3xl font-display font-bold text-foreground mb-2">
-            From sign-up to bank transfer
+            {t('howPaid.title')}
           </h2>
           <p className="text-muted mb-14 max-w-xl leading-relaxed">
-            Every step, in order. No surprises.
+            {t('howPaid.body')}
           </p>
 
           <div className="max-w-2xl space-y-0">
@@ -238,40 +244,37 @@ export default function ForCreatorsPage() {
           <div className="grid sm:grid-cols-2 gap-12 items-start max-w-5xl">
 
             <div>
-              <p className="text-xs font-mono text-muted uppercase tracking-wider mb-4">The fee</p>
+              <p className="text-xs font-mono text-muted uppercase tracking-wider mb-4">{t('fee.label')}</p>
               <h2 className="text-3xl font-display font-bold text-foreground mb-4">
-                {PLATFORM_FEE_PCT}%. Flat. All-in.
+                {t('fee.title', { feePct: PLATFORM_FEE_PCT })}
               </h2>
               <p className="text-muted leading-relaxed mb-4">
-                One fee covers everything — Artypot&apos;s operating costs and all Stripe
-                payment processing. No monthly fee to list a bounty. No charge if a bounty
-                never completes. You only pay when you get paid.
+                {t('fee.body1')}
               </p>
               <p className="text-muted leading-relaxed">
-                Backers are charged their exact backed amount. The fee comes out of your
-                side only, not theirs.
+                {t('fee.body2')}
               </p>
             </div>
 
             <div className="bg-surface border border-border rounded-xl overflow-hidden">
               <div className="p-5 border-b border-border">
-                <p className="text-xs font-mono text-muted uppercase tracking-wider">Example payout</p>
+                <p className="text-xs font-mono text-muted uppercase tracking-wider">{t('fee.exampleLabel')}</p>
               </div>
               <div className="divide-y divide-border">
                 <div className="flex items-center justify-between px-5 py-4">
-                  <span className="text-muted text-sm">Total backed by fans</span>
+                  <span className="text-muted text-sm">{t('fee.totalBacked')}</span>
                   <span className="font-mono font-bold text-foreground">+$2,758.00</span>
                 </div>
                 <div className="flex items-center justify-between px-5 py-4">
-                  <span className="text-muted text-sm">Most soft backings fall through</span>
+                  <span className="text-muted text-sm">{t('fee.softFallThrough')}</span>
                   <span className="font-mono text-bad">−$758.00</span>
                 </div>
                 <div className="flex items-center justify-between px-5 py-4">
-                  <span className="text-muted text-sm">Platform fee ({PLATFORM_FEE_PCT}%)</span>
+                  <span className="text-muted text-sm">{t('fee.platformFee', { feePct: PLATFORM_FEE_PCT })}</span>
                   <span className="font-mono text-bad">−${(2000 * PLATFORM_FEE_PCT / 100).toFixed(2)}</span>
                 </div>
                 <div className="flex items-center justify-between px-5 py-4 bg-creator/5">
-                  <span className="text-foreground font-semibold text-sm">You receive</span>
+                  <span className="text-foreground font-semibold text-sm">{t('fee.youReceive')}</span>
                   <span className="font-mono font-bold text-creator text-xl">
                     ${(2000 * creatorReceivesPct / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
@@ -290,31 +293,30 @@ export default function ForCreatorsPage() {
       <section className="border-t border-border">
         <div className="max-w-6xl mx-auto px-4 py-24 text-center">
           <h2 className="text-3xl font-display font-bold text-foreground mb-4">
-            Pick something you want to make.
-            <br />Open a bounty. Share the link.
+            {t('cta.titleLine1')}
+            <br />{t('cta.titleLine2')}
           </h2>
           <p className="text-muted mb-8 max-w-sm mx-auto leading-relaxed">
-            If your audience wants it, the money will show up.
-            If there&apos;s not enough support or you don&apos;t deliver, nobody pays anything.
+            {t('cta.body')}
           </p>
           <Link
             href="/register"
             className="inline-block bg-creator text-brand-dark font-semibold px-8 py-3 rounded-lg hover:brightness-110 transition-all"
           >
-            Create your account →
+            {t('cta.createAccount')}
           </Link>
           <p className="text-sm text-muted mt-4">
-            Already have one?{' '}
+            {t('cta.alreadyHaveOne')}{' '}
             <Link href="/login" className="text-creator hover:brightness-110 transition-all">
-              Log in →
+              {t('cta.logIn')}
             </Link>
           </p>
           <p className="text-xs text-muted mt-8">
-            <Link href="/about" className="hover:text-foreground transition-colors">How Artypot works</Link>
+            <Link href="/about" className="hover:text-foreground transition-colors">{t('cta.howItWorks')}</Link>
             {' · '}
-            <Link href="/tos" className="hover:text-foreground transition-colors">Terms of Service</Link>
+            <Link href="/tos" className="hover:text-foreground transition-colors">{t('cta.terms')}</Link>
             {' · '}
-            <Link href="/support" className="hover:text-foreground transition-colors">Questions? Contact us</Link>
+            <Link href="/support" className="hover:text-foreground transition-colors">{t('cta.contact')}</Link>
           </p>
         </div>
       </section>

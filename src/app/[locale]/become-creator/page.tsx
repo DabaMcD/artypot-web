@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { auth as authApi, users as usersApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -24,10 +25,11 @@ const CREATOR_KEEP_PCT = 100 - PLATFORM_FEE_PCT;
 // ── TOS + slug + activation form ──────────────────────────────────────────────
 
 function TosGate({ onActivated }: { onActivated: () => void }) {
+  const t = useTranslations('BecomeCreator');
   const { toast } = useToast();
   const [agreed, setAgreed] = useState(false);
   const [slug, setSlug] = useState('');
-  const [slugError, setSlugError] = useState<string | null>('Slug is required.');
+  const [slugError, setSlugError] = useState<string | null>(t('tos.slugRequired'));
   const [submitting, setSubmitting] = useState(false);
 
   const canSubmit = agreed && slug.length > 0 && slugError === null && !submitting;
@@ -38,11 +40,11 @@ function TosGate({ onActivated }: { onActivated: () => void }) {
     setSubmitting(true);
     try {
       await authApi.becomeCreator(slug);
-      toast('Creator mode activated — welcome!', 'success');
+      toast(t('tos.activatedToast'), 'success');
       onActivated();
     } catch (err: unknown) {
       const e = err as { message?: string };
-      toast(e.message ?? 'Something went wrong. Please try again.', 'error');
+      toast(e.message ?? t('tos.genericError'), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -54,16 +56,16 @@ function TosGate({ onActivated }: { onActivated: () => void }) {
       <SlugInput
         value={slug}
         onChange={setSlug}
-        label="choose your creator URL"
+        label={t('tos.slugLabel')}
         onValidityChange={setSlugError}
       />
 
       {/* Creator TOS summary + link to the full terms */}
       <div>
-        <FieldLabel>creator terms of service</FieldLabel>
+        <FieldLabel>{t('tos.termsFieldLabel')}</FieldLabel>
         <CreatorTosTldr
           className="mt-1"
-          footnote="This TL;DR is a helpful summary, not a substitute for the full terms."
+          footnote={t('tos.tldrFootnote')}
         />
         <Link
           href="/creator-tos"
@@ -71,7 +73,7 @@ function TosGate({ onActivated }: { onActivated: () => void }) {
           rel="noopener noreferrer"
           className="inline-block mt-3 text-sm text-[var(--color-role)] hover:underline"
         >
-          Read the full Creator Terms of Service →
+          {t('tos.readFullTerms')}
         </Link>
       </div>
 
@@ -80,15 +82,15 @@ function TosGate({ onActivated }: { onActivated: () => void }) {
           <Toggle on={agreed} onChange={setAgreed} />
         </div>
         <span className="text-sm text-foreground leading-snug">
-          I have read and agree to the{' '}
+          {t('tos.agreePrefix')}{' '}
           <Link href="/creator-tos" target="_blank" rel="noopener noreferrer" className="text-[var(--color-role)] hover:underline">
-            Artypot Creator Terms of Service
+            {t('tos.agreeLinkText')}
           </Link>
         </span>
       </div>
 
       <Button type="submit" variant="primary" disabled={!canSubmit} className="w-full">
-        {submitting ? 'Activating…' : 'Enable Creator Mode →'}
+        {submitting ? t('tos.activating') : t('tos.enableButton')}
       </Button>
     </form>
   );
@@ -97,6 +99,7 @@ function TosGate({ onActivated }: { onActivated: () => void }) {
 // ── Email verification gate ───────────────────────────────────────────────────
 
 function EmailVerificationGate({ hasEmail }: { hasEmail: boolean }) {
+  const t = useTranslations('BecomeCreator');
   const { toast } = useToast();
   const [sending, setSending] = useState(false);
 
@@ -104,9 +107,9 @@ function EmailVerificationGate({ hasEmail }: { hasEmail: boolean }) {
     return (
       <div className="mt-3">
         <Banner tone="default">
-          No email on your account.{' '}
-          <Link href="/settings" className="underline">Add one in Settings</Link>{' '}
-          to receive a verification link.
+          {t('email.noEmailPrefix')}{' '}
+          <Link href="/settings" className="underline">{t('email.noEmailLink')}</Link>{' '}
+          {t('email.noEmailSuffix')}
         </Banner>
       </div>
     );
@@ -116,9 +119,9 @@ function EmailVerificationGate({ hasEmail }: { hasEmail: boolean }) {
     setSending(true);
     try {
       await authApi.resendVerification();
-      toast('Verification email sent — check your inbox.', 'success');
+      toast(t('email.sentToast'), 'success');
     } catch {
-      toast('Could not send verification email. Please try again.', 'error');
+      toast(t('email.sendErrorToast'), 'error');
     } finally {
       setSending(false);
     }
@@ -127,11 +130,11 @@ function EmailVerificationGate({ hasEmail }: { hasEmail: boolean }) {
   return (
     <div className="mt-3 flex flex-col gap-2">
       <Banner tone="default">
-        A verification link was sent to your email address. Check your inbox (and spam folder).
+        {t('email.linkSentBanner')}
       </Banner>
       <div>
         <Button variant="ghost" size="sm" onClick={handleResend} disabled={sending}>
-          {sending ? 'Sending…' : 'Resend Verification Email'}
+          {sending ? t('email.sending') : t('email.resendButton')}
         </Button>
       </div>
     </div>
@@ -153,6 +156,7 @@ function TaxResidenceForm({
   onCancel: () => void;
   showCancel: boolean;
 }) {
+  const t = useTranslations('BecomeCreator');
   const { user } = useAuth();
   const { toast } = useToast();
   const [countryCode, setCountryCode] = useState(initialCountry);
@@ -171,9 +175,9 @@ function TaxResidenceForm({
         state_code: needsState ? (stateCode || null) : null,
       });
       await onSaved();
-      toast('Tax residence saved.', 'success');
+      toast(t('residence.savedToast'), 'success');
     } catch {
-      toast('Failed to save tax residence.', 'error');
+      toast(t('residence.saveErrorToast'), 'error');
     } finally {
       setSaving(false);
     }
@@ -182,13 +186,13 @@ function TaxResidenceForm({
   return (
     <form onSubmit={handleSubmit} className="mt-4 space-y-3">
       <div>
-        <FieldLabel>country</FieldLabel>
+        <FieldLabel>{t('residence.countryLabel')}</FieldLabel>
         <select
           value={countryCode}
           onChange={(e) => { setCountryCode(e.target.value); setStateCode(''); }}
           className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
         >
-          <option value="">— select country —</option>
+          <option value="">{t('residence.selectCountry')}</option>
           {COUNTRIES.map((c) => (
             <option key={c.code} value={c.code}>{c.name}</option>
           ))}
@@ -203,7 +207,7 @@ function TaxResidenceForm({
             className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
             required
           >
-            <option value="">— select {subdivisionLabel(countryCode).toLowerCase()} —</option>
+            <option value="">{t('residence.selectSubdivision', { subdivision: subdivisionLabel(countryCode).toLowerCase() })}</option>
             {subdivisions(countryCode)!.map((s) => (
               <option key={s.code} value={s.code}>{s.name}</option>
             ))}
@@ -217,11 +221,11 @@ function TaxResidenceForm({
           size="sm"
           disabled={saving || !countryCode || (needsState && !stateCode)}
         >
-          {saving ? 'Saving…' : 'Save Tax Residence'}
+          {saving ? t('residence.saving') : t('residence.saveButton')}
         </Button>
         {showCancel && (
           <Button type="button" variant="ghost" size="sm" onClick={onCancel} disabled={saving}>
-            Cancel
+            {t('residence.cancel')}
           </Button>
         )}
       </div>
@@ -232,6 +236,7 @@ function TaxResidenceForm({
 // ── Verified handles preview (collapsed display for Gate 3) ───────────────────
 
 function VerifiedHandlesPreview({ refreshKey }: { refreshKey: number }) {
+  const t = useTranslations('BecomeCreator');
   const [claims, setClaims] = useState<HandleClaim[] | null>(null);
 
   useEffect(() => {
@@ -243,7 +248,7 @@ function VerifiedHandlesPreview({ refreshKey }: { refreshKey: number }) {
   }, [refreshKey]);
 
   if (claims === null) {
-    return <p className="text-xs font-mono text-muted mt-2">loading…</p>;
+    return <p className="text-xs font-mono text-muted mt-2">{t('handles.loading')}</p>;
   }
 
   const verified = claims.filter((c) => c.status === 'verified');
@@ -274,7 +279,7 @@ function GateRow({
   title,
   description,
   status,
-  lockText = 'complete previous steps to unlock',
+  lockText,
   actionSlot,
   children,
 }: {
@@ -286,6 +291,8 @@ function GateRow({
   actionSlot?: React.ReactNode;
   children?: React.ReactNode;
 }) {
+  const t = useTranslations('BecomeCreator');
+  const resolvedLockText = lockText ?? t('gates.defaultLockText');
   return (
     <div className={`rounded-lg border p-5 ${status === 'locked' ? 'border-border bg-surface opacity-50' : 'border-border bg-surface'}`}>
       <div className="flex items-start gap-4">
@@ -305,11 +312,11 @@ function GateRow({
           <div className="flex items-center gap-3 flex-wrap">
             <h3 className="font-bold text-foreground">{title}</h3>
             {status === 'complete' && (
-              <span className="font-mono text-[10px] uppercase tracking-widest text-good">complete</span>
+              <span className="font-mono text-[10px] uppercase tracking-widest text-good">{t('gates.completeBadge')}</span>
             )}
             {status === 'locked' && (
               <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
-                {lockText}
+                {resolvedLockText}
               </span>
             )}
           </div>
@@ -328,6 +335,7 @@ function GateRow({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function BecomeCreatorPage() {
+  const t = useTranslations('BecomeCreator');
   const { user, loading: authLoading, refreshUser } = useAuth();
   const router = useRouter();
   const [editingResidence, setEditingResidence] = useState(false);
@@ -387,19 +395,19 @@ export default function BecomeCreatorPage() {
     return (
       <div className="space-y-6 pt-2 max-w-[600px]">
         <div>
-          <SectionLabel>creator</SectionLabel>
-          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">become a creator</h1>
+          <SectionLabel>{t('alreadyCreator.sectionLabel')}</SectionLabel>
+          <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('hero.title')}</h1>
         </div>
         <Card>
           <div className="flex items-center gap-3 mb-3">
             <span className="text-xl">✓</span>
-            <h2 className="font-bold text-lg text-good">you&apos;re already a creator</h2>
+            <h2 className="font-bold text-lg text-good">{t('alreadyCreator.heading')}</h2>
           </div>
           <p className="text-sm text-muted mb-4">
-            Your creator account is active. Head to your creator dashboard to manage bounties, track earnings, and more.
+            {t('alreadyCreator.body')}
           </p>
           <Link href="/c">
-            <Button variant="primary">Go to Dashboard →</Button>
+            <Button variant="primary">{t('alreadyCreator.dashboardButton')}</Button>
           </Link>
         </Card>
       </div>
@@ -420,10 +428,10 @@ export default function BecomeCreatorPage() {
   return (
     <div className="space-y-7 pt-2 max-w-[600px]">
       <div>
-        <SectionLabel>fan</SectionLabel>
-        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">become a creator</h1>
+        <SectionLabel>{t('hero.sectionLabel')}</SectionLabel>
+        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('hero.title')}</h1>
         <p className="text-sm text-muted mt-1">
-          Unlock the creator view to accept bounties and get paid for your work.
+          {t('hero.subtitle')}
         </p>
       </div>
 
@@ -437,15 +445,14 @@ export default function BecomeCreatorPage() {
             {CREATOR_KEEP_PCT}%
           </span>
           <div>
-            <p className="font-bold text-foreground leading-tight">You keep {CREATOR_KEEP_PCT}% of every bounty.</p>
+            <p className="font-bold text-foreground leading-tight">{t('economics.keepHeadline', { pct: CREATOR_KEEP_PCT })}</p>
             <p className="text-sm text-muted leading-snug mt-0.5">
-              Artypot&apos;s {PLATFORM_FEE_PCT}% covers card processing &amp; fraud protection, hosting,
-              support, and organic veggies for the council members that moderate everything.
+              {t('economics.feeExplainer', { fee: PLATFORM_FEE_PCT })}
             </p>
           </div>
         </div>
         <p className="font-mono text-[10px] uppercase tracking-widest text-muted mt-3 pt-3 border-t border-border">
-          no signup fee · no monthly fee · no sales tax · deducted only from completed payouts
+          {t('economics.noFees')}
         </p>
       </Card>
 
@@ -453,8 +460,8 @@ export default function BecomeCreatorPage() {
         {/* Gate 1 — email verification */}
         <GateRow
           step={1}
-          title="Verify Your Email Address"
-          description="A verified email is required to receive creator notifications and tax communications"
+          title={t('gate1.title')}
+          description={t('gate1.description')}
           status={emailComplete ? 'complete' : 'active'}
         >
           {!emailComplete && (
@@ -468,15 +475,15 @@ export default function BecomeCreatorPage() {
             compliance ask. */}
         <GateRow
           step={2}
-          title="Verify a Handle"
-          description="Link a social account so fans know you're the real deal"
+          title={t('gate2.title')}
+          description={t('gate2.description')}
           status={!handleUnlocked ? 'locked' : handleComplete ? 'complete' : 'active'}
-          lockText="Verify your email to unlock"
+          lockText={t('gate2.lockText')}
           actionSlot={
             handleComplete && !editingHandles ? (
-              <Button variant="ghost" size="sm" onClick={() => setEditingHandles(true)}>Edit</Button>
+              <Button variant="ghost" size="sm" onClick={() => setEditingHandles(true)}>{t('gate2.editButton')}</Button>
             ) : handleComplete && editingHandles ? (
-              <Button variant="ghost" size="sm" onClick={handleDoneEditingHandles}>Done</Button>
+              <Button variant="ghost" size="sm" onClick={handleDoneEditingHandles}>{t('gate2.doneButton')}</Button>
             ) : undefined
           }
         >
@@ -509,13 +516,13 @@ export default function BecomeCreatorPage() {
           return (
             <GateRow
               step={3}
-              title="Add Your Tax Residence"
-              description="We use this to know where to report your earnings later"
+              title={t('gate3.title')}
+              description={t('gate3.description')}
               status={residenceStatus}
-              lockText="Verify a handle to unlock"
+              lockText={t('gate3.lockText')}
               actionSlot={
                 residenceComplete && !editingResidence ? (
-                  <Button variant="ghost" size="sm" onClick={() => setEditingResidence(true)}>Edit</Button>
+                  <Button variant="ghost" size="sm" onClick={() => setEditingResidence(true)}>{t('gate3.editButton')}</Button>
                 ) : undefined
               }
             >
@@ -538,17 +545,17 @@ export default function BecomeCreatorPage() {
         {/* Gate 4 — TOS + slug */}
         <GateRow
           step={4}
-          title="Agree to Creator TOS and Choose Your Primary Handle"
-          description="Accept the creator terms and lock in your artypot.com/[slug] URL"
+          title={t('gate4.title')}
+          description={t('gate4.description')}
           status={!tosUnlocked ? 'locked' : 'active'}
-          lockText="Complete steps 1–3 to unlock"
+          lockText={t('gate4.lockText')}
         >
           {tosUnlocked && <TosGate onActivated={handleActivated} />}
         </GateRow>
       </div>
 
       <Link href="/dashboard">
-        <Button variant="ghost" size="sm">← Back to Dashboard</Button>
+        <Button variant="ghost" size="sm">{t('backToDashboard')}</Button>
       </Link>
     </div>
   );
