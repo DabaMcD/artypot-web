@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # JavaScript / npm dependencies. Dependabot opens PRs to bump packages and,
+  # when "Dependabot security updates" is enabled in repo Settings → Code
+  # security, also opens targeted PRs for any package with a known advisory.
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    # Group routine patch/minor bumps into one PR to cut noise; majors stay
+    # separate so they get individual review.
+    groups:
+      npm-minor-patch:
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies

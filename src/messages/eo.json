@@ -286,6 +286,25 @@
       "confirmEmailFailed": "Ne eblis sendi la konfirman retmesaĝon.",
       "pictureUpdated": "Profila bildo ĝisdatigita!",
       "pictureFailed": "Ne eblis konservi la bildon."
+    },
+    "twoFactor": {
+      "label": "Dufaktora aŭtentigo",
+      "onBlurb": "Dufaktora aŭtentigo estas ŝaltita. Via konto petas kodon ĉe ensaluto.",
+      "offBlurb": "Aldonu duan paŝon ĉe ensaluto per aŭtentiga aplikaĵo.",
+      "setUp": "Agordi",
+      "manage": "Administri"
+    },
+    "sessions": {
+      "label": "Aktivaj seancoj",
+      "blurb": "Aparatoj kaj retumiloj nun ensalutintaj al via konto.",
+      "activeCount": "{count, plural, =0 {Neniuj aktivaj seancoj} one {# aktiva seanco} other {# aktivaj seancoj}} nun.",
+      "logoutAll": "Elsaluti ĉiujn",
+      "confirmTitle": "Ĉu elsaluti ĉie?",
+      "confirmBody": "Tio elsalutas vin el ĉiu aparato, inkluzive ĉi tiun. Vi devos reensaluti.",
+      "confirm": "Elsaluti ĉiujn seancojn",
+      "cancel": "Nuligi",
+      "working": "Elsalutante…",
+      "error": "Ne eblis elsaluti viajn seancojn. Bonvolu reprovi."
     }
   },
   "About": {
@@ -899,6 +918,15 @@
     "errors": {
       "loginFailed": "Ensaluto malsukcesis. Bonvolu reprovi.",
       "oauthFailed": "Ne eblis komenci ensaluton. Bonvolu reprovi."
+    },
+    "twoFactor": {
+      "heading": "Dupaŝa kontrolo",
+      "blurb": "Enigu la 6-ciferan kodon el via aŭtentiga aplikaĵo por fini la ensaluton.",
+      "codeLabel": "Aŭtentiga kodo",
+      "codePlaceholder": "123456",
+      "recoveryHint": "Ĉu vi perdis vian aparaton? Enigu unu el viaj restarigaj kodoj.",
+      "back": "← Uzi alian konton",
+      "submit": "Kontroli"
     }
   },
   "PasswordReset": {
@@ -3136,5 +3164,48 @@
     "mismatchError": "La novaj pasvortoj ne kongruas.",
     "successMessage": "Pasvorto sukcese ŝanĝita.",
     "failureMessage": "Malsukcesis ŝanĝi la pasvorton."
+  },
+  "SettingsTwoFactor": {
+    "back": "Agordoj",
+    "heading": "Dufaktora aŭtentigo",
+    "loading": "Ŝargante…",
+    "passwordLabel": "Nuna pasvorto",
+    "passwordHint": "Ni petas vian pasvorton por konfirmi ke estas vi.",
+    "copy": "Kopii",
+    "copied": "Kopiita al tondujo",
+    "intro": {
+      "title": "Protektu vian konton per 2FA",
+      "blurb": "Uzu aŭtentigan aplikaĵon (Google Authenticator, Authy, 1Password, ktp.) por generi kodon ĉe ĉiu ensaluto. Eĉ se iu ekscias vian pasvorton, li ne povas eniri sen via telefono.",
+      "begin": "Komenci agordon"
+    },
+    "setup": {
+      "scanTitle": "Skanu la QR-kodon",
+      "scanHint": "Malfermu vian aŭtentigan aplikaĵon kaj skanu ĉi tiun kodon, aŭ enigu la ŝlosilon permane.",
+      "manualLabel": "Agorda ŝlosilo (permana enigo)",
+      "recoveryTitle": "Konservu viajn restarigajn kodojn",
+      "recoveryHint": "Konservu ilin sekure. Ĉiu kodo uzeblas unufoje por ensaluti se vi perdas vian aŭtentigilon. Ili ne montriĝos plene denove.",
+      "confirmLabel": "Enigu la 6-ciferan kodon por fini",
+      "confirmPlaceholder": "123456",
+      "confirm": "Konfirmi kaj ŝalti"
+    },
+    "enabled": {
+      "title": "Dufaktora aŭtentigo estas ŝaltita",
+      "blurb": "Oni petos kodon el via aŭtentiga aplikaĵo ĉiufoje kiam vi ensalutas.",
+      "recoveryRemaining": "{count, plural, =0 {Neniuj restarigaj kodoj restas — generu novan aron} one {# restariga kodo restas} other {# restarigaj kodoj restas}}.",
+      "regenerate": "Regeneri restarigajn kodojn",
+      "disable": "Malŝalti 2FA",
+      "councilNote": "Konsiliaj kontoj devas teni dufaktoran aŭtentigon ŝaltita."
+    },
+    "regenerated": {
+      "hint": "Jen viaj novaj restarigaj kodoj. Viaj malnovaj kodoj ne plu funkcias."
+    },
+    "toasts": {
+      "enabled": "Dufaktora aŭtentigo ŝaltita.",
+      "disabled": "Dufaktora aŭtentigo malŝaltita.",
+      "regenerated": "Novaj restarigaj kodoj generitaj."
+    },
+    "errors": {
+      "generic": "Io misfunkciis. Bonvolu reprovi."
+    }
   }
 }

@@ -36,6 +36,12 @@ const NAV_ITEMS = [
     desc: 'The Float — Stripe balance vs. ledger, and who the money belongs to.',
   },
   {
+    href: '/obelisk/nexus',
+    icon: '🗺️',
+    title: 'Nexus Watch',
+    desc: 'Per-state platform-fee accrual vs. sales-tax nexus trip-wires.',
+  },
+  {
     href: '/obelisk/system',
     icon: '⚙️',
     title: 'System',

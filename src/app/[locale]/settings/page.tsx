@@ -23,6 +23,7 @@ import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import { Toggle as ToggleUI } from '@/components/ui/Toggle';
 import { Modal } from '@/components/ui/Modal';
 import { Banner } from '@/components/ui/Banner';
+import { TwoFactorCard, SessionsCard } from '@/components/settings/SecuritySettingsCards';
 
 // Inline toggle for notification table rows
 function MiniToggle({
@@ -875,6 +876,10 @@ export default function SettingsPage() {
         {/* Creator tax residence + handles are edited on /c/settings and
             /c/handles; the "creator profile" card above is the single doorway,
             so no empty redirect stubs are rendered here. */}
+
+        {/* Security — two-factor + active sessions */}
+        <TwoFactorCard />
+        <SessionsCard />
 
         {/* Danger zone */}
         <Card className="border-bad/30">
