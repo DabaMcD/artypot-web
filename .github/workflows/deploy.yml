@@ -23,6 +23,7 @@ jobs:
             cd /var/www/artypot-web
             git fetch origin main
             git reset --hard origin/main
+            rm -rf .next
             npm ci
             npm run build
             pm2 reload artypot-web --update-env || pm2 start npm --name artypot-web -- start
