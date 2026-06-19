@@ -64,6 +64,7 @@ import type {
   MarketCountryRow,
   MarketVolumeRow,
   MarketConflictRow,
+  NexusAccrualRow,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -945,6 +946,9 @@ export const overlord = {
 
   treasury: () =>
     request<{ data: TreasurySummary }>('/overlord/treasury'),
+
+  nexusAccrual: () =>
+    request<{ data: NexusAccrualRow[]; alert_pct: number; as_of: string }>('/overlord/nexus-accrual'),
 
   withdrawals: {
     list: (params?: { include_reversed?: boolean; page?: number }) => {
