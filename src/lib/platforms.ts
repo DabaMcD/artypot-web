@@ -226,6 +226,25 @@ export function formatPlatformHandle(slug: string, username: string): string {
 }
 
 /**
+ * The bare username with no platform prefix — `mrbeast`, `pokimane`. Use this
+ * where the platform is already named alongside (e.g. the BountyCard's
+ * `youtube/mrbeast` composite) so the prefix isn't doubled up into
+ * `youtube/@mrbeast` / `twitch/twitch.tv/pokimane`. Also strips a leaked
+ * URL-style prefix (`twitch.tv/`, `kick.com/`) or leading slashes, so handles
+ * stored before input-normalisation still render clean (no back migration).
+ */
+export function bareUsername(slug: string, username: string): string {
+  if (slug === OTHER_SLUG) return username;
+  let u = username.trim().replace(/^@+/, '');
+  const prefix = platformPrefix(slug);
+  // For host-style prefixes ('twitch.tv/', 'kick.com/'), strip a leaked copy.
+  if (prefix && prefix !== '@' && u.toLowerCase().startsWith(prefix.toLowerCase())) {
+    u = u.slice(prefix.length);
+  }
+  return u.replace(/^\/+/, '');
+}
+
+/**
  * Canonicalise a free-form URL for the 'other' platform — matches the
  * backend's Platforms::canonicaliseUrl() byte-for-byte.
  *

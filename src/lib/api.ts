@@ -64,6 +64,7 @@ import type {
   MarketCountryRow,
   MarketVolumeRow,
   MarketConflictRow,
+  NexusAccrualRow,
 } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
@@ -205,20 +206,55 @@ export const auth = {
       }),
     }),
 
-  login: (identifier: string, password: string) =>
-    request<{ token: string }>('/auth/login', {
+  login: (identifier: string, password: string, code?: string) =>
+    request<{ token?: string; two_factor_required?: boolean }>('/auth/login', {
       method: 'POST',
       // Phone numbers start with '+'; everything else is treated as an email.
-      body: JSON.stringify(
-        identifier.startsWith('+')
-          ? { phone_number: identifier, password }
-          : { email: identifier, password },
-      ),
+      body: JSON.stringify({
+        ...(identifier.startsWith('+')
+          ? { phone_number: identifier }
+          : { email: identifier }),
+        password,
+        ...(code ? { code } : {}),
+      }),
     }),
 
   logout: () => request('/auth/logout', { method: 'POST' }),
 
   me: () => request<{ data: User }>('/auth/me'),
+
+  // Active sessions (Sanctum tokens)
+  sessions: {
+    list: () => request<{ active_sessions: number }>('/auth/sessions'),
+    logoutAll: () => request<{ message: string }>('/auth/sessions/logout-all', { method: 'POST' }),
+  },
+
+  // Two-factor authentication (TOTP). `password` is the current account
+  // password — required for accounts that have one, omitted for OAuth-only.
+  twoFactor: {
+    status: () =>
+      request<{ enabled: boolean; pending: boolean; recovery_codes_remaining: number }>('/auth/two-factor'),
+    enable: (password?: string) =>
+      request<{ secret: string; otpauth_uri: string; recovery_codes: string[] }>('/auth/two-factor', {
+        method: 'POST',
+        body: JSON.stringify(password ? { password } : {}),
+      }),
+    confirm: (code: string) =>
+      request<{ message: string }>('/auth/two-factor/confirm', {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+      }),
+    disable: (password?: string) =>
+      request<{ message: string }>('/auth/two-factor', {
+        method: 'DELETE',
+        body: JSON.stringify(password ? { password } : {}),
+      }),
+    regenerateRecoveryCodes: (password?: string) =>
+      request<{ recovery_codes: string[] }>('/auth/two-factor/recovery-codes', {
+        method: 'POST',
+        body: JSON.stringify(password ? { password } : {}),
+      }),
+  },
 
   /**
    * POST /auth/become-creator
@@ -945,6 +981,9 @@ export const overlord = {
 
   treasury: () =>
     request<{ data: TreasurySummary }>('/overlord/treasury'),
+
+  nexusAccrual: () =>
+    request<{ data: NexusAccrualRow[]; alert_pct: number; as_of: string }>('/overlord/nexus-accrual'),
 
   withdrawals: {
     list: (params?: { include_reversed?: boolean; page?: number }) => {

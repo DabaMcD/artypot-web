@@ -286,6 +286,25 @@
       "confirmEmailFailed": "No se pudo enviar el correo de confirmación.",
       "pictureUpdated": "¡Foto de perfil actualizada!",
       "pictureFailed": "No se pudo guardar la foto."
+    },
+    "twoFactor": {
+      "label": "Autenticación de dos factores",
+      "onBlurb": "La autenticación de dos factores está activada. Tu cuenta pide un código al iniciar sesión.",
+      "offBlurb": "Añade un segundo paso al iniciar sesión con una app de autenticación.",
+      "setUp": "Configurar",
+      "manage": "Gestionar"
+    },
+    "sessions": {
+      "label": "Sesiones activas",
+      "blurb": "Dispositivos y navegadores con sesión iniciada en tu cuenta.",
+      "activeCount": "{count, plural, =0 {No hay sesiones activas} one {# sesión activa} other {# sesiones activas}} ahora mismo.",
+      "logoutAll": "Cerrar todas",
+      "confirmTitle": "¿Cerrar sesión en todas partes?",
+      "confirmBody": "Esto cerrará tu sesión en todos los dispositivos, incluido este. Tendrás que volver a iniciar sesión.",
+      "confirm": "Cerrar todas las sesiones",
+      "cancel": "Cancelar",
+      "working": "Cerrando sesión…",
+      "error": "No se pudieron cerrar las sesiones. Inténtalo de nuevo."
     }
   },
   "About": {
@@ -861,7 +880,7 @@
       },
       "payouts": {
         "label": "pagos",
-        "note": "a más de 50 países"
+        "note": "a cuentas bancarias de EE. UU."
       }
     },
     "sectionLabel": "iniciar sesión",
@@ -899,6 +918,15 @@
     "errors": {
       "loginFailed": "Error al iniciar sesión. Inténtalo de nuevo.",
       "oauthFailed": "No se pudo iniciar el acceso. Inténtalo de nuevo."
+    },
+    "twoFactor": {
+      "heading": "Verificación en dos pasos",
+      "blurb": "Introduce el código de 6 dígitos de tu app de autenticación para terminar de iniciar sesión.",
+      "codeLabel": "Código de autenticación",
+      "codePlaceholder": "123456",
+      "recoveryHint": "¿Perdiste tu dispositivo? Introduce uno de tus códigos de recuperación.",
+      "back": "← Usar otra cuenta",
+      "submit": "Verificar"
     }
   },
   "PasswordReset": {
@@ -1225,8 +1253,8 @@
       "finalRest": " Después de que El Consejo confirma una recompensa y se te cobra, ese pago es definitivo y no reembolsable — tu ventana para retirarte es antes de la finalización, no después.",
       "feeLead": "Artypot cobra una comisión de plataforma del 20%",
       "feeRest": ", deducida del pago al creador. Esta comisión cubre todos los costes de transacción, incluido el procesamiento de pagos — a los patrocinadores se les cobra su importe comprometido en su totalidad, y los creadores reciben el 80%.",
-      "globalLead": "Los creadores de todo el mundo pueden cobrar",
-      "globalRest": " — mediante pagos bancarios directos donde sea compatible, y métodos alternativos en otros lugares. Los fans de cualquier lugar pueden respaldar recompensas. Algunos países están restringidos por ley.",
+      "globalLead": "Los creadores de EE. UU. pueden cobrar",
+      "globalRest": " — necesitas una cuenta bancaria de EE. UU. para recibir pagos, y pronto se sumarán más países. Los fans de cualquier parte del mundo pueden respaldar recompensas.",
       "neverLead": "Si una recompensa nunca se completa, no se mueve dinero.",
       "neverRest": " Nunca.",
       "notPurchaseLead": "Respaldar no es una compra.",
@@ -1318,7 +1346,7 @@
         "title": "6. Obligaciones del creador",
         "p1": "Creators who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith, as understood by their community.",
         "p2": "Submission of a completion claim constitutes a representation that the submitted work satisfies the bounty description. Fraudulent submissions — submitting work that does not fulfil the bounty, or submitting work you do not own the rights to — may result in account termination and, where applicable, legal action.",
-        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Payouts are available in most countries — via direct bank payout where supported and alternative methods elsewhere — but are unavailable in countries we are legally restricted from serving. Artypot issues 1099 or 1042-S forms where required by law."
+        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Creator payouts currently require a US bank account and are available in the US only for now, with more countries planned. Artypot issues 1099 or 1042-S forms where required by law."
       },
       "council": {
         "title": "7. El Consejo",
@@ -1527,13 +1555,6 @@
       "lockIn": "Cuando un creador entrega su trabajo y el consejo lo aprueba, tu cargo queda fijado. Solo puedes retirarte mientras la recompensa siga abierta.",
       "collected": "Los cargos fijados se cobran automáticamente el día {day} de cada mes, o puedes pagar antes.",
       "noFees": "Siempre pagas exactamente el importe que comprometiste: nunca se añaden comisiones."
-    },
-    "timeline": {
-      "label": "cronología de este mes",
-      "now": "ahora",
-      "lockedIn": "los respaldos aprobados quedan fijados",
-      "previewSent": "vista previa de facturación enviada a tu bandeja de entrada",
-      "cardCharged": "se cobra a tu tarjeta"
     }
   },
   "Bounties": {
@@ -1546,10 +1567,10 @@
     "count": "{count, plural, one {# recompensa} other {# recompensas}}",
     "filters": {
       "all": "Todas",
-      "open": "Abiertas",
-      "pending": "Pendientes de revisión",
-      "completed": "Completadas",
-      "paidOut": "Pagadas"
+      "open": "Abierto",
+      "pending": "Pendiente de revisión",
+      "completed": "Completado",
+      "paidOut": "Pagado"
     },
     "empty": {
       "message": "No se encontraron recompensas.",
@@ -1701,11 +1722,11 @@
     },
     "filters": {
       "all": "Todos",
-      "open": "Abiertos",
+      "open": "Abierto",
       "pending": "Pendiente de revisión",
-      "completed": "Completados",
-      "paidOut": "Pagados",
-      "revoked": "Revocados"
+      "completed": "Completado",
+      "paidOut": "Pagado",
+      "revoked": "Revocado"
     },
     "completionBadge": {
       "pendingReview": "Pendiente de revisión",
@@ -2159,7 +2180,7 @@
       "fan": "fan",
       "fans": "fans",
       "openBounties": "Recompensas abiertas",
-      "completed": "Completadas",
+      "completed": "Completado",
       "totalEarned": "Total ganado",
       "activeBacking": "Respaldo activo"
     },
@@ -2212,10 +2233,10 @@
     },
     "filters": {
       "all": "Todas",
-      "open": "Abiertas",
-      "pending": "Pendientes",
-      "completed": "Completadas",
-      "paidOut": "Pagadas"
+      "open": "Abierto",
+      "pending": "Pendiente de revisión",
+      "completed": "Completado",
+      "paidOut": "Pagado"
     },
     "list": {
       "heading": "recompensas",
@@ -2225,7 +2246,8 @@
     "pagination": {
       "prev": "← anterior",
       "next": "siguiente →"
-    }
+    },
+    "socialOn": "en {platform}"
   },
   "Search": {
     "header": {
@@ -2685,7 +2707,7 @@
     },
     "belowTheLaw": {
       "title": "Artypot está por debajo de la ley.",
-      "body": "Tenemos que recopilar información fiscal. Muchos países no admiten el procesamiento automático de pagos y tienen un umbral mínimo de pago más alto. Hay algunos países en los que no podemos operar en absoluto."
+      "body": "Tenemos que recopilar información fiscal. Por ahora, los pagos a creadores son solo para EE. UU. (se requiere una cuenta bancaria de EE. UU.) y estamos trabajando para sumar más países. A algunos no podemos prestarles servicio en absoluto, por ley."
     },
     "fundsClear": {
       "title": "Los fondos se liberan tras 7 días.",
@@ -3135,5 +3157,48 @@
     "mismatchError": "Las contraseñas nuevas no coinciden.",
     "successMessage": "Contraseña cambiada correctamente.",
     "failureMessage": "No se pudo cambiar la contraseña."
+  },
+  "SettingsTwoFactor": {
+    "back": "Ajustes",
+    "heading": "Autenticación de dos factores",
+    "loading": "Cargando…",
+    "passwordLabel": "Contraseña actual",
+    "passwordHint": "Te pedimos la contraseña para confirmar que eres tú.",
+    "copy": "Copiar",
+    "copied": "Copiado al portapapeles",
+    "intro": {
+      "title": "Protege tu cuenta con 2FA",
+      "blurb": "Usa una app de autenticación (Google Authenticator, Authy, 1Password, etc.) para generar un código en cada inicio de sesión. Aunque alguien conozca tu contraseña, no podrá entrar sin tu teléfono.",
+      "begin": "Comenzar configuración"
+    },
+    "setup": {
+      "scanTitle": "Escanea el código QR",
+      "scanHint": "Abre tu app de autenticación y escanea este código, o introduce la clave manualmente.",
+      "manualLabel": "Clave de configuración (entrada manual)",
+      "recoveryTitle": "Guarda tus códigos de recuperación",
+      "recoveryHint": "Guárdalos en un lugar seguro. Cada código sirve una vez para iniciar sesión si pierdes tu autenticador. No se volverán a mostrar completos.",
+      "confirmLabel": "Introduce el código de 6 dígitos para terminar",
+      "confirmPlaceholder": "123456",
+      "confirm": "Confirmar y activar"
+    },
+    "enabled": {
+      "title": "La autenticación de dos factores está activada",
+      "blurb": "Se te pedirá un código de tu app de autenticación cada vez que inicies sesión.",
+      "recoveryRemaining": "{count, plural, =0 {No quedan códigos de recuperación: genera un conjunto nuevo} one {Queda # código de recuperación} other {Quedan # códigos de recuperación}}.",
+      "regenerate": "Regenerar códigos de recuperación",
+      "disable": "Desactivar 2FA",
+      "councilNote": "Las cuentas del Consejo deben mantener activada la autenticación de dos factores."
+    },
+    "regenerated": {
+      "hint": "Aquí tienes tus nuevos códigos de recuperación. Los antiguos ya no funcionan."
+    },
+    "toasts": {
+      "enabled": "Autenticación de dos factores activada.",
+      "disabled": "Autenticación de dos factores desactivada.",
+      "regenerated": "Nuevos códigos de recuperación generados."
+    },
+    "errors": {
+      "generic": "Algo salió mal. Inténtalo de nuevo."
+    }
   }
 }

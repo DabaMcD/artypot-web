@@ -304,6 +304,25 @@
       "confirmEmailFailed": "Failed to send confirmation email.",
       "pictureUpdated": "Profile picture updated!",
       "pictureFailed": "Failed to save picture."
+    },
+    "twoFactor": {
+      "label": "Two-factor authentication",
+      "onBlurb": "Two-factor authentication is on. Your account asks for a code at sign-in.",
+      "offBlurb": "Add a second step at sign-in with an authenticator app.",
+      "setUp": "Set up",
+      "manage": "Manage"
+    },
+    "sessions": {
+      "label": "Active sessions",
+      "blurb": "Devices and browsers currently signed in to your account.",
+      "activeCount": "{count, plural, =0 {No active sessions} one {# active session} other {# active sessions}} signed in right now.",
+      "logoutAll": "Log out all",
+      "confirmTitle": "Log out everywhere?",
+      "confirmBody": "This signs you out of every device, including this one. You'll need to log back in.",
+      "confirm": "Log out all sessions",
+      "cancel": "Cancel",
+      "working": "Signing out…",
+      "error": "Couldn't sign out of your sessions. Please try again."
     }
   },
   "About": {
@@ -879,7 +898,7 @@
       },
       "payouts": {
         "label": "payouts",
-        "note": "to 50+ countries"
+        "note": "to US bank accounts"
       }
     },
     "sectionLabel": "sign in",
@@ -917,6 +936,15 @@
     "errors": {
       "loginFailed": "Login failed. Please try again.",
       "oauthFailed": "Failed to start sign-in. Please try again."
+    },
+    "twoFactor": {
+      "heading": "Two-step verification",
+      "blurb": "Enter the 6-digit code from your authenticator app to finish signing in.",
+      "codeLabel": "Authentication code",
+      "codePlaceholder": "123456",
+      "recoveryHint": "Lost your device? Enter one of your recovery codes instead.",
+      "back": "← Use a different account",
+      "submit": "Verify"
     }
   },
   "PasswordReset": {
@@ -1243,8 +1271,8 @@
       "finalRest": " After The Council confirms a bounty and you're charged, that payment is final and non-refundable — your window to back out is before completion, not after.",
       "feeLead": "Artypot takes a 20% platform fee",
       "feeRest": ", deducted from the creator's payout. This fee covers all transaction costs including payment processing — backers are charged their committed amount in full, creators receive 80%.",
-      "globalLead": "Creators around the world can get paid",
-      "globalRest": " — via direct bank payouts where supported, and alternative methods elsewhere. Fans anywhere can back bounties. A few countries are restricted by law.",
+      "globalLead": "US creators can get paid",
+      "globalRest": " — you need a US bank account to receive payouts, with more countries coming. Fans anywhere in the world can still back bounties.",
       "neverLead": "If a bounty never completes, no money moves.",
       "neverRest": " Ever.",
       "notPurchaseLead": "Backing isn't a purchase.",
@@ -1336,7 +1364,7 @@
         "title": "6. Creator Obligations",
         "p1": "Creators who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith, as understood by their community.",
         "p2": "Submission of a completion claim constitutes a representation that the submitted work satisfies the bounty description. Fraudulent submissions — submitting work that does not fulfil the bounty, or submitting work you do not own the rights to — may result in account termination and, where applicable, legal action.",
-        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Payouts are available in most countries — via direct bank payout where supported and alternative methods elsewhere — but are unavailable in countries we are legally restricted from serving. Artypot issues 1099 or 1042-S forms where required by law."
+        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Creator payouts currently require a US bank account and are available in the US only for now, with more countries planned. Artypot issues 1099 or 1042-S forms where required by law."
       },
       "council": {
         "title": "7. The Council",
@@ -1545,13 +1573,6 @@
       "lockIn": "When a creator submits their work and the council approves it, your charge is locked in. You can only back out while the bounty is still open.",
       "collected": "Locked charges are collected automatically on the {day}th of each month, or you can pay early.",
       "noFees": "You always pay your exact committed amount — no fees are ever added on top."
-    },
-    "timeline": {
-      "label": "this month's timeline",
-      "now": "now",
-      "lockedIn": "approved backings are locked in",
-      "previewSent": "billing preview sent to your inbox",
-      "cardCharged": "your card is charged"
     }
   },
   "Bounties": {
@@ -2231,7 +2252,7 @@
     "filters": {
       "all": "All",
       "open": "Open",
-      "pending": "Pending",
+      "pending": "Pending Review",
       "completed": "Completed",
       "paidOut": "Paid Out"
     },
@@ -2243,7 +2264,8 @@
     "pagination": {
       "prev": "← prev",
       "next": "next →"
-    }
+    },
+    "socialOn": "on {platform}"
   },
   "Search": {
     "header": {
@@ -2446,7 +2468,7 @@
         "body": "The Council approved your work. Fans will be charged in the next billing cycle."
       },
       "paidOut": {
-        "heading": "Paid out",
+        "heading": "Paid Out",
         "body": "Your payout has been processed. Thank you!"
       },
       "revoked": {
@@ -2471,7 +2493,7 @@
         "body": "The Council has approved this bounty. Commitments are now locked — your card will be charged in the next billing cycle."
       },
       "paidOut": {
-        "heading": "Paid out",
+        "heading": "Paid Out",
         "body": "This bounty has been paid out. {creator} has been compensated for their work."
       },
       "revoked": {
@@ -2703,7 +2725,7 @@
     },
     "belowTheLaw": {
       "title": "Artypot is below the law.",
-      "body": "We have to collect tax info. Many countries don't support automated payment processing and have a higher minimum payout threshold. There are some countries we can't operate in at all."
+      "body": "We have to collect tax info. Creator payouts are US-only for now — a US bank account is required — and we're working on adding more countries. A few we can't serve at all, by law."
     },
     "fundsClear": {
       "title": "Funds clear after 7 days.",
@@ -3153,5 +3175,48 @@
     "mismatchError": "New passwords do not match.",
     "successMessage": "Password changed successfully.",
     "failureMessage": "Failed to change password."
+  },
+  "SettingsTwoFactor": {
+    "back": "Settings",
+    "heading": "Two-factor authentication",
+    "loading": "Loading…",
+    "passwordLabel": "Current password",
+    "passwordHint": "We ask for your password to confirm it's you.",
+    "copy": "Copy",
+    "copied": "Copied to clipboard",
+    "intro": {
+      "title": "Protect your account with 2FA",
+      "blurb": "Use an authenticator app (Google Authenticator, Authy, 1Password, etc.) to generate a code at each sign-in. Even if someone learns your password, they can't get in without your phone.",
+      "begin": "Begin setup"
+    },
+    "setup": {
+      "scanTitle": "Scan the QR code",
+      "scanHint": "Open your authenticator app and scan this code, or enter the key manually.",
+      "manualLabel": "Setup key (manual entry)",
+      "recoveryTitle": "Save your recovery codes",
+      "recoveryHint": "Store these somewhere safe. Each code can be used once to sign in if you lose your authenticator. They won't be shown in full again.",
+      "confirmLabel": "Enter the 6-digit code to finish",
+      "confirmPlaceholder": "123456",
+      "confirm": "Confirm & enable"
+    },
+    "enabled": {
+      "title": "Two-factor authentication is on",
+      "blurb": "You'll be asked for a code from your authenticator app each time you sign in.",
+      "recoveryRemaining": "{count, plural, =0 {No recovery codes left — regenerate a set} one {# recovery code remaining} other {# recovery codes remaining}}.",
+      "regenerate": "Regenerate recovery codes",
+      "disable": "Disable 2FA",
+      "councilNote": "Council accounts are required to keep two-factor authentication on."
+    },
+    "regenerated": {
+      "hint": "Here are your new recovery codes. Your old codes no longer work."
+    },
+    "toasts": {
+      "enabled": "Two-factor authentication enabled.",
+      "disabled": "Two-factor authentication disabled.",
+      "regenerated": "New recovery codes generated."
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again."
+    }
   }
 }

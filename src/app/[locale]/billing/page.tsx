@@ -1,18 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations, useFormatter } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import { billing, backings as backingsApi } from '@/lib/api';
 import type { PublicUserBacking } from '@/lib/types';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
-import { BILLING_DAY, nextBillingInfo, WARP_SPEED } from '@/lib/config';
+import { BILLING_DAY, nextBillingInfo } from '@/lib/config';
 import PaymentMethodManager from '@/components/PaymentMethodManager';
 import { ConfirmPaymentModal } from '@/components/ConfirmPaymentModal';
 import { Card, SectionLabel } from '@/components/ui/Card';
-import { Timeline } from '@/components/ui/Timeline';
 import { useMoney, useDateFormats } from '@/lib/format';
 
 export default function BillingPage() {
@@ -22,7 +21,6 @@ export default function BillingPage() {
   const t = useTranslations('Billing');
   const money = useMoney();
   const dates = useDateFormats();
-  const format = useFormatter();
 
   const [balance, setBalance] = useState<number | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
@@ -89,27 +87,6 @@ export default function BillingPage() {
   const outstandingAmount = hasOutstandingBalance ? Math.abs(balance) : 0;
 
   const chargeDate = dates.short(nextBillingInfo().date.toISOString());
-  // Preview fires one "unit" before billing (one day normal, one minute warp)
-  const previewDate = (() => {
-    if (WARP_SPEED) {
-      const now = new Date();
-      const previewMinute = BILLING_DAY - 1;
-      const d = new Date(now);
-      d.setSeconds(0, 0);
-      if (now.getMinutes() < previewMinute) {
-        d.setMinutes(previewMinute);
-      } else {
-        d.setHours(now.getHours() + 1, previewMinute, 0, 0);
-      }
-      return format.dateTime(d, { hour: 'numeric', minute: '2-digit' });
-    }
-    const now = new Date();
-    const previewDay = BILLING_DAY - 1;
-    const d = now.getDate() < previewDay
-      ? new Date(now.getFullYear(), now.getMonth(), previewDay)
-      : new Date(now.getFullYear(), now.getMonth() + 1, previewDay);
-    return format.dateTime(d, { month: 'short', day: 'numeric' });
-  })();
 
   return (
     <div className="space-y-7 pt-2 max-w-[680px]">
@@ -224,18 +201,6 @@ export default function BillingPage() {
             </li>
           ))}
         </ul>
-      </Card>
-
-      {/* Timeline */}
-      <Card>
-        <SectionLabel className="mb-4">{t('timeline.label')}</SectionLabel>
-        <Timeline
-          items={[
-            { when: t('timeline.now'), what: t('timeline.lockedIn'), done: true },
-            { when: previewDate, what: t('timeline.previewSent') },
-            { when: `${chargeDate} · 09:00 UTC`, what: t('timeline.cardCharged') },
-          ]}
-        />
       </Card>
     </div>
   );

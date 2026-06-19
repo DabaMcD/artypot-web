@@ -49,6 +49,9 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
+  // Two-factor step: shown after correct credentials when the account has 2FA.
+  const [twoFactorStep, setTwoFactorStep] = useState(false);
+  const [code, setCode] = useState('');
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -71,20 +74,30 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!identifierReady) return;
+    if (twoFactorStep ? !code.trim() : !identifierReady) return;
     setError('');
     setLoading(true);
     const identifier = mode === 'email' ? emailInput.trim() : (phoneInput ?? '');
     try {
       // The user-watching effect above handles the post-login redirect and
       // applies the stored preferred-locale switch, so we don't navigate here.
-      await login(identifier, password);
+      const result = await login(identifier, password, twoFactorStep ? code.trim() : undefined);
+      if (result.twoFactorRequired) {
+        // Credentials are valid; reveal the code step and wait for the user.
+        setTwoFactorStep(true);
+      }
     } catch (err: unknown) {
       const e = err as { status?: number; message?: string };
       setError(e.message ?? t('errors.loginFailed'));
     } finally {
       setLoading(false);
     }
+  };
+
+  const cancelTwoFactor = () => {
+    setTwoFactorStep(false);
+    setCode('');
+    setError('');
   };
 
   const handleOAuth = async (provider: string) => {
@@ -167,55 +180,59 @@ export default function LoginPage() {
         </Link>
 
         <div className="font-mono text-[10px] uppercase tracking-[2px] text-muted ap-section-label-bar mb-2">{t('sectionLabel')}</div>
-        <h2 className="font-display font-bold text-[30px] text-foreground mb-6">{t('heading')}</h2>
+        <h2 className="font-display font-bold text-[30px] text-foreground mb-6">{twoFactorStep ? t('twoFactor.heading') : t('heading')}</h2>
 
-        {/* OAuth */}
-        <div className="grid grid-cols-2 gap-2 mb-5">
-          {PROVIDERS.map(({ id, label }) => (
-            <button
-              key={id}
-              type="button"
-              disabled={anyLoading}
-              onClick={() => handleOAuth(id)}
-              className="flex items-center justify-center gap-1.5 border border-border bg-surface rounded py-2 px-3 font-mono text-xs text-muted hover:bg-surface-2 hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {oauthLoading === id
-                ? <span className="w-3.5 h-3.5 rounded-full border border-current border-t-transparent animate-spin shrink-0" />
-                : <BrandIcon slug={id} className="w-3.5 h-3.5 shrink-0" />}
-              {oauthLoading === id ? t('oauth.redirecting') : label}
-            </button>
-          ))}
-        </div>
+        {!twoFactorStep && (
+          <>
+            {/* OAuth */}
+            <div className="grid grid-cols-2 gap-2 mb-5">
+              {PROVIDERS.map(({ id, label }) => (
+                <button
+                  key={id}
+                  type="button"
+                  disabled={anyLoading}
+                  onClick={() => handleOAuth(id)}
+                  className="flex items-center justify-center gap-1.5 border border-border bg-surface rounded py-2 px-3 font-mono text-xs text-muted hover:bg-surface-2 hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  {oauthLoading === id
+                    ? <span className="w-3.5 h-3.5 rounded-full border border-current border-t-transparent animate-spin shrink-0" />
+                    : <BrandIcon slug={id} className="w-3.5 h-3.5 shrink-0" />}
+                  {oauthLoading === id ? t('oauth.redirecting') : label}
+                </button>
+              ))}
+            </div>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex-1 h-px bg-border" />
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('divider')}</span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
+            {/* Divider */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px bg-border" />
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted">{t('divider')}</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
 
-        {/* Email / Phone toggle — hidden while phone-only signup is in beta */}
-        {PHONE_SIGNUP_ENABLED && (
-          <div className="flex rounded-lg border border-border overflow-hidden mb-5 text-xs font-mono">
-            <button
-              type="button"
-              onClick={() => switchMode('email')}
-              className={`flex-1 py-2 transition-colors ${
-                mode === 'email' ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
-              }`}
-            >
-              {t('modeToggle.email')}
-            </button>
-            <button
-              type="button"
-              onClick={() => switchMode('phone')}
-              className={`flex-1 py-2 border-l border-border transition-colors ${
-                mode === 'phone' ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
-              }`}
-            >
-              {t('modeToggle.phone')}
-            </button>
-          </div>
+            {/* Email / Phone toggle — hidden while phone-only signup is in beta */}
+            {PHONE_SIGNUP_ENABLED && (
+              <div className="flex rounded-lg border border-border overflow-hidden mb-5 text-xs font-mono">
+                <button
+                  type="button"
+                  onClick={() => switchMode('email')}
+                  className={`flex-1 py-2 transition-colors ${
+                    mode === 'email' ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
+                  }`}
+                >
+                  {t('modeToggle.email')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchMode('phone')}
+                  className={`flex-1 py-2 border-l border-border transition-colors ${
+                    mode === 'phone' ? 'bg-surface-2 text-foreground' : 'text-muted hover:text-foreground'
+                  }`}
+                >
+                  {t('modeToggle.phone')}
+                </button>
+              </div>
+            )}
+          </>
         )}
 
         {error && (
@@ -225,68 +242,99 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Identifier field */}
-          {mode === 'email' ? (
-            <div>
-              <FieldLabel>{t('fields.email.label')}</FieldLabel>
-              <Input
-                type="email"
-                required
-                autoComplete="email"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                placeholder={t('fields.email.placeholder')}
-              />
-            </div>
+          {!twoFactorStep ? (
+            <>
+              {/* Identifier field */}
+              {mode === 'email' ? (
+                <div>
+                  <FieldLabel>{t('fields.email.label')}</FieldLabel>
+                  <Input
+                    type="email"
+                    required
+                    autoComplete="email"
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    placeholder={t('fields.email.placeholder')}
+                  />
+                </div>
+              ) : (
+                <div>
+                  <FieldLabel>{t('fields.phone.label')}</FieldLabel>
+                  <PhoneNumberInput
+                    value={phoneInput}
+                    onChange={setPhoneInput}
+                    disabled={anyLoading}
+                  />
+                </div>
+              )}
+
+              <div>
+                <FieldLabel>{t('fields.password.label')}</FieldLabel>
+                <PasswordInput
+                  required
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <Link href="/forgot-password" className="ap-inline-link text-sm">{t('forgotPassword')}</Link>
+              </div>
+            </>
           ) : (
-            <div>
-              <FieldLabel>{t('fields.phone.label')}</FieldLabel>
-              <PhoneNumberInput
-                value={phoneInput}
-                onChange={setPhoneInput}
-                disabled={anyLoading}
-              />
-            </div>
+            <>
+              {/* Two-factor code step */}
+              <p className="text-sm text-muted">{t('twoFactor.blurb')}</p>
+              <div>
+                <FieldLabel>{t('twoFactor.codeLabel')}</FieldLabel>
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  autoFocus
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  placeholder={t('twoFactor.codePlaceholder')}
+                />
+                <p className="text-xs text-muted mt-2">{t('twoFactor.recoveryHint')}</p>
+              </div>
+              <button type="button" onClick={cancelTwoFactor} className="ap-inline-link text-sm">
+                {t('twoFactor.back')}
+              </button>
+            </>
           )}
-
-          <div>
-            <FieldLabel>{t('fields.password.label')}</FieldLabel>
-            <PasswordInput
-              required
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-            />
-          </div>
-
-          <div className="flex justify-end">
-            <Link href="/forgot-password" className="ap-inline-link text-sm">{t('forgotPassword')}</Link>
-          </div>
 
           <Button
             type="submit"
             variant="primary"
             className="w-full justify-center mt-2"
-            disabled={anyLoading || !identifierReady || !password}
+            disabled={anyLoading || (twoFactorStep ? !code.trim() : (!identifierReady || !password))}
           >
-            {loading ? t('submit.loading') : t('submit.label')}
+            {loading
+              ? t('submit.loading')
+              : (twoFactorStep ? t('twoFactor.submit') : t('submit.label'))}
           </Button>
         </form>
 
-        <div className="border-t border-dashed border-border my-5" />
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted text-center mb-3">{t('register.prompt')}</div>
-        <Button
-          variant="default"
-          className="w-full justify-center"
-          onClick={() => router.push(withNext('/register'))}
-        >
-          {t('register.cta')}
-        </Button>
+        {!twoFactorStep && (
+          <>
+            <div className="border-t border-dashed border-border my-5" />
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted text-center mb-3">{t('register.prompt')}</div>
+            <Button
+              variant="default"
+              className="w-full justify-center"
+              onClick={() => router.push(withNext('/register'))}
+            >
+              {t('register.cta')}
+            </Button>
 
-        <p className="text-sm text-muted mt-5 pl-5 relative before:content-['→'] before:absolute before:left-0 before:text-fan">
-          {t('register.creatorNote')}
-        </p>
+            <p className="text-sm text-muted mt-5 pl-5 relative before:content-['→'] before:absolute before:left-0 before:text-fan">
+              {t('register.creatorNote')}
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

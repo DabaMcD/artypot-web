@@ -286,6 +286,25 @@
       "confirmEmailFailed": "Ne eblis sendi la konfirman retmesaĝon.",
       "pictureUpdated": "Profila bildo ĝisdatigita!",
       "pictureFailed": "Ne eblis konservi la bildon."
+    },
+    "twoFactor": {
+      "label": "Dufaktora aŭtentigo",
+      "onBlurb": "Dufaktora aŭtentigo estas ŝaltita. Via konto petas kodon ĉe ensaluto.",
+      "offBlurb": "Aldonu duan paŝon ĉe ensaluto per aŭtentiga aplikaĵo.",
+      "setUp": "Agordi",
+      "manage": "Administri"
+    },
+    "sessions": {
+      "label": "Aktivaj seancoj",
+      "blurb": "Aparatoj kaj retumiloj nun ensalutintaj al via konto.",
+      "activeCount": "{count, plural, =0 {Neniuj aktivaj seancoj} one {# aktiva seanco} other {# aktivaj seancoj}} nun.",
+      "logoutAll": "Elsaluti ĉiujn",
+      "confirmTitle": "Ĉu elsaluti ĉie?",
+      "confirmBody": "Tio elsalutas vin el ĉiu aparato, inkluzive ĉi tiun. Vi devos reensaluti.",
+      "confirm": "Elsaluti ĉiujn seancojn",
+      "cancel": "Nuligi",
+      "working": "Elsalutante…",
+      "error": "Ne eblis elsaluti viajn seancojn. Bonvolu reprovi."
     }
   },
   "About": {
@@ -861,7 +880,7 @@
       },
       "payouts": {
         "label": "elpagoj",
-        "note": "al pli ol 50 landoj"
+        "note": "al usonaj bankkontoj"
       }
     },
     "sectionLabel": "ensaluti",
@@ -899,6 +918,15 @@
     "errors": {
       "loginFailed": "Ensaluto malsukcesis. Bonvolu reprovi.",
       "oauthFailed": "Ne eblis komenci ensaluton. Bonvolu reprovi."
+    },
+    "twoFactor": {
+      "heading": "Dupaŝa kontrolo",
+      "blurb": "Enigu la 6-ciferan kodon el via aŭtentiga aplikaĵo por fini la ensaluton.",
+      "codeLabel": "Aŭtentiga kodo",
+      "codePlaceholder": "123456",
+      "recoveryHint": "Ĉu vi perdis vian aparaton? Enigu unu el viaj restarigaj kodoj.",
+      "back": "← Uzi alian konton",
+      "submit": "Kontroli"
     }
   },
   "PasswordReset": {
@@ -1225,8 +1253,8 @@
       "finalRest": " Post kiam La Konsilio konfirmas premion kaj vi estas ŝarĝata, tiu pago estas fina kaj nerepagebla — via fenestro por retiriĝi estas antaŭ kompletiĝo, ne poste.",
       "feeLead": "Artypot prenas 20% platforman kotizon",
       "feeRest": ", deprenitan de la elpago al la kreinto. Tiu kotizo kovras ĉiujn transakciajn kostojn inkluzive de pagprilaborado — subtenantoj estas ŝarĝataj sian promesitan sumon plene, kaj kreintoj ricevas 80%.",
-      "globalLead": "Kreintoj tra la mondo povas esti pagataj",
-      "globalRest": " — per rektaj bankaj elpagoj kie subtenata, kaj alternativaj metodoj aliloke. Adorantoj ie ajn povas subteni premiojn. Kelkaj landoj estas limigitaj de leĝo.",
+      "globalLead": "Usonaj kreintoj povas esti pagataj",
+      "globalRest": " — vi bezonas usonan bankkonton por ricevi elpagojn, kaj pli da landoj baldaŭ aldoniĝos. Adorantoj ie ajn en la mondo povas subteni premiojn.",
       "neverLead": "Se premio neniam kompletiĝas, neniu mono moviĝas.",
       "neverRest": " Neniam.",
       "notPurchaseLead": "Subtenado ne estas aĉeto.",
@@ -1318,7 +1346,7 @@
         "title": "6. Devoj de la kreinto",
         "p1": "Creators who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith, as understood by their community.",
         "p2": "Submission of a completion claim constitutes a representation that the submitted work satisfies the bounty description. Fraudulent submissions — submitting work that does not fulfil the bounty, or submitting work you do not own the rights to — may result in account termination and, where applicable, legal action.",
-        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Payouts are available in most countries — via direct bank payout where supported and alternative methods elsewhere — but are unavailable in countries we are legally restricted from serving. Artypot issues 1099 or 1042-S forms where required by law."
+        "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Creator payouts currently require a US bank account and are available in the US only for now, with more countries planned. Artypot issues 1099 or 1042-S forms where required by law."
       },
       "council": {
         "title": "7. La Konsilio",
@@ -1527,13 +1555,6 @@
       "lockIn": "Kiam kreinto liveras sian laboron kaj la konsilio aprobas ĝin, via ŝarĝo estas fiksita. Vi povas retiriĝi nur dum la premio ankoraŭ estas malfermita.",
       "collected": "Fiksitaj ŝarĝoj estas kolektitaj aŭtomate je la {day}-a tago de ĉiu monato, aŭ vi povas pagi pli frue.",
       "noFees": "Vi ĉiam pagas ĝuste vian promesitan sumon — neniam aldoniĝas kotizoj."
-    },
-    "timeline": {
-      "label": "templinio de ĉi tiu monato",
-      "now": "nun",
-      "lockedIn": "aprobitaj subtenoj estas fiksitaj",
-      "previewSent": "fakturada antaŭrigardo sendita al via enirkesto",
-      "cardCharged": "via karto estas ŝarĝita"
     }
   },
   "Bounties": {
@@ -1546,10 +1567,10 @@
     "count": "{count, plural, one {# premio} other {# premioj}}",
     "filters": {
       "all": "Ĉiuj",
-      "open": "Malfermaj",
+      "open": "Malfermita",
       "pending": "Atendas kontrolon",
-      "completed": "Kompletaj",
-      "paidOut": "Elpagitaj"
+      "completed": "Plenumita",
+      "paidOut": "Elpagita"
     },
     "empty": {
       "message": "Neniuj premioj trovitaj.",
@@ -1701,14 +1722,14 @@
     },
     "filters": {
       "all": "Ĉiuj",
-      "open": "Malfermaj",
-      "pending": "Atendanta kontrolon",
-      "completed": "Plenumitaj",
-      "paidOut": "Pagitaj",
-      "revoked": "Nuligitaj"
+      "open": "Malfermita",
+      "pending": "Atendas kontrolon",
+      "completed": "Plenumita",
+      "paidOut": "Elpagita",
+      "revoked": "Nuligita"
     },
     "completionBadge": {
-      "pendingReview": "Atendanta kontrolon",
+      "pendingReview": "Atendas kontrolon",
       "approved": "Aprobita",
       "rejected": "Malakceptita"
     },
@@ -2159,7 +2180,7 @@
       "fan": "ŝatanto",
       "fans": "ŝatantoj",
       "openBounties": "Malfermitaj rekompencoj",
-      "completed": "Finitaj",
+      "completed": "Plenumita",
       "totalEarned": "Sumo gajnita",
       "activeBacking": "Aktiva subteno"
     },
@@ -2212,10 +2233,10 @@
     },
     "filters": {
       "all": "Ĉiuj",
-      "open": "Malfermitaj",
-      "pending": "Atendantaj",
-      "completed": "Finitaj",
-      "paidOut": "Pagitaj"
+      "open": "Malfermita",
+      "pending": "Atendas kontrolon",
+      "completed": "Plenumita",
+      "paidOut": "Elpagita"
     },
     "list": {
       "heading": "rekompencoj",
@@ -2225,7 +2246,8 @@
     "pagination": {
       "prev": "← antaŭa",
       "next": "sekva →"
-    }
+    },
+    "socialOn": "ĉe {platform}"
   },
   "Search": {
     "header": {
@@ -2428,7 +2450,7 @@
         "body": "La Konsilio aprobis vian laboron. Ŝatantoj estos ŝarĝataj en la sekva fakturada ciklo."
       },
       "paidOut": {
-        "heading": "Pagita",
+        "heading": "Elpagita",
         "body": "Via pago estis traktita. Dankon!"
       },
       "revoked": {
@@ -2453,7 +2475,7 @@
         "body": "La Konsilio aprobis ĉi tiun rekompencon. Devontigoj nun estas ŝlositaj — via karto estos ŝarĝata en la sekva fakturada ciklo."
       },
       "paidOut": {
-        "heading": "Pagita",
+        "heading": "Elpagita",
         "body": "Ĉi tiu rekompenco estis pagita. {creator} estis kompensita pro sia laboro."
       },
       "revoked": {
@@ -2685,7 +2707,7 @@
     },
     "belowTheLaw": {
       "title": "Artypot estas sub la leĝo.",
-      "body": "Ni devas kolekti impostajn informojn. Multaj landoj ne subtenas aŭtomatan pago-prilaboradon kaj havas pli altan minimuman elpagan sojlon. Estas kelkaj landoj, en kiuj ni tute ne povas funkcii."
+      "body": "Ni devas kolekti impostajn informojn. Nuntempe, elpagoj al kreintoj estas nur por Usono (usona bankkonto estas necesa), kaj ni laboras por aldoni pli da landoj. Kelkajn ni tute ne povas servi, pro la leĝo."
     },
     "fundsClear": {
       "title": "Fondusoj liberiĝas post 7 tagoj.",
@@ -3135,5 +3157,48 @@
     "mismatchError": "La novaj pasvortoj ne kongruas.",
     "successMessage": "Pasvorto sukcese ŝanĝita.",
     "failureMessage": "Malsukcesis ŝanĝi la pasvorton."
+  },
+  "SettingsTwoFactor": {
+    "back": "Agordoj",
+    "heading": "Dufaktora aŭtentigo",
+    "loading": "Ŝargante…",
+    "passwordLabel": "Nuna pasvorto",
+    "passwordHint": "Ni petas vian pasvorton por konfirmi ke estas vi.",
+    "copy": "Kopii",
+    "copied": "Kopiita al tondujo",
+    "intro": {
+      "title": "Protektu vian konton per 2FA",
+      "blurb": "Uzu aŭtentigan aplikaĵon (Google Authenticator, Authy, 1Password, ktp.) por generi kodon ĉe ĉiu ensaluto. Eĉ se iu ekscias vian pasvorton, li ne povas eniri sen via telefono.",
+      "begin": "Komenci agordon"
+    },
+    "setup": {
+      "scanTitle": "Skanu la QR-kodon",
+      "scanHint": "Malfermu vian aŭtentigan aplikaĵon kaj skanu ĉi tiun kodon, aŭ enigu la ŝlosilon permane.",
+      "manualLabel": "Agorda ŝlosilo (permana enigo)",
+      "recoveryTitle": "Konservu viajn restarigajn kodojn",
+      "recoveryHint": "Konservu ilin sekure. Ĉiu kodo uzeblas unufoje por ensaluti se vi perdas vian aŭtentigilon. Ili ne montriĝos plene denove.",
+      "confirmLabel": "Enigu la 6-ciferan kodon por fini",
+      "confirmPlaceholder": "123456",
+      "confirm": "Konfirmi kaj ŝalti"
+    },
+    "enabled": {
+      "title": "Dufaktora aŭtentigo estas ŝaltita",
+      "blurb": "Oni petos kodon el via aŭtentiga aplikaĵo ĉiufoje kiam vi ensalutas.",
+      "recoveryRemaining": "{count, plural, =0 {Neniuj restarigaj kodoj restas — generu novan aron} one {# restariga kodo restas} other {# restarigaj kodoj restas}}.",
+      "regenerate": "Regeneri restarigajn kodojn",
+      "disable": "Malŝalti 2FA",
+      "councilNote": "Konsiliaj kontoj devas teni dufaktoran aŭtentigon ŝaltita."
+    },
+    "regenerated": {
+      "hint": "Jen viaj novaj restarigaj kodoj. Viaj malnovaj kodoj ne plu funkcias."
+    },
+    "toasts": {
+      "enabled": "Dufaktora aŭtentigo ŝaltita.",
+      "disabled": "Dufaktora aŭtentigo malŝaltita.",
+      "regenerated": "Novaj restarigaj kodoj generitaj."
+    },
+    "errors": {
+      "generic": "Io misfunkciis. Bonvolu reprovi."
+    }
   }
 }

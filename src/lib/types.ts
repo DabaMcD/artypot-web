@@ -146,6 +146,10 @@ export interface User {
   /** State/province code (required when country_code = "US"). Nullable. */
   state_code?: string | null;
   is_overlord?: boolean;
+  /** Server-computed: account has a settable password (false for OAuth-only). /me only. */
+  has_password?: boolean;
+  /** Server-computed: TOTP two-factor is enabled. /me only. */
+  two_factor_enabled?: boolean;
   /** Server-computed: country set (+ state for US). Included in /me response only. */
   location_complete?: boolean;
   /** Server-computed: user has at least one council-verified handle. Included in /me response only. */
@@ -1766,4 +1770,21 @@ export interface MarketConflictRow {
   billing: MarketConflictSignal | null;
   ip: MarketConflictSignal | null;
   declared: MarketConflictSignal | null;
+}
+
+/**
+ * Overlord: per-US-state platform-fee (commission) accrual vs. a conservative
+ * sales-tax economic-nexus trip-wire. Monitoring only — NOT a tax determination.
+ * `state_code` null = the "Unknown" bucket (US creators with no declared state);
+ * it has no threshold and is never flagged.
+ */
+export interface NexusAccrualRow {
+  state_code: string | null;
+  fee_12mo: number;
+  fee_lifetime: number;
+  threshold: number | null;
+  alert_at: number | null;
+  pct_of_threshold: number | null;
+  over_alert: boolean;
+  over_threshold: boolean;
 }

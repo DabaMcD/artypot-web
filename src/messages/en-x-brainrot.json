@@ -286,6 +286,25 @@
       "confirmEmailFailed": "couldn't send the confirm email 💀",
       "pictureUpdated": "pfp glowed up ✨🤳",
       "pictureFailed": "couldn't save the pic 💀"
+    },
+    "twoFactor": {
+      "label": "Two-factor auth (2FA)",
+      "onBlurb": "2FA is ON — your account asks for a code at login. Certified secure behavior.",
+      "offBlurb": "Add a second login step with an authenticator app. Lock in.",
+      "setUp": "Set it up",
+      "manage": "Manage"
+    },
+    "sessions": {
+      "label": "Active sessions",
+      "blurb": "Devices and browsers currently logged into your account.",
+      "activeCount": "{count, plural, =0 {No active sessions} one {# active session} other {# active sessions}} logged in rn.",
+      "logoutAll": "Log out all",
+      "confirmTitle": "Log out everywhere fr?",
+      "confirmBody": "This boots you off every device, this one included. You'll have to log back in.",
+      "confirm": "Log out all sessions",
+      "cancel": "Cancel",
+      "working": "Booting…",
+      "error": "Couldn't log out your sessions. Try again."
     }
   },
   "About": {
@@ -861,7 +880,7 @@
       },
       "payouts": {
         "label": "BAG go brrr 💰",
-        "note": "yeeted to 50+ Ohios worldwide fr 🌍🗣️"
+        "note": "straight to ur US bank acct fr 🇺🇸💸"
       }
     },
     "sectionLabel": "slide in bestie 👀",
@@ -899,6 +918,15 @@
     "errors": {
       "loginFailed": "BRO it's so over 💀 that login FLOPPED hard, run it back gng 🗣️",
       "oauthFailed": "what the sigma 😭 sign-in wouldn't even spawn, u cooked, try again bestie 💀🔁"
+    },
+    "twoFactor": {
+      "heading": "Two-step verification (we lock in)",
+      "blurb": "Drop the 6-digit code from your authenticator app to finish logging in, no cap.",
+      "codeLabel": "Auth code",
+      "codePlaceholder": "123456",
+      "recoveryHint": "Phone cooked? Use one of your recovery codes instead.",
+      "back": "← nah, different account",
+      "submit": "Verify"
     }
   },
   "PasswordReset": {
@@ -1225,8 +1253,8 @@
       "finalRest": " — Council confirms, card eats the charge, n that bag is GONE gng. no refunds. the escape window slammed shut the second it finished, shoulda dipped earlier bestie 💀.",
       "feeLead": "Artypot snags a 20% gyatt-sized cut 🪙",
       "feeRest": " — off the creator's bag, NOT urs btw. one fee, covers literally everything incl payment processing, no sneaky Ohio surcharges 🚫. backers pay the full promised amount, creators walk w 80%, the math is mathing fr.",
-      "globalLead": "creators worldwide securin the bag 🌍💰 yeah boiii",
-      "globalRest": " — direct bank deposits where it works, slick alt methods everywhere else. fans from anywhere can back stuff. a couple countries got locked out bc the law said nuh uh 🚫.",
+      "globalLead": "US creators securin the bag 🇺🇸💰 yeah boiii",
+      "globalRest": " — u need a US bank acct to get paid, more countries otw fr. but fans from anywhere can still back stuff 🌍.",
       "neverLead": "bounty never finishes?? then NO money moves 🙅 fr",
       "neverRest": " — like ever ever ever. zero. ghost town. tumbleweed aura 🌵.",
       "notPurchaseLead": "backing ≠ buying smth bestie 🛒❌ get that out ur head",
@@ -1318,7 +1346,7 @@
         "title": "6. creator chores 🛠️",
         "p1": "creators who claim their profile n accept a bounty r basically pinky-promising 🤙 to deliver the exact work described, in good faith, the way their community reads it. no funny business gng.",
         "p2": "droppin a completion claim = u swearin the work actually fulfills the bounty. fraud submissions — turnin in work that doesn't do the thing, or work u don't even own the rights to — can get the account YEETED 🚪 n, where it applies, real legal smoke 🚬💀.",
-        "p3": "creators gettin paid gotta hand over accurate payment n tax info. US creators do a W-9; non-US creators do a W-8BEN. payouts work in most countries (direct bank payout where supported, alt methods elsewhere) but they're straight DEAD in countries we're legally banned from serving 💀. Artypot drops 1099 or 1042-S forms where the law says so."
+        "p3": "creators gettin paid gotta hand over accurate payment n tax info. US creators do a W-9; non-US creators do a W-8BEN. creator payouts need a US bank acct n are US-only for now, more countries otw fr 🇺🇸. Artypot drops 1099 or 1042-S forms where the law says so."
       },
       "council": {
         "title": "7. The Council 🫡",
@@ -1527,13 +1555,6 @@
       "lockIn": "creator drops the dub 🏆 council says bet 🫡 — now ur charge is LOCKED 🔒 no cap. u can ONLY dip while the quest still poppin, after that it's so over gng 💀",
       "collected": "locked charges auto-yoink on the {day}th every month 🤑 OR be a whole sigma n pay early, ur choice king 👑",
       "noFees": "u pay EXACTLY what u promised, zero sneaky fees, we don't glaze ourselves wit hidden charges gng 🤝💯"
-    },
-    "timeline": {
-      "label": "this month's whole saga 📜💀",
-      "now": "rn ⏰",
-      "lockedIn": "approved backings LOCKED in 🔒 no take-backsies gng",
-      "previewSent": "billing sneak peek slid into ur inbox 📬👀",
-      "cardCharged": "ur card finna get yoinked 💳💀 it's so over"
     }
   },
   "Bounties": {
@@ -1546,10 +1567,10 @@
     "count": "{count, plural, one {# lonely lil bounty 🥀😔} other {# bounties stacked to the moon 📈🤑}}",
     "filters": {
       "all": "all of em everywhere all at once 🌍✨",
-      "open": "live n loaded n cookin 🔫🔥",
-      "pending": "on trial in ohio court ⚖️🗿",
-      "completed": "we COOKED bestie ✅🍳",
-      "paidOut": "bag fully secured 🤑💰"
+      "open": "gathering rizz… 🧑‍🍳⏳",
+      "pending": "on Ohio trial ⚖️🗿",
+      "completed": "cooked it 🔥🗣️",
+      "paidOut": "bag SECURED 🤑🤝"
     },
     "empty": {
       "message": "it's barren out here 🏜️💀 zero bounties no cap the aura is GONE 😭",
@@ -1562,7 +1583,7 @@
     },
     "badge": {
       "verified": "verified aura fr ✅😤",
-      "unverified": "kinda sus ngl 🤨🚩"
+      "unverified": "sus ngl 🤨🚩"
     },
     "displayName": {
       "label": "the goat's @ tag 🐐",
@@ -1600,12 +1621,12 @@
       "addNewCreator": "spawn a fresh creator ✨🥚",
       "addNewManually": "+ spawn a fresh creator by hand fr 🤲",
       "search": {
-        "label": "the creator's @ or gov name 🪪",
+        "label": "the creator's @ or street name 👀",
         "placeholder": "ts sumn like mrbeast or whatever",
         "tooShort": "keep cookin bestie — 2 letters MINIMUM ⌨️🔥",
         "searching": "scanning the whole ohio database… 🔍🗿",
         "noMatches": "zero hits for “{query}” 💀 it's so over for that search gng",
-        "bountiesWaiting": "{count, plural, one {# bounty out here thirsting 🥀😩} other {# bounties out here thirsting 🥀😩}}"
+        "bountiesWaiting": "{count, plural, one {# bounty 🥀} other {# bounties 😩}}"
       },
       "addNew": {
         "back": "← back to the creator hunt 🏹",
@@ -1701,14 +1722,14 @@
     },
     "filters": {
       "all": "the whole shabang no cap",
-      "open": "still in the oven 🍳🔥",
-      "pending": "council lowkey judging 👀",
-      "completed": "W'd allll the way up ✅🗿",
-      "paidOut": "bag fully secured 🤑🔒",
-      "revoked": "it's so over, nuked 💀☢️"
+      "open": "gathering rizz… 🧑‍🍳⏳",
+      "pending": "on Ohio trial ⚖️🗿",
+      "completed": "cooked it 🔥🗣️",
+      "paidOut": "bag SECURED 🤑🤝",
+      "revoked": "NAH it's so over 💀⚰️"
     },
     "completionBadge": {
-      "pendingReview": "council still vibin on it 👀",
+      "pendingReview": "on Ohio trial ⚖️🗿",
       "approved": "we are SO back boiii ✅🗿",
       "rejected": "nah they cooked u 💀🔥"
     },
@@ -1929,7 +1950,7 @@
       "toastError": "it's so over 💀 pfp refused to lock in, what the sigma"
     },
     "displayName": {
-      "sectionLabel": "the @ / gov name",
+      "sectionLabel": "the @ / street name ✨",
       "saving": "saving… hold up bestie 🫷",
       "save": "lock the @ in 🔒",
       "toastSaved": "name secured, certified W bestie 🤝✨",
@@ -2159,7 +2180,7 @@
       "fan": "ride-or-die soldier",
       "fans": "ride-or-die soldiers 🫡",
       "openBounties": "bounties live rn 🔥💸",
-      "completed": "cooked n DONE ✅🍳",
+      "completed": "cooked it 🔥🗣️",
       "totalEarned": "total bag SECURED 🤑💰",
       "activeBacking": "backing live n breathing 💸🫀"
     },
@@ -2212,10 +2233,10 @@
     },
     "filters": {
       "all": "all of em 🌀",
-      "open": "live 🔥",
-      "pending": "cooking 🍳",
-      "completed": "cooked ✅",
-      "paidOut": "bagged 🤑"
+      "open": "gathering rizz… 🧑‍🍳⏳",
+      "pending": "on Ohio trial ⚖️🗿",
+      "completed": "cooked it 🔥🗣️",
+      "paidOut": "bag SECURED 🤑🤝"
     },
     "list": {
       "heading": "bounties 🔥💸",
@@ -2225,7 +2246,8 @@
     "pagination": {
       "prev": "← back gng 🔙",
       "next": "gimme more →🔥"
-    }
+    },
+    "socialOn": "on {platform} 📍"
   },
   "Search": {
     "header": {
@@ -2428,7 +2450,7 @@
         "body": "the Council blessed ur work fr. glazers get charged next billing cycle 🤑"
       },
       "paidOut": {
-        "heading": "bag secured 💰",
+        "heading": "bag SECURED 🤑🤝",
         "body": "ur payout went through. ty for cooking 🙏"
       },
       "revoked": {
@@ -2453,7 +2475,7 @@
         "body": "the Council blessed this bounty. bags are LOCKED now — ur card gets hit next billing cycle 🤑"
       },
       "paidOut": {
-        "heading": "bag secured 💰",
+        "heading": "bag SECURED 🤑🤝",
         "body": "this bounty got paid out. {creator} caught their bag for the work 🐐"
       },
       "revoked": {
@@ -2463,7 +2485,7 @@
     },
     "submittedWork": {
       "label": "the dropped work 📤",
-      "pendingReview": "under review 👀",
+      "pendingReview": "on Ohio trial ⚖️🗿",
       "councilNotes": "council tea ☕: {notes}"
     },
     "tabs": {
@@ -2685,7 +2707,7 @@
     },
     "belowTheLaw": {
       "title": "artypot is below the law lowkey, humbly 📉⚖️",
-      "body": "tax info gets collected, no slithering out of it 🧾. a whole army of countries don't rock with automated payments and flex a higher minimum payout threshold. and some countries? straight up can't operate there at all, it's so over for them 🌍🚫💀"
+      "body": "tax info gets collected, no slithering out of it 🧾. creator payouts are US-only rn (u need a US bank acct) but we're cookin up more countries fr 🇺🇸🌍. and a few? straight up can't serve em at all, the law said nuh uh 💀."
     },
     "fundsClear": {
       "title": "funds clear after 7 days, lock in and wait ⏳💰",
@@ -3135,5 +3157,48 @@
     "mismatchError": "the new pws got mad beef, they ain't matching bestie 💀🤝🚫",
     "successMessage": "new pw locked in, certified W, aura through the roof 🔒✨🏆",
     "failureMessage": "pw swap got absolutely cooked, didn't even go through 😭💀"
+  },
+  "SettingsTwoFactor": {
+    "back": "Settings",
+    "heading": "Two-factor auth",
+    "loading": "Loading…",
+    "passwordLabel": "Current password",
+    "passwordHint": "We need your password to confirm it's really you.",
+    "copy": "Copy",
+    "copied": "Copied, bet",
+    "intro": {
+      "title": "Lock your account down with 2FA",
+      "blurb": "Use an authenticator app (Google Authenticator, Authy, 1Password, w/e) to spit out a code at every login. Even if someone clocks your password, they're NOT getting in without your phone.",
+      "begin": "Begin setup"
+    },
+    "setup": {
+      "scanTitle": "Scan the QR code",
+      "scanHint": "Open your authenticator app and scan this, or type the key in manually.",
+      "manualLabel": "Setup key (manual entry)",
+      "recoveryTitle": "Save your recovery codes (deadass)",
+      "recoveryHint": "Stash these somewhere safe. Each one works once to log in if you lose your authenticator. You won't see them in full again.",
+      "confirmLabel": "Enter the 6-digit code to finish",
+      "confirmPlaceholder": "123456",
+      "confirm": "Confirm & enable"
+    },
+    "enabled": {
+      "title": "2FA is ON",
+      "blurb": "You'll get asked for a code from your authenticator app every login.",
+      "recoveryRemaining": "{count, plural, =0 {No recovery codes left — regen a set} one {# recovery code left} other {# recovery codes left}}.",
+      "regenerate": "Regen recovery codes",
+      "disable": "Turn off 2FA",
+      "councilNote": "Council accounts gotta keep 2FA on, no exceptions."
+    },
+    "regenerated": {
+      "hint": "Here's your fresh recovery codes. Old ones are cooked."
+    },
+    "toasts": {
+      "enabled": "2FA enabled, locked in.",
+      "disabled": "2FA disabled.",
+      "regenerated": "New recovery codes generated."
+    },
+    "errors": {
+      "generic": "Something broke. Try again."
+    }
   }
 }

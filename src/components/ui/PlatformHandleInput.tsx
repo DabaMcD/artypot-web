@@ -6,6 +6,7 @@ import {
   PLATFORM_CATALOGUE,
   platformLabel,
   platformPrefix,
+  bareUsername,
   isValidOtherUrl,
   formatPlatformHandle as catalogueFormatPlatformHandle,
 } from '@/lib/platforms';
@@ -113,7 +114,9 @@ export function PlatformHandleInput({ platform, value, onChange, disabled }: Pla
         <input
           type="text"
           value={value}
-          onChange={(e) => onChange(e.target.value.replace('@', ''))}
+          // Strip a pasted/typed prefix ('@', 'twitch.tv/', etc.) so we store
+          // the bare username — the visual prefix span already shows it.
+          onChange={(e) => onChange(bareUsername(platform, e.target.value))}
           placeholder={cfg.placeholder}
           disabled={disabled}
           autoCapitalize="off"
