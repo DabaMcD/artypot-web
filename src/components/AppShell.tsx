@@ -241,7 +241,7 @@ export function AppShell({ children }: AppShellProps) {
                 priority
               />
             </Link>
-            <span className="font-mono text-[9px] uppercase tracking-widest text-muted/40">v0.3</span>
+            <span className="font-mono text-[9px] uppercase tracking-widest text-muted/40">v0.4</span>
           </div>
 
           {/* ── Search (all roles) ──────────────────────────────────────── */}
