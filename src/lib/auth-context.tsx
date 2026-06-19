@@ -19,7 +19,7 @@ export interface RegisterPayload {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (identifier: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string, code?: string) => Promise<{ twoFactorRequired: boolean }>;
   register: (payload: RegisterPayload) => Promise<{ phone_verification_required?: boolean }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<User>;
@@ -57,11 +57,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const login = async (identifier: string, password: string) => {
-    const res = await auth.login(identifier, password);
-    setToken(res.token);
+  const login = async (identifier: string, password: string, code?: string) => {
+    const res = await auth.login(identifier, password, code);
+    // Credentials were valid but two-factor is enabled — the caller needs to
+    // collect a code and call login() again with it. No token is issued yet.
+    if (res.two_factor_required) {
+      return { twoFactorRequired: true };
+    }
+    setToken(res.token!);
     const me = await auth.me();
     setUser(me.data);
+    return { twoFactorRequired: false };
   };
 
   const register = async (payload: RegisterPayload) => {

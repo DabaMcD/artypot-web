@@ -146,6 +146,10 @@ export interface User {
   /** State/province code (required when country_code = "US"). Nullable. */
   state_code?: string | null;
   is_overlord?: boolean;
+  /** Server-computed: account has a settable password (false for OAuth-only). /me only. */
+  has_password?: boolean;
+  /** Server-computed: TOTP two-factor is enabled. /me only. */
+  two_factor_enabled?: boolean;
   /** Server-computed: country set (+ state for US). Included in /me response only. */
   location_complete?: boolean;
   /** Server-computed: user has at least one council-verified handle. Included in /me response only. */

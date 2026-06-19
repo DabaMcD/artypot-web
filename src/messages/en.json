@@ -304,6 +304,25 @@
       "confirmEmailFailed": "Failed to send confirmation email.",
       "pictureUpdated": "Profile picture updated!",
       "pictureFailed": "Failed to save picture."
+    },
+    "twoFactor": {
+      "label": "Two-factor authentication",
+      "onBlurb": "Two-factor authentication is on. Your account asks for a code at sign-in.",
+      "offBlurb": "Add a second step at sign-in with an authenticator app.",
+      "setUp": "Set up",
+      "manage": "Manage"
+    },
+    "sessions": {
+      "label": "Active sessions",
+      "blurb": "Devices and browsers currently signed in to your account.",
+      "activeCount": "{count, plural, =0 {No active sessions} one {# active session} other {# active sessions}} signed in right now.",
+      "logoutAll": "Log out all",
+      "confirmTitle": "Log out everywhere?",
+      "confirmBody": "This signs you out of every device, including this one. You'll need to log back in.",
+      "confirm": "Log out all sessions",
+      "cancel": "Cancel",
+      "working": "Signing out…",
+      "error": "Couldn't sign out of your sessions. Please try again."
     }
   },
   "About": {
@@ -917,6 +936,15 @@
     "errors": {
       "loginFailed": "Login failed. Please try again.",
       "oauthFailed": "Failed to start sign-in. Please try again."
+    },
+    "twoFactor": {
+      "heading": "Two-step verification",
+      "blurb": "Enter the 6-digit code from your authenticator app to finish signing in.",
+      "codeLabel": "Authentication code",
+      "codePlaceholder": "123456",
+      "recoveryHint": "Lost your device? Enter one of your recovery codes instead.",
+      "back": "← Use a different account",
+      "submit": "Verify"
     }
   },
   "PasswordReset": {
@@ -3154,5 +3182,48 @@
     "mismatchError": "New passwords do not match.",
     "successMessage": "Password changed successfully.",
     "failureMessage": "Failed to change password."
+  },
+  "SettingsTwoFactor": {
+    "back": "Settings",
+    "heading": "Two-factor authentication",
+    "loading": "Loading…",
+    "passwordLabel": "Current password",
+    "passwordHint": "We ask for your password to confirm it's you.",
+    "copy": "Copy",
+    "copied": "Copied to clipboard",
+    "intro": {
+      "title": "Protect your account with 2FA",
+      "blurb": "Use an authenticator app (Google Authenticator, Authy, 1Password, etc.) to generate a code at each sign-in. Even if someone learns your password, they can't get in without your phone.",
+      "begin": "Begin setup"
+    },
+    "setup": {
+      "scanTitle": "Scan the QR code",
+      "scanHint": "Open your authenticator app and scan this code, or enter the key manually.",
+      "manualLabel": "Setup key (manual entry)",
+      "recoveryTitle": "Save your recovery codes",
+      "recoveryHint": "Store these somewhere safe. Each code can be used once to sign in if you lose your authenticator. They won't be shown in full again.",
+      "confirmLabel": "Enter the 6-digit code to finish",
+      "confirmPlaceholder": "123456",
+      "confirm": "Confirm & enable"
+    },
+    "enabled": {
+      "title": "Two-factor authentication is on",
+      "blurb": "You'll be asked for a code from your authenticator app each time you sign in.",
+      "recoveryRemaining": "{count, plural, =0 {No recovery codes left — regenerate a set} one {# recovery code remaining} other {# recovery codes remaining}}.",
+      "regenerate": "Regenerate recovery codes",
+      "disable": "Disable 2FA",
+      "councilNote": "Council accounts are required to keep two-factor authentication on."
+    },
+    "regenerated": {
+      "hint": "Here are your new recovery codes. Your old codes no longer work."
+    },
+    "toasts": {
+      "enabled": "Two-factor authentication enabled.",
+      "disabled": "Two-factor authentication disabled.",
+      "regenerated": "New recovery codes generated."
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again."
+    }
   }
 }
