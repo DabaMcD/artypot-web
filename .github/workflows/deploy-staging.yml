@@ -23,6 +23,7 @@ jobs:
             cd /var/www/artypot-web-staging
             git fetch origin staging
             git reset --hard origin/staging
+            rm -rf .next
             npm ci
             npm run build
             pm2 reload artypot-web-staging --update-env || pm2 start npm --name artypot-web-staging -- start
