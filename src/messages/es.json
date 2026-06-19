@@ -1555,13 +1555,6 @@
       "lockIn": "Cuando un creador entrega su trabajo y el consejo lo aprueba, tu cargo queda fijado. Solo puedes retirarte mientras la recompensa siga abierta.",
       "collected": "Los cargos fijados se cobran automáticamente el día {day} de cada mes, o puedes pagar antes.",
       "noFees": "Siempre pagas exactamente el importe que comprometiste: nunca se añaden comisiones."
-    },
-    "timeline": {
-      "label": "cronología de este mes",
-      "now": "ahora",
-      "lockedIn": "los respaldos aprobados quedan fijados",
-      "previewSent": "vista previa de facturación enviada a tu bandeja de entrada",
-      "cardCharged": "se cobra a tu tarjeta"
     }
   },
   "Bounties": {
@@ -1574,10 +1567,10 @@
     "count": "{count, plural, one {# recompensa} other {# recompensas}}",
     "filters": {
       "all": "Todas",
-      "open": "Abiertas",
-      "pending": "Pendientes de revisión",
-      "completed": "Completadas",
-      "paidOut": "Pagadas"
+      "open": "Abierto",
+      "pending": "Pendiente de revisión",
+      "completed": "Completado",
+      "paidOut": "Pagado"
     },
     "empty": {
       "message": "No se encontraron recompensas.",
@@ -1729,11 +1722,11 @@
     },
     "filters": {
       "all": "Todos",
-      "open": "Abiertos",
+      "open": "Abierto",
       "pending": "Pendiente de revisión",
-      "completed": "Completados",
-      "paidOut": "Pagados",
-      "revoked": "Revocados"
+      "completed": "Completado",
+      "paidOut": "Pagado",
+      "revoked": "Revocado"
     },
     "completionBadge": {
       "pendingReview": "Pendiente de revisión",
@@ -2187,7 +2180,7 @@
       "fan": "fan",
       "fans": "fans",
       "openBounties": "Recompensas abiertas",
-      "completed": "Completadas",
+      "completed": "Completado",
       "totalEarned": "Total ganado",
       "activeBacking": "Respaldo activo"
     },
@@ -2240,10 +2233,10 @@
     },
     "filters": {
       "all": "Todas",
-      "open": "Abiertas",
-      "pending": "Pendientes",
-      "completed": "Completadas",
-      "paidOut": "Pagadas"
+      "open": "Abierto",
+      "pending": "Pendiente de revisión",
+      "completed": "Completado",
+      "paidOut": "Pagado"
     },
     "list": {
       "heading": "recompensas",

@@ -1555,13 +1555,6 @@
       "lockIn": "Kiam kreinto liveras sian laboron kaj la konsilio aprobas ĝin, via ŝarĝo estas fiksita. Vi povas retiriĝi nur dum la premio ankoraŭ estas malfermita.",
       "collected": "Fiksitaj ŝarĝoj estas kolektitaj aŭtomate je la {day}-a tago de ĉiu monato, aŭ vi povas pagi pli frue.",
       "noFees": "Vi ĉiam pagas ĝuste vian promesitan sumon — neniam aldoniĝas kotizoj."
-    },
-    "timeline": {
-      "label": "templinio de ĉi tiu monato",
-      "now": "nun",
-      "lockedIn": "aprobitaj subtenoj estas fiksitaj",
-      "previewSent": "fakturada antaŭrigardo sendita al via enirkesto",
-      "cardCharged": "via karto estas ŝarĝita"
     }
   },
   "Bounties": {
@@ -1574,10 +1567,10 @@
     "count": "{count, plural, one {# premio} other {# premioj}}",
     "filters": {
       "all": "Ĉiuj",
-      "open": "Malfermaj",
+      "open": "Malfermita",
       "pending": "Atendas kontrolon",
-      "completed": "Kompletaj",
-      "paidOut": "Elpagitaj"
+      "completed": "Plenumita",
+      "paidOut": "Elpagita"
     },
     "empty": {
       "message": "Neniuj premioj trovitaj.",
@@ -1729,14 +1722,14 @@
     },
     "filters": {
       "all": "Ĉiuj",
-      "open": "Malfermaj",
-      "pending": "Atendanta kontrolon",
-      "completed": "Plenumitaj",
-      "paidOut": "Pagitaj",
-      "revoked": "Nuligitaj"
+      "open": "Malfermita",
+      "pending": "Atendas kontrolon",
+      "completed": "Plenumita",
+      "paidOut": "Elpagita",
+      "revoked": "Nuligita"
     },
     "completionBadge": {
-      "pendingReview": "Atendanta kontrolon",
+      "pendingReview": "Atendas kontrolon",
       "approved": "Aprobita",
       "rejected": "Malakceptita"
     },
@@ -2187,7 +2180,7 @@
       "fan": "ŝatanto",
       "fans": "ŝatantoj",
       "openBounties": "Malfermitaj rekompencoj",
-      "completed": "Finitaj",
+      "completed": "Plenumita",
       "totalEarned": "Sumo gajnita",
       "activeBacking": "Aktiva subteno"
     },
@@ -2240,10 +2233,10 @@
     },
     "filters": {
       "all": "Ĉiuj",
-      "open": "Malfermitaj",
-      "pending": "Atendantaj",
-      "completed": "Finitaj",
-      "paidOut": "Pagitaj"
+      "open": "Malfermita",
+      "pending": "Atendas kontrolon",
+      "completed": "Plenumita",
+      "paidOut": "Elpagita"
     },
     "list": {
       "heading": "rekompencoj",
@@ -2457,7 +2450,7 @@
         "body": "La Konsilio aprobis vian laboron. Ŝatantoj estos ŝarĝataj en la sekva fakturada ciklo."
       },
       "paidOut": {
-        "heading": "Pagita",
+        "heading": "Elpagita",
         "body": "Via pago estis traktita. Dankon!"
       },
       "revoked": {
@@ -2482,7 +2475,7 @@
         "body": "La Konsilio aprobis ĉi tiun rekompencon. Devontigoj nun estas ŝlositaj — via karto estos ŝarĝata en la sekva fakturada ciklo."
       },
       "paidOut": {
-        "heading": "Pagita",
+        "heading": "Elpagita",
         "body": "Ĉi tiu rekompenco estis pagita. {creator} estis kompensita pro sia laboro."
       },
       "revoked": {

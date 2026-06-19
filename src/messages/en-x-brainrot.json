@@ -1555,13 +1555,6 @@
       "lockIn": "creator drops the dub 🏆 council says bet 🫡 — now ur charge is LOCKED 🔒 no cap. u can ONLY dip while the quest still poppin, after that it's so over gng 💀",
       "collected": "locked charges auto-yoink on the {day}th every month 🤑 OR be a whole sigma n pay early, ur choice king 👑",
       "noFees": "u pay EXACTLY what u promised, zero sneaky fees, we don't glaze ourselves wit hidden charges gng 🤝💯"
-    },
-    "timeline": {
-      "label": "this month's whole saga 📜💀",
-      "now": "rn ⏰",
-      "lockedIn": "approved backings LOCKED in 🔒 no take-backsies gng",
-      "previewSent": "billing sneak peek slid into ur inbox 📬👀",
-      "cardCharged": "ur card finna get yoinked 💳💀 it's so over"
     }
   },
   "Bounties": {
@@ -1574,10 +1567,10 @@
     "count": "{count, plural, one {# lonely lil bounty 🥀😔} other {# bounties stacked to the moon 📈🤑}}",
     "filters": {
       "all": "all of em everywhere all at once 🌍✨",
-      "open": "live n loaded n cookin 🔫🔥",
-      "pending": "on trial in ohio court ⚖️🗿",
-      "completed": "we COOKED bestie ✅🍳",
-      "paidOut": "bag fully secured 🤑💰"
+      "open": "gathering rizz… 🧑‍🍳⏳",
+      "pending": "on Ohio trial ⚖️🗿",
+      "completed": "cooked it 🔥🗣️",
+      "paidOut": "bag SECURED 🤑🤝"
     },
     "empty": {
       "message": "it's barren out here 🏜️💀 zero bounties no cap the aura is GONE 😭",
@@ -1590,7 +1583,7 @@
     },
     "badge": {
       "verified": "verified aura fr ✅😤",
-      "unverified": "kinda sus ngl 🤨🚩"
+      "unverified": "sus ngl 🤨🚩"
     },
     "displayName": {
       "label": "the goat's @ tag 🐐",
@@ -1628,12 +1621,12 @@
       "addNewCreator": "spawn a fresh creator ✨🥚",
       "addNewManually": "+ spawn a fresh creator by hand fr 🤲",
       "search": {
-        "label": "the creator's @ or gov name 🪪",
+        "label": "the creator's @ or street name 👀",
         "placeholder": "ts sumn like mrbeast or whatever",
         "tooShort": "keep cookin bestie — 2 letters MINIMUM ⌨️🔥",
         "searching": "scanning the whole ohio database… 🔍🗿",
         "noMatches": "zero hits for “{query}” 💀 it's so over for that search gng",
-        "bountiesWaiting": "{count, plural, one {# bounty out here thirsting 🥀😩} other {# bounties out here thirsting 🥀😩}}"
+        "bountiesWaiting": "{count, plural, one {# bounty 🥀} other {# bounties 😩}}"
       },
       "addNew": {
         "back": "← back to the creator hunt 🏹",
@@ -1729,14 +1722,14 @@
     },
     "filters": {
       "all": "the whole shabang no cap",
-      "open": "still in the oven 🍳🔥",
-      "pending": "council lowkey judging 👀",
-      "completed": "W'd allll the way up ✅🗿",
-      "paidOut": "bag fully secured 🤑🔒",
-      "revoked": "it's so over, nuked 💀☢️"
+      "open": "gathering rizz… 🧑‍🍳⏳",
+      "pending": "on Ohio trial ⚖️🗿",
+      "completed": "cooked it 🔥🗣️",
+      "paidOut": "bag SECURED 🤑🤝",
+      "revoked": "NAH it's so over 💀⚰️"
     },
     "completionBadge": {
-      "pendingReview": "council still vibin on it 👀",
+      "pendingReview": "on Ohio trial ⚖️🗿",
       "approved": "we are SO back boiii ✅🗿",
       "rejected": "nah they cooked u 💀🔥"
     },
@@ -1957,7 +1950,7 @@
       "toastError": "it's so over 💀 pfp refused to lock in, what the sigma"
     },
     "displayName": {
-      "sectionLabel": "the @ / gov name",
+      "sectionLabel": "the @ / street name ✨",
       "saving": "saving… hold up bestie 🫷",
       "save": "lock the @ in 🔒",
       "toastSaved": "name secured, certified W bestie 🤝✨",
@@ -2187,7 +2180,7 @@
       "fan": "ride-or-die soldier",
       "fans": "ride-or-die soldiers 🫡",
       "openBounties": "bounties live rn 🔥💸",
-      "completed": "cooked n DONE ✅🍳",
+      "completed": "cooked it 🔥🗣️",
       "totalEarned": "total bag SECURED 🤑💰",
       "activeBacking": "backing live n breathing 💸🫀"
     },
@@ -2240,10 +2233,10 @@
     },
     "filters": {
       "all": "all of em 🌀",
-      "open": "live 🔥",
-      "pending": "cooking 🍳",
-      "completed": "cooked ✅",
-      "paidOut": "bagged 🤑"
+      "open": "gathering rizz… 🧑‍🍳⏳",
+      "pending": "on Ohio trial ⚖️🗿",
+      "completed": "cooked it 🔥🗣️",
+      "paidOut": "bag SECURED 🤑🤝"
     },
     "list": {
       "heading": "bounties 🔥💸",
@@ -2457,7 +2450,7 @@
         "body": "the Council blessed ur work fr. glazers get charged next billing cycle 🤑"
       },
       "paidOut": {
-        "heading": "bag secured 💰",
+        "heading": "bag SECURED 🤑🤝",
         "body": "ur payout went through. ty for cooking 🙏"
       },
       "revoked": {
@@ -2482,7 +2475,7 @@
         "body": "the Council blessed this bounty. bags are LOCKED now — ur card gets hit next billing cycle 🤑"
       },
       "paidOut": {
-        "heading": "bag secured 💰",
+        "heading": "bag SECURED 🤑🤝",
         "body": "this bounty got paid out. {creator} caught their bag for the work 🐐"
       },
       "revoked": {
@@ -2492,7 +2485,7 @@
     },
     "submittedWork": {
       "label": "the dropped work 📤",
-      "pendingReview": "under review 👀",
+      "pendingReview": "on Ohio trial ⚖️🗿",
       "councilNotes": "council tea ☕: {notes}"
     },
     "tabs": {

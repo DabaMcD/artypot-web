@@ -1573,13 +1573,6 @@
       "lockIn": "When a creator submits their work and the council approves it, your charge is locked in. You can only back out while the bounty is still open.",
       "collected": "Locked charges are collected automatically on the {day}th of each month, or you can pay early.",
       "noFees": "You always pay your exact committed amount — no fees are ever added on top."
-    },
-    "timeline": {
-      "label": "this month's timeline",
-      "now": "now",
-      "lockedIn": "approved backings are locked in",
-      "previewSent": "billing preview sent to your inbox",
-      "cardCharged": "your card is charged"
     }
   },
   "Bounties": {
@@ -2259,7 +2252,7 @@
     "filters": {
       "all": "All",
       "open": "Open",
-      "pending": "Pending",
+      "pending": "Pending Review",
       "completed": "Completed",
       "paidOut": "Paid Out"
     },
@@ -2475,7 +2468,7 @@
         "body": "The Council approved your work. Fans will be charged in the next billing cycle."
       },
       "paidOut": {
-        "heading": "Paid out",
+        "heading": "Paid Out",
         "body": "Your payout has been processed. Thank you!"
       },
       "revoked": {
@@ -2500,7 +2493,7 @@
         "body": "The Council has approved this bounty. Commitments are now locked — your card will be charged in the next billing cycle."
       },
       "paidOut": {
-        "heading": "Paid out",
+        "heading": "Paid Out",
         "body": "This bounty has been paid out. {creator} has been compensated for their work."
       },
       "revoked": {
