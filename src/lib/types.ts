@@ -1673,6 +1673,18 @@ export interface AdminCreatorDetail extends AdminCreator {
     created_at: string;
   }>;
 
+  // Append-only tax residence history (self-declared + admin overrides), newest first.
+  tax_residence_history: Array<{
+    id: number;
+    old_country_code: string | null;
+    old_state_code: string | null;
+    new_country_code: string | null;
+    new_state_code: string | null;
+    source: string;
+    changed_by: { id: number; display_name: string } | null;
+    created_at: string;
+  }>;
+
   // Recent bounties
   recent_bounties: Array<{
     id: number;

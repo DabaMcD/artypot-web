@@ -73,8 +73,7 @@
     "language": {
       "label": "Idioma",
       "title": "idioma",
-      "blurb": "Elige el idioma en el que se muestra Artypot. Tu elección se guarda en tu cuenta.",
-      "hint": "Elige tu idioma preferido. Se guarda en tu cuenta."
+      "blurb": "Elige el idioma en el que se muestra Artypot. Tu elección se guarda en tu cuenta."
     },
     "breadcrumb": {
       "fan": "fan",
@@ -2258,7 +2257,8 @@
       "prev": "← anterior",
       "next": "siguiente →"
     },
-    "socialOn": "en {platform}"
+    "socialOn": "en {platform}",
+    "viewOnPlatform": "Ver en {platform}"
   },
   "Search": {
     "header": {
@@ -2533,16 +2533,13 @@
   },
   "AddCardForm": {
     "errors": {
-      "billingCountryRequired": "Selecciona el país de facturación de esta tarjeta.",
+      "addressIncomplete": "Completa tu dirección de facturación.",
       "cardSetupFailed": "No se pudo configurar la tarjeta. Inténtalo de nuevo.",
       "marketUnavailable": "Aún no es posible añadir un método de pago en tu país; esperamos admitirlo pronto.",
       "setupInitFailed": "No se pudo iniciar la configuración del pago. Inténtalo de nuevo."
     },
     "fields": {
-      "billingCountry": "País de facturación",
-      "selectPlaceholder": "— selecciona —",
-      "postalCode": "Código postal",
-      "postalPlaceholder": "opcional"
+      "billingAddress": "Dirección de facturación"
     },
     "actions": {
       "saving": "Guardando…",
@@ -2623,6 +2620,7 @@
       "posting": "Publicando…",
       "postReply": "Publicar respuesta",
       "loadMore": "Cargar más comentarios",
+      "loadMoreReplies": "Cargar más respuestas",
       "loading": "Cargando…"
     },
     "errors": {
@@ -2880,7 +2878,10 @@
     "updateCard": "Actualizar tarjeta",
     "emptyState": "Aún no hay métodos de pago guardados.",
     "addCard": "Añadir una tarjeta",
-    "addPaymentMethod": "+ Añadir método de pago"
+    "addPaymentMethod": "+ Añadir método de pago",
+    "replacePaymentMethod": "↻ Reemplazar tarjeta",
+    "replaceCard": "Reemplazar tarjeta",
+    "replaceNotice": "Guardar una tarjeta nueva reemplazará {count, plural, one {tu tarjeta actual terminada en •••• {last4}} other {tus tarjetas guardadas}}: solo se conserva una tarjeta."
   },
   "PayoutReadinessChecklist": {
     "regionBlocked": {

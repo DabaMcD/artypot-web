@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useLocale } from 'next-intl';
 import { auth, setToken, clearToken, ensureSessionCookie } from './api';
-import { useRouter, usePathname } from '@/i18n/routing';
+import { useRouter, usePathname, routing } from '@/i18n/routing';
 import { pickPreferredLocale } from './preferred-locale';
 import type { User } from './types';
 
@@ -45,7 +45,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .me()
         .then((res) => {
           setUser(res.data);
-          // Returning user: honor their saved language as a one-shot redirect.
+          // A logged-in user's account `preferred_locale` is the source of
+          // truth — force the NEXT_LOCALE cookie to match it so the
+          // locale-detection middleware and this client can't disagree and
+          // ping-pong (the /dashboard ⇄ /<locale>/dashboard bounce that happens
+          // when a stale cookie says one locale and the account says another).
+          const pref = res.data.preferred_locale;
+          if (typeof document !== 'undefined'
+              && pref && (routing.locales as readonly string[]).includes(pref)) {
+            const secure = location.protocol === 'https:' ? '; Secure' : '';
+            document.cookie = `NEXT_LOCALE=${pref}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
+          }
+          // Honor their saved language as a one-shot redirect when the current
+          // URL locale differs (cookie now already agrees, so this won't bounce).
           const loc = pickPreferredLocale(res.data, currentLocale);
           if (loc) router.replace(pathname, { locale: loc });
         })

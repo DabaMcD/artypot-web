@@ -453,6 +453,12 @@ export const bounties = {
 
   get: (id: number) => request<{ data: Bounty }>(`/bounties/${id}`),
 
+  /** Status counts + total backed across the caller's own bounties (stat cards). */
+  creatorStats: () =>
+    request<{ open: number; in_review: number; completed: number; backed: number }>(
+      '/auth/bounties/stats',
+    ),
+
   /** Submit a Content Policy report. One per user per bounty (resubmit = update). */
   report: (id: number, reason: string, details?: string) =>
     request<{ message: string; data: { id: number; status: string } }>(`/bounties/${id}/reports`, {
@@ -557,9 +563,12 @@ export const comments = {
   get: (commentId: number) =>
     request<{ data: Comment }>(`/comments/${commentId}`),
 
-  /** All direct replies to a top-level comment (not paginated). */
-  replies: (commentId: number) =>
-    request<{ data: Comment[] }>(`/comments/${commentId}/replies`),
+  /** Paginated direct replies to a top-level comment (10/page, oldest first). */
+  replies: (commentId: number, page = 1) =>
+    request<{
+      data: Comment[];
+      meta: { current_page: number; last_page: number; total: number; per_page: number };
+    }>(`/comments/${commentId}/replies?page=${page}`),
 
   /** Post a new top-level comment on a bounty. */
   create: (bountyId: number, content: string) =>

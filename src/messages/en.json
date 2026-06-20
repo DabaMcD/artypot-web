@@ -91,8 +91,7 @@
     "language": {
       "label": "Language",
       "title": "language",
-      "blurb": "Choose the language Artypot is displayed in. Your choice is saved to your account.",
-      "hint": "Choose your preferred language. Saved to your account."
+      "blurb": "Choose the language Artypot is displayed in. Your choice is saved to your account."
     },
     "breadcrumb": {
       "fan": "fan",
@@ -2276,7 +2275,8 @@
       "prev": "← prev",
       "next": "next →"
     },
-    "socialOn": "on {platform}"
+    "socialOn": "on {platform}",
+    "viewOnPlatform": "View on {platform}"
   },
   "Search": {
     "header": {
@@ -2551,16 +2551,13 @@
   },
   "AddCardForm": {
     "errors": {
-      "billingCountryRequired": "Please select the billing country for this card.",
+      "addressIncomplete": "Please complete your billing address.",
       "cardSetupFailed": "Card setup failed. Please try again.",
       "marketUnavailable": "Adding a payment method isn't available in your country yet — we hope to support it soon.",
       "setupInitFailed": "Could not initialise payment setup. Please try again."
     },
     "fields": {
-      "billingCountry": "Billing country",
-      "selectPlaceholder": "— select —",
-      "postalCode": "ZIP / postal code",
-      "postalPlaceholder": "optional"
+      "billingAddress": "Billing address"
     },
     "actions": {
       "saving": "Saving…",
@@ -2641,6 +2638,7 @@
       "posting": "Posting…",
       "postReply": "Post reply",
       "loadMore": "Load more comments",
+      "loadMoreReplies": "Load more replies",
       "loading": "Loading…"
     },
     "errors": {
@@ -2898,7 +2896,10 @@
     "updateCard": "Update card",
     "emptyState": "No payment methods saved yet.",
     "addCard": "Add a card",
-    "addPaymentMethod": "+ Add payment method"
+    "addPaymentMethod": "+ Add payment method",
+    "replacePaymentMethod": "↻ Replace card",
+    "replaceCard": "Replace card",
+    "replaceNotice": "Saving a new card replaces your {count, plural, one {current card ending •••• {last4}} other {saved cards}} — only one card stays on file."
   },
   "PayoutReadinessChecklist": {
     "regionBlocked": {

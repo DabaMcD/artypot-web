@@ -272,11 +272,21 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
           </p>
         )}
 
-        {/* Add card form */}
+        {/* Add / replace card form. One card per user: saving a new card
+            replaces the existing one (the backend detaches the old card on
+            setup_intent.succeeded), so we surface that up-front rather than
+            implying cards accumulate. */}
         {showAdd ? (
           <div className="border border-fan/30 rounded-xl p-5 bg-surface">
             {!compact && (
-              <p className="text-sm font-medium text-foreground mb-4">{t('addCard')}</p>
+              <p className="text-sm font-medium text-foreground mb-2">
+                {methods.length > 0 ? t('replaceCard') : t('addCard')}
+              </p>
+            )}
+            {methods.length > 0 && (
+              <p className="text-xs text-muted mb-4 leading-relaxed">
+                {t('replaceNotice', { count: methods.length, last4: methods[0].last4 })}
+              </p>
             )}
             <AddCardForm
               onSuccess={handleAdded}
@@ -288,7 +298,7 @@ export default function PaymentMethodManager({ onMethodsChange, compact = false 
             onClick={() => setShowAdd(true)}
             className={`text-sm font-medium text-fan hover:underline ${compact ? '' : 'mt-1 block'}`}
           >
-            {t('addPaymentMethod')}
+            {methods.length > 0 ? t('replacePaymentMethod') : t('addPaymentMethod')}
           </button>
         )}
       </div>

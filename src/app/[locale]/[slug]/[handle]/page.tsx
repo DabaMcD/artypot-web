@@ -30,7 +30,7 @@ import { PLATFORM_HANDLE_CONFIG } from '@/components/ui/PlatformHandleInput';
 // because /{platform}/{handle} routing requires a clean slug; 'other' handles
 // have no canonical short identifier (their key is a URL) and are reached
 // only via search or a creator's profile.
-import { CURATED_PLATFORMS, platformLabel as catalogueLabel } from '@/lib/platforms';
+import { CURATED_PLATFORMS, platformLabel as catalogueLabel, bareUsername, platformProfileUrl } from '@/lib/platforms';
 
 const PLATFORM_LABELS: Record<string, string> = Object.fromEntries(
   CURATED_PLATFORMS.map((slug) => [slug, catalogueLabel(slug)]),
@@ -221,7 +221,17 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   const platformKey = platform.toLowerCase() as HandlePlatform;
   const platformLabel = PLATFORM_LABELS[platformKey] ?? platform;
   const prefix = PLATFORM_HANDLE_CONFIG[platformKey]?.prefix ?? '@';
-  const fullHandle = `${prefix}${state.handle.username}`;
+  // Bare, non-normalized username (e.g. "MrBeast") for the platform-qualified
+  // header `youtube/MrBeast`; `fullHandle` (@MrBeast) is used everywhere copy
+  // refers to the creator by handle.
+  const bare = bareUsername(platformKey, state.handle.username);
+  const fullHandle = `${prefix}${bare}`;
+  const headerHandle = `${platformKey}/${bare}`;
+  const profileUrl = platformProfileUrl(platformKey, bare);
+  // The "doesn't appear to have joined" line reads as a social @-mention
+  // (@MrBeast, @pokimane) regardless of the platform's native prefix
+  // (twitch.tv/, kick.com/ …) — the platform is already named in the header.
+  const atHandle = `@${bare}`;
 
   const shareText = claimedOwner
     ? t('share.claimedText', { handle: fullHandle, platform: platformLabel, name: claimedOwner.display_name })
@@ -257,15 +267,29 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
               <div className="flex-1 min-w-0">
 
                 <div className="flex items-center gap-3 flex-wrap mb-1">
-                  <h1 className="text-2xl font-display font-bold text-foreground break-all">{fullHandle}</h1>
+                  <h1 className="text-2xl font-display font-bold text-foreground break-all">{headerHandle}</h1>
                   {claimedOwner ? (
                     <Badge tone="good" lg>{t('badge.verified')}</Badge>
                   ) : (
                     <Badge tone="default" lg>{t('badge.unverified')}</Badge>
                   )}
                 </div>
-                <p className="text-sm text-muted mb-3">
-                  {claimedOwner ? `${claimedOwner.display_name} · ${platformLabel}` : platformLabel}
+                <p className="text-sm text-muted mb-3 flex items-center gap-2 flex-wrap">
+                  {claimedOwner && (
+                    <>
+                      <span>{claimedOwner.display_name}</span>
+                      <span aria-hidden>·</span>
+                    </>
+                  )}
+                  {/* Inline external link to the creator's real platform profile. */}
+                  <a
+                    href={profileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                    className="inline-flex items-center gap-1 text-creator hover:underline"
+                  >
+                    {t('viewOnPlatform', { platform: platformLabel })} <span aria-hidden>↗</span>
+                  </a>
                 </p>
                 {claimedOwner ? (
                   // Verified owner, no creator page yet. No claim CTA here — the
@@ -280,7 +304,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
                   <>
                     <p className="text-muted text-sm leading-relaxed">
                       {t.rich('unverified.blurb', {
-                        handle: fullHandle,
+                        handle: atHandle,
                         mono: (chunks) => <span className="font-mono text-creator">{chunks}</span>,
                       })}
                     </p>

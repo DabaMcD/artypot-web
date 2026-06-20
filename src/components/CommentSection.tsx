@@ -112,6 +112,11 @@ interface CommentRowProps {
   currentUserId?: number;
   isCouncil?: boolean;
   replies?: Comment[] | 'loading';
+  /** True when more reply pages remain (shows a "load more replies" button). */
+  repliesHasMore?: boolean;
+  /** True while the next reply page is being fetched. */
+  repliesLoadingMore?: boolean;
+  onLoadMoreReplies?: () => void;
   replyText?: string;
   editingText?: string | false;
   onLoadReplies: () => void;
@@ -132,6 +137,9 @@ function CommentRow({
   currentUserId,
   isCouncil,
   replies,
+  repliesHasMore = false,
+  repliesLoadingMore = false,
+  onLoadMoreReplies,
   replyText,
   editingText,
   onLoadReplies,
@@ -336,6 +344,15 @@ function CommentRow({
                     onReact={() => {}}
                   />
                 ))}
+                {repliesHasMore && (
+                  <button
+                    onClick={onLoadMoreReplies}
+                    disabled={repliesLoadingMore}
+                    className="text-xs text-fan hover:text-fan-dim transition-colors disabled:opacity-50"
+                  >
+                    {repliesLoadingMore ? t('actions.loading') : `${t('actions.loadMoreReplies')} ↓`}
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -384,6 +401,9 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
   // Per-comment state maps
   // replies: undefined = not loaded | 'loading' | Comment[]
   const [repliesMap, setRepliesMap] = useState<Record<number, Comment[] | 'loading'>>({});
+  // Reply pagination per parent comment (replies are paginated 10/page).
+  const [repliesMetaMap, setRepliesMetaMap] = useState<Record<number, { page: number; lastPage: number }>>({});
+  const [repliesLoadingMore, setRepliesLoadingMore] = useState<Record<number, boolean>>({});
   // replyText: undefined = reply box closed | string = open with content
   const [replyTextMap, setReplyTextMap]   = useState<Record<number, string | undefined>>({});
   // editingText: false = not editing | string = editing with content
@@ -477,8 +497,9 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
   const loadReplies = async (commentId: number) => {
     setRepliesMap((prev) => ({ ...prev, [commentId]: 'loading' }));
     try {
-      const res = await commentsApi.replies(commentId);
+      const res = await commentsApi.replies(commentId, 1);
       setRepliesMap((prev) => ({ ...prev, [commentId]: res.data }));
+      setRepliesMetaMap((prev) => ({ ...prev, [commentId]: { page: 1, lastPage: res.meta.last_page } }));
     } catch {
       toast(t('errors.loadReplies'), 'error');
       setRepliesMap((prev) => {
@@ -486,6 +507,27 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
         delete next[commentId];
         return next;
       });
+    }
+  };
+
+  const loadMoreReplies = async (commentId: number) => {
+    const meta = repliesMetaMap[commentId];
+    if (!meta || meta.page >= meta.lastPage || repliesLoadingMore[commentId]) return;
+    setRepliesLoadingMore((prev) => ({ ...prev, [commentId]: true }));
+    try {
+      const next = meta.page + 1;
+      const res = await commentsApi.replies(commentId, next);
+      setRepliesMap((prev) => {
+        const existing = Array.isArray(prev[commentId]) ? (prev[commentId] as Comment[]) : [];
+        // Dedupe in case a reply was appended locally since the page boundary.
+        const seen = new Set(existing.map((r) => r.id));
+        return { ...prev, [commentId]: [...existing, ...res.data.filter((r) => !seen.has(r.id))] };
+      });
+      setRepliesMetaMap((prev) => ({ ...prev, [commentId]: { page: next, lastPage: res.meta.last_page } }));
+    } catch {
+      toast(t('errors.loadReplies'), 'error');
+    } finally {
+      setRepliesLoadingMore((prev) => ({ ...prev, [commentId]: false }));
     }
   };
 
@@ -726,6 +768,9 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
                 currentUserId={user?.id}
                 isCouncil={user?.role === 'council'}
                 replies={repliesMap[comment.id]}
+                repliesHasMore={(() => { const m = repliesMetaMap[comment.id]; return m ? m.page < m.lastPage : false; })()}
+                repliesLoadingMore={!!repliesLoadingMore[comment.id]}
+                onLoadMoreReplies={() => loadMoreReplies(comment.id)}
                 replyText={replyText}
                 editingText={editText}
                 onLoadReplies={() => loadReplies(comment.id)}
