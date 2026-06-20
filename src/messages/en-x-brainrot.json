@@ -2257,7 +2257,8 @@
       "prev": "← back gng 🔙",
       "next": "gimme more →🔥"
     },
-    "socialOn": "on {platform} 📍"
+    "socialOn": "on {platform} 📍",
+    "viewOnPlatform": "peep their {platform}"
   },
   "Search": {
     "header": {

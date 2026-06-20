@@ -2275,7 +2275,8 @@
       "prev": "← prev",
       "next": "next →"
     },
-    "socialOn": "on {platform}"
+    "socialOn": "on {platform}",
+    "viewOnPlatform": "View on {platform}"
   },
   "Search": {
     "header": {
