@@ -2533,16 +2533,13 @@
   },
   "AddCardForm": {
     "errors": {
-      "billingCountryRequired": "drop the country this card reps gng 🌍 no answer no aura, account fully cooked 💀",
+      "addressIncomplete": "fill the WHOLE billing addy gng 🏠 half-typed = no aura, account cooked 💀",
       "cardSetupFailed": "card got DENIED an opp, setup cooked itself 💀 lock in and run it back bestie 🔁🫡",
       "marketUnavailable": "ur whole country got benched from linking cards rn, it's so over 😭 cope, the bag drops there soon fr 🍳💀",
       "setupInitFailed": "payment setup never even spawned, zero rizz, full Ohio behavior 💀 try again gng 🔁"
     },
     "fields": {
-      "billingCountry": "where this card got its gyatt 🏠💳",
-      "selectPlaceholder": "— pick one or stay NPC gng —",
-      "postalCode": "zip / postal, the secret digits 📮✨",
-      "postalPlaceholder": "skip it, nobody's pressed bestie 🤷"
+      "billingAddress": "where this card reps, the billing addy 🏠💳"
     },
     "actions": {
       "saving": "locking in the bag… 🔒🫡",
@@ -2881,7 +2878,10 @@
     "updateCard": "glow the card up 🔧✨",
     "emptyState": "straight crickets in here 🦗💀 link a card gng it's so empty",
     "addCard": "link a card or stay broke 💳✨",
-    "addPaymentMethod": "+ link a card, secure the bag 💳🔥"
+    "addPaymentMethod": "+ link a card, secure the bag 💳🔥",
+    "replacePaymentMethod": "↻ swap the card 💳",
+    "replaceCard": "swap the card 💳",
+    "replaceNotice": "heads up bestie: a new card yeets your {count, plural, one {current card ending •••• {last4}} other {saved cards}} — only ONE card on file, no cap 🧢"
   },
   "PayoutReadinessChecklist": {
     "regionBlocked": {

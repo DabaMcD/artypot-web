@@ -2533,16 +2533,13 @@
   },
   "AddCardForm": {
     "errors": {
-      "billingCountryRequired": "Bonvolu elekti la fakturadan landon por ĉi tiu karto.",
+      "addressIncomplete": "Bonvolu kompletigi vian fakturadan adreson.",
       "cardSetupFailed": "Agordo de la karto malsukcesis. Bonvolu reprovi.",
       "marketUnavailable": "Aldoni pagmetodon ankoraŭ ne disponeblas en via lando — ni esperas subteni ĝin baldaŭ.",
       "setupInitFailed": "Ne eblis komenci la pagagordon. Bonvolu reprovi."
     },
     "fields": {
-      "billingCountry": "Fakturada lando",
-      "selectPlaceholder": "— elektu —",
-      "postalCode": "Poŝtkodo",
-      "postalPlaceholder": "nedeviga"
+      "billingAddress": "Fakturada adreso"
     },
     "actions": {
       "saving": "Konservante…",
@@ -2881,7 +2878,10 @@
     "updateCard": "Ĝisdatigi karton",
     "emptyState": "Ankoraŭ neniuj pagmetodoj konservitaj.",
     "addCard": "Aldoni karton",
-    "addPaymentMethod": "+ Aldoni pagmetodon"
+    "addPaymentMethod": "+ Aldoni pagmetodon",
+    "replacePaymentMethod": "↻ Anstataŭigi karton",
+    "replaceCard": "Anstataŭigi karton",
+    "replaceNotice": "Konservi novan karton anstataŭigos {count, plural, one {vian nunan karton finiĝantan per •••• {last4}} other {viajn konservitajn kartojn}} — nur unu karto restas en dosiero."
   },
   "PayoutReadinessChecklist": {
     "regionBlocked": {
