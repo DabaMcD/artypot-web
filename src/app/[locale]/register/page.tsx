@@ -53,13 +53,14 @@ function OtpStep({
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
 
-  const handleVerify = async (e: FormEvent) => {
-    e.preventDefault();
-    if (otp.length !== 6) return;
+  const handleVerify = async (e?: FormEvent, codeOverride?: string) => {
+    e?.preventDefault();
+    const value = codeOverride ?? otp;
+    if (value.length !== 6) return;
     setError('');
     setLoading(true);
     try {
-      await phoneApi.verifyCode(otp);
+      await phoneApi.verifyCode(value);
       await refreshUser();
       onVerified();
     } catch (err: unknown) {
@@ -113,8 +114,14 @@ function OtpStep({
             inputMode="numeric"
             pattern="[0-9]*"
             maxLength={6}
+            autoComplete="one-time-code"
             value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+            onChange={(e) => {
+              const v = e.target.value.replace(/\D/g, '').slice(0, 6);
+              setOtp(v);
+              // Auto-submit as soon as all 6 digits are entered.
+              if (v.length === 6 && !loading) handleVerify(undefined, v);
+            }}
             placeholder="000000"
             mono
             className="text-center text-2xl tracking-[0.5em] font-mono"
