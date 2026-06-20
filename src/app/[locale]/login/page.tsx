@@ -72,16 +72,17 @@ export default function LoginPage() {
       ? emailInput.trim().length > 0
       : phoneInput != null && isValidPhoneNumber(phoneInput);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (twoFactorStep ? !code.trim() : !identifierReady) return;
+  const handleSubmit = async (e?: FormEvent, codeOverride?: string) => {
+    e?.preventDefault();
+    const effectiveCode = codeOverride ?? code;
+    if (twoFactorStep ? !effectiveCode.trim() : !identifierReady) return;
     setError('');
     setLoading(true);
     const identifier = mode === 'email' ? emailInput.trim() : (phoneInput ?? '');
     try {
       // The user-watching effect above handles the post-login redirect and
       // applies the stored preferred-locale switch, so we don't navigate here.
-      const result = await login(identifier, password, twoFactorStep ? code.trim() : undefined);
+      const result = await login(identifier, password, twoFactorStep ? effectiveCode.trim() : undefined);
       if (result.twoFactorRequired) {
         // Credentials are valid; reveal the code step and wait for the user.
         setTwoFactorStep(true);
@@ -295,7 +296,15 @@ export default function LoginPage() {
                   autoComplete="one-time-code"
                   autoFocus
                   value={code}
-                  onChange={(e) => setCode(e.target.value)}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setCode(v);
+                    // Auto-submit a complete 6-digit code. Recovery codes (longer /
+                    // non-numeric) are left for the user to submit manually.
+                    if (twoFactorStep && /^\d{6}$/.test(v.trim()) && !loading) {
+                      handleSubmit(undefined, v);
+                    }
+                  }}
                   placeholder={t('twoFactor.codePlaceholder')}
                 />
                 <p className="text-xs text-muted mt-2">{t('twoFactor.recoveryHint')}</p>

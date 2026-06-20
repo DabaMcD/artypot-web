@@ -58,15 +58,17 @@ export default function TwoFactorSettingsPage() {
   };
 
   // ── Confirm the code → enable ───────────────────────────────────────────────
-  const confirm = async (e: FormEvent) => {
-    e.preventDefault();
+  const confirm = async (e?: FormEvent, codeOverride?: string) => {
+    e?.preventDefault();
+    const value = (codeOverride ?? code).trim();
     setBusy(true);
     try {
-      await authApi.twoFactor.confirm(code.trim());
+      await authApi.twoFactor.confirm(value);
       await refreshUser();
       toast(t('toasts.enabled'), 'success');
       router.push('/settings');
     } catch (err) {
+      setCode('');
       fail(err);
     } finally {
       setBusy(false);
@@ -182,13 +184,20 @@ export default function TwoFactorSettingsPage() {
             <Input
               type="text"
               inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
               autoComplete="one-time-code"
               autoFocus
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, '').slice(0, 6);
+                setCode(v);
+                // Auto-submit once the full 6-digit code is entered.
+                if (v.length === 6 && !busy) confirm(undefined, v);
+              }}
               placeholder={t('setup.confirmPlaceholder')}
             />
-            <Button type="submit" variant="primary" className="mt-4" disabled={busy || !code.trim()}>
+            <Button type="submit" variant="primary" className="mt-4" disabled={busy || code.length !== 6}>
               {t('setup.confirm')}
             </Button>
           </form>
