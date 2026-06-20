@@ -1202,6 +1202,13 @@
       "registrationFailed": "signup got mega cooked 💀 it's so over, run it back gng"
     }
   },
+  "StepUp": {
+    "codeLabel": "confirm w a fresh code 🔐",
+    "codePlaceholder": "authenticator or recovery code",
+    "codeHint": "drop a code from ur authenticator app, or one of ur recovery codes fr 🔑",
+    "passwordLabel": "confirm ur password 🔒",
+    "passwordHint": "re-enter ur account password to keep going, no skipping 🙏"
+  },
   "Support": {
     "hero": {
       "title": "yap at me bestie 🗣️🔥",
@@ -3191,7 +3198,7 @@
       "recoveryRemaining": "{count, plural, =0 {No recovery codes left — regen a set} one {# recovery code left} other {# recovery codes left}}.",
       "regenerate": "Regen recovery codes",
       "disable": "Turn off 2FA",
-      "councilNote": "Council accounts gotta keep 2FA on, no exceptions."
+      "councilNote": "heads up: ur on the Council 👑 turning off 2FA benches ur Council access til u flip it back on, no cap."
     },
     "regenerated": {
       "hint": "Here's your fresh recovery codes. Old ones are cooked."

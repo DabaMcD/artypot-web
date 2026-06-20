@@ -1202,6 +1202,13 @@
       "registrationFailed": "Error en el registro. Inténtalo de nuevo."
     }
   },
+  "StepUp": {
+    "codeLabel": "Confirma con un código actual",
+    "codePlaceholder": "Código del autenticador o de recuperación",
+    "codeHint": "Introduce un código de tu app de autenticación, o uno de tus códigos de recuperación.",
+    "passwordLabel": "Confirma tu contraseña",
+    "passwordHint": "Vuelve a introducir la contraseña de tu cuenta para continuar."
+  },
   "Support": {
     "hero": {
       "title": "ponte en contacto",
@@ -3191,7 +3198,7 @@
       "recoveryRemaining": "{count, plural, =0 {No quedan códigos de recuperación: genera un conjunto nuevo} one {Queda # código de recuperación} other {Quedan # códigos de recuperación}}.",
       "regenerate": "Regenerar códigos de recuperación",
       "disable": "Desactivar 2FA",
-      "councilNote": "Las cuentas del Consejo deben mantener activada la autenticación de dos factores."
+      "councilNote": "Aviso: formas parte del Consejo. Desactivar la autenticación de dos factores suspenderá tu acceso al Consejo hasta que vuelvas a activarla."
     },
     "regenerated": {
       "hint": "Aquí tienes tus nuevos códigos de recuperación. Los antiguos ya no funcionan."

@@ -1220,6 +1220,13 @@
       "registrationFailed": "Registration failed. Please try again."
     }
   },
+  "StepUp": {
+    "codeLabel": "Confirm with a current code",
+    "codePlaceholder": "Authenticator or recovery code",
+    "codeHint": "Enter a code from your authenticator app, or one of your recovery codes.",
+    "passwordLabel": "Confirm your password",
+    "passwordHint": "Re-enter your account password to continue."
+  },
   "Support": {
     "hero": {
       "title": "get in touch",
@@ -3209,7 +3216,7 @@
       "recoveryRemaining": "{count, plural, =0 {No recovery codes left — regenerate a set} one {# recovery code remaining} other {# recovery codes remaining}}.",
       "regenerate": "Regenerate recovery codes",
       "disable": "Disable 2FA",
-      "councilNote": "Council accounts are required to keep two-factor authentication on."
+      "councilNote": "Heads up: you're on the Council. Disabling two-factor authentication will suspend your Council access until you turn it back on."
     },
     "regenerated": {
       "hint": "Here are your new recovery codes. Your old codes no longer work."

@@ -10,6 +10,7 @@ import { useToast } from '@/lib/toast-context';
 import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input, PasswordInput, FieldLabel, FieldHint } from '@/components/ui/Input';
+import { StepUpField } from '@/components/StepUpField';
 
 type Status = { enabled: boolean; pending: boolean; recovery_codes_remaining: number };
 type Setup = { secret: string; otpauth_uri: string; recovery_codes: string[] };
@@ -27,6 +28,9 @@ export default function TwoFactorSettingsPage() {
   const [regenerated, setRegenerated] = useState<string[] | null>(null);
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
+  // Step-up factor (a current TOTP or recovery code) for regenerate/disable,
+  // which act on an already-enabled account.
+  const [stepUpCode, setStepUpCode] = useState('');
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -47,7 +51,7 @@ export default function TwoFactorSettingsPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      const res = await authApi.twoFactor.enable(hasPassword ? password : undefined);
+      const res = await authApi.twoFactor.enable(hasPassword ? { password } : undefined);
       setSetup(res);
       setPassword('');
     } catch (err) {
@@ -79,11 +83,12 @@ export default function TwoFactorSettingsPage() {
   const disable = async () => {
     setBusy(true);
     try {
-      await authApi.twoFactor.disable(hasPassword ? password : undefined);
+      await authApi.twoFactor.disable({ step_up_code: stepUpCode });
       await refreshUser();
       toast(t('toasts.disabled'), 'success');
       router.push('/settings');
     } catch (err) {
+      setStepUpCode('');
       fail(err);
     } finally {
       setBusy(false);
@@ -94,11 +99,12 @@ export default function TwoFactorSettingsPage() {
   const regenerate = async () => {
     setBusy(true);
     try {
-      const res = await authApi.twoFactor.regenerateRecoveryCodes(hasPassword ? password : undefined);
+      const res = await authApi.twoFactor.regenerateRecoveryCodes({ step_up_code: stepUpCode });
       setRegenerated(res.recovery_codes);
-      setPassword('');
+      setStepUpCode('');
       toast(t('toasts.regenerated'), 'success');
     } catch (err) {
+      setStepUpCode('');
       fail(err);
     } finally {
       setBusy(false);
@@ -151,13 +157,15 @@ export default function TwoFactorSettingsPage() {
             </div>
           )}
 
-          {passwordField}
+          <StepUpField user={user} value={stepUpCode} onChange={setStepUpCode} className="mb-4" />
 
           <div className="flex flex-wrap gap-2">
-            <Button variant="default" onClick={regenerate} disabled={busy}>{t('enabled.regenerate')}</Button>
-            <Button variant="danger" onClick={disable} disabled={busy}>{t('enabled.disable')}</Button>
+            <Button variant="default" onClick={regenerate} disabled={busy || !stepUpCode.trim()}>{t('enabled.regenerate')}</Button>
+            <Button variant="danger" onClick={disable} disabled={busy || !stepUpCode.trim()}>{t('enabled.disable')}</Button>
           </div>
-          <p className="text-xs text-muted mt-3">{t('enabled.councilNote')}</p>
+          {user?.role === 'council' && (
+            <p className="text-xs text-muted mt-3">{t('enabled.councilNote')}</p>
+          )}
         </Card>
       ) : setup ? (
         // ── Pending confirmation: scan + confirm ─────────────────────────────

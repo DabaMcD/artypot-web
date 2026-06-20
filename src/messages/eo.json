@@ -1202,6 +1202,13 @@
       "registrationFailed": "Registriĝo malsukcesis. Bonvolu reprovi."
     }
   },
+  "StepUp": {
+    "codeLabel": "Konfirmu per nuna kodo",
+    "codePlaceholder": "Aŭtentigila aŭ restariga kodo",
+    "codeHint": "Enigu kodon el via aŭtentigila aplikaĵo, aŭ unu el viaj restarigaj kodoj.",
+    "passwordLabel": "Konfirmu vian pasvorton",
+    "passwordHint": "Reenigu la pasvorton de via konto por daŭrigi."
+  },
   "Support": {
     "hero": {
       "title": "kontaktu min",
@@ -3191,7 +3198,7 @@
       "recoveryRemaining": "{count, plural, =0 {Neniuj restarigaj kodoj restas — generu novan aron} one {# restariga kodo restas} other {# restarigaj kodoj restas}}.",
       "regenerate": "Regeneri restarigajn kodojn",
       "disable": "Malŝalti 2FA",
-      "councilNote": "Konsiliaj kontoj devas teni dufaktoran aŭtentigon ŝaltita."
+      "councilNote": "Atentu: vi estas en la Konsilio. Malŝalti la dufaktoran aŭtentigon suspendos vian aliron al la Konsilio ĝis vi reŝaltos ĝin."
     },
     "regenerated": {
       "hint": "Jen viaj novaj restarigaj kodoj. Viaj malnovaj kodoj ne plu funkcias."

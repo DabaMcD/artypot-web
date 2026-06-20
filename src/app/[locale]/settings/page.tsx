@@ -13,6 +13,7 @@ import EmailVerificationBanner from '@/components/EmailVerificationBanner';
 import PhoneNumberInput, { isValidPhoneNumber, type E164Number } from '@/components/PhoneNumberInput';
 import { useToast } from '@/lib/toast-context';
 import { useAuth } from '@/lib/auth-context';
+import { StepUpField, buildStepUp, stepUpRequired } from '@/components/StepUpField';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { SMS_ENABLED } from '@/lib/features';
 import type { NotificationSettings } from '@/lib/types';
@@ -160,6 +161,10 @@ export default function SettingsPage() {
   const [emailChangeInput, setEmailChangeInput] = useState('');
   const [emailChangeLoading, setEmailChangeLoading] = useState(false);
   const [emailChangeSent, setEmailChangeSent] = useState<string | null>(null);
+  // Step-up factor (TOTP/recovery code or password) for the takeover-grade
+  // actions below — change-email and delete-account.
+  const [emailStepUp, setEmailStepUp] = useState('');
+  const [deleteStepUp, setDeleteStepUp] = useState('');
   const [nameInput, setNameInput] = useState('');
   const [nameSaving, setNameSaving] = useState(false);
   const [expiryValue, setExpiryValue] = useState('39');
@@ -350,14 +355,17 @@ export default function SettingsPage() {
   const handleRequestEmailChange = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!emailChangeInput.trim()) return;
+    if (stepUpRequired(user) && !emailStepUp.trim()) return;
     setEmailChangeLoading(true);
     try {
-      await authApi.requestEmailChange(emailChangeInput.trim());
+      await authApi.requestEmailChange(emailChangeInput.trim(), buildStepUp(user, emailStepUp.trim()));
       setEmailChangeSent(emailChangeInput.trim());
       setEmailChangeInput('');
+      setEmailStepUp('');
       toast(t('toasts.confirmEmailSent'), 'success');
     } catch (err: unknown) {
       const e = err as { message?: string };
+      setEmailStepUp('');
       toast(e.message ?? t('toasts.confirmEmailFailed'), 'error');
     } finally { setEmailChangeLoading(false); }
   };
@@ -393,12 +401,14 @@ export default function SettingsPage() {
   };
 
   const handleDeleteAccount = async () => {
+    if (stepUpRequired(user) && !deleteStepUp.trim()) return;
     setDangerLoading(true);
     try {
-      await authApi.deleteAccount();
+      await authApi.deleteAccount(buildStepUp(user, deleteStepUp.trim()));
       await logout();
       router.replace('/');
     } catch {
+      setDeleteStepUp('');
       setDangerMsg(t('danger.genericError'));
       setDangerLoading(false);
       setShowDeleteConfirm(false);
@@ -449,11 +459,11 @@ export default function SettingsPage() {
       {showDeleteConfirm && (
         <Modal
           title={t('deleteModal.title')}
-          onClose={() => { setShowDeleteConfirm(false); setDeleteConfirmName(''); }}
+          onClose={() => { setShowDeleteConfirm(false); setDeleteConfirmName(''); setDeleteStepUp(''); }}
           actions={
             <>
-              <Button variant="ghost" onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmName(''); }} disabled={dangerLoading}>{t('common.cancel')}</Button>
-              <Button variant="danger" onClick={handleDeleteAccount} disabled={dangerLoading || deleteConfirmName !== user.display_name}>
+              <Button variant="ghost" onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmName(''); setDeleteStepUp(''); }} disabled={dangerLoading}>{t('common.cancel')}</Button>
+              <Button variant="danger" onClick={handleDeleteAccount} disabled={dangerLoading || deleteConfirmName !== user.display_name || (stepUpRequired(user) && !deleteStepUp.trim())}>
                 {dangerLoading ? t('deleteModal.deleting') : t('deleteModal.confirm')}
               </Button>
             </>
@@ -473,6 +483,7 @@ export default function SettingsPage() {
             placeholder={user.display_name ?? ''}
             autoFocus
           />
+          <StepUpField user={user} value={deleteStepUp} onChange={setDeleteStepUp} className="mt-4" />
         </Modal>
       )}
 
@@ -491,11 +502,14 @@ export default function SettingsPage() {
             {emailChangeSent ? (
               <Banner tone="good">{t.rich('email.sentBanner', { email: emailChangeSent, strong: (chunks) => <strong>{chunks}</strong> })}</Banner>
             ) : (
-              <form onSubmit={handleRequestEmailChange} className="flex gap-2">
-                <Input type="email" required placeholder={t('email.placeholderExample')} value={emailChangeInput} onChange={(e) => setEmailChangeInput(e.target.value)} className="flex-1" />
-                <Button type="submit" variant="default" disabled={emailChangeLoading || !emailChangeInput.trim()}>
-                  {emailChangeLoading ? t('email.sending') : t('email.addButton')}
-                </Button>
+              <form onSubmit={handleRequestEmailChange} className="space-y-3">
+                <div className="flex gap-2">
+                  <Input type="email" required placeholder={t('email.placeholderExample')} value={emailChangeInput} onChange={(e) => setEmailChangeInput(e.target.value)} className="flex-1" />
+                  <Button type="submit" variant="default" disabled={emailChangeLoading || !emailChangeInput.trim() || (stepUpRequired(user) && !emailStepUp.trim())}>
+                    {emailChangeLoading ? t('email.sending') : t('email.addButton')}
+                  </Button>
+                </div>
+                <StepUpField user={user} value={emailStepUp} onChange={setEmailStepUp} />
               </form>
             )}
           </Card>
@@ -514,11 +528,14 @@ export default function SettingsPage() {
             {emailChangeSent ? (
               <Banner tone="good">{t.rich('email.sentBannerShort', { email: emailChangeSent, strong: (chunks) => <strong>{chunks}</strong> })}</Banner>
             ) : (
-              <form onSubmit={handleRequestEmailChange} className="flex gap-2">
-                <Input type="email" required placeholder={t('email.placeholderNew')} value={emailChangeInput} onChange={(e) => setEmailChangeInput(e.target.value)} className="flex-1" />
-                <Button type="submit" variant="default" disabled={emailChangeLoading || !emailChangeInput.trim()}>
-                  {emailChangeLoading ? t('email.sending') : t('email.changeButton')}
-                </Button>
+              <form onSubmit={handleRequestEmailChange} className="space-y-3">
+                <div className="flex gap-2">
+                  <Input type="email" required placeholder={t('email.placeholderNew')} value={emailChangeInput} onChange={(e) => setEmailChangeInput(e.target.value)} className="flex-1" />
+                  <Button type="submit" variant="default" disabled={emailChangeLoading || !emailChangeInput.trim() || (stepUpRequired(user) && !emailStepUp.trim())}>
+                    {emailChangeLoading ? t('email.sending') : t('email.changeButton')}
+                  </Button>
+                </div>
+                <StepUpField user={user} value={emailStepUp} onChange={setEmailStepUp} />
               </form>
             )}
           </Card>
