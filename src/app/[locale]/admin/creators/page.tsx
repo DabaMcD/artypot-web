@@ -137,6 +137,49 @@ function CreatorModal({ creator, onClose }: { creator: CreatorDetail; onClose: (
         </dl>
       </Card>
 
+      {/* ── Tax residence history ── */}
+      {(() => {
+        const fmtRes = (c: string | null, s: string | null) => (c ? (s ? `${c}-${s}` : c) : '—');
+        const history = creator.tax_residence_history ?? [];
+        const sourceTone: Record<string, 'good' | 'warn' | 'info' | 'default'> = {
+          self_declared:  'warn',
+          admin_override: 'info',
+          system:         'default',
+        };
+        return (
+          <>
+            <SectionLabel className="mb-2">
+              Tax residence history
+              <span className="ml-2 font-mono text-[10px] text-muted normal-case">{history.length} change{history.length !== 1 ? 's' : ''}</span>
+            </SectionLabel>
+            {history.length === 0 ? (
+              <Empty message="No recorded tax residence changes." className="mb-4" />
+            ) : (
+              <div className="space-y-2 mb-4">
+                {history.map((h) => (
+                  <Card key={h.id} accent>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-mono text-sm text-foreground">
+                          {fmtRes(h.old_country_code, h.old_state_code)}
+                          <span className="text-muted"> → </span>
+                          <span className="text-creator">{fmtRes(h.new_country_code, h.new_state_code)}</span>
+                        </p>
+                        <p className="font-mono text-[10px] text-muted mt-0.5">
+                          {fmt(h.created_at)}
+                          {h.changed_by && <> · by {h.changed_by.display_name}</>}
+                        </p>
+                      </div>
+                      <Badge tone={sourceTone[h.source] ?? 'default'}>{h.source.replace('_', ' ')}</Badge>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
+        );
+      })()}
+
       {/* ── Creator Status ── */}
       <SectionLabel className="mb-2">Creator Status</SectionLabel>
       <Card accent className="mb-4">
@@ -440,6 +483,27 @@ export default function AdminCreatorsPage() {
       fetchCreators('', 'all', 1);
     }
   }, [user, fetchCreators]);
+
+  // Deep link: the "tax address changed" admin bell links to
+  // /admin/creators?creator=ID — open that creator's detail straight away.
+  // Read from window.location (client-only) to avoid a useSearchParams Suspense
+  // boundary on this prerenderable page.
+  useEffect(() => {
+    if (user?.role !== 'council') return;
+    const id = new URLSearchParams(window.location.search).get('creator');
+    if (!id) return;
+    (async () => {
+      setLoadingDetail(true);
+      try {
+        const res = await adminApi.getCreator(Number(id));
+        setSelected(res.data);
+      } catch {
+        // silent — leave the list visible if the id is bad
+      } finally {
+        setLoadingDetail(false);
+      }
+    })();
+  }, [user]);
 
   const handleSearch = (val: string) => {
     setSearch(val);
