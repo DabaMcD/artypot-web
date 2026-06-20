@@ -91,8 +91,7 @@
     "language": {
       "label": "Language",
       "title": "language",
-      "blurb": "Choose the language Artypot is displayed in. Your choice is saved to your account.",
-      "hint": "Choose your preferred language. Saved to your account."
+      "blurb": "Choose the language Artypot is displayed in. Your choice is saved to your account."
     },
     "breadcrumb": {
       "fan": "fan",
@@ -2641,6 +2640,7 @@
       "posting": "Posting…",
       "postReply": "Post reply",
       "loadMore": "Load more comments",
+      "loadMoreReplies": "Load more replies",
       "loading": "Loading…"
     },
     "errors": {

@@ -73,8 +73,7 @@
     "language": {
       "label": "language",
       "title": "what tongue we yappin in 🗣️",
-      "blurb": "pick the lang Artypot yaps at u in 🌍 we glue it to ur acct so it stays no cap 🤝",
-      "hint": "pick ur whole vibe. saved to ur file no cap"
+      "blurb": "pick the lang Artypot yaps at u in 🌍 we glue it to ur acct so it stays no cap 🤝"
     },
     "breadcrumb": {
       "fan": "fan arc 🗣️",
@@ -2623,6 +2622,7 @@
       "posting": "cooking, do NOT touch the stove 👨‍🍳🔥",
       "postReply": "launch the clapback 🚀💥",
       "loadMore": "feed me more yappage 📜👀",
+      "loadMoreReplies": "load moar replies",
       "loading": "summoning the lore… ⏳✨"
     },
     "errors": {

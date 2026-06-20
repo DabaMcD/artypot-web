@@ -434,18 +434,19 @@ export default function CreatorBountiesPage() {
     if (!authLoading && !user) router.push('/login');
   }, [authLoading, user, router]);
 
-  // Derive stats from an unfiltered first-page fetch on mount
+  // Stat cards come from one aggregate query (counts + total backed across ALL
+  // the creator's bounties), not a list fetch — so they're correct past the
+  // first page and don't duplicate the table's list request.
   const fetchStats = useCallback(() => {
     if (!user) return;
     bountiesApi
-      .list({ creator_id: user.id })
+      .creatorStats()
       .then((res) => {
-        const data = res.data;
         setStats({
-          open: data.filter((b) => b.status === 'open').length,
-          backed: data.reduce((sum, b) => sum + Number(b.total_backed), 0),
-          inReview: data.filter((b) => b.status === 'pending').length,
-          completed: data.filter((b) => b.status === 'completed' || b.status === 'paid_out').length,
+          open: res.open,
+          backed: res.backed,
+          inReview: res.in_review,
+          completed: res.completed,
         });
       })
       .catch(() => {});

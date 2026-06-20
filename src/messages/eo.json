@@ -73,8 +73,7 @@
     "language": {
       "label": "Lingvo",
       "title": "lingvo",
-      "blurb": "Elektu la lingvon en kiu Artypot estas montrata. Via elekto estas konservita al via konto.",
-      "hint": "Elektu vian preferatan lingvon. Konserviĝas en via konto."
+      "blurb": "Elektu la lingvon en kiu Artypot estas montrata. Via elekto estas konservita al via konto."
     },
     "breadcrumb": {
       "fan": "fano",
@@ -2623,6 +2622,7 @@
       "posting": "Afiŝante…",
       "postReply": "Afiŝi respondon",
       "loadMore": "Ŝargi pliajn komentojn",
+      "loadMoreReplies": "Ŝargi pliajn respondojn",
       "loading": "Ŝargante…"
     },
     "errors": {

@@ -73,8 +73,7 @@
     "language": {
       "label": "Idioma",
       "title": "idioma",
-      "blurb": "Elige el idioma en el que se muestra Artypot. Tu elección se guarda en tu cuenta.",
-      "hint": "Elige tu idioma preferido. Se guarda en tu cuenta."
+      "blurb": "Elige el idioma en el que se muestra Artypot. Tu elección se guarda en tu cuenta."
     },
     "breadcrumb": {
       "fan": "fan",
@@ -2623,6 +2622,7 @@
       "posting": "Publicando…",
       "postReply": "Publicar respuesta",
       "loadMore": "Cargar más comentarios",
+      "loadMoreReplies": "Cargar más respuestas",
       "loading": "Cargando…"
     },
     "errors": {
