@@ -16,7 +16,13 @@ export interface TrackedPage {
 }
 
 // Generally-accessible static pages we track. Must match config/pageviews.php.
-const STATIC_PATHS = new Set(['/', '/about', '/tos', '/privacy', '/support', '/search', '/bounties', '/for-creators']);
+// (Auth-gated pages like /dashboard, /settings, /billing, /c, /admin are NOT
+// "generally accessible" and stay excluded via RESERVED_ROOTS below.)
+const STATIC_PATHS = new Set([
+  '/', '/about', '/tos', '/privacy', '/creator-tos', '/support', '/search',
+  '/bounties', '/for-creators', '/login', '/register', '/forgot-password',
+  '/reset-password',
+]);
 
 // First path segments that are NOT creator slugs (real app routes). This is an
 // optimization to avoid pointless backend calls — the backend also validates
