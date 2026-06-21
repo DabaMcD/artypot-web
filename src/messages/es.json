@@ -1122,7 +1122,7 @@
           "label": "Cookies de Stripe",
           "body": "establecidas por el JavaScript de Stripe para detectar fraude durante los flujos de pago. Regidas por la política de Stripe."
         },
-        "noTracking": "No usamos cookies de analítica, píxeles de seguimiento ni cookies publicitarias de terceros. No hay banner de consentimiento de cookies porque no hay nada que consentir más allá de lo necesario."
+        "noTracking": "No usamos cookies de analítica ni de publicidad, no usamos píxeles de seguimiento y no dependemos de analíticas de terceros, por lo que no hay banner de consentimiento de cookies. Sí mantenemos recuentos de páginas vistas propios y agregados: la página visitada, tu idioma, una etiqueta aproximada de dispositivo y de bot, y un hash unidireccional con sal de tu dirección IP que solo se usa para contar visitas únicas. Nunca almacenamos tu dirección IP sin procesar ni el user-agent de tu navegador."
       },
       "children": {
         "title": "menores",
@@ -1491,7 +1491,13 @@
     },
     "nudge": {
       "setUpNow": "Configurar ahora →",
-      "dismiss": "Descartar"
+      "dismiss": "Descartar",
+      "types": {
+        "add_payment_method": {
+          "title": "Añade un método de pago",
+          "body": "Tus respaldos no se pueden cobrar sin un método de pago registrado."
+        }
+      }
     },
     "fanMarket": {
       "regionFallback": "tu región",
@@ -2577,7 +2583,7 @@
     "eventBackingUpdated": "Sincronizó sus sentimientos",
     "eventBackingRevoked": "Se retiró",
     "eventDetailsEdited": "Editó los detalles",
-    "eventPrivilegeTransfer": "Transfirió la propiedad",
+    "eventPrivilegeTransfer": "Transfirió los permisos de edición",
     "eventCreatorAssigned": "Verificado y reclamado",
     "eventPending": "Enviado para revisión",
     "eventCompleted": "Aprobado",

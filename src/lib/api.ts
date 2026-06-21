@@ -1195,6 +1195,21 @@ export const admin = {
   getCreator: (id: number) =>
     request<{ data: import('./types').AdminCreatorDetail }>(`/admin/creators/${id}`),
 
+  // Pageview analytics
+  listPageViews: (params?: {
+    page_type?: import('./types').PageViewType | 'all';
+    include_bots?: boolean;
+    q?: string;
+    sort?: 'views' | 'recent' | 'unique';
+    page?: number;
+  }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null && v !== '' && v !== false && v !== 'all')
+      .map(([k, v]) => [k, v === true ? '1' : String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<import('./types').PageViewResponse>(`/admin/page-views${qs ? `?${qs}` : ''}`);
+  },
+
   // Billing Runs (monthly fan-charge cycles + their failure/chargeback fallout)
   billingRuns: {
     list: (page = 1) =>

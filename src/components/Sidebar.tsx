@@ -143,6 +143,9 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
     { id: 'council-members',          label: t('nav.councilMembers'),     icon: '◇', href: '/admin/council' },
     { id: 'council-tiers',            label: t('nav.countryTiers'),       icon: '◉', href: '/admin/tiers' },
     { id: 'council-markets',          label: t('nav.markets'),            icon: '◎', href: '/admin/markets' },
+    // Literal label (not t()): avoids adding a nav key across all locale message
+    // files for a council-only, English-leaning admin page.
+    { id: 'council-analytics',        label: 'Pageview analytics',        icon: '◴', href: '/admin/analytics' },
     { id: 'council-audit',            label: t('nav.auditLog'),           icon: '◫', href: '/admin/logs' },
   ];
 

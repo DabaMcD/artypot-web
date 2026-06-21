@@ -1122,7 +1122,7 @@
           "label": "Stripe's cookies",
           "body": "dropped by Stripe's own JS to sniff fraud during checkout. that's Stripe's lore, governed by their policy, take it up with them 🤷"
         },
-        "noTracking": "we run ZERO analytics cookies, ZERO tracking pixels, ZERO creepy ad cookies. no annoying cookie banner either bc there's literally NOTHING extra to consent to. we keep it squeaky clean fr fr 🧼✨"
+        "noTracking": "still ZERO analytics cookies, ZERO creepy ad cookies, ZERO tracking pixels, ZERO third-party analytics — so no cookie banner, we're not on that. BUT keeping it 💯: we DO count our own pageviews first-party — the page, your language, a rough device + bot vibe check, and a salted one-way hash of your IP just to tally unique visits (NOT to ID you). we never store your raw IP or your browser user-agent. cookieless + receipts-clean fr 🧼✨"
       },
       "children": {
         "title": "lil bros under 18 🚸🚫",
@@ -1491,7 +1491,13 @@
     },
     "nudge": {
       "setUpNow": "lock it in RN gng → 🔒🗣️",
-      "dismiss": "nah im ghosting this ✕👻"
+      "dismiss": "nah im ghosting this ✕👻",
+      "types": {
+        "add_payment_method": {
+          "title": "drop a payment method 💳",
+          "body": "no card on file = ur bags literally can't get charged gng 💀"
+        }
+      }
     },
     "fanMarket": {
       "regionFallback": "wherever u be lurking 🌍👀",
@@ -2577,7 +2583,7 @@
     "eventBackingUpdated": "switched up the whole aura mid-game 🔄😭 bestie really said new feelings who dis",
     "eventBackingRevoked": "rage quit n dipped 🚪💀 it's so over gng",
     "eventDetailsEdited": "rewrote the lore on the sly 📝👀 sneaky edits fr",
-    "eventPrivilegeTransfer": "crown got yeeted to a new goat 👑✨ fresh owner just dropped sheeesh",
+    "eventPrivilegeTransfer": "edit keys got yeeted to a new goat 👑✨ fresh editor just dropped sheeesh",
     "eventCreatorAssigned": "verified n locked in 🔒🐐 receipts checked out, that's the rizz no cap",
     "eventPending": "flung at the robe gang to judge 🧑‍⚖️🙏 pray it ain't cooked",
     "eventCompleted": "the suits said bet ✅🔥 blessed n approved, secure the bag",

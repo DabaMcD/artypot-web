@@ -450,16 +450,20 @@ export interface Bounty {
   description?: string;
   /**
    * Fan-supplied human name for the person this bounty targets.
-   * Only populated when the handle has no verified owner (owner_user_id is null).
-   * When owner_user_id is set, owner_user.display_name is used for display instead.
+   * Only populated when there is no creator-of-record (target_user_id is null).
+   * When target_user_id is set, owner_user.display_name is used for display instead.
    */
   display_name?: string | null;
   type: BountyType;
   status: BountyStatus;
+  /** Original opener of the bounty. Immutable. */
   initiator_user_id: number;
   initiator?: User;
-  owner_user_id?: number | null;
-  /** The user who owns this bounty (i.e. the creator). Serialised from ownerUser relation. */
+  /** Current edit-privilege holder. Starts as the initiator; transfers to the largest backer if the holder leaves. */
+  edit_user_id?: number | null;
+  /** Creator-of-record: who completes/gets paid. Set when the target is known and backfilled at handle verification. */
+  target_user_id?: number | null;
+  /** The creator-of-record (target_user_id). Serialised from the ownerUser relation as `owner_user`. */
   owner_user?: Pick<User, 'id' | 'display_name' | 'profile_picture' | 'slug'> & {
     fan_name?: string | null;
     fan_name_plural?: string | null;
@@ -468,7 +472,6 @@ export interface Bounty {
   /** Sum of backings from fans with an active payment method. Appended by the backend on show(). */
   solid_total?: number;
   target_handle_id?: number | null;
-  target_user_id?: number | null;
   /** Eager-loaded handle record. Present when the bounty targets a platform handle. */
   target_handle?: { id: number; platform: string; username: string; status: string } | null;
   /** Backend-appended profile picture of the owner user. Null for owner-less bounties. */
@@ -595,6 +598,43 @@ export interface PaginatedResponse<T> {
   current_page: number;
   last_page: number;
   per_page: number;
+}
+
+// ── Pageview analytics (admin) ───────────────────────────────────────────────
+
+export type PageViewType = 'static' | 'bounty' | 'handle' | 'creator';
+export type DeviceType = 'desktop' | 'mobile' | 'tablet' | 'bot' | 'unknown';
+
+/** Per-page aggregate row from GET /admin/page-views. */
+export interface PageViewRow {
+  page_path: string;
+  page_type: PageViewType;
+  entity_id: number | null;
+  total_views: number;
+  unique_visitors: number;
+  bot_views: number;
+  bot_visitors: number;
+  devices: Record<DeviceType, number>;
+  /** First-view locale → unique-visitor count (e.g. { en: 12, es: 3 }). */
+  locales: Record<string, number>;
+  last_seen_at: string | null;
+}
+
+/** Always-on bot/human + device + locale rollup for the summary cards. */
+export interface PageViewSummary {
+  pages: number;
+  unique_visitors: number;
+  total_views: number;
+  bot_views: number;
+  human_views: number;
+  bot_visitors: number;
+  human_visitors: number;
+  devices: Record<string, { visitors: number; views: number }>;
+  locales: Record<string, number>;
+}
+
+export interface PageViewResponse extends PaginatedResponse<PageViewRow> {
+  summary: PageViewSummary;
 }
 
 // ── Admin types ─────────────────────────────────────────────────────────────
