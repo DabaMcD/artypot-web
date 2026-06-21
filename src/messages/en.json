@@ -1278,7 +1278,7 @@
       "noMoneyMovesRest": " — not even a hold. Your card is only charged after The Council confirms a bounty complete, and charges are collected together in a monthly billing run.",
       "backOutLead": "You can back out any time",
       "backOutRest": " before a bounty completes, for free. No questions asked.",
-      "finalLead": "But once it completes, the charge is final.",
+      "finalLead": "Charges for completed bounties are final.",
       "finalRest": " After The Council confirms a bounty and you're charged, that payment is final and non-refundable — your window to back out is before completion, not after.",
       "feeLead": "Artypot takes a 20% platform fee",
       "feeRest": ", deducted from the creator's payout. This fee covers all transaction costs including payment processing — backers are charged their committed amount in full, creators receive 80%.",
