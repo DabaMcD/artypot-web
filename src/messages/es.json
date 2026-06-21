@@ -2583,7 +2583,7 @@
     "eventBackingUpdated": "Sincronizó sus sentimientos",
     "eventBackingRevoked": "Se retiró",
     "eventDetailsEdited": "Editó los detalles",
-    "eventPrivilegeTransfer": "Transfirió la propiedad",
+    "eventPrivilegeTransfer": "Transfirió los permisos de edición",
     "eventCreatorAssigned": "Verificado y reclamado",
     "eventPending": "Enviado para revisión",
     "eventCompleted": "Aprobado",

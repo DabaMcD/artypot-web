@@ -2601,7 +2601,7 @@
     "eventBackingUpdated": "Synced their feelings",
     "eventBackingRevoked": "Left",
     "eventDetailsEdited": "Edited details",
-    "eventPrivilegeTransfer": "Transferred ownership",
+    "eventPrivilegeTransfer": "Transferred edit rights",
     "eventCreatorAssigned": "Verified & claimed",
     "eventPending": "Submitted for review",
     "eventCompleted": "Approved",

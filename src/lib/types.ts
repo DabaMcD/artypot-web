@@ -450,16 +450,20 @@ export interface Bounty {
   description?: string;
   /**
    * Fan-supplied human name for the person this bounty targets.
-   * Only populated when the handle has no verified owner (owner_user_id is null).
-   * When owner_user_id is set, owner_user.display_name is used for display instead.
+   * Only populated when there is no creator-of-record (target_user_id is null).
+   * When target_user_id is set, owner_user.display_name is used for display instead.
    */
   display_name?: string | null;
   type: BountyType;
   status: BountyStatus;
+  /** Original opener of the bounty. Immutable. */
   initiator_user_id: number;
   initiator?: User;
-  owner_user_id?: number | null;
-  /** The user who owns this bounty (i.e. the creator). Serialised from ownerUser relation. */
+  /** Current edit-privilege holder. Starts as the initiator; transfers to the largest backer if the holder leaves. */
+  edit_user_id?: number | null;
+  /** Creator-of-record: who completes/gets paid. Set when the target is known and backfilled at handle verification. */
+  target_user_id?: number | null;
+  /** The creator-of-record (target_user_id). Serialised from the ownerUser relation as `owner_user`. */
   owner_user?: Pick<User, 'id' | 'display_name' | 'profile_picture' | 'slug'> & {
     fan_name?: string | null;
     fan_name_plural?: string | null;
@@ -468,7 +472,6 @@ export interface Bounty {
   /** Sum of backings from fans with an active payment method. Appended by the backend on show(). */
   solid_total?: number;
   target_handle_id?: number | null;
-  target_user_id?: number | null;
   /** Eager-loaded handle record. Present when the bounty targets a platform handle. */
   target_handle?: { id: number; platform: string; username: string; status: string } | null;
   /** Backend-appended profile picture of the owner user. Null for owner-less bounties. */
