@@ -847,6 +847,7 @@
     "howItWorks": {
       "label": "lo esencial",
       "title": "¿cuál es la gran idea?",
+      "purpose": "Artypot es una plataforma donde los usuarios financian colectivamente recompensas que consiguen que creadores, artistas y figuras públicas hagan cosas. Los usuarios solo pagan después de que la recompensa se haya completado.",
       "steps": {
         "one": "Pídele a tu creador favorito que haga algo genial o estúpido.",
         "two": "Los fans con la misma idea aportan hasta que la recompensa no se pueda ignorar.",

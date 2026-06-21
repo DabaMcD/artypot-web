@@ -122,9 +122,15 @@ export default function HomePage() {
       <section id="how-it-works" className="border-t border-border">
         <div className="max-w-5xl mx-auto px-7 py-16 sm:py-24 text-center">
           <p className="font-mono text-[10px] uppercase tracking-[2px] text-muted mb-2">{t('howItWorks.label')}</p>
-          <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-14">
+          <h2 className="font-display font-bold text-3xl sm:text-4xl text-foreground mb-5">
             {t('howItWorks.title')}
           </h2>
+          {/* Plain-language purpose statement that names the app, so the home
+              page both explains what Artypot does and surfaces the app name as
+              crawlable text (matches the OAuth consent screen). */}
+          <p className="text-muted text-lg leading-relaxed max-w-2xl mx-auto mb-14">
+            {t('howItWorks.purpose')}
+          </p>
 
           <div className="grid sm:grid-cols-3 gap-12 sm:gap-8">
             {STEPS.map(({ n, body }) => (

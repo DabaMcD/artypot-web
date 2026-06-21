@@ -847,6 +847,7 @@
     "howItWorks": {
       "label": "la esenco",
       "title": "kio estas la granda ideo?",
+      "purpose": "Artypot estas platformo kie uzantoj homamase financas premiojn kiuj igas kreantojn, artistojn kaj publikajn figurojn fari aferojn. La uzantoj pagas nur post kiam la premio estas plenumita.",
       "steps": {
         "one": "Petu vian plej ŝatatan kreanton fari ion mojosan aŭ stultan.",
         "two": "Samideanaj adorantoj kontribuas ĝis la premio ne plu ignoreblas.",
