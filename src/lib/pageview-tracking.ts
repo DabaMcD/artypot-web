@@ -7,6 +7,8 @@
  * must never be exposed with a NEXT_PUBLIC_ prefix.
  */
 
+import { KNOWN_PLATFORMS } from './platforms';
+
 export type TrackedPageType = 'static' | 'bounty' | 'handle' | 'creator';
 
 export interface TrackedPage {
@@ -65,8 +67,23 @@ export function classifyTrackedPath(rawPath: string): TrackedPage | null {
     return { page_type: 'handle', identifier: seg[1] };
   }
 
-  // /{slug}, /{slug}/{handle}, /{slug}/bounties — creator-scoped pages.
-  if ((seg.length === 1 || seg.length === 2) && seg[0] && !RESERVED_ROOTS.has(seg[0])) {
+  // /{platform}/{username} — platform handle page. Platform names are reserved
+  // against creator slugs, so a known platform in seg[0] is unambiguously a
+  // handle page (e.g. /kick/someone), not a creator. Pass "platform/username"
+  // for the backend to resolve.
+  if (seg.length === 2 && KNOWN_PLATFORMS.has(seg[0])) {
+    return { page_type: 'handle', identifier: `${seg[0]}/${seg[1]}` };
+  }
+
+  // /{slug} — creator profile. Exclude platforms (a bare /{platform} isn't a page).
+  if (seg.length === 1 && seg[0] && !RESERVED_ROOTS.has(seg[0]) && !KNOWN_PLATFORMS.has(seg[0])) {
+    return { page_type: 'creator', identifier: seg[0] };
+  }
+
+  // /{slug}/bounties — a creator's bounties list. Other 2-segment /{slug}/{x}
+  // paths ARE the platform-handle route, which renders not-found for a
+  // non-platform slug — so they're intentionally not tracked.
+  if (seg.length === 2 && seg[1] === 'bounties' && seg[0] && !RESERVED_ROOTS.has(seg[0])) {
     return { page_type: 'creator', identifier: seg[0] };
   }
 
