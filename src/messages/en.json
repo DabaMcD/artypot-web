@@ -865,6 +865,7 @@
     "howItWorks": {
       "label": "the gist",
       "title": "what's the big idea?",
+      "purpose": "Artypot is a platform where users crowdfund bounties that get creators, artists, and public figures to do things. The users only pay after the bounty has been completed.",
       "steps": {
         "one": "Ask your favorite creator to do something cool or stupid.",
         "two": "Like-minded fans chip in until the bounty can't be ignored.",
