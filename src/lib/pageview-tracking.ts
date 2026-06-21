@@ -16,7 +16,7 @@ export interface TrackedPage {
 }
 
 // Generally-accessible static pages we track. Must match config/pageviews.php.
-const STATIC_PATHS = new Set(['/', '/about', '/tos', '/privacy', '/support', '/search', '/bounties']);
+const STATIC_PATHS = new Set(['/', '/about', '/tos', '/privacy', '/support', '/search', '/bounties', '/for-creators']);
 
 // First path segments that are NOT creator slugs (real app routes). This is an
 // optimization to avoid pointless backend calls — the backend also validates
@@ -26,7 +26,7 @@ const RESERVED_ROOTS = new Set([
   'about', 'tos', 'privacy', 'support', 'search', 'bounties', 'h', 'c', 'admin',
   'obelisk', 'users', 'creators', 'login', 'register', 'dashboard', 'settings',
   'billing', 'history', 'backings', 'notifications', 'become-creator', 'oauth',
-  'reset-password', 'forgot-password', 'verify-email', 'for-creators',
+  'reset-password', 'forgot-password', 'verify-email',
   'creator-tos', 'email', 'marriage-autonomy-spectrum',
   'favicon.ico', 'robots.txt', 'sitemap.xml',
 ]);
