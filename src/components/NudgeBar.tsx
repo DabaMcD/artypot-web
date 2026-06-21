@@ -40,12 +40,17 @@ export function NudgeBar() {
   const iconClass = ICON_CLASSES[nudge.type] ?? 'border-warn text-warn';
   const iconChar  = nudge.type === 'balance_ready' ? '✓' : '!';
 
+  // The API serves nudge copy in English. Translate the add_payment_method
+  // nudge client-side; other types fall back to the server-provided strings.
+  const title = nudge.type === 'add_payment_method' ? t('nudge.types.add_payment_method.title') : nudge.title;
+  const body  = nudge.type === 'add_payment_method' ? t('nudge.types.add_payment_method.body')  : nudge.body;
+
   return (
     <div className={`flex items-center gap-4 border rounded-md px-5 py-4 mb-6 ${toneClass}`}>
       <span className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-black leading-none ${iconClass}`}>{iconChar}</span>
       <p className="flex-1 text-sm">
-        <span className="font-semibold">{nudge.title}</span>
-        {nudge.body && <span className="text-foreground/70"> — {nudge.body}</span>}
+        <span className="font-semibold">{title}</span>
+        {body && <span className="text-foreground/70"> — {body}</span>}
       </p>
       <div className="flex items-center gap-4 shrink-0">
         {nudge.link && (

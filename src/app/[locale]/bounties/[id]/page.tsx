@@ -182,7 +182,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   // fall back to the unclaimed target handle. Both are stable primitives so
   // the fetch below only re-runs when the identity actually changes — not on
   // every backing/total refresh.
-  const relatedOwnerId  = bounty?.owner_user_id ?? bounty?.owner_user?.id ?? null;
+  const relatedOwnerId  = bounty?.target_user_id ?? bounty?.owner_user?.id ?? null;
   const relatedHandleId = bounty?.target_handle_id ?? bounty?.target_handle?.id ?? null;
   const currentBountyId = bounty?.id ?? null;
 
@@ -500,7 +500,10 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
     );
   }
 
-  const isOwner = user && bounty.initiator_user_id === user.id;
+  // Editing is gated on the current edit-privilege holder (edit_user_id), which
+  // starts as the initiator and transfers to the largest backer if they leave —
+  // mirrors BountyController::update(). NOT initiator_user_id (the immutable opener).
+  const canEdit = user && bounty.edit_user_id === user.id;
   const isCreator =
     user &&
     bounty.owner_user?.id === user.id &&
@@ -850,7 +853,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   {displayedTitle}
                 </h1>
               )}
-              {isOwner && bounty.status === 'open' && !showEditForm && (
+              {canEdit && bounty.status === 'open' && !showEditForm && (
                 <Button
                   variant="default"
                   size="sm"
@@ -885,7 +888,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Inline edit form */}
-        {showEditForm && isOwner && bounty.status === 'open' && (
+        {showEditForm && canEdit && bounty.status === 'open' && (
           <form onSubmit={handleEditSubmit} className="mb-4 space-y-3">
             <Banner tone="warn">
               {t.rich('editForm.warning', { strong: (chunks) => <strong>{chunks}</strong> })}
@@ -1556,7 +1559,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           </Card>
 
           {/* Content Policy report — subtle, logged-in non-participants only */}
-          {user && !isOwner && bounty.initiator_user_id !== user.id && bounty.owner_user_id !== user.id && (
+          {user && !canEdit && bounty.initiator_user_id !== user.id && bounty.target_user_id !== user.id && (
             <div className="mt-3 text-right">
               <button
                 type="button"

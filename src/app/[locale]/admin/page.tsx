@@ -41,6 +41,7 @@ const GROUPS: Array<{ title: string; items: AdminSection[] }> = [
       { label: 'Council members',     icon: '◇', href: '/admin/council',           desc: 'Manage council membership' },
       { label: 'Country tiers',       icon: '◉', href: '/admin/tiers',             desc: 'Per-country payout eligibility' },
       { label: 'Markets',             icon: '◎', href: '/admin/markets',           desc: 'Market configuration' },
+      { label: 'Pageview analytics',  icon: '◴', href: '/admin/analytics',         desc: 'Traffic by page · unique IPs, locale, device, bots' },
       { label: 'Audit log',           icon: '◫', href: '/admin/logs',              desc: 'Admin action history' },
     ],
   },

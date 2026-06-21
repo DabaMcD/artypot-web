@@ -231,8 +231,12 @@ export default function HeaderSearch({ placeholder, size = 'sm', autoFocus, clas
         <circle cx="11" cy="11" r="8" />
         <path strokeLinecap="round" d="m21 21-4.35-4.35" />
       </svg>
+      {/* type="search" + autoComplete="off" + data-*-ignore keep browser and
+          password-manager autofill (1Password / LastPass / Bitwarden) from
+          filling the user's email into this non-credential search field. */}
       <input
-        type="text"
+        type="search"
+        name="site-search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -249,6 +253,14 @@ export default function HeaderSearch({ placeholder, size = 'sm', autoFocus, clas
         aria-expanded={showDropdown}
         aria-controls="header-search-listbox"
         aria-autocomplete="list"
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        data-1p-ignore="true"
+        data-lpignore="true"
+        data-bwignore="true"
+        data-form-type="other"
         autoFocus={autoFocus}
       />
 

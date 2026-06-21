@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useEffect, FormEvent } from 'react';
-import { useTranslations } from 'next-intl';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { useTranslations, useLocale } from 'next-intl';
+import { Elements, CardElement, AddressElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { stripePromise } from '@/lib/stripe';
 import { billing } from '@/lib/api';
-import { COUNTRIES } from '@/lib/countries';
 
 // CardElement style tokens — Stripe renders in an iframe so CSS vars don't reach here;
 // keep these in sync with globals.css manually.
@@ -24,6 +23,35 @@ const CARD_STYLE = {
   },
 };
 
+// Elements appearance for Stripe-rendered fields (the Address Element). CardElement
+// is styled separately via CARD_STYLE above; this mirrors the same dark-surface
+// tokens from globals.css — keep in sync if those change.
+const ELEMENTS_APPEARANCE = {
+  theme: 'night' as const,
+  variables: {
+    colorPrimary: '#ffd966',        // --color-fan
+    colorBackground: '#201E1B',     // --color-surface-2
+    colorText: '#F2EFE6',           // --color-foreground
+    colorTextPlaceholder: '#BFB0A9',// --color-muted
+    colorDanger: '#f87171',
+    fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+    fontSizeBase: '14px',
+    borderRadius: '8px',
+  },
+  rules: {
+    '.Input': { backgroundColor: '#201E1B', border: '1px solid #332F2B' },
+    '.Input:focus': { border: '1px solid #ffd966', boxShadow: 'none' },
+    '.Label': { color: '#BFB0A9', fontSize: '12px' },
+  },
+};
+
+// Stripe localises its Elements to one of its supported locales. Spanish maps
+// through; everything else (incl. eo / en-x-brainrot, which Stripe can't render)
+// falls back to English.
+function stripeLocaleFor(locale: string): 'es' | 'en' {
+  return locale === 'es' ? 'es' : 'en';
+}
+
 // ── Inner form — must be a child of <Elements> ────────────────────────────
 interface InnerProps {
   clientSecret: string;
@@ -39,25 +67,23 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Billing address — an independent location signal (alongside the card's
-  // issuing country and the request-IP country) used for market eligibility,
-  // tax determination, and the EU/GST location-evidence trail. Captured here
-  // and threaded into the PaymentMethod's billing_details so the
-  // setup_intent.succeeded webhook can persist it (PaymentMethodRecord
-  // billing_country / billing_postal_code). Country is required; postal is
-  // optional since not every country uses one.
-  const [billingCountry, setBillingCountry] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!stripe || !elements) return;
 
     const cardElement = elements.getElement(CardElement);
-    if (!cardElement) return;
+    const addressElement = elements.getElement(AddressElement);
+    if (!cardElement || !addressElement) return;
 
-    if (!billingCountry) {
-      setError(t('errors.billingCountryRequired'));
+    // Country-aware billing address from Stripe's Address Element: it only asks
+    // for postal/state where the chosen country actually uses them, so what we
+    // attach is valid per-country (no more free-form ZIP on a Belgian card).
+    // The resulting billing_details flow onto the PaymentMethod and are persisted
+    // as location evidence by the setup_intent.succeeded webhook
+    // (PaymentMethodRecord billing_country / billing_postal_code / billing_state).
+    const { complete, value } = await addressElement.getValue();
+    if (!complete) {
+      setError(t('errors.addressIncomplete'));
       return;
     }
 
@@ -68,11 +94,8 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
       payment_method: {
         card: cardElement,
         billing_details: {
-          address: {
-            country: billingCountry,
-            // Omit empty postal so Stripe stores null rather than "".
-            ...(postalCode.trim() ? { postal_code: postalCode.trim() } : {}),
-          },
+          name: value.name,
+          address: value.address,
         },
       },
     });
@@ -85,50 +108,19 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
     }
   };
 
-  const fieldClass =
-    'w-full bg-surface-2 border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-fan transition-colors';
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Card input — styled box matching the dark surface */}
+      {/* Card input — styled box matching the dark surface. Postal stays hidden
+          here; the Address Element below collects it country-aware. */}
       <div className="bg-surface-2 border border-border rounded-lg px-3 py-3">
         <CardElement options={{ style: CARD_STYLE, hidePostalCode: true }} />
       </div>
 
-      {/* Billing location */}
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label htmlFor="billing-country" className="block text-xs text-muted mb-1">
-            {t('fields.billingCountry')}
-          </label>
-          <select
-            id="billing-country"
-            value={billingCountry}
-            onChange={(e) => setBillingCountry(e.target.value)}
-            className={fieldClass}
-            required
-          >
-            <option value="">{t('fields.selectPlaceholder')}</option>
-            {COUNTRIES.map((c) => (
-              <option key={c.code} value={c.code}>{c.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="billing-postal" className="block text-xs text-muted mb-1">
-            {t('fields.postalCode')}
-          </label>
-          <input
-            id="billing-postal"
-            type="text"
-            inputMode="text"
-            autoComplete="postal-code"
-            value={postalCode}
-            onChange={(e) => setPostalCode(e.target.value)}
-            placeholder={t('fields.postalPlaceholder')}
-            className={fieldClass}
-          />
-        </div>
+      {/* Billing address — Stripe Address Element renders country-aware fields
+          (postal/state appear only where the country uses them). */}
+      <div>
+        <label className="block text-xs text-muted mb-1.5">{t('fields.billingAddress')}</label>
+        <AddressElement options={{ mode: 'billing', fields: { phone: 'never' } }} />
       </div>
 
       {error && (
@@ -165,6 +157,7 @@ interface AddCardFormProps {
 
 export default function AddCardForm({ onSuccess, onCancel }: AddCardFormProps) {
   const t = useTranslations('AddCardForm');
+  const locale = useLocale();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [fetchError, setFetchError] = useState('');
 
@@ -195,7 +188,10 @@ export default function AddCardForm({ onSuccess, onCancel }: AddCardFormProps) {
   }
 
   return (
-    <Elements stripe={stripePromise} options={{ clientSecret }}>
+    <Elements
+      stripe={stripePromise}
+      options={{ clientSecret, locale: stripeLocaleFor(locale), appearance: ELEMENTS_APPEARANCE }}
+    >
       <CardFormInner clientSecret={clientSecret} onSuccess={onSuccess} onCancel={onCancel} />
     </Elements>
   );

@@ -91,8 +91,7 @@
     "language": {
       "label": "Language",
       "title": "language",
-      "blurb": "Choose the language Artypot is displayed in. Your choice is saved to your account.",
-      "hint": "Choose your preferred language. Saved to your account."
+      "blurb": "Choose the language Artypot is displayed in. Your choice is saved to your account."
     },
     "breadcrumb": {
       "fan": "fan",
@@ -395,11 +394,11 @@
     "money": {
       "label": "follow the money",
       "title": "The technical part",
-      "intro": "We know how crowdfunding usually goes. You pay, you wait, you get a link to a Discord. Here, your card isn't charged until the work is DONE. The Council verifies completion before any money moves.",
+      "intro": "We know how crowdfunding usually goes. You pay, you wait, you get a link to a Discord. Here, your card isn't charged until it's DONE. The Council verifies completion before any money moves.",
       "guarantees": {
         "charged": {
           "title": "Charged only on delivery",
-          "detail": "Your card isn't touched until the work is done and the Council has approved it. Back out anytime before completion — no risk while you wait."
+          "detail": "Your card isn't touched until it's done and the Council has approved it. Back out anytime before completion — no risk while you wait."
         },
         "fee": {
           "title": "{pct}% platform fee, all-in",
@@ -544,8 +543,8 @@
       "commitments": {
         "title": "1. Creator's Commitments",
         "p0": "By enabling creator mode, you form a binding agreement with Artypot LLC, a Florida limited liability company, and agree to the following.",
-        "p1Lead": "1.1 Deliver commissioned work.",
-        "p1Rest": " You commit to producing the work described in a bounty in good faith and submitting it for review. Funds are only collected from fans after you submit your completed work and the Artypot Council confirms it satisfies the bounty — payment never precedes delivery. Submitting work you have not actually produced, do not own the rights to, or that does not fulfil the bounty may result in suspension or termination of your creator account.",
+        "p1Lead": "1.1 Deliver what the bounty asks.",
+        "p1Rest": " You commit to performing or producing what a bounty describes — whether that is creating a work, releasing a product (free or paid), making a public statement or disclosure, achieving or publishing a result, or any other public act — in good faith and submitting it for review. Funds are only collected from fans after you submit your completed fulfilment and the Artypot Council confirms it satisfies the bounty — payment never precedes delivery. Submitting something you did not actually do or produce, claiming a result you did not achieve, submitting work you do not own the rights to, or otherwise not fulfilling the bounty may result in suspension or termination of your creator account.",
         "p2Lead": "1.2 Maintain accurate handle information.",
         "p2Rest": " The social handles and websites you verify through Artypot must genuinely represent your identity as a creator. You must not impersonate another person or entity or misrepresent your affiliation with any platform account.",
         "p3Lead": "1.3 Provide accurate tax information when requested.",
@@ -555,16 +554,16 @@
         "p5Lead": "1.5 Comply with all applicable laws.",
         "p5Rest": " You are solely responsible for complying with all laws applicable to your activities on Artypot, including tax obligations, export controls, and local content regulations.",
         "p6Lead": "1.6 Bounties fund public work, not private perks.",
-        "p6Rest": " A backing is a contribution toward a public deliverable — it is not a purchase, and it does not entitle the backer to anything the general public does not also receive. You must not offer, promise, or provide any private, personal, or backer-exclusive benefit in exchange for a backing or in recognition of its size, including (without limitation) private access, one-on-one time, physical goods, personalized or backer-owned work, travel, in-person meetings, early or exclusive access, or any preferential treatment. The work you deliver for a bounty must be a single public result, equally accessible to backers and non-backers alike. The only recognition you may give a backer is a simple public acknowledgment of that individual by name, and only as a discretionary courtesy: a backer is never owed it, acquires no right to it, and has no claim if you choose not to give it. You may not scale recognition by backing size — no tiers, no leaderboard-style prominence, and nothing in which a larger backing buys greater visibility, such as naming the top backer in a video's title. Acknowledgment is for natural persons only: never a business name, mark, logo, URL, or promotional message. Auctioning or selling personal access or private benefits — for example, offering an experience to the highest backer — is prohibited, and converts a non-sale contribution into a transaction our platform and payment partners do not support.",
+        "p6Rest": " A backing is a contribution toward a public deliverable — it is not a purchase, and it does not entitle the backer to anything the general public does not also receive. You must not offer, promise, or provide any private, personal, or backer-exclusive benefit in exchange for a backing or in recognition of its size, including (without limitation) private access, one-on-one time, physical goods, personalized or backer-owned work, travel, in-person meetings, early or exclusive access, or any preferential treatment. What you deliver or do for a bounty must be a single public result, available to backers and non-backers alike on equal terms — a paid or paywalled result (such as releasing an album for sale) is allowed, so long as backers receive no special access, discount, or priority. The only recognition you may give a backer is a simple public acknowledgment of that individual by name, and only as a discretionary courtesy: a backer is never owed it, acquires no right to it, and has no claim if you choose not to give it. You may not scale recognition by backing size — no tiers, no leaderboard-style prominence, and nothing in which a larger backing buys greater visibility, such as naming the top backer in a video's title. Acknowledgment is for natural persons only: never a business name, mark, logo, URL, or promotional message. Auctioning or selling personal access or private benefits — for example, offering an experience to the highest backer — is prohibited, and converts a non-sale contribution into a transaction our platform and payment partners do not support.",
         "p7Lead": "1.7 No payment for official acts or campaigns.",
-        "p7Rest": " If you hold public office or are employed by a government, you may not accept or fulfil a bounty that rewards, induces, or is conditioned on anything you do in that official capacity. You also may not use Artypot to raise money for a political campaign, candidate, party, or committee, or for any other election-related purpose. This applies regardless of intent. Bounties for your ordinary creative work are unaffected — this is about official acts and campaigns, not about who you are.",
+        "p7Rest": " If you hold public office or are employed by a government, you may not accept or fulfil a bounty that rewards, induces, or is conditioned on anything you do in that official capacity. You also may not use Artypot to raise money for a political campaign, candidate, party, or committee, or for any other election-related purpose. This applies regardless of intent. Bounties for your ordinary work or public acts are unaffected — this is about official acts and campaigns, not about who you are.",
         "p8Lead": "1.8 Individual creators only.",
         "p8Rest": " Creator accounts are currently available only to individuals acting on their own behalf. Artypot does not yet support participation by corporations, LLCs, partnerships, or other business entities, and you may not enable or operate creator mode for or on behalf of any such entity. By enabling creator mode, you represent that you are a natural person, that you are acting solely on your own behalf and not for any business entity, and that your payouts will be reported under your personal taxpayer identity (such as a W-9 or W-8BEN, not an entity tax form). We expect to support business entities in the future; until we announce that support, entity-based participation is not permitted, and an account found to be operated by or for a business entity may have its payouts held or its creator status suspended until the matter is resolved."
       },
       "role": {
         "title": "2. Artypot's Role",
         "p1Lead": "2.1 Platform, not employer.",
-        "p1Rest": " Artypot is a platform that facilitates fan-funded commissions. Artypot is not your employer, client, agent, or partner. You are an independent creator. Nothing in these terms creates an employment, agency, joint venture, or partnership relationship between you and Artypot.",
+        "p1Rest": " Artypot is a platform that facilitates fan-funded bounties. Artypot is not your employer, client, agent, or partner. You are an independent creator. Nothing in these terms creates an employment, agency, joint venture, or partnership relationship between you and Artypot.",
         "p2Lead": "2.2 Payment intermediary.",
         "p2Rest": " Artypot acts as a payment intermediary between fans and creators. Artypot collects fan backings, holds them in accordance with its billing and refund policies, and disburses net proceeds to creators after any applicable platform fees and processing costs.",
         "p3Lead": "2.3 No guarantee of earnings.",
@@ -610,7 +609,7 @@
         "p1Lead": "5.1 No intellectual property infringement.",
         "p1Rest": " You must not submit, represent, or claim as your own any work that infringes the copyrights, trademarks, trade secrets, or other intellectual property rights of any third party.",
         "p2Lead": "5.2 The Artypot surface is all-ages.",
-        "p2Rest": " Everything you publish or submit to Artypot itself — bounty descriptions and titles, your profile, display name, verified handles, comments, and the notes or links you attach to a completion — must be suitable for a general audience. This material is hosted and publicly displayed by Artypot, so it may not contain sexually explicit material, pornography, nudity, or gratuitous shock content. This is a rule about the on-platform surface; it is not a judgment about the legitimate creative work you produce and host elsewhere.",
+        "p2Rest": " Everything you publish or submit to Artypot itself — bounty descriptions and titles, your profile, display name, verified handles, comments, and the notes or links you attach to a completion — must be suitable for a general audience. This material is hosted and publicly displayed by Artypot, so it may not contain sexually explicit material, pornography, nudity, or gratuitous shock content. This is a rule about the on-platform surface; it is not a judgment about the legitimate work you produce, release, or carry out elsewhere.",
         "p3Lead": "5.3 No adult-content commerce.",
         "p3Rest": " You may not use Artypot to solicit, coordinate, or collect payment for sexually explicit or pornographic work, whether or not the work itself is delivered off-platform. Artypot is the merchant of record for every bounty charge, and our payment partners (including the card networks and Stripe) prohibit processing payments for adult content. A bounty whose purpose is to fund adult content is therefore not permitted, regardless of where the finished work is hosted.",
         "p4Lead": "5.4 Illegal and harmful content.",
@@ -618,7 +617,7 @@
         "p5Lead": "5.5 Your license to Artypot.",
         "p5Rest": " For the material you publish or submit to Artypot itself (such as completion notes, links, and profile content), you grant Artypot a limited, non-exclusive, royalty-free license to display, reproduce, and promote that material solely for the purpose of operating and marketing the Artypot platform.",
         "p6Lead": "5.6 Your rights.",
-        "p6Rest": " You retain all ownership rights in your creative work. Nothing in these terms transfers copyright or other intellectual property rights to Artypot or to any fan."
+        "p6Rest": " To the extent fulfilling a bounty produces a copyrightable work or other ownable content, you retain all ownership rights in it, and nothing in these terms transfers copyright or other intellectual property rights to Artypot or to any fan. Some bounties produce no such work — for example, making a public statement or revealing information — in which case there is simply nothing here to transfer."
       },
       "termination": {
         "title": "6. Termination",
@@ -727,7 +726,7 @@
   "ForCreators": {
     "hero": {
       "titleLine1": "Tell your fans",
-      "titleLine2": "what you want to make.",
+      "titleLine2": "what you want to do.",
       "titleLine3": "Let them fund it.",
       "body": "Artypot is a bounty platform. Create a bounty for a specific project, share it with your audience, and they put money toward it. No subscriptions. No paywalls. You do the thing, you get paid. If you don't deliver, credit cards are never touched.",
       "getStarted": "Get started →",
@@ -739,13 +738,13 @@
       "body": "You already know what your audience wants... but how much do they want it? Artypot turns their \"plz do X\" comments into a number with a dollar sign in front of it.",
       "patreon": "Monthly subscriptions. Good for creators with consistent output — tough if your work comes in bursts. Fans are paying for access, not for anything specific.",
       "kofi": "Low friction, but also low signal. Tips don't tell you what anyone actually wants made. They're appreciation for things you've already done.",
-      "artypot": "Fans put money toward one specific thing you want to make. Nothing moves until it's done. You only get paid when you deliver — which is exactly why fans are comfortable putting real money in."
+      "artypot": "Fans put money toward one specific thing you want to do. Nothing moves until it's done. You only get paid when you deliver — which is exactly why fans are comfortable putting real money in."
     },
     "appeal": {
       "fans": {
         "label": "Why fans back it",
         "titleLine1": "They're not donating.",
-        "titleLine2": "They're commissioning.",
+        "titleLine2": "They're backing an outcome.",
         "points": {
           "card": {
             "title": "Their card isn't charged until you deliver",
@@ -793,7 +792,7 @@
       },
       "openBounty": {
         "label": "Open a bounty for your own project",
-        "sub": "Write exactly what you want to make — a video, an album, an illustration series, anything. Be specific. Vague bounties back slowly."
+        "sub": "Write exactly what you want done — drop a track, release a video, make a public statement, take on a challenge, anything verifiable. Be specific. Vague bounties back slowly."
       },
       "share": {
         "label": "Share the link with your audience",
@@ -836,7 +835,7 @@
       "youReceive": "You receive"
     },
     "cta": {
-      "titleLine1": "Pick something you want to make.",
+      "titleLine1": "Pick something you want to do.",
       "titleLine2": "Open a bounty. Share the link.",
       "body": "If your audience wants it, the money will show up. If there's not enough support or you don't deliver, nobody pays anything.",
       "createAccount": "Create your account →",
@@ -866,6 +865,7 @@
     "howItWorks": {
       "label": "the gist",
       "title": "what's the big idea?",
+      "purpose": "Artypot is a platform where users crowdfund bounties that get creators, artists, and public figures to do things. The users only pay after the bounty has been completed.",
       "steps": {
         "one": "Ask your favorite creator to do something cool or stupid.",
         "two": "Like-minded fans chip in until the bounty can't be ignored.",
@@ -884,7 +884,7 @@
   "Login": {
     "hero": {
       "title": "<accent>money</accent> talks.",
-      "subtitle": "start a bounty for a creator to make a public, free piece of work. others can chip in. when the work is delivered, the creator gets paid."
+      "subtitle": "start a bounty for a creator to do something in public — release a track, make a statement, take on a challenge. others can chip in. when it's delivered, the creator gets paid."
     },
     "stats": {
       "charged": {
@@ -946,6 +946,10 @@
       "back": "← Use a different account",
       "submit": "Verify"
     }
+  },
+  "Metadata": {
+    "titleDefault": "Artypot — Tell the world what you want.",
+    "description": "Artypot is a crowdfunding platform where communities pool money into bounties that pay a creator only after they complete a specified public act — a release, a statement, a breakthrough, anything verifiable."
   },
   "PasswordReset": {
     "forgot": {
@@ -1137,7 +1141,7 @@
           "label": "Stripe's cookies",
           "body": "set by Stripe's JavaScript for fraud detection during payment flows. Governed by Stripe's policy."
         },
-        "noTracking": "We do not use analytics cookies, tracking pixels, or third-party advertising cookies. There is no cookie consent banner because there is nothing to consent to beyond what's necessary."
+        "noTracking": "We set no analytics or advertising cookies, use no tracking pixels, and rely on no third-party analytics — so there is no cookie consent banner. We do keep first-party, aggregate pageview counts: the page viewed, your language, a coarse device and bot label, and a salted one-way hash of your IP address used only to count unique visits. We never store your raw IP address or your browser's user-agent."
       },
       "children": {
         "title": "Children",
@@ -1215,6 +1219,13 @@
       "tosRequired": "Please agree to the terms of service.",
       "registrationFailed": "Registration failed. Please try again."
     }
+  },
+  "StepUp": {
+    "codeLabel": "Confirm with a current code",
+    "codePlaceholder": "Authenticator or recovery code",
+    "codeHint": "Enter a code from your authenticator app, or one of your recovery codes.",
+    "passwordLabel": "Confirm your password",
+    "passwordHint": "Re-enter your account password to continue."
   },
   "Support": {
     "hero": {
@@ -1310,7 +1321,7 @@
       },
       "description": {
         "title": "2. What Artypot Is",
-        "p1": "Artypot is a bounty-style crowdfunding platform. Fans (\"backers\") pool funding toward specific tasks from public entities (\"creators\"). Backing is a commitment of funds, but no money moves when you back a bounty. Charges only occur after The Council reviews and confirms a bounty as complete.",
+        "p1": "Artypot is a bounty-style crowdfunding platform. Fans (\"backers\") pool funding toward specific public acts or tasks from public entities (\"creators\"). Backing is a commitment of funds, but no money moves when you back a bounty. Charges only occur after The Council reviews and confirms a bounty as complete.",
         "p2": "Artypot is not a tip jar, subscription service, or pre-order platform. It is a mechanism for coordinating demand signals and releasing payment only on delivery."
       },
       "accounts": {
@@ -1321,12 +1332,12 @@
       },
       "bounties": {
         "title": "4. Bounties",
-        "p1": "Any registered user may open a bounty for any task a named creator could verifiably complete, subject to the Content Policy (Section 9). If it can be done, confirmed, and doesn't violate the Content Policy, it can be a bounty.",
+        "p1": "Any registered user may open a bounty for any specific, verifiable public act a named creator could perform, subject to the Content Policy (Section 9). This is deliberately broad. A bounty can ask a creator to create or release a work — free or paid, such as dropping a new album, even behind a paywall — to make a public statement or disclosure, to achieve or publish a result such as a scientific finding, or to do any other defined thing in public. For example, a bounty asking a pseudonymous figure to publicly reveal their identity is a perfectly valid request. If it can be done, verifiably confirmed, and doesn't violate the Content Policy or the other limits in this Section, it can be a bounty.",
         "p2": "Opening a bounty does not guarantee the named creator will fulfil it. The creator is under no contractual obligation to Artypot or to backers. A bounty is an expression of collective demand, not a contract with the creator.",
         "p3Lead": "A bounty funds public work, not private perks.",
-        "p3Rest": " Backing is a contribution toward a result that is released publicly and equally to backers and non-backers alike. It is not a purchase of goods or services for the backer, and it confers no private benefit, ownership, exclusive access, or preferential treatment. Creators may not offer, and backers may not solicit or demand, any personal or backer-exclusive reward in exchange for a backing or its size — for example, private meetings, physical goods, personalized work, or an experience auctioned to the highest backer. The one form of recognition that remains permitted is a simple public acknowledgment of an individual backer by name, and only as a discretionary courtesy: a backer is never owed it, acquires no right to it, and has no claim if it is omitted, with the creator free to give or withhold it at their sole option.",
+        "p3Rest": " Backing is a contribution toward a result that is released or made available publicly and equally to backers and non-backers alike (a paid or paywalled result is allowed, so long as backers receive no special access, discount, or priority). It is not a purchase of goods or services for the backer, and it confers no private benefit, ownership, exclusive access, or preferential treatment. Creators may not offer, and backers may not solicit or demand, any personal or backer-exclusive reward in exchange for a backing or its size — for example, private meetings, physical goods, personalized work, or an experience auctioned to the highest backer. The one form of recognition that remains permitted is a simple public acknowledgment of an individual backer by name, and only as a discretionary courtesy: a backer is never owed it, acquires no right to it, and has no claim if it is omitted, with the creator free to give or withhold it at their sole option.",
         "p4Lead": "No bounties for official acts or political campaigns.",
-        "p4Rest": " A bounty may not reward, induce, or be conditioned on an official act — anything a government office holder or employee does, or could do, in their official capacity. Nor may a bounty serve as a contribution to or expenditure for a candidate, campaign, party, or committee, or otherwise aim to influence an election. Funding pointed at an official act or an election can create legal exposure for backers and for Artypot regardless of intent, so we don't allow it. This turns on the purpose of a bounty, not the identity of its subject: a public servant who is also a creator can still be the subject of a bounty for ordinary creative work. We may remove bounties that cross this line and take action on the accounts behind them.",
+        "p4Rest": " A bounty may not reward, induce, or be conditioned on an official act — anything a government office holder or employee does, or could do, in their official capacity. Nor may a bounty serve as a contribution to or expenditure for a candidate, campaign, party, or committee, or otherwise aim to influence an election. Funding pointed at an official act or an election can create legal exposure for backers and for Artypot regardless of intent, so we don't allow it. This turns on the purpose of a bounty, not the identity of its subject: a public servant who is also a creator can still be the subject of a bounty for their ordinary work or public acts. We may remove bounties that cross this line and take action on the accounts behind them.",
         "p5": "We reserve the right to remove any bounty at our sole discretion, including but not limited to bounties that are too vague, too difficult to verify completion, harmful, or illegal. We are not obligated to explain every removal, though we will attempt to provide a reason when possible.",
         "p6": "While we are committed to being reasonable, the creator a bounty is directed at may also remove that bounty at their sole discretion, for any reason or no reason."
       },
@@ -1362,7 +1373,7 @@
       },
       "creators": {
         "title": "6. Creator Obligations",
-        "p1": "Creators who claim their profile and accept a bounty agree to deliver the specific work described in the bounty in good faith, as understood by their community.",
+        "p1": "Creators who claim their profile and accept a bounty agree to deliver or perform the specific work or act described in the bounty in good faith, as understood by their community.",
         "p2": "Submission of a completion claim constitutes a representation that the submitted work satisfies the bounty description. Fraudulent submissions — submitting work that does not fulfil the bounty, or submitting work you do not own the rights to — may result in account termination and, where applicable, legal action.",
         "p3": "Creators receiving payouts must provide accurate payment and tax information. US-based creators complete a W-9; creators outside the US complete a W-8BEN. Creator payouts currently require a US bank account and are available in the US only for now, with more countries planned. Artypot issues 1099 or 1042-S forms where required by law."
       },
@@ -1383,7 +1394,7 @@
       "content": {
         "title": "9. Content Policy",
         "p1Lead": "The Artypot surface is all-ages.",
-        "p1Rest": " Anything you publish or post to the Platform itself — bounty titles and descriptions, profile text, display names, verified handles, comments, and the notes or links you attach to a completion — is hosted and publicly displayed by us and must be suitable for a general audience. It may not contain sexually explicit material, nudity, pornography, or gratuitous shock content. This is a rule about what appears on Artypot; it is not a judgment about the lawful creative work a creator produces and hosts elsewhere.",
+        "p1Rest": " Anything you publish or post to the Platform itself — bounty titles and descriptions, profile text, display names, verified handles, comments, and the notes or links you attach to a completion — is hosted and publicly displayed by us and must be suitable for a general audience. It may not contain sexually explicit material, nudity, pornography, or gratuitous shock content. This is a rule about what appears on Artypot; it is not a judgment about the lawful work or public acts a creator produces, releases, or carries out elsewhere.",
         "p2Lead": "No adult-content commerce.",
         "p2Rest": " You may not use a bounty to request, commission, coordinate, or fund sexually explicit or pornographic work, whether or not the finished work is delivered off-platform. Artypot is the merchant of record for every charge, and our payment partners (including the card networks and Stripe) prohibit processing payments for adult content. A bounty whose purpose is to fund adult content is therefore not permitted, regardless of where the work is hosted.",
         "p3Lead": "Absolute prohibitions.",
@@ -1396,8 +1407,8 @@
       },
       "ip": {
         "title": "10. Intellectual Property",
-        "p1": "Artypot does not claim ownership of any content created by creators in fulfilment of bounties. The creator retains all rights to their work.",
-        "p2": "Backers who fund a bounty receive no special rights to the finished work — they receive the same access as the general public. Artypot is not a commissioned work platform.",
+        "p1": "To the extent fulfilling a bounty produces a copyrightable work or other ownable content, Artypot claims no ownership of it and the creator retains all rights to it. Many bounties — such as making a public statement, revealing information, or releasing or performing something — produce no new ownable work, in which case this Section simply has nothing to operate on.",
+        "p2": "Backers who fund a bounty receive no special rights, ownership, access, or pricing in anything the bounty produces or causes — they receive the same access as the general public, on the same terms (including where the result is a paid product). Artypot is not a commissioned-work platform, and a backing does not commission work made for the backer.",
         "p3": "By posting content to Artypot (e.g., bounty descriptions, profile text), you grant us a non-exclusive, royalty-free licence to display that content on the Platform."
       },
       "termination": {
@@ -1499,7 +1510,13 @@
     },
     "nudge": {
       "setUpNow": "Set up now →",
-      "dismiss": "Dismiss"
+      "dismiss": "Dismiss",
+      "types": {
+        "add_payment_method": {
+          "title": "Add a payment method",
+          "body": "Your backings can't be charged without a payment method on file."
+        }
+      }
     },
     "fanMarket": {
       "regionFallback": "your region",
@@ -1577,7 +1594,7 @@
   },
   "Bounties": {
     "title": "Bounties",
-    "subtitle": "Fund the work you want to see made.",
+    "subtitle": "Fund the thing you want to see happen.",
     "newBounty": "+ New Bounty",
     "back": "← back",
     "error": "Failed to load bounties.",
@@ -1633,7 +1650,7 @@
     "step1": {
       "sectionLabel": "fan",
       "heading": "start a bounty",
-      "subtitle": "Name a creator. The community funds the work.",
+      "subtitle": "Name a creator. The community funds it.",
       "whoLabel": "who should do this?",
       "urlDetected": "Detected {platform} handle from URL",
       "addNewCreator": "add new creator",
@@ -1777,7 +1794,7 @@
       "councilNote": "Council: “{note}”",
       "form": {
         "heading": "submit completed work",
-        "urlLabel": "Link to the work (URL)",
+        "urlLabel": "Link to the result / proof (URL)",
         "notesLabel": "Notes (optional)",
         "notesPlaceholder": "Any context for the council…",
         "publiclyVisible": "Publicly visible",
@@ -2265,7 +2282,8 @@
       "prev": "← prev",
       "next": "next →"
     },
-    "socialOn": "on {platform}"
+    "socialOn": "on {platform}",
+    "viewOnPlatform": "View on {platform}"
   },
   "Search": {
     "header": {
@@ -2450,7 +2468,7 @@
     },
     "completionForm": {
       "title": "Submit Completed Work",
-      "urlLabel": "Link to the work (URL)",
+      "urlLabel": "Link to the result / proof (URL)",
       "urlPlaceholder": "example.com/proof",
       "publiclyVisible": "Publicly visible",
       "notesLabel": "Notes (optional)",
@@ -2479,7 +2497,7 @@
     "howThisWorks": {
       "label": "How this works",
       "headline": "You only pay if it gets made.",
-      "body": "How much is this worth to you? Your card is charged <strong>only if the work is delivered and approved</strong> — nothing happens today, and you can back out anytime before then.",
+      "body": "How much is this worth to you? Your card is charged <strong>only if the bounty is delivered and approved</strong> — nothing happens today, and you can back out anytime before then.",
       "bullet1": "Nothing charged today",
       "bullet2": "Billed only after delivery",
       "bullet3": "Back out anytime",
@@ -2525,7 +2543,7 @@
       "reasons": {
         "harassment": "Harassment or targeted abuse",
         "illegal": "Illegal content or request",
-        "adultContent": "Adult-content commission",
+        "adultContent": "Adult-content request",
         "spam": "Spam or scam",
         "other": "Something else"
       },
@@ -2540,16 +2558,13 @@
   },
   "AddCardForm": {
     "errors": {
-      "billingCountryRequired": "Please select the billing country for this card.",
+      "addressIncomplete": "Please complete your billing address.",
       "cardSetupFailed": "Card setup failed. Please try again.",
       "marketUnavailable": "Adding a payment method isn't available in your country yet — we hope to support it soon.",
       "setupInitFailed": "Could not initialise payment setup. Please try again."
     },
     "fields": {
-      "billingCountry": "Billing country",
-      "selectPlaceholder": "— select —",
-      "postalCode": "ZIP / postal code",
-      "postalPlaceholder": "optional"
+      "billingAddress": "Billing address"
     },
     "actions": {
       "saving": "Saving…",
@@ -2587,7 +2602,7 @@
     "eventBackingUpdated": "Synced their feelings",
     "eventBackingRevoked": "Left",
     "eventDetailsEdited": "Edited details",
-    "eventPrivilegeTransfer": "Transferred ownership",
+    "eventPrivilegeTransfer": "Transferred edit rights",
     "eventCreatorAssigned": "Verified & claimed",
     "eventPending": "Submitted for review",
     "eventCompleted": "Approved",
@@ -2630,6 +2645,7 @@
       "posting": "Posting…",
       "postReply": "Post reply",
       "loadMore": "Load more comments",
+      "loadMoreReplies": "Load more replies",
       "loading": "Loading…"
     },
     "errors": {
@@ -2887,7 +2903,10 @@
     "updateCard": "Update card",
     "emptyState": "No payment methods saved yet.",
     "addCard": "Add a card",
-    "addPaymentMethod": "+ Add payment method"
+    "addPaymentMethod": "+ Add payment method",
+    "replacePaymentMethod": "↻ Replace card",
+    "replaceCard": "Replace card",
+    "replaceNotice": "Saving a new card replaces your {count, plural, one {current card ending •••• {last4}} other {saved cards}} — only one card stays on file."
   },
   "PayoutReadinessChecklist": {
     "regionBlocked": {
@@ -3205,7 +3224,7 @@
       "recoveryRemaining": "{count, plural, =0 {No recovery codes left — regenerate a set} one {# recovery code remaining} other {# recovery codes remaining}}.",
       "regenerate": "Regenerate recovery codes",
       "disable": "Disable 2FA",
-      "councilNote": "Council accounts are required to keep two-factor authentication on."
+      "councilNote": "Heads up: you're on the Council. Disabling two-factor authentication will suspend your Council access until you turn it back on."
     },
     "regenerated": {
       "hint": "Here are your new recovery codes. Your old codes no longer work."

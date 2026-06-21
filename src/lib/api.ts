@@ -69,6 +69,21 @@ import type {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
 
+/**
+ * Step-up ("sudo mode") credential for sensitive actions (2FA management,
+ * delete account, change email). Send the strongest factor the account has:
+ * a current TOTP or recovery code once 2FA is on, otherwise the password.
+ * Backend enforcement lives in StepUpService.
+ */
+export type StepUp = { password?: string; step_up_code?: string };
+
+function stepUpBody(s?: StepUp): Record<string, string> {
+  const body: Record<string, string> = {};
+  if (s?.step_up_code) body.step_up_code = s.step_up_code.trim();
+  if (s?.password) body.password = s.password;
+  return body;
+}
+
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem('artypot_token');
@@ -234,25 +249,25 @@ export const auth = {
   twoFactor: {
     status: () =>
       request<{ enabled: boolean; pending: boolean; recovery_codes_remaining: number }>('/auth/two-factor'),
-    enable: (password?: string) =>
+    enable: (stepUp?: StepUp) =>
       request<{ secret: string; otpauth_uri: string; recovery_codes: string[] }>('/auth/two-factor', {
         method: 'POST',
-        body: JSON.stringify(password ? { password } : {}),
+        body: JSON.stringify(stepUpBody(stepUp)),
       }),
     confirm: (code: string) =>
       request<{ message: string }>('/auth/two-factor/confirm', {
         method: 'POST',
         body: JSON.stringify({ code }),
       }),
-    disable: (password?: string) =>
+    disable: (stepUp?: StepUp) =>
       request<{ message: string }>('/auth/two-factor', {
         method: 'DELETE',
-        body: JSON.stringify(password ? { password } : {}),
+        body: JSON.stringify(stepUpBody(stepUp)),
       }),
-    regenerateRecoveryCodes: (password?: string) =>
+    regenerateRecoveryCodes: (stepUp?: StepUp) =>
       request<{ recovery_codes: string[] }>('/auth/two-factor/recovery-codes', {
         method: 'POST',
-        body: JSON.stringify(password ? { password } : {}),
+        body: JSON.stringify(stepUpBody(stepUp)),
       }),
   },
 
@@ -298,7 +313,8 @@ export const auth = {
   broke: () =>
     request<{ data: { revoked_count: number } }>('/auth/broke', { method: 'POST' }),
 
-  deleteAccount: () => request('/auth/account', { method: 'DELETE' }),
+  deleteAccount: (stepUp?: StepUp) =>
+    request('/auth/account', { method: 'DELETE', body: JSON.stringify(stepUpBody(stepUp)) }),
 
   verifyEmail: (id: string, hash: string, expires: string, signature: string) =>
     request<{ message: string }>(
@@ -343,10 +359,10 @@ export const auth = {
       body: JSON.stringify(data),
     }),
 
-  requestEmailChange: (email: string) =>
+  requestEmailChange: (email: string, stepUp?: StepUp) =>
     request<{ message: string }>('/auth/email/change', {
       method: 'POST',
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, ...stepUpBody(stepUp) }),
     }),
 
   confirmEmailChange: (id: string, hash: string, expires: string, signature: string) =>
@@ -436,6 +452,12 @@ export const bounties = {
   },
 
   get: (id: number) => request<{ data: Bounty }>(`/bounties/${id}`),
+
+  /** Status counts + total backed across the caller's own bounties (stat cards). */
+  creatorStats: () =>
+    request<{ open: number; in_review: number; completed: number; backed: number }>(
+      '/auth/bounties/stats',
+    ),
 
   /** Submit a Content Policy report. One per user per bounty (resubmit = update). */
   report: (id: number, reason: string, details?: string) =>
@@ -541,9 +563,12 @@ export const comments = {
   get: (commentId: number) =>
     request<{ data: Comment }>(`/comments/${commentId}`),
 
-  /** All direct replies to a top-level comment (not paginated). */
-  replies: (commentId: number) =>
-    request<{ data: Comment[] }>(`/comments/${commentId}/replies`),
+  /** Paginated direct replies to a top-level comment (10/page, oldest first). */
+  replies: (commentId: number, page = 1) =>
+    request<{
+      data: Comment[];
+      meta: { current_page: number; last_page: number; total: number; per_page: number };
+    }>(`/comments/${commentId}/replies?page=${page}`),
 
   /** Post a new top-level comment on a bounty. */
   create: (bountyId: number, content: string) =>
@@ -1169,6 +1194,21 @@ export const admin = {
 
   getCreator: (id: number) =>
     request<{ data: import('./types').AdminCreatorDetail }>(`/admin/creators/${id}`),
+
+  // Pageview analytics
+  listPageViews: (params?: {
+    page_type?: import('./types').PageViewType | 'all';
+    include_bots?: boolean;
+    q?: string;
+    sort?: 'views' | 'recent' | 'unique';
+    page?: number;
+  }) => {
+    const entries = Object.entries(params ?? {})
+      .filter(([, v]) => v != null && v !== '' && v !== false && v !== 'all')
+      .map(([k, v]) => [k, v === true ? '1' : String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<import('./types').PageViewResponse>(`/admin/page-views${qs ? `?${qs}` : ''}`);
+  },
 
   // Billing Runs (monthly fan-charge cycles + their failure/chargeback fallout)
   billingRuns: {

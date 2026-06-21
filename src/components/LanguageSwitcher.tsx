@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, usePathname, routing, type Locale } from '@/i18n/routing';
-import { FieldLabel, FieldHint } from '@/components/ui/Input';
+import { FieldLabel } from '@/components/ui/Input';
 import { useAuth } from '@/lib/auth-context';
 import { users } from '@/lib/api';
 
@@ -157,7 +157,6 @@ export function LanguageSwitcher({ variant }: Props) {
           </ul>
         )}
       </div>
-      <FieldHint>{t('language.hint')}</FieldHint>
     </div>
   );
 }

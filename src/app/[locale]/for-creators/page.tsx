@@ -6,7 +6,7 @@ import { PLATFORM_FEE_PCT, BILLING_DAY, PLATFORM_PAYOUT_WAIT_DAYS } from '@/lib/
 
 export const metadata = {
   title: 'For Creators',
-  description: 'Tell your fans exactly what you want to make. Let them fund it. Get paid when you deliver.',
+  description: 'Tell your fans exactly what you want to do. Let them fund it. Get paid when you deliver.',
 };
 
 const creatorReceivesPct = 100 - PLATFORM_FEE_PCT;

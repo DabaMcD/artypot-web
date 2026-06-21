@@ -122,7 +122,7 @@ export default function BountyCard({ bounty }: { bounty: Bounty }) {
     !!user &&
     bounty.status === 'open' &&
     user.id !== bounty.target_user_id &&
-    user.id !== (bounty.owner_user_id ?? bounty.owner_user?.id);
+    user.id !== bounty.owner_user?.id;
 
   const handleQuickBack = async () => {
     if (!user || quickBackLoading) return;

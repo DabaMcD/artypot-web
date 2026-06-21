@@ -47,7 +47,7 @@ export async function generateMetadata(
     : (bounty.owner_user?.display_name ?? bounty.display_name ?? 'a creator');
 
   const title = `${pot} bounty for ${handle}: ${bounty.title}`;
-  const description = `Fans have pooled ${pot} for ${handle} to make this. Back it on Artypot — you only pay if the work gets made.`;
+  const description = `Fans have pooled ${pot} for ${handle} to do this. Back it on Artypot — you only pay if it gets done.`;
 
   return {
     title,
