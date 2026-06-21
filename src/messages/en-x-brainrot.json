@@ -1491,7 +1491,13 @@
     },
     "nudge": {
       "setUpNow": "lock it in RN gng → 🔒🗣️",
-      "dismiss": "nah im ghosting this ✕👻"
+      "dismiss": "nah im ghosting this ✕👻",
+      "types": {
+        "add_payment_method": {
+          "title": "drop a payment method 💳",
+          "body": "no card on file = ur bags literally can't get charged gng 💀"
+        }
+      }
     },
     "fanMarket": {
       "regionFallback": "wherever u be lurking 🌍👀",

@@ -107,7 +107,7 @@ export async function logPageView({ page, path, locale, ip, userAgent }: LogPage
   const secret = process.env.INTERNAL_SHARED_SECRET;
   if (!secret) return; // not configured → no-op
 
-  const base = process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/v1';
+  const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/v1';
 
   try {
     await fetch(`${base}/internal/pageviews`, {

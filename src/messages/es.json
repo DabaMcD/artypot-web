@@ -1491,7 +1491,13 @@
     },
     "nudge": {
       "setUpNow": "Configurar ahora →",
-      "dismiss": "Descartar"
+      "dismiss": "Descartar",
+      "types": {
+        "add_payment_method": {
+          "title": "Añade un método de pago",
+          "body": "Tus respaldos no se pueden cobrar sin un método de pago registrado."
+        }
+      }
     },
     "fanMarket": {
       "regionFallback": "tu región",

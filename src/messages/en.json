@@ -1509,7 +1509,13 @@
     },
     "nudge": {
       "setUpNow": "Set up now →",
-      "dismiss": "Dismiss"
+      "dismiss": "Dismiss",
+      "types": {
+        "add_payment_method": {
+          "title": "Add a payment method",
+          "body": "Your backings can't be charged without a payment method on file."
+        }
+      }
     },
     "fanMarket": {
       "regionFallback": "your region",

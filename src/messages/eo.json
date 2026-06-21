@@ -1491,7 +1491,13 @@
     },
     "nudge": {
       "setUpNow": "Agordi nun →",
-      "dismiss": "Forigi"
+      "dismiss": "Forigi",
+      "types": {
+        "add_payment_method": {
+          "title": "Aldonu pagmetodon",
+          "body": "Viaj subtenoj ne povas esti ŝargitaj sen konservita pagmetodo."
+        }
+      }
     },
     "fanMarket": {
       "regionFallback": "via regiono",
