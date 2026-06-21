@@ -1140,7 +1140,7 @@
           "label": "Stripe's cookies",
           "body": "set by Stripe's JavaScript for fraud detection during payment flows. Governed by Stripe's policy."
         },
-        "noTracking": "We do not use analytics cookies, tracking pixels, or third-party advertising cookies. There is no cookie consent banner because there is nothing to consent to beyond what's necessary."
+        "noTracking": "We set no analytics or advertising cookies, use no tracking pixels, and rely on no third-party analytics — so there is no cookie consent banner. We do keep first-party, aggregate pageview counts: the page viewed, your language, a coarse device and bot label, and a salted one-way hash of your IP address used only to count unique visits. We never store your raw IP address or your browser's user-agent."
       },
       "children": {
         "title": "Children",

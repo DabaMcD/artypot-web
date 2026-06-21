@@ -1122,7 +1122,7 @@
           "label": "Cookies de Stripe",
           "body": "establecidas por el JavaScript de Stripe para detectar fraude durante los flujos de pago. Regidas por la política de Stripe."
         },
-        "noTracking": "No usamos cookies de analítica, píxeles de seguimiento ni cookies publicitarias de terceros. No hay banner de consentimiento de cookies porque no hay nada que consentir más allá de lo necesario."
+        "noTracking": "No usamos cookies de analítica ni de publicidad, no usamos píxeles de seguimiento y no dependemos de analíticas de terceros, por lo que no hay banner de consentimiento de cookies. Sí mantenemos recuentos de páginas vistas propios y agregados: la página visitada, tu idioma, una etiqueta aproximada de dispositivo y de bot, y un hash unidireccional con sal de tu dirección IP que solo se usa para contar visitas únicas. Nunca almacenamos tu dirección IP sin procesar ni el user-agent de tu navegador."
       },
       "children": {
         "title": "menores",

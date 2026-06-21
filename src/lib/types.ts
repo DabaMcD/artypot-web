@@ -597,6 +597,43 @@ export interface PaginatedResponse<T> {
   per_page: number;
 }
 
+// ── Pageview analytics (admin) ───────────────────────────────────────────────
+
+export type PageViewType = 'static' | 'bounty' | 'handle' | 'creator';
+export type DeviceType = 'desktop' | 'mobile' | 'tablet' | 'bot' | 'unknown';
+
+/** Per-page aggregate row from GET /admin/page-views. */
+export interface PageViewRow {
+  page_path: string;
+  page_type: PageViewType;
+  entity_id: number | null;
+  total_views: number;
+  unique_visitors: number;
+  bot_views: number;
+  bot_visitors: number;
+  devices: Record<DeviceType, number>;
+  /** First-view locale → unique-visitor count (e.g. { en: 12, es: 3 }). */
+  locales: Record<string, number>;
+  last_seen_at: string | null;
+}
+
+/** Always-on bot/human + device + locale rollup for the summary cards. */
+export interface PageViewSummary {
+  pages: number;
+  unique_visitors: number;
+  total_views: number;
+  bot_views: number;
+  human_views: number;
+  bot_visitors: number;
+  human_visitors: number;
+  devices: Record<string, { visitors: number; views: number }>;
+  locales: Record<string, number>;
+}
+
+export interface PageViewResponse extends PaginatedResponse<PageViewRow> {
+  summary: PageViewSummary;
+}
+
 // ── Admin types ─────────────────────────────────────────────────────────────
 
 export type HandleVerificationApplicationStatus = 'pending' | 'approved' | 'denied' | 'retracted';

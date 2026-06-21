@@ -1122,7 +1122,7 @@
           "label": "Stripe's cookies",
           "body": "dropped by Stripe's own JS to sniff fraud during checkout. that's Stripe's lore, governed by their policy, take it up with them 🤷"
         },
-        "noTracking": "we run ZERO analytics cookies, ZERO tracking pixels, ZERO creepy ad cookies. no annoying cookie banner either bc there's literally NOTHING extra to consent to. we keep it squeaky clean fr fr 🧼✨"
+        "noTracking": "still ZERO analytics cookies, ZERO creepy ad cookies, ZERO tracking pixels, ZERO third-party analytics — so no cookie banner, we're not on that. BUT keeping it 💯: we DO count our own pageviews first-party — the page, your language, a rough device + bot vibe check, and a salted one-way hash of your IP just to tally unique visits (NOT to ID you). we never store your raw IP or your browser user-agent. cookieless + receipts-clean fr 🧼✨"
       },
       "children": {
         "title": "lil bros under 18 🚸🚫",

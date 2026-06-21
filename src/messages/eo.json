@@ -1122,7 +1122,7 @@
           "label": "Kuketoj de Stripe",
           "body": "starigitaj de la JavaScript de Stripe por fraŭdo-detektado dum pagaj fluoj. Regataj de la politiko de Stripe."
         },
-        "noTracking": "Ni ne uzas analizajn kuketojn, spurajn rastrumojn aŭ trianpartiajn reklamajn kuketojn. Ne estas kuketa konsenta standardo ĉar estas nenio por konsenti preter kio necesas."
+        "noTracking": "Ni ne uzas analizajn aŭ reklamajn kuketojn, ne uzas spurajn rastrumojn, kaj ne dependas de trianpartiaj analizoj — do ne estas kuketa konsenta standardo. Ni ja konservas proprajn, agregajn nombrojn de paĝvidoj: la vizititan paĝon, vian lingvon, malprecizan etikedon de aparato kaj roboto, kaj salitan unudirektan haketon de via IP-adreso uzatan nur por nombri unikajn vizitojn. Ni neniam konservas vian krudan IP-adreson nek la uzantagenton de via retumilo."
       },
       "children": {
         "title": "infanoj",
