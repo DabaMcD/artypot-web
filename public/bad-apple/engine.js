@@ -22,8 +22,6 @@
 
   function lerp(a, b, t) { return a + (b - a) * t; }
   function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = (Math.random() * (i + 1)) | 0; var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
-  // strip emoji / pictographs / zero-width so the block stays truly monospace
-  var EMOJI = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{200D}\u{2122}\u{2139}\u{20E3}\u{24C2}\u{1F1E6}-\u{1F1FF}]/gu;
 
   function create(container, opts) {
     opts = opts || {};
@@ -110,25 +108,35 @@
       for (var i = 0; i < locs.length; i++) {
         var arr = corpus.locales[locs[i]] || [];
         for (var j = 0; j < arr.length; j++) {
-          var s = (arr[j] || '').replace(EMOJI, '').replace(/\s+/g, ' ').trim();
+          var s = (arr[j] || '').replace(/\s+/g, ' ').trim();
           if (s) toks.push(s);
         }
       }
       if (!toks.length) toks = ['artypot', 'bad apple', 'shadow', 'no cap'];
       shuffle(toks);
 
-      // lay tokens into rows of exactly `cols` chars (wrap by char, never ragged)
-      var needRows = rows + Math.ceil(CFG.duration * 60 * (0.5 * dpr) / cellH) + 8;
-      blockRows = needRows;
-      model = new Array(blockRows);
+      // Split into grapheme clusters so an emoji (surrogate pair / ZWJ / VS16
+      // sequence) occupies exactly ONE monospace cell and is never sliced in
+      // half at a column boundary.
+      var seg = (typeof Intl !== 'undefined' && Intl.Segmenter)
+        ? new Intl.Segmenter(undefined, { granularity: 'grapheme' }) : null;
+      function graphemes(str) {
+        if (!seg) return Array.from(str);
+        var o = []; for (var part of seg.segment(str)) o.push(part.segment); return o;
+      }
+
+      // lay tokens into a flat grapheme stream, then cut into rows of `cols`.
       // Phrase separator: ' œ ' — a single tight glyph. (œ is U+0153 = 339,
       // a quiet nod to the song's 3:39 runtime / the $3.39 backing trigger.)
-      var ti = 0, buf = '';
-      for (var r = 0; r < blockRows; r++) {
-        while (buf.length < cols) buf += toks[ti++ % toks.length] + ' œ ';
-        model[r] = buf.slice(0, cols);
-        buf = buf.slice(cols);
+      var needRows = rows + Math.ceil(CFG.duration * 60 * (0.5 * dpr) / cellH) + 8;
+      blockRows = needRows;
+      var stream = [], ti = 0, want = blockRows * cols;
+      while (stream.length < want) {
+        var g = graphemes(toks[ti++ % toks.length] + '  œ  ');
+        for (var k = 0; k < g.length; k++) stream.push(g[k]);
       }
+      model = new Array(blockRows);
+      for (var r = 0; r < blockRows; r++) model[r] = stream.slice(r * cols, r * cols + cols);
 
       // render the block to textCv (bright white), once
       textCv.width = cols * cellW;
@@ -138,11 +146,12 @@
       tctx.fillStyle = '#ffffff';
       tctx.clearRect(0, 0, textCv.width, textCv.height);
       for (var rr = 0; rr < blockRows; rr++) {
-        // draw char-by-char to guarantee exact column alignment (monospace block)
+        // draw cell-by-cell for exact column alignment; maxWidth=cellW squeezes
+        // any wide glyph (emoji) into its single cell so the grid never drifts.
         var line = model[rr], y = rr * cellH;
         for (var cc = 0; cc < cols; cc++) {
-          var chr = line.charCodeAt(cc) === 32 ? '' : line[cc];
-          if (chr) tctx.fillText(chr, cc * cellW, y);
+          var chr = line[cc];
+          if (chr && chr !== ' ') tctx.fillText(chr, cc * cellW, y, cellW);
         }
       }
     }
