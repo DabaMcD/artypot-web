@@ -22,8 +22,6 @@
 
   function lerp(a, b, t) { return a + (b - a) * t; }
   function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = (Math.random() * (i + 1)) | 0; var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
-  // strip emoji / pictographs / zero-width so the block stays truly monospace
-  var EMOJI = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{200D}\u{2122}\u{2139}\u{20E3}\u{24C2}\u{1F1E6}-\u{1F1FF}]/gu;
 
   function create(container, opts) {
     opts = opts || {};
@@ -55,7 +53,7 @@
 
     // ── playback state ──────────────────────────────────────────────────
     var started = false, paused = false, destroyed = false, ended = false;
-    var raf = 0, scroll = 0, lastFi = -1, inkVal = 1, fcount = 0, glow = null;
+    var raf = 0, scroll = 0, lastFi = -1, grayStep = 255;
     var clock = { t: 0, base: 0, playing: false }; // wall-clock fallback if audio stalls
 
     var audio = new Audio('/bad-apple/audio.mp3');
@@ -94,7 +92,6 @@
 
       maskScrCv.width = cols; maskScrCv.height = rows + 2;
       msctx = maskScrCv.getContext('2d');
-      glow = new Float32Array(maskScrCv.width * maskScrCv.height);
       maskImg = (function () { var c2 = document.createElement('canvas'); c2.width = MW; c2.height = MH; return c2.getContext('2d').createImageData(MW, MH); })();
 
       buildModel();
@@ -111,23 +108,35 @@
       for (var i = 0; i < locs.length; i++) {
         var arr = corpus.locales[locs[i]] || [];
         for (var j = 0; j < arr.length; j++) {
-          var s = (arr[j] || '').replace(EMOJI, '').replace(/\s+/g, ' ').trim();
+          var s = (arr[j] || '').replace(/\s+/g, ' ').trim();
           if (s) toks.push(s);
         }
       }
       if (!toks.length) toks = ['artypot', 'bad apple', 'shadow', 'no cap'];
       shuffle(toks);
 
-      // lay tokens into rows of exactly `cols` chars (wrap by char, never ragged)
+      // Split into grapheme clusters so an emoji (surrogate pair / ZWJ / VS16
+      // sequence) occupies exactly ONE monospace cell and is never sliced in
+      // half at a column boundary.
+      var seg = (typeof Intl !== 'undefined' && Intl.Segmenter)
+        ? new Intl.Segmenter(undefined, { granularity: 'grapheme' }) : null;
+      function graphemes(str) {
+        if (!seg) return Array.from(str);
+        var o = []; for (var part of seg.segment(str)) o.push(part.segment); return o;
+      }
+
+      // lay tokens into a flat grapheme stream, then cut into rows of `cols`.
+      // Phrase separator: ' œ ' — a single tight glyph. (œ is U+0153 = 339,
+      // a quiet nod to the song's 3:39 runtime / the $3.39 backing trigger.)
       var needRows = rows + Math.ceil(CFG.duration * 60 * (0.5 * dpr) / cellH) + 8;
       blockRows = needRows;
-      model = new Array(blockRows);
-      var ti = 0, buf = '';
-      for (var r = 0; r < blockRows; r++) {
-        while (buf.length < cols) buf += toks[ti++ % toks.length] + '   ·   ';
-        model[r] = buf.slice(0, cols);
-        buf = buf.slice(cols);
+      var stream = [], ti = 0, want = blockRows * cols;
+      while (stream.length < want) {
+        var g = graphemes(toks[ti++ % toks.length] + '  œ  ');
+        for (var k = 0; k < g.length; k++) stream.push(g[k]);
       }
+      model = new Array(blockRows);
+      for (var r = 0; r < blockRows; r++) model[r] = stream.slice(r * cols, r * cols + cols);
 
       // render the block to textCv (bright white), once
       textCv.width = cols * cellW;
@@ -137,29 +146,31 @@
       tctx.fillStyle = '#ffffff';
       tctx.clearRect(0, 0, textCv.width, textCv.height);
       for (var rr = 0; rr < blockRows; rr++) {
-        // draw char-by-char to guarantee exact column alignment (monospace block)
+        // draw cell-by-cell for exact column alignment; maxWidth=cellW squeezes
+        // any wide glyph (emoji) into its single cell so the grid never drifts.
         var line = model[rr], y = rr * cellH;
         for (var cc = 0; cc < cols; cc++) {
-          var chr = line.charCodeAt(cc) === 32 ? '' : line[cc];
-          if (chr) tctx.fillText(chr, cc * cellW, y);
+          var chr = line[cc];
+          if (chr && chr !== ' ') tctx.fillText(chr, cc * cellW, y, cellW);
         }
       }
     }
 
-    // ── decode one RLE frame -> maskBits (1 = figure, auto-polarity) ─────
+    // ── decode one RLE frame -> maskBits (0..255 grayscale LUMINANCE) ────
+    // GRAYSCALE, fixed polarity, true to the source: each pixel's actual
+    // brightness becomes the character's brightness, so gradients (the sun's
+    // glow, fades, soft edges) render as semi-lit characters — not just hard
+    // black/white. Format is flat [value,length] pairs, value in 0..levels-1.
+    // We do NOT auto-flip polarity — the original's own black/white inversions
+    // show through exactly as animated.
     function decode(fi) {
       var runs = frames[fi]; if (!runs) return;
-      var light = 0, cur = 0, r;
-      for (r = 0; r < runs.length; r++) { if (cur === 1) light += runs[r]; cur ^= 1; }
-      var lf = light / MFS;
-      if (inkVal === 1 && lf > 0.56) inkVal = 0;
-      else if (inkVal === 0 && lf < 0.44) inkVal = 1;
-      else inkVal = lf <= 0.5 ? 1 : 0;
-      var pos = 0, c = 0, len, vis, k;
-      for (r = 0; r < runs.length; r++) {
-        len = runs[r]; vis = (c === inkVal) ? 1 : 0;
-        for (k = 0; k < len; k++) maskBits[pos + k] = vis;
-        pos += len; c ^= 1;
+      var pos = 0, i, len, val, k;
+      for (i = 0; i < runs.length; i += 2) {
+        val = runs[i] * grayStep;       // quantized level -> 0..255 luminance
+        len = runs[i + 1];
+        for (k = 0; k < len; k++) maskBits[pos + k] = val;
+        pos += len;
       }
     }
 
@@ -167,7 +178,6 @@
     // Aligned to the SAME sub-cell offset as the scrolled text, so glyphs stay
     // whole while scrolling and brighten/dim as a unit (per-character reveal).
     function buildMaskScreen() {
-      fcount++;
       var sub = scroll % cellH;            // sub-cell scroll offset (px)
       var d = maskScrCv.width, h = maskScrCv.height;
       var img = msctx.createImageData(d, h);
@@ -180,23 +190,19 @@
         var my0 = 0, my1 = 1;
         if (inBandY) { my0 = Math.floor(v * MH); my1 = my0 + Math.max(1, Math.round(MH / rows)); if (my1 > MH) my1 = MH; }
         for (var c = 0; c < d; c++) {
-          var idx = j * d + c, cov = 0;
+          var cov = 0;
           if (inBandY) {
             var mx0 = colMaskX[c * 2], mx1 = colMaskX[c * 2 + 1];
             if (mx1 > mx0 && figX0 <= c * cellW + cellW && (c * cellW) <= figX0 + figW) {
               var sum = 0, n = 0;
               for (var my = my0; my < my1; my++) { var rowoff = my * MW; for (var mx = mx0; mx < mx1; mx++) { sum += maskBits[rowoff + mx]; n++; } }
-              cov = n ? sum / n : 0;
+              cov = n ? (sum / n) / 255 : 0; // maskBits is 0..255 luminance → normalise to 0..1
             }
           }
-          // phosphor afterglow — the figure smears into / out of existence
-          var g = glow[idx] * 0.80; if (cov > g) g = cov; glow[idx] = g;
-          var a = Math.pow(g, 0.72);
-          // crawling edge shimmer (cheap per-cell/per-frame noise) — the
-          // hand-animated shadow-art outline; tiny amplitude so words stay legible
-          if (cov > 0.18 && cov < 0.82) { var nz = ((c * 7 + j * 13 + fcount * 5) & 15) / 15; a *= (0.62 + 0.38 * nz); }
-          var av = a * 255; if (av > 255) av = 255;
-          data[idx * 4 + 3] = av; // alpha only; rgb irrelevant for destination-in
+          // gamma curve lifts the glow into visible semi-lit characters while a
+          // true 0 stays pure substrate (dark page); gradients render smoothly.
+          var av = Math.pow(cov, 0.7) * 255; if (av > 255) av = 255;
+          data[(j * d + c) * 4 + 3] = av; // alpha only; rgb irrelevant for destination-in
         }
       }
       msctx.putImageData(img, 0, 0);
@@ -286,7 +292,7 @@
     function load() {
       function done() { if (gotF && gotC) { ready = true; if (opts.onReady) try { opts.onReady(); } catch (e) {} if (opts.autostart) start(); } }
       fetch('/bad-apple/corpus.json').then(function (r) { return r.json(); }).then(function (j) { corpus = j; buildModel(); gotC = true; done(); }).catch(function () { corpus = { locales: {} }; buildModel(); gotC = true; done(); });
-      fetch('/bad-apple/frames.json').then(function (r) { return r.json(); }).then(function (j) { frames = j.frames; nframes = j.nframes || frames.length; if (j.fps) CFG.fps = j.fps; gotF = true; done(); }).catch(function () { gotF = true; done(); });
+      fetch('/bad-apple/frames.json').then(function (r) { return r.json(); }).then(function (j) { frames = j.frames; nframes = j.nframes || frames.length; if (j.fps) CFG.fps = j.fps; grayStep = 255 / ((j.levels || 2) - 1); gotF = true; done(); }).catch(function () { gotF = true; done(); });
     }
 
     // ── controller ──────────────────────────────────────────────────────

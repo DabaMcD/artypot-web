@@ -1030,6 +1030,14 @@ export const metrics = {
     }>('/overlord/metrics'),
 };
 
+export interface BountyEasterEggRow {
+  id: number;
+  title: string;
+  status: string | null;
+  easter_egg: string | null;
+  target: string | null;
+}
+
 // Overlord — grant/revoke Council by email
 export const overlord = {
   listCouncil: () =>
@@ -1043,6 +1051,18 @@ export const overlord = {
 
   revokeCouncil: (councilId: number) =>
     request<void>(`/overlord/council/${councilId}`, { method: 'DELETE' }),
+
+  // Bounty easter-egg flags (e.g. 'bad-apple' → Bad Apple takeover on backing).
+  listBountyEasterEggs: (q?: string) => {
+    const qs = q && q.trim() ? `?q=${encodeURIComponent(q.trim())}` : '';
+    return request<{ data: BountyEasterEggRow[] }>(`/overlord/bounties/easter-eggs${qs}`);
+  },
+
+  setBountyEasterEgg: (bountyId: number, easterEgg: string | null) =>
+    request<{ data: { id: number; title: string; easter_egg: string | null } }>(
+      `/overlord/bounties/${bountyId}/easter-egg`,
+      { method: 'PATCH', body: JSON.stringify({ easter_egg: easterEgg }) },
+    ),
 
   treasury: () =>
     request<{ data: TreasurySummary }>('/overlord/treasury'),
