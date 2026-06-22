@@ -53,7 +53,7 @@
 
     // ── playback state ──────────────────────────────────────────────────
     var started = false, paused = false, destroyed = false, ended = false;
-    var raf = 0, scroll = 0, lastFi = -1;
+    var raf = 0, scroll = 0, lastFi = -1, grayStep = 255;
     var clock = { t: 0, base: 0, playing: false }; // wall-clock fallback if audio stalls
 
     var audio = new Audio('/bad-apple/audio.mp3');
@@ -156,20 +156,21 @@
       }
     }
 
-    // ── decode one RLE frame -> maskBits (1 = LIT character) ─────────────
-    // Fixed polarity, true to the source: LIGHT (white) pixels become lit
-    // characters, DARK (black) pixels stay the dim page. We do NOT auto-flip to
-    // keep the bright region in the minority — the original's own black/white
-    // inversions show through exactly as animated (figure is sometimes the lit
-    // words, sometimes the dark shadow), instead of switching every frame.
+    // ── decode one RLE frame -> maskBits (0..255 grayscale LUMINANCE) ────
+    // GRAYSCALE, fixed polarity, true to the source: each pixel's actual
+    // brightness becomes the character's brightness, so gradients (the sun's
+    // glow, fades, soft edges) render as semi-lit characters — not just hard
+    // black/white. Format is flat [value,length] pairs, value in 0..levels-1.
+    // We do NOT auto-flip polarity — the original's own black/white inversions
+    // show through exactly as animated.
     function decode(fi) {
       var runs = frames[fi]; if (!runs) return;
-      // runs alternate starting with DARK (c=0), then LIGHT (c=1), ...
-      var pos = 0, c = 0, len, k;
-      for (var r = 0; r < runs.length; r++) {
-        len = runs[r];
-        for (k = 0; k < len; k++) maskBits[pos + k] = c; // c: 0 dark, 1 light
-        pos += len; c ^= 1;
+      var pos = 0, i, len, val, k;
+      for (i = 0; i < runs.length; i += 2) {
+        val = runs[i] * grayStep;       // quantized level -> 0..255 luminance
+        len = runs[i + 1];
+        for (k = 0; k < len; k++) maskBits[pos + k] = val;
+        pos += len;
       }
     }
 
@@ -195,11 +196,12 @@
             if (mx1 > mx0 && figX0 <= c * cellW + cellW && (c * cellW) <= figX0 + figW) {
               var sum = 0, n = 0;
               for (var my = my0; my < my1; my++) { var rowoff = my * MW; for (var mx = mx0; mx < mx1; mx++) { sum += maskBits[rowoff + mx]; n++; } }
-              cov = n ? sum / n : 0;
+              cov = n ? (sum / n) / 255 : 0; // maskBits is 0..255 luminance → normalise to 0..1
             }
           }
-          // contrast curve so characters pop; floor 0 => pure substrate
-          var av = Math.pow(cov, 0.75) * 255; if (av > 255) av = 255;
+          // gamma curve lifts the glow into visible semi-lit characters while a
+          // true 0 stays pure substrate (dark page); gradients render smoothly.
+          var av = Math.pow(cov, 0.7) * 255; if (av > 255) av = 255;
           data[(j * d + c) * 4 + 3] = av; // alpha only; rgb irrelevant for destination-in
         }
       }
@@ -290,7 +292,7 @@
     function load() {
       function done() { if (gotF && gotC) { ready = true; if (opts.onReady) try { opts.onReady(); } catch (e) {} if (opts.autostart) start(); } }
       fetch('/bad-apple/corpus.json').then(function (r) { return r.json(); }).then(function (j) { corpus = j; buildModel(); gotC = true; done(); }).catch(function () { corpus = { locales: {} }; buildModel(); gotC = true; done(); });
-      fetch('/bad-apple/frames.json').then(function (r) { return r.json(); }).then(function (j) { frames = j.frames; nframes = j.nframes || frames.length; if (j.fps) CFG.fps = j.fps; gotF = true; done(); }).catch(function () { gotF = true; done(); });
+      fetch('/bad-apple/frames.json').then(function (r) { return r.json(); }).then(function (j) { frames = j.frames; nframes = j.nframes || frames.length; if (j.fps) CFG.fps = j.fps; grayStep = 255 / ((j.levels || 2) - 1); gotF = true; done(); }).catch(function () { gotF = true; done(); });
     }
 
     // ── controller ──────────────────────────────────────────────────────
