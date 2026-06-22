@@ -55,7 +55,7 @@
 
     // ── playback state ──────────────────────────────────────────────────
     var started = false, paused = false, destroyed = false, ended = false;
-    var raf = 0, scroll = 0, lastFi = -1, inkVal = 1, fcount = 0, glow = null;
+    var raf = 0, scroll = 0, lastFi = -1, inkVal = 1;
     var clock = { t: 0, base: 0, playing: false }; // wall-clock fallback if audio stalls
 
     var audio = new Audio('/bad-apple/audio.mp3');
@@ -94,7 +94,6 @@
 
       maskScrCv.width = cols; maskScrCv.height = rows + 2;
       msctx = maskScrCv.getContext('2d');
-      glow = new Float32Array(maskScrCv.width * maskScrCv.height);
       maskImg = (function () { var c2 = document.createElement('canvas'); c2.width = MW; c2.height = MH; return c2.getContext('2d').createImageData(MW, MH); })();
 
       buildModel();
@@ -167,7 +166,6 @@
     // Aligned to the SAME sub-cell offset as the scrolled text, so glyphs stay
     // whole while scrolling and brighten/dim as a unit (per-character reveal).
     function buildMaskScreen() {
-      fcount++;
       var sub = scroll % cellH;            // sub-cell scroll offset (px)
       var d = maskScrCv.width, h = maskScrCv.height;
       var img = msctx.createImageData(d, h);
@@ -180,7 +178,7 @@
         var my0 = 0, my1 = 1;
         if (inBandY) { my0 = Math.floor(v * MH); my1 = my0 + Math.max(1, Math.round(MH / rows)); if (my1 > MH) my1 = MH; }
         for (var c = 0; c < d; c++) {
-          var idx = j * d + c, cov = 0;
+          var cov = 0;
           if (inBandY) {
             var mx0 = colMaskX[c * 2], mx1 = colMaskX[c * 2 + 1];
             if (mx1 > mx0 && figX0 <= c * cellW + cellW && (c * cellW) <= figX0 + figW) {
@@ -189,14 +187,9 @@
               cov = n ? sum / n : 0;
             }
           }
-          // phosphor afterglow — the figure smears into / out of existence
-          var g = glow[idx] * 0.80; if (cov > g) g = cov; glow[idx] = g;
-          var a = Math.pow(g, 0.72);
-          // crawling edge shimmer (cheap per-cell/per-frame noise) — the
-          // hand-animated shadow-art outline; tiny amplitude so words stay legible
-          if (cov > 0.18 && cov < 0.82) { var nz = ((c * 7 + j * 13 + fcount * 5) & 15) / 15; a *= (0.62 + 0.38 * nz); }
-          var av = a * 255; if (av > 255) av = 255;
-          data[idx * 4 + 3] = av; // alpha only; rgb irrelevant for destination-in
+          // contrast curve so characters pop; floor 0 => pure substrate
+          var av = Math.pow(cov, 0.75) * 255; if (av > 255) av = 255;
+          data[(j * d + c) * 4 + 3] = av; // alpha only; rgb irrelevant for destination-in
         }
       }
       msctx.putImageData(img, 0, 0);
