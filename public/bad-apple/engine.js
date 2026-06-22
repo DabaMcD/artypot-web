@@ -121,9 +121,11 @@
       var needRows = rows + Math.ceil(CFG.duration * 60 * (0.5 * dpr) / cellH) + 8;
       blockRows = needRows;
       model = new Array(blockRows);
+      // Phrase separator: ' œ ' — a single tight glyph. (œ is U+0153 = 339,
+      // a quiet nod to the song's 3:39 runtime / the $3.39 backing trigger.)
       var ti = 0, buf = '';
       for (var r = 0; r < blockRows; r++) {
-        while (buf.length < cols) buf += toks[ti++ % toks.length] + '   ·   ';
+        while (buf.length < cols) buf += toks[ti++ % toks.length] + ' œ ';
         model[r] = buf.slice(0, cols);
         buf = buf.slice(cols);
       }
