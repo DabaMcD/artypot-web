@@ -53,6 +53,12 @@ const NAV_ITEMS = [
     title: 'Data Integrity',
     desc: 'Reconciliation sweeps — ledger drift, orphaned rows, stuck states.',
   },
+  {
+    href: '/obelisk/easter-eggs',
+    icon: '🍎',
+    title: 'Easter Eggs',
+    desc: 'Tag bounties so backing them triggers an easter egg (e.g. Bad Apple).',
+  },
 ] as const;
 
 export default function OverlordPage() {
