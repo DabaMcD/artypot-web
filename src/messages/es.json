@@ -2098,7 +2098,8 @@
     },
     "common": {
       "edit": "Editar",
-      "notSet": "Sin definir"
+      "notSet": "Sin definir",
+      "cancel": "Cancelar"
     },
     "sections": {
       "profile": "perfil público",
@@ -2306,11 +2307,13 @@
   },
   "Search": {
     "header": {
-      "label": "descubrir",
+      "label": "buscar",
       "resultsFor": "Resultados de <highlight>{query}</highlight>",
       "exploreTitle": "explorar",
       "resultsSubtitle": "Creadores, recompensas y handles.",
-      "exploreSubtitle": "Explora creadores y las recompensas que sus comunidades están respaldando."
+      "exploreSubtitle": "Explora creadores y las recompensas que sus comunidades están respaldando.",
+      "promptTitle": "Buscar en Artypot",
+      "promptSubtitle": "Encuentra creadores, handles y recompensas."
     },
     "filters": {
       "all": "Todo",
@@ -2320,7 +2323,9 @@
     "sort": {
       "newest": "más recientes",
       "mostBounties": "más recompensas",
-      "mostCompleted": "más completadas"
+      "mostCompleted": "más completadas",
+      "relevance": "Relevancia",
+      "mostBacked": "Más patrocinadas"
     },
     "sections": {
       "people": "Personas",
@@ -2335,7 +2340,10 @@
       "people": "Ninguna persona coincide con esta búsqueda.",
       "bounties": "Ninguna recompensa coincide con esta búsqueda.",
       "bountiesCreate": "Crea una dirigida a “{query}”",
-      "creators": "todavía no hay creadores verificados"
+      "creators": "todavía no hay creadores verificados",
+      "promptHint": "Escribe para buscar, o entra en los directorios.",
+      "browseCreators": "Explorar creadores",
+      "browseBounties": "Explorar recompensas"
     },
     "actions": {
       "loading": "Cargando…",
@@ -2353,7 +2361,14 @@
       "badgeCreator": "creador",
       "badgeUnverified": "sin verificar",
       "matchedAlias": "alias coincidente: {alias}"
-    }
+    },
+    "searchPlaceholder": "Busca creadores, handles, recompensas…",
+    "searchClear": "Borrar búsqueda",
+    "controls": {
+      "type": "Tipo",
+      "sort": "Ordenar"
+    },
+    "count": "{count, plural, one {# resultado} other {# resultados}}"
   },
   "Pipeline": {
     "pending": "pendiente",

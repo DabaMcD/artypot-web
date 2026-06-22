@@ -2116,7 +2116,8 @@
     },
     "common": {
       "edit": "Edit",
-      "notSet": "Not set"
+      "notSet": "Not set",
+      "cancel": "Cancel"
     },
     "sections": {
       "profile": "public profile",
@@ -2324,11 +2325,13 @@
   },
   "Search": {
     "header": {
-      "label": "discover",
+      "label": "search",
       "resultsFor": "Results for <highlight>{query}</highlight>",
       "exploreTitle": "explore",
       "resultsSubtitle": "Creators, bounties, and handles.",
-      "exploreSubtitle": "Browse creators and the bounties their communities are backing."
+      "exploreSubtitle": "Browse creators and the bounties their communities are backing.",
+      "promptTitle": "Search Artypot",
+      "promptSubtitle": "Find creators, handles, and bounties."
     },
     "filters": {
       "all": "All",
@@ -2338,7 +2341,9 @@
     "sort": {
       "newest": "newest",
       "mostBounties": "most bounties",
-      "mostCompleted": "most completed"
+      "mostCompleted": "most completed",
+      "relevance": "Relevance",
+      "mostBacked": "Most backed"
     },
     "sections": {
       "people": "People",
@@ -2353,7 +2358,10 @@
       "people": "No people match this search.",
       "bounties": "No bounties match this search.",
       "bountiesCreate": "Create one targeting “{query}”",
-      "creators": "no verified creators yet"
+      "creators": "no verified creators yet",
+      "promptHint": "Type to search — or jump into the directories.",
+      "browseCreators": "Browse creators",
+      "browseBounties": "Browse bounties"
     },
     "actions": {
       "loading": "Loading…",
@@ -2371,7 +2379,14 @@
       "badgeCreator": "creator",
       "badgeUnverified": "unverified",
       "matchedAlias": "matched alias: {alias}"
-    }
+    },
+    "searchPlaceholder": "Search creators, handles, bounties…",
+    "searchClear": "Clear search",
+    "controls": {
+      "type": "Type",
+      "sort": "Sort"
+    },
+    "count": "{count, plural, one {# result} other {# results}}"
   },
   "Pipeline": {
     "pending": "pending",

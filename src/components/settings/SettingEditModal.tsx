@@ -64,13 +64,18 @@ export function SettingEditModal({
     };
   }, [busy, onClose]);
 
-  // Autofocus the first field; restore focus to the trigger element on close.
+  // Move focus into the dialog on open; restore it to the trigger on close.
+  // Prefer the first real field, but fall back to any focusable (so fieldless
+  // confirm/info dialogs still pull focus in), then to the container itself.
   useEffect(() => {
     const prevFocused = document.activeElement as HTMLElement | null;
-    const first = containerRef.current?.querySelector<HTMLElement>(
-      'input, select, textarea',
-    );
-    first?.focus();
+    const target =
+      containerRef.current?.querySelector<HTMLElement>('input, select, textarea') ??
+      containerRef.current?.querySelector<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ) ??
+      containerRef.current;
+    target?.focus();
     return () => prevFocused?.focus?.();
   }, []);
 
@@ -86,7 +91,12 @@ export function SettingEditModal({
     const firstEl = list[0];
     const lastEl = list[list.length - 1];
     const active = document.activeElement as HTMLElement;
-    if (e.shiftKey && active === firstEl) {
+    // Focus drifted outside the dialog (e.g. a fieldless modal that never had a
+    // field to land on) — pull it back to the first focusable.
+    if (!list.includes(active)) {
+      e.preventDefault();
+      firstEl.focus();
+    } else if (e.shiftKey && active === firstEl) {
       e.preventDefault();
       lastEl.focus();
     } else if (!e.shiftKey && active === lastEl) {
@@ -116,7 +126,7 @@ export function SettingEditModal({
 
   return (
     <Modal title={title} onClose={() => !busy && onClose()} lg={lg}>
-      <div ref={containerRef} onKeyDown={onKeyDownTrap}>
+      <div ref={containerRef} onKeyDown={onKeyDownTrap} tabIndex={-1} className="outline-none">
         <form onSubmit={handleSubmit}>
           {children}
           <div className="flex items-center justify-end gap-2 mt-6">{footer ?? defaultFooter}</div>

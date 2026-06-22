@@ -31,7 +31,7 @@ export function MiniToggle({
       aria-label={label}
       disabled={saving || disabled}
       onClick={() => !disabled && onChange(!checked)}
-      className={`relative shrink-0 w-9 h-5 rounded-full transition-colors focus:outline-none cursor-pointer ${
+      className={`relative shrink-0 w-9 h-5 rounded-full transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-role)] focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
         disabled ? 'opacity-40' : dimmed ? 'opacity-50' : ''
       } ${checked ? 'bg-[var(--color-role)]' : 'bg-surface-2 border border-border'}`}
     >

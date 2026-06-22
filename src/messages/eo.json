@@ -2098,7 +2098,8 @@
     },
     "common": {
       "edit": "Redakti",
-      "notSet": "Ne agordita"
+      "notSet": "Ne agordita",
+      "cancel": "Nuligi"
     },
     "sections": {
       "profile": "publika profilo",
@@ -2306,11 +2307,13 @@
   },
   "Search": {
     "header": {
-      "label": "malkovru",
+      "label": "serĉi",
       "resultsFor": "Rezultoj por <highlight>{query}</highlight>",
       "exploreTitle": "esploru",
       "resultsSubtitle": "Kreantoj, premioj kaj uzantnomoj.",
-      "exploreSubtitle": "Foliumu kreantojn kaj la premiojn kiujn iliaj komunumoj subtenas."
+      "exploreSubtitle": "Foliumu kreantojn kaj la premiojn kiujn iliaj komunumoj subtenas.",
+      "promptTitle": "Serĉi en Artypot",
+      "promptSubtitle": "Trovu kreintojn, identigilojn kaj premiojn."
     },
     "filters": {
       "all": "Ĉio",
@@ -2320,7 +2323,9 @@
     "sort": {
       "newest": "plej novaj",
       "mostBounties": "plej multaj premioj",
-      "mostCompleted": "plej multaj plenumitaj"
+      "mostCompleted": "plej multaj plenumitaj",
+      "relevance": "Graveco",
+      "mostBacked": "Plej subtenataj"
     },
     "sections": {
       "people": "Homoj",
@@ -2335,7 +2340,10 @@
       "people": "Neniu homo kongruas kun ĉi tiu serĉo.",
       "bounties": "Neniu premio kongruas kun ĉi tiu serĉo.",
       "bountiesCreate": "Kreu unu celantan “{query}”",
-      "creators": "ankoraŭ neniuj kontrolitaj kreantoj"
+      "creators": "ankoraŭ neniuj kontrolitaj kreantoj",
+      "promptHint": "Tajpu por serĉi — aŭ eniru la dosierujojn.",
+      "browseCreators": "Foliumi kreintojn",
+      "browseBounties": "Foliumi premiojn"
     },
     "actions": {
       "loading": "ŝargante…",
@@ -2353,7 +2361,14 @@
       "badgeCreator": "kreanto",
       "badgeUnverified": "nekontrolita",
       "matchedAlias": "kongrua kromnomo: {alias}"
-    }
+    },
+    "searchPlaceholder": "Serĉu kreintojn, identigilojn, premiojn…",
+    "searchClear": "Forigi serĉon",
+    "controls": {
+      "type": "Tipo",
+      "sort": "Ordigi"
+    },
+    "count": "{count, plural, one {# rezulto} other {# rezultoj}}"
   },
   "Pipeline": {
     "pending": "atendanta",
