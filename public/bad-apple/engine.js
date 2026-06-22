@@ -53,7 +53,7 @@
 
     // ── playback state ──────────────────────────────────────────────────
     var started = false, paused = false, destroyed = false, ended = false;
-    var raf = 0, scroll = 0, lastFi = -1, inkVal = 1;
+    var raf = 0, scroll = 0, lastFi = -1;
     var clock = { t: 0, base: 0, playing: false }; // wall-clock fallback if audio stalls
 
     var audio = new Audio('/bad-apple/audio.mp3');
@@ -156,19 +156,19 @@
       }
     }
 
-    // ── decode one RLE frame -> maskBits (1 = figure, auto-polarity) ─────
+    // ── decode one RLE frame -> maskBits (1 = LIT character) ─────────────
+    // Fixed polarity, true to the source: LIGHT (white) pixels become lit
+    // characters, DARK (black) pixels stay the dim page. We do NOT auto-flip to
+    // keep the bright region in the minority — the original's own black/white
+    // inversions show through exactly as animated (figure is sometimes the lit
+    // words, sometimes the dark shadow), instead of switching every frame.
     function decode(fi) {
       var runs = frames[fi]; if (!runs) return;
-      var light = 0, cur = 0, r;
-      for (r = 0; r < runs.length; r++) { if (cur === 1) light += runs[r]; cur ^= 1; }
-      var lf = light / MFS;
-      if (inkVal === 1 && lf > 0.56) inkVal = 0;
-      else if (inkVal === 0 && lf < 0.44) inkVal = 1;
-      else inkVal = lf <= 0.5 ? 1 : 0;
-      var pos = 0, c = 0, len, vis, k;
-      for (r = 0; r < runs.length; r++) {
-        len = runs[r]; vis = (c === inkVal) ? 1 : 0;
-        for (k = 0; k < len; k++) maskBits[pos + k] = vis;
+      // runs alternate starting with DARK (c=0), then LIGHT (c=1), ...
+      var pos = 0, c = 0, len, k;
+      for (var r = 0; r < runs.length; r++) {
+        len = runs[r];
+        for (k = 0; k < len; k++) maskBits[pos + k] = c; // c: 0 dark, 1 light
         pos += len; c ^= 1;
       }
     }
