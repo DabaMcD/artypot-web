@@ -25,6 +25,7 @@ import { toExternalUrl, urlHost, submissionLinkLabel } from '@/lib/url';
 import { useAuth } from '@/lib/auth-context';
 import { useDefaultUpdatePrompt } from '@/lib/default-update-prompt-context';
 import { requestNudgeRefresh } from '@/lib/nudge-context';
+import { maybeFireBadApple } from '@/lib/badApple';
 import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import { useViewMode } from '@/lib/view-mode-context';
 import type { Bounty, BountyHistoryEvent } from '@/lib/types';
@@ -316,6 +317,10 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       // the new backing. An optimistic patch only bumped total_backed, which
       // made the user's just-placed backing surface under "soft backings".
       await refreshBounty();
+      // Easter egg: backing the shadow bounty (or any backing of exactly $3.39,
+      // the song's runtime) summons Bad Apple. Fresh backings only, never on an
+      // update, and fully downstream of / isolated from the backing itself.
+      if (!isUpdate) maybeFireBadApple(bounty, amount, res);
     } catch (err: unknown) {
       const e = err as {
         message?: string;

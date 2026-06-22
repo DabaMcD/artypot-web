@@ -9,7 +9,8 @@ import { countryName } from '@/lib/countries';
  * is frozen (fan_market_open === false) — payment processing isn't available in
  * their region yet. Such a fan can still PLACE backings, which render "soft":
  * they're demand signals for creators, never charged, until we launch in their
- * region — at which point they're emailed (market_available). Persistent — no
+ * region — at which point they're emailed (a mandatory account_management
+ * notice; no opt-out). Persistent — no
  * dismiss. Tone matches PaymentGraceBanner / NudgeBar 'warn'.
  */
 export function FanMarketBanner() {

@@ -51,7 +51,8 @@
       "payouts": "secure the bag 🤑",
       "cashLedger": "money diary 📒",
       "tax": "uncle sam's cut 💀",
-      "handles": "ur @s 🔗"
+      "handles": "ur @s 🔗",
+      "browseCreators": "scout creators 👀"
     },
     "roles": {
       "fan": "glazer",
@@ -85,7 +86,9 @@
     "common": {
       "cancel": "nah im ghostin 🚪💨",
       "save": "lock it in 🔒🗣️",
-      "saving": "saving… brain buffering 🧠⏳"
+      "saving": "saving… brain buffering 🧠⏳",
+      "edit": "tweak it ✏️",
+      "notSet": "nothin yet 🤷"
     },
     "email": {
       "label": "ur email tho 📧",
@@ -98,7 +101,8 @@
       "sending": "sending… buffering 📨🧠",
       "sentBanner": "confirm email YEETED to <strong>{email}</strong> 🚀 tap the link or it's so over 💀",
       "sentBannerShort": "confirm yeeted to <strong>{email}</strong> 🚀 tap the link bestie 🔥",
-      "pendingBanner": "glow-up pending on <strong>{email}</strong> 👀 go peep that inbox gng 📬"
+      "pendingBanner": "glow-up pending on <strong>{email}</strong> 👀 go peep that inbox gng 📬",
+      "pendingBadge": "pending fr ⏳"
     },
     "profilePicture": {
       "label": "ur pfp 🤳✨",
@@ -222,10 +226,6 @@
           "label": "somebody @'d u back 💬🔥",
           "desc": "someone hit u back in a comment thread u were yappin in 🗣️"
         },
-        "regionAvailable": {
-          "label": "ur region just UNLOCKED 🌍🔓",
-          "desc": "payments finally open in ur ends so ur backings can get charged, it's so back 🔥🗣️"
-        },
         "accountManagement": {
           "label": "the boring-but-important pings 🛡️💀",
           "desc": "must-do actions, admin yappin, handle verdicts n all that gng"
@@ -304,6 +304,15 @@
       "cancel": "Cancel",
       "working": "Booting…",
       "error": "Couldn't log out your sessions. Try again."
+    },
+    "sections": {
+      "account": "the account 📇",
+      "profile": "ur profile 😎",
+      "backingDefaults": "backing defaults 🎚️",
+      "privacy": "lowkey mode 🤫",
+      "notifications": "the pings 🔔",
+      "security": "lock it down 🔐",
+      "danger": "danger zone ⚠️💀"
     }
   },
   "About": {
@@ -1684,6 +1693,22 @@
         "commitment": "ur bag 🤑",
         "expiresAfter": "backing self-destructs after 💣💨"
       }
+    },
+    "controls": {
+      "sort": "sort it gng",
+      "show": "show me",
+      "creator": "creator status 👀",
+      "status": "status check 📊"
+    },
+    "sort": {
+      "newest": "freshest drops 🆕",
+      "mostBacked": "most backers most aura 👥🔥",
+      "recentlyCompleted": "just cooked ✅"
+    },
+    "creatorFilter": {
+      "all": "all of em",
+      "verified": "verified real ones ✅",
+      "unverified": "unverified handles, free real estate 🪤"
     }
   },
   "Components": {
@@ -1720,7 +1745,9 @@
       "noDescription": "bio's straight up barren out here 🏜️💀 tumbleweeds gng",
       "statBacked": "bag 🤑",
       "statOpen": "live 👀",
-      "statCompleted": "cooked 🔥"
+      "statCompleted": "cooked 🔥",
+      "unverifiedBadge": "sus 👀",
+      "unverifiedTagline": "back a bounty n drag em onto Artypot fr 🪝"
     }
   },
   "CreatorBounties": {
@@ -2068,6 +2095,17 @@
     },
     "fanSettingsLink": {
       "text": "wanna mess w ur mail, digits, password or other account ops?? 🛠️ <link>bounce to fan settings →</link>"
+    },
+    "common": {
+      "edit": "tweak it ✏️",
+      "notSet": "nothin yet 🤷",
+      "cancel": "nah im ghostin 🚪💨"
+    },
+    "sections": {
+      "profile": "public profile 😎",
+      "presence": "ur presence 🌐",
+      "tax": "tax stuff 🧾",
+      "notifications": "the pings 🔔"
     }
   },
   "CreatorTax": {
@@ -2269,11 +2307,13 @@
   },
   "Search": {
     "header": {
-      "label": "lore unlocked 👁️🫦",
+      "label": "search 🔍",
       "resultsFor": "BRO peep what we cooked for <highlight>{query}</highlight> no cap 🔥👀",
       "exploreTitle": "go scope the ohio rizzlands fr 🌿💀",
       "resultsSubtitle": "creators, bounties, handles, the whole gyatt bestie 🍑",
-      "exploreSubtitle": "lurk thru the goats n watch the gng throw mad bag at they bounties yeah boiii 🤑🔥"
+      "exploreSubtitle": "lurk thru the goats n watch the gng throw mad bag at they bounties yeah boiii 🤑🔥",
+      "promptTitle": "search Artypot fr",
+      "promptSubtitle": "find creators, handles, n bounties gng 🔍"
     },
     "filters": {
       "all": "gimme it ALL 🗿",
@@ -2283,7 +2323,9 @@
     "sort": {
       "newest": "freshest drip 💧",
       "mostBounties": "most bag stacked 🤑",
-      "mostCompleted": "most COOKED 🔥"
+      "mostCompleted": "most COOKED 🔥",
+      "relevance": "most relevant 🎯",
+      "mostBacked": "most backed 💰"
     },
     "sections": {
       "people": "the npcs 🧍💀",
@@ -2298,7 +2340,10 @@
       "people": "no npcs pulled up, barren ohio out here 🏜️💀",
       "bounties": "zero bag matched, crickets only gng 🦗💀",
       "bountiesCreate": "lock in n be the sigma, cook one for “{query}” 🗿🔒",
-      "creators": "no goats verified yet, it's SO over bestie 💀😭"
+      "creators": "no goats verified yet, it's SO over bestie 💀😭",
+      "promptHint": "type to search, or go raid the directories 👀",
+      "browseCreators": "browse creators 👀",
+      "browseBounties": "browse bounties 📋"
     },
     "actions": {
       "loading": "loading… my brain buffering rn 🧠⏳💀",
@@ -2316,7 +2361,14 @@
       "badgeCreator": "goat 🐐",
       "badgeUnverified": "rando 💀",
       "matchedAlias": "caught lackin as: {alias} 👀💀"
-    }
+    },
+    "searchPlaceholder": "type a name, handle, or bounty…",
+    "searchClear": "clear it",
+    "controls": {
+      "type": "type",
+      "sort": "sort"
+    },
+    "count": "{count, plural, one {# hit} other {# hits}}"
   },
   "Pipeline": {
     "pending": "pending 🫠",
@@ -3218,6 +3270,35 @@
     },
     "errors": {
       "generic": "Something broke. Try again."
+    }
+  },
+  "Creators": {
+    "title": "creators 🎬",
+    "subtitle": "scope the creators on Artypot — plus the handles everyone's tryna recruit fr 🪝",
+    "master": {
+      "label": "creator type",
+      "verified": "creators ✅",
+      "unverified": "unverified handles 🪤"
+    },
+    "platformAll": "every platform",
+    "controls": {
+      "platform": "platform",
+      "sort": "sort"
+    },
+    "sort": {
+      "newest": "freshest 🆕",
+      "mostOpen": "most open bounties 📭",
+      "mostCompleted": "most cooked ✅",
+      "mostBacked": "most backers 👥🔥",
+      "mostBounties": "most bounties 🗂️"
+    },
+    "count": "{count, plural, one {# result} other {# results}}",
+    "empty": "straight crickets in here 🦗💀",
+    "error": "couldn't load the creators gng, it's so over 😭 run it back",
+    "pagination": {
+      "previous": "← prev",
+      "next": "next →",
+      "pageOf": "page {current} of {total}"
     }
   }
 }

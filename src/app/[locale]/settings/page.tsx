@@ -25,32 +25,10 @@ import { Toggle as ToggleUI } from '@/components/ui/Toggle';
 import { Modal } from '@/components/ui/Modal';
 import { Banner } from '@/components/ui/Banner';
 import { TwoFactorCard, SessionsCard } from '@/components/settings/SecuritySettingsCards';
-
-// Inline toggle for notification table rows
-function MiniToggle({
-  checked, onChange, saving, label, disabled = false, dimmed = false,
-}: {
-  checked: boolean; onChange: (val: boolean) => void; saving: boolean;
-  label: string; disabled?: boolean; dimmed?: boolean;
-}) {
-  return (
-    <button
-      role="switch"
-      type="button"
-      aria-checked={checked}
-      aria-label={label}
-      disabled={saving || disabled}
-      onClick={() => !disabled && onChange(!checked)}
-      className={`relative shrink-0 w-9 h-5 rounded-full transition-colors focus:outline-none cursor-pointer ${
-        disabled ? 'opacity-40' : dimmed ? 'opacity-50' : ''
-      } ${
-        checked ? 'bg-[var(--color-role)]' : 'bg-surface-2 border border-border'
-      }`}
-    >
-      <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-4' : 'translate-x-0'}`} />
-    </button>
-  );
-}
+import { MiniToggle } from '@/components/settings/MiniToggle';
+import { SettingsSection } from '@/components/settings/SettingsSection';
+import { SettingRow } from '@/components/settings/SettingRow';
+import { SettingEditModal } from '@/components/settings/SettingEditModal';
 
 type ChannelRule = 'toggle' | 'mandatory_on' | 'mandatory_off';
 
@@ -129,12 +107,6 @@ const NOTIF_ROWS: {
     bellKey:  'in_app_comment_reply',  bellRule:  'toggle',
   },
   {
-    id: 'regionAvailable',
-    emailKey: 'market_available',         emailRule: 'toggle',
-    smsKey:   'sms_market_available',     smsRule:   'toggle',
-    bellKey:  'in_app_market_available',  bellRule:  'toggle',
-  },
-  {
     id: 'accountManagement',
     emailKey: null, emailRule: 'mandatory_on',
     smsKey:   null, smsRule:   'mandatory_on',
@@ -142,12 +114,18 @@ const NOTIF_ROWS: {
   },
 ];
 
+// Which edit dialog (if any) is open. The danger-zone confirmations keep their
+// own booleans below since they pre-date this and have bespoke action rows.
+type EditTarget = 'email' | 'phone' | 'name' | 'expiry' | 'amount' | null;
+
 export default function SettingsPage() {
   const t = useTranslations('Settings');
   const money = useMoney();
   const router = useRouter();
   const { user, loading: authLoading, refreshUser, logout } = useAuth();
   const { toast } = useToast();
+
+  const [editing, setEditing] = useState<EditTarget>(null);
 
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -203,18 +181,18 @@ export default function SettingsPage() {
       'creator_verified','bounty_pending_review','bounty_confirmed',
       'backing_confirmed','backing_expired','billing_preview',
       'billing_receipt','bounty_activity','creator_activity','comment_reply',
-      'creator_new_bounty','creator_bounty_verified','market_available',
+      'creator_new_bounty','creator_bounty_verified',
     ];
     const smsKeys: Array<keyof NotificationSettings> = [
       'sms_creator_verified','sms_bounty_pending_review','sms_bounty_confirmed',
       'sms_backing_confirmed','sms_backing_expired','sms_billing_preview',
       'sms_billing_receipt','sms_bounty_activity','sms_creator_activity','sms_comment_reply',
-      'sms_creator_new_bounty','sms_creator_bounty_verified','sms_market_available',
+      'sms_creator_new_bounty','sms_creator_bounty_verified',
     ];
     const bellKeys: Array<keyof NotificationSettings> = [
       'in_app_creator_verified','in_app_bounty_pending_review','in_app_bounty_confirmed',
       'in_app_backing_expired','in_app_billing_receipt','in_app_bounty_activity','in_app_creator_activity',
-      'in_app_comment_reply','in_app_creator_new_bounty','in_app_creator_bounty_verified','in_app_market_available',
+      'in_app_comment_reply','in_app_creator_new_bounty','in_app_creator_bounty_verified',
     ];
 
     if (value) {
@@ -271,20 +249,21 @@ export default function SettingsPage() {
     }
   };
 
-  const handleSaveName = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveName = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!user || !nameInput.trim()) return;
     setNameSaving(true);
     try {
       await usersApi.update(user.id, { display_name: nameInput.trim() });
       await refreshUser();
       toast(t('toasts.nameUpdated'), 'success');
+      setEditing(null);
     } catch { toast(t('toasts.nameFailed'), 'error'); }
     finally { setNameSaving(false); }
   };
 
-  const handleSaveExpiry = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveExpiry = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!user) return;
     const val = parseInt(expiryValue, 10);
     if (isNaN(val) || val < 1 || val > 999) return;
@@ -293,12 +272,13 @@ export default function SettingsPage() {
       await usersApi.update(user.id, { default_expiry_value: val, default_expiry_unit: expiryUnit });
       await refreshUser();
       toast(t('toasts.expirySaved'), 'success');
+      setEditing(null);
     } catch { toast(t('toasts.expiryFailed'), 'error'); }
     finally { setExpirySaving(false); }
   };
 
-  const handleSaveBackingAmount = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveBackingAmount = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!user) return;
     const val = parseFloat(backingAmountInput);
     if (isNaN(val) || val < 1 || val > 9999.99) return;
@@ -307,6 +287,7 @@ export default function SettingsPage() {
       await usersApi.update(user.id, { default_backing_amount: val });
       await refreshUser();
       toast(t('toasts.backingAmountSaved'), 'success');
+      setEditing(null);
     } catch { toast(t('toasts.backingAmountFailed'), 'error'); }
     finally { setBackingAmountSaving(false); }
   };
@@ -333,6 +314,7 @@ export default function SettingsPage() {
       await refreshUser();
       setPhoneStep('idle'); setPhoneInput(undefined); setCodeInput('');
       toast(t('toasts.phoneVerified'), 'success');
+      setEditing(null);
     } catch (err: unknown) {
       const e = err as { message?: string };
       toast(e.message ?? t('toasts.codeInvalid'), 'error');
@@ -346,14 +328,15 @@ export default function SettingsPage() {
       await refreshUser();
       setPhoneStep('idle'); setPhoneInput(undefined); setCodeInput('');
       toast(t('toasts.phoneRemoved'), 'success');
+      setEditing(null);
     } catch (err: unknown) {
       const e = err as { message?: string };
       toast(e.message ?? t('toasts.phoneRemoveFailed'), 'error');
     } finally { setPhoneSaving(false); }
   };
 
-  const handleRequestEmailChange = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRequestEmailChange = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!emailChangeInput.trim()) return;
     if (stepUpRequired(user) && !emailStepUp.trim()) return;
     setEmailChangeLoading(true);
@@ -429,6 +412,13 @@ export default function SettingsPage() {
   const emailChannelAvailable = hasEmail && emailVerified;
   const phoneVerified = !!user.phone_verified_at;
 
+  // Human-readable summary of the saved backing-expiry default for its row.
+  const expiryUnitLabel = (u: string) =>
+    u === 'day' ? t('expiry.unitDay')
+    : u === 'week' ? t('expiry.unitWeek')
+    : u === 'year' ? t('expiry.unitYear')
+    : t('expiry.unitMonth');
+
   return (
     <>
       {/* Broke confirm */}
@@ -487,80 +477,249 @@ export default function SettingsPage() {
         </Modal>
       )}
 
-      <div className="space-y-7 pt-2 max-w-[680px]">
+      {/* ── Edit dialogs ───────────────────────────────────────────────────── */}
+
+      {/* Email — add (no email yet) or change (verified). Hosts the step-up
+          factor and the out-of-band signed-link confirmation flow. */}
+      {editing === 'email' && (
+        <SettingEditModal
+          title={t('email.label')}
+          onClose={() => setEditing(null)}
+          onSubmit={emailChangeSent ? undefined : () => handleRequestEmailChange()}
+          busy={emailChangeLoading}
+          submitLabel={hasEmail ? t('email.changeButton') : t('email.addButton')}
+          savingLabel={t('email.sending')}
+          cancelLabel={t('common.cancel')}
+          submitDisabled={!emailChangeInput.trim() || (stepUpRequired(user) && !emailStepUp.trim())}
+          footer={emailChangeSent ? (
+            <Button type="button" variant="primary" onClick={() => setEditing(null)}>{t('common.cancel')}</Button>
+          ) : undefined}
+        >
+          {!hasEmail && <p className="text-sm text-muted mb-3">{t('email.addBlurb')}</p>}
+          {hasEmail && (
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-sm text-foreground">{user.email}</span>
+              <span className="font-mono text-[10px] uppercase text-good">{t('email.verifiedBadge')}</span>
+            </div>
+          )}
+          {hasEmail && user.pending_email && !emailChangeSent && (
+            <Banner tone="warn" className="mb-3">{t.rich('email.pendingBanner', { email: user.pending_email, strong: (chunks) => <strong>{chunks}</strong> })}</Banner>
+          )}
+          {emailChangeSent ? (
+            <Banner tone="good">
+              {hasEmail
+                ? t.rich('email.sentBannerShort', { email: emailChangeSent, strong: (chunks) => <strong>{chunks}</strong> })
+                : t.rich('email.sentBanner', { email: emailChangeSent, strong: (chunks) => <strong>{chunks}</strong> })}
+            </Banner>
+          ) : (
+            <div className="space-y-3">
+              <Input
+                type="email"
+                required
+                placeholder={hasEmail ? t('email.placeholderNew') : t('email.placeholderExample')}
+                value={emailChangeInput}
+                onChange={(e) => setEmailChangeInput(e.target.value)}
+              />
+              <StepUpField user={user} value={emailStepUp} onChange={setEmailStepUp} />
+            </div>
+          )}
+        </SettingEditModal>
+      )}
+
+      {/* Phone — full send/verify/remove state machine. */}
+      {editing === 'phone' && SMS_ENABLED && (
+        <SettingEditModal
+          title={t('phone.label')}
+          onClose={() => setEditing(null)}
+          cancelLabel={t('common.cancel')}
+          busy={phoneSaving}
+          footer={<Button type="button" variant="ghost" onClick={() => setEditing(null)} disabled={phoneSaving}>{t('common.cancel')}</Button>}
+        >
+          <p className="text-sm text-muted mb-4">{t('phone.blurb')}</p>
+          {phoneVerified ? (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-foreground">{user.phone_number}</span>
+              <span className="font-mono text-[10px] uppercase text-good">{t('phone.verifiedBadge')}</span>
+              <button type="button" onClick={handleRemovePhone} disabled={phoneSaving} className="font-mono text-[10px] uppercase text-muted hover:text-bad transition-colors disabled:opacity-40 ml-auto cursor-pointer">
+                {phoneSaving ? t('phone.removing') : t('phone.remove')}
+              </button>
+            </div>
+          ) : phoneStep === 'awaiting_code' ? (
+            <div className="space-y-3">
+              <p className="text-xs text-muted">{t.rich('phone.codeSentTo', { phone: String(phoneInput ?? ''), strong: (chunks) => <span className="text-foreground font-medium">{chunks}</span> })}</p>
+              <div className="flex gap-2">
+                <Input type="text" inputMode="numeric" maxLength={6} placeholder="000000" value={codeInput} onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, ''))} className="flex-1 tracking-widest" />
+                <Button variant="primary" type="button" disabled={phoneSaving || codeInput.length !== 6} onClick={handleVerifyCode}>
+                  {phoneSaving ? t('phone.verifying') : t('phone.verify')}
+                </Button>
+              </div>
+              <button type="button" onClick={() => { setPhoneStep('idle'); setPhoneInput(undefined); setCodeInput(''); }} className="ap-inline-link text-xs">
+                {t('phone.useDifferent')}
+              </button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <PhoneNumberInput value={phoneInput} onChange={setPhoneInput} disabled={phoneSaving} />
+              <Button variant="primary" type="button" disabled={phoneSaving || !phoneInput || !isValidPhoneNumber(phoneInput!)} onClick={handleSendCode}>
+                {phoneSaving ? t('phone.sending') : t('phone.sendCode')}
+              </Button>
+            </div>
+          )}
+        </SettingEditModal>
+      )}
+
+      {/* Display name */}
+      {editing === 'name' && (
+        <SettingEditModal
+          title={t('displayName.label')}
+          onClose={() => setEditing(null)}
+          onSubmit={() => handleSaveName()}
+          busy={nameSaving}
+          submitLabel={t('displayName.saveButton')}
+          savingLabel={t('common.saving')}
+          cancelLabel={t('common.cancel')}
+          submitDisabled={!nameInput.trim() || nameInput.trim() === user.display_name}
+        >
+          <FieldLabel>{t('displayName.label')}</FieldLabel>
+          <Input type="text" required value={nameInput} onChange={(e) => setNameInput(e.target.value)} />
+        </SettingEditModal>
+      )}
+
+      {/* Default backing expiry */}
+      {editing === 'expiry' && (
+        <SettingEditModal
+          title={t('expiry.label')}
+          onClose={() => setEditing(null)}
+          onSubmit={() => handleSaveExpiry()}
+          busy={expirySaving}
+          submitLabel={t('common.save')}
+          savingLabel={t('common.saving')}
+          cancelLabel={t('common.cancel')}
+          submitDisabled={!expiryValue || parseInt(expiryValue, 10) < 1}
+        >
+          <p className="text-sm text-muted mb-4">{t('expiry.blurb')}</p>
+          <div className="flex gap-2 items-end">
+            <div className="flex-1">
+              <FieldLabel>{t('expiry.lengthLabel')}</FieldLabel>
+              <Input type="number" required min={1} max={999} value={expiryValue} onChange={(e) => setExpiryValue(e.target.value)} />
+            </div>
+            <div className="flex-1">
+              <FieldLabel>{t('expiry.unitLabel')}</FieldLabel>
+              <select
+                value={expiryUnit}
+                onChange={(e) => setExpiryUnit(e.target.value)}
+                className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
+              >
+                <option value="day">{t('expiry.unitDay')}</option>
+                <option value="week">{t('expiry.unitWeek')}</option>
+                <option value="month">{t('expiry.unitMonth')}</option>
+                <option value="year">{t('expiry.unitYear')}</option>
+              </select>
+            </div>
+          </div>
+        </SettingEditModal>
+      )}
+
+      {/* Default backing amount */}
+      {editing === 'amount' && (
+        <SettingEditModal
+          title={t('backingAmount.label')}
+          onClose={() => setEditing(null)}
+          onSubmit={() => handleSaveBackingAmount()}
+          busy={backingAmountSaving}
+          submitLabel={t('common.save')}
+          savingLabel={t('common.saving')}
+          cancelLabel={t('common.cancel')}
+          submitDisabled={!backingAmountInput || parseFloat(backingAmountInput) < 1}
+        >
+          <p className="text-sm text-muted mb-4">{t('backingAmount.blurb')}</p>
+          <FieldLabel>{t('backingAmount.amountLabel')}</FieldLabel>
+          <Input type="number" required min={1} max={9999.99} step={0.01} value={backingAmountInput} onChange={(e) => setBackingAmountInput(e.target.value)} />
+        </SettingEditModal>
+      )}
+
+      <div className="space-y-5 pt-2 max-w-[680px]">
         <div>
           <SectionLabel>{t('breadcrumb.fan')} · {t('breadcrumb.settings')}</SectionLabel>
           <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('hero.title')}</h1>
         </div>
 
-        {/* Email */}
-        <div id="email">
-        {!hasEmail ? (
-          <Card>
-            <SectionLabel className="mb-3">{t('email.label')}</SectionLabel>
-            <p className="text-sm text-muted mb-4">{t('email.addBlurb')}</p>
-            {emailChangeSent ? (
-              <Banner tone="good">{t.rich('email.sentBanner', { email: emailChangeSent, strong: (chunks) => <strong>{chunks}</strong> })}</Banner>
-            ) : (
-              <form onSubmit={handleRequestEmailChange} className="space-y-3">
-                <div className="flex gap-2">
-                  <Input type="email" required placeholder={t('email.placeholderExample')} value={emailChangeInput} onChange={(e) => setEmailChangeInput(e.target.value)} className="flex-1" />
-                  <Button type="submit" variant="default" disabled={emailChangeLoading || !emailChangeInput.trim() || (stepUpRequired(user) && !emailStepUp.trim())}>
-                    {emailChangeLoading ? t('email.sending') : t('email.addButton')}
-                  </Button>
-                </div>
-                <StepUpField user={user} value={emailStepUp} onChange={setEmailStepUp} />
-              </form>
-            )}
-          </Card>
-        ) : !emailVerified ? (
-          <EmailVerificationBanner email={user.email} />
-        ) : (
-          <Card>
-            <SectionLabel className="mb-3">{t('email.label')}</SectionLabel>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-sm text-foreground">{user.email}</span>
-              <span className="font-mono text-[10px] uppercase text-good">{t('email.verifiedBadge')}</span>
+        {/* ── Account ──────────────────────────────────────────────────────── */}
+        <SettingsSection title={t('sections.account')}>
+          {/* Email — unverified shows the resend banner; otherwise a row. */}
+          {hasEmail && !emailVerified ? (
+            <div id="email" className="py-4 first:pt-1">
+              <EmailVerificationBanner email={user.email} />
             </div>
-            {user.pending_email && !emailChangeSent && (
-              <Banner tone="warn" className="mb-3">{t.rich('email.pendingBanner', { email: user.pending_email, strong: (chunks) => <strong>{chunks}</strong> })}</Banner>
-            )}
-            {emailChangeSent ? (
-              <Banner tone="good">{t.rich('email.sentBannerShort', { email: emailChangeSent, strong: (chunks) => <strong>{chunks}</strong> })}</Banner>
-            ) : (
-              <form onSubmit={handleRequestEmailChange} className="space-y-3">
-                <div className="flex gap-2">
-                  <Input type="email" required placeholder={t('email.placeholderNew')} value={emailChangeInput} onChange={(e) => setEmailChangeInput(e.target.value)} className="flex-1" />
-                  <Button type="submit" variant="default" disabled={emailChangeLoading || !emailChangeInput.trim() || (stepUpRequired(user) && !emailStepUp.trim())}>
-                    {emailChangeLoading ? t('email.sending') : t('email.changeButton')}
-                  </Button>
-                </div>
-                <StepUpField user={user} value={emailStepUp} onChange={setEmailStepUp} />
-              </form>
-            )}
-          </Card>
-        )}
-        </div>
+          ) : (
+            <SettingRow
+              id="email"
+              label={t('email.label')}
+              value={hasEmail ? user.email : t('common.notSet')}
+              badge={hasEmail
+                ? <span className="font-mono text-[10px] uppercase text-good">{t('email.verifiedBadge')}</span>
+                : undefined}
+              description={hasEmail && user.pending_email
+                ? <span className="text-bad">{t.rich('email.pendingBanner', { email: user.pending_email, strong: (c) => <strong>{c}</strong> })}</span>
+                : undefined}
+              editLabel={hasEmail ? t('common.edit') : t('email.addButton')}
+              onEdit={() => { setEmailChangeSent(null); setEmailChangeInput(''); setEmailStepUp(''); setEditing('email'); }}
+            />
+          )}
 
-        {/* Profile picture, display name and bio are edited here for fans. For
-            creators these are owned by /c/settings (the public-profile editor);
-            the "creator profile" card below is their single doorway there, so we
-            don't render empty redirect stubs for each field. */}
-        {user.role !== 'creator' && (
-          <Card>
-            <SectionLabel className="mb-4">{t('profilePicture.label')}</SectionLabel>
-            <div className="flex items-center gap-4">
-              <div className="relative w-16 h-16 rounded-full overflow-hidden bg-surface-2 border border-border shrink-0">
-                {user.profile_picture ? (
-                  <Image src={user.profile_picture} alt={t('profilePicture.alt')} fill className="object-cover" unoptimized />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-2xl text-muted select-none font-bold">
-                    {user.display_name?.charAt(0).toUpperCase() ?? '?'}
-                  </div>
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                {cloudName ? (
+          {/* Phone — only while SMS is enabled platform-wide. */}
+          {SMS_ENABLED && (
+            <SettingRow
+              id="phone"
+              label={t('phone.label')}
+              value={phoneVerified ? user.phone_number : t('common.notSet')}
+              badge={phoneVerified
+                ? <span className="font-mono text-[10px] uppercase text-good">{t('phone.verifiedBadge')}</span>
+                : undefined}
+              editLabel={phoneVerified ? t('common.edit') : t('phone.sendCode')}
+              onEdit={() => setEditing('phone')}
+            />
+          )}
+
+          {/* Password — only available to verified-email accounts. */}
+          {hasEmail && emailVerified && (
+            <SettingRow
+              label={t('password.label')}
+              description={t('password.blurb')}
+              action={<Link href="/settings/password"><Button variant="default" size="sm">{t('password.cta')}</Button></Link>}
+            />
+          )}
+
+          {/* Language — the switcher itself is the picker. */}
+          <div id="language" className="py-4 last:pb-1">
+            <LanguageSwitcher variant="settings" />
+            <p className="text-xs text-muted mt-2">{t('language.blurb')}</p>
+          </div>
+        </SettingsSection>
+
+        {/* ── Profile ──────────────────────────────────────────────────────── */}
+        {/* Fans edit their picture + name here. Creators manage these on
+            /c/settings, so they instead get a single doorway row. */}
+        <SettingsSection title={t('sections.profile')}>
+          {user.role !== 'creator' ? (
+            <>
+              <SettingRow
+                label={t('profilePicture.label')}
+                value={
+                  <span className="inline-flex items-center gap-2">
+                    <span className="relative w-8 h-8 rounded-full overflow-hidden bg-surface-2 border border-border shrink-0 inline-block align-middle">
+                      {user.profile_picture ? (
+                        <Image src={user.profile_picture} alt={t('profilePicture.alt')} fill className="object-cover" unoptimized />
+                      ) : (
+                        <span className="w-full h-full flex items-center justify-center text-sm text-muted select-none font-bold">
+                          {user.display_name?.charAt(0).toUpperCase() ?? '?'}
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-xs text-muted">{t('profilePicture.anySize')}</span>
+                  </span>
+                }
+                action={cloudName ? (
                   <CldUploadWidget
                     uploadPreset={uploadPreset}
                     options={{ sources: ['local', 'url', 'camera'], cropping: true, croppingAspectRatio: 1, multiple: false, folder: 'artypot/profiles', ...AVATAR_UPLOAD_OPTIONS }}
@@ -578,192 +737,63 @@ export default function SettingsPage() {
                     )}
                   </CldUploadWidget>
                 ) : (
-                  <p className="text-xs text-bad">
-                    {t('profilePicture.unavailable')}
-                  </p>
+                  <span className="text-xs text-bad">{t('profilePicture.unavailable')}</span>
                 )}
-                <p className="text-xs text-muted mt-2">
-                  {t('profilePicture.anySize')}
-                </p>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Display name — fans edit here; creators edit on /c/settings */}
-        {user.role !== 'creator' && (
-          <Card>
-            <SectionLabel className="mb-3">{t('displayName.label')}</SectionLabel>
-            <form onSubmit={handleSaveName} className="flex gap-2">
-              <Input type="text" required value={nameInput} onChange={(e) => setNameInput(e.target.value)} className="flex-1" />
-              <Button type="submit" variant="default" disabled={nameSaving || !nameInput.trim() || nameInput.trim() === user.display_name}>
-                {nameSaving ? t('common.saving') : t('displayName.saveButton')}
-              </Button>
-            </form>
-          </Card>
-        )}
-
-        {/* Default backing expiry */}
-        <Card>
-          <SectionLabel className="mb-1">{t('expiry.label')}</SectionLabel>
-          <p className="text-sm text-muted mb-4">
-            {t('expiry.blurb')}
-          </p>
-          <form onSubmit={handleSaveExpiry} className="flex gap-2 items-end">
-            <div className="flex-1">
-              <FieldLabel>{t('expiry.lengthLabel')}</FieldLabel>
-              <Input
-                type="number"
-                required
-                min={1}
-                max={999}
-                value={expiryValue}
-                onChange={(e) => setExpiryValue(e.target.value)}
               />
-            </div>
-            <div className="flex-1">
-              <FieldLabel>{t('expiry.unitLabel')}</FieldLabel>
-              <select
-                value={expiryUnit}
-                onChange={(e) => setExpiryUnit(e.target.value)}
-                className="w-full bg-surface border border-border rounded px-3 py-2 text-sm text-foreground focus:outline-none focus:border-[var(--color-role)] transition-colors"
-              >
-                <option value="day">{t('expiry.unitDay')}</option>
-                <option value="week">{t('expiry.unitWeek')}</option>
-                <option value="month">{t('expiry.unitMonth')}</option>
-                <option value="year">{t('expiry.unitYear')}</option>
-              </select>
-            </div>
-            <Button
-              type="submit"
-              variant="default"
-              disabled={expirySaving || !expiryValue || parseInt(expiryValue, 10) < 1}
-            >
-              {expirySaving ? t('common.saving') : t('common.save')}
-            </Button>
-          </form>
-        </Card>
-
-        {/* Default backing amount */}
-        <Card>
-          <SectionLabel className="mb-1">{t('backingAmount.label')}</SectionLabel>
-          <p className="text-sm text-muted mb-4">
-            {t('backingAmount.blurb')}
-          </p>
-          <form onSubmit={handleSaveBackingAmount} className="flex gap-2 items-end">
-            <div className="flex-1">
-              <FieldLabel>{t('backingAmount.amountLabel')}</FieldLabel>
-              <Input
-                type="number"
-                required
-                min={1}
-                max={9999.99}
-                step={0.01}
-                value={backingAmountInput}
-                onChange={(e) => setBackingAmountInput(e.target.value)}
+              <SettingRow
+                label={t('displayName.label')}
+                value={user.display_name}
+                editLabel={t('common.edit')}
+                onEdit={() => { setNameInput(user.display_name ?? ''); setEditing('name'); }}
               />
-            </div>
-            <Button
-              type="submit"
-              variant="default"
-              disabled={backingAmountSaving || !backingAmountInput || parseFloat(backingAmountInput) < 1}
-            >
-              {backingAmountSaving ? t('common.saving') : t('common.save')}
-            </Button>
-          </form>
-        </Card>
-
-        {/* Privacy */}
-        <Card>
-          <SectionLabel className="mb-4">{t('privacy.label')}</SectionLabel>
-          <div className="flex items-start justify-between gap-6">
-            <div className="flex-1">
-              <div className="text-sm font-medium text-foreground mb-0.5">{t('privacy.anonTitle')} <span className="font-mono text-[9px] uppercase text-muted">{t('privacy.beta')}</span></div>
-              <p className="text-xs text-muted">{t('privacy.anonDesc')}</p>
-            </div>
-            <ToggleUI on={isAnonymous} onChange={(val) => handleToggle('is_anonymous', val)} label="" disabled={saving} />
-          </div>
-        </Card>
-
-        {/* Billing */}
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <SectionLabel className="mb-1">{t('billing.label')}</SectionLabel>
-              <p className="text-sm text-muted">{t('billing.blurb')}</p>
-            </div>
-            <Link href="/billing"><Button variant="default" size="sm">{t('billing.cta')}</Button></Link>
-          </div>
-        </Card>
-
-        {/* Creator profile link — this is the single doorway to the creator
-            profile editors (which is why the per-field stubs were removed). Gate
-            on role only: the inverse cards above hide for `role === 'creator'`,
-            so a creator must always have this card or they'd have no profile
-            editing affordance at all. */}
-        {user.role === 'creator' && (
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <SectionLabel className="mb-1">{t('creatorProfile.label')}</SectionLabel>
-                <p className="text-sm text-muted">{t('creatorProfile.blurb')}</p>
-              </div>
-              <Link href="/c/settings"><Button variant="default" size="sm">{t('creatorProfile.cta')}</Button></Link>
-            </div>
-          </Card>
-        )}
-
-        {/* Language — switcher persists the choice to the user's account.
-            (Section header + blurb are translated wholesale in the settings
-            string-migration pass; the switcher's own labels are localized.) */}
-        <div id="language">
-        <Card>
-          <SectionLabel className="mb-2">{t('language.title')}</SectionLabel>
-          <p className="text-sm text-muted mb-4">{t('language.blurb')}</p>
-          <LanguageSwitcher variant="settings" />
-        </Card>
-        </div>
-
-        {/* Phone number — hidden while SMS is disabled platform-wide (see lib/features.ts). */}
-        {SMS_ENABLED && (
-        <div id="phone">
-        <Card>
-          <SectionLabel className="mb-2">{t('phone.label')}</SectionLabel>
-          <p className="text-sm text-muted mb-4">{t('phone.blurb')}</p>
-          {phoneVerified ? (
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-foreground">{user.phone_number}</span>
-              <span className="font-mono text-[10px] uppercase text-good">{t('phone.verifiedBadge')}</span>
-              <button type="button" onClick={handleRemovePhone} disabled={phoneSaving} className="font-mono text-[10px] uppercase text-muted hover:text-bad transition-colors disabled:opacity-40 ml-auto cursor-pointer">
-                {phoneSaving ? t('phone.removing') : t('phone.remove')}
-              </button>
-            </div>
-          ) : phoneStep === 'awaiting_code' ? (
-            <div className="space-y-3">
-              <p className="text-xs text-muted">{t.rich('phone.codeSentTo', { phone: String(phoneInput ?? ''), strong: (chunks) => <span className="text-foreground font-medium">{chunks}</span> })}</p>
-              <div className="flex gap-2">
-                <Input type="text" inputMode="numeric" maxLength={6} placeholder="000000" value={codeInput} onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, ''))} className="flex-1 tracking-widest" />
-                <Button variant="primary" disabled={phoneSaving || codeInput.length !== 6} onClick={handleVerifyCode}>
-                  {phoneSaving ? t('phone.verifying') : t('phone.verify')}
-                </Button>
-              </div>
-              <button type="button" onClick={() => { setPhoneStep('idle'); setPhoneInput(undefined); setCodeInput(''); }} className="ap-inline-link text-xs">
-                {t('phone.useDifferent')}
-              </button>
-            </div>
+            </>
           ) : (
-            <div className="flex gap-2">
-              <PhoneNumberInput value={phoneInput} onChange={setPhoneInput} disabled={phoneSaving} />
-              <Button variant="primary" disabled={phoneSaving || !phoneInput || !isValidPhoneNumber(phoneInput!)} onClick={handleSendCode}>
-                {phoneSaving ? t('phone.sending') : t('phone.sendCode')}
-              </Button>
-            </div>
+            <SettingRow
+              label={t('creatorProfile.label')}
+              description={t('creatorProfile.blurb')}
+              action={<Link href="/c/settings"><Button variant="default" size="sm">{t('creatorProfile.cta')}</Button></Link>}
+            />
           )}
-        </Card>
-        </div>
-        )}
+        </SettingsSection>
 
-        {/* Notifications */}
+        {/* ── Backing defaults ─────────────────────────────────────────────── */}
+        <SettingsSection title={t('sections.backingDefaults')}>
+          <SettingRow
+            label={t('expiry.label')}
+            value={`${user.default_expiry_value ?? 39} ${expiryUnitLabel(user.default_expiry_unit ?? 'month')}`}
+            editLabel={t('common.edit')}
+            onEdit={() => {
+              setExpiryValue(String(user.default_expiry_value ?? 39));
+              setExpiryUnit(user.default_expiry_unit ?? 'month');
+              setEditing('expiry');
+            }}
+          />
+          <SettingRow
+            label={t('backingAmount.label')}
+            value={money(Number(user.default_backing_amount ?? DEFAULT_BACKING_AMOUNT_FALLBACK))}
+            editLabel={t('common.edit')}
+            onEdit={() => {
+              setBackingAmountInput(String(user.default_backing_amount ?? DEFAULT_BACKING_AMOUNT_FALLBACK));
+              setEditing('amount');
+            }}
+          />
+          <SettingRow
+            label={t('billing.label')}
+            description={t('billing.blurb')}
+            action={<Link href="/billing"><Button variant="default" size="sm">{t('billing.cta')}</Button></Link>}
+          />
+        </SettingsSection>
+
+        {/* ── Privacy ──────────────────────────────────────────────────────── */}
+        <SettingsSection title={t('sections.privacy')}>
+          <SettingRow
+            label={<>{t('privacy.anonTitle')} <span className="font-mono text-[9px] uppercase text-muted">{t('privacy.beta')}</span></>}
+            description={t('privacy.anonDesc')}
+            action={<ToggleUI on={isAnonymous} onChange={(val) => handleToggle('is_anonymous', val)} label="" disabled={saving} />}
+          />
+        </SettingsSection>
+
+        {/* ── Notifications ────────────────────────────────────────────────── */}
         <div id="notifications">
         <Card>
           <SectionLabel className="mb-4">{t('notifications.label')}</SectionLabel>
@@ -877,49 +907,24 @@ export default function SettingsPage() {
         </Card>
         </div>
 
-        {/* Password */}
-        {hasEmail && emailVerified && (
-          <Card>
-            <div className="flex items-center justify-between">
-              <div>
-                <SectionLabel className="mb-1">{t('password.label')}</SectionLabel>
-                <p className="text-sm text-muted">{t('password.blurb')}</p>
-              </div>
-              <Link href="/settings/password"><Button variant="default" size="sm">{t('password.cta')}</Button></Link>
-            </div>
-          </Card>
-        )}
-
-        {/* Creator tax residence + handles are edited on /c/settings and
-            /c/handles; the "creator profile" card above is the single doorway,
-            so no empty redirect stubs are rendered here. */}
-
-        {/* Security — two-factor + active sessions */}
+        {/* ── Security — two-factor + active sessions ─────────────────────── */}
         <TwoFactorCard />
         <SessionsCard />
 
-        {/* Danger zone */}
-        <Card className="border-bad/30">
-          <SectionLabel className="mb-4 text-bad">{t('danger.label')}</SectionLabel>
-
-          <div className="flex items-start justify-between gap-6 py-4 border-b border-border">
-            <div className="flex-1">
-              <p className="font-bold text-foreground mb-0.5">{t('danger.brokeTitle')}</p>
-              <p className="text-sm text-muted">{t('danger.brokeDesc')}</p>
-            </div>
-            <Button variant="danger" onClick={() => { setDangerMsg(''); setShowBrokeConfirm(true); }}>{t('danger.brokeButton')}</Button>
-          </div>
-
-          <div className="flex items-start justify-between gap-6 pt-4">
-            <div className="flex-1">
-              <p className="font-bold text-foreground mb-0.5">{t('danger.deleteTitle')}</p>
-              <p className="text-sm text-muted">{t('danger.deleteDesc')}</p>
-            </div>
-            <Button variant="danger" onClick={() => { setDangerMsg(''); setShowDeleteConfirm(true); }}>{t('danger.deleteButton')}</Button>
-          </div>
-
-          {dangerMsg && <p className="text-sm text-bad mt-3">{dangerMsg}</p>}
-        </Card>
+        {/* ── Danger zone ──────────────────────────────────────────────────── */}
+        <SettingsSection title={t('danger.label')} danger>
+          <SettingRow
+            label={t('danger.brokeTitle')}
+            description={t('danger.brokeDesc')}
+            action={<Button variant="danger" size="sm" onClick={() => { setDangerMsg(''); setShowBrokeConfirm(true); }}>{t('danger.brokeButton')}</Button>}
+          />
+          <SettingRow
+            label={t('danger.deleteTitle')}
+            description={t('danger.deleteDesc')}
+            action={<Button variant="danger" size="sm" onClick={() => { setDangerMsg(''); setShowDeleteConfirm(true); }}>{t('danger.deleteButton')}</Button>}
+          />
+          {dangerMsg && <p className="text-sm text-bad pt-3">{dangerMsg}</p>}
+        </SettingsSection>
       </div>
     </>
   );

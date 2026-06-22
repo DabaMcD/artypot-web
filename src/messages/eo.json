@@ -51,7 +51,8 @@
       "payouts": "Elpagoj",
       "cashLedger": "Kaslibro",
       "tax": "Impostoj kaj plenumo",
-      "handles": "Kontonomoj"
+      "handles": "Kontonomoj",
+      "browseCreators": "Foliumi kreintojn"
     },
     "roles": {
       "fan": "fano",
@@ -85,7 +86,9 @@
     "common": {
       "cancel": "Nuligi",
       "save": "Konservi",
-      "saving": "Konservante…"
+      "saving": "Konservante…",
+      "edit": "Redakti",
+      "notSet": "Ne agordita"
     },
     "email": {
       "label": "retpoŝta adreso",
@@ -98,7 +101,8 @@
       "sending": "Sendante…",
       "sentBanner": "Konfirma retmesaĝo sendita al <strong>{email}</strong>. Klaku la ligilon por kompletigi.",
       "sentBannerShort": "Konfirmo sendita al <strong>{email}</strong>. Klaku la ligilon por kompletigi.",
-      "pendingBanner": "Atendanta ŝanĝo al <strong>{email}</strong> — kontrolu tiun enirkeston."
+      "pendingBanner": "Atendanta ŝanĝo al <strong>{email}</strong> — kontrolu tiun enirkeston.",
+      "pendingBadge": "atendanta"
     },
     "profilePicture": {
       "label": "profila bildo",
@@ -222,10 +226,6 @@
           "label": "komenta respondo",
           "desc": "iu respondis al komenta fadeno en kiu vi partoprenis."
         },
-        "regionAvailable": {
-          "label": "regiono disponebla",
-          "desc": "pagtraktado malfermiĝas en via regiono, do viaj subtenoj povas esti ŝargitaj."
-        },
         "accountManagement": {
           "label": "konto-administrado",
           "desc": "necesaj agoj, administraj mesaĝoj, rezultoj de identigila kontrolo."
@@ -304,6 +304,15 @@
       "cancel": "Nuligi",
       "working": "Elsalutante…",
       "error": "Ne eblis elsaluti viajn seancojn. Bonvolu reprovi."
+    },
+    "sections": {
+      "account": "konto",
+      "profile": "profilo",
+      "backingDefaults": "defaŭltoj",
+      "privacy": "privateco",
+      "notifications": "sciigoj",
+      "security": "sekureco",
+      "danger": "danĝera zono"
     }
   },
   "About": {
@@ -1684,6 +1693,22 @@
         "commitment": "via engaĝiĝo",
         "expiresAfter": "subteno eksvalidiĝas post"
       }
+    },
+    "controls": {
+      "sort": "Ordigi",
+      "show": "Montri",
+      "creator": "Stato de kreinto",
+      "status": "Stato"
+    },
+    "sort": {
+      "newest": "Plej novaj",
+      "mostBacked": "Plej multaj subtenantoj",
+      "recentlyCompleted": "Lastatempe plenumitaj"
+    },
+    "creatorFilter": {
+      "all": "Ĉiuj",
+      "verified": "Kontrolitaj kreintoj",
+      "unverified": "Nekontrolitaj identigiloj"
     }
   },
   "Components": {
@@ -1720,7 +1745,9 @@
       "noDescription": "Ankoraŭ neniu priskribo.",
       "statBacked": "subtenita",
       "statOpen": "malfermitaj",
-      "statCompleted": "plenumitaj"
+      "statCompleted": "plenumitaj",
+      "unverifiedBadge": "nekontrolita",
+      "unverifiedTagline": "Subtenu premion por venigi ilin al Artypot."
     }
   },
   "CreatorBounties": {
@@ -2068,6 +2095,17 @@
     },
     "fanSettingsLink": {
       "text": "Por redakti vian retpoŝton, telefonnumeron, pasvorton aŭ aliajn kontagordojn, <link>iru al adorant-agordoj →</link>"
+    },
+    "common": {
+      "edit": "Redakti",
+      "notSet": "Ne agordita",
+      "cancel": "Nuligi"
+    },
+    "sections": {
+      "profile": "publika profilo",
+      "presence": "ĉeesto",
+      "tax": "impostoj kaj plenumo",
+      "notifications": "sciigoj"
     }
   },
   "CreatorTax": {
@@ -2269,11 +2307,13 @@
   },
   "Search": {
     "header": {
-      "label": "malkovru",
+      "label": "serĉi",
       "resultsFor": "Rezultoj por <highlight>{query}</highlight>",
       "exploreTitle": "esploru",
       "resultsSubtitle": "Kreantoj, premioj kaj uzantnomoj.",
-      "exploreSubtitle": "Foliumu kreantojn kaj la premiojn kiujn iliaj komunumoj subtenas."
+      "exploreSubtitle": "Foliumu kreantojn kaj la premiojn kiujn iliaj komunumoj subtenas.",
+      "promptTitle": "Serĉi en Artypot",
+      "promptSubtitle": "Trovu kreintojn, identigilojn kaj premiojn."
     },
     "filters": {
       "all": "Ĉio",
@@ -2283,7 +2323,9 @@
     "sort": {
       "newest": "plej novaj",
       "mostBounties": "plej multaj premioj",
-      "mostCompleted": "plej multaj plenumitaj"
+      "mostCompleted": "plej multaj plenumitaj",
+      "relevance": "Graveco",
+      "mostBacked": "Plej subtenataj"
     },
     "sections": {
       "people": "Homoj",
@@ -2298,7 +2340,10 @@
       "people": "Neniu homo kongruas kun ĉi tiu serĉo.",
       "bounties": "Neniu premio kongruas kun ĉi tiu serĉo.",
       "bountiesCreate": "Kreu unu celantan “{query}”",
-      "creators": "ankoraŭ neniuj kontrolitaj kreantoj"
+      "creators": "ankoraŭ neniuj kontrolitaj kreantoj",
+      "promptHint": "Tajpu por serĉi — aŭ eniru la dosierujojn.",
+      "browseCreators": "Foliumi kreintojn",
+      "browseBounties": "Foliumi premiojn"
     },
     "actions": {
       "loading": "ŝargante…",
@@ -2316,7 +2361,14 @@
       "badgeCreator": "kreanto",
       "badgeUnverified": "nekontrolita",
       "matchedAlias": "kongrua kromnomo: {alias}"
-    }
+    },
+    "searchPlaceholder": "Serĉu kreintojn, identigilojn, premiojn…",
+    "searchClear": "Forigi serĉon",
+    "controls": {
+      "type": "Tipo",
+      "sort": "Ordigi"
+    },
+    "count": "{count, plural, one {# rezulto} other {# rezultoj}}"
   },
   "Pipeline": {
     "pending": "atendanta",
@@ -3218,6 +3270,35 @@
     },
     "errors": {
       "generic": "Io misfunkciis. Bonvolu reprovi."
+    }
+  },
+  "Creators": {
+    "title": "Kreintoj",
+    "subtitle": "Esploru la kreintojn de Artypot — kaj la identigilojn kiujn homoj volas varbi.",
+    "master": {
+      "label": "Tipo de kreinto",
+      "verified": "Kreintoj",
+      "unverified": "Nekontrolitaj identigiloj"
+    },
+    "platformAll": "Ĉiuj platformoj",
+    "controls": {
+      "platform": "Platformo",
+      "sort": "Ordigi"
+    },
+    "sort": {
+      "newest": "Plej novaj",
+      "mostOpen": "Plej multaj malfermitaj premioj",
+      "mostCompleted": "Plej multaj plenumitaj",
+      "mostBacked": "Plej multaj subtenantoj",
+      "mostBounties": "Plej multaj premioj"
+    },
+    "count": "{count, plural, one {# rezulto} other {# rezultoj}}",
+    "empty": "Neniuj rezultoj.",
+    "error": "Ne eblis ŝargi la kreintojn.",
+    "pagination": {
+      "previous": "Antaŭa",
+      "next": "Sekva",
+      "pageOf": "Paĝo {current} el {total}"
     }
   }
 }

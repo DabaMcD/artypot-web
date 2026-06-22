@@ -33,6 +33,8 @@ import type {
   HandleRegistryRow,
   HandleDossier,
   UnclaimedHandlePot,
+  CreatorDirectoryEntry,
+  CreatorFacets,
   BountyReportRow,
   ExternalPayout,
   CreatorSearchResult,
@@ -394,6 +396,7 @@ export const phone = {
 
 // Creators
 export const creators = {
+  /** Verified-creator list (header search results, creator-search widget). */
   list: (params?: {
     q?: string;
     page?: number;
@@ -405,6 +408,31 @@ export const creators = {
     const qs = new URLSearchParams(entries).toString();
     return request<PaginatedResponse<Creator>>(`/creators${qs ? `?${qs}` : ''}`);
   },
+
+  /**
+   * The /creators directory: verified creators or unclaimed handles, sortable
+   * and platform-filterable. Hits the same endpoint as list() but returns the
+   * directory union (a handle row carries `kind: 'handle'`).
+   */
+  browse: (params: {
+    type: 'verified' | 'unverified';
+    platform?: string;
+    /**
+     * Verified: newest | most_open | most_completed | most_backed.
+     * Unverified: newest | most_bounties | most_backed.
+     */
+    sort?: string;
+    page?: number;
+  }) => {
+    const entries = Object.entries(params)
+      .filter(([, v]) => v != null)
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<PaginatedResponse<CreatorDirectoryEntry>>(`/creators?${qs}`);
+  },
+
+  /** GET /creators/facets — master + per-platform counts for the directory chips. */
+  facets: () => request<{ data: CreatorFacets }>('/creators/facets'),
 
   get: (id: number) => request<{ data: Creator }>(`/creators/${id}`),
 
@@ -443,7 +471,19 @@ export const creators = {
 
 // Bounties
 export const bounties = {
-  list: (params?: { creator_id?: number; handle_id?: number; status?: BountyStatus; page?: number }) => {
+  list: (params?: {
+    creator_id?: number;
+    handle_id?: number;
+    /** Legacy exact-status filter (creator dashboard, per-creator lists). */
+    status?: BountyStatus;
+    /** Browse state filter: open | completed | all (never reveals revoked). */
+    state?: 'open' | 'completed' | 'all';
+    /** verified (targets a creator) | unverified (targets an unclaimed handle). */
+    creator_status?: 'all' | 'verified' | 'unverified';
+    /** newest | most_backed (by backer count) | recently_completed. */
+    sort?: 'newest' | 'most_backed' | 'recently_completed';
+    page?: number;
+  }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
