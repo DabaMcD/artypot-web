@@ -135,9 +135,9 @@ function HandleCardBody({ handle }: { handle: UnclaimedHandleCard }) {
   return (
     <CardShell>
       <div className="flex items-center gap-3.5 mb-3">
-        {/* Unclaimed handles have no profile picture — a neutral "?" tile. */}
+        {/* Unverified handles have no profile picture — a neutral "?" tile. */}
         <div
-          className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold shrink-0 ring-2 ring-warn/40 ring-offset-2 ring-offset-surface"
+          className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold shrink-0 ring-2 ring-border ring-offset-2 ring-offset-surface"
           style={{ background: 'var(--color-surface-2)', color: 'var(--color-muted)' }}
         >
           ?
@@ -153,7 +153,8 @@ function HandleCardBody({ handle }: { handle: UnclaimedHandleCard }) {
             </Link>
           </div>
           <div className="mt-1 flex items-center gap-2 min-w-0">
-            <Badge tone="warn">{t('creatorCard.unclaimedBadge')}</Badge>
+            {/* Same neutral tone + term as the search bar's unverified handles. */}
+            <Badge tone="default">{t('creatorCard.unverifiedBadge')}</Badge>
             <span className="font-mono text-[11px] text-muted/70 truncate">
               {handle.platform}/{bareUsername(handle.platform, handle.username)}
             </span>
@@ -161,7 +162,7 @@ function HandleCardBody({ handle }: { handle: UnclaimedHandleCard }) {
         </div>
       </div>
 
-      <p className="text-sm text-muted/60 italic mb-3">{t('creatorCard.unclaimedTagline')}</p>
+      <p className="text-sm text-muted/60 italic mb-3">{t('creatorCard.unverifiedTagline')}</p>
 
       <div className="mt-auto grid grid-cols-3 gap-2 pt-3 border-t border-border/70">
         <CardStat value={String(handle.supporter_count)} label={supporterLabel} />

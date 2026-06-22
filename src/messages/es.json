@@ -86,7 +86,9 @@
     "common": {
       "cancel": "Cancelar",
       "save": "Guardar",
-      "saving": "Guardando…"
+      "saving": "Guardando…",
+      "edit": "Editar",
+      "notSet": "Sin definir"
     },
     "email": {
       "label": "dirección de correo",
@@ -99,7 +101,8 @@
       "sending": "Enviando…",
       "sentBanner": "Correo de confirmación enviado a <strong>{email}</strong>. Haz clic en el enlace para completar.",
       "sentBannerShort": "Confirmación enviada a <strong>{email}</strong>. Haz clic en el enlace para completar.",
-      "pendingBanner": "Cambio pendiente a <strong>{email}</strong>: revisa esa bandeja de entrada."
+      "pendingBanner": "Cambio pendiente a <strong>{email}</strong>: revisa esa bandeja de entrada.",
+      "pendingBadge": "pendiente"
     },
     "profilePicture": {
       "label": "foto de perfil",
@@ -223,10 +226,6 @@
           "label": "respuesta a comentario",
           "desc": "alguien respondió a un hilo de comentarios en el que participaste."
         },
-        "regionAvailable": {
-          "label": "región disponible",
-          "desc": "el procesamiento de pagos se abre en tu región, así que tus respaldos pueden cobrarse."
-        },
         "accountManagement": {
           "label": "gestión de cuenta",
           "desc": "acciones requeridas, mensajes de administración, resultados de verificación de identificadores."
@@ -305,6 +304,15 @@
       "cancel": "Cancelar",
       "working": "Cerrando sesión…",
       "error": "No se pudieron cerrar las sesiones. Inténtalo de nuevo."
+    },
+    "sections": {
+      "account": "cuenta",
+      "profile": "perfil",
+      "backingDefaults": "valores por defecto",
+      "privacy": "privacidad",
+      "notifications": "notificaciones",
+      "security": "seguridad",
+      "danger": "zona de peligro"
     }
   },
   "About": {
@@ -1689,7 +1697,8 @@
     "controls": {
       "sort": "Ordenar",
       "show": "Mostrar",
-      "creator": "Creador"
+      "creator": "Estado del creador",
+      "status": "Estado"
     },
     "sort": {
       "newest": "Más recientes",
@@ -1699,7 +1708,7 @@
     "creatorFilter": {
       "all": "Todas",
       "verified": "Creadores verificados",
-      "unverified": "Handles sin reclamar"
+      "unverified": "Handles sin verificar"
     }
   },
   "Components": {
@@ -1737,8 +1746,8 @@
       "statBacked": "aportado",
       "statOpen": "abiertas",
       "statCompleted": "completadas",
-      "unclaimedBadge": "Aún no está en Artypot",
-      "unclaimedTagline": "Nadie ha reclamado este handle todavía: patrocina una recompensa para reclutarlo."
+      "unverifiedBadge": "sin verificar",
+      "unverifiedTagline": "Patrocina una recompensa para traerlos a Artypot."
     }
   },
   "CreatorBounties": {
@@ -2086,6 +2095,16 @@
     },
     "fanSettingsLink": {
       "text": "Para editar tu correo, número de teléfono, contraseña u otras opciones de cuenta, <link>ve a los ajustes de fan →</link>"
+    },
+    "common": {
+      "edit": "Editar",
+      "notSet": "Sin definir"
+    },
+    "sections": {
+      "profile": "perfil público",
+      "presence": "presencia",
+      "tax": "impuestos y cumplimiento",
+      "notifications": "notificaciones"
     }
   },
   "CreatorTax": {
@@ -3244,7 +3263,7 @@
     "master": {
       "label": "Tipo de creador",
       "verified": "Creadores",
-      "unverified": "Handles sin reclamar"
+      "unverified": "Handles sin verificar"
     },
     "platformAll": "Todas las plataformas",
     "controls": {

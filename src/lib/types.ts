@@ -1182,8 +1182,8 @@ export interface NotificationSettings {
   creator_new_bounty: boolean;
   creator_bounty_verified: boolean;
   // creator_bounty_rejected: mandatory ON — no column
-  // ── Fan market-available (region opened) ─────────────────────────────────
-  market_available: boolean;
+  // The "region opened" notice is sent under account_management (mandatory) —
+  // no opt-in column.
   // ── SMS preferences (sms_ prefix) ────────────────────────────────────────
   sms_creator_verified: boolean;
   sms_bounty_pending_review: boolean;
@@ -1197,7 +1197,6 @@ export interface NotificationSettings {
   sms_comment_reply: boolean;
   sms_creator_new_bounty: boolean;
   sms_creator_bounty_verified: boolean;
-  sms_market_available: boolean;
   // ── Bell preferences (in_app_ prefix) ────────────────────────────────────
   // Note: backing_confirmed and billing_preview have no bell column (mandatory OFF).
   // Note: account_management and creator_bounty_rejected have no columns (mandatory ON).
@@ -1211,7 +1210,6 @@ export interface NotificationSettings {
   in_app_comment_reply: boolean;
   in_app_creator_new_bounty: boolean;
   in_app_creator_bounty_verified: boolean;
-  in_app_market_available: boolean;
   // ── Master channel toggles ────────────────────────────────────────────────
   email_master: boolean;
   sms_master: boolean;
@@ -1240,8 +1238,6 @@ export const NOTIFICATION_DEFAULTS: NotificationSettings = {
   comment_reply: false,           sms_comment_reply: false,           in_app_comment_reply: true,
   creator_new_bounty: false,      sms_creator_new_bounty: false,      in_app_creator_new_bounty: false,
   creator_bounty_verified: false, sms_creator_bounty_verified: true,  in_app_creator_bounty_verified: true,
-  // Fired to a frozen fan when payment opens in their region — email + bell ON.
-  market_available: true,         sms_market_available: false,        in_app_market_available: true,
   email_master: true,
   sms_master: true,
   in_app_master: true,

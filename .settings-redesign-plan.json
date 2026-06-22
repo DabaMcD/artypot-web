@@ -1,0 +1,1010 @@
+{
+  "summary": "Inventory fan + creator settings pages and shared dialog infra, then synthesize a compact \"row + edit modal\" redesign plan",
+  "agentCount": 5,
+  "logs": [
+    "Collected 4/4 inventories"
+  ],
+  "result": {
+    "inventories": [
+      {
+        "surface": "fan",
+        "items": [
+          {
+            "key": "email",
+            "label": "Email (add / change)",
+            "currentAffordance": "inline-form",
+            "apiCall": "POST /auth/email/change  { email, ...(two_factor_enabled? {step_up_code} : has_password? {password} : {}) }  via authApi.requestEmailChange(email, buildStepUp(user, emailStepUp))",
+            "dataSource": "user.email, user.email_verified_at, user.pending_email; local emailChangeInput, emailStepUp, emailChangeSent",
+            "validation": "email input required & .trim() non-empty; submit ALSO disabled when stepUpRequired(user) && !emailStepUp.trim(); type=email native validation",
+            "conditional": "Three mutually-exclusive states by (hasEmail, emailVerified): (1) !hasEmail -> 'add email' Card with addBlurb/addButton; (2) hasEmail && !emailVerified -> renders <EmailVerificationBanner email=user.email> INSTEAD of the card (no change form); (3) hasEmail && emailVerified -> verified Card with current email + verifiedBadge + change form. pending_email warn banner shows only in state 3 when user.pending_email && !emailChangeSent. After submit, emailChangeSent banner replaces the form (sentBanner in state1, sentBannerShort in state3).",
+            "specialFlows": "STEP-UP AUTH via StepUpField (TOTP/recovery code if two_factor_enabled, else password if has_password, else nothing). Backend sends a signed confirmation link to the NEW address; confirmation completed out-of-band via authApi.confirmEmailChange(id,hash,expires,signature) on a separate route — NOT on this page. This is a takeover-grade action; the step-up factor MUST survive any refactor.",
+            "i18nKeys": "Settings.email.{label,addBlurb,sentBanner,placeholderExample,addButton,sending,verifiedBadge,pendingBanner,sentBannerShort,placeholderNew,changeButton}; Settings.toasts.{confirmEmailSent,confirmEmailFailed}; StepUp.* (via StepUpField); EmailVerificationBanner own keys",
+            "recommendation": "row+modal — collapse to a row showing email + verified/pending status badge; 'edit' opens a modal containing the change-email form + StepUpField. Keep the unverified state as an inline-status row that links out to/embeds EmailVerificationBanner (resend). Preserve step-up + signed-link confirmation flow exactly.",
+            "notes": "Submit-disabled logic is duplicated in two branches (state1 and state3) — must keep both. emailStepUp is shared with nothing else; cleared on success and on error."
+          },
+          {
+            "key": "profile_picture",
+            "label": "Profile picture",
+            "currentAffordance": "upload-widget",
+            "apiCall": "PATCH /users/{id}  { profile_picture: normalizeAvatarUrl(secure_url) }  via usersApi.update(user.id, {...}); then refreshUser()",
+            "dataSource": "user.profile_picture, user.display_name (for initial fallback avatar); local picSaving",
+            "validation": "Cloudinary widget enforces cropping aspect 1:1, single file, sources local/url/camera, folder artypot/profiles, plus AVATAR_UPLOAD_OPTIONS; normalizeAvatarUrl() must return a normalized 512² q_auto/f_auto URL or upload is silently dropped (if (!normalized) return)",
+            "conditional": "Whole Card hidden when user.role === 'creator' (creators edit avatar on /c/settings). If cloudName (NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) is unset, the upload button is replaced by an 'unavailable' error message.",
+            "specialFlows": "CLOUDINARY unsigned upload via CldUploadWidget (uploadPreset = NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? 'artypot_profiles'). onSuccess extracts info.secure_url, normalizes to a delivery URL before persisting so a 5MB original is never stored/served.",
+            "i18nKeys": "Settings.profilePicture.{label,alt,saving,change,upload,unavailable,anySize}; Settings.toasts.{pictureUpdated,pictureFailed}",
+            "recommendation": "row+modal — compact row with current avatar thumbnail + 'change' button. Button opens the Cloudinary widget (or modal hosting it). Keep normalizeAvatarUrl + AVATAR_UPLOAD_OPTIONS + cloudName-missing fallback. Keep role!=='creator' gate.",
+            "notes": "Upload error surfaces via toast (pictureFailed). picSaving gates button label."
+          },
+          {
+            "key": "display_name",
+            "label": "Display name",
+            "currentAffordance": "inline-form",
+            "apiCall": "PATCH /users/{id}  { display_name: nameInput.trim() }  via usersApi.update(user.id, {...}); then refreshUser()",
+            "dataSource": "user.display_name; local nameInput, nameSaving",
+            "validation": "required; nameInput.trim() non-empty; save button disabled when saving || empty || trim() === current display_name (no-op guard). No max-length enforced client-side.",
+            "conditional": "Whole Card hidden when user.role === 'creator' (creators edit name on /c/settings)",
+            "specialFlows": "none",
+            "i18nKeys": "Settings.displayName.{label,saveButton}; Settings.common.saving; Settings.toasts.{nameUpdated,nameFailed}",
+            "recommendation": "row+modal — row shows current name + edit pencil; modal hosts the single text input. Keep no-op disable guard and role gate.",
+            "notes": "display_name is also the confirmation string typed in the delete-account modal — keep it canonical."
+          },
+          {
+            "key": "default_expiry",
+            "label": "Default backing expiry (value + unit)",
+            "currentAffordance": "inline-form",
+            "apiCall": "PATCH /users/{id}  { default_expiry_value: <int>, default_expiry_unit: <day|week|month|year> }  via usersApi.update(user.id, {...}); then refreshUser()",
+            "dataSource": "user.default_expiry_value (default 39), user.default_expiry_unit (default 'month'); local expiryValue (string), expiryUnit, expirySaving",
+            "validation": "value parseInt base10; handler rejects isNaN || <1 || >999 (silent return). Input min=1 max=999 type=number required. Submit button disabled when saving || !expiryValue || parseInt<1. Unit is a native <select>: day/week/month/year.",
+            "conditional": "Always shown (both fans and creators)",
+            "specialFlows": "none",
+            "i18nKeys": "Settings.expiry.{label,blurb,lengthLabel,unitLabel,unitDay,unitWeek,unitMonth,unitYear}; Settings.common.{saving,save}; Settings.toasts.{expirySaved,expiryFailed}",
+            "recommendation": "row+modal — row shows 'e.g. 39 months' read-only summary + edit; modal hosts number + unit select. Two fields save in ONE PATCH (both keys together) — keep them coupled in the same dialog/save.",
+            "notes": "expiryValue is held as a string; cast happens only in handler. Button-level validation (<1) is looser than handler validation (1..999)."
+          },
+          {
+            "key": "default_backing_amount",
+            "label": "Default backing amount",
+            "currentAffordance": "inline-form",
+            "apiCall": "PATCH /users/{id}  { default_backing_amount: <float> }  via usersApi.update(user.id, {...}); then refreshUser()",
+            "dataSource": "user.default_backing_amount (fallback DEFAULT_BACKING_AMOUNT_FALLBACK from lib/config); local backingAmountInput (string), backingAmountSaving",
+            "validation": "parseFloat; handler rejects isNaN || <1 || >9999.99 (silent return). Input min=1 max=9999.99 step=0.01 type=number required. Submit disabled when saving || !input || parseFloat<1.",
+            "conditional": "Always shown (both fans and creators)",
+            "specialFlows": "none",
+            "i18nKeys": "Settings.backingAmount.{label,blurb,amountLabel}; Settings.common.{saving,save}; Settings.toasts.{backingAmountSaved,backingAmountFailed}",
+            "recommendation": "row+modal — row shows formatted current amount + edit; modal hosts the number field. Could group-with(default_expiry) under a 'Backing defaults' section since both are backing-creation presets.",
+            "notes": "Currency formatting on display should use useMoney(); raw float in input."
+          },
+          {
+            "key": "is_anonymous",
+            "label": "Privacy — anonymous backings (BETA)",
+            "currentAffordance": "inline-toggle",
+            "apiCall": "PATCH /users/{id}  { is_anonymous: <bool> }  via usersApi.update(user.id, {...}); then refreshUser()",
+            "dataSource": "user.is_anonymous (?? false); local isAnonymous (optimistic), saving",
+            "validation": "none; optimistic toggle reverted on failure (setIsAnonymous(!value))",
+            "conditional": "Always shown",
+            "specialFlows": "Optimistic update via handleToggle('is_anonymous', val): sets local state immediately, awaits PATCH + refreshUser, reverts on catch.",
+            "i18nKeys": "Settings.privacy.{label,anonTitle,beta,anonDesc}; Settings.toasts.{settingsSaved,saveFailed}",
+            "recommendation": "stays-inline-toggle — it's a binary with optimistic save; do NOT bury in a modal. Keep as a row with description on the left and the Toggle on the right. Preserve optimistic revert.",
+            "notes": "Uses the shared ToggleUI (ui/Toggle), not MiniToggle. The generic handleToggle is typed only for 'is_anonymous' currently."
+          },
+          {
+            "key": "billing",
+            "label": "Billing / payment method",
+            "currentAffordance": "link-out",
+            "apiCall": "none on this page — <Link href=\"/billing\">",
+            "dataSource": "static; no user fields read",
+            "validation": "n/a",
+            "conditional": "Always shown",
+            "specialFlows": "none here (billing surface handles Stripe)",
+            "i18nKeys": "Settings.billing.{label,blurb,cta}",
+            "recommendation": "link-out — keep as a compact row with a CTA that navigates to /billing. No modal.",
+            "notes": "Payment-method management (single-PM replace-on-add, Stripe Address Element) lives at /billing, not here."
+          },
+          {
+            "key": "creator_profile_link",
+            "label": "Creator profile (doorway to /c/settings)",
+            "currentAffordance": "link-out",
+            "apiCall": "none — <Link href=\"/c/settings\">",
+            "dataSource": "user.role",
+            "validation": "n/a",
+            "conditional": "Shown ONLY when user.role === 'creator'. It is the SINGLE doorway to creator profile editors; the profile-picture / display-name cards are inversely hidden for creators, so this card must always render for creators or they'd have no profile-edit affordance.",
+            "specialFlows": "none",
+            "i18nKeys": "Settings.creatorProfile.{label,blurb,cta}",
+            "recommendation": "link-out — keep as a role-gated row linking to /c/settings. Critical: do not drop the role gate or creators lose all profile editing.",
+            "notes": "Tax residence + handles also live behind this doorway (/c/settings, /c/handles)."
+          },
+          {
+            "key": "language",
+            "label": "Language",
+            "currentAffordance": "inline-form",
+            "apiCall": "delegated to <LanguageSwitcher variant=\"settings\"> — it persists preferred_locale to the account (PATCH /users/{id} { preferred_locale } per users.update Pick), not called directly in this file",
+            "dataSource": "user.preferred_locale (inside LanguageSwitcher)",
+            "validation": "constrained to supported locales (en/es/eo/en-x-brainrot) by the switcher",
+            "conditional": "Always shown (div id=language anchor)",
+            "specialFlows": "Switcher persists choice to the user's account AND updates the active locale/route.",
+            "i18nKeys": "Settings.language.{title,blurb}; LanguageSwitcher own keys",
+            "recommendation": "row+modal OR stays-inline — a compact row showing current language with the switcher in a small dropdown/modal works. Functionality lives entirely in LanguageSwitcher; just reposition it. Keep the #language anchor.",
+            "notes": "Anchor id='language' is deep-linked elsewhere — preserve it."
+          },
+          {
+            "key": "phone_number",
+            "label": "Phone number (verify / remove)",
+            "currentAffordance": "otp-flow",
+            "apiCall": "SEND: POST /auth/phone { phone_number } via phoneApi.sendCode(E164). VERIFY: POST /auth/phone/verify { code } via phoneApi.verifyCode(code) -> refreshUser(). REMOVE: DELETE /auth/phone via phoneApi.remove() -> refreshUser()",
+            "dataSource": "user.phone_number, user.phone_verified_at; local phoneInput (E164Number), codeInput, phoneStep ('idle'|'awaiting_code'), phoneSaving",
+            "validation": "send disabled unless phoneInput && isValidPhoneNumber(phoneInput); verify disabled unless codeInput.length === 6; codeInput stripped to digits via replace(/\\D/g,''), maxLength 6, inputMode numeric; handler guards re-check isValidPhoneNumber / codeInput.trim()",
+            "conditional": "ENTIRE block hidden unless SMS_ENABLED (lib/features.ts). Within block: if phoneVerified -> show number + verifiedBadge + remove link; else if phoneStep==='awaiting_code' -> code entry + 'use different number' reset; else -> PhoneNumberInput + sendCode.",
+            "specialFlows": "OTP: 6-digit SMS code. send/verify/remove are three distinct endpoints. verifyCode & remove both call refreshUser() and reset phoneStep/phoneInput/codeInput. Error messages prefer server err.message, fall back to i18n. 'Use different number' resets back to idle.",
+            "i18nKeys": "Settings.phone.{label,blurb,verifiedBadge,removing,remove,codeSentTo,verifying,verify,useDifferent,sending,sendCode}; Settings.toasts.{codeSent,codeSendFailed,phoneVerified,codeInvalid,phoneRemoved,phoneRemoveFailed}",
+            "recommendation": "row+modal — row shows phone + verified/none status. 'Add/verify' opens a modal that runs the full send->awaiting_code->verify state machine; 'remove' is a confirm action on the verified row. Keep SMS_ENABLED gate and the three endpoints intact. Keep #phone anchor.",
+            "notes": "Uses PhoneNumberInput (E164Number type, isValidPhoneNumber). All phone state must be modal-scoped after refactor but the awaiting_code transient state must persist while the modal is open."
+          },
+          {
+            "key": "notifications",
+            "label": "Notification preferences matrix (email / sms / bell across 11 rows)",
+            "currentAffordance": "inline-toggle",
+            "apiCall": "TOGGLE: PUT /auth/notification-settings { [key]: bool, [masterKey]?: true } via notifApi.update(payload). RESET: PUT /auth/notification-settings/reset via notifApi.reset(). LOAD: GET /auth/notification-settings via notifApi.get().",
+            "dataSource": "notifSettings (NotificationSettings) loaded in useEffect; per-key booleans incl. *_master (email_master/sms_master/in_app_master); local notifSaving (Set of in-flight keys), notifResetting",
+            "validation": "none numeric; rule-driven cell rendering via NOTIF_ROWS (ChannelRule: 'toggle'|'mandatory_on'|'mandatory_off'). mandatory_on -> forced-checked disabled toggle; mandatory_off -> em-dash placeholder",
+            "conditional": "Per-channel column/cell availability: EMAIL toggles disabled when !emailChannelAvailable (hasEmail && emailVerified), dimmed when available but !email_master. SMS COLUMN entirely hidden unless SMS_ENABLED; sms cells disabled when !phoneVerified, dimmed when verified but !sms_master. BELL never disabled, dimmed when !in_app_master. Warn banners above table: !hasEmail (addEmailWarn), hasEmail&&!emailVerified (verifyEmailWarn), SMS_ENABLED&&!phoneVerified (add/verifyPhoneWarn). Loading state shows notifications.loading until notifSettings present.",
+            "specialFlows": "AUTO-MASTER-REENABLE: turning ON any child key while its channel master is off ALSO flips the master to true in the same PUT (handleNotifToggle computes masterKey from emailKeys/smsKeys/bellKeys membership lists). Optimistic update with per-key rollback on failure; toast per save. NOTE: emailKeys/smsKeys/bellKeys arrays include creator_* keys (creator_new_bounty, creator_bounty_verified) not in the fan NOTIF_ROWS — fan rows are a subset.",
+            "i18nKeys": "Settings.notifications.{label,addEmailWarn,verifyEmailWarn,verifyPhoneWarn,addPhoneWarn,loading,notAvailable,resetting,resetToDefaults,creatorCrossLink} + .channels.{email,sms,bell} + .rows.<id>.{label,desc} for each NOTIF_ROWS id + .aria.{email,sms,bell,emailAlwaysOn,smsAlwaysOn,bellAlwaysOn}; Settings.toasts.{settingsSaved,saveFailed,notifReset,resetFailed}",
+            "recommendation": "stays-inline-toggle (as a grouped sub-surface) — the matrix is inherently a grid of toggles; do NOT explode each into a modal. Collapse the page by putting the whole matrix behind one 'Notifications' row that expands/opens a dedicated dialog or sub-page containing the existing grid + reset. Preserve auto-master-reenable, mandatory rules (must stay in sync with NotificationSettings.php MANDATORY_ON/MANDATORY_OFF_BELL), channel availability gating, and #notifications anchor.",
+            "notes": "11 fan rows incl. accountManagement (all mandatory_on). backing_confirmed & billing_preview bell = mandatory_off. creator cross-link row shown only for role==='creator' -> /c/settings#notifications. NOTIF_ROWS ids are i18n seeds, not display strings."
+          },
+          {
+            "key": "password",
+            "label": "Password",
+            "currentAffordance": "link-out",
+            "apiCall": "none on this page — <Link href=\"/settings/password\"> (change handled there via authApi.changePassword)",
+            "dataSource": "hasEmail, emailVerified gating",
+            "validation": "n/a here",
+            "conditional": "Shown ONLY when hasEmail && emailVerified (password auth requires a verified email)",
+            "specialFlows": "none here",
+            "i18nKeys": "Settings.password.{label,blurb,cta}",
+            "recommendation": "link-out — keep as a row gated on hasEmail && emailVerified, CTA to /settings/password.",
+            "notes": "OAuth-only / no-email accounts intentionally have no password row."
+          },
+          {
+            "key": "two_factor",
+            "label": "Two-factor authentication",
+            "currentAffordance": "read-only-status",
+            "apiCall": "encapsulated inside <TwoFactorCard /> (components/settings/SecuritySettingsCards) — enable/disable/regenerate endpoints owned by that component (uses StepUp factor)",
+            "dataSource": "user.two_factor_enabled (inside component)",
+            "validation": "component-owned",
+            "conditional": "Always rendered (component self-gates its internal states)",
+            "specialFlows": "2FA setup/disable is itself step-up-protected inside the component.",
+            "i18nKeys": "owned by TwoFactorCard (not in this file's Settings.* usage)",
+            "recommendation": "row+modal — TwoFactorCard already encapsulates its own affordance; represent as a status row ('2FA on/off') with manage button opening its existing UI. Do not reimplement; just reposition the component.",
+            "notes": "Lives in components/settings/SecuritySettingsCards.tsx — audit that file separately for its own controls."
+          },
+          {
+            "key": "sessions",
+            "label": "Active sessions",
+            "currentAffordance": "read-only-status",
+            "apiCall": "encapsulated inside <SessionsCard /> (lists / revokes sessions)",
+            "dataSource": "component-owned (session list endpoint)",
+            "validation": "component-owned",
+            "conditional": "Always rendered",
+            "specialFlows": "session revocation owned by component",
+            "i18nKeys": "owned by SessionsCard",
+            "recommendation": "row+modal or link-out — represent as a row ('N active sessions') opening the existing SessionsCard list. Keep component intact.",
+            "notes": "Lives in components/settings/SecuritySettingsCards.tsx alongside TwoFactorCard."
+          },
+          {
+            "key": "danger_broke",
+            "label": "Danger zone — \"I'm broke\" (revoke all active backings)",
+            "currentAffordance": "confirm-modal",
+            "apiCall": "POST /auth/broke via authApi.broke() -> returns { data: { revoked_count } }",
+            "dataSource": "backingTotalAmount (from backingsApi.list().total_active_amount, loaded in useEffect); local showBrokeConfirm, dangerLoading, dangerMsg",
+            "validation": "none — single confirm modal; no typed confirmation. NO step-up required.",
+            "conditional": "Always shown. Modal amountWarning line shown only when backingTotalAmount != null && > 0.",
+            "specialFlows": "Confirm modal (brokeModal). On success closes modal and sets dangerMsg = brokeDone with revoked_count. Does NOT log the user out. Undo note shown in modal body.",
+            "i18nKeys": "Settings.danger.{label,brokeTitle,brokeDesc,brokeButton,brokeDone,genericError}; Settings.brokeModal.{title,working,confirm,body,amountWarning,undoNote}; Settings.common.cancel",
+            "recommendation": "row+modal (confirm) — keep as a danger row whose button opens the existing confirm modal. Surface the total active amount warning. No step-up today; preserve that (or consciously decide to add one).",
+            "notes": "money(backingTotalAmount) formats the warning. revoked_count returned by API drives the success message."
+          },
+          {
+            "key": "danger_delete_account",
+            "label": "Danger zone — delete account",
+            "currentAffordance": "confirm-modal",
+            "apiCall": "DELETE /auth/account  body { ...(two_factor_enabled? {step_up_code} : has_password? {password} : {}) }  via authApi.deleteAccount(buildStepUp(user, deleteStepUp)) -> then logout() -> router.replace('/')",
+            "dataSource": "user.display_name (typed-confirmation target); local showDeleteConfirm, deleteConfirmName, deleteStepUp, dangerLoading, dangerMsg",
+            "validation": "TYPE-TO-CONFIRM: confirm button disabled unless deleteConfirmName === user.display_name; ALSO disabled when stepUpRequired(user) && !deleteStepUp.trim(); handler re-guards the same step-up condition.",
+            "conditional": "Always shown. StepUpField inside modal renders nothing for accounts with neither password nor 2FA.",
+            "specialFlows": "STEP-UP AUTH (TOTP/recovery code or password) + typed display-name confirmation. On success: logout() then redirect to '/'. On error: clears deleteStepUp, sets genericError, closes modal. Takeover-grade — step-up + typed-name MUST survive refactor.",
+            "i18nKeys": "Settings.danger.{label,deleteTitle,deleteDesc,deleteButton,genericError}; Settings.deleteModal.{title,deleting,confirm,body,recoverNote,typePrompt}; Settings.common.cancel; StepUp.* (via StepUpField)",
+            "recommendation": "row+modal (confirm) — keep as a danger row opening the existing delete modal with typed-name input + StepUpField + logout/redirect on success. Do not weaken the double gate (name match AND step-up).",
+            "notes": "deleteConfirmName placeholder is user.display_name; resets on cancel. Shares dangerMsg/dangerLoading with the broke flow — both danger actions write the same message slot."
+          }
+        ],
+        "components": [
+          {
+            "name": "Card / SectionLabel",
+            "purpose": "Layout shell + section header used by nearly every setting block",
+            "props": "Card: className?; SectionLabel: className?, children",
+            "reusable": "Becomes the compact-row container; SectionLabel maps to the row's left-hand label."
+          },
+          {
+            "name": "Button",
+            "purpose": "All save/CTA/danger actions",
+            "props": "variant (default|primary|ghost|danger), size (sm), disabled, onClick/type",
+            "reusable": "Row 'edit' trigger and modal footer actions."
+          },
+          {
+            "name": "Input / FieldLabel / PasswordInput",
+            "purpose": "Text/number/email/password fields across name, email, expiry, backing amount, delete-confirm, step-up",
+            "props": "type, value, onChange, min/max/step, required, placeholder, className, autoFocus",
+            "reusable": "Drop straight into per-row edit modals."
+          },
+          {
+            "name": "Modal",
+            "purpose": "Confirmation dialogs (broke, delete)",
+            "props": "title, onClose, actions (footer node), children",
+            "reusable": "This IS the per-row edit-dialog primitive; reuse for every row+modal recommendation."
+          },
+          {
+            "name": "Toggle (ui/Toggle, ToggleUI)",
+            "purpose": "Anonymous-backings inline switch",
+            "props": "on, onChange, label, disabled",
+            "reusable": "Stays inline in its row; not modal-ized."
+          },
+          {
+            "name": "MiniToggle (local)",
+            "purpose": "Per-cell switch in the notification matrix; supports disabled + dimmed states and aria-label",
+            "props": "checked, onChange, saving, label, disabled, dimmed",
+            "reusable": "Stays inside the notifications grid/dialog; not a row primitive."
+          },
+          {
+            "name": "StepUpField + buildStepUp + stepUpRequired (components/StepUpField)",
+            "purpose": "Re-auth factor (TOTP/recovery code or password) for email-change and delete-account",
+            "props": "StepUpField: user, value, onChange, className; helpers take (user, value)",
+            "reusable": "Must be embedded inside the email-change modal and delete modal. buildStepUp shapes the request body ({step_up_code}|{password}|none); mirrors backend StepUpService precedence."
+          },
+          {
+            "name": "Banner",
+            "purpose": "Inline status/warn banners (email sent/pending, notification channel warnings)",
+            "props": "tone (good|warn), className, children",
+            "reusable": "Inline status inside rows/modals."
+          },
+          {
+            "name": "EmailVerificationBanner",
+            "purpose": "Replaces the email card when hasEmail && !emailVerified (resend verification)",
+            "props": "email",
+            "reusable": "Render inside the email row's unverified status state."
+          },
+          {
+            "name": "PhoneNumberInput (+ isValidPhoneNumber, E164Number)",
+            "purpose": "E.164 phone entry for the OTP flow",
+            "props": "value, onChange, disabled",
+            "reusable": "Embed in the phone-verify modal."
+          },
+          {
+            "name": "CldUploadWidget (next-cloudinary)",
+            "purpose": "Avatar upload widget",
+            "props": "uploadPreset, options (sources/cropping/aspectRatio/folder/...AVATAR_UPLOAD_OPTIONS), onSuccess",
+            "reusable": "Trigger from the profile-picture row's edit button."
+          },
+          {
+            "name": "LanguageSwitcher",
+            "purpose": "Locale selection + account persistence",
+            "props": "variant='settings'",
+            "reusable": "Drop into a language row/dialog as-is."
+          },
+          {
+            "name": "TwoFactorCard / SessionsCard (components/settings/SecuritySettingsCards)",
+            "purpose": "Self-contained 2FA and active-sessions management",
+            "props": "none passed here",
+            "reusable": "Already encapsulated; represent each as a row that opens its existing card."
+          }
+        ],
+        "gotchas": [
+          "STEP-UP must survive: email-change and delete-account both build their request body via buildStepUp(user, value) — {step_up_code} if two_factor_enabled, {password} if has_password, else nothing. Submit/confirm buttons are disabled by stepUpRequired(user) && !value.trim(). Any refactor that moves these into modals must keep StepUpField rendered and the same disable guards, or it silently lets through (or blocks) sensitive actions.",
+          "Email change is confirmed OUT OF BAND: requestEmailChange only sends a signed link to the NEW address; the actual switch happens via authApi.confirmEmailChange(id,hash,expires,signature) on a different route. The settings page never completes the change — don't assume the row reflects the new email immediately (it shows pending_email).",
+          "Email card has THREE mutually-exclusive states keyed on (hasEmail, emailVerified). The unverified state renders <EmailVerificationBanner> INSTEAD of any change form — there is no way to change email until verified. Collapsing to one row must preserve all three states.",
+          "Delete-account double gate: button enabled ONLY when deleteConfirmName === user.display_name AND (no step-up required OR deleteStepUp non-empty). On success it logs out + redirects to '/'. Dropping either gate is a security regression.",
+          "'I'm broke' has NO step-up and no typed confirmation — only a single confirm modal — yet it revokes ALL active backings (money action). If hardening, this is the place; today it's intentionally low-friction.",
+          "danger_broke and danger_delete share dangerMsg + dangerLoading state slots; both write to the same message paragraph at the bottom of the danger card. Splitting them into separate rows must give each its own state or messages will cross-wire.",
+          "SMS_ENABLED (lib/features.ts) gates THREE things: the entire phone card, the SMS column in the notification matrix, and the add/verify-phone warn banner. All three must read the same flag.",
+          "Notification auto-master-reenable: turning ON a child while its channel master is off flips the master to true in the SAME PUT. The membership arrays (emailKeys/smsKeys/bellKeys) include creator-only keys (creator_new_bounty, creator_bounty_verified) that are NOT in the fan NOTIF_ROWS — the fan UI shows a subset, but the master logic spans all keys. bellKeys notably OMITS in_app_backing_confirmed/in_app_billing_preview (those are mandatory_off).",
+          "Mandatory notification rules are duplicated across the stack: NOTIF_ROWS mandatory_on/mandatory_off MUST stay in sync with MANDATORY_ON / MANDATORY_OFF_BELL in artypot-api/app/Models/NotificationSettings.php (comment in source says update both together).",
+          "Role gating is inverse and load-bearing: profile-picture + display-name cards hide when role==='creator'; the creator-profile doorway card shows ONLY for creators. A creator with neither would have zero profile-edit affordance. Keep both gates coupled.",
+          "Channel availability vs master: notification cells distinguish disabled (channel not usable at all — no verified email / no verified phone) from dimmed (channel master off). emailChannelAvailable = hasEmail && emailVerified; bell is never disabled, only dimmed.",
+          "Profile-picture upload silently drops if normalizeAvatarUrl(secure_url) returns falsy (if (!normalized) return) — no toast. Also fully hidden behind cloudName env var; missing cloud name shows an 'unavailable' message, not the button.",
+          "Validation is two-tiered for expiry and backing amount: the submit button uses a looser check (e.g. <1) while the handler enforces the real bounds (expiry 1..999 int, amount 1..9999.99 float) with a SILENT return (no toast) on out-of-range — easy to think a save fired when it didn't.",
+          "Anchors #email, #language, #phone, #notifications are real deep-link targets (and #notifications creator cross-link points to /c/settings#notifications). Preserve these ids/anchors when restructuring into rows.",
+          "Several saves call refreshUser() after the PATCH (name, expiry, amount, anonymous, picture, phone verify/remove) so the row's displayed value comes from the refreshed auth context, not local state — modals must trigger refreshUser on save to keep rows accurate.",
+          "Display name is the canonical confirmation string for account deletion — any change to how it's stored/trimmed affects the delete gate.",
+          "phoneInput is an E164Number and validity is checked with isValidPhoneNumber from PhoneNumberInput; codeInput is digit-stripped and must be exactly length 6. The OTP state machine (idle -> awaiting_code) is transient local state that must persist while a phone modal is open."
+        ]
+      },
+      {
+        "surface": "creator",
+        "items": [
+          {
+            "key": "profile_picture",
+            "label": "Profile picture (picture.sectionLabel)",
+            "currentAffordance": "upload-widget",
+            "dataSource": "user.profile_picture (rendered via next/image, unoptimized); fallback = first char of user.display_name uppercased",
+            "apiCall": "PATCH usersApi.update(user.id, { profile_picture: normalized }) — i.e. PATCH /users/{id}",
+            "validation": "secureUrl run through normalizeAvatarUrl(); upload aborts if normalized falsy. Cloudinary widget enforces cropping aspect 1:1, multiple:false, AVATAR_UPLOAD_OPTIONS",
+            "specialFlows": "Cloudinary CldUploadWidget (sources local/url/camera, cropping square, folder artypot/profiles, preset NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? 'artypot_profiles'). onSuccess extracts info.secure_url -> handlePicUploaded -> normalizeAvatarUrl -> update -> refreshUser. picSaving spinner. No delete/remove affordance.",
+            "i18nKeys": "CreatorSettings: picture.sectionLabel, picture.alt, picture.changePhoto, picture.uploadPhoto, picture.saving, picture.unavailable, picture.uploadAnySize, picture.toastSaved, picture.toastError",
+            "conditional": "Upload button only if cloudName (NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) set; else shows picture.unavailable (text-bad). Button label flips uploadPhoto/changePhoto based on whether user.profile_picture exists. Wrapped in <div id=\"picture\"> anchor.",
+            "recommendation": "row+modal",
+            "notes": "OVERLAPS WITH FAN PAGE — share component. Avatar thumbnail + 'Change photo' row that opens a dialog hosting the CldUploadWidget. Same pattern reusable on fan settings."
+          },
+          {
+            "key": "display_name",
+            "label": "Display name (displayName.sectionLabel)",
+            "currentAffordance": "inline-form",
+            "dataSource": "user.display_name; seeded into nameInput state on mount",
+            "apiCall": "PATCH usersApi.update(user.id, { display_name: nameInput.trim() }) — PATCH /users/{id}",
+            "validation": "Input required; trim must be non-empty; Save disabled when nameSaving || empty trim || trim === user.display_name (no change)",
+            "specialFlows": "handleSaveName form submit; refreshUser after; toast success/error. nameSaving spinner.",
+            "i18nKeys": "CreatorSettings: displayName.sectionLabel, displayName.saving, displayName.save, displayName.toastSaved, displayName.toastError",
+            "conditional": "Always shown. Wrapped in <div id=\"display-name\"> anchor.",
+            "recommendation": "row+modal",
+            "notes": "OVERLAPS WITH FAN PAGE — share component. Compact row showing current name + edit pencil -> modal with single Input."
+          },
+          {
+            "key": "creator_slug",
+            "label": "Creator URL / slug (CreatorSlugSection.sectionLabel)",
+            "currentAffordance": "inline-form",
+            "dataSource": "authApi.getSlug() -> { slug, slug_changed_at, cooldown_until, cooldown_days } (separate fetch, NOT from user object). Displayed as artypot.com/{slug}",
+            "apiCall": "GET authApi.getSlug() to load; POST/PATCH authApi.updateSlug(newSlug) to save",
+            "validation": "SlugInput component does live validity (onValidityChange -> slugError); initial slugError='Slug is required.'; Save disabled when saving || slugError !== null || newSlug === info.slug",
+            "specialFlows": "Three-view state machine: 'show' (display + Change), 'blocked' (cooldown gate banner + 'never mind'), 'editing' (SlugInput + cooldownWarning banner). COOLDOWN: clicking Change while cooldown_until > now goes to 'blocked' and shows cooldownBanner with date (dateFormats.short). Changing slug starts a new cooldown_days lockout. Error from updateSlug surfaced via toast (e.message).",
+            "i18nKeys": "CreatorSlugSection: sectionLabel, description, changeButton, cooldownBanner, neverMind, newUrlLabel, cooldownWarning, cancelButton, savingButton, saveButton, toastUpdated, toastFailed",
+            "conditional": "ENTIRE SECTION hidden if !user || user.role !== 'creator', or if info not yet loaded (returns null). fetchInfo only runs when user.role === 'creator'. Self-contained <div id=\"slug\"> anchor.",
+            "recommendation": "row+modal",
+            "notes": "CREATOR-ONLY (no fan overlap). Compact row 'artypot.com/{slug}' + edit -> modal; modal must reproduce the cooldown-blocked state (can't edit while on cooldown) and the cooldown warning. SlugInput is reusable. Keep getSlug fetch."
+          },
+          {
+            "key": "bio",
+            "label": "Bio (bio.sectionLabel)",
+            "currentAffordance": "inline-form",
+            "dataSource": "user.bio; seeded into bioInput on mount",
+            "apiCall": "PATCH usersApi.update(user.id, { bio: bioInput.trim() || null }) — PATCH /users/{id}",
+            "validation": "No explicit max; textarea rows=4 resize-y; empty trim saved as null. Save disabled when bioSaving || (bioInput ?? '') === (user.bio ?? '')",
+            "specialFlows": "handleSaveBio submit; refreshUser; toast. bioSaving spinner.",
+            "i18nKeys": "CreatorSettings: bio.sectionLabel, bio.description, bio.placeholder, bio.saving, bio.save, bio.toastSaved, bio.toastError",
+            "conditional": "Always shown. <div id=\"bio\"> anchor.",
+            "recommendation": "row+modal",
+            "notes": "CREATOR-ONLY. Row showing bio preview (or 'Add bio') + edit -> modal with textarea + description copy."
+          },
+          {
+            "key": "fan_name",
+            "label": "Fan name singular + plural (fanName.sectionLabel)",
+            "currentAffordance": "inline-form",
+            "dataSource": "user.fan_name + user.fan_name_plural; seeded into fanName/fanNamePlural on mount",
+            "apiCall": "PATCH usersApi.update(user.id, { fan_name: fanName.trim() || null, fan_name_plural: fanNamePlural.trim() || null }) — PATCH /users/{id}, BOTH fields in one call",
+            "validation": "Each Input maxLength={100}; empty trim -> null. Save disabled when fanNameSaving || (both unchanged vs user.fan_name / user.fan_name_plural)",
+            "specialFlows": "handleSaveFanName submits both. Description uses t.rich with live example = fanNamePlural || fanName || exampleFallback (preview updates as you type). refreshUser; toast.",
+            "i18nKeys": "CreatorSettings: fanName.sectionLabel, fanName.description (rich, {example}/{emphasis}), fanName.exampleFallback, fanName.singularLabel, fanName.singularPlaceholder, fanName.pluralLabel, fanName.pluralPlaceholder, fanName.saving, fanName.save, fanName.toastSaved, fanName.toastError",
+            "conditional": "Always shown. <div id=\"fan-name\"> anchor. Subdivision-style grid sm:grid-cols-2.",
+            "recommendation": "row+modal",
+            "notes": "CREATOR-ONLY. Two fields saved together — modal must keep both inputs + the live example preview. Row could show 'singular / plural'."
+          },
+          {
+            "key": "handles",
+            "label": "Social handles (handles.sectionLabel) — cross-link card",
+            "currentAffordance": "link-out",
+            "dataSource": "None on this page — just a static card with a Manage button linking to /c/handles. (The full HandlesSection lives on that route.)",
+            "apiCall": "None here. On /c/handles: authApi.myHandles(), handlesApi.store/destroy/requestReview, authApi.oauthRedirect, authApi.getSlug n/a",
+            "validation": "n/a on settings page",
+            "specialFlows": "Link href=/c/handles with 'Manage' button. NOTE: HandlesSection is NOT embedded in this settings page — it is a separate route. The component supports a bare prop for embedding.",
+            "i18nKeys": "CreatorSettings: handles.sectionLabel, handles.description, handles.manage. (HandlesSection itself uses its own 'HandlesSection' namespace.)",
+            "conditional": "Always shown on settings page (no role guard around the card itself, though page is creator-scoped).",
+            "recommendation": "link-out",
+            "notes": "CREATOR-ONLY. Keep as a compact row linking out to /c/handles — HandlesSection is too rich (add form, OAuth connect modal, admin-review modal, remove/blocked modals, verification nudges) to inline as a per-row dialog. If embedding is ever wanted, HandlesSection accepts bare={true}."
+          },
+          {
+            "key": "tax_residence",
+            "label": "Tax residence / location (location.sectionLabel)",
+            "currentAffordance": "confirm-modal",
+            "dataSource": "user.country_code + user.state_code; seeded into countryCode/stateCode on mount. COUNTRIES + subdivisions()/subdivisionLabel() from @/lib/countries",
+            "apiCall": "PATCH usersApi.update(user.id, { country_code: countryCode || null, state_code: (countryCode && subdivisions(countryCode)) ? (stateCode || null) : null }) — PATCH /users/{id}",
+            "validation": "Country select required to enable; if subdivisions(country) exists, state select is required. Save disabled when locationSaving || !countryCode || (has subdivisions && !stateCode) || no-change. handleRequestSaveLocation also re-checks no-change before opening modal. Changing country resets stateCode to ''.",
+            "specialFlows": "TWO-STEP CONFIRM GATE: submit -> handleRequestSaveLocation (validates + no-change guard) -> setShowLocationConfirm(true) -> Modal showing old->new display, crossingCountry vs sameCountry reporting copy, and a 'this change is logged' line -> handleConfirmSaveLocation -> update -> refreshUser. Compliance: country change (esp US<->non-US) can trigger Stripe Connect re-verification / W-9 / W-8BEN re-collection. Backend logs to tax_residence_changes (per page comment + confirm.loggedLine copy).",
+            "i18nKeys": "CreatorSettings: location.sectionLabel, location.description, location.countryLabel, location.selectCountry, location.selectSubdivision ({label}), location.saving, location.save, location.toastSaved, location.toastError, location.confirm.title, location.confirm.cancel, location.confirm.submit, location.confirm.saving, location.confirm.changeLine (rich {from}/{to}/{strong}), location.confirm.reportingLine, location.confirm.crossingCountry, location.confirm.sameCountry, location.confirm.loggedLine. Plus countries data from @/lib/countries and subdivisionLabel.",
+            "conditional": "Subdivision select only rendered when countryCode && subdivisions(countryCode). Confirm modal only when showLocationConfirm. crossingCountry branch picks crossingCountry vs sameCountry copy. <div id=\"location\"> anchor.",
+            "recommendation": "row+modal",
+            "notes": "CREATOR-ONLY, compliance-sensitive. Row shows current 'Country — State'. Edit dialog must (a) host country+subdivision selects, then (b) keep the explicit confirm step (or fold confirm copy into the same modal's footer) — do NOT lose the 'logged / Stripe re-verification' warning or the crossing-country distinction."
+          },
+          {
+            "key": "notif_creator_new_bounty",
+            "label": "New bounty (notifications.rows.newBounty.label)",
+            "currentAffordance": "inline-toggle",
+            "dataSource": "notifApi.get() -> NotificationSettings: creator_new_bounty (email), sms_creator_new_bounty (sms), in_app_creator_new_bounty (bell)",
+            "apiCall": "PATCH notifApi.update({ [key]: value, [masterKey?]: true }) — toggling a child ON while its master (email_master/sms_master/in_app_master) is off also flips the master on in the same payload",
+            "validation": "Email toggle disabled unless emailChannelAvailable (hasEmail && emailVerified); dimmed when channel available but email_master off. SMS toggle disabled unless phoneVerified; dimmed when phoneVerified but sms_master off. Bell never disabled; dimmed when in_app_master off.",
+            "specialFlows": "Optimistic update with rollback on error; per-key saving Set; auto-enable master channel logic in handleNotifToggle (creatorEmailKeys/creatorSmsKeys/creatorBellKeys lists). toast per save.",
+            "i18nKeys": "CreatorSettings: notifications.rows.newBounty.label/.desc, notifications.channels.email/sms/bell, notifications.toggleAria.email/sms/bell, notifications.toastSaved, notifications.toastError",
+            "conditional": "SMS column entirely hidden unless SMS_ENABLED (lib/features). Grid columns switch 4-col vs 3-col on SMS_ENABLED.",
+            "recommendation": "stays-inline-toggle",
+            "notes": "OVERLAPS WITH FAN PAGE (same MiniToggle, same master-channel auto-enable, same notifApi). Notification matrix should stay as an inline 3-column toggle grid — not row+modal. Share the toggle-grid component with fan settings."
+          },
+          {
+            "key": "notif_creator_bounty_verified",
+            "label": "Bounty verified (notifications.rows.bountyVerified.label)",
+            "currentAffordance": "inline-toggle",
+            "dataSource": "creator_bounty_verified (email), sms_creator_bounty_verified (sms), in_app_creator_bounty_verified (bell)",
+            "apiCall": "PATCH notifApi.update({ [key]: value, [masterKey?]: true })",
+            "validation": "Same channel-availability/master rules as new_bounty row",
+            "specialFlows": "Same optimistic toggle + master auto-enable",
+            "i18nKeys": "CreatorSettings: notifications.rows.bountyVerified.label/.desc (+ shared channel/aria/toast keys)",
+            "conditional": "SMS column hidden unless SMS_ENABLED",
+            "recommendation": "stays-inline-toggle",
+            "notes": "Same as new_bounty. Part of CREATOR_NOTIF_ROWS matrix."
+          },
+          {
+            "key": "notif_bounty_rejected",
+            "label": "Bounty rejected (notifications.rows.bountyRejected.label)",
+            "currentAffordance": "read-only-status",
+            "dataSource": "No keys — emailKey/smsKey/bellKey all null, all rules 'mandatory_on'",
+            "apiCall": "None — toggles are checked=true, onChange no-op, disabled",
+            "validation": "n/a (always on)",
+            "specialFlows": "MANDATORY ON across all 3 channels. Toggles render checked+disabled with toggleAria.emailAlwaysOn/smsAlwaysOn/bellAlwaysOn aria labels. MUST stay in sync with MANDATORY_ON in artypot-api/app/Models/NotificationSettings.php (per code comment).",
+            "i18nKeys": "CreatorSettings: notifications.rows.bountyRejected.label/.desc, notifications.toggleAria.emailAlwaysOn/smsAlwaysOn/bellAlwaysOn",
+            "conditional": "SMS column hidden unless SMS_ENABLED",
+            "recommendation": "stays-inline-toggle",
+            "notes": "Always-on mandatory row — render as locked toggles or inline-status badge. No edit dialog."
+          },
+          {
+            "key": "notif_reset",
+            "label": "Reset notifications to defaults (notifications.reset)",
+            "currentAffordance": "link-out",
+            "dataSource": "Action only — resets NotificationSettings",
+            "apiCall": "POST notifApi.reset() -> returns updated NotificationSettings",
+            "validation": "Disabled while notifResetting",
+            "specialFlows": "handleNotifReset; toast toastReset/toastResetError; sets notifSettings to result. No confirm dialog (immediate).",
+            "i18nKeys": "CreatorSettings: notifications.reset, notifications.resetting, notifications.toastReset, notifications.toastResetError",
+            "conditional": "Shown in footer of notifications card alongside goToFan link, only once notifSettings loaded",
+            "recommendation": "stays-inline",
+            "notes": "Small text button in notifications card footer. Keep inline. OVERLAPS conceptually with fan reset (same notifApi.reset)."
+          },
+          {
+            "key": "notif_goto_fan",
+            "label": "Cross-link to fan notifications (notifications.goToFan)",
+            "currentAffordance": "link-out",
+            "dataSource": "static link to /settings#notifications",
+            "apiCall": "None",
+            "validation": "n/a",
+            "specialFlows": "Link in notifications card footer",
+            "i18nKeys": "CreatorSettings: notifications.goToFan",
+            "conditional": "Shown once notifSettings loaded",
+            "recommendation": "link-out",
+            "notes": "Keep as inline cross-link."
+          },
+          {
+            "key": "sms_banner",
+            "label": "SMS unavailable banner (notifications.smsBanner.*)",
+            "currentAffordance": "inline-status",
+            "dataSource": "user.phone_verified_at (phoneVerified), user.phone_number; SMS_ENABLED feature flag",
+            "apiCall": "None — links to /settings#phone (fan settings) to add/verify phone",
+            "validation": "n/a",
+            "specialFlows": "Warn banner only when SMS_ENABLED && !phoneVerified. Copy flips: verify (has phone_number) vs addAndVerify (no number). 'Add phone' button links to /settings#phone — phone management lives on the FAN settings page, not here.",
+            "i18nKeys": "CreatorSettings: notifications.smsBanner.verify, notifications.smsBanner.addAndVerify, notifications.smsBanner.addPhone",
+            "conditional": "Hidden entirely unless SMS_ENABLED && !phoneVerified",
+            "recommendation": "inline-status",
+            "notes": "Phone add/verify is delegated to fan settings (/settings#phone). Keep banner inline above the toggle grid."
+          },
+          {
+            "key": "fan_settings_link",
+            "label": "Fan settings cross-link card (fanSettingsLink.text)",
+            "currentAffordance": "link-out",
+            "dataSource": "static; links to /settings#email",
+            "apiCall": "None",
+            "validation": "n/a",
+            "specialFlows": "Dashed card at bottom; t.rich with link chunk to /settings#email (account/email management lives on fan settings)",
+            "i18nKeys": "CreatorSettings: fanSettingsLink.text",
+            "conditional": "Always shown",
+            "recommendation": "link-out",
+            "notes": "Account-level fields (email, password, phone) are NOT on the creator page — they live on fan/account settings. Keep cross-link."
+          },
+          {
+            "key": "page_header",
+            "label": "Page header (header.*)",
+            "currentAffordance": "read-only-status",
+            "dataSource": "static",
+            "apiCall": "None",
+            "validation": "n/a",
+            "specialFlows": "Breadcrumb 'Creator · Profile' + title",
+            "i18nKeys": "CreatorSettings: header.breadcrumbCreator, header.breadcrumbProfile, header.title",
+            "conditional": "Always; page shows skeleton while authLoading || !user, then redirects to /login if no user",
+            "recommendation": "stays-inline",
+            "notes": "Header only; no control."
+          }
+        ],
+        "components": [
+          {
+            "name": "MiniToggle (local to page.tsx)",
+            "props": "checked, onChange(val), saving, label, disabled?, dimmed?",
+            "purpose": "Switch-role toggle for notification matrix cells; supports disabled (channel unavailable) and dimmed (master off) states",
+            "reusable": "Stays inline in the notification toggle grid — NOT a row+modal element. Identical to fan settings toggle; lift into a shared component."
+          },
+          {
+            "name": "CreatorSlugSection",
+            "props": "none (self-contained; reads useAuth, useToast, useDateFormats)",
+            "purpose": "View + change creator slug with cooldown gating; own getSlug fetch + 3-view state machine",
+            "reusable": "Wrap its 'show' view as a compact row; move 'editing'/'blocked' views into a per-row modal. Creator-only — self-guards on role."
+          },
+          {
+            "name": "HandlesSection",
+            "props": "bare?: boolean (default false)",
+            "purpose": "Full handle management: list, add form, OAuth-connect modal, admin-review modal, remove + blocked-removal modals, verification nudges",
+            "reusable": "Too complex for a per-row dialog; settings page only LINKS to it (/c/handles). bare prop allows embedding without the Card chrome if ever needed."
+          },
+          {
+            "name": "CldUploadWidget (next-cloudinary)",
+            "props": "uploadPreset, options{sources,cropping,croppingAspectRatio:1,multiple:false,folder,...AVATAR_UPLOAD_OPTIONS}, onSuccess",
+            "purpose": "Cloudinary image upload for profile picture",
+            "reusable": "Wrap in a shared 'avatar edit' modal usable by both creator and fan settings (picture overlaps)."
+          },
+          {
+            "name": "Modal (ui/Modal)",
+            "props": "title, onClose, actions?, children",
+            "purpose": "Used for the tax-residence confirm gate; also the base for all per-row edit dialogs in the redesign",
+            "reusable": "Core of the row+modal pattern. Already used here for location confirm and throughout HandlesSection."
+          },
+          {
+            "name": "Card / SectionLabel (ui/Card)",
+            "props": "Card: dashed?; SectionLabel: className",
+            "purpose": "Section container chrome",
+            "reusable": "Redesign replaces full Cards with compact rows; SectionLabel may persist as group headers."
+          },
+          {
+            "name": "Input / Button / Banner (ui)",
+            "props": "standard",
+            "purpose": "Form primitives across all sections",
+            "reusable": "Reused inside the per-row modals."
+          },
+          {
+            "name": "SlugInput",
+            "props": "value, onChange, label, onValidityChange",
+            "purpose": "Live slug validation input used inside CreatorSlugSection editing view",
+            "reusable": "Drops directly into the slug edit modal."
+          }
+        ],
+        "gotchas": [
+          "SHARED COMPONENTS (creator <-> fan overlap): profile picture (CldUploadWidget + normalizeAvatarUrl + PATCH /users/{id} profile_picture), display name (PATCH /users/{id} display_name), and the WHOLE notification toggle matrix (MiniToggle + master auto-enable + notifApi.get/update/reset). Page comment line 23 literally says MiniToggle is 'same as fan settings'. Build these once and import on both pages.",
+          "Tax-residence is compliance-sensitive: country change (esp US<->non-US) can trigger Stripe Connect re-verification and W-9/W-8BEN re-collection. The confirm modal's crossingCountry vs sameCountry copy and the 'this change is logged' line (backend writes tax_residence_changes) MUST survive the redesign. Do not collapse this into a silent inline save.",
+          "Notification mandatory rows: CREATOR_NOTIF_ROWS bountyRejected has null keys + 'mandatory_on' rules. Code comment (lines 62-63) requires keeping these in sync with MANDATORY_ON in artypot-api/app/Models/NotificationSettings.php. Changing the row list here without the backend desyncs.",
+          "Master-channel auto-enable: toggling a child notification ON while its master (email_master/sms_master/in_app_master) is OFF silently flips the master on in the SAME PATCH payload (handleNotifToggle, lines 221-235). The creatorEmailKeys/creatorSmsKeys/creatorBellKeys arrays are hard-coded duplicates of the row keys — easy to forget to update when adding a row.",
+          "SMS is gated behind SMS_ENABLED (lib/features). When false: SMS column header, SMS toggles, and the SMS-unavailable banner are all hidden, and the grid switches from 4-col to 3-col. Any redesign must preserve the feature-flag branching in both header and rows.",
+          "Channel availability vs dimming are different states: email toggle DISABLED unless hasEmail && emailVerified (emailChannelAvailable); SMS DISABLED unless phone_verified_at; a toggle is DIMMED (not disabled) when its channel is available but the master is off. Don't conflate disabled and dimmed.",
+          "CreatorSlugSection self-hides for non-creators (returns null if user.role !== 'creator') and again until its own getSlug fetch resolves. It does NOT use the user object for slug data — separate authApi.getSlug() call. Slug cooldown (cooldown_until > now) BLOCKS editing entirely and shows a gate; changing slug starts a fresh cooldown_days lockout.",
+          "Handles are NOT on this page — only a link-out card to /c/handles. The real HandlesSection (with OAuth connect, admin review, remove + handle-in-use-blocked modals) lives on that route. Do not try to inline it as a per-row dialog.",
+          "Handle removal can be BLOCKED by backend (422, reason 'handle_in_use') when a verified handle is still referenced by active bounties — the UI swaps to a contact-support modal rather than removing. (On /c/handles, not the settings page, but relevant if handles ever get embedded.)",
+          "Account-level fields (email, password, phone add/verify) are intentionally absent from the creator page — they live on fan/account settings. The SMS banner 'Add phone' button and the bottom dashed card both link to /settings (#phone, #email). Don't accidentally duplicate phone/email editing onto the creator page.",
+          "Every section is wrapped in an anchor div (id=picture, display-name, slug, bio, fan-name, handles is on its own route id=handles, location, notifications). These ids are deep-link targets (e.g. /settings#phone, /settings#notifications, fan cross-links). Preserve the ids when converting to rows or in-page links break.",
+          "Fan name is two fields (fan_name + fan_name_plural) saved in ONE PATCH; the description shows a live example from fanNamePlural || fanName || fallback. A row+modal must keep both fields together and the live-preview behavior.",
+          "Save buttons everywhere are gated on a no-change comparison against the user object (display_name, bio, fan_name pair, location country/state). The redesign's modals must replicate these dirty-checks or the save button enable/disable logic is lost.",
+          "Profile picture has NO remove/clear affordance — only upload/replace. normalizeAvatarUrl can reject a URL (returns falsy) and the upload silently no-ops. Cloudinary unavailable (no NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) shows an error text instead of the button.",
+          "notifApi.reset() is immediate with no confirm dialog — resets BOTH creator and fan notification settings server-side (single NotificationSettings record). A creator clicking 'reset' here also resets their fan toggles. Consider a confirm in the redesign.",
+          "Page redirects to /login if !user after auth resolves, and shows a skeleton while authLoading. Location handlers all early-return if !user."
+        ]
+      },
+      {
+        "surface": "shared",
+        "items": [
+          {
+            "key": "two_factor_enabled",
+            "label": "Two-factor authentication (2FA)",
+            "currentAffordance": "link-out",
+            "dataSource": "user.two_factor_enabled (from useAuth)",
+            "apiCall": "none here — links to /settings/two-factor page which owns the enable/disable/regenerate flow",
+            "conditional": "always shown; copy switches on enabled vs disabled",
+            "recommendation": "row+modal — but a SHALLOW modal: TwoFactorCard already is a compact row (SectionLabel + blurb + right-aligned Button). Keep the row, but the actual setup/disable is a full multi-step flow (QR, recovery codes, step-up confirm) that lives on a dedicated route. Recommendation: row shows status (On/Off), Edit/Manage button link-outs to /settings/two-factor rather than opening a Modal. Do NOT try to cram the 2FA setup wizard into the shared edit Modal.",
+            "specialFlows": "Disable/regenerate on the dedicated page require StepUpField (buildStepUp/stepUpRequired) re-auth. TwoFactorCard itself performs no step-up.",
+            "notes": "TwoFactorCard is already row-shaped and self-contained (reads user from context, no local state). Its enable/disable state also drives StepUpField's branch (code vs password) for every OTHER sensitive action, so 2FA status is global shared state, not card-local."
+          },
+          {
+            "key": "logout_all_sessions",
+            "label": "Active sessions / Sign out everywhere",
+            "currentAffordance": "confirm-modal",
+            "dataSource": "authApi.sessions.list() -> active_sessions (local state count)",
+            "apiCall": "GET sessions.list on mount; POST sessions.logoutAll on confirm; then auth-context logout() + router.push('/login')",
+            "conditional": "button disabled when count===null or count===0",
+            "recommendation": "stays-inline-toggle / row+confirm-modal — SessionsCard is already the target pattern: compact row (count blurb + button) that opens a confirm Modal. This is the canonical example to model the new pattern on. Keep as-is; it needs a destructive-confirm Modal, not an edit-form Modal.",
+            "specialFlows": "Destructive + session-terminating: logoutAll revokes the current token too, so it must clear auth state and redirect to /login. Modal onClose is guarded by `!busy` to prevent dismiss mid-request.",
+            "validation": "button disabled until count loaded and > 0",
+            "notes": "Fully self-contained: own data fetch, own Modal, own busy/error handling via useToast. Drops into a row stack with zero external wiring."
+          },
+          {
+            "key": "preferred_locale",
+            "label": "Language / Display language",
+            "currentAffordance": "inline-form",
+            "dataSource": "useLocale() (URL) + user.preferred_locale; ENDONYMS map; routing.locales",
+            "apiCall": "users.update(user.id, { preferred_locale }) fire-and-forget; primary effect is router.replace(pathname, { locale }) to re-prefix the URL",
+            "conditional": "variant prop: 'header' (compact flag dropdown) vs 'settings' (FieldLabel + wide flag+endonym button)",
+            "recommendation": "stays-inline — LanguageSwitcher is a self-contained custom listbox dropdown (NOT a native Select), with its own open state, outside-click + Escape handling, and aria roles. For the compact-row layout, render the row value as the current flag+endonym and let the EXISTING 'settings' variant dropdown be the inline editor. Do not wrap it in the shared Modal: it already has its own popover and would create nested dismiss/focus layers. Recommend: row+inline-dropdown (reuse variant='settings').",
+            "specialFlows": "Switching changes the route locale immediately (startTransition + router.replace) and persists to the account in the background; no save button, no step-up.",
+            "i18nKeys": "Settings.language.label",
+            "notes": "Custom dropdown uses z-50; the shared Modal uses z-[200]. If a language switcher ever needs to live INSIDE a modal it will be clipped by max-h-[90vh] overflow-y-auto — see gotchas."
+          },
+          {
+            "key": "creator_slug",
+            "label": "Creator URL (artypot.com/{slug})",
+            "currentAffordance": "inline-form",
+            "dataSource": "authApi.getSlug() -> { slug, slug_changed_at, cooldown_until, cooldown_days }",
+            "apiCall": "GET getSlug on mount; POST updateSlug(newSlug) on save",
+            "conditional": "creator-only — returns null for non-creators and while info is loading",
+            "recommendation": "row+modal — CreatorSlugSection already implements a three-state inline editor (show / blocked-by-cooldown / editing) inside a Card. This maps cleanly to: row shows artypot.com/{slug} + Edit; modal hosts the SlugInput + cooldown warning + Save/Cancel. The 'blocked' cooldown state would become a disabled Edit button with a tooltip, or a modal that shows only the cooldown Banner. Good row+modal candidate.",
+            "specialFlows": "Cooldown gate (cooldown_until) blocks edits for cooldown_days; SlugInput does live async validity (onValidityChange feeds slugError); Save disabled until valid and changed.",
+            "validation": "slugError must be null and newSlug non-empty and != current slug",
+            "i18nKeys": "CreatorSlugSection.*",
+            "notes": "Self-contained data fetch + save + toast. No step-up required. The id='slug' anchor wrapper is used for deep-linking (#slug) — preserve an equivalent anchor if refactoring into a row."
+          },
+          {
+            "key": "email_verification",
+            "label": "Verify your email",
+            "currentAffordance": "read-only-status",
+            "dataSource": "props.email + user.email_verified_at (parent gates rendering on !email_verified_at)",
+            "apiCall": "POST auth.resendVerification(); polls auth via refreshUser() every 60s to auto-clear",
+            "conditional": "only shown when email is unverified (parent-gated)",
+            "recommendation": "inline-status — this is a transient banner, not a settings row. In the compact layout it should surface as an inline status pill / warning next to the email row (e.g. 'Unverified — Resend'), NOT as its own row+modal. The resend action stays a single inline button.",
+            "specialFlows": "Self-clearing: 60s poll calls refreshUser; once verified the parent unmounts it. 'sent' state disables the resend button after one send.",
+            "i18nKeys": "Banners.emailVerify.*",
+            "notes": "Uses a refreshUser ref to keep a single stable interval. Distinct visual style (yellow warning) — would need restyling to fit a neutral inline-status chip."
+          },
+          {
+            "key": "phone_number",
+            "label": "Phone number",
+            "currentAffordance": "inline-form",
+            "dataSource": "controlled value/onChange (E164Number) — owner component supplies persistence",
+            "apiCall": "none — PhoneNumberInput is a pure controlled field; the parent form owns the save endpoint",
+            "conditional": "n/a — used wherever a phone field is needed",
+            "recommendation": "row+modal — PhoneNumberInput is just a themed input (react-phone-number-input) exporting isValidPhoneNumber for validation. It drops directly into a Modal's edit form. Row shows the formatted number; modal hosts this field + a Save button wired by the owning settings page.",
+            "validation": "isValidPhoneNumber(value) exported for the owner to gate save",
+            "notes": "Not a self-contained setting — no API, no state beyond controlled value. Pure presentational field; the row+modal wrapper must supply load/save/step-up itself."
+          }
+        ],
+        "components": [
+          {
+            "name": "Modal",
+            "props": "title: string; onClose: () => void; children: ReactNode; actions?: ReactNode; lg?: boolean",
+            "purpose": "Centered overlay dialog. Fixed full-screen scrim (z-[200], bg-black/70 backdrop-blur), click-scrim-to-close (stopPropagation on inner), header row with title + ghost ✕ button, scrollable body (max-h-[90vh] overflow-y-auto), optional right-aligned actions footer. Two sizes: default max-w-lg, lg max-w-2xl.",
+            "reusable": "This IS the modal half of the row+edit pattern. The Edit button toggles a local `editing` boolean; render <Modal title=... onClose={()=>setEditing(false)} actions={<Cancel/><Save/>}>{form fields}</Modal>. SessionsCard is the reference usage. Caveat: actions are passed as a prop, so the Save button's disabled/busy state must be managed by the owning component, not the modal."
+          },
+          {
+            "name": "Card / SectionLabel",
+            "props": "Card: title?, right?, dashed?, accent?, roleAccent?, className?, style?, children. SectionLabel: children, className?",
+            "purpose": "Card is the bordered surface container with an optional title row (SectionLabel + right slot). SectionLabel is the mono uppercase tracked label used as the field/section heading.",
+            "reusable": "The row container. A compact row = Card (or a lighter wrapper) holding SectionLabel + current-value text on the left and an Edit Button in the `right` slot or a flex justify-between row. TwoFactorCard/SessionsCard show the exact flex layout: <div flex items-center justify-between><div><SectionLabel/><p blurb/></div><Button/></div>."
+          },
+          {
+            "name": "Button",
+            "props": "variant: default|primary|danger|ghost; size: default|sm|xs; + native button attrs (onClick, disabled)",
+            "purpose": "Themed button with hard-shadow press animation. Variants: default (neutral), primary (role-accent), danger (destructive), ghost (toolbar/close). Auto opacity-40 + no-transform when disabled.",
+            "reusable": "Edit triggers use variant='default' size='sm' (matches TwoFactorCard/SessionsCard). Modal footer: Cancel=ghost, Save=primary, destructive Confirm=danger. The ✕ close is variant='ghost' size='xs' (Modal hardcodes this internally)."
+          },
+          {
+            "name": "Input / PasswordInput / Textarea / Select / FieldLabel / FieldHint / InputPrefix / FieldGrid2",
+            "props": "Input/Textarea/Select extend native attrs + mono?; FieldLabel/FieldHint take children; InputPrefix takes prefix+children; FieldGrid2 wraps two-up grid",
+            "purpose": "The field primitives for edit forms: labelled inputs, password with show/hide eye toggle (tabIndex -1 so it stays out of tab order), styled native select with custom chevron, prefixed input (e.g. for slugs/handles), two-column grid.",
+            "reusable": "These populate the Modal body — the actual edit form. FieldLabel+Input is the standard stacked field. PasswordInput is used inside StepUpField. Native Select here is theme-styled and modal-safe (unlike LanguageSwitcher's custom popover)."
+          },
+          {
+            "name": "Toggle",
+            "props": "on: boolean; onChange: (val) => void; label?; className?; disabled?",
+            "purpose": "Accessible switch (role=switch, aria-checked) for boolean settings. Pure controlled — no internal state.",
+            "reusable": "For simple boolean settings the recommendation is stays-inline-toggle: render the Toggle directly in the row (no modal). Only escalate a boolean to a confirm-modal when flipping it is destructive/sensitive (cf. 2FA disable, which is not a plain toggle)."
+          },
+          {
+            "name": "StepUpField + buildStepUp + stepUpRequired",
+            "props": "StepUpField({ user, value, onChange, className }); buildStepUp(user, value): StepUp|undefined; stepUpRequired(user): boolean",
+            "purpose": "Re-auth control for sensitive actions. stepUpRequired(user) decides whether any factor is needed (true if two_factor_enabled OR has_password). StepUpField renders a TOTP/recovery-code field for 2FA accounts, a password field otherwise, and nothing for password-less/no-2FA accounts. buildStepUp packages the typed value into the StepUp payload ({step_up_code} vs {password} vs undefined), mirroring backend StepUpService precedence (2FA code beats password).",
+            "reusable": "CRITICAL for any sensitive edit modal (change email, disable 2FA, delete account, change password). Pattern inside the Modal: keep a `stepUpValue` state, render <StepUpField user={user} value={stepUpValue} onChange={setStepUpValue}/> below the edit fields, and pass buildStepUp(user, stepUpValue) into the save API call. Save button can require stepUpValue to be non-empty when stepUpRequired(user). It self-hides for accounts with no in-band factor, so the modal must not assume a step-up value will always exist."
+          },
+          {
+            "name": "TwoFactorCard",
+            "props": "none (reads user from useAuth, t from Settings namespace)",
+            "purpose": "Settings-hub row: shows 2FA on/off blurb + Manage/Set up button linking to /settings/two-factor.",
+            "reusable": "Already row-shaped and fully self-contained (no props, reads context). Drop it straight into the row stack. It link-outs rather than modals — do not convert to a modal; the 2FA flow is multi-step and route-based."
+          },
+          {
+            "name": "SessionsCard",
+            "props": "none (reads logout from useAuth, router, toast)",
+            "purpose": "Settings-hub row: active-session count + Sign out everywhere, with a destructive confirm Modal.",
+            "reusable": "The canonical row+modal reference. Fully self-contained: own data fetch (sessions.list), own Modal, own busy/error/redirect handling. Drop into the row stack with zero wiring. Model the new shared pattern's destructive-confirm variant on this."
+          },
+          {
+            "name": "LanguageSwitcher",
+            "props": "variant: 'header' | 'settings'",
+            "purpose": "Locale picker as a custom accessible listbox (not native select). Own open state, outside-click + Escape close, flag rendering (incl. inline Esperanto SVG), endonym labels. Switches the URL locale via router.replace and persists preferred_locale to the account.",
+            "reusable": "Use variant='settings' as the inline editor for the language row. Self-contained (no save button needed). Keep it inline, not in a Modal — it owns its own popover/focus and uses z-50, which conflicts with the Modal's z-[200] scrim and would be clipped by the modal's overflow-y-auto."
+          },
+          {
+            "name": "PhoneNumberInput",
+            "props": "value: E164Number|undefined; onChange; disabled?; (exports isValidPhoneNumber, E164Number)",
+            "purpose": "Theme-wrapped react-phone-number-input with country flag select and dark-theme styling scoped via .artypot-phone-input.",
+            "reusable": "A controlled field for the modal body. No persistence of its own — the owning row+modal must supply load/save and use the exported isValidPhoneNumber to gate the Save button."
+          },
+          {
+            "name": "EmailVerificationBanner",
+            "props": "email: string | null",
+            "purpose": "Self-clearing yellow warning banner for unverified email; resend button + 60s refreshUser poll.",
+            "reusable": "Not a row+modal component — a transient status banner. In the compact layout, fold it into an inline-status indicator on the email row rather than giving it a row of its own."
+          },
+          {
+            "name": "CreatorSlugSection (+ SlugInput, Banner)",
+            "props": "none (reads user from useAuth; SlugInput: value, onChange, label, onValidityChange)",
+            "purpose": "Creator-only three-state inline editor (show / cooldown-blocked / editing) for the artypot.com/{slug} URL, with live slug validation and a change-cooldown gate.",
+            "reusable": "Already a self-contained card with fetch+save+toast. Maps to row+modal: row shows the URL + Edit; modal hosts SlugInput + cooldown Banner + Save/Cancel. The 'blocked' state becomes a disabled Edit (or cooldown-only modal). SlugInput's onValidityChange must gate the modal's Save button."
+          }
+        ],
+        "gotchas": [
+          "Modal has NO focus management: it does not trap focus, does not autofocus the first field, does not return focus to the trigger on close, and has no role=\"dialog\"/aria-modal/aria-labelledby. Tab can escape the dialog to background content. For a settings pattern with form fields this needs adding (focus trap + initial focus + restore-on-close + aria wiring) or it will be a keyboard/AX regression.",
+          "Modal closes ONLY via the ✕ button or clicking the scrim — there is NO Escape-to-close handler and NO body-scroll lock. Background page scrolls behind the open modal. Add useEffect Escape handling + overflow:hidden on body if reused widely. (LanguageSwitcher and the LanguageSwitcher dropdown DO handle Escape/outside-click themselves; Modal does not — inconsistent dismissal behavior.)",
+          "Modal stacking / z-index: scrim is z-[200]; LanguageSwitcher's custom dropdown and the settings-variant listbox are z-50. A LanguageSwitcher placed INSIDE a Modal would have its popover render UNDER nothing problematic but its options would be clipped by the modal body's `max-h-[90vh] overflow-y-auto` (the absolute-positioned listbox is cut off at the scroll boundary). Keep custom-popover components (LanguageSwitcher) OUT of the Modal; use native Select inside modals instead. Native Select is not clipped because the browser renders its option list in a top layer.",
+          "Nested/stacked Modals: nothing prevents two Modals mounting at once (both at z-[200]) — clicking the scrim of the top one calls onClose but the scrims overlap and click-through is ambiguous. Avoid opening a Modal from within a Modal; if a confirm-within-edit is needed, manage it as a single modal with swappable content rather than two stacked overlays.",
+          "Scrim onClick={onClose} fires on ANY outside click with no busy-guard at the Modal level — each caller must guard onClose during in-flight saves (SessionsCard does `onClose={() => !busy && setConfirming(false)}`). The shared pattern should bake this guard in so half-finished saves can't be dismissed.",
+          "Modal `actions` are a render-prop slot, not declarative buttons — the owning component must wire the Save button's disabled/busy/label-swap and the API call itself. There is no built-in onSubmit/loading concept. The reusable row+modal wrapper should standardize this (e.g. an onSave async prop that manages busy + closes on success).",
+          "StepUpField renders NOTHING for accounts with no password and no 2FA (buildStepUp returns undefined). Edit modals for sensitive actions must not require a non-empty step-up value unconditionally — gate on stepUpRequired(user), and pass buildStepUp(...) (which may be undefined) straight through to the API. Hardcoding a password field would break passwordless/social accounts.",
+          "StepUpField's branch (code vs password) is driven by user.two_factor_enabled from useAuth — if 2FA is toggled in one card, other open edit modals reading stale context could show the wrong factor field. Ensure user context is fresh (refreshUser) after 2FA changes before opening sensitive-action modals.",
+          "TwoFactorCard link-outs to a separate /settings/two-factor route — its enable/disable/regenerate flow is multi-step and NOT expressible in a single edit Modal. Do not try to pull it into the shared modal pattern; keep it as a link-out row.",
+          "Native form semantics: the shared field primitives (Input/Select/Textarea) are plain controlled inputs with no <form> wrapper in Modal, so Enter-to-submit does not work unless the caller adds a form + onSubmit. PasswordInput's eye toggle is tabIndex={-1} (intentionally skipped in tab order) — fine, but note Save-on-Enter must be wired manually.",
+          "EmailVerificationBanner and CreatorSlugSection self-gate to nothing (return null) based on user state (verified / non-creator / loading). A row-stack layout that expects a fixed set of rows must tolerate these components rendering null, or it will leave gaps/keys mismatched.",
+          "PhoneNumberInput pulls in react-phone-number-input CSS globally and relies on a .artypot-phone-input scope in globals.css plus focus-within:border-fan — it is NOT theme-token-driven like the other Input fields (uses `fan` color, lg radius). Visually inconsistent with the standard Input border-[var(--color-role)] focus; reconcile styling if placed next to standard fields in a modal."
+        ]
+      },
+      {
+        "components": [
+          {
+            "name": "Settings",
+            "purpose": "Fan settings page — src/app/[locale]/settings/page.tsx (useTranslations('Settings')); ALSO consumed by components/settings/SecuritySettingsCards.tsx which calls useTranslations('Settings') twice (for twoFactor + sessions sub-namespaces)",
+            "props": "Key groups: language{label,title,blurb}; breadcrumb{fan,settings}; hero{title}; common{cancel,save,saving}; email{label,addBlurb,verifiedBadge,placeholderExample,placeholderNew,addButton,changeButton,sending,sentBanner,sentBannerShort,pendingBanner}; profilePicture{label,alt,saving,change,upload,unavailable,anySize}; displayName{label,saveButton}; expiry{label,blurb,lengthLabel,unitLabel,unitDay,unitWeek,unitMonth,unitYear}; backingAmount{label,blurb,amountLabel}; privacy{label,anonTitle,beta,anonDesc}; billing{label,blurb,cta}; creatorProfile{label,blurb,cta}; phone{label,blurb,verifiedBadge,removing,remove,codeSentTo,verifying,verify,useDifferent,sending,sendCode}; notifications{label,addEmailWarn,verifyEmailWarn,verifyPhoneWarn,addPhoneWarn,loading,notAvailable,creatorCrossLink,resetting,resetToDefaults,channels{email,sms,bell},aria{email,emailAlwaysOn,sms,smsAlwaysOn,bell,bellAlwaysOn},rows{creatorVerified,bountyPendingReview,bountyConfirmed,backingConfirmed,backingExpired,billingPreview,billingReceipt,bountyActivity,creatorActivity,commentReply,accountManagement}}; password{label,blurb,cta}; danger{label,brokeTitle,brokeDesc,brokeButton,deleteTitle,deleteDesc,deleteButton,brokeDone,genericError}; brokeModal{title,working,confirm,body,amountWarning,undoNote}; deleteModal{title,deleting,confirm,body,recoverNote,typePrompt}; toasts{settingsSaved,saveFailed,notifReset,resetFailed,nameUpdated,nameFailed,expirySaved,expiryFailed,backingAmountSaved,backingAmountFailed,codeSent,codeSendFailed,phoneVerified,codeInvalid,phoneRemoved,phoneRemoveFailed,confirmEmailSent,confirmEmailFailed,pictureUpdated,pictureFailed}; twoFactor{label,onBlurb,offBlurb,setUp,manage}; sessions{label,blurb,activeCount,logoutAll,confirmTitle,confirmBody,confirm,cancel,working,error}",
+            "reusable": "Most groups map cleanly to a row+edit-modal pattern (displayName, email, phone, expiry, backingAmount, profilePicture). twoFactor+sessions live in SecuritySettingsCards and should stay link-out / inline-status rows. notifications.rows/channels/aria are a dynamic toggle matrix — preserve all 11 row keys + 3 channels + 6 aria templates verbatim."
+          },
+          {
+            "name": "CreatorSettings",
+            "purpose": "Creator settings page — src/app/[locale]/c/settings/page.tsx (useTranslations('CreatorSettings'))",
+            "props": "Key groups: header{breadcrumbCreator,breadcrumbProfile,title}; picture{sectionLabel,alt,saving,changePhoto,uploadPhoto,unavailable,uploadAnySize,toastSaved,toastError}; displayName{sectionLabel,saving,save,toastSaved,toastError}; bio{sectionLabel,description,placeholder,saving,save,toastSaved,toastError}; fanName{sectionLabel,description,exampleFallback,singularLabel,singularPlaceholder,pluralLabel,pluralPlaceholder,saving,save,toastSaved,toastError}; handles{sectionLabel,description,manage}; location{sectionLabel,description,countryLabel,selectCountry,selectSubdivision,saving,save,toastSaved,toastError,confirm}; notifications{sectionLabel,description,loading,goToFan,reset,resetting,toastSaved,toastError,toastReset,toastResetError,smsBanner,channels{email,sms,bell},toggleAria,rows{newBounty,bountyVerified,bountyRejected}}; fanSettingsLink{text}",
+            "reusable": "Each section is a sectionLabel + save pattern → fits row+modal. handles is link-out (manage). location has a confirm flow (tax-residence). notifications mirrors fan structure but only 3 rows (newBounty,bountyVerified,bountyRejected) — preserve all."
+          },
+          {
+            "name": "SettingsPassword",
+            "purpose": "Change-password page — src/app/[locale]/settings/password/page.tsx (useTranslations('SettingsPassword'))",
+            "props": "Flat leaf keys (no sub-groups): heading, subheading, backToSettings, verifiedEmailRequired, currentPasswordLabel, newPasswordLabel, confirmPasswordLabel, showPassword, hidePassword, saving, updateButton, mismatchError, successMessage, failureMessage",
+            "reusable": "Dedicated route, not a modal today. Could become a row+modal off the security card, but keep verifiedEmailRequired gating copy."
+          },
+          {
+            "name": "SettingsTwoFactor",
+            "purpose": "2FA setup/manage page — src/app/[locale]/settings/two-factor/page.tsx (useTranslations('SettingsTwoFactor'))",
+            "props": "Leaf keys: back, heading, loading, passwordLabel, passwordHint, copy, copied. Groups: intro{title,blurb,begin}; setup{scanTitle,scanHint,manualLabel,recoveryTitle,recoveryHint,confirmLabel,confirmPlaceholder,confirm}; enabled{title,blurb,recoveryRemaining,regenerate,disable,councilNote}; regenerated{hint}; toasts{enabled,disabled,regenerated}; errors{generic}",
+            "reusable": "Multi-step wizard (intro→setup→enabled) — keep as a route, link-out from the security card. Not a simple row+modal."
+          },
+          {
+            "name": "StepUp",
+            "purpose": "Re-auth field shared by sensitive actions — src/components/StepUpField.tsx (useTranslations('StepUp')); used inside Settings (email change, delete account) and the 2FA page indirectly",
+            "props": "Namespace 'StepUp' (keys not dumped here but MUST be preserved). Exports buildStepUp(user,value) and stepUpRequired(user). Renders a TOTP code field when two_factor_enabled, else a password field, else nothing.",
+            "reusable": "Embed this exact component in any redesigned confirm-modal for email change / delete account / 2FA disable+regenerate. Do not reimplement the factor-precedence logic in the UI."
+          }
+        ],
+        "gotchas": [
+          "Step-up (\"sudo mode\") is mandatory on 3 actions: auth.requestEmailChange, auth.deleteAccount, and auth.twoFactor.enable/disable/regenerateRecoveryCodes. The frontend builds the body via buildStepUp(user, value) in components/StepUpField.tsx: if user.two_factor_enabled -> { step_up_code }, else if user.has_password -> { password }, else undefined (no factor sent; backend allows on session alone). A redesign MUST route these through StepUpField/buildStepUp, not a hand-rolled password field — getting the precedence wrong locks out 2FA users and OAuth-only users differently. stepUpRequired(user) gates whether to even show/require the field.",
+          "stepUpBody(s) in api.ts trims step_up_code but NOT password, and only includes keys that are truthy. requestEmailChange merges stepUpBody INTO the same JSON object as { email } (one POST /auth/email/change). deleteAccount and the twoFactor methods send stepUpBody as the entire body. Preserve this shape.",
+          "Auth header: every request() attaches Authorization: Bearer <localStorage 'artypot_token'>. There is ALSO a non-auth session cookie 'artypot_session=1' (presence-only, written by setToken/ensureSessionCookie) that the Edge middleware checks to gate /admin and /obelisk. logout-all / delete-account flows that clear the token must also clearSessionCookie() or the middleware gate goes stale. Don't confuse the cookie for real auth.",
+          "notificationSettings.update uses PUT (not PATCH) and notificationSettings.reset is PUT to /auth/notification-settings/reset (no body). update takes Partial<NotificationSettings>. The fan page sends partial channel/row toggles; the toggle matrix is keyed by the rows{} i18n group (11 fan rows, 3 creator rows) — the i18n row keys and the NotificationSettings field names must stay in lockstep or toggles render with no label.",
+          "users.update is PATCH /users/{id} and is the single endpoint behind MANY distinct fan+creator settings: display_name, profile_picture, is_anonymous, country_code, state_code, default_expiry_value, default_expiry_unit, default_backing_amount, bio, fan_name, fan_name_plural, preferred_locale. The TS Partial<Pick<...>> type is the authoritative allow-list — a redesign that sends a field outside this Pick will be silently dropped/typed-out. Profile picture is normalized to a 512^2 q_auto/f_auto Cloudinary URL (normalizeAvatarUrl) before PATCH; preserve normalization, never PATCH the raw secure_url.",
+          "The 'broke' bulk action is auth.broke() = POST /auth/broke, returns { data: { revoked_count } }. It is NOT under backings.* despite living in the fan settings danger zone; it revokes all soft backings. Copy lives in Settings.danger.brokeButton/brokeDone and Settings.brokeModal.*. Distinct from per-backing removeBacking (bounties.removeBacking, DELETE /bounties/{b}/backings/{id}).",
+          "Phone flow is a 3-call state machine: phone.sendCode(phone_number) POST /auth/phone -> phone.verifyCode(code) POST /auth/phone/verify -> phone.remove() DELETE /auth/phone. verifyCode returns the verified phone_number + phone_verified_at. The page validates with isValidPhoneNumber before sendCode. No step-up on phone.",
+          "Email change is a 2-step verified flow: requestEmailChange (POST /auth/email/change, step-up required) sends a signed link; confirmEmailChange (GET /auth/email/change/confirm/{id}/{hash}?expires&signature) completes it on a separate route. The settings page only does step 1; do not drop the signed-link confirm route. Distinct from initial email verify (verifyEmail / resendVerification).",
+          "Sessions: auth.sessions.list() GET /auth/sessions returns { active_sessions: number } (a COUNT, not a list of devices — UI can only show a number, not per-device logout). auth.sessions.logoutAll() POST /auth/sessions/logout-all. Lives in SecuritySettingsCards, copy under Settings.sessions.*.",
+          "Password change (auth.changePassword, POST /auth/password/change) requires { current_password, password, password_confirmation } and SettingsPassword.verifiedEmailRequired implies a verified-email precondition gates the page — preserve that guard. This is separate from forgot/reset (token+email based).",
+          "204 No Content responses return undefined (request<T> short-circuits on 204). 422 responses are special-cased: body.errors first-field-first-message becomes error.message, and body.reason / body.data are surfaced (e.g. backing_cap_exceeded, payment_grace_period, requires_w9). Settings toasts rely on e.message passthrough for phone/email errors — keep reading err.message.",
+          "All 4 settings namespaces (Settings, CreatorSettings, SettingsPassword, SettingsTwoFactor) plus StepUp exist in ALL four locale files: en.json, es.json, eo.json, en-x-brainrot.json. Any key added/renamed/removed in a redesign must be mirrored across all four (next-intl will throw/fall back on a missing key). The en-x-brainrot locale translates stance not words (per repo memory) — don't auto-machine-translate it.",
+          "next-intl t.rich is used (e.g. Settings.phone.codeSentTo uses a <strong> chunk callback). Rich keys carry inline markup placeholders — a flat string replacement in a redesign will break the rich render. aria templates (notifications.aria.*) carry an {row} interpolation."
+        ],
+        "items": [
+          {
+            "key": "users.update",
+            "label": "Update user profile (multi-field)",
+            "currentAffordance": "inline-form",
+            "apiCall": "PATCH /users/{id}",
+            "dataSource": "user.display_name, user.profile_picture, user.is_anonymous, user.country_code, user.state_code, user.default_expiry_value, user.default_expiry_unit, user.default_backing_amount, user.bio, user.fan_name, user.fan_name_plural, user.preferred_locale",
+            "validation": "Allow-list = Partial<Pick<User, display_name|profile_picture|is_anonymous|country_code|state_code|default_expiry_value|default_expiry_unit|default_backing_amount|bio|fan_name|fan_name_plural|preferred_locale>>. Fan page client checks: expiry 1..999 int; backing amount 1..9999.99 float. profile_picture normalized via normalizeAvatarUrl (512^2 q_auto f_auto Cloudinary).",
+            "recommendation": "row+modal",
+            "notes": "Single endpoint backing ~11 distinct settings rows across BOTH fan and creator pages. Signature: users.update(id: number, data: Partial<Pick<User, ...>>) => { data: User }. Each save is a partial PATCH then refreshUser()."
+          },
+          {
+            "key": "users.get",
+            "label": "Fetch public user",
+            "currentAffordance": "read-only-status",
+            "apiCall": "GET /users/{id}",
+            "dataSource": "PublicUser",
+            "recommendation": "inline-status",
+            "notes": "users.get(id: number) => { data: PublicUser }. Not directly used by settings save flows but part of the users surface."
+          },
+          {
+            "key": "auth.requestEmailChange",
+            "label": "Change email address",
+            "currentAffordance": "inline-form",
+            "apiCall": "POST /auth/email/change",
+            "dataSource": "user.email (current), emailChangeInput (new)",
+            "validation": "non-empty trimmed email; step-up required when stepUpRequired(user)",
+            "specialFlows": "STEP-UP required + email-verify: sends a signed confirmation link; completed separately via confirmEmailChange (GET /auth/email/change/confirm/{id}/{hash}?expires&signature). Body = { email, ...stepUpBody(stepUp) }.",
+            "recommendation": "row+modal",
+            "conditional": "Step-up field shown only when user has 2FA or password",
+            "notes": "auth.requestEmailChange(email: string, stepUp?: StepUp) => { message }. Pairs with auth.confirmEmailChange(id, hash, expires, signature)."
+          },
+          {
+            "key": "auth.changePassword",
+            "label": "Change password",
+            "currentAffordance": "inline-form",
+            "apiCall": "POST /auth/password/change",
+            "dataSource": "form inputs (current_password, password, password_confirmation)",
+            "validation": "client mismatch check (SettingsPassword.mismatchError); page gated by verified email (verifiedEmailRequired)",
+            "specialFlows": "Requires current_password as in-band re-auth (not the StepUp helper). Separate route src/app/[locale]/settings/password/page.tsx.",
+            "recommendation": "row+modal",
+            "notes": "auth.changePassword({ current_password, password, password_confirmation }) => { message }."
+          },
+          {
+            "key": "auth.twoFactor.status",
+            "label": "2FA status",
+            "currentAffordance": "read-only-status",
+            "apiCall": "GET /auth/two-factor",
+            "dataSource": "{ enabled, pending, recovery_codes_remaining }",
+            "recommendation": "inline-status",
+            "notes": "auth.twoFactor.status() => { enabled: boolean; pending: boolean; recovery_codes_remaining: number }. Drives SecuritySettingsCards twoFactor row + the 2FA page."
+          },
+          {
+            "key": "auth.twoFactor.enable",
+            "label": "Enable 2FA (get secret/QR)",
+            "currentAffordance": "inline-form",
+            "apiCall": "POST /auth/two-factor",
+            "dataSource": "returns { secret, otpauth_uri, recovery_codes }",
+            "specialFlows": "STEP-UP: body = stepUpBody(stepUp). Followed by confirm with a code.",
+            "recommendation": "link-out",
+            "conditional": "Step-up code/password required per stepUpRequired(user)",
+            "notes": "auth.twoFactor.enable(stepUp?: StepUp) => { secret; otpauth_uri; recovery_codes: string[] }."
+          },
+          {
+            "key": "auth.twoFactor.confirm",
+            "label": "Confirm 2FA enrollment",
+            "currentAffordance": "inline-form",
+            "apiCall": "POST /auth/two-factor/confirm",
+            "dataSource": "confirmCode input",
+            "validation": "6-digit TOTP code",
+            "recommendation": "link-out",
+            "notes": "auth.twoFactor.confirm(code: string) => { message }. No step-up (the code itself is the proof)."
+          },
+          {
+            "key": "auth.twoFactor.disable",
+            "label": "Disable 2FA",
+            "currentAffordance": "confirm-modal",
+            "apiCall": "DELETE /auth/two-factor",
+            "dataSource": "step-up code/password",
+            "specialFlows": "STEP-UP: body = stepUpBody(stepUp); DELETE with a JSON body.",
+            "recommendation": "link-out",
+            "conditional": "Step-up required",
+            "notes": "auth.twoFactor.disable(stepUp?: StepUp) => { message }."
+          },
+          {
+            "key": "auth.twoFactor.regenerateRecoveryCodes",
+            "label": "Regenerate recovery codes",
+            "currentAffordance": "confirm-modal",
+            "apiCall": "POST /auth/two-factor/recovery-codes",
+            "dataSource": "returns { recovery_codes }",
+            "specialFlows": "STEP-UP: body = stepUpBody(stepUp).",
+            "recommendation": "link-out",
+            "conditional": "Step-up required",
+            "notes": "auth.twoFactor.regenerateRecoveryCodes(stepUp?: StepUp) => { recovery_codes: string[] }."
+          },
+          {
+            "key": "auth.sessions.list",
+            "label": "Active sessions count",
+            "currentAffordance": "read-only-status",
+            "apiCall": "GET /auth/sessions",
+            "dataSource": "{ active_sessions: number }",
+            "recommendation": "inline-status",
+            "notes": "auth.sessions.list() => { active_sessions: number }. Returns a COUNT only, not per-device list. Rendered in SecuritySettingsCards."
+          },
+          {
+            "key": "auth.sessions.logoutAll",
+            "label": "Log out all sessions",
+            "currentAffordance": "confirm-modal",
+            "apiCall": "POST /auth/sessions/logout-all",
+            "dataSource": "none",
+            "specialFlows": "Confirm dialog (Settings.sessions.confirm*). Revokes all Sanctum tokens; current session likely invalidated.",
+            "recommendation": "row+modal",
+            "notes": "auth.sessions.logoutAll() => { message }. No step-up. Should also clear session cookie locally."
+          },
+          {
+            "key": "notificationSettings.get",
+            "label": "Get notification settings",
+            "currentAffordance": "read-only-status",
+            "apiCall": "GET /auth/notification-settings",
+            "dataSource": "NotificationSettings",
+            "recommendation": "inline-status",
+            "notes": "notificationSettings.get() => NotificationSettings. Loads the toggle matrix on both fan and creator pages."
+          },
+          {
+            "key": "notificationSettings.update",
+            "label": "Update notification toggles",
+            "currentAffordance": "inline-toggle",
+            "apiCall": "PUT /auth/notification-settings",
+            "dataSource": "Partial<NotificationSettings>",
+            "validation": "Some channels disabled/always-on depending on whether user has verified email/phone (addEmailWarn/verifyEmailWarn/verifyPhoneWarn/addPhoneWarn). aria 'always on' templates mark non-toggleable cells.",
+            "recommendation": "stays-inline-toggle",
+            "notes": "notificationSettings.update(data: Partial<NotificationSettings>) => NotificationSettings. PUT not PATCH. Toggle matrix keyed by i18n rows{} (11 fan / 3 creator) x channels{email,sms,bell}."
+          },
+          {
+            "key": "notificationSettings.reset",
+            "label": "Reset notifications to defaults",
+            "currentAffordance": "confirm-modal",
+            "apiCall": "PUT /auth/notification-settings/reset",
+            "dataSource": "none (returns fresh NotificationSettings)",
+            "recommendation": "stays-inline-toggle",
+            "notes": "notificationSettings.reset() => NotificationSettings. PUT with no body. Copy: Settings.notifications.resetToDefaults / resetting."
+          },
+          {
+            "key": "phone.sendCode",
+            "label": "Send phone verification code",
+            "currentAffordance": "otp-flow",
+            "apiCall": "POST /auth/phone",
+            "dataSource": "phoneInput",
+            "validation": "isValidPhoneNumber(phoneInput) before call (E.164, starts with +)",
+            "specialFlows": "phone OTP step 1 of 3",
+            "recommendation": "row+modal",
+            "notes": "phone.sendCode(phone_number: string) => { message }."
+          },
+          {
+            "key": "phone.verifyCode",
+            "label": "Verify phone code",
+            "currentAffordance": "otp-flow",
+            "apiCall": "POST /auth/phone/verify",
+            "dataSource": "codeInput",
+            "validation": "6-digit code, trimmed non-empty",
+            "specialFlows": "phone OTP step 2 of 3; returns phone_number + phone_verified_at",
+            "recommendation": "row+modal",
+            "notes": "phone.verifyCode(code: string) => { message; phone_number; phone_verified_at }."
+          },
+          {
+            "key": "phone.remove",
+            "label": "Remove phone number",
+            "currentAffordance": "confirm-modal",
+            "apiCall": "DELETE /auth/phone",
+            "dataSource": "none",
+            "recommendation": "row+modal",
+            "notes": "phone.remove() => { message }. No step-up. Copy: Settings.phone.remove/removing."
+          },
+          {
+            "key": "auth.broke",
+            "label": "I'm broke — revoke all soft backings",
+            "currentAffordance": "confirm-modal",
+            "apiCall": "POST /auth/broke",
+            "dataSource": "returns { data: { revoked_count } }",
+            "specialFlows": "Confirm dialog (Settings.brokeModal.*). Bulk revoke of all the user's soft backings. brokeDone copy interpolates {count}.",
+            "recommendation": "row+modal",
+            "notes": "auth.broke() => { data: { revoked_count: number } }. This is THE 'broke' bulk action — lives under auth.*, not backings.*. Danger-zone item."
+          },
+          {
+            "key": "auth.deleteAccount",
+            "label": "Delete account",
+            "currentAffordance": "confirm-modal",
+            "apiCall": "DELETE /auth/account",
+            "dataSource": "step-up code/password",
+            "specialFlows": "STEP-UP: body = stepUpBody(stepUp). Confirm-modal with type-to-confirm (deleteModal.typePrompt). On success: logout() + redirect to /.",
+            "recommendation": "row+modal",
+            "conditional": "Step-up field shown when stepUpRequired(user)",
+            "notes": "auth.deleteAccount(stepUp?: StepUp) => void (204). Danger-zone item."
+          },
+          {
+            "key": "backings.list",
+            "label": "Backings list (broke-modal context)",
+            "currentAffordance": "read-only-status",
+            "apiCall": "GET /auth/backings",
+            "dataSource": "BackingPage",
+            "recommendation": "inline-status",
+            "notes": "backings.list(params?: { sort?: 'date'|'amount'; page?; bounty_status?; per_page? }) => BackingPage. Fan settings page calls it (line 188) to populate the broke-modal amount warning context. Not the bulk action itself."
+          }
+        ],
+        "surface": "api-i18n"
+      }
+    ],
+    "plan": "I have everything I need. The inventories match the real code, and I've confirmed the Modal/Card/SectionLabel signatures and the canonical SessionsCard row+modal reference pattern. Here is the implementation-ready plan.\n\n---\n\n# Artypot Settings Redesign — Implementation Plan\n\n**Goal:** Collapse the two \"sprawling\" settings pages (`/settings`, `/c/settings`) into compact, scannable surfaces. Each non-trivial setting becomes a **row** (label + current-value summary + Edit button); clicking Edit opens a **modal** hosting the *existing* edit form verbatim. Toggles, the notification matrix, language, 2FA/sessions status, and danger-zone buttons stay inline where a modal would hurt UX. **Nothing is dropped; every gated/security flow is preserved exactly.**\n\nReal code lives in `/Users/harrybaldwig/VSProjects/artypot/artypot-web` (Next.js 14). The two page files:\n- `src/app/[locale]/settings/page.tsx` (42KB — `useTranslations('Settings')`)\n- `src/app/[locale]/c/settings/page.tsx` (28KB — `useTranslations('CreatorSettings')`)\n\n---\n\n## 1. Information Architecture\n\nBoth pages collapse into a small fixed set of **section cards**, each containing a stack of rows. Section order is identical across fan/creator so the mental model is shared.\n\n### Fan page `/settings` — 6 sections\n\n| Section | Rows / contents (every fan inventory item mapped) |\n|---|---|\n| **Account** | `email` (row+modal, 3-state), `phone_number` (row+modal OTP, SMS_ENABLED-gated), `password` (link-out, gated hasEmail&&emailVerified), `language` (inline dropdown, `#language` anchor) |\n| **Profile** | `profile_picture` (row+modal upload, hidden if creator), `display_name` (row+modal, hidden if creator), `creator_profile_link` (link-out to `/c/settings`, creator-only) |\n| **Backing defaults** | `default_expiry` (row+modal, two fields one PATCH), `default_backing_amount` (row+modal), `billing` (link-out to `/billing`) |\n| **Privacy** | `is_anonymous` (inline toggle, optimistic, BETA) |\n| **Notifications** | `notifications` matrix (inline grid sub-surface, `#notifications` anchor) + reset + creator cross-link |\n| **Security** | `two_factor` (TwoFactorCard, link-out status), `sessions` (SessionsCard, row+confirm-modal) |\n| **Danger zone** | `danger_broke` (row+confirm-modal), `danger_delete_account` (row+confirm-modal, double gate) |\n\n> Note: Profile + creator_profile_link role-inversion is preserved (see §3). If `role==='creator'`, the Profile section shows only the creator-doorway row; if fan, it shows picture+name.\n\n### Creator page `/c/settings` — 5 sections\n\n| Section | Rows / contents (every creator inventory item mapped) |\n|---|---|\n| **Header** | `page_header` (breadcrumb + title, unchanged) |\n| **Profile** | `profile_picture` (`#picture`), `display_name` (`#display-name`), `bio` (`#bio`), `fan_name` (`#fan-name`, two fields + live preview) — all row+modal |\n| **Public presence** | `creator_slug` (`#slug`, row+modal w/ cooldown state machine), `handles` (link-out to `/c/handles`) |\n| **Tax & compliance** | `tax_residence` (`#location`, row+modal with confirm gate) |\n| **Notifications** | 3-row creator matrix (`newBounty`, `bountyVerified`, `bountyRejected` mandatory), `sms_banner`, `notif_reset`, `notif_goto_fan` (`#notifications`) |\n| **Footer** | `fan_settings_link` (link-out dashed card to `/settings#email`) |\n\nAccount-level fields (email/password/phone) stay **off** the creator page — only cross-links, exactly as today.\n\nEvery deep-link anchor (`#email`, `#phone`, `#language`, `#notifications`, `#picture`, `#display-name`, `#slug`, `#bio`, `#fan-name`, `#location`) is preserved by putting the `id` on the row's wrapper `<div>`.\n\n---\n\n## 2. The Reusable Pattern\n\n### 2a. `SettingRow` — the compact display primitive\n\nA presentational row modeled on the exact flex layout already used by `TwoFactorCard`/`SessionsCard` (`flex items-center justify-between gap-4`).\n\n```tsx\n// src/components/settings/SettingRow.tsx\ninterface SettingRowProps {\n  id?: string;                 // deep-link anchor id (e.g. \"email\")\n  label: ReactNode;            // SectionLabel content (i18n string)\n  value: ReactNode;            // current-value summary (text, badge, avatar+text)\n  badge?: ReactNode;           // optional status pill (Verified / Pending / Unverified)\n  action?: ReactNode;          // right-side control; default = Edit button\n  onEdit?: () => void;         // if set and no `action`, renders default Edit button\n  editLabel?: string;          // defaults to common \"Edit\"; rows override (Change/Manage)\n  disabled?: boolean;          // cooldown-blocked Edit, etc.\n  hint?: string;               // tooltip for disabled state (e.g. cooldown reason)\n}\n```\n\nRenders: left column = `<SectionLabel>{label}</SectionLabel>` + value/badge line; right = `action` or a default `<Button variant=\"default\" size=\"sm\" disabled={disabled} onClick={onEdit}>{editLabel}</Button>`. Wrapped in `<div id={id}>` when `id` present.\n\nRows live inside a `SettingsSection` shell (a `Card` with a heading + vertical divider stack) so a \"section\" = one Card containing N rows, replacing today's one-Card-per-setting sprawl.\n\n```tsx\n// src/components/settings/SettingsSection.tsx\ninterface SettingsSectionProps { title: string; children: ReactNode; }\n// renders <Card title={title}> with children separated by border-t dividers\n```\n\n### 2b. `SettingEditModal` — the edit-dialog wrapper\n\nThe existing `Modal` is a render-prop shell with **known AX gaps** (no focus trap, no Escape, no body-scroll-lock, no busy-guard on scrim, see shared gotchas). Rather than touch every call site, we wrap it once and bake in the missing behavior:\n\n```tsx\n// src/components/settings/SettingEditModal.tsx\ninterface SettingEditModalProps {\n  title: string;\n  onClose: () => void;\n  busy?: boolean;                 // when true, scrim/Escape close is suppressed (bakes in SessionsCard's !busy guard)\n  onSubmit?: () => void | Promise<void>;  // wires a <form> so Enter submits; manages nothing else\n  submitLabel: string;\n  savingLabel: string;\n  submitDisabled?: boolean;\n  submitVariant?: 'primary' | 'danger';\n  cancelLabel: string;\n  children: ReactNode;            // the moved-in edit form body\n}\n```\n\nInternally:\n- Wraps children in a real `<form onSubmit={...}>` so **Enter-to-submit** works (shared gotcha: Modal has no form semantics).\n- Adds a `useEffect` for **Escape-to-close** (guarded by `!busy`) and **body `overflow:hidden`** lock while open.\n- Adds **focus trap + autofocus first field + restore-focus-on-close** and `role=\"dialog\" aria-modal aria-labelledby` (fixes the Modal AX regression *for the settings surface* without a global Modal rewrite).\n- Renders the standardized footer: `Cancel` (ghost) + `Submit` (primary/danger, swaps to `savingLabel` when `busy`, `disabled={submitDisabled || busy}`).\n- Passes `onClose={() => !busy && onClose()}` down to `Modal` so half-finished saves can't be dismissed.\n\n**This is the single home for the per-setting form bodies.** Each setting's existing JSX form (the `<Input>` + handler) moves *unchanged* into a small `*EditModal` component that renders its fields as `children` of `SettingEditModal` and keeps its own `saving`/value/error state + `refreshUser()` on success.\n\n> Critical rule baked in: every save handler must still call `refreshUser()` after its PATCH (name, expiry, amount, anonymous, picture, phone verify/remove, bio, fan_name, location). The row's displayed value reads from the refreshed auth context, so the modal must close *after* refresh resolves.\n\n### 2c. What stays INLINE (no modal) — and why\n\n| Control | Decision | Justification |\n|---|---|---|\n| `is_anonymous` | **inline Toggle in row** | Binary with optimistic save + revert-on-fail. A modal adds two clicks to flip one bit; the optimistic UX (immediate flip, silent revert) is the whole point. Render description left, `<Toggle>` right. |\n| Notification matrix (fan 11 rows / creator 3) | **inline grid sub-surface** | It is inherently a grid of toggles with per-cell disabled/dimmed states, auto-master-reenable, and mandatory locks. Exploding each cell into a modal is hostile. Collapse the *whole matrix* behind one Notifications section that hosts the existing grid + reset. |\n| `language` | **inline dropdown (LanguageSwitcher variant=\"settings\")** | LanguageSwitcher is a custom z-50 popover with its own outside-click/Escape/focus. Inside the z-[200] Modal its options get clipped by `max-h-[90vh] overflow-y-auto` (shared gotcha). Keep it inline in the row; the switcher *is* the editor. |\n| `two_factor` | **link-out status row (keep TwoFactorCard)** | Setup is a multi-step QR/recovery-code/step-up wizard on `/settings/two-factor`. Not expressible in one modal. Row shows On/Off + Manage/Set-up link. |\n| `sessions` | **row + destructive confirm-modal (keep SessionsCard)** | Already the canonical pattern; not an edit form. Keep as-is. |\n| `danger_broke`, `danger_delete_account` | **row + confirm-modal** | These ARE modals, but confirm-style not edit-form. Each gets its OWN state (today they share `dangerMsg`/`dangerLoading` — see §7 risk). |\n| `password`, `billing`, `creator_profile_link`, `handles`, `notif_goto_fan`, `fan_settings_link` | **link-out rows** | Navigate to dedicated routes; no in-place editing. |\n| `email_verification` (unverified state) | **inline status pill + resend, not its own row** | Transient self-clearing banner; folds into the email row's status. |\n\n---\n\n## 3. Per-Setting Affordance Table\n\nLegend: **R+M** = row+modal, **IT** = inline-toggle, **IS** = inline-status, **LO** = link-out.\n\n### Fan `/settings`\n\n| Setting | Section | Affordance | Row value summary | Modal / inline contents & preserved flow |\n|---|---|---|---|---|\n| **email** | Account | R+M (3-state) | current email + badge: `Verified` / `Pending: new@…` / `Unverified` | **State machine preserved.** If `!hasEmail`: row CTA \"Add email\" → modal with add-email form + StepUpField. If `hasEmail && !emailVerified`: row shows `Unverified` pill + inline **Resend** (renders `EmailVerificationBanner` logic) — **no change form** (matches today). If verified: modal with new-email `Input` + `StepUpField` + `buildStepUp(user, emailStepUp)`. Submit disabled by `email.trim() empty` **OR** `stepUpRequired(user) && !emailStepUp.trim()` (keep both branch guards). After submit → `emailChangeSent` banner inside modal. Out-of-band signed-link confirm route untouched. |\n| **phone_number** | Account | R+M (OTP) | phone + `Verified` badge / \"Not added\" | Entire row hidden unless `SMS_ENABLED`. Modal runs full `idle → awaiting_code → verify` state machine (modal-scoped state, persists while open): `PhoneNumberInput` + `sendCode`, then 6-digit `codeInput` + `verifyCode`, + \"use different number\" reset. Verified row exposes inline **Remove** (`phone.remove()`). `#phone` anchor on row. |\n| **password** | Account | LO | \"Set\" / \"Change password\" | Row shown only when `hasEmail && emailVerified`; CTA → `/settings/password`. |\n| **language** | Account | IT (inline dropdown) | current flag + endonym | `<LanguageSwitcher variant=\"settings\">` inline in row; not modal-ized. `#language` anchor. |\n| **profile_picture** | Profile | R+M (upload) | avatar thumbnail (or initial fallback) | Hidden when `role==='creator'`. Edit button opens modal hosting `CldUploadWidget` (preset, `AVATAR_UPLOAD_OPTIONS`, 1:1 crop) → `normalizeAvatarUrl` → PATCH → `refreshUser`. Missing `cloudName` → \"unavailable\" text instead of button. Silent no-op if normalize falsy preserved. |\n| **display_name** | Profile | R+M | current name | Hidden when creator. Modal = single `Input`; save disabled on empty/no-op (`trim()===current`). Canonical delete-confirm string — keep trim semantics. |\n| **creator_profile_link** | Profile | LO | \"Edit creator profile →\" | Shown **only** when `role==='creator'`; → `/c/settings`. Coupled with the picture/name hide-gate so creators always have a profile-edit door. |\n| **default_expiry** | Backing defaults | R+M | `e.g. 39 months` | Modal = number `Input` (min1 max999) + unit `<Select>` (day/week/month/year). **Both fields one PATCH.** Keep loose button-check (<1) and silent-handler bounds (1..999). |\n| **default_backing_amount** | Backing defaults | R+M | `useMoney(amount)` formatted | Modal = number `Input` (min1 max9999.99 step.01). Handler bounds 1..9999.99 silent. |\n| **billing** | Backing defaults | LO | \"Manage payment method →\" | → `/billing`. |\n| **is_anonymous** | Privacy | IT | \"Anonymous backings (BETA)\" + desc | Inline `Toggle` right; optimistic flip with revert-on-catch. |\n| **notifications** | Notifications | IT grid | \"Email · SMS · Bell preferences\" header | Whole matrix in one section (see §3 Notifications block below). `#notifications`. |\n| **two_factor** | Security | LO status | `2FA: On` / `Off` | Keep `TwoFactorCard` → `/settings/two-factor`. |\n| **sessions** | Security | R+M (confirm) | `N active sessions` | Keep `SessionsCard` confirm modal; revokes current token → logout + `/login`; `!busy` scrim guard. |\n| **danger_broke** | Danger zone | R+M (confirm) | \"Revoke all active backings\" + total `money(total)` | Confirm modal (no step-up today — preserved); success → `brokeDone` w/ `revoked_count`; no logout. **Own state slot.** |\n| **danger_delete_account** | Danger zone | R+M (confirm) | \"Permanently delete account\" | **Double gate preserved:** `deleteConfirmName === user.display_name` AND `(!stepUpRequired(user) || deleteStepUp.trim())`. Modal = type-name `Input` + `StepUpField`. Success → `logout()` → `/`. **Own state slot.** |\n\n### Creator `/c/settings`\n\n| Setting | Section | Affordance | Row value | Modal contents & preserved flow |\n|---|---|---|---|---|\n| **profile_picture** | Profile | R+M | avatar thumb | Shared component (see §4). `#picture`. |\n| **display_name** | Profile | R+M | name | Shared component. `#display-name`. |\n| **bio** | Profile | R+M | bio preview (truncated) / \"Add bio\" | Modal = `Textarea` rows=4 + description; empty→`null`; no-op dirty-check vs `user.bio`. `#bio`. |\n| **fan_name** | Profile | R+M | `singular / plural` | Modal = two `Input`s (maxLength 100) + **live example preview** (`fanNamePlural ‖ fanName ‖ fallback`) via `t.rich`. **Both saved one PATCH.** `#fan-name`. |\n| **creator_slug** | Public presence | R+M (+ cooldown) | `artypot.com/{slug}` | Reuse `CreatorSlugSection` views: row = \"show\" view; Edit opens modal with `SlugInput` (`onValidityChange→slugError`) + cooldown warning banner. **Cooldown-blocked**: Edit button `disabled` + `hint` (cooldown date), or modal shows only the cooldown Banner. Keeps `getSlug` fetch + fresh-cooldown-on-change. `#slug`. |\n| **handles** | Public presence | LO | \"Manage social handles →\" | → `/c/handles`. HandlesSection too rich (OAuth/admin-review/blocked-removal) to inline. |\n| **tax_residence** | Tax & compliance | R+M (confirm) | `Country — State` | Modal step 1 = country `<Select>` + conditional subdivision `<Select>` (resets state on country change; subdivision required when `subdivisions(country)`). Step 2 = **explicit confirm** showing old→new, `crossingCountry` vs `sameCountry` copy, and the **\"this change is logged / Stripe re-verification\"** line. Do **not** collapse to silent save. Single modal with swappable content (not stacked modals). `#location`. |\n| **notif (creator matrix)** | Notifications | IT grid | \"Bounty notifications\" | 3 rows incl. mandatory `bountyRejected` (locked toggles, `…AlwaysOn` aria). Master auto-reenable preserved. `#notifications`. |\n| **sms_banner** | Notifications | IS | warn banner above grid | Only `SMS_ENABLED && !phoneVerified`; \"Add phone\" → `/settings#phone`. |\n| **notif_reset** | Notifications | inline button | footer \"Reset to defaults\" | `notifApi.reset()`. **Add a confirm** (see §7 — resets fan+creator shared record). |\n| **notif_goto_fan** | Notifications | LO | footer cross-link | → `/settings#notifications`. |\n| **fan_settings_link** | Footer | LO | dashed card | → `/settings#email`. |\n| **page_header** | Header | IS | breadcrumb + title | Unchanged. |\n\n### Notifications matrix (shared sub-surface, both pages)\n\nStays a `MiniToggle` grid. Preserve verbatim: `NOTIF_ROWS`/`CREATOR_NOTIF_ROWS` (and their `mandatory_on`/`mandatory_off` rules **in lockstep with `artypot-api/app/Models/NotificationSettings.php` MANDATORY_ON / MANDATORY_OFF_BELL**), `emailKeys`/`smsKeys`/`bellKeys` membership (incl. creator keys for master logic), auto-master-reenable in one PUT, optimistic per-key rollback, channel disabled-vs-dimmed states, SMS column gated by `SMS_ENABLED`, all warn banners, and the 11/3 row split. Lifted into `NotificationSettingsCard` with a `variant: 'fan' | 'creator'` prop.\n\n---\n\n## 4. Shared vs Separate\n\n**Build once, import on both pages:**\n\n| Shared component | Used by | Notes |\n|---|---|---|\n| `SettingRow`, `SettingsSection`, `SettingEditModal` | both | Core primitives. |\n| `AvatarEditModal` | fan + creator profile_picture | Wraps `CldUploadWidget` + `normalizeAvatarUrl` + PATCH + `refreshUser`; handles `cloudName`-missing fallback. Takes `i18n` keys via prop or reads correct namespace per page (pass a `t`-scoped label set). |\n| `DisplayNameEditModal` | fan + creator | Single-input no-op-guarded form. |\n| `NotificationSettingsCard` | fan (`variant='fan'`) + creator (`variant='creator'`) | Hosts `MiniToggle` grid, reset, cross-link, banners. Encapsulates auto-master-reenable + mandatory logic. `MiniToggle` lifted to shared `src/components/settings/MiniToggle.tsx`. |\n\n**Diverges (creator-only, stay on creator page):** `bio`, `fan_name`, `creator_slug` (CreatorSlugSection), `tax_residence`, `handles` link-out, creator notification rows, `fan_settings_link`.\n**Diverges (fan-only):** `email`, `phone_number`, `password`, `default_expiry`, `default_backing_amount`, `billing`, `is_anonymous`, danger zone, sessions, 2FA. (These already live only on fan/account settings; keep it that way.)\n\n**i18n namespaces stay separate** (`Settings` vs `CreatorSettings`). Shared components accept their label strings as props (or a small `labels` object), so each page passes its own namespace's keys — no namespace merge, no key duplication churn. Both `/settings` and `/c/settings` routes remain.\n\n---\n\n## 5. File / Component Breakdown\n\n**New files (`src/components/settings/`):**\n- `SettingRow.tsx` — compact row primitive.\n- `SettingsSection.tsx` — Card shell that stacks rows with dividers.\n- `SettingEditModal.tsx` — Modal wrapper with form/Escape/scroll-lock/focus-trap/busy-guard + standardized footer.\n- `MiniToggle.tsx` — lifted from both page files (today duplicated).\n- `NotificationSettingsCard.tsx` — `variant: 'fan'|'creator'`; owns notif fetch/toggle/reset/banners.\n- `AvatarEditModal.tsx` — shared Cloudinary upload modal.\n- `DisplayNameEditModal.tsx` — shared name form.\n- **Fan-only modals:** `EmailEditModal.tsx` (3-state + StepUp), `PhoneEditModal.tsx` (OTP machine), `ExpiryEditModal.tsx`, `BackingAmountEditModal.tsx`, `BrokeConfirmModal.tsx`, `DeleteAccountModal.tsx` (double gate).\n- **Creator-only modals:** `BioEditModal.tsx`, `FanNameEditModal.tsx`, `SlugEditModal.tsx` (or fold into refactored `CreatorSlugSection`), `TaxResidenceModal.tsx` (selects + confirm step).\n\n**Reused as-is:** `Modal`, `Card`/`SectionLabel`, `Button`, `Input`/`Select`/`Textarea`/`PasswordInput`/`FieldLabel`, `Toggle`, `StepUpField` (+`buildStepUp`/`stepUpRequired`), `Banner`, `EmailVerificationBanner`, `PhoneNumberInput` (+`isValidPhoneNumber`), `CldUploadWidget`, `LanguageSwitcher`, `TwoFactorCard`, `SessionsCard`, `SlugInput`, `CreatorSlugSection`.\n\n**The two page files shrink to thin composition layers:**\n```\nsettings/page.tsx  → keeps top-level data hooks (useAuth, refreshUser,\n  backingsApi.list for broke total) + renders <SettingsSection> blocks,\n  each row delegating to a *EditModal. ~42KB → target <10KB.\nc/settings/page.tsx → same shape, creator sections. ~28KB → target <8KB.\n```\nModal-local state (inputs, saving flags, OTP step, stepUp values) **moves out of the page into each `*EditModal`**, eliminating the page-level state sprawl.\n\n**i18n:** reuse all existing keys in `Settings` / `CreatorSettings` / `SettingsPassword` / `SettingsTwoFactor` / `StepUp`. **New keys needed** (mirror across `en.json`, `es.json`, `eo.json`, `en-x-brainrot.json` — translate stance not words for brainrot):\n- `Settings.common.edit` (default row Edit label).\n- `Settings.common.notSet` / `Settings.common.none` (empty-value summaries, e.g. no bio/phone).\n- `Settings.email.statusVerified` / `statusPending` / `statusUnverified` (row badges; can reuse existing `verifiedBadge`/`pendingBanner` where copy fits).\n- Section headings if not already present: `Settings.sections.{account,profile,backingDefaults,privacy,notifications,security,danger}` and `CreatorSettings.sections.{profile,presence,tax,notifications}`.\n- `CreatorSettings.notifications.resetConfirm{title,body,confirm,cancel}` (new reset confirm).\n- `Settings.a11y.{editAria,dialogLabel}` for `aria-label`/`aria-labelledby` on rows/modal.\n\n---\n\n## 6. Implementation Order\n\n1. **Primitives first (no behavior change):** build `SettingRow`, `SettingsSection`, `SettingEditModal`; add the new i18n keys to all four locales. Unit-render them in isolation. `tsc` + `eslint` green.\n2. **Lift shared sub-components:** extract `MiniToggle` → shared; build `NotificationSettingsCard` and wire it in BOTH pages *replacing the inline matrices first* (highest-risk shared logic; verify auto-master-reenable + mandatory locks + SMS gating still work before touching anything else). Build `AvatarEditModal`, `DisplayNameEditModal`.\n3. **Migrate fan page section by section** (one section per commit, page still renders the rest the old way until converted):\n   a. Profile (picture, name) → uses shared modals.\n   b. Account: language (inline) → email (3-state + StepUp) → phone (OTP) → password link.\n   c. Backing defaults (expiry, amount) → billing link.\n   d. Privacy toggle.\n   e. Security (drop in existing TwoFactorCard/SessionsCard rows).\n   f. Danger zone — **split broke/delete into independent state slots** (fixes shared `dangerMsg` cross-wire) → migrate both confirm modals.\n   After each: `tsc --noEmit`, manual smoke of that section.\n4. **Migrate creator page** reusing shared profile modals; then bio, fan_name (live preview), slug (cooldown), tax_residence (confirm step), handles link, creator NotificationSettingsCard, footer cross-link.\n5. **Anchor audit:** grep for `#email|#phone|#language|#notifications|#picture|#display-name|#slug|#bio|#fan-name|#location` across the app; confirm every `id` now lives on a row wrapper.\n6. **Final pass:** `npx tsc --noEmit` + `npx eslint` + `next build`; verify all four locale files have matching keys (no missing-key fallback).\n\nFunctionality is never lost mid-flight because each section is swapped atomically and the page renders converted + unconverted sections side by side until done.\n\n---\n\n## 7. Risks & Verification\n\n**What could regress:**\n\n| Risk | Guard |\n|---|---|\n| **Step-up auth lost/wrong** (email change, delete) | Must render `StepUpField` inside the modal and pass `buildStepUp(user, value)` straight through; submit disabled by `stepUpRequired(user) && !value.trim()` in BOTH email branches and delete. Never hand-roll a password field (breaks OAuth-only + 2FA users differently). Verify: 2FA account, password account, OAuth-only account each. |\n| **Delete double-gate weakened** | Keep `confirmName===display_name` AND step-up; success → logout+redirect. Verify both gates independently block. |\n| **Email out-of-band confirm** | Row shows `pending_email`, NOT the new email; signed-link confirm route untouched. |\n| **Phone OTP transient state** | `idle→awaiting_code` must persist while modal open; modal-scoped state, not page-scoped. Verify send→code→verify, \"use different number,\" remove. |\n| **Notification master/mandatory desync** | `NOTIF_ROWS` rules must still mirror `NotificationSettings.php`. Keep `emailKeys/smsKeys/bellKeys` incl. creator keys. Verify: toggling a child while master off flips master in one PUT; mandatory rows locked. |\n| **danger_broke / danger_delete shared state** | Give each its own `loading`/`msg` state (today they share `dangerMsg`/`dangerLoading`). Verify one action's message doesn't appear under the other. |\n| **Modal AX (no focus trap / Escape / scroll-lock / nested modals)** | `SettingEditModal` adds focus trap, autofocus, restore-on-close, Escape (busy-guarded), body scroll-lock, `role=dialog`. Tax-residence confirm = swappable content in ONE modal, never two stacked. Verify keyboard-only flow + that scrim can't dismiss mid-save. |\n| **LanguageSwitcher clipped in modal** | Kept inline (z-50 popover vs Modal z-[200] + overflow clip). Never place it inside `SettingEditModal`. |\n| **Cloudinary missing / normalize no-op** | Preserve `cloudName`-unset \"unavailable\" text and silent drop on falsy `normalizeAvatarUrl`. |\n| **Role-inversion gate** | Fan Profile hides picture/name for creators AND shows the creator-doorway only for creators — keep coupled or creators lose all profile editing. |\n| **Notif reset resets fan+creator** | Single shared `NotificationSettings` record — add a confirm dialog on creator reset (new keys). |\n| **i18n missing keys** | next-intl falls back/throws on missing key; verify all new keys exist in en/es/eo/en-x-brainrot before build. |\n\n**Verification commands** (in `artypot-web`): `npx tsc --noEmit`, `npx eslint`, `next build`.\n**Manual flows to exercise:** email change (each account type) → confirm pending badge; phone send/verify/remove; delete-account double gate; 2FA link-out; sessions logout-all redirect; broke revoke with total warning; tax-residence cross-country confirm + logged line; avatar upload + missing-cloudName fallback; every deep-link anchor (`/settings#phone` etc.) scrolls to its row; language switch persists + re-prefixes URL; notification auto-master-reenable + mandatory locks + SMS-disabled column.\n\n**Files (absolute) the executor will touch:**\n- `/Users/harrybaldwig/VSProjects/artypot/artypot-web/src/app/[locale]/settings/page.tsx`\n- `/Users/harrybaldwig/VSProjects/artypot/artypot-web/src/app/[locale]/c/settings/page.tsx`\n- `/Users/harrybaldwig/VSProjects/artypot/artypot-web/src/components/settings/` (new files above; existing `SecuritySettingsCards.tsx`)\n- `/Users/harrybaldwig/VSProjects/artypot/artypot-web/src/messages/{en,es,eo,en-x-brainrot}.json` (verify exact path; new i18n keys)\n- Reused (unchanged): `src/components/ui/Modal.tsx`, `ui/Card.tsx`, `StepUpField.tsx`, `PhoneNumberInput.tsx`, `LanguageSwitcher.tsx`, `CreatorSlugSection.tsx`, `EmailVerificationBanner.tsx`, `SlugInput.tsx`.\n- Cross-stack invariant (do not edit, must stay in sync): `/Users/harrybaldwig/VSProjects/artypot/artypot-api/app/Models/NotificationSettings.php` (`MANDATORY_ON` / `MANDATORY_OFF_BELL`)."
+  }
+}

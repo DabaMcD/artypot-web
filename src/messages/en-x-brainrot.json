@@ -86,7 +86,9 @@
     "common": {
       "cancel": "nah im ghostin 🚪💨",
       "save": "lock it in 🔒🗣️",
-      "saving": "saving… brain buffering 🧠⏳"
+      "saving": "saving… brain buffering 🧠⏳",
+      "edit": "tweak it ✏️",
+      "notSet": "nothin yet 🤷"
     },
     "email": {
       "label": "ur email tho 📧",
@@ -99,7 +101,8 @@
       "sending": "sending… buffering 📨🧠",
       "sentBanner": "confirm email YEETED to <strong>{email}</strong> 🚀 tap the link or it's so over 💀",
       "sentBannerShort": "confirm yeeted to <strong>{email}</strong> 🚀 tap the link bestie 🔥",
-      "pendingBanner": "glow-up pending on <strong>{email}</strong> 👀 go peep that inbox gng 📬"
+      "pendingBanner": "glow-up pending on <strong>{email}</strong> 👀 go peep that inbox gng 📬",
+      "pendingBadge": "pending fr ⏳"
     },
     "profilePicture": {
       "label": "ur pfp 🤳✨",
@@ -223,10 +226,6 @@
           "label": "somebody @'d u back 💬🔥",
           "desc": "someone hit u back in a comment thread u were yappin in 🗣️"
         },
-        "regionAvailable": {
-          "label": "ur region just UNLOCKED 🌍🔓",
-          "desc": "payments finally open in ur ends so ur backings can get charged, it's so back 🔥🗣️"
-        },
         "accountManagement": {
           "label": "the boring-but-important pings 🛡️💀",
           "desc": "must-do actions, admin yappin, handle verdicts n all that gng"
@@ -305,6 +304,15 @@
       "cancel": "Cancel",
       "working": "Booting…",
       "error": "Couldn't log out your sessions. Try again."
+    },
+    "sections": {
+      "account": "the account 📇",
+      "profile": "ur profile 😎",
+      "backingDefaults": "backing defaults 🎚️",
+      "privacy": "lowkey mode 🤫",
+      "notifications": "the pings 🔔",
+      "security": "lock it down 🔐",
+      "danger": "danger zone ⚠️💀"
     }
   },
   "About": {
@@ -1689,7 +1697,8 @@
     "controls": {
       "sort": "sort it gng",
       "show": "show me",
-      "creator": "creator vibe"
+      "creator": "creator status 👀",
+      "status": "status check 📊"
     },
     "sort": {
       "newest": "freshest drops 🆕",
@@ -1699,7 +1708,7 @@
     "creatorFilter": {
       "all": "all of em",
       "verified": "verified real ones ✅",
-      "unverified": "unclaimed handles, free real estate 🪤"
+      "unverified": "unverified handles, free real estate 🪤"
     }
   },
   "Components": {
@@ -1737,8 +1746,8 @@
       "statBacked": "bag 🤑",
       "statOpen": "live 👀",
       "statCompleted": "cooked 🔥",
-      "unclaimedBadge": "not on Artypot yet 🚫",
-      "unclaimedTagline": "nobody's claimed this handle yet — back a bounty n recruit em fr 🪝"
+      "unverifiedBadge": "sus 👀",
+      "unverifiedTagline": "back a bounty n drag em onto Artypot fr 🪝"
     }
   },
   "CreatorBounties": {
@@ -2086,6 +2095,16 @@
     },
     "fanSettingsLink": {
       "text": "wanna mess w ur mail, digits, password or other account ops?? 🛠️ <link>bounce to fan settings →</link>"
+    },
+    "common": {
+      "edit": "tweak it ✏️",
+      "notSet": "nothin yet 🤷"
+    },
+    "sections": {
+      "profile": "public profile 😎",
+      "presence": "ur presence 🌐",
+      "tax": "tax stuff 🧾",
+      "notifications": "the pings 🔔"
     }
   },
   "CreatorTax": {
@@ -3244,7 +3263,7 @@
     "master": {
       "label": "creator type",
       "verified": "creators ✅",
-      "unverified": "unclaimed handles 🪤"
+      "unverified": "unverified handles 🪤"
     },
     "platformAll": "every platform",
     "controls": {

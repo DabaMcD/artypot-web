@@ -86,7 +86,9 @@
     "common": {
       "cancel": "Nuligi",
       "save": "Konservi",
-      "saving": "Konservante…"
+      "saving": "Konservante…",
+      "edit": "Redakti",
+      "notSet": "Ne agordita"
     },
     "email": {
       "label": "retpoŝta adreso",
@@ -99,7 +101,8 @@
       "sending": "Sendante…",
       "sentBanner": "Konfirma retmesaĝo sendita al <strong>{email}</strong>. Klaku la ligilon por kompletigi.",
       "sentBannerShort": "Konfirmo sendita al <strong>{email}</strong>. Klaku la ligilon por kompletigi.",
-      "pendingBanner": "Atendanta ŝanĝo al <strong>{email}</strong> — kontrolu tiun enirkeston."
+      "pendingBanner": "Atendanta ŝanĝo al <strong>{email}</strong> — kontrolu tiun enirkeston.",
+      "pendingBadge": "atendanta"
     },
     "profilePicture": {
       "label": "profila bildo",
@@ -223,10 +226,6 @@
           "label": "komenta respondo",
           "desc": "iu respondis al komenta fadeno en kiu vi partoprenis."
         },
-        "regionAvailable": {
-          "label": "regiono disponebla",
-          "desc": "pagtraktado malfermiĝas en via regiono, do viaj subtenoj povas esti ŝargitaj."
-        },
         "accountManagement": {
           "label": "konto-administrado",
           "desc": "necesaj agoj, administraj mesaĝoj, rezultoj de identigila kontrolo."
@@ -305,6 +304,15 @@
       "cancel": "Nuligi",
       "working": "Elsalutante…",
       "error": "Ne eblis elsaluti viajn seancojn. Bonvolu reprovi."
+    },
+    "sections": {
+      "account": "konto",
+      "profile": "profilo",
+      "backingDefaults": "defaŭltoj",
+      "privacy": "privateco",
+      "notifications": "sciigoj",
+      "security": "sekureco",
+      "danger": "danĝera zono"
     }
   },
   "About": {
@@ -1689,7 +1697,8 @@
     "controls": {
       "sort": "Ordigi",
       "show": "Montri",
-      "creator": "Kreinto"
+      "creator": "Stato de kreinto",
+      "status": "Stato"
     },
     "sort": {
       "newest": "Plej novaj",
@@ -1699,7 +1708,7 @@
     "creatorFilter": {
       "all": "Ĉiuj",
       "verified": "Kontrolitaj kreintoj",
-      "unverified": "Nepostulitaj identigiloj"
+      "unverified": "Nekontrolitaj identigiloj"
     }
   },
   "Components": {
@@ -1737,8 +1746,8 @@
       "statBacked": "subtenita",
       "statOpen": "malfermitaj",
       "statCompleted": "plenumitaj",
-      "unclaimedBadge": "Ankoraŭ ne en Artypot",
-      "unclaimedTagline": "Neniu ankoraŭ postulis ĉi tiun identigilon — subtenu premion por varbi ilin."
+      "unverifiedBadge": "nekontrolita",
+      "unverifiedTagline": "Subtenu premion por venigi ilin al Artypot."
     }
   },
   "CreatorBounties": {
@@ -2086,6 +2095,16 @@
     },
     "fanSettingsLink": {
       "text": "Por redakti vian retpoŝton, telefonnumeron, pasvorton aŭ aliajn kontagordojn, <link>iru al adorant-agordoj →</link>"
+    },
+    "common": {
+      "edit": "Redakti",
+      "notSet": "Ne agordita"
+    },
+    "sections": {
+      "profile": "publika profilo",
+      "presence": "ĉeesto",
+      "tax": "impostoj kaj plenumo",
+      "notifications": "sciigoj"
     }
   },
   "CreatorTax": {
@@ -3244,7 +3263,7 @@
     "master": {
       "label": "Tipo de kreinto",
       "verified": "Kreintoj",
-      "unverified": "Nepostulitaj identigiloj"
+      "unverified": "Nekontrolitaj identigiloj"
     },
     "platformAll": "Ĉiuj platformoj",
     "controls": {

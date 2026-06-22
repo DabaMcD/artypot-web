@@ -104,7 +104,9 @@
     "common": {
       "cancel": "Cancel",
       "save": "Save",
-      "saving": "Saving…"
+      "saving": "Saving…",
+      "edit": "Edit",
+      "notSet": "Not set"
     },
     "email": {
       "label": "email address",
@@ -117,7 +119,8 @@
       "sending": "Sending…",
       "sentBanner": "Confirmation email sent to <strong>{email}</strong>. Click the link to complete.",
       "sentBannerShort": "Confirmation sent to <strong>{email}</strong>. Click the link to complete.",
-      "pendingBanner": "Pending change to <strong>{email}</strong> — check that inbox."
+      "pendingBanner": "Pending change to <strong>{email}</strong> — check that inbox.",
+      "pendingBadge": "pending"
     },
     "profilePicture": {
       "label": "profile picture",
@@ -241,10 +244,6 @@
           "label": "comment reply",
           "desc": "someone replied to a comment thread you participated in."
         },
-        "regionAvailable": {
-          "label": "region available",
-          "desc": "payment processing opens in your region, so your backings can be charged."
-        },
         "accountManagement": {
           "label": "account management",
           "desc": "required actions, admin messages, handle verification results."
@@ -323,6 +322,15 @@
       "cancel": "Cancel",
       "working": "Signing out…",
       "error": "Couldn't sign out of your sessions. Please try again."
+    },
+    "sections": {
+      "account": "account",
+      "profile": "profile",
+      "backingDefaults": "backing defaults",
+      "privacy": "privacy",
+      "notifications": "notifications",
+      "security": "security",
+      "danger": "danger zone"
     }
   },
   "About": {
@@ -1707,7 +1715,8 @@
     "controls": {
       "sort": "Sort",
       "show": "Show",
-      "creator": "Creator"
+      "creator": "Creator status",
+      "status": "Status"
     },
     "sort": {
       "newest": "Newest",
@@ -1717,7 +1726,7 @@
     "creatorFilter": {
       "all": "All",
       "verified": "Verified creators",
-      "unverified": "Unclaimed handles"
+      "unverified": "Unverified handles"
     }
   },
   "Components": {
@@ -1755,8 +1764,8 @@
       "statBacked": "backed",
       "statOpen": "open",
       "statCompleted": "completed",
-      "unclaimedBadge": "Not on Artypot yet",
-      "unclaimedTagline": "No one's claimed this handle yet — back a bounty to recruit them."
+      "unverifiedBadge": "unverified",
+      "unverifiedTagline": "Back a bounty to bring them to Artypot."
     }
   },
   "CreatorBounties": {
@@ -2104,6 +2113,16 @@
     },
     "fanSettingsLink": {
       "text": "To edit your email, phone number, password, or other account options, <link>go to fan settings →</link>"
+    },
+    "common": {
+      "edit": "Edit",
+      "notSet": "Not set"
+    },
+    "sections": {
+      "profile": "public profile",
+      "presence": "presence",
+      "tax": "tax & compliance",
+      "notifications": "notifications"
     }
   },
   "CreatorTax": {
@@ -3262,7 +3281,7 @@
     "master": {
       "label": "Creator type",
       "verified": "Creators",
-      "unverified": "Unclaimed handles"
+      "unverified": "Unverified handles"
     },
     "platformAll": "All platforms",
     "controls": {
