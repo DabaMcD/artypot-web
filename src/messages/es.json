@@ -51,7 +51,8 @@
       "payouts": "Pagos",
       "cashLedger": "Libro de caja",
       "tax": "Impuestos y cumplimiento",
-      "handles": "Cuentas"
+      "handles": "Cuentas",
+      "browseCreators": "Explorar creadores"
     },
     "roles": {
       "fan": "fan",
@@ -1684,6 +1685,21 @@
         "commitment": "tu compromiso",
         "expiresAfter": "el respaldo caduca tras"
       }
+    },
+    "controls": {
+      "sort": "Ordenar",
+      "show": "Mostrar",
+      "creator": "Creador"
+    },
+    "sort": {
+      "newest": "Más recientes",
+      "mostBacked": "Más patrocinadores",
+      "recentlyCompleted": "Completadas recientemente"
+    },
+    "creatorFilter": {
+      "all": "Todas",
+      "verified": "Creadores verificados",
+      "unverified": "Handles sin reclamar"
     }
   },
   "Components": {
@@ -1720,7 +1736,9 @@
       "noDescription": "Aún no hay descripción.",
       "statBacked": "aportado",
       "statOpen": "abiertas",
-      "statCompleted": "completadas"
+      "statCompleted": "completadas",
+      "unclaimedBadge": "Aún no está en Artypot",
+      "unclaimedTagline": "Nadie ha reclamado este handle todavía: patrocina una recompensa para reclutarlo."
     }
   },
   "CreatorBounties": {
@@ -3218,6 +3236,35 @@
     },
     "errors": {
       "generic": "Algo salió mal. Inténtalo de nuevo."
+    }
+  },
+  "Creators": {
+    "title": "Creadores",
+    "subtitle": "Explora los creadores de Artypot y los handles que la gente quiere reclutar.",
+    "master": {
+      "label": "Tipo de creador",
+      "verified": "Creadores",
+      "unverified": "Handles sin reclamar"
+    },
+    "platformAll": "Todas las plataformas",
+    "controls": {
+      "platform": "Plataforma",
+      "sort": "Ordenar"
+    },
+    "sort": {
+      "newest": "Más recientes",
+      "mostOpen": "Más recompensas abiertas",
+      "mostCompleted": "Más completadas",
+      "mostBacked": "Más patrocinadores",
+      "mostBounties": "Más recompensas"
+    },
+    "count": "{count, plural, one {# resultado} other {# resultados}}",
+    "empty": "Sin resultados.",
+    "error": "No se pudieron cargar los creadores.",
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "pageOf": "Página {current} de {total}"
     }
   }
 }

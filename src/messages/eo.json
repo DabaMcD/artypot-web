@@ -51,7 +51,8 @@
       "payouts": "Elpagoj",
       "cashLedger": "Kaslibro",
       "tax": "Impostoj kaj plenumo",
-      "handles": "Kontonomoj"
+      "handles": "Kontonomoj",
+      "browseCreators": "Foliumi kreintojn"
     },
     "roles": {
       "fan": "fano",
@@ -1684,6 +1685,21 @@
         "commitment": "via engaĝiĝo",
         "expiresAfter": "subteno eksvalidiĝas post"
       }
+    },
+    "controls": {
+      "sort": "Ordigi",
+      "show": "Montri",
+      "creator": "Kreinto"
+    },
+    "sort": {
+      "newest": "Plej novaj",
+      "mostBacked": "Plej multaj subtenantoj",
+      "recentlyCompleted": "Lastatempe plenumitaj"
+    },
+    "creatorFilter": {
+      "all": "Ĉiuj",
+      "verified": "Kontrolitaj kreintoj",
+      "unverified": "Nepostulitaj identigiloj"
     }
   },
   "Components": {
@@ -1720,7 +1736,9 @@
       "noDescription": "Ankoraŭ neniu priskribo.",
       "statBacked": "subtenita",
       "statOpen": "malfermitaj",
-      "statCompleted": "plenumitaj"
+      "statCompleted": "plenumitaj",
+      "unclaimedBadge": "Ankoraŭ ne en Artypot",
+      "unclaimedTagline": "Neniu ankoraŭ postulis ĉi tiun identigilon — subtenu premion por varbi ilin."
     }
   },
   "CreatorBounties": {
@@ -3218,6 +3236,35 @@
     },
     "errors": {
       "generic": "Io misfunkciis. Bonvolu reprovi."
+    }
+  },
+  "Creators": {
+    "title": "Kreintoj",
+    "subtitle": "Esploru la kreintojn de Artypot — kaj la identigilojn kiujn homoj volas varbi.",
+    "master": {
+      "label": "Tipo de kreinto",
+      "verified": "Kreintoj",
+      "unverified": "Nepostulitaj identigiloj"
+    },
+    "platformAll": "Ĉiuj platformoj",
+    "controls": {
+      "platform": "Platformo",
+      "sort": "Ordigi"
+    },
+    "sort": {
+      "newest": "Plej novaj",
+      "mostOpen": "Plej multaj malfermitaj premioj",
+      "mostCompleted": "Plej multaj plenumitaj",
+      "mostBacked": "Plej multaj subtenantoj",
+      "mostBounties": "Plej multaj premioj"
+    },
+    "count": "{count, plural, one {# rezulto} other {# rezultoj}}",
+    "empty": "Neniuj rezultoj.",
+    "error": "Ne eblis ŝargi la kreintojn.",
+    "pagination": {
+      "previous": "Antaŭa",
+      "next": "Sekva",
+      "pageOf": "Paĝo {current} el {total}"
     }
   }
 }

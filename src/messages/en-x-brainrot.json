@@ -51,7 +51,8 @@
       "payouts": "secure the bag 🤑",
       "cashLedger": "money diary 📒",
       "tax": "uncle sam's cut 💀",
-      "handles": "ur @s 🔗"
+      "handles": "ur @s 🔗",
+      "browseCreators": "scout creators 👀"
     },
     "roles": {
       "fan": "glazer",
@@ -1684,6 +1685,21 @@
         "commitment": "ur bag 🤑",
         "expiresAfter": "backing self-destructs after 💣💨"
       }
+    },
+    "controls": {
+      "sort": "sort it gng",
+      "show": "show me",
+      "creator": "creator vibe"
+    },
+    "sort": {
+      "newest": "freshest drops 🆕",
+      "mostBacked": "most backers most aura 👥🔥",
+      "recentlyCompleted": "just cooked ✅"
+    },
+    "creatorFilter": {
+      "all": "all of em",
+      "verified": "verified real ones ✅",
+      "unverified": "unclaimed handles, free real estate 🪤"
     }
   },
   "Components": {
@@ -1720,7 +1736,9 @@
       "noDescription": "bio's straight up barren out here 🏜️💀 tumbleweeds gng",
       "statBacked": "bag 🤑",
       "statOpen": "live 👀",
-      "statCompleted": "cooked 🔥"
+      "statCompleted": "cooked 🔥",
+      "unclaimedBadge": "not on Artypot yet 🚫",
+      "unclaimedTagline": "nobody's claimed this handle yet — back a bounty n recruit em fr 🪝"
     }
   },
   "CreatorBounties": {
@@ -3218,6 +3236,35 @@
     },
     "errors": {
       "generic": "Something broke. Try again."
+    }
+  },
+  "Creators": {
+    "title": "creators 🎬",
+    "subtitle": "scope the creators on Artypot — plus the handles everyone's tryna recruit fr 🪝",
+    "master": {
+      "label": "creator type",
+      "verified": "creators ✅",
+      "unverified": "unclaimed handles 🪤"
+    },
+    "platformAll": "every platform",
+    "controls": {
+      "platform": "platform",
+      "sort": "sort"
+    },
+    "sort": {
+      "newest": "freshest 🆕",
+      "mostOpen": "most open bounties 📭",
+      "mostCompleted": "most cooked ✅",
+      "mostBacked": "most backers 👥🔥",
+      "mostBounties": "most bounties 🗂️"
+    },
+    "count": "{count, plural, one {# result} other {# results}}",
+    "empty": "straight crickets in here 🦗💀",
+    "error": "couldn't load the creators gng, it's so over 😭 run it back",
+    "pagination": {
+      "previous": "← prev",
+      "next": "next →",
+      "pageOf": "page {current} of {total}"
     }
   }
 }

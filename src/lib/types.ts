@@ -1745,6 +1745,33 @@ export interface UnclaimedHandlePot {
   pot_total: number;
 }
 
+/**
+ * A row on the /creators directory's "unclaimed handles" face — an unverified
+ * handle people have opened bounties on, rendered through CreatorCard. Carries
+ * the subset of Creator card metrics we can compute for a handle.
+ */
+export interface UnclaimedHandleCard {
+  kind: 'handle';
+  id: number;
+  platform: HandlePlatform;
+  username: string;
+  /** Open bounties targeting this handle. */
+  projects_open: number;
+  /** Dollars committed on this handle's open/pending bounties. */
+  total_backing_sum: number;
+  /** Distinct backers across this handle's bounties. */
+  supporter_count: number;
+}
+
+/** A /creators directory row: either a verified creator or an unclaimed handle. */
+export type CreatorDirectoryEntry = Creator | UnclaimedHandleCard;
+
+/** Per-master, per-platform result counts backing the /creators filter chips. */
+export interface CreatorFacets {
+  verified: { total: number; platforms: Record<string, number> };
+  unverified: { total: number; platforms: Record<string, number> };
+}
+
 /** Admin: a Content Policy report queue row. */
 export interface BountyReportRow {
   id: number;

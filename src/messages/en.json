@@ -69,7 +69,8 @@
       "councilMembers": "Council members",
       "countryTiers": "Country tiers",
       "markets": "Markets",
-      "auditLog": "Audit log"
+      "auditLog": "Audit log",
+      "browseCreators": "Browse creators"
     },
     "roles": {
       "fan": "fan",
@@ -1702,6 +1703,21 @@
         "commitment": "your commitment",
         "expiresAfter": "backing expires after"
       }
+    },
+    "controls": {
+      "sort": "Sort",
+      "show": "Show",
+      "creator": "Creator"
+    },
+    "sort": {
+      "newest": "Newest",
+      "mostBacked": "Most backers",
+      "recentlyCompleted": "Recently completed"
+    },
+    "creatorFilter": {
+      "all": "All",
+      "verified": "Verified creators",
+      "unverified": "Unclaimed handles"
     }
   },
   "Components": {
@@ -1738,7 +1754,9 @@
       "noDescription": "No description yet.",
       "statBacked": "backed",
       "statOpen": "open",
-      "statCompleted": "completed"
+      "statCompleted": "completed",
+      "unclaimedBadge": "Not on Artypot yet",
+      "unclaimedTagline": "No one's claimed this handle yet — back a bounty to recruit them."
     }
   },
   "CreatorBounties": {
@@ -3236,6 +3254,35 @@
     },
     "errors": {
       "generic": "Something went wrong. Please try again."
+    }
+  },
+  "Creators": {
+    "title": "Creators",
+    "subtitle": "Browse creators on Artypot — and the handles people want to recruit.",
+    "master": {
+      "label": "Creator type",
+      "verified": "Creators",
+      "unverified": "Unclaimed handles"
+    },
+    "platformAll": "All platforms",
+    "controls": {
+      "platform": "Platform",
+      "sort": "Sort"
+    },
+    "sort": {
+      "newest": "Newest",
+      "mostOpen": "Most open bounties",
+      "mostCompleted": "Most completed",
+      "mostBacked": "Most backers",
+      "mostBounties": "Most bounties"
+    },
+    "count": "{count, plural, one {# result} other {# results}}",
+    "empty": "No results.",
+    "error": "Could not load creators.",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {current} of {total}"
     }
   }
 }

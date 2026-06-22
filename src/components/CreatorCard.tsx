@@ -3,12 +3,41 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import type { CSSProperties } from 'react';
-import type { Creator } from '@/lib/types';
+import type { CreatorDirectoryEntry, UnclaimedHandleCard } from '@/lib/types';
 import { Badge } from '@/components/ui/Badge';
 import { trackSpotlight } from '@/lib/spotlight';
 import { useMoney } from '@/lib/format';
+import { formatPlatformHandle, bareUsername } from '@/lib/platforms';
 
-export default function CreatorCard({ creator }: { creator: Creator }) {
+function isHandle(entry: CreatorDirectoryEntry): entry is UnclaimedHandleCard {
+  return 'kind' in entry && entry.kind === 'handle';
+}
+
+export default function CreatorCard({ creator }: { creator: CreatorDirectoryEntry }) {
+  return isHandle(creator) ? <HandleCardBody handle={creator} /> : <CreatorCardBody creator={creator} />;
+}
+
+// Shared shell so verified creators and unclaimed handles sit at equal visual
+// weight in the same grid.
+function CardShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      onMouseMove={trackSpotlight}
+      style={{ '--spot-color': 'var(--color-creator)' } as CSSProperties}
+      className="relative flex flex-col h-full bg-surface border border-border rounded-xl p-5 transition-[transform,border-color,box-shadow] duration-150 hover:border-creator/25 hover:-translate-y-0.5 hover:shadow-soft group overflow-hidden"
+    >
+      <span
+        aria-hidden
+        className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-creator/10 blur-2xl pointer-events-none"
+      />
+      <span aria-hidden className="ap-spot-ring opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+      <span aria-hidden className="ap-spot-glow opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+      {children}
+    </div>
+  );
+}
+
+function CreatorCardBody({ creator }: { creator: Exclude<CreatorDirectoryEntry, UnclaimedHandleCard> }) {
   const t = useTranslations('Components');
   const money = useMoney();
   const hasStats =
@@ -26,22 +55,8 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
       : creator.fan_name_plural || creator.fan_name || t('creatorCard.backers');
 
   return (
-    <div
-      onMouseMove={trackSpotlight}
-      style={{ '--spot-color': 'var(--color-creator)' } as CSSProperties}
-      className="relative flex flex-col h-full bg-surface border border-border rounded-xl p-5 transition-[transform,border-color,box-shadow] duration-150 hover:border-creator/25 hover:-translate-y-0.5 hover:shadow-soft group overflow-hidden"
-    >
-      {/* Static corner glow + cursor-tracking spotlight (border ring + faint
-          interior glow following the pointer). */}
-      <span
-        aria-hidden
-        className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-creator/10 blur-2xl pointer-events-none"
-      />
-      <span aria-hidden className="ap-spot-ring opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-      <span aria-hidden className="ap-spot-glow opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-
+    <CardShell>
       <div className="flex items-center gap-3.5 mb-3">
-        {/* Avatar */}
         {creator.profile_picture ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -59,7 +74,6 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
         )}
 
         <div className="min-w-0 flex-1">
-          {/* Stretched link title */}
           <div className="font-semibold text-[15px] text-foreground group-hover:text-creator transition-colors truncate">
             <Link
               href={creator.slug ? `/${creator.slug}` : `/creators/${creator.id}`}
@@ -80,8 +94,6 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
       {creator.description ? (
         <p className="text-sm text-muted line-clamp-2 mb-3">{creator.description}</p>
       ) : (
-        // Keeps cards in a grid row at equal visual weight when a creator
-        // hasn't written a description yet.
         <p className="text-sm text-muted/40 italic mb-3">{t('creatorCard.noDescription')}</p>
       )}
 
@@ -110,7 +122,57 @@ export default function CreatorCard({ creator }: { creator: Creator }) {
           />
         </div>
       )}
-    </div>
+    </CardShell>
+  );
+}
+
+function HandleCardBody({ handle }: { handle: UnclaimedHandleCard }) {
+  const t = useTranslations('Components');
+  const money = useMoney();
+  const title = formatPlatformHandle(handle.platform, handle.username);
+  const supporterLabel = handle.supporter_count === 1 ? t('creatorCard.backer') : t('creatorCard.backers');
+
+  return (
+    <CardShell>
+      <div className="flex items-center gap-3.5 mb-3">
+        {/* Unclaimed handles have no profile picture — a neutral "?" tile. */}
+        <div
+          className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold shrink-0 ring-2 ring-warn/40 ring-offset-2 ring-offset-surface"
+          style={{ background: 'var(--color-surface-2)', color: 'var(--color-muted)' }}
+        >
+          ?
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="font-semibold text-[15px] text-foreground group-hover:text-creator transition-colors truncate">
+            <Link
+              href={`/h/${handle.id}`}
+              className="after:absolute after:inset-0 after:rounded-xl focus:outline-none focus-visible:after:ring-2 focus-visible:after:ring-creator/60"
+            >
+              {title}
+            </Link>
+          </div>
+          <div className="mt-1 flex items-center gap-2 min-w-0">
+            <Badge tone="warn">{t('creatorCard.unclaimedBadge')}</Badge>
+            <span className="font-mono text-[11px] text-muted/70 truncate">
+              {handle.platform}/{bareUsername(handle.platform, handle.username)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <p className="text-sm text-muted/60 italic mb-3">{t('creatorCard.unclaimedTagline')}</p>
+
+      <div className="mt-auto grid grid-cols-3 gap-2 pt-3 border-t border-border/70">
+        <CardStat value={String(handle.supporter_count)} label={supporterLabel} />
+        <CardStat
+          value={handle.total_backing_sum > 0 ? money(handle.total_backing_sum) : '—'}
+          label={t('creatorCard.statBacked')}
+          accent
+        />
+        <CardStat value={String(handle.projects_open)} label={t('creatorCard.statOpen')} />
+      </div>
+    </CardShell>
   );
 }
 

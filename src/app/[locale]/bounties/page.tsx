@@ -5,22 +5,21 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { bounties as bountiesApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import type { Bounty, PaginatedResponse, BountyStatus } from '@/lib/types';
+import type { Bounty, PaginatedResponse } from '@/lib/types';
 import BountyCard from '@/components/BountyCard';
+import { Pills, ControlGroup, type PillOption } from '@/components/browse/Pills';
 
-const STATUS_FILTERS: { value: BountyStatus | ''; labelKey: string }[] = [
-  { value: '',          labelKey: 'filters.all' },
-  { value: 'open',      labelKey: 'filters.open' },
-  { value: 'pending',   labelKey: 'filters.pending' },
-  { value: 'completed', labelKey: 'filters.completed' },
-  { value: 'paid_out',  labelKey: 'filters.paidOut' },
-];
+type State = 'all' | 'open' | 'completed';
+type CreatorStatus = 'all' | 'verified' | 'unverified';
+type Sort = 'newest' | 'most_backed' | 'recently_completed';
 
 export default function BountiesPage() {
   const { user } = useAuth();
   const t = useTranslations('Bounties');
   const [data, setData] = useState<PaginatedResponse<Bounty> | null>(null);
-  const [status, setStatus] = useState<BountyStatus | ''>('open');
+  const [state, setState] = useState<State>('open');
+  const [creatorStatus, setCreatorStatus] = useState<CreatorStatus>('all');
+  const [sort, setSort] = useState<Sort>('newest');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,23 +28,53 @@ export default function BountiesPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await bountiesApi.list({ status: status || undefined, page });
+      const res = await bountiesApi.list({ state, creator_status: creatorStatus, sort, page });
       setData(res);
     } catch {
       setError(t('error'));
     } finally {
       setLoading(false);
     }
-  }, [status, page, t]);
+  }, [state, creatorStatus, sort, page, t]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  const handleStatusChange = (val: BountyStatus | '') => {
-    setStatus(val);
+  // "Recently completed" only makes sense over finished bounties, so it pins the
+  // state filter to "completed"; picking any other state drops back to "newest".
+  const handleSort = (val: string) => {
+    const next = val as Sort;
+    setSort(next);
+    if (next === 'recently_completed') setState('completed');
     setPage(1);
   };
+  const handleState = (val: string) => {
+    const next = val as State;
+    setState(next);
+    if (next !== 'completed' && sort === 'recently_completed') setSort('newest');
+    setPage(1);
+  };
+  const handleCreatorStatus = (val: string) => {
+    setCreatorStatus(val as CreatorStatus);
+    setPage(1);
+  };
+
+  const sortOptions: PillOption[] = [
+    { value: 'newest', label: t('sort.newest') },
+    { value: 'most_backed', label: t('sort.mostBacked') },
+    { value: 'recently_completed', label: t('sort.recentlyCompleted') },
+  ];
+  const stateOptions: PillOption[] = [
+    { value: 'all', label: t('filters.all') },
+    { value: 'open', label: t('filters.open') },
+    { value: 'completed', label: t('filters.completed') },
+  ];
+  const creatorOptions: PillOption[] = [
+    { value: 'all', label: t('creatorFilter.all') },
+    { value: 'verified', label: t('creatorFilter.verified') },
+    { value: 'unverified', label: t('creatorFilter.unverified') },
+  ];
 
   return (
     <div className="max-w-6xl mx-auto px-7 py-10">
@@ -64,21 +93,19 @@ export default function BountiesPage() {
         )}
       </div>
 
-      {/* Status filter */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {STATUS_FILTERS.map(({ value, labelKey }) => (
-          <button
-            key={value}
-            onClick={() => handleStatusChange(value)}
-            className={`text-sm px-4 py-1.5 rounded-full border transition-colors ${
-              status === value
-                ? 'bg-fan text-black border-fan font-semibold'
-                : 'bg-surface border-border text-muted hover:border-fan/50 hover:text-foreground'
-            }`}
-          >
-            {t(labelKey)}
-          </button>
-        ))}
+      {/* Controls */}
+      <div className="space-y-4 mb-7">
+        <ControlGroup label={t('controls.sort')}>
+          <Pills options={sortOptions} value={sort} onChange={handleSort} ariaLabel={t('controls.sort')} />
+        </ControlGroup>
+        <div className="flex flex-wrap gap-x-10 gap-y-4">
+          <ControlGroup label={t('controls.show')}>
+            <Pills options={stateOptions} value={state} onChange={handleState} ariaLabel={t('controls.show')} />
+          </ControlGroup>
+          <ControlGroup label={t('controls.creator')}>
+            <Pills options={creatorOptions} value={creatorStatus} onChange={handleCreatorStatus} ariaLabel={t('controls.creator')} />
+          </ControlGroup>
+        </div>
       </div>
 
       {/* Results */}
