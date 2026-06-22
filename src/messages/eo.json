@@ -1660,6 +1660,8 @@
         "platformLabel": "platformo - kie ili estas aktivaj",
         "platformPlaceholder": "— elektu platformon —",
         "submit": "Uzi ĉi tiun kreinton →",
+        "submitting": "Kontrolante…",
+        "foundVerified": "Trovita kontrolita kreanto: {name}",
         "errors": {
           "platformRequired": "Bonvolu elekti platformon.",
           "urlRequired": "La retejo-URL estas deviga.",

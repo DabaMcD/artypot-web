@@ -80,7 +80,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
   const switchHandlers: Record<'fan' | 'creator' | 'council', () => void> = {
     fan:     () => { switchTo('fan');     router.push('/dashboard'); },
     creator: () => { switchTo('creator'); router.push('/c'); },
-    council: () => { router.push('/admin'); },
+    council: () => { router.push('/admin/dashboard'); },
   };
 
   // Dashboard sits unlabeled at the top of each nav; the labeled sections
@@ -126,6 +126,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
   ];
 
   const councilItems: NavItem[] = [
+    { id: 'council-dashboard',        label: t('nav.dashboard'),          icon: '◐', href: '/admin/dashboard' },
     { sec: t('sections.queues') },
     { id: 'council-completions',      label: t('nav.completionReview'),   icon: '✓', href: '/admin/completions' },
     { id: 'council-handles',          label: t('nav.handleVerification'), icon: '@', href: '/admin/handles' },

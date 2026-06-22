@@ -1865,3 +1865,61 @@ export interface NexusAccrualRow {
   over_alert: boolean;
   over_threshold: boolean;
 }
+
+// ── Admin command-center dashboard (/admin/dashboard) ──────────────────────
+export interface AdminDashboardTrendPoint {
+  date: string;
+  count?: number;
+  value?: number;
+}
+
+export interface AdminDashboard {
+  generated_at: string;
+  queues: {
+    completions_pending: number;
+    handle_apps_pending: number;
+    reports_open: number;
+    tax_flags_pending: number;
+    refunds_pending: number;
+    payout_holds: number;
+    fans_in_grace: number;
+    disputes_open: number;
+    withdrawals_failed: number;
+  };
+  kpis: {
+    users_total: number;
+    users_new_7d: number;
+    users_new_30d: number;
+    creators_enabled: number;
+    bounties: { open: number; pending: number; completed: number; paid_out: number; revoked: number };
+    gmv_total: number;
+    fee_revenue_mtd: number;
+    fee_revenue_total: number;
+    pageviews_total: number;
+    unique_visitors: number;
+    bot_view_share: number;
+  };
+  money: {
+    next_billing_date: string;
+    last_run: {
+      run_date: string | null;
+      status: string;
+      total_collected: number;
+      total_fees: number;
+      completed_at: string | null;
+    } | null;
+    creator_owed: number;
+    creator_available: number;
+    creator_clearing: number;
+    creator_paid_out: number;
+    refunds_30d: number;
+  };
+  trends: {
+    signups: AdminDashboardTrendPoint[];
+    gmv: AdminDashboardTrendPoint[];
+  };
+  recent: {
+    signups: Array<{ id: number; display_name: string; slug: string | null; is_creator: boolean; created_at: string | null }>;
+    bounties: Array<{ id: number; title: string; status: string; total_backed: number; created_at: string | null }>;
+  };
+}

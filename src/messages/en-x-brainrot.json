@@ -1660,6 +1660,8 @@
         "platformLabel": "the app - where this goat lowkey lurks 👀",
         "platformPlaceholder": "— pick an app bestie 🫳 —",
         "submit": "yeah this the one →🫡",
+        "submitting": "lemme check rq… 🔎",
+        "foundVerified": "yo this handle's already a verified creator fr: {name} ✅",
         "errors": {
           "platformRequired": "pick an app first bestie 💀 don't fumble this",
           "urlRequired": "drop the website link rn or it's so over 🔗😭",
