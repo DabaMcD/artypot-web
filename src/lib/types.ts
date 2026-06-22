@@ -456,6 +456,8 @@ export interface Bounty {
   display_name?: string | null;
   type: BountyType;
   status: BountyStatus;
+  /** Easter-egg tag. When 'bad-apple', backing this bounty launches the Bad Apple takeover. */
+  easter_egg?: string | null;
   /** Original opener of the bounty. Immutable. */
   initiator_user_id: number;
   initiator?: User;

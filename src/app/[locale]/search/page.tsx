@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
@@ -47,27 +47,39 @@ function SearchPageInner() {
   const params = useSearchParams();
   const router = useRouter();
 
-  const query = (params.get('q') ?? '').trim();
+  // `query` (state) drives the fetch + render. It is seeded from ?q= and re-set
+  // DIRECTLY whenever the URL changes (header search, back/forward), so arriving
+  // at /search?q=… always fetches — the fetch never depends on a router
+  // round-trip. The in-content box (`input`) is the editable mirror; typing it
+  // debounces into both `query` (instant-feeling fetch) and the URL (shareable).
+  const urlQuery = (params.get('q') ?? '').trim();
+  const [input, setInput] = useState(urlQuery);
+  const [query, setQuery] = useState(urlQuery);
   const active = query.length >= MIN_CHARS;
 
-  // The page owns its search input (decoupled from the header), syncing to ?q=.
-  const [input, setInput] = useState(query);
   useEffect(() => {
-    setInput(query);
-  }, [query]);
+    setInput(urlQuery);
+    setQuery(urlQuery);
+  }, [urlQuery]);
 
-  // Debounce the input into the URL; the URL's q drives the actual query.
-  useEffect(() => {
-    const v = input.trim();
-    if (v === query) return;
-    const id = setTimeout(() => {
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const commit = useCallback(
+    (raw: string) => {
+      const v = raw.trim();
+      setQuery(v);
       const sp = new URLSearchParams(params.toString());
       if (v) sp.set('q', v);
       else sp.delete('q');
       router.replace(`/search${sp.toString() ? `?${sp.toString()}` : ''}`);
-    }, 300);
-    return () => clearTimeout(id);
-  }, [input, query, params, router]);
+    },
+    [params, router],
+  );
+  const onInputChange = (raw: string) => {
+    setInput(raw);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => commit(raw), 300);
+  };
+  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
 
   const [type, setType] = useState<FilterType | null>(null); // null = all
   const [sort, setSort] = useState<Sort>('relevance');
@@ -160,7 +172,7 @@ function SearchPageInner() {
         <input
           type="search"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => onInputChange(e.target.value)}
           placeholder={t('searchPlaceholder')}
           autoFocus
           className="w-full h-12 pl-11 pr-11 rounded-xl bg-surface-2 border border-border text-foreground placeholder:text-muted/70 text-base focus:outline-none focus:border-fan/60 transition-colors [&::-webkit-search-cancel-button]:hidden"
@@ -168,7 +180,7 @@ function SearchPageInner() {
         {input && (
           <button
             type="button"
-            onClick={() => setInput('')}
+            onClick={() => { setInput(''); commit(''); }}
             aria-label={t('searchClear')}
             className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-7 h-7 rounded-full text-muted hover:text-foreground hover:bg-surface transition-colors"
           >
