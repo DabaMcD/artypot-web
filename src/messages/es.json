@@ -1660,6 +1660,8 @@
         "platformLabel": "plataforma - dónde están activos",
         "platformPlaceholder": "— selecciona una plataforma —",
         "submit": "Usar este creador →",
+        "submitting": "Comprobando…",
+        "foundVerified": "Creador verificado encontrado: {name}",
         "errors": {
           "platformRequired": "Selecciona una plataforma.",
           "urlRequired": "La URL del sitio web es obligatoria.",

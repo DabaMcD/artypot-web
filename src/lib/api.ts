@@ -1255,6 +1255,10 @@ export const admin = {
   getCreator: (id: number) =>
     request<{ data: import('./types').AdminCreatorDetail }>(`/admin/creators/${id}`),
 
+  // Command-center dashboard snapshot (queues, KPIs, trends, recent activity)
+  dashboard: () =>
+    request<{ data: import('./types').AdminDashboard }>('/admin/dashboard'),
+
   // Pageview analytics
   listPageViews: (params?: {
     page_type?: import('./types').PageViewType | 'all';

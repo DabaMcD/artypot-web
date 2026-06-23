@@ -1678,6 +1678,8 @@
         "platformLabel": "platform - where they're active",
         "platformPlaceholder": "— select a platform —",
         "submit": "Use This Creator →",
+        "submitting": "Checking…",
+        "foundVerified": "Found a verified creator: {name}",
         "errors": {
           "platformRequired": "Please select a platform.",
           "urlRequired": "Website URL is required.",
