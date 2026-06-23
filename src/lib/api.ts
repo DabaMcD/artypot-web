@@ -1210,6 +1210,24 @@ export const admin = {
       body: JSON.stringify(data),
     }),
 
+  /**
+   * Admin-only reassignment of a bounty's ownership fields. Pass null to clear a
+   * field. Recorded in the admin activity ledger, NOT the bounty history.
+   */
+  updateBountyOwnership: (
+    bountyId: number,
+    data: {
+      target_user_id?: number | null;
+      edit_user_id?: number | null;
+      target_handle_id?: number | null;
+      notes?: string;
+    },
+  ) =>
+    request<{ data: Bounty }>(`/admin/bounties/${bountyId}/ownership`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
   // Council Members
   listCouncil: (page = 1) =>
     request<PaginatedResponse<CouncilMember>>(`/admin/council?page=${page}`),
