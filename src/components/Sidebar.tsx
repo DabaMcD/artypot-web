@@ -80,7 +80,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
   const switchHandlers: Record<'fan' | 'creator' | 'council', () => void> = {
     fan:     () => { switchTo('fan');     router.push('/dashboard'); },
     creator: () => { switchTo('creator'); router.push('/c'); },
-    council: () => { router.push('/admin'); },
+    council: () => { router.push('/admin/dashboard'); },
   };
 
   // Dashboard sits unlabeled at the top of each nav; the labeled sections
@@ -94,7 +94,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
     { id: 'fan-backings',  label: t('nav.myBackings'),     icon: '◇', href: '/backings' },
     { id: 'fan-create',    label: t('nav.startBounty'),    icon: '+', href: '/bounties/new' },
     { sec: t('sections.discover') },
-    { id: 'fan-search',    label: t('nav.findCreators'),   icon: '⌕', href: '/search' },
+    { id: 'fan-creators',  label: t('nav.browseCreators'), icon: '◎', href: '/creators' },
     { id: 'fan-bounties',  label: t('nav.browseBounties'), icon: '◫', href: '/bounties' },
     { sec: t('sections.money') },
     { id: 'fan-billing',   label: t('nav.billing'),        icon: '$', href: '/billing' },
@@ -126,6 +126,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
   ];
 
   const councilItems: NavItem[] = [
+    { id: 'council-dashboard',        label: t('nav.dashboard'),          icon: '◐', href: '/admin/dashboard' },
     { sec: t('sections.queues') },
     { id: 'council-completions',      label: t('nav.completionReview'),   icon: '✓', href: '/admin/completions' },
     { id: 'council-handles',          label: t('nav.handleVerification'), icon: '@', href: '/admin/handles' },
@@ -207,7 +208,9 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
                 // otherwise they'd light up for every sub-route below them.
                 // /bounties is exact too: its children belong to other items
                 // (/bounties/new is "Start a bounty") or to no item (detail pages).
-                const EXACT_MATCH_ROUTES = new Set(['/c', '/admin', '/dashboard', '/bounties']);
+                // /creators is exact so creator profiles (/creators/{id}) don't
+                // keep the browse item highlighted.
+                const EXACT_MATCH_ROUTES = new Set(['/c', '/admin', '/dashboard', '/bounties', '/creators']);
                 if (EXACT_MATCH_ROUTES.has(item.href)) return pathname === item.href;
                 // Sub-routes: active when on the exact page OR a deeper page beneath it.
                 return pathname === item.href || pathname.startsWith(item.href + '/');

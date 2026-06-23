@@ -7,6 +7,7 @@ import { NotificationProvider } from '@/lib/notification-context';
 import ToastDisplay from '@/components/ToastDisplay';
 import { HashHighlight } from '@/components/HashHighlight';
 import UnreadTitleBadge from '@/components/UnreadTitleBadge';
+import BadAppleListener from '@/components/BadAppleListener';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -16,6 +17,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           <ToastProvider>
             <HashHighlight />
             <UnreadTitleBadge />
+            <BadAppleListener />
             {children}
             <ToastDisplay />
           </ToastProvider>

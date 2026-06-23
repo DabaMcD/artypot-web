@@ -33,6 +33,8 @@ import type {
   HandleRegistryRow,
   HandleDossier,
   UnclaimedHandlePot,
+  CreatorDirectoryEntry,
+  CreatorFacets,
   BountyReportRow,
   ExternalPayout,
   CreatorSearchResult,
@@ -394,6 +396,7 @@ export const phone = {
 
 // Creators
 export const creators = {
+  /** Verified-creator list (header search results, creator-search widget). */
   list: (params?: {
     q?: string;
     page?: number;
@@ -405,6 +408,31 @@ export const creators = {
     const qs = new URLSearchParams(entries).toString();
     return request<PaginatedResponse<Creator>>(`/creators${qs ? `?${qs}` : ''}`);
   },
+
+  /**
+   * The /creators directory: verified creators or unclaimed handles, sortable
+   * and platform-filterable. Hits the same endpoint as list() but returns the
+   * directory union (a handle row carries `kind: 'handle'`).
+   */
+  browse: (params: {
+    type: 'verified' | 'unverified';
+    platform?: string;
+    /**
+     * Verified: newest | most_open | most_completed | most_backed.
+     * Unverified: newest | most_bounties | most_backed.
+     */
+    sort?: string;
+    page?: number;
+  }) => {
+    const entries = Object.entries(params)
+      .filter(([, v]) => v != null)
+      .map(([k, v]) => [k, String(v)]) as [string, string][];
+    const qs = new URLSearchParams(entries).toString();
+    return request<PaginatedResponse<CreatorDirectoryEntry>>(`/creators?${qs}`);
+  },
+
+  /** GET /creators/facets — master + per-platform counts for the directory chips. */
+  facets: () => request<{ data: CreatorFacets }>('/creators/facets'),
 
   get: (id: number) => request<{ data: Creator }>(`/creators/${id}`),
 
@@ -443,7 +471,19 @@ export const creators = {
 
 // Bounties
 export const bounties = {
-  list: (params?: { creator_id?: number; handle_id?: number; status?: BountyStatus; page?: number }) => {
+  list: (params?: {
+    creator_id?: number;
+    handle_id?: number;
+    /** Legacy exact-status filter (creator dashboard, per-creator lists). */
+    status?: BountyStatus;
+    /** Browse state filter: open | completed | all (never reveals revoked). */
+    state?: 'open' | 'completed' | 'all';
+    /** verified (targets a creator) | unverified (targets an unclaimed handle). */
+    creator_status?: 'all' | 'verified' | 'unverified';
+    /** newest | most_backed (by backer count) | recently_completed. */
+    sort?: 'newest' | 'most_backed' | 'recently_completed';
+    page?: number;
+  }) => {
     const entries = Object.entries(params ?? {})
       .filter(([, v]) => v != null)
       .map(([k, v]) => [k, String(v)]) as [string, string][];
@@ -990,6 +1030,14 @@ export const metrics = {
     }>('/overlord/metrics'),
 };
 
+export interface BountyEasterEggRow {
+  id: number;
+  title: string;
+  status: string | null;
+  easter_egg: string | null;
+  target: string | null;
+}
+
 // Overlord — grant/revoke Council by email
 export const overlord = {
   listCouncil: () =>
@@ -1003,6 +1051,18 @@ export const overlord = {
 
   revokeCouncil: (councilId: number) =>
     request<void>(`/overlord/council/${councilId}`, { method: 'DELETE' }),
+
+  // Bounty easter-egg flags (e.g. 'bad-apple' → Bad Apple takeover on backing).
+  listBountyEasterEggs: (q?: string) => {
+    const qs = q && q.trim() ? `?q=${encodeURIComponent(q.trim())}` : '';
+    return request<{ data: BountyEasterEggRow[] }>(`/overlord/bounties/easter-eggs${qs}`);
+  },
+
+  setBountyEasterEgg: (bountyId: number, easterEgg: string | null) =>
+    request<{ data: { id: number; title: string; easter_egg: string | null } }>(
+      `/overlord/bounties/${bountyId}/easter-egg`,
+      { method: 'PATCH', body: JSON.stringify({ easter_egg: easterEgg }) },
+    ),
 
   treasury: () =>
     request<{ data: TreasurySummary }>('/overlord/treasury'),
@@ -1150,6 +1210,24 @@ export const admin = {
       body: JSON.stringify(data),
     }),
 
+  /**
+   * Admin-only reassignment of a bounty's ownership fields. Pass null to clear a
+   * field. Recorded in the admin activity ledger, NOT the bounty history.
+   */
+  updateBountyOwnership: (
+    bountyId: number,
+    data: {
+      target_user_id?: number | null;
+      edit_user_id?: number | null;
+      target_handle_id?: number | null;
+      notes?: string;
+    },
+  ) =>
+    request<{ data: Bounty }>(`/admin/bounties/${bountyId}/ownership`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
   // Council Members
   listCouncil: (page = 1) =>
     request<PaginatedResponse<CouncilMember>>(`/admin/council?page=${page}`),
@@ -1178,6 +1256,13 @@ export const admin = {
   getUser: (id: number) =>
     request<{ data: import('./types').AdminUser }>(`/admin/users/${id}`),
 
+  // Set (number) or clear (null) the per-user override of the per-bounty backing limit.
+  setBackingLimit: (id: number, override: number | null) =>
+    request<{ data: { limit_override: number | null; per_bounty_limit: number | null } }>(
+      `/admin/users/${id}/backing-limit`,
+      { method: 'PATCH', body: JSON.stringify({ backing_limit_override: override }) },
+    ),
+
   deleteUser: (id: number) =>
     request<null>(`/admin/users/${id}`, { method: 'DELETE' }),
 
@@ -1194,6 +1279,10 @@ export const admin = {
 
   getCreator: (id: number) =>
     request<{ data: import('./types').AdminCreatorDetail }>(`/admin/creators/${id}`),
+
+  // Command-center dashboard snapshot (queues, KPIs, trends, recent activity)
+  dashboard: () =>
+    request<{ data: import('./types').AdminDashboard }>('/admin/dashboard'),
 
   // Pageview analytics
   listPageViews: (params?: {

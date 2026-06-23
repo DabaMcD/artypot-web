@@ -69,7 +69,8 @@
       "councilMembers": "Council members",
       "countryTiers": "Country tiers",
       "markets": "Markets",
-      "auditLog": "Audit log"
+      "auditLog": "Audit log",
+      "browseCreators": "Browse creators"
     },
     "roles": {
       "fan": "fan",
@@ -103,7 +104,9 @@
     "common": {
       "cancel": "Cancel",
       "save": "Save",
-      "saving": "Saving…"
+      "saving": "Saving…",
+      "edit": "Edit",
+      "notSet": "Not set"
     },
     "email": {
       "label": "email address",
@@ -116,7 +119,8 @@
       "sending": "Sending…",
       "sentBanner": "Confirmation email sent to <strong>{email}</strong>. Click the link to complete.",
       "sentBannerShort": "Confirmation sent to <strong>{email}</strong>. Click the link to complete.",
-      "pendingBanner": "Pending change to <strong>{email}</strong> — check that inbox."
+      "pendingBanner": "Pending change to <strong>{email}</strong> — check that inbox.",
+      "pendingBadge": "pending"
     },
     "profilePicture": {
       "label": "profile picture",
@@ -240,10 +244,6 @@
           "label": "comment reply",
           "desc": "someone replied to a comment thread you participated in."
         },
-        "regionAvailable": {
-          "label": "region available",
-          "desc": "payment processing opens in your region, so your backings can be charged."
-        },
         "accountManagement": {
           "label": "account management",
           "desc": "required actions, admin messages, handle verification results."
@@ -322,6 +322,15 @@
       "cancel": "Cancel",
       "working": "Signing out…",
       "error": "Couldn't sign out of your sessions. Please try again."
+    },
+    "sections": {
+      "account": "account",
+      "profile": "profile",
+      "backingDefaults": "backing defaults",
+      "privacy": "privacy",
+      "notifications": "notifications",
+      "security": "security",
+      "danger": "danger zone"
     }
   },
   "About": {
@@ -1669,6 +1678,8 @@
         "platformLabel": "platform - where they're active",
         "platformPlaceholder": "— select a platform —",
         "submit": "Use This Creator →",
+        "submitting": "Checking…",
+        "foundVerified": "Found a verified creator: {name}",
         "errors": {
           "platformRequired": "Please select a platform.",
           "urlRequired": "Website URL is required.",
@@ -1702,6 +1713,22 @@
         "commitment": "your commitment",
         "expiresAfter": "backing expires after"
       }
+    },
+    "controls": {
+      "sort": "Sort",
+      "show": "Show",
+      "creator": "Creator status",
+      "status": "Status"
+    },
+    "sort": {
+      "newest": "Newest",
+      "mostBacked": "Most backers",
+      "recentlyCompleted": "Recently completed"
+    },
+    "creatorFilter": {
+      "all": "All",
+      "verified": "Verified creators",
+      "unverified": "Unverified handles"
     }
   },
   "Components": {
@@ -1738,7 +1765,9 @@
       "noDescription": "No description yet.",
       "statBacked": "backed",
       "statOpen": "open",
-      "statCompleted": "completed"
+      "statCompleted": "completed",
+      "unverifiedBadge": "unverified",
+      "unverifiedTagline": "Back a bounty to bring them to Artypot."
     }
   },
   "CreatorBounties": {
@@ -2086,6 +2115,17 @@
     },
     "fanSettingsLink": {
       "text": "To edit your email, phone number, password, or other account options, <link>go to fan settings →</link>"
+    },
+    "common": {
+      "edit": "Edit",
+      "notSet": "Not set",
+      "cancel": "Cancel"
+    },
+    "sections": {
+      "profile": "public profile",
+      "presence": "presence",
+      "tax": "tax & compliance",
+      "notifications": "notifications"
     }
   },
   "CreatorTax": {
@@ -2287,11 +2327,13 @@
   },
   "Search": {
     "header": {
-      "label": "discover",
+      "label": "search",
       "resultsFor": "Results for <highlight>{query}</highlight>",
       "exploreTitle": "explore",
       "resultsSubtitle": "Creators, bounties, and handles.",
-      "exploreSubtitle": "Browse creators and the bounties their communities are backing."
+      "exploreSubtitle": "Browse creators and the bounties their communities are backing.",
+      "promptTitle": "Search Artypot",
+      "promptSubtitle": "Find creators, handles, and bounties."
     },
     "filters": {
       "all": "All",
@@ -2301,7 +2343,9 @@
     "sort": {
       "newest": "newest",
       "mostBounties": "most bounties",
-      "mostCompleted": "most completed"
+      "mostCompleted": "most completed",
+      "relevance": "Relevance",
+      "mostBacked": "Most backed"
     },
     "sections": {
       "people": "People",
@@ -2316,7 +2360,10 @@
       "people": "No people match this search.",
       "bounties": "No bounties match this search.",
       "bountiesCreate": "Create one targeting “{query}”",
-      "creators": "no verified creators yet"
+      "creators": "no verified creators yet",
+      "promptHint": "Type to search — or jump into the directories.",
+      "browseCreators": "Browse creators",
+      "browseBounties": "Browse bounties"
     },
     "actions": {
       "loading": "Loading…",
@@ -2334,7 +2381,14 @@
       "badgeCreator": "creator",
       "badgeUnverified": "unverified",
       "matchedAlias": "matched alias: {alias}"
-    }
+    },
+    "searchPlaceholder": "Search creators, handles, bounties…",
+    "searchClear": "Clear search",
+    "controls": {
+      "type": "Type",
+      "sort": "Sort"
+    },
+    "count": "{count, plural, one {# result} other {# results}}"
   },
   "Pipeline": {
     "pending": "pending",
@@ -2376,7 +2430,8 @@
     "backingError": {
       "capExceeded": "You've reached your good faith limit. <link>Add a payment method</link> to continue.",
       "gracePeriod": "New backings are paused while you resolve a failed payment. <link>Update your card</link> to continue.",
-      "marketUnavailable": "Backing isn't available in your country yet — we hope to support it soon."
+      "marketUnavailable": "Backing isn't available in your country yet — we hope to support it soon.",
+      "perBountyLimit": "Backings are capped at {limit} per bounty for now. Contact support if you'd like to back more."
     },
     "expiry": {
       "advanced": "Advanced",
@@ -3236,6 +3291,35 @@
     },
     "errors": {
       "generic": "Something went wrong. Please try again."
+    }
+  },
+  "Creators": {
+    "title": "Creators",
+    "subtitle": "Browse creators on Artypot — and the handles people want to recruit.",
+    "master": {
+      "label": "Creator type",
+      "verified": "Creators",
+      "unverified": "Unverified handles"
+    },
+    "platformAll": "All platforms",
+    "controls": {
+      "platform": "Platform",
+      "sort": "Sort"
+    },
+    "sort": {
+      "newest": "Newest",
+      "mostOpen": "Most open bounties",
+      "mostCompleted": "Most completed",
+      "mostBacked": "Most backers",
+      "mostBounties": "Most bounties"
+    },
+    "count": "{count, plural, one {# result} other {# results}}",
+    "empty": "No results.",
+    "error": "Could not load creators.",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {current} of {total}"
     }
   }
 }

@@ -22,7 +22,7 @@ import { Banner } from '@/components/ui/Banner';
 import { Stepper } from '@/components/ui/Stepper';
 import BackingPolicyNote from '@/components/BackingPolicyNote';
 import PayOnVerifiedNote from '@/components/PayOnVerifiedNote';
-import { ALL_PLATFORMS, OTHER_SLUG, platformLabel, handleLink } from '@/lib/platforms';
+import { ALL_PLATFORMS, OTHER_SLUG, platformLabel, handleLink, bareUsername } from '@/lib/platforms';
 import { useDebouncedSearch } from '@/lib/search/useDebouncedSearch';
 import { moveActiveIndex } from '@/lib/search/navigation';
 
@@ -45,7 +45,9 @@ const PLATFORM_LABELS: Record<string, string> = Object.fromEntries(
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type TargetSelection =
-  | { kind: 'user';   userId: number; handleId: number; displayName: string; avatarUrl: string | null; platform: HandlePlatform; username: string }
+  // handleId is informational only for a verified creator (submit keys off userId),
+  // so it may be null when the creator was resolved without a specific handle row.
+  | { kind: 'user';   userId: number; handleId: number | null; displayName: string; avatarUrl: string | null; platform: HandlePlatform; username: string }
   | { kind: 'handle'; handleId: number; displayName: string; avatarUrl: null; platform: HandlePlatform; username: string }
   | { kind: 'new';    platform: HandlePlatform; username: string; displayName: string; avatarUrl: null };
 
@@ -168,6 +170,7 @@ function Step1({
   const { toast } = useToast();
   const [focused, setFocused] = useState(false);
   const [addError, setAddError] = useState('');
+  const [resolving, setResolving] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -221,14 +224,48 @@ function Step1({
     }
   };
 
-  const confirmAddNew = () => {
+  const confirmAddNew = async () => {
     if (!newPlatform) { setAddError(t('step1.addNew.errors.platformRequired')); return; }
     if (!newUsername.trim()) { setAddError(newPlatform === OTHER_SLUG ? t('step1.addNew.errors.urlRequired') : t('step1.addNew.errors.handleRequired')); return; }
     // A human name is only required for 'other' (off-platform) links, where the
     // identifier is a raw URL and would otherwise read terribly on the bounty.
     if (newPlatform === OTHER_SLUG && !newDisplayName.trim()) { setAddError(t('step1.addNew.errors.displayNameRequired')); return; }
     setAddError('');
-    onSelect({ kind: 'new', platform: newPlatform, username: newUsername.trim(), displayName: newDisplayName.trim(), avatarUrl: null });
+
+    const username = newUsername.trim();
+
+    // Resolve the manually-typed handle against the registry before advancing.
+    // If it already belongs to a VERIFIED creator, target that creator (kind
+    // 'user') so the next step shows their real Artypot profile instead of
+    // letting a registered creator slip through as an unverified "new" target.
+    // Only curated platforms are resolvable; 'other' (free-form URLs), unknown
+    // handles, and lookup failures fall through to the existing kind:'new' path
+    // so bounty creation is never blocked.
+    if (newPlatform !== OTHER_SLUG) {
+      setResolving(true);
+      try {
+        const res = await creatorsApi.byPlatformHandle(newPlatform, username);
+        if (res.match === 'verified') {
+          toast(t('step1.addNew.foundVerified', { name: res.user.display_name }), 'success');
+          onSelect({
+            kind: 'user',
+            userId: res.user.id,
+            handleId: null,
+            displayName: res.user.display_name,
+            avatarUrl: res.user.profile_picture,
+            platform: newPlatform,
+            username,
+          });
+          return;
+        }
+      } catch {
+        // Resolver unavailable — proceed as a new target.
+      } finally {
+        setResolving(false);
+      }
+    }
+
+    onSelect({ kind: 'new', platform: newPlatform, username, displayName: newDisplayName.trim(), avatarUrl: null });
   };
 
   // Top row pre-selected so a bare Enter activates the first result.
@@ -346,8 +383,9 @@ function Step1({
                 variant="primary"
                 className="w-full justify-center"
                 onClick={confirmAddNew}
+                disabled={resolving}
               >
-                {t('step1.addNew.submit')}
+                {resolving ? t('step1.addNew.submitting') : t('step1.addNew.submit')}
               </Button>
             </div>
           </>
@@ -407,7 +445,7 @@ function Step1({
                       <div>
                         {results.map((r, idx) => {
                           const active = activeIndex === idx;
-                          const handleLabel = `${PLATFORM_LABELS[r.platform] ?? r.platform}/${formatPlatformHandle(r.platform, r.username)}`;
+                          const handleLabel = `${PLATFORM_LABELS[r.platform] ?? r.platform}/${bareUsername(r.platform, r.username)}`;
                           return (
                             <button
                               key={r.handle_id}

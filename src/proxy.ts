@@ -104,7 +104,9 @@ function maybeLogPageView(
 }
 
 export const config = {
-  // Everything except API routes, the un-localized `/marriage-autonomy-spectrum`
-  // route handler, Next internals, and files with an extension.
-  matcher: ['/((?!api|marriage-autonomy-spectrum|_next|_vercel|.*\\..*).*)'],
+  // Everything except API routes, the un-localized standalone route handlers
+  // (`/marriage-autonomy-spectrum`, `/bad-apple` — both self-contained HTML docs
+  // that need neither locale handling nor pageview tracking), Next internals,
+  // and files with an extension.
+  matcher: ['/((?!api|marriage-autonomy-spectrum|bad-apple|_next|_vercel|.*\\..*).*)'],
 };
