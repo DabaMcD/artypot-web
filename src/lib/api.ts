@@ -881,7 +881,9 @@ export const search = {
   ) => {
     const entries = Object.entries(params)
       .filter(([, v]) => v != null && v !== '')
-      .map(([k, v]) => [k, String(v)]) as [string, string][];
+      // Booleans must go over the wire as 1/0 — Laravel's `boolean` validation
+      // rule rejects the strings "true"/"false", which would 422 the request.
+      .map(([k, v]) => [k, typeof v === 'boolean' ? (v ? '1' : '0') : String(v)]) as [string, string][];
     const qs = new URLSearchParams(entries).toString();
     return request<SearchResponse>(`/search?${qs}`, { signal });
   },
