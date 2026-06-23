@@ -46,11 +46,35 @@ const FIELD_LABEL_KEYS: Record<string, string> = {
   display_name: 'fieldDisplayName',
 };
 
+// A details_edited event records a single field; the value it was changed TO
+// lives in that event's snapshot. Returns null for non-field events.
+function editedFieldNewValue(event: BountyHistoryEvent): string | null {
+  switch (event.field) {
+    case 'title':        return event.snapshot.title;
+    case 'description':  return event.snapshot.description;
+    case 'display_name': return event.snapshot.display_name;
+    default:             return null;
+  }
+}
+
+/**
+ * One rendered history row. A `details_edited` row may bundle several fields
+ * that were changed together in a single edit (same user + timestamp).
+ */
+interface HistoryRow {
+  event: BountyHistoryEvent;
+  editedFields: { field: string; value: string }[];
+}
+
 export default function BountyHistoryChart({ events, selectedEvent, onSelect }: Props) {
   const t = useTranslations('BountyHistoryChart');
   const dateFormats = useDateFormats();
 
-  if (events.length === 0) {
+  // "Transferred edit rights" (privilege_transfer) events are still recorded
+  // server-side, but are intentionally hidden from the history display for now.
+  const visibleEvents = events.filter((event) => event.type !== 'privilege_transfer');
+
+  if (visibleEvents.length === 0) {
     return (
       <p className="font-mono text-[10px] uppercase tracking-widest text-muted/60">
         {t('empty')}
@@ -58,13 +82,46 @@ export default function BountyHistoryChart({ events, selectedEvent, onSelect }: 
     );
   }
 
+  // Collapse concurrent "Edited details" events: one save can change several
+  // fields at once, writing one event per field with an identical timestamp.
+  // Merge those consecutive same-user, same-time edits into a single row that
+  // lists every changed field. The later event becomes the row's representative
+  // so its snapshot reflects all of the concurrent changes when clicked.
+  const rows: HistoryRow[] = [];
+  for (const event of visibleEvents) {
+    const isDetailsEdit = event.type === 'details_edited';
+    const value = editedFieldNewValue(event);
+    const last = rows[rows.length - 1];
+    const mergeable =
+      isDetailsEdit &&
+      last?.event.type === 'details_edited' &&
+      last.event.at === event.at &&
+      (last.event.user?.id ?? null) === (event.user?.id ?? null);
+
+    if (mergeable) {
+      if (event.field != null && value != null) {
+        last.editedFields.push({ field: event.field, value });
+      }
+      last.event = event; // later event → snapshot includes all concurrent edits
+    } else {
+      rows.push({
+        event,
+        editedFields:
+          isDetailsEdit && event.field != null && value != null
+            ? [{ field: event.field, value }]
+            : [],
+      });
+    }
+  }
+
   return (
     <ul className="divide-y divide-border/60 border-y border-border/60">
-      {events.map((event, i) => {
+      {rows.map(({ event, editedFields }, i) => {
         const meta      = EVENT_META[event.type];
         const eventLabel = meta ? t(meta.labelKey) : event.type;
         const amountSign = meta?.amountSign ?? 'none';
         const clickable = CLICKABLE_TYPES.has(event.type);
+
         // Identity match on type + timestamp (events are unique by these two)
         const isSelected =
           selectedEvent?.at === event.at && selectedEvent?.type === event.type;
@@ -169,11 +226,11 @@ export default function BountyHistoryChart({ events, selectedEvent, onSelect }: 
                   {u && ' '}{eventLabel}
                 </span>
               </div>
-              {event.field != null && event.old_value != null && (
-                <p className="font-mono text-[10px] text-muted/60 mt-1 truncate">
-                  {FIELD_LABEL_KEYS[event.field] ? t(FIELD_LABEL_KEYS[event.field]) : event.field}: &ldquo;{event.old_value}&rdquo;
+              {editedFields.map(({ field, value }, fi) => (
+                <p key={`${field}-${fi}`} className="font-mono text-[10px] text-muted/60 mt-1 truncate">
+                  {FIELD_LABEL_KEYS[field] ? t(FIELD_LABEL_KEYS[field]) : field}: &ldquo;{value}&rdquo;
                 </p>
-              )}
+              ))}
               {event.type === 'creator_assigned' && event.meta != null && (
                 <p className="font-mono text-[10px] text-muted/60 mt-1 truncate">
                   {t('originally')}{' '}
