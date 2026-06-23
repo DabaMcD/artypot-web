@@ -189,6 +189,17 @@ export interface User {
    * Honored as a one-shot locale redirect on login.
    */
   preferred_locale?: string | null;
+  /**
+   * Backing-limit posture (from /auth/me). For a solid backer per_bounty_limit is
+   * the effective ceiling; for a non-solid backer the no_payment_method_cap (the
+   * $25 aggregate cap) applies instead. is_proven drives reassurance copy.
+   */
+  backing?: {
+    per_bounty_limit: number | null;
+    no_payment_method_cap: number | null;
+    is_proven: boolean;
+    has_override: boolean;
+  };
   creator?: Creator;
 }
 
@@ -1390,6 +1401,16 @@ export interface AdminUser {
     handle: { platform: string; username: string; profile_url: string | null };
     created_at: string;
   }[];
+  /** Per-bounty backing-limit posture. Only populated by /admin/users/{user}. */
+  backing?: {
+    per_bounty_limit: number | null;
+    tier_default: number | null;
+    limit_override: number | null;
+    is_proven: boolean;
+    is_solid: boolean;
+    disputes_count: number;
+    no_pm_cap: number | null;
+  };
 }
 
 export interface AdminCreator {

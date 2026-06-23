@@ -2412,7 +2412,8 @@
     "backingError": {
       "capExceeded": "you maxed out the good faith aura 😬 <link>drop a payment method</link> to keep cooking.",
       "gracePeriod": "new bags on pause til you fix that flopped payment 💀 <link>fix ur card</link> to keep going.",
-      "marketUnavailable": "throwing bags ain't unlocked in ur country yet 🌍 we got u soon no cap."
+      "marketUnavailable": "throwing bags ain't unlocked in ur country yet 🌍 we got u soon no cap.",
+      "perBountyLimit": "bags are capped at {limit} per bounty rn 💀 hit up support if u wanna go bigger fr"
     },
     "expiry": {
       "advanced": "tryhard mode 🤓",

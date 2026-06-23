@@ -267,7 +267,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
               <div className="flex-1 min-w-0">
 
                 <div className="flex items-center gap-3 flex-wrap mb-1">
-                  <h1 className="text-2xl font-display font-bold text-foreground break-all">{headerHandle}</h1>
+                  <h1 className="text-2xl font-display font-bold text-foreground break-all normal-case">{headerHandle}</h1>
                   {claimedOwner ? (
                     <Badge tone="good" lg>{t('badge.verified')}</Badge>
                   ) : (

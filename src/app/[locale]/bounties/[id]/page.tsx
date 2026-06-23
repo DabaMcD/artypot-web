@@ -19,7 +19,7 @@ function computeExpiresAt(value: number, unit: ExpireUnit): string {
   return d.toISOString();
 }
 import { useToast } from '@/lib/toast-context';
-import { bounties as bountiesApi } from '@/lib/api';
+import { bounties as bountiesApi, admin as adminApi } from '@/lib/api';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { toExternalUrl, urlHost, submissionLinkLabel } from '@/lib/url';
 import { useAuth } from '@/lib/auth-context';
@@ -29,7 +29,7 @@ import { maybeFireBadApple } from '@/lib/badApple';
 import { DEFAULT_BACKING_AMOUNT_FALLBACK } from '@/lib/config';
 import { useViewMode } from '@/lib/view-mode-context';
 import type { Bounty, BountyHistoryEvent } from '@/lib/types';
-import { handleLink, handleExternalUrl, formatPlatformHandle } from '@/lib/platforms';
+import { handleLink, handleExternalUrl, formatPlatformHandle, bareUsername } from '@/lib/platforms';
 import ShareButton from '@/components/ShareButton';
 import BackingPolicyNote from '@/components/BackingPolicyNote';
 import PayOnVerifiedNote from '@/components/PayOnVerifiedNote';
@@ -122,6 +122,14 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const [editDescription, setEditDescription] = useState('');
   const [editDisplayName, setEditDisplayName] = useState('');
   const [editLoading, setEditLoading] = useState(false);
+
+  // Admin-only ownership reassignment (council). Raw-id inputs; '' = leave/clear.
+  const [showOwnership, setShowOwnership] = useState(false);
+  const [ownTargetUser, setOwnTargetUser] = useState('');
+  const [ownEditUser, setOwnEditUser] = useState('');
+  const [ownTargetHandle, setOwnTargetHandle] = useState('');
+  const [ownNotes, setOwnNotes] = useState('');
+  const [ownLoading, setOwnLoading] = useState(false);
 
   // Completion form
   const [showCompletion, setShowCompletion] = useState(false);
@@ -348,6 +356,10 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             ),
           }),
         );
+      } else if (e.status === 422 && e.reason === 'per_bounty_limit_exceeded') {
+        setBackingError(
+          <>{t('backingError.perBountyLimit', { limit: money(user?.backing?.per_bounty_limit ?? 0) })}</>,
+        );
       } else if (e.status === 422 && e.reason === 'market_unavailable') {
         setBackingError(
           <>{t('backingError.marketUnavailable')}</>,
@@ -406,6 +418,35 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
       toast(e.message ?? t('toast.failedUpdate'), 'error');
     } finally {
       setEditLoading(false);
+    }
+  };
+
+  // Admin-only: reassign ownership fields. Recorded in the admin activity ledger
+  // (server-side), NOT in bounty history. Inputs are pre-filled with current
+  // values, so a blank field means "clear it".
+  const handleOwnershipSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setOwnLoading(true);
+    const toIdOrNull = (v: string) => {
+      const trimmed = v.trim();
+      return trimmed === '' ? null : Number(trimmed);
+    };
+    try {
+      const res = await adminApi.updateBountyOwnership(Number(id), {
+        target_user_id:   toIdOrNull(ownTargetUser),
+        edit_user_id:     toIdOrNull(ownEditUser),
+        target_handle_id: toIdOrNull(ownTargetHandle),
+        notes: ownNotes.trim() || undefined,
+      });
+      setBounty((prev) => (prev ? { ...prev, ...res.data } : prev));
+      toast('Bounty ownership updated.', 'success');
+      setShowOwnership(false);
+      setOwnNotes('');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast(e.message ?? 'Failed to update ownership.', 'error');
+    } finally {
+      setOwnLoading(false);
     }
   };
 
@@ -508,7 +549,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   // Editing is gated on the current edit-privilege holder (edit_user_id), which
   // starts as the initiator and transfers to the largest backer if they leave —
   // mirrors BountyController::update(). NOT initiator_user_id (the immutable opener).
-  const canEdit = user && bounty.edit_user_id === user.id;
+  // Council may also edit any bounty (the backend allows it + records history).
+  const isCouncil = user?.role === 'council';
+  const canEdit = user && (bounty.edit_user_id === user.id || isCouncil);
   const isCreator =
     user &&
     bounty.owner_user?.id === user.id &&
@@ -544,7 +587,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   const relatedHandleLabel = bounty.target_handle
     ? bounty.target_handle.platform === 'other'
       ? formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)
-      : `${bounty.target_handle.platform}/${formatPlatformHandle(bounty.target_handle.platform, bounty.target_handle.username)}`
+      : `${bounty.target_handle.platform}/${bareUsername(bounty.target_handle.platform, bounty.target_handle.username)}`
     : null;
 
   // ── Backing panel content ────────────────────────────────────────────────────
@@ -952,6 +995,65 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           </form>
         )}
 
+        {/* Admin — ownership reassignment (council only). Recorded in the admin
+            activity ledger, NOT the bounty history. */}
+        {isCouncil && (
+          <div className="mb-4 border border-bad/30 rounded-md bg-bad/5 p-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-bad/80">admin · ownership</span>
+              {!showOwnership && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => {
+                    setOwnTargetUser(bounty.target_user_id != null ? String(bounty.target_user_id) : '');
+                    setOwnEditUser(bounty.edit_user_id != null ? String(bounty.edit_user_id) : '');
+                    setOwnTargetHandle(bounty.target_handle_id != null ? String(bounty.target_handle_id) : '');
+                    setOwnNotes('');
+                    setShowOwnership(true);
+                  }}
+                  className="cursor-pointer"
+                >
+                  edit ownership
+                </Button>
+              )}
+            </div>
+
+            {showOwnership && (
+              <form onSubmit={handleOwnershipSubmit} className="mt-3 space-y-3">
+                <Banner tone="warn">
+                  Reassigning ownership is recorded in the admin activity ledger (not the bounty history).
+                  Enter user / handle IDs; leave a field blank to clear it.
+                </Banner>
+                <div>
+                  <FieldLabel>target_user_id <span className="normal-case text-muted">(creator-of-record)</span></FieldLabel>
+                  <Input type="number" value={ownTargetUser} onChange={(e) => setOwnTargetUser(e.target.value)} placeholder="user id" mono />
+                </div>
+                <div>
+                  <FieldLabel>edit_user_id <span className="normal-case text-muted">(edit privilege)</span></FieldLabel>
+                  <Input type="number" value={ownEditUser} onChange={(e) => setOwnEditUser(e.target.value)} placeholder="user id" mono />
+                </div>
+                <div>
+                  <FieldLabel>target_handle_id</FieldLabel>
+                  <Input type="number" value={ownTargetHandle} onChange={(e) => setOwnTargetHandle(e.target.value)} placeholder="handle id" mono />
+                </div>
+                <div>
+                  <FieldLabel>notes <span className="normal-case text-muted">(optional)</span></FieldLabel>
+                  <Textarea value={ownNotes} onChange={(e) => setOwnNotes(e.target.value)} rows={2} placeholder="reason for the reassignment" />
+                </div>
+                <div className="flex gap-2">
+                  <Button type="submit" variant="primary" disabled={ownLoading} className="cursor-pointer">
+                    {ownLoading ? 'Saving…' : 'Save ownership'}
+                  </Button>
+                  <Button type="button" variant="ghost" onClick={() => setShowOwnership(false)} className="cursor-pointer">
+                    {t('common.cancel')}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
+
         {/* Description — show historical if in snapshot view */}
         {!showEditForm && (
           displayedDescription ? (
@@ -1016,7 +1118,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                     // actually trust, so it always leads.
                     const label = th.platform === 'other'
                       ? formatPlatformHandle(th.platform, th.username)
-                      : `${th.platform}/${formatPlatformHandle(th.platform, th.username)}`;
+                      : `${th.platform}/${bareUsername(th.platform, th.username)}`;
                     // 'other' now links internally; offer a ↗ to still jump out.
                     const external_url = th.platform === 'other'
                       ? handleExternalUrl(th.platform, th.username)

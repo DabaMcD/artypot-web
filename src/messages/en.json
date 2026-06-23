@@ -2430,7 +2430,8 @@
     "backingError": {
       "capExceeded": "You've reached your good faith limit. <link>Add a payment method</link> to continue.",
       "gracePeriod": "New backings are paused while you resolve a failed payment. <link>Update your card</link> to continue.",
-      "marketUnavailable": "Backing isn't available in your country yet — we hope to support it soon."
+      "marketUnavailable": "Backing isn't available in your country yet — we hope to support it soon.",
+      "perBountyLimit": "Backings are capped at {limit} per bounty for now. Contact support if you'd like to back more."
     },
     "expiry": {
       "advanced": "Advanced",
