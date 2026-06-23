@@ -22,7 +22,7 @@ import { Banner } from '@/components/ui/Banner';
 import { Stepper } from '@/components/ui/Stepper';
 import BackingPolicyNote from '@/components/BackingPolicyNote';
 import PayOnVerifiedNote from '@/components/PayOnVerifiedNote';
-import { ALL_PLATFORMS, OTHER_SLUG, platformLabel, handleLink } from '@/lib/platforms';
+import { ALL_PLATFORMS, OTHER_SLUG, platformLabel, handleLink, bareUsername } from '@/lib/platforms';
 import { useDebouncedSearch } from '@/lib/search/useDebouncedSearch';
 import { moveActiveIndex } from '@/lib/search/navigation';
 
@@ -445,7 +445,7 @@ function Step1({
                       <div>
                         {results.map((r, idx) => {
                           const active = activeIndex === idx;
-                          const handleLabel = `${PLATFORM_LABELS[r.platform] ?? r.platform}/${formatPlatformHandle(r.platform, r.username)}`;
+                          const handleLabel = `${PLATFORM_LABELS[r.platform] ?? r.platform}/${bareUsername(r.platform, r.username)}`;
                           return (
                             <button
                               key={r.handle_id}
