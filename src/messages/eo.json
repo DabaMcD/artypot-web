@@ -2412,7 +2412,8 @@
     "backingError": {
       "capExceeded": "Vi atingis vian bonfidan limon. <link>Aldonu pagmetodon</link> por daŭrigi.",
       "gracePeriod": "Novaj subtenoj estas paŭzigitaj dum vi solvas malsukcesan pagon. <link>Ĝisdatigu vian karton</link> por daŭrigi.",
-      "marketUnavailable": "Subtenado ankoraŭ ne disponeblas en via lando — ni esperas subteni ĝin baldaŭ."
+      "marketUnavailable": "Subtenado ankoraŭ ne disponeblas en via lando — ni esperas subteni ĝin baldaŭ.",
+      "perBountyLimit": "Subtenoj nuntempe estas limigitaj al {limit} por rekompenco. Kontaktu subtenon se vi volas subteni pli."
     },
     "expiry": {
       "advanced": "Altnivela",

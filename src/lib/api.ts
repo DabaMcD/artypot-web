@@ -1238,6 +1238,13 @@ export const admin = {
   getUser: (id: number) =>
     request<{ data: import('./types').AdminUser }>(`/admin/users/${id}`),
 
+  // Set (number) or clear (null) the per-user override of the per-bounty backing limit.
+  setBackingLimit: (id: number, override: number | null) =>
+    request<{ data: { limit_override: number | null; per_bounty_limit: number | null } }>(
+      `/admin/users/${id}/backing-limit`,
+      { method: 'PATCH', body: JSON.stringify({ backing_limit_override: override }) },
+    ),
+
   deleteUser: (id: number) =>
     request<null>(`/admin/users/${id}`, { method: 'DELETE' }),
 

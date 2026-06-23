@@ -55,6 +55,13 @@ function UserModal({
   const [deleting, setDeleting]         = useState(false);
   const [deleteError, setDeleteError]   = useState<string | null>(null);
 
+  // Per-bounty backing-limit override editing. Seeded from the fetched record.
+  const [overrideInput, setOverrideInput] = useState('');
+  const [savingLimit, setSavingLimit]     = useState(false);
+  useEffect(() => {
+    setOverrideInput(user.backing?.limit_override != null ? String(user.backing.limit_override) : '');
+  }, [user.backing?.limit_override]);
+
   // Already soft-deleted? Hide the delete block entirely.
   const alreadyDeleted = !!user.deleted_at;
 
@@ -79,6 +86,28 @@ function UserModal({
       const e = err as { message?: string };
       setDeleteError(e.message ?? 'Failed to delete user.');
       setDeleting(false);
+    }
+  };
+
+  const handleSaveBackingLimit = async (clear = false) => {
+    if (savingLimit) return;
+    const override = clear || overrideInput.trim() === '' ? null : Number(overrideInput);
+    if (override !== null && (!Number.isFinite(override) || override < 1)) {
+      toast('Enter a dollar amount of at least $1, or clear the override.', 'error');
+      return;
+    }
+    setSavingLimit(true);
+    try {
+      const res = await adminApi.setBackingLimit(user.id, override);
+      setUser((prev) => prev.backing
+        ? { ...prev, backing: { ...prev.backing, limit_override: res.data.limit_override, per_bounty_limit: res.data.per_bounty_limit } }
+        : prev);
+      toast(override === null ? 'Override cleared.' : 'Backing limit updated.', 'success');
+    } catch (err: unknown) {
+      const e = err as { message?: string };
+      toast(e.message ?? 'Failed to update limit.', 'error');
+    } finally {
+      setSavingLimit(false);
     }
   };
 
@@ -144,6 +173,56 @@ function UserModal({
           </div>
         </dl>
       </Card>
+
+      {/* Per-bounty backing limit — effective ceiling, tier, and admin override */}
+      {user.backing && (
+        <Card accent className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <SectionLabel>Backing limit</SectionLabel>
+            <div className="flex flex-wrap gap-1.5">
+              <Badge tone={user.backing.is_solid ? 'good' : 'warn'}>{user.backing.is_solid ? 'solid' : 'no card'}</Badge>
+              <Badge tone={user.backing.is_proven ? 'good' : 'default'}>{user.backing.is_proven ? 'proven' : 'unproven'}</Badge>
+              {user.backing.disputes_count > 0 && (
+                <Badge tone="bad">{user.backing.disputes_count} dispute{user.backing.disputes_count === 1 ? '' : 's'}</Badge>
+              )}
+            </div>
+          </div>
+          <dl className="space-y-2 text-sm mb-3">
+            <div className="flex justify-between">
+              <dt className="text-muted">Per-bounty limit</dt>
+              <dd className="font-mono tabular-nums text-foreground">
+                {user.backing.is_solid && user.backing.per_bounty_limit != null
+                  ? `$${user.backing.per_bounty_limit.toLocaleString()}`
+                  : `$${(user.backing.no_pm_cap ?? 0).toLocaleString()} no-card cap`}
+              </dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted">Tier default</dt>
+              <dd className="font-mono tabular-nums text-muted">${(user.backing.tier_default ?? 0).toLocaleString()}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted">Override</dt>
+              <dd className="font-mono tabular-nums text-foreground">
+                {user.backing.limit_override != null ? `$${user.backing.limit_override.toLocaleString()}` : '—'}
+              </dd>
+            </div>
+          </dl>
+          <FieldLabel>Override per-bounty limit ($)</FieldLabel>
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              min={1}
+              step="0.01"
+              placeholder="tier default"
+              value={overrideInput}
+              onChange={(e) => setOverrideInput(e.target.value)}
+              className="flex-1"
+            />
+            <Button variant="primary" size="sm" onClick={() => handleSaveBackingLimit(false)} disabled={savingLimit}>Save</Button>
+            <Button variant="ghost" size="sm" onClick={() => handleSaveBackingLimit(true)} disabled={savingLimit || user.backing.limit_override == null}>Clear</Button>
+          </div>
+        </Card>
+      )}
 
       {/* Creator profile — name + verified status + link only */}
       {user.creator ? (

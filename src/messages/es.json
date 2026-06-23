@@ -2412,7 +2412,8 @@
     "backingError": {
       "capExceeded": "Has alcanzado tu límite de buena fe. <link>Añade un método de pago</link> para continuar.",
       "gracePeriod": "Los nuevos apoyos están en pausa mientras resuelves un pago fallido. <link>Actualiza tu tarjeta</link> para continuar.",
-      "marketUnavailable": "El apoyo aún no está disponible en tu país — esperamos darle soporte pronto."
+      "marketUnavailable": "El apoyo aún no está disponible en tu país — esperamos darle soporte pronto.",
+      "perBountyLimit": "Por ahora, los apoyos están limitados a {limit} por recompensa. Contacta con soporte si quieres aportar más."
     },
     "expiry": {
       "advanced": "Avanzado",

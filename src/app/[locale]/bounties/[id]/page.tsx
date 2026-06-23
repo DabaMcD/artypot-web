@@ -348,6 +348,10 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
             ),
           }),
         );
+      } else if (e.status === 422 && e.reason === 'per_bounty_limit_exceeded') {
+        setBackingError(
+          <>{t('backingError.perBountyLimit', { limit: money(user?.backing?.per_bounty_limit ?? 0) })}</>,
+        );
       } else if (e.status === 422 && e.reason === 'market_unavailable') {
         setBackingError(
           <>{t('backingError.marketUnavailable')}</>,
