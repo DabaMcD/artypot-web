@@ -32,14 +32,14 @@ export function PublicHeader() {
         {/* Logo — hidden on mobile when search is expanded */}
         <Link
           href="/"
-          className={`shrink-0 items-center translate-y-px ${searchOpen ? 'hidden sm:flex' : 'flex'}`}
+          className={`shrink-0 items-center ${searchOpen ? 'hidden sm:flex' : 'flex'}`}
           aria-label="Artypot home"
         >
           <Image
             src="/artypot-logo-transparent-dark.png"
             alt="Artypot"
-            width={1024}
-            height={269}
+            width={797}
+            height={258}
             className="h-6 w-auto"
             priority
           />

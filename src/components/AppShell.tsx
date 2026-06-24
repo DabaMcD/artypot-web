@@ -231,12 +231,12 @@ export function AppShell({ children }: AppShellProps) {
 
           {/* Logo + version — hidden on mobile when search is expanded */}
           <div className={`flex items-center gap-2 shrink-0 ${searchOpen ? 'hidden sm:flex' : 'flex'}`}>
-            <Link href="/dashboard" className="shrink-0 translate-y-px">
+            <Link href="/dashboard" className="shrink-0">
               <Image
                 src="/artypot-logo-transparent-dark.png"
                 alt="Artypot"
-                width={1024}
-                height={269}
+                width={797}
+                height={258}
                 className="h-6 w-auto"
                 priority
               />

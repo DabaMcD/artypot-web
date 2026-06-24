@@ -1335,7 +1335,7 @@
       "backing": {
         "title": "5. Subtenado kaj pagoj",
         "p1Lead": "Subtenado kontraŭ ŝarĝo:",
-        "p1Rest": " When you back a bounty, no money moves and no authorization hold is placed on your card. Your card is only charged after The Council confirms a bounty is complete. Confirmed charges are collected together in a monthly billing run (on the 24th of each month), not instantly at the moment of approval.",
+        "p1Rest": " When you back a bounty, no money moves and no authorization hold is placed on your card. Your card is only charged after The Council confirms a bounty is complete. Confirmed charges are collected together in a monthly billing run (on the 15th of each month), not instantly at the moment of approval.",
         "p2Lead": "Retiriĝo:",
         "p2Rest": " You may back out at any time before a bounty is confirmed completed by Council, even during the \"pending review\" stage.",
         "p3Lead": "Malsukcesaj ŝarĝoj:",
