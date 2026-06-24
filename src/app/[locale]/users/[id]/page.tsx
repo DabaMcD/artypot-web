@@ -99,9 +99,11 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
                 </span>
               )}
             </div>
-            <p className="text-sm text-muted mt-0.5">
-              {t('header.memberSince', { date: dateFmt.short(profile.created_at) })}
-            </p>
+            {profile.created_at && (
+              <p className="text-sm text-muted mt-0.5">
+                {t('header.memberSince', { date: dateFmt.short(profile.created_at) })}
+              </p>
+            )}
             {isOwnProfile && (
               <Link
                 href="/settings"

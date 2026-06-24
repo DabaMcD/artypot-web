@@ -37,8 +37,8 @@ export default function ForgotPasswordPage() {
           <Image
             src="/artypot-logo-transparent-dark.png"
             alt="Artypot"
-            width={1024}
-            height={269}
+            width={797}
+            height={258}
             className="h-8 w-auto"
           />
         </Link>
