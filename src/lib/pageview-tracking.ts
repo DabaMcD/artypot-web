@@ -96,6 +96,8 @@ interface LogPageViewArgs {
   locale: string;
   ip: string;
   userAgent: string;
+  /** Authenticated viewer's id, if logged in; null/omitted for anonymous views. */
+  userId?: number | null;
 }
 
 /**
@@ -103,7 +105,7 @@ interface LogPageViewArgs {
  * caller should hand to `event.waitUntil(...)`. Never throws — logging must
  * never affect the page response.
  */
-export async function logPageView({ page, path, locale, ip, userAgent }: LogPageViewArgs): Promise<void> {
+export async function logPageView({ page, path, locale, ip, userAgent, userId }: LogPageViewArgs): Promise<void> {
   const secret = process.env.INTERNAL_SHARED_SECRET;
   if (!secret) return; // not configured → no-op
 
@@ -124,6 +126,7 @@ export async function logPageView({ page, path, locale, ip, userAgent }: LogPage
         locale,
         ip,
         user_agent: userAgent,
+        user_id: userId ?? null,
       }),
       // Don't let Next's fetch cache/dedupe this side-effect call.
       cache: 'no-store',

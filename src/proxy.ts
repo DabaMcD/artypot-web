@@ -92,6 +92,11 @@ function maybeLogPageView(
     '';
   const locale = localePrefix ? localePrefix.slice(1) : routing.defaultLocale;
 
+  // Best-effort viewer id from the non-httpOnly uid cookie (the bearer token
+  // lives in localStorage, unreadable here). Digits-only guard; null if absent.
+  const uidRaw = request.cookies.get('artypot_uid')?.value;
+  const userId = uidRaw && /^\d+$/.test(uidRaw) ? Number(uidRaw) : null;
+
   event.waitUntil(
     logPageView({
       page,
@@ -99,6 +104,7 @@ function maybeLogPageView(
       locale,
       ip,
       userAgent: request.headers.get('user-agent') ?? '',
+      userId,
     }),
   );
 }

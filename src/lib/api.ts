@@ -113,6 +113,25 @@ function clearSessionCookie(): void {
   document.cookie = `${SESSION_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
 }
 
+/**
+ * Best-effort cookie mirroring the logged-in user's id, so the Edge middleware
+ * (which can't read the localStorage bearer token) can attach a user_id to
+ * server-side pageview logs. The id is low-sensitivity — it appears in many
+ * public API responses — and is NOT auth-bearing, so unlike the token it's safe
+ * to expose here. Pass null to clear it (logout / anonymous).
+ */
+const UID_COOKIE = 'artypot_uid';
+
+export function setSessionUserId(id: number | null): void {
+  if (typeof document === 'undefined') return;
+  if (id == null) {
+    document.cookie = `${UID_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
+    return;
+  }
+  const secure = typeof location !== 'undefined' && location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${UID_COOKIE}=${id}; Path=/; SameSite=Lax${secure}`;
+}
+
 export function setToken(token: string): void {
   localStorage.setItem('artypot_token', token);
   writeSessionCookie();
@@ -121,6 +140,7 @@ export function setToken(token: string): void {
 export function clearToken(): void {
   localStorage.removeItem('artypot_token');
   clearSessionCookie();
+  setSessionUserId(null);
 }
 
 /**
@@ -1054,6 +1074,14 @@ export const overlord = {
   revokeCouncil: (councilId: number) =>
     request<void>(`/overlord/council/${councilId}`, { method: 'DELETE' }),
 
+  // Set a council member's permissions. Overlord-only (council_permissions is not
+  // settable from the admin/council tier).
+  updateCouncilPermissions: (councilId: number, permissions: Record<string, boolean>) =>
+    request<{ data: CouncilMember }>(`/overlord/council/${councilId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ permissions }),
+    }),
+
   // Bounty easter-egg flags (e.g. 'bad-apple' → Bad Apple takeover on backing).
   listBountyEasterEggs: (q?: string) => {
     const qs = q && q.trim() ? `?q=${encodeURIComponent(q.trim())}` : '';
@@ -1309,8 +1337,10 @@ export const admin = {
     get: (id: number) =>
       request<{ data: BillingRunDetail }>(`/admin/billing-runs/${id}`),
 
+    // Triggering a run is overlord-only (it charges real money); the endpoint
+    // lives under /overlord. Council can still read runs via the /admin routes above.
     trigger: () =>
-      request<{ message: string }>('/admin/billing-runs/trigger', { method: 'POST' }),
+      request<{ message: string }>('/overlord/billing-runs/trigger', { method: 'POST' }),
   },
 
   // Refunds (partial refunds of grouped charges; creator clawed back at net)

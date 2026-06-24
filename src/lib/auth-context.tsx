@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useLocale } from 'next-intl';
-import { auth, setToken, clearToken, ensureSessionCookie } from './api';
+import { auth, setToken, clearToken, ensureSessionCookie, setSessionUserId } from './api';
 import { useRouter, usePathname, routing } from '@/i18n/routing';
 import { pickPreferredLocale } from './preferred-locale';
 import type { User } from './types';
@@ -68,6 +68,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Mirror the current user's id into the best-effort uid cookie the Edge
+  // middleware reads for pageview logging. Runs on every user change (login,
+  // boot hydrate, refresh, logout) and clears any stale cookie on mount.
+  useEffect(() => {
+    setSessionUserId(user?.id ?? null);
+  }, [user]);
 
   const login = async (identifier: string, password: string, code?: string) => {
     const res = await auth.login(identifier, password, code);
