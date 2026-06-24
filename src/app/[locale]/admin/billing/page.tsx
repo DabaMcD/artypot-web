@@ -403,9 +403,13 @@ export default function AdminBillingRunsPage() {
               <span className="font-mono text-[10px] uppercase tracking-widest text-muted tabular-nums">
                 {total} run{total === 1 ? '' : 's'}
               </span>
-              <Button variant="primary" size="sm" onClick={handleTrigger} disabled={triggering}>
-                {triggering ? 'Dispatching…' : '▸ Trigger run'}
-              </Button>
+              {/* Triggering a run charges real money — overlord-only. Council
+                  members see the read-only runs list but not this control. */}
+              {user.is_overlord && (
+                <Button variant="primary" size="sm" onClick={handleTrigger} disabled={triggering}>
+                  {triggering ? 'Dispatching…' : '▸ Trigger run'}
+                </Button>
+              )}
               <Link href="/admin"><Button variant="ghost" size="sm">← Admin</Button></Link>
             </div>
           </div>

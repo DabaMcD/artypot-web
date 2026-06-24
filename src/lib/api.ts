@@ -1074,6 +1074,14 @@ export const overlord = {
   revokeCouncil: (councilId: number) =>
     request<void>(`/overlord/council/${councilId}`, { method: 'DELETE' }),
 
+  // Set a council member's permissions. Overlord-only (council_permissions is not
+  // settable from the admin/council tier).
+  updateCouncilPermissions: (councilId: number, permissions: Record<string, boolean>) =>
+    request<{ data: CouncilMember }>(`/overlord/council/${councilId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ permissions }),
+    }),
+
   // Bounty easter-egg flags (e.g. 'bad-apple' → Bad Apple takeover on backing).
   listBountyEasterEggs: (q?: string) => {
     const qs = q && q.trim() ? `?q=${encodeURIComponent(q.trim())}` : '';
@@ -1329,8 +1337,10 @@ export const admin = {
     get: (id: number) =>
       request<{ data: BillingRunDetail }>(`/admin/billing-runs/${id}`),
 
+    // Triggering a run is overlord-only (it charges real money); the endpoint
+    // lives under /overlord. Council can still read runs via the /admin routes above.
     trigger: () =>
-      request<{ message: string }>('/admin/billing-runs/trigger', { method: 'POST' }),
+      request<{ message: string }>('/overlord/billing-runs/trigger', { method: 'POST' }),
   },
 
   // Refunds (partial refunds of grouped charges; creator clawed back at net)
