@@ -113,6 +113,25 @@ function clearSessionCookie(): void {
   document.cookie = `${SESSION_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
 }
 
+/**
+ * Best-effort cookie mirroring the logged-in user's id, so the Edge middleware
+ * (which can't read the localStorage bearer token) can attach a user_id to
+ * server-side pageview logs. The id is low-sensitivity — it appears in many
+ * public API responses — and is NOT auth-bearing, so unlike the token it's safe
+ * to expose here. Pass null to clear it (logout / anonymous).
+ */
+const UID_COOKIE = 'artypot_uid';
+
+export function setSessionUserId(id: number | null): void {
+  if (typeof document === 'undefined') return;
+  if (id == null) {
+    document.cookie = `${UID_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
+    return;
+  }
+  const secure = typeof location !== 'undefined' && location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${UID_COOKIE}=${id}; Path=/; SameSite=Lax${secure}`;
+}
+
 export function setToken(token: string): void {
   localStorage.setItem('artypot_token', token);
   writeSessionCookie();
@@ -121,6 +140,7 @@ export function setToken(token: string): void {
 export function clearToken(): void {
   localStorage.removeItem('artypot_token');
   clearSessionCookie();
+  setSessionUserId(null);
 }
 
 /**
