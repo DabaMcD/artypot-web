@@ -35,7 +35,8 @@ import type {
   UnclaimedHandlePot,
   CreatorDirectoryEntry,
   CreatorFacets,
-  BountyReportRow,
+  ReportRow,
+  ReportSubjectType,
   ExternalPayout,
   CreatorSearchResult,
   CreatorEarning,
@@ -519,13 +520,6 @@ export const bounties = {
       '/auth/bounties/stats',
     ),
 
-  /** Submit a Content Policy report. One per user per bounty (resubmit = update). */
-  report: (id: number, reason: string, details?: string) =>
-    request<{ message: string; data: { id: number; status: string } }>(`/bounties/${id}/reports`, {
-      method: 'POST',
-      body: JSON.stringify({ reason, details: details || undefined }),
-    }),
-
   create: (data: {
     title: string;
     description?: string;
@@ -598,6 +592,24 @@ export const bounties = {
     request<{ data: import('./types').BountyRefundResult }>(`/bounties/${bountyId}/refund-all`, {
       method: 'POST',
       body: JSON.stringify({ reason }),
+    }),
+};
+
+// Content Policy reports — one unified endpoint for every subject kind.
+export const reports = {
+  /**
+   * Report (or update an existing report on) a bounty, creator, handle, or
+   * comment. One report per user per subject; resubmitting updates it.
+   */
+  submit: (subjectType: ReportSubjectType, subjectId: number, reason: string, details?: string) =>
+    request<{ message: string; data: { id: number; status: string } }>('/reports', {
+      method: 'POST',
+      body: JSON.stringify({
+        subject_type: subjectType,
+        subject_id: subjectId,
+        reason,
+        details: details || undefined,
+      }),
     }),
 };
 
@@ -1188,11 +1200,11 @@ export const admin = {
         .filter(([, v]) => v != null && v !== '')
         .map(([k, v]) => [k, String(v)]) as [string, string][]
     ).toString();
-    return request<PaginatedResponse<BountyReportRow>>(`/admin/reports${qs ? `?${qs}` : ''}`);
+    return request<PaginatedResponse<ReportRow>>(`/admin/reports${qs ? `?${qs}` : ''}`);
   },
 
   resolveReport: (reportId: number, status: 'reviewed' | 'actioned' | 'dismissed', reviewNotes?: string) =>
-    request<{ data: BountyReportRow }>(`/admin/reports/${reportId}`, {
+    request<{ data: ReportRow }>(`/admin/reports/${reportId}`, {
       method: 'PATCH',
       body: JSON.stringify({ status, review_notes: reviewNotes || undefined }),
     }),

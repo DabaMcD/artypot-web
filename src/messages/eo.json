@@ -2199,6 +2199,10 @@
       "memberSince": "Membro ekde {date}",
       "editSettings": "Redakti agordojn"
     },
+    "activity": {
+      "activeNow": "Nun aktiva",
+      "lastActive": "Aktiva {time}"
+    },
     "backings": {
       "title": "Plej grandaj subtenoj",
       "topTenNote": "Montrante la 10 plej grandajn laŭ sumo",
@@ -2384,6 +2388,33 @@
     "softLine": "+ {amount} mola",
     "clearingNote": "fanoj fakturitaj · 7-taga kompensa periodo",
     "availableNote": "elprenu al via banko (min. $1)"
+  },
+  "Report": {
+    "title": {
+      "bounty": "Raporti ĉi tiun rekompencon",
+      "creator": "Raporti ĉi tiun kreanton",
+      "handle": "Raporti ĉi tiun uzantnomon",
+      "comment": "Raporti ĉi tiun komenton"
+    },
+    "trigger": {
+      "bounty": "⚑ Raporti ĉi tiun rekompencon",
+      "creator": "⚑ Raporti ĉi tiun kreanton",
+      "handle": "⚑ Raporti ĉi tiun uzantnomon",
+      "comment": "Raporti"
+    },
+    "intro": "Raportoj iras al la Konsilio por kontrolo laŭ la <link>Enhava Politiko</link>. Ni agas nur se ĝi rompas la regulojn.",
+    "reasons": {
+      "harassment": "Ĉikanado aŭ celita misuzo",
+      "illegalOrInappropriate": "Kontraŭleĝa aŭ maltaŭga enhavo aŭ peto",
+      "spam": "Trudmesaĝo aŭ trompo",
+      "other": "Io alia"
+    },
+    "detailsPlaceholder": "Io, kion la Konsilio devus scii (laŭvola)",
+    "received": "Raporto ricevita. La Konsilio kontrolos ĝin.",
+    "failed": "Malsukcesis sendi raporton.",
+    "submitting": "Sendante…",
+    "submit": "Sendi raporton",
+    "cancel": "Nuligi"
   },
   "BountyDetail": {
     "creatorFallback": "La kreinto",
@@ -2576,23 +2607,6 @@
       "you": "(vi)",
       "expires": "Eksvalidiĝas {date}"
     },
-    "report": {
-      "trigger": "⚑ Raporti ĉi tiun rekompencon",
-      "title": "Raporti ĉi tiun rekompencon",
-      "received": "Raporto ricevita. La Konsilio kontrolos ĉi tiun rekompencon.",
-      "failed": "Malsukcesis sendi raporton.",
-      "intro": "Raportoj iras al la Konsilio por kontrolo laŭ la <link>Enhava Politiko</link>. La rekompenco restas aktiva krom se la Konsilio forigas ĝin.",
-      "reasons": {
-        "harassment": "Ĉikanado aŭ celita misuzo",
-        "illegal": "Kontraŭleĝa enhavo aŭ peto",
-        "adultContent": "Peto pri plenkreska enhavo",
-        "spam": "Trudmesaĝo aŭ trompo",
-        "other": "Io alia"
-      },
-      "detailsPlaceholder": "Io, kion la Konsilio devus scii (laŭvola)",
-      "submitting": "Sendante…",
-      "submit": "Sendi raporton"
-    },
     "related": {
       "label": "pli da rekompencoj",
       "heading": "Aliaj rekompencoj por"
@@ -2677,7 +2691,8 @@
     },
     "reaction": {
       "like": "Ŝati",
-      "dislike": "Malŝati"
+      "dislike": "Malŝati",
+      "ownComment": "Vi ne povas reagi al via propra komento"
     },
     "actions": {
       "save": "Konservi",

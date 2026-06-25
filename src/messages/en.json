@@ -2217,6 +2217,10 @@
       "memberSince": "Member since {date}",
       "editSettings": "Edit settings"
     },
+    "activity": {
+      "activeNow": "Currently active",
+      "lastActive": "Active {time}"
+    },
     "backings": {
       "title": "Top Backings",
       "topTenNote": "Showing top 10 by amount",
@@ -2402,6 +2406,33 @@
     "softLine": "+ {amount} soft",
     "clearingNote": "fans billed · 7-day clearing window",
     "availableNote": "withdraw to your bank (min $1)"
+  },
+  "Report": {
+    "title": {
+      "bounty": "Report this bounty",
+      "creator": "Report this creator",
+      "handle": "Report this handle",
+      "comment": "Report this comment"
+    },
+    "trigger": {
+      "bounty": "⚑ Report this bounty",
+      "creator": "⚑ Report this creator",
+      "handle": "⚑ Report this handle",
+      "comment": "Report"
+    },
+    "intro": "Reports go to the Council for review against the <link>Content Policy</link>. We act on it only if it breaks the rules.",
+    "reasons": {
+      "harassment": "Harassment or targeted abuse",
+      "illegalOrInappropriate": "Illegal or inappropriate content or request",
+      "spam": "Spam or scam",
+      "other": "Something else"
+    },
+    "detailsPlaceholder": "Anything the Council should know (optional)",
+    "received": "Report received. The Council will review it.",
+    "failed": "Failed to submit report.",
+    "submitting": "Submitting…",
+    "submit": "Submit Report",
+    "cancel": "Cancel"
   },
   "BountyDetail": {
     "creatorFallback": "The creator",
@@ -2594,23 +2625,6 @@
       "you": "(you)",
       "expires": "Expires {date}"
     },
-    "report": {
-      "trigger": "⚑ Report this bounty",
-      "title": "Report this bounty",
-      "received": "Report received. The Council will review this bounty.",
-      "failed": "Failed to submit report.",
-      "intro": "Reports go to the Council for review against the <link>Content Policy</link>. The bounty stays up unless the Council removes it.",
-      "reasons": {
-        "harassment": "Harassment or targeted abuse",
-        "illegal": "Illegal content or request",
-        "adultContent": "Adult-content request",
-        "spam": "Spam or scam",
-        "other": "Something else"
-      },
-      "detailsPlaceholder": "Anything the Council should know (optional)",
-      "submitting": "Submitting…",
-      "submit": "Submit Report"
-    },
     "related": {
       "label": "more bounties",
       "heading": "Other bounties for"
@@ -2695,7 +2709,8 @@
     },
     "reaction": {
       "like": "Like",
-      "dislike": "Dislike"
+      "dislike": "Dislike",
+      "ownComment": "You can't react to your own comment"
     },
     "actions": {
       "save": "Save",
