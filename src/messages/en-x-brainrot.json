@@ -1550,7 +1550,8 @@
       "billing": "the bag receipts 🧾💀"
     },
     "heading": {
-      "upcomingCharge": "bag incoming, lock in 💀🤑 ohio charge loading"
+      "upcomingCharge": "bag incoming, lock in 💀🤑 ohio charge loading",
+      "billing": "billing 💸"
     },
     "brokeCooldown": {
       "label": "broke jail arc rn 🚓💀 zero rizz allowed",
@@ -1559,7 +1560,8 @@
     },
     "charge": {
       "label": "what's bouta yoink ur funds 👀💀",
-      "summary": "{amount} gettin yoinked on God automatically on {date} 🤑 sit back n let it cook 🔥 u do LITERALLY nothing bestie"
+      "summary": "{amount} gettin yoinked on God automatically on {date} 🤑 sit back n let it cook 🔥 u do LITERALLY nothing bestie",
+      "nothingDue": "u all good rn, $0 owed 😮‍💨 ur next yoink is the {day}th, chill king 👑"
     },
     "table": {
       "bounty": "the quest 🗺️",
@@ -1577,9 +1579,9 @@
     },
     "howItWorks": {
       "label": "how this bag math be workin ngl 🧠💀",
-      "commit": "u pinky promise a number when u back a quest fr 🤝 zero dollars yoinked yet so chill 😮‍💨 no aura lost",
-      "lockIn": "creator drops the dub 🏆 council says bet 🫡 — now ur charge is LOCKED 🔒 no cap. u can ONLY dip while the quest still poppin, after that it's so over gng 💀",
-      "collected": "locked charges auto-yoink on the {day}th every month 🤑 OR be a whole sigma n pay early, ur choice king 👑",
+      "commit": "u just name a number when u back a quest fr 🤝 zero dollars yoinked yet so chill 😮‍💨 no aura lost",
+      "lockIn": "creator drops the dub 🏆 council says bet 🫡 — now ur bag is LOCKED 🔒 no cap",
+      "collected": "backings auto-yoink on the {day}th every month 🤑 OR be a whole sigma n pay early, ur choice king 👑",
       "noFees": "u pay EXACTLY what u promised, zero sneaky fees, we don't glaze ourselves wit hidden charges gng 🤝💯"
     }
   },

@@ -1568,7 +1568,8 @@
       "billing": "billing"
     },
     "heading": {
-      "upcomingCharge": "upcoming charge"
+      "upcomingCharge": "upcoming charge",
+      "billing": "billing"
     },
     "brokeCooldown": {
       "label": "broke cooldown in effect",
@@ -1577,7 +1578,8 @@
     },
     "charge": {
       "label": "what will be charged",
-      "summary": "{amount} will be charged automatically on {date}. No action needed."
+      "summary": "{amount} will be charged automatically on {date}. No action needed.",
+      "nothingDue": "Nothing due right now — your next billing date is the {day}th."
     },
     "table": {
       "bounty": "Bounty",
@@ -1595,10 +1597,10 @@
     },
     "howItWorks": {
       "label": "how billing works",
-      "commit": "You commit an amount when you back a bounty. Nothing is charged at that point.",
-      "lockIn": "When a creator submits their work and the council approves it, your charge is locked in. You can only back out while the bounty is still open.",
-      "collected": "Locked charges are collected automatically on the {day}th of each month, or you can pay early.",
-      "noFees": "You always pay your exact committed amount — no fees are ever added on top."
+      "commit": "You state an amount when you back a bounty. Nothing is charged at that point.",
+      "lockIn": "When a creator submits their work and the council approves it, your amount is locked.",
+      "collected": "Backings are collected automatically on the {day}th of each month, or you can pay early.",
+      "noFees": "You pay your exact committed amount — no fees are added on top."
     }
   },
   "Bounties": {
