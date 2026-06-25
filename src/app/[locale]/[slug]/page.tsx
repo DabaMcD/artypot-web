@@ -12,6 +12,8 @@ import { useViewMode } from '@/lib/view-mode-context';
 import type { Creator, PaginatedResponse, Bounty } from '@/lib/types';
 import BountyCard from '@/components/BountyCard';
 import ShareButton from '@/components/ShareButton';
+import { ReportModal } from '@/components/ReportModal';
+import { LastActiveStatus } from '@/components/LastActiveStatus';
 import { SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -33,6 +35,7 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   const { slug } = use(params);
   const router = useRouter();
   const t = useTranslations('PublicProfile');
+  const tReport = useTranslations('Report');
   const money = useMoney();
   const format = useFormatter();
   const { user } = useAuth();
@@ -47,6 +50,9 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
   // Follow state
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+
+  // Content Policy report
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -215,6 +221,12 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                     </span>
                   </p>
 
+                  <LastActiveStatus
+                    lastActiveAt={creator.last_active_at}
+                    isOnline={creator.is_online}
+                    className="mb-2"
+                  />
+
                   {creator.country_code && (
                     <p className="text-sm text-muted mb-2">
                       {countryFlag(creator.country_code)}{' '}
@@ -241,9 +253,9 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                   </div>
                 )}
 
-                {/* Follow button — shown to any logged-in user who isn't the creator */}
+                {/* Follow + report — shown to any logged-in user who isn't the creator */}
                 {user && user.id !== creator.id && (
-                  <div className="shrink-0">
+                  <div className="shrink-0 flex flex-col items-end gap-2">
                     <Button
                       variant="default"
                       size="sm"
@@ -252,9 +264,23 @@ export default function CreatorSlugPage({ params }: { params: Promise<{ slug: st
                     >
                       {followLoading ? '…' : isFollowing ? t('follow.unfollow') : t('follow.follow')}
                     </Button>
+                    <button
+                      type="button"
+                      onClick={() => setReportOpen(true)}
+                      className="font-mono text-[10px] uppercase tracking-widest text-muted/50 hover:text-bad transition-colors cursor-pointer"
+                    >
+                      {tReport('trigger.creator')}
+                    </button>
                   </div>
                 )}
               </div>
+
+              <ReportModal
+                open={reportOpen}
+                onClose={() => setReportOpen(false)}
+                subjectType="creator"
+                subjectId={creator.id}
+              />
 
               {/* Stats */}
               <div className="flex flex-wrap gap-6 mt-5 pt-5 border-t border-border text-sm">

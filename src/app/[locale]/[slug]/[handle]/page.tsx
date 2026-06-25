@@ -11,6 +11,7 @@ import { useToast } from '@/lib/toast-context';
 import { Button } from '@/components/ui/Button';
 import { SectionLabel } from '@/components/ui/Card';
 import ShareButton from '@/components/ShareButton';
+import { ReportModal } from '@/components/ReportModal';
 import { BountyStatusBadge } from '@/components/BountyStatusBadge';
 import { Badge } from '@/components/ui/Badge';
 import type { HandlePlatform } from '@/lib/types';
@@ -89,10 +90,12 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
   const { slug: platform, handle } = use(params);
   const router = useRouter();
   const t = useTranslations('PublicProfile');
+  const tReport = useTranslations('Report');
   const { user } = useAuth();
   const { toast } = useToast();
   const [state, setState] = useState<ResolveResult>({ kind: 'loading' });
   const [claiming, setClaiming] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   // Guards the auto-resume so we only fire one claim per ?claim=1 arrival.
   const autoClaimFired = useRef(false);
 
@@ -324,16 +327,34 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
                 )}
               </div>
 
-              <div className="shrink-0">
+              <div className="shrink-0 flex flex-col items-end gap-2">
                 <ShareButton
                   path={`/${platform}/${handle}`}
                   title={fullHandle}
                   text={shareText}
                   size="sm"
                 />
+                {user && state.handle.id != null && (
+                  <button
+                    type="button"
+                    onClick={() => setReportOpen(true)}
+                    className="font-mono text-[10px] uppercase tracking-widest text-muted/50 hover:text-bad transition-colors cursor-pointer"
+                  >
+                    {tReport('trigger.handle')}
+                  </button>
+                )}
               </div>
             </div>
           </div>
+
+          {state.handle.id != null && (
+            <ReportModal
+              open={reportOpen}
+              onClose={() => setReportOpen(false)}
+              subjectType="handle"
+              subjectId={state.handle.id}
+            />
+          )}
 
           {/* Bounties */}
           <div>

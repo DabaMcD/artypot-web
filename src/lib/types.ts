@@ -437,6 +437,10 @@ export interface Creator {
    * notice (public profile payload).
    */
   creator_market_open?: boolean;
+  /** ISO timestamp of last recorded activity. Null/absent when anonymous mode is on. */
+  last_active_at?: string | null;
+  /** True when last_active_at is within the presence window. Null/absent when anonymous. */
+  is_online?: boolean | null;
   /** Timestamp of TOS agreement, stamped when the user activates creator mode. */
   creator_tos_agreed_at?: string | null;
   verified_at?: string;
@@ -591,6 +595,10 @@ export interface PublicUser {
   backings: PublicUserBacking[];
   /** Server-computed sum of all active (unrevoked) backings. Null for anonymous users viewed by others. */
   total_backing_amount?: number;
+  /** ISO timestamp of last recorded activity. Null/absent when anonymous mode is on. */
+  last_active_at?: string | null;
+  /** True when last_active_at is within the presence window. Null/absent when anonymous. */
+  is_online?: boolean | null;
 }
 
 export interface BountyCompletion {
@@ -1817,24 +1825,27 @@ export interface CreatorFacets {
   unverified: { total: number; platforms: Record<string, number> };
 }
 
-/** Admin: a Content Policy report queue row. */
-export interface BountyReportRow {
+/** The kinds of thing a fan can report. */
+export type ReportSubjectType = 'bounty' | 'creator' | 'handle' | 'comment';
+
+/** Admin: a Content Policy report queue row (any subject kind). */
+export interface ReportRow {
   id: number;
-  bounty_id: number;
+  /** 'adult_content' kept for legacy rows; the UI now folds it into 'illegal'. */
   reason: 'harassment' | 'illegal' | 'adult_content' | 'spam' | 'other';
   details: string | null;
   status: 'pending' | 'reviewed' | 'actioned' | 'dismissed';
   review_notes: string | null;
   reviewed_at: string | null;
   created_at: string;
-  bounty?: {
+  /** The reported subject, normalized server-side into a labelled, linkable shape. */
+  subject: {
+    kind: ReportSubjectType | 'other';
     id: number;
-    title: string;
-    status: string;
-    total_backed: number;
-    target_handle?: { id: number; platform: string; username: string } | null;
+    label: string;
+    href: string | null;
   };
-  reporter?: { id: number; display_name: string; email: string };
+  reporter?: { id: number; display_name: string; email: string } | null;
   reviewed_by?: { id: number; display_name: string } | null;
 }
 

@@ -36,6 +36,7 @@ import PayOnVerifiedNote from '@/components/PayOnVerifiedNote';
 import BountyHistoryChart from '@/components/BountyHistoryChart';
 import BountyCard from '@/components/BountyCard';
 import CommentSection from '@/components/CommentSection';
+import { ReportModal } from '@/components/ReportModal';
 import { BOUNTY_STATUS_LABELS as STATUS_LABELS, BOUNTY_STATUS_TONES as STATUS_TONES } from '@/components/BountyStatusBadge';
 import { AvatarOrUnknown } from '@/components/ui/AvatarOrUnknown';
 import { Button } from '@/components/ui/Button';
@@ -59,6 +60,7 @@ function formatUsd(amount: number): string {
 export default function BountyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const t = useTranslations('BountyDetail');
+  const tReport = useTranslations('Report');
   const money = useMoney();
   const dateFmt = useDateFormats();
   const format = useFormatter();
@@ -110,11 +112,8 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
   // Pending-bounty revoke warning (shown when bounty.status === 'pending')
   const [showPendingRevokeWarning, setShowPendingRevokeWarning] = useState(false);
 
-  // Content Policy report
+  // Content Policy report — the dialog itself lives in the shared <ReportModal>.
   const [showReportModal, setShowReportModal] = useState(false);
-  const [reportReason, setReportReason] = useState('harassment');
-  const [reportDetails, setReportDetails] = useState('');
-  const [reportSubmitting, setReportSubmitting] = useState(false);
 
   // Edit form
   const [showEditForm, setShowEditForm] = useState(false);
@@ -940,6 +939,19 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <form onSubmit={handleEditSubmit} className="mb-4 space-y-3">
             <Banner tone="warn">
               {t.rich('editForm.warning', { strong: (chunks) => <strong>{chunks}</strong> })}
+              <span className="block mt-2">
+                {t.rich('editForm.reportHint', {
+                  link: (chunks) => (
+                    <button
+                      type="button"
+                      onClick={() => setShowReportModal(true)}
+                      className="underline underline-offset-2 font-semibold cursor-pointer hover:opacity-80"
+                    >
+                      {chunks}
+                    </button>
+                  ),
+                })}
+              </span>
             </Banner>
             <div>
               <FieldLabel>{t('editForm.titleLabel')}</FieldLabel>
@@ -1057,7 +1069,7 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         {/* Description — show historical if in snapshot view */}
         {!showEditForm && (
           displayedDescription ? (
-            <p className={`leading-relaxed mb-5 ${snapshotView !== null ? 'text-muted/60' : 'text-muted'}`}>
+            <p className={`whitespace-pre-wrap break-words leading-relaxed mb-5 ${snapshotView !== null ? 'text-muted/60' : 'text-muted'}`}>
               {displayedDescription}
             </p>
           ) : null
@@ -1665,15 +1677,18 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
 
           </Card>
 
-          {/* Content Policy report — subtle, logged-in non-participants only */}
-          {user && !canEdit && bounty.initiator_user_id !== user.id && bounty.target_user_id !== user.id && (
+          {/* Content Policy report — any logged-in user, INCLUDING participants
+              (initiator / target / edit-holder). Edit rights only allow clarifying
+              details; deleting or fundamentally changing a bounty requires admins,
+              so even participants need the report path. */}
+          {user && (
             <div className="mt-3 text-right">
               <button
                 type="button"
                 onClick={() => setShowReportModal(true)}
                 className="font-mono text-[10px] uppercase tracking-widest text-muted/50 hover:text-bad transition-colors cursor-pointer"
               >
-                {t('report.trigger')}
+                {tReport('trigger.bounty')}
               </button>
             </div>
           )}
@@ -1722,55 +1737,12 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
         </section>
       )}
 
-      {showReportModal && (
-        <Modal title={t('report.title')} onClose={() => setShowReportModal(false)}>
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setReportSubmitting(true);
-              try {
-                await bountiesApi.report(bounty.id, reportReason, reportDetails.trim() || undefined);
-                setShowReportModal(false);
-                setReportDetails('');
-                toast(t('report.received'), 'success');
-              } catch (err) {
-                toast(err instanceof Error ? err.message : t('report.failed'), 'error');
-              } finally {
-                setReportSubmitting(false);
-              }
-            }}
-            className="space-y-3"
-          >
-            <p className="text-sm text-muted">
-              {t.rich('report.intro', {
-                link: (chunks) => <Link href="/tos#content" className="underline underline-offset-2">{chunks}</Link>,
-              })}
-            </p>
-            <Select value={reportReason} onChange={(e) => setReportReason(e.target.value)}>
-              <option value="harassment">{t('report.reasons.harassment')}</option>
-              <option value="illegal">{t('report.reasons.illegal')}</option>
-              <option value="adult_content">{t('report.reasons.adultContent')}</option>
-              <option value="spam">{t('report.reasons.spam')}</option>
-              <option value="other">{t('report.reasons.other')}</option>
-            </Select>
-            <Textarea
-              value={reportDetails}
-              onChange={(e) => setReportDetails(e.target.value)}
-              placeholder={t('report.detailsPlaceholder')}
-              rows={3}
-              maxLength={2000}
-            />
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" type="button" onClick={() => setShowReportModal(false)}>
-                {t('common.cancel')}
-              </Button>
-              <Button variant="danger" type="submit" disabled={reportSubmitting}>
-                {reportSubmitting ? t('report.submitting') : t('report.submit')}
-              </Button>
-            </div>
-          </form>
-        </Modal>
-      )}
+      <ReportModal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        subjectType="bounty"
+        subjectId={bounty.id}
+      />
     </div>
   );
 }

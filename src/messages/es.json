@@ -2199,6 +2199,10 @@
       "memberSince": "Miembro desde {date}",
       "editSettings": "Editar ajustes"
     },
+    "activity": {
+      "activeNow": "Activo ahora",
+      "lastActive": "Activo {time}"
+    },
     "backings": {
       "title": "Principales apoyos",
       "topTenNote": "Mostrando los 10 mayores por importe",
@@ -2385,6 +2389,33 @@
     "clearingNote": "fans cobrados · ventana de compensación de 7 días",
     "availableNote": "retira a tu banco (mín. $1)"
   },
+  "Report": {
+    "title": {
+      "bounty": "Denunciar esta recompensa",
+      "creator": "Denunciar a este creador",
+      "handle": "Denunciar este perfil",
+      "comment": "Denunciar este comentario"
+    },
+    "trigger": {
+      "bounty": "⚑ Denunciar esta recompensa",
+      "creator": "⚑ Denunciar a este creador",
+      "handle": "⚑ Denunciar este perfil",
+      "comment": "Denunciar"
+    },
+    "intro": "Las denuncias se envían al Consejo para su revisión conforme a la <link>Política de contenido</link>. Solo actuamos si infringe las reglas.",
+    "reasons": {
+      "harassment": "Acoso o abuso dirigido",
+      "illegalOrInappropriate": "Contenido o solicitud ilegal o inapropiada",
+      "spam": "Spam o estafa",
+      "other": "Otra cosa"
+    },
+    "detailsPlaceholder": "Algo que el Consejo deba saber (opcional)",
+    "received": "Denuncia recibida. El Consejo la revisará.",
+    "failed": "No se pudo enviar la denuncia.",
+    "submitting": "Enviando…",
+    "submit": "Enviar denuncia",
+    "cancel": "Cancelar"
+  },
   "BountyDetail": {
     "creatorFallback": "El creador",
     "fan": {
@@ -2478,6 +2509,7 @@
     },
     "editForm": {
       "warning": "<strong>Atención:</strong> Las ediciones solo pueden aclarar detalles — no puedes cambiar la naturaleza o el propósito esencial de esta recompensa. El Consejo revisa todo el historial de ediciones antes de aprobar cualquier recompensa.",
+      "reportHint": "Para cambios más profundos o para eliminar esta recompensa, <link>repórtala</link> a los administradores y cuéntanos qué está pasando.",
       "titleLabel": "Título",
       "descriptionLabel": "Descripción",
       "creatorNameLabel": "Nombre del creador",
@@ -2575,23 +2607,6 @@
       "you": "(tú)",
       "expires": "Vence {date}"
     },
-    "report": {
-      "trigger": "⚑ Denunciar esta recompensa",
-      "title": "Denunciar esta recompensa",
-      "received": "Denuncia recibida. El Consejo revisará esta recompensa.",
-      "failed": "No se pudo enviar la denuncia.",
-      "intro": "Las denuncias se envían al Consejo para su revisión conforme a la <link>Política de contenido</link>. La recompensa permanece activa a menos que el Consejo la elimine.",
-      "reasons": {
-        "harassment": "Acoso o abuso dirigido",
-        "illegal": "Contenido o solicitud ilegal",
-        "adultContent": "Solicitud de contenido para adultos",
-        "spam": "Spam o estafa",
-        "other": "Otra cosa"
-      },
-      "detailsPlaceholder": "Algo que el Consejo deba saber (opcional)",
-      "submitting": "Enviando…",
-      "submit": "Enviar denuncia"
-    },
     "related": {
       "label": "más recompensas",
       "heading": "Otras recompensas para"
@@ -2611,7 +2626,8 @@
       "saving": "Guardando…",
       "saveCard": "Guardar tarjeta",
       "cancel": "Cancelar"
-    }
+    },
+    "authorization": "Al guardar tu tarjeta, autorizas a Artypot a cobrarla automáticamente cada mes por los respaldos de recompensas que hayas confirmado. Solo se te cobra después de que El Consejo apruebe una recompensa, y puedes eliminar tu tarjeta o retirar cualquier respaldo antes de que se bloquee, en cualquier momento."
   },
   "AvailableBalanceSummary": {
     "sectionLabel": "disponible",
@@ -2661,6 +2677,7 @@
     "deletedMarker": "[eliminado]",
     "editedMarker": "editado",
     "composePlaceholder": "Deja un comentario…",
+    "composeTrigger": "Deja un comentario",
     "replyPlaceholder": "Escribe una respuesta…",
     "charCount": "{count}/2000",
     "deleteConfirm": "¿Eliminar este comentario?",
@@ -2674,7 +2691,8 @@
     },
     "reaction": {
       "like": "Me gusta",
-      "dislike": "No me gusta"
+      "dislike": "No me gusta",
+      "ownComment": "No puedes reaccionar a tu propio comentario"
     },
     "actions": {
       "save": "Guardar",
