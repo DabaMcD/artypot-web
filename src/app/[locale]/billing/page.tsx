@@ -105,7 +105,7 @@ export default function BillingPage() {
 
       <div>
         <SectionLabel>{t('breadcrumb.fan')} · {t('breadcrumb.billing')}</SectionLabel>
-        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('heading.upcomingCharge')}</h1>
+        <h1 className="font-display font-bold text-[28px] text-foreground mt-1">{t('heading.billing')}</h1>
       </div>
 
       {brokeCooldown && (
@@ -121,59 +121,70 @@ export default function BillingPage() {
         </Card>
       )}
 
-      {/* What will be charged */}
-      {!balanceLoading && hasOutstandingBalance && (
+      {/* Upcoming charge — always rendered (once the balance loads) so the page
+          never shows a title with no matching content. Owe → the breakdown +
+          settle action; settled → an explicit "nothing due" line. */}
+      {!balanceLoading && (
         <Card>
           <div className="flex items-baseline justify-between gap-4 mb-1">
-            <SectionLabel>{t('charge.label')}</SectionLabel>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-              {chargeDate} · 09:00 UTC
-            </div>
+            <SectionLabel>{t('heading.upcomingCharge')}</SectionLabel>
+            {hasOutstandingBalance && (
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                {chargeDate} · 09:00 UTC
+              </div>
+            )}
           </div>
-          <p className="text-sm text-muted mb-4">
-            {t('charge.summary', { amount: money(outstandingAmount), date: chargeDate })}
-          </p>
 
-          {lockedBackings.length > 0 && (
-            <table className="w-full font-mono text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">{t('table.bounty')}</th>
-                  <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">{t('table.state')}</th>
-                  <th className="pb-2 text-right text-[10px] uppercase tracking-widest text-muted font-normal">{t('table.yourBacking')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {lockedBackings.map((backing) => (
-                  <tr key={backing.id}>
-                    <td className="py-3 pr-4">
-                      <Link href={`/bounties/${backing.bounty_id}`} className="text-fan hover:underline line-clamp-2 leading-snug">
-                        {backing.bounty?.title ?? t('table.bountyFallback', { id: backing.bounty_id })}
-                      </Link>
-                    </td>
-                    <td className="py-3 pr-4">
-                      <BountyStatusBadge status={backing.bounty?.status ?? 'completed'} />
-                    </td>
-                    <td className="py-3 text-right tabular-nums">{money(Number(backing.amount))}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {hasOutstandingBalance ? (
+            <>
+              <p className="text-sm text-muted mb-4">
+                {t('charge.summary', { amount: money(outstandingAmount), date: chargeDate })}
+              </p>
+
+              {lockedBackings.length > 0 && (
+                <table className="w-full font-mono text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">{t('table.bounty')}</th>
+                      <th className="pb-2 text-left text-[10px] uppercase tracking-widest text-muted font-normal">{t('table.state')}</th>
+                      <th className="pb-2 text-right text-[10px] uppercase tracking-widest text-muted font-normal">{t('table.yourBacking')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {lockedBackings.map((backing) => (
+                      <tr key={backing.id}>
+                        <td className="py-3 pr-4">
+                          <Link href={`/bounties/${backing.bounty_id}`} className="text-fan hover:underline line-clamp-2 leading-snug">
+                            {backing.bounty?.title ?? t('table.bountyFallback', { id: backing.bounty_id })}
+                          </Link>
+                        </td>
+                        <td className="py-3 pr-4">
+                          <BountyStatusBadge status={backing.bounty?.status ?? 'completed'} />
+                        </td>
+                        <td className="py-3 text-right tabular-nums">{money(Number(backing.amount))}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+
+              <div className="mt-4 pt-4 border-t border-dashed border-border flex items-center justify-between gap-3">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                  {t('settle.prompt')}
+                </span>
+                <button
+                  type="button"
+                  onClick={handlePayNow}
+                  disabled={paying}
+                  className="font-mono text-[11px] text-fan hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer"
+                >
+                  {paying ? t('settle.processing') : t('settle.cta', { amount: money(outstandingAmount) })}
+                </button>
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-muted">{t('charge.nothingDue', { day: BILLING_DAY })}</p>
           )}
-
-          <div className="mt-4 pt-4 border-t border-dashed border-border flex items-center justify-between gap-3">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted">
-              {t('settle.prompt')}
-            </span>
-            <button
-              type="button"
-              onClick={handlePayNow}
-              disabled={paying}
-              className="font-mono text-[11px] text-fan hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer"
-            >
-              {paying ? t('settle.processing') : t('settle.cta', { amount: money(outstandingAmount) })}
-            </button>
-          </div>
         </Card>
       )}
 

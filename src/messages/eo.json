@@ -1471,6 +1471,8 @@
       "nextCharge": "sekva ŝarĝo",
       "onDate": "je {date}",
       "viewAmount": "vidi sumon en fakturado →",
+      "nothingDue": "nenio ŝuldata",
+      "settledUp": "vi estas tute pagita",
       "paymentMethod": "pagmetodo",
       "manageBilling": "administri fakturadon →",
       "payments": "pagoj",
@@ -1550,7 +1552,8 @@
       "billing": "fakturado"
     },
     "heading": {
-      "upcomingCharge": "venonta ŝarĝo"
+      "upcomingCharge": "venonta ŝarĝo",
+      "billing": "fakturado"
     },
     "brokeCooldown": {
       "label": "senmona malvarmiĝa periodo efektiva",
@@ -1559,7 +1562,8 @@
     },
     "charge": {
       "label": "kio estos ŝarĝita",
-      "summary": "{amount} estos ŝarĝita aŭtomate je {date}. Neniu ago bezonata."
+      "summary": "{amount} estos ŝarĝita aŭtomate je {date}. Neniu ago bezonata.",
+      "nothingDue": "Nenio ŝuldata nun — via sekva fakturdato estas la {day}-a."
     },
     "table": {
       "bounty": "Premio",
@@ -1577,10 +1581,10 @@
     },
     "howItWorks": {
       "label": "kiel fakturado funkcias",
-      "commit": "Vi promesas sumon kiam vi subtenas premion. Nenio estas ŝarĝita tiumomente.",
-      "lockIn": "Kiam kreinto liveras sian laboron kaj la konsilio aprobas ĝin, via ŝarĝo estas fiksita. Vi povas retiriĝi nur dum la premio ankoraŭ estas malfermita.",
-      "collected": "Fiksitaj ŝarĝoj estas kolektitaj aŭtomate je la {day}-a tago de ĉiu monato, aŭ vi povas pagi pli frue.",
-      "noFees": "Vi ĉiam pagas ĝuste vian promesitan sumon — neniam aldoniĝas kotizoj."
+      "commit": "Vi indikas sumon kiam vi subtenas premion. Nenio estas ŝarĝita tiumomente.",
+      "lockIn": "Kiam kreinto liveras sian laboron kaj la konsilio aprobas ĝin, via sumo estas fiksita.",
+      "collected": "Subtenoj estas kolektitaj aŭtomate je la {day}-a tago de ĉiu monato, aŭ vi povas pagi pli frue.",
+      "noFees": "Vi pagas ĝuste vian promesitan sumon — ne aldoniĝas kotizoj."
     }
   },
   "Bounties": {
