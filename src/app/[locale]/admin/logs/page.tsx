@@ -23,6 +23,8 @@ const CATEGORY_TONE: Record<AuditLogCategory, 'info' | 'warn' | 'good' | 'defaul
   money:      'good',
   content:    'default',
   governance: 'council',
+  moderation: 'warn',
+  system:     'default',
 };
 
 const CATEGORY_PILLS: { label: string; value: AuditLogCategory | '' }[] = [
@@ -32,6 +34,8 @@ const CATEGORY_PILLS: { label: string; value: AuditLogCategory | '' }[] = [
   { label: 'Money', value: 'money' },
   { label: 'Content', value: 'content' },
   { label: 'Governance', value: 'governance' },
+  { label: 'Moderation', value: 'moderation' },
+  { label: 'System', value: 'system' },
 ];
 
 function ActorCell({ actor }: { actor: { id: number; display_name: string } | null }) {
