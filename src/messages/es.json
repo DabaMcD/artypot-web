@@ -1471,6 +1471,8 @@
       "nextCharge": "próximo cargo",
       "onDate": "el {date}",
       "viewAmount": "ver importe en facturación →",
+      "nothingDue": "nada pendiente",
+      "settledUp": "estás al día",
       "paymentMethod": "método de pago",
       "manageBilling": "gestionar facturación →",
       "payments": "pagos",
@@ -1550,7 +1552,8 @@
       "billing": "facturación"
     },
     "heading": {
-      "upcomingCharge": "próximo cargo"
+      "upcomingCharge": "próximo cargo",
+      "billing": "facturación"
     },
     "brokeCooldown": {
       "label": "período de enfriamiento por quiebra activo",
@@ -1559,7 +1562,8 @@
     },
     "charge": {
       "label": "qué se cobrará",
-      "summary": "Se cobrarán {amount} automáticamente el {date}. No se requiere ninguna acción."
+      "summary": "Se cobrarán {amount} automáticamente el {date}. No se requiere ninguna acción.",
+      "nothingDue": "No hay nada pendiente ahora mismo — tu próxima fecha de facturación es el día {day}."
     },
     "table": {
       "bounty": "Recompensa",
@@ -1577,10 +1581,10 @@
     },
     "howItWorks": {
       "label": "cómo funciona la facturación",
-      "commit": "Comprometes un importe cuando respaldas una recompensa. En ese momento no se cobra nada.",
-      "lockIn": "Cuando un creador entrega su trabajo y el consejo lo aprueba, tu cargo queda fijado. Solo puedes retirarte mientras la recompensa siga abierta.",
-      "collected": "Los cargos fijados se cobran automáticamente el día {day} de cada mes, o puedes pagar antes.",
-      "noFees": "Siempre pagas exactamente el importe que comprometiste: nunca se añaden comisiones."
+      "commit": "Indicas un importe cuando respaldas una recompensa. En ese momento no se cobra nada.",
+      "lockIn": "Cuando un creador entrega su trabajo y el consejo lo aprueba, tu importe queda fijado.",
+      "collected": "Los respaldos se cobran automáticamente el día {day} de cada mes, o puedes pagar antes.",
+      "noFees": "Pagas exactamente el importe que comprometiste: no se añaden comisiones."
     }
   },
   "Bounties": {
