@@ -1597,10 +1597,10 @@
     "count": "{count, plural, one {# lonely lil bounty 🥀😔} other {# bounties stacked to the moon 📈🤑}}",
     "filters": {
       "all": "all of em everywhere all at once 🌍✨",
-      "open": "gathering rizz… 🧑‍🍳⏳",
-      "pending": "on Ohio trial ⚖️🗿",
-      "completed": "cooked it 🔥🗣️",
-      "paidOut": "bag SECURED 🤑🤝"
+      "open": "cookin 🍳",
+      "pending": "on trial ⚖️",
+      "completed": "cooked 🔥",
+      "paidOut": "bagged 🤑"
     },
     "empty": {
       "message": "it's barren out here 🏜️💀 zero bounties no cap the aura is GONE 😭",
@@ -1719,11 +1719,11 @@
   },
   "Components": {
     "bountyStatus": {
-      "open": "gathering rizz… 🧑‍🍳⏳",
-      "pending": "on Ohio trial ⚖️🗿",
-      "completed": "cooked it 🔥🗣️",
-      "paid_out": "bag SECURED 🤑🤝",
-      "revoked": "NAH it's so over 💀⚰️"
+      "open": "cookin 🍳",
+      "pending": "on trial ⚖️",
+      "completed": "cooked 🔥",
+      "paid_out": "bagged 🤑",
+      "revoked": "dead 💀"
     },
     "bountyCard": {
       "for": "🙏🙏",
@@ -1772,14 +1772,14 @@
     },
     "filters": {
       "all": "the whole shabang no cap",
-      "open": "gathering rizz… 🧑‍🍳⏳",
-      "pending": "on Ohio trial ⚖️🗿",
-      "completed": "cooked it 🔥🗣️",
-      "paidOut": "bag SECURED 🤑🤝",
-      "revoked": "NAH it's so over 💀⚰️"
+      "open": "cookin 🍳",
+      "pending": "on trial ⚖️",
+      "completed": "cooked 🔥",
+      "paidOut": "bagged 🤑",
+      "revoked": "dead 💀"
     },
     "completionBadge": {
-      "pendingReview": "on Ohio trial ⚖️🗿",
+      "pendingReview": "on trial ⚖️",
       "approved": "we are SO back boiii ✅🗿",
       "rejected": "nah they cooked u 💀🔥"
     },
@@ -2199,6 +2199,10 @@
       "memberSince": "been lockin in since {date} 🔒 sigma grindset since day 1 gng fr",
       "editSettings": "go tweak ur aura ⚙️💅 rizz up the settings"
     },
+    "activity": {
+      "activeNow": "online RN, locked in 🟢🔥",
+      "lastActive": "last seen {time}"
+    },
     "backings": {
       "title": "goated backings, max aura only 🐐🤑 no glaze",
       "topTenNote": "only flexin the top 10 bags by gyatt size 💰 the rest got cooked 🔥",
@@ -2241,7 +2245,7 @@
       "fan": "ride-or-die soldier",
       "fans": "ride-or-die soldiers 🫡",
       "openBounties": "bounties live rn 🔥💸",
-      "completed": "cooked it 🔥🗣️",
+      "completed": "cooked 🔥",
       "totalEarned": "total bag SECURED 🤑💰",
       "activeBacking": "backing live n breathing 💸🫀"
     },
@@ -2294,10 +2298,10 @@
     },
     "filters": {
       "all": "all of em 🌀",
-      "open": "gathering rizz… 🧑‍🍳⏳",
-      "pending": "on Ohio trial ⚖️🗿",
-      "completed": "cooked it 🔥🗣️",
-      "paidOut": "bag SECURED 🤑🤝"
+      "open": "cookin 🍳",
+      "pending": "on trial ⚖️",
+      "completed": "cooked 🔥",
+      "paidOut": "bagged 🤑"
     },
     "list": {
       "heading": "bounties 🔥💸",
@@ -2384,6 +2388,33 @@
     "softLine": "+ {amount} no-card 🫠",
     "clearingNote": "fans got charged · 7-day clearing arc ⏳",
     "availableNote": "yoink it to ur bank (min $1) 🏦"
+  },
+  "Report": {
+    "title": {
+      "bounty": "snitch on this bounty 🚨",
+      "creator": "snitch on this creator 🚨",
+      "handle": "snitch on this handle 🚨",
+      "comment": "snitch on this comment 🚨"
+    },
+    "trigger": {
+      "bounty": "⚑ snitch on this bounty",
+      "creator": "⚑ snitch",
+      "handle": "⚑ snitch",
+      "comment": "snitch"
+    },
+    "intro": "snitches go to the Council to get checked against the <link>Content Policy</link>. we only swing the ban hammer if it actually breaks the rules 🔨",
+    "reasons": {
+      "harassment": "harassment or targeted hate 😡",
+      "illegalOrInappropriate": "illegal or straight-up inappropriate 🚔",
+      "spam": "spam or scam 🤖",
+      "other": "smth else"
+    },
+    "detailsPlaceholder": "anything the Council should know (optional)",
+    "received": "snitch received 🫡 the Council's on it.",
+    "failed": "snitch didn't send it's cooked 💀",
+    "submitting": "snitching…",
+    "submit": "send the snitch 🚨",
+    "cancel": "nvm"
   },
   "BountyDetail": {
     "creatorFallback": "the goat 🐐",
@@ -2478,6 +2509,7 @@
     },
     "editForm": {
       "warning": "<strong>heads up gng:</strong> edits can only add lore — you can't switch up the whole vibe or purpose of this bounty. the Council reads the ENTIRE edit history before they hand out the W 👀",
+      "reportHint": "for the big-brain changes or to delete this bounty, <link>report it</link> to the admins n spill the tea on what's good 🫧👀",
       "titleLabel": "title",
       "descriptionLabel": "the lore",
       "creatorNameLabel": "creator's @",
@@ -2527,7 +2559,7 @@
         "body": "the Council blessed ur work fr. glazers get charged next billing cycle 🤑"
       },
       "paidOut": {
-        "heading": "bag SECURED 🤑🤝",
+        "heading": "bagged 🤑",
         "body": "ur payout went through. ty for cooking 🙏"
       },
       "revoked": {
@@ -2552,7 +2584,7 @@
         "body": "the Council blessed this bounty. bags are LOCKED now — ur card gets hit next billing cycle 🤑"
       },
       "paidOut": {
-        "heading": "bag SECURED 🤑🤝",
+        "heading": "bagged 🤑",
         "body": "this bounty got paid out. {creator} caught their bag for the work 🐐"
       },
       "revoked": {
@@ -2562,7 +2594,7 @@
     },
     "submittedWork": {
       "label": "the dropped work 📤",
-      "pendingReview": "on Ohio trial ⚖️🗿",
+      "pendingReview": "on trial ⚖️",
       "councilNotes": "council tea ☕: {notes}"
     },
     "tabs": {
@@ -2574,23 +2606,6 @@
       "unknown": "who's this 🤨",
       "you": "(u)",
       "expires": "it's so over {date}"
-    },
-    "report": {
-      "trigger": "⚑ snitch on this bounty",
-      "title": "snitch on this bounty 🚨",
-      "received": "snitch received 🫡 the Council gon peep this bounty.",
-      "failed": "snitch didn't send it's cooked 💀",
-      "intro": "snitches go to the Council to get checked against the <link>Content Policy</link>. the bounty stays up unless the Council yeets it.",
-      "reasons": {
-        "harassment": "harassment or targeted hate 😡",
-        "illegal": "illegal content or ask 🚔",
-        "adultContent": "spicy content request 🌶️",
-        "spam": "spam or scam 🤖",
-        "other": "smth else"
-      },
-      "detailsPlaceholder": "anything the Council should know (optional)",
-      "submitting": "snitching…",
-      "submit": "send the snitch 🚨"
     },
     "related": {
       "label": "more bounties",
@@ -2611,7 +2626,8 @@
       "saving": "locking in the bag… 🔒🫡",
       "saveCard": "secure the bag, glaze this card 💳✨",
       "cancel": "nah we ghostin ✋💨"
-    }
+    },
+    "authorization": "by saving this card u officially let Artypot auto-yoink it every month for the bounty bags u locked in 🤝 we ONLY charge after The Council says bet ✅ n u can swap ur card or back out of any bag before it locks, anytime no cap 💯"
   },
   "AvailableBalanceSummary": {
     "sectionLabel": "bag's just sitting there unsecured rn 💰😭",
@@ -2661,6 +2677,7 @@
     "deletedMarker": "[got yeeted to the shadow realm 🕳️💀]",
     "editedMarker": "caught lacking, sneak-edited 👀✏️",
     "composePlaceholder": "spill the unfiltered lore bestie 🎤✨",
+    "composeTrigger": "drop a yap 🗣️🔥",
     "replyPlaceholder": "clap back, no thoughts just vibes 👇💬",
     "charCount": "{count}/2000 aura spent, ration the gyatt 📏💀",
     "deleteConfirm": "wipe this off the timeline fr? it's so over for this take 💀⚰️",
@@ -2674,7 +2691,8 @@
     },
     "reaction": {
       "like": "glaze the goat 🐐🔥",
-      "dislike": "fumble it, throw the whole L 👎💀"
+      "dislike": "fumble it, throw the whole L 👎💀",
+      "ownComment": "can't glaze ur own yap gng, that's mad cap 💀🪞"
     },
     "actions": {
       "save": "secure the bag 💾🤑",

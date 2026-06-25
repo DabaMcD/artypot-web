@@ -7,6 +7,7 @@ import { users as usersApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useMoney, useDateFormats } from '@/lib/format';
 import type { PublicUser } from '@/lib/types';
+import { LastActiveStatus } from '@/components/LastActiveStatus';
 
 export default function UserProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -104,6 +105,11 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
                 {t('header.memberSince', { date: dateFmt.short(profile.created_at) })}
               </p>
             )}
+            <LastActiveStatus
+              lastActiveAt={profile.last_active_at}
+              isOnline={profile.is_online}
+              className="mt-1"
+            />
             {isOwnProfile && (
               <Link
                 href="/settings"
