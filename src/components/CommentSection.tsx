@@ -394,9 +394,12 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
   const [loading, setLoading]         = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  // Compose new comment
+  // Compose new comment. The box starts collapsed to a small "leave a comment"
+  // trigger (mirrors the per-comment reply button) and expands on click.
   const [newText, setNewText]       = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [composeOpen, setComposeOpen] = useState(false);
+  const composeRef = useRef<HTMLTextAreaElement>(null);
 
   // Per-comment state maps
   // replies: undefined = not loaded | 'loading' | Comment[]
@@ -488,6 +491,11 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
     return () => cancelAnimationFrame(raf);
   }, [highlightCommentId, commentList]);
 
+  // Focus the compose textarea the moment the box expands (no scroll jump).
+  useEffect(() => {
+    if (composeOpen) composeRef.current?.focus({ preventScroll: true });
+  }, [composeOpen]);
+
   const loadMore = async () => {
     if (page >= lastPage || loadingMore) return;
     setLoadingMore(true);
@@ -541,6 +549,7 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
       setCommentList((prev) => [res.data, ...prev]);
       setTotal((t) => t + 1);
       setNewText('');
+      setComposeOpen(false);
     } catch (err: unknown) {
       const msg = (err as { message?: string })?.message ?? t('errors.postComment');
       toast(msg, 'error');
@@ -716,31 +725,51 @@ export default function CommentSection({ bountyId, inline = false, onTotalChange
         </h2>
       )}
 
-      {/* Compose new comment */}
+      {/* Compose new comment — collapsed to a trigger button by default */}
       {user ? (
-        <div className="flex gap-3 mb-8">
-          <UserAvatar user={{ id: user.id, name: user.display_name, display_name: user.display_name, profile_picture: user.profile_picture, is_anonymous: user.is_anonymous ?? false, role: user.role }} />
-          <div className="flex-1 space-y-2">
-            <textarea
-              rows={3}
-              value={newText}
-              onChange={(e) => setNewText(e.target.value)}
-              maxLength={2000}
-              placeholder={t('composePlaceholder')}
-              className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
-            />
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-muted">{t('charCount', { count: newText.length })}</span>
-              <button
-                onClick={submitComment}
-                disabled={!newText.trim() || submitting}
-                className="text-sm px-4 py-1.5 bg-fan text-black font-semibold rounded-lg hover:bg-fan-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-              >
-                {submitting ? t('actions.posting') : t('actions.post')}
-              </button>
+        composeOpen ? (
+          <div className="flex gap-3 mb-8">
+            <UserAvatar user={{ id: user.id, name: user.display_name, display_name: user.display_name, profile_picture: user.profile_picture, is_anonymous: user.is_anonymous ?? false, role: user.role }} />
+            <div className="flex-1 space-y-2">
+              <textarea
+                ref={composeRef}
+                rows={3}
+                value={newText}
+                onChange={(e) => setNewText(e.target.value)}
+                maxLength={2000}
+                placeholder={t('composePlaceholder')}
+                className="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-fan transition-colors resize-none"
+              />
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-muted">{t('charCount', { count: newText.length })}</span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setComposeOpen(false); setNewText(''); }}
+                    className="text-sm px-3 py-1.5 text-muted hover:text-foreground transition-colors"
+                  >
+                    {t('actions.cancel')}
+                  </button>
+                  <button
+                    onClick={submitComment}
+                    disabled={!newText.trim() || submitting}
+                    className="text-sm px-4 py-1.5 bg-fan text-black font-semibold rounded-lg hover:bg-fan-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {submitting ? t('actions.posting') : t('actions.post')}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="mb-8">
+            <button
+              onClick={() => setComposeOpen(true)}
+              className="text-sm text-muted hover:text-foreground border border-border hover:border-foreground/30 px-4 py-2 rounded-lg transition-colors"
+            >
+              {t('composeTrigger')}
+            </button>
+          </div>
+        )
       ) : (
         <div className="mb-8 text-sm text-muted">
           {t.rich('loginPrompt', {

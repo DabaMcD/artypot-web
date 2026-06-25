@@ -2478,6 +2478,7 @@
     },
     "editForm": {
       "warning": "<strong>Atentu:</strong> Redaktoj povas nur klarigi detalojn — vi ne povas ŝanĝi la esencan naturon aŭ celon de ĉi tiu rekompenco. La Konsilio kontrolas la tutan redaktan historion antaŭ ol aprobi iun ajn rekompencon.",
+      "reportHint": "Por pli fundamentaj ŝanĝoj aŭ por forigi ĉi tiun rekompencon, <link>raportu ĝin</link> al la administrantoj kaj informu nin pri kio okazas.",
       "titleLabel": "Titolo",
       "descriptionLabel": "Priskribo",
       "creatorNameLabel": "Nomo de la kreinto",
@@ -2611,7 +2612,8 @@
       "saving": "Konservante…",
       "saveCard": "Konservi karton",
       "cancel": "Nuligi"
-    }
+    },
+    "authorization": "Konservante vian karton, vi rajtigas Artypot ŝargi ĝin aŭtomate ĉiumonate por la rekompencaj subtenoj kiujn vi konfirmis. Vi estas ŝargita nur post kiam La Konsilio aprobas rekompencon, kaj vi povas forigi vian karton aŭ retiri ajnan subtenon antaŭ ol ĝi ŝlosiĝas, iam ajn."
   },
   "AvailableBalanceSummary": {
     "sectionLabel": "disponebla",
@@ -2661,6 +2663,7 @@
     "deletedMarker": "[forigita]",
     "editedMarker": "redaktita",
     "composePlaceholder": "Lasu komenton…",
+    "composeTrigger": "Lasu komenton",
     "replyPlaceholder": "Skribu respondon…",
     "charCount": "{count}/2000",
     "deleteConfirm": "Ĉu forigi ĉi tiun komenton?",

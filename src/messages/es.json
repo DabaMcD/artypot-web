@@ -2478,6 +2478,7 @@
     },
     "editForm": {
       "warning": "<strong>Atención:</strong> Las ediciones solo pueden aclarar detalles — no puedes cambiar la naturaleza o el propósito esencial de esta recompensa. El Consejo revisa todo el historial de ediciones antes de aprobar cualquier recompensa.",
+      "reportHint": "Para cambios más profundos o para eliminar esta recompensa, <link>repórtala</link> a los administradores y cuéntanos qué está pasando.",
       "titleLabel": "Título",
       "descriptionLabel": "Descripción",
       "creatorNameLabel": "Nombre del creador",
@@ -2611,7 +2612,8 @@
       "saving": "Guardando…",
       "saveCard": "Guardar tarjeta",
       "cancel": "Cancelar"
-    }
+    },
+    "authorization": "Al guardar tu tarjeta, autorizas a Artypot a cobrarla automáticamente cada mes por los respaldos de recompensas que hayas confirmado. Solo se te cobra después de que El Consejo apruebe una recompensa, y puedes eliminar tu tarjeta o retirar cualquier respaldo antes de que se bloquee, en cualquier momento."
   },
   "AvailableBalanceSummary": {
     "sectionLabel": "disponible",
@@ -2661,6 +2663,7 @@
     "deletedMarker": "[eliminado]",
     "editedMarker": "editado",
     "composePlaceholder": "Deja un comentario…",
+    "composeTrigger": "Deja un comentario",
     "replyPlaceholder": "Escribe una respuesta…",
     "charCount": "{count}/2000",
     "deleteConfirm": "¿Eliminar este comentario?",

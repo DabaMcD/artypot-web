@@ -145,6 +145,10 @@ function CardFormInner({ clientSecret, onSuccess, onCancel }: InnerProps) {
           </button>
         )}
       </div>
+
+      {/* Recurring-billing authorization — shown at the point of consent (saving
+          the card), not just in the TOS. */}
+      <p className="text-xs text-muted leading-relaxed">{t('authorization')}</p>
     </form>
   );
 }

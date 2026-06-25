@@ -940,6 +940,19 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
           <form onSubmit={handleEditSubmit} className="mb-4 space-y-3">
             <Banner tone="warn">
               {t.rich('editForm.warning', { strong: (chunks) => <strong>{chunks}</strong> })}
+              <span className="block mt-2">
+                {t.rich('editForm.reportHint', {
+                  link: (chunks) => (
+                    <button
+                      type="button"
+                      onClick={() => setShowReportModal(true)}
+                      className="underline underline-offset-2 font-semibold cursor-pointer hover:opacity-80"
+                    >
+                      {chunks}
+                    </button>
+                  ),
+                })}
+              </span>
             </Banner>
             <div>
               <FieldLabel>{t('editForm.titleLabel')}</FieldLabel>
@@ -1665,8 +1678,11 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
 
           </Card>
 
-          {/* Content Policy report — subtle, logged-in non-participants only */}
-          {user && !canEdit && bounty.initiator_user_id !== user.id && bounty.target_user_id !== user.id && (
+          {/* Content Policy report — any logged-in user, INCLUDING participants
+              (initiator / target / edit-holder). Edit rights only allow clarifying
+              details; deleting or fundamentally changing a bounty requires admins,
+              so even participants need the report path. */}
+          {user && (
             <div className="mt-3 text-right">
               <button
                 type="button"

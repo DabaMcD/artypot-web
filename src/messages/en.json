@@ -2496,6 +2496,7 @@
     },
     "editForm": {
       "warning": "<strong>Heads up:</strong> Edits may only clarify details — you cannot change the core nature or purpose of this bounty. The Council reviews the full edit history before approving any bounty.",
+      "reportHint": "For more fundamental changes or to delete this bounty, <link>report this bounty</link> to admins and let us know what's going on.",
       "titleLabel": "Title",
       "descriptionLabel": "Description",
       "creatorNameLabel": "Creator name",
@@ -2629,7 +2630,8 @@
       "saving": "Saving…",
       "saveCard": "Save card",
       "cancel": "Cancel"
-    }
+    },
+    "authorization": "By saving your card, you authorize Artypot to automatically charge it each month for the bounty backings you've confirmed. You're only charged after The Council approves a bounty, and you can remove your card or back out of any backing before it locks — anytime."
   },
   "AvailableBalanceSummary": {
     "sectionLabel": "available",
@@ -2679,6 +2681,7 @@
     "deletedMarker": "[deleted]",
     "editedMarker": "edited",
     "composePlaceholder": "Leave a comment…",
+    "composeTrigger": "Leave a comment",
     "replyPlaceholder": "Write a reply…",
     "charCount": "{count}/2000",
     "deleteConfirm": "Delete this comment?",
