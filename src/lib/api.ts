@@ -1225,14 +1225,16 @@ export const admin = {
       body: JSON.stringify({ status, review_notes: reviewNotes || undefined }),
     }),
 
-  approveHandle: (handleId: number, decisionNotes?: string) =>
-    request<{ data: unknown }>(`/admin/handles/${handleId}/approve`, {
+  /** Approve/deny a specific verification APPLICATION (not the handle) — keyed by
+   *  application id so the right claimant is verified when two users contest one handle. */
+  approveHandle: (applicationId: number, decisionNotes?: string) =>
+    request<{ data: unknown }>(`/admin/handle-applications/${applicationId}/approve`, {
       method: 'POST',
       body: JSON.stringify(decisionNotes ? { decision_notes: decisionNotes } : {}),
     }),
 
-  rejectHandle: (handleId: number, decisionNotes?: string) =>
-    request<{ data: unknown }>(`/admin/handles/${handleId}/reject`, {
+  rejectHandle: (applicationId: number, decisionNotes?: string) =>
+    request<{ data: unknown }>(`/admin/handle-applications/${applicationId}/reject`, {
       method: 'POST',
       body: JSON.stringify(decisionNotes ? { decision_notes: decisionNotes } : {}),
     }),

@@ -49,17 +49,16 @@ function ReviewModal({
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleId = application.claim.handle.id;
   const platformLabel = PLATFORM_LABELS[application.claim.handle.platform] ?? application.claim.handle.platform;
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
       if (decision === 'approve') {
-        await adminApi.approveHandle(handleId, notes || undefined);
+        await adminApi.approveHandle(application.id, notes || undefined);
         toast('Handle verified.', 'success');
       } else {
-        await adminApi.rejectHandle(handleId, notes || undefined);
+        await adminApi.rejectHandle(application.id, notes || undefined);
         toast('Application denied.', 'error');
       }
       onDone();
