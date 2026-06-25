@@ -145,12 +145,16 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
 
   useEffect(() => {
     let cancelled = false;
-    if (!KNOWN_PLATFORMS.has(platform.toLowerCase())) {
-      setState({ kind: 'not-platform' });
-      return;
-    }
 
     (async () => {
+      // Unknown platform — nothing to resolve. Kept inside the async body so we
+      // never call setState synchronously in the effect (initial state is
+      // already 'loading', so there's no visible difference).
+      if (!KNOWN_PLATFORMS.has(platform.toLowerCase())) {
+        setState({ kind: 'not-platform' });
+        return;
+      }
+
       try {
         const res = await creatorsApi.byPlatformHandle(platform, handle);
         if (cancelled) return;

@@ -111,12 +111,15 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
               className="mt-1"
             />
             {isOwnProfile && (
-              <Link
-                href="/settings"
-                className="inline-block mt-2 text-xs text-muted hover:text-foreground transition-colors"
-              >
-                {t('header.editSettings')} →
-              </Link>
+              <>
+                {' '}
+                <Link
+                  href="/settings"
+                  className="inline-block mt-2 text-xs text-muted hover:text-foreground transition-colors"
+                >
+                  {t('header.editSettings')} →
+                </Link>
+              </>
             )}
           </div>
         </div>
