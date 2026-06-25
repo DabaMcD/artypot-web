@@ -1411,6 +1411,32 @@ export interface AdminUser {
     disputes_count: number;
     no_pm_cap: number | null;
   };
+  /** Calculated fan-location verdict + the evidence behind it. Only on /admin/users/{user}. */
+  location?: {
+    status: 'open' | 'closed' | 'conflict' | 'unknown' | null;
+    country: string | null;
+    is_frozen: boolean;
+    signals: {
+      card: AdminLocationSignal | null;
+      billing: AdminLocationSignal | null;
+      ip: AdminLocationSignal | null;
+      declared: AdminLocationSignal | null;
+    };
+    evidence: Array<{
+      signal_type: string;
+      country_code: string | null;
+      postal_code: string | null;
+      source: string;
+      observed_at: string | null;
+    }>;
+  };
+}
+
+export interface AdminLocationSignal {
+  country_code: string | null;
+  source: string;
+  market_open: boolean | null;
+  observed_at: string | null;
 }
 
 export interface AdminCreator {

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations, useFormatter } from 'next-intl';
 import { Link, useRouter } from '@/i18n/routing';
-import { backings as backingsApi, bounties as bountiesApi } from '@/lib/api';
+import { backings as backingsApi, bounties as bountiesApi, billing } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import type { PublicUserBacking } from '@/lib/types';
@@ -37,10 +37,19 @@ export default function MyBackingsPage() {
   // confirm-modal decision.
   const [revoking, setRevoking] = useState<Set<number>>(new Set());
   const [confirmTarget, setConfirmTarget] = useState<PublicUserBacking | null>(null);
+  // Outstanding cash balance (negative = money owed) drives the "next charge"
+  // card — mirror the dashboard's 3rd card: only show a charge date when there's
+  // actually something to be charged. Null until the balance loads.
+  const [balance, setBalance] = useState<number | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) router.replace('/login');
   }, [authLoading, user, router]);
+
+  useEffect(() => {
+    if (!user) return;
+    billing.cash().then((c) => setBalance(c.balance)).catch(() => {});
+  }, [user]);
 
   const load = useCallback((s: SortKey, p: number) => {
     setLoading(true);
@@ -90,6 +99,7 @@ export default function MyBackingsPage() {
   };
 
   const billingDateStr = dateFmt.short(nextBillingInfo().date.toISOString());
+  const balanceIsNegative = balance !== null && balance < 0;
 
   if (authLoading || !user) {
     return (
@@ -225,11 +235,23 @@ export default function MyBackingsPage() {
         <div className="space-y-4">
           {/* The exact next-charge amount lives on /billing (the authoritative
               owner). We show the deterministic date here and link out for the
-              figure rather than re-deriving it client-side. */}
+              figure — but only when something is actually owed, mirroring the
+              dashboard's next-charge card. Settled fans see "nothing due". */}
           <Card>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">{t('sidebar.nextCharge')}</div>
-            <div className="font-mono text-sm text-foreground">{t('sidebar.onDate', { date: billingDateStr })}</div>
-            <Link href="/billing" className="ap-inline-link text-sm mt-2 inline-block">{t('sidebar.viewAmount')}</Link>
+            {balance === null ? (
+              <div className="font-mono text-sm text-muted">—</div>
+            ) : balanceIsNegative ? (
+              <>
+                <div className="font-mono text-sm text-foreground">{t('sidebar.onDate', { date: billingDateStr })}</div>
+                <Link href="/billing" className="ap-inline-link text-sm mt-2 inline-block">{t('sidebar.viewAmount')}</Link>
+              </>
+            ) : (
+              <>
+                <div className="font-mono text-sm text-foreground">{t('sidebar.nothingDue')}</div>
+                <div className="font-mono text-[11px] text-muted mt-1">{t('sidebar.settledUp')}</div>
+              </>
+            )}
           </Card>
           <Card>
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">{t('sidebar.paymentMethod')}</div>

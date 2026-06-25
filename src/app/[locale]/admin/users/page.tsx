@@ -224,6 +224,59 @@ function UserModal({
         </Card>
       )}
 
+      {/* Fan location verdict + the signals that produced it (the "how") */}
+      {user.location && (
+        <Card accent className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <SectionLabel>Fan location</SectionLabel>
+            <div className="flex flex-wrap gap-1.5">
+              <Badge tone={user.location.status === 'open' ? 'good' : user.location.status === 'closed' ? 'bad' : user.location.status === 'conflict' ? 'warn' : 'default'}>
+                {user.location.status ?? 'not computed'}
+              </Badge>
+              {user.location.is_frozen && <Badge tone="bad">frozen</Badge>}
+            </div>
+          </div>
+          <dl className="space-y-2 text-sm mb-3">
+            <div className="flex justify-between">
+              <dt className="text-muted">Effective country</dt>
+              <dd className="font-mono tabular-nums text-foreground">{user.location.country ?? '—'}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted">Chargeable</dt>
+              <dd className="font-mono text-foreground">{user.location.is_frozen ? 'no — frozen' : 'yes'}</dd>
+            </div>
+          </dl>
+
+          {/* How the verdict was reached: latest signal per source + whether that
+              country's market is open. */}
+          <FieldLabel>Signals</FieldLabel>
+          <ul className="divide-y divide-border -mx-5">
+            {(['card', 'billing', 'ip', 'declared'] as const).map((k) => {
+              const sig = user.location!.signals[k];
+              return (
+                <li key={k} className="px-5 py-2 flex items-center justify-between gap-3 text-sm">
+                  <span className="font-mono text-[11px] uppercase tracking-wider text-muted w-16 shrink-0">{k}</span>
+                  {sig ? (
+                    <span className="flex items-center gap-2 flex-1 justify-end min-w-0">
+                      <span className="font-mono text-foreground">{sig.country_code ?? '—'}</span>
+                      {sig.market_open != null && (
+                        <Badge tone={sig.market_open ? 'good' : 'bad'} xs>{sig.market_open ? 'open' : 'closed'}</Badge>
+                      )}
+                      <span className="text-[10px] text-muted">{sig.source}</span>
+                    </span>
+                  ) : (
+                    <span className="text-muted text-xs">none</span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          <p className="text-[11px] text-muted mt-3 leading-snug">
+            open = no signal hits a closed market · closed = all do · conflict = both open and closed signals (frozen for review) · unknown = no signals yet.
+          </p>
+        </Card>
+      )}
+
       {/* Creator profile — name + verified status + link only */}
       {user.creator ? (
         <Card accent>

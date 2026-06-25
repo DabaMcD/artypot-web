@@ -1471,6 +1471,8 @@
       "nextCharge": "sekva ŝarĝo",
       "onDate": "je {date}",
       "viewAmount": "vidi sumon en fakturado →",
+      "nothingDue": "nenio ŝuldata",
+      "settledUp": "vi estas tute pagita",
       "paymentMethod": "pagmetodo",
       "manageBilling": "administri fakturadon →",
       "payments": "pagoj",

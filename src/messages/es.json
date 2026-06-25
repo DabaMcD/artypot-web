@@ -1471,6 +1471,8 @@
       "nextCharge": "próximo cargo",
       "onDate": "el {date}",
       "viewAmount": "ver importe en facturación →",
+      "nothingDue": "nada pendiente",
+      "settledUp": "estás al día",
       "paymentMethod": "método de pago",
       "manageBilling": "gestionar facturación →",
       "payments": "pagos",

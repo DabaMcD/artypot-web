@@ -1489,6 +1489,8 @@
       "nextCharge": "next charge",
       "onDate": "on {date}",
       "viewAmount": "view amount in billing →",
+      "nothingDue": "nothing due",
+      "settledUp": "you're all settled up",
       "paymentMethod": "payment method",
       "manageBilling": "manage billing →",
       "payments": "payments",
