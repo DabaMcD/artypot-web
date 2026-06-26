@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import HeaderSearch from '@/components/HeaderSearch';
@@ -132,16 +132,31 @@ export default function HomePage() {
             {t('howItWorks.purpose')}
           </p>
 
-          <div className="grid sm:grid-cols-3 gap-12 sm:gap-8">
-            {STEPS.map(({ n, body }) => (
-              <div key={n} className="flex flex-col items-center">
-                <div className="w-12 h-12 rounded-md flex items-center justify-center font-mono font-bold text-lg mb-5 shrink-0 bg-creator text-brand-dark shadow-[3px_3px_0_#000]">
-                  {n}
+          {/* Connected flow: arrows point right between steps on desktop, down
+              between them on mobile, so the 1 → 2 → 3 progression reads at a glance. */}
+          <div className="flex flex-col items-center sm:flex-row sm:items-start sm:justify-center gap-6 sm:gap-3">
+            {STEPS.map(({ n, body }, i) => (
+              <Fragment key={n}>
+                <div className="flex flex-col items-center w-full max-w-[16rem] sm:flex-1">
+                  <div className="w-12 h-12 rounded-md flex items-center justify-center font-mono font-bold text-lg mb-5 shrink-0 bg-creator text-brand-dark shadow-[3px_3px_0_#000]">
+                    {n}
+                  </div>
+                  <p className="text-foreground font-medium text-base leading-snug">
+                    {body}
+                  </p>
                 </div>
-                <p className="text-foreground font-medium text-base leading-snug max-w-[16rem]">
-                  {body}
-                </p>
-              </div>
+                {i < STEPS.length - 1 && (
+                  <div aria-hidden className="shrink-0 text-creator sm:mt-3">
+                    <svg
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                      className="w-7 h-7 rotate-90 sm:rotate-0"
+                    >
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                  </div>
+                )}
+              </Fragment>
             ))}
           </div>
         </div>

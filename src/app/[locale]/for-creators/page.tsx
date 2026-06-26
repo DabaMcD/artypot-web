@@ -129,23 +129,35 @@ export default function ForCreatorsPage() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-3 gap-5 max-w-5xl mx-auto">
-            <div className="bg-background border border-border rounded-xl p-6">
-              <p className="text-xs font-mono text-muted uppercase tracking-wider mb-3">Patreon</p>
+          {/* Comparison: the two "not this" categories from the heading carry a
+              muted ✕; Artypot carries a vivid ✓ and is lifted + outlined as the
+              answer, so the row reads at a glance as "✕ ✕ ✓". */}
+          <div className="grid sm:grid-cols-3 gap-5 max-w-5xl mx-auto items-stretch">
+            <div className="bg-background border border-border rounded-xl p-6 opacity-90">
+              <div className="flex items-center gap-2 mb-3">
+                <span aria-hidden className="flex items-center justify-center w-5 h-5 rounded-full bg-surface-2 border border-border text-muted text-[11px] leading-none">✕</span>
+                <p className="text-xs font-mono text-muted uppercase tracking-wider">Patreon</p>
+              </div>
               <p className="text-muted text-sm leading-relaxed">
                 {t('different.patreon')}
               </p>
             </div>
 
-            <div className="bg-background border border-border rounded-xl p-6">
-              <p className="text-xs font-mono text-muted uppercase tracking-wider mb-3">Ko-fi / tips</p>
+            <div className="bg-background border border-border rounded-xl p-6 opacity-90">
+              <div className="flex items-center gap-2 mb-3">
+                <span aria-hidden className="flex items-center justify-center w-5 h-5 rounded-full bg-surface-2 border border-border text-muted text-[11px] leading-none">✕</span>
+                <p className="text-xs font-mono text-muted uppercase tracking-wider">Ko-fi / tips</p>
+              </div>
               <p className="text-muted text-sm leading-relaxed">
                 {t('different.kofi')}
               </p>
             </div>
 
-            <div className="bg-surface border border-creator/30 rounded-xl p-6">
-              <p className="text-xs font-mono text-creator uppercase tracking-wider mb-3">Artypot</p>
+            <div className="relative bg-surface border-2 border-creator rounded-xl p-6 shadow-[4px_4px_0_#000] sm:-translate-y-1">
+              <div className="flex items-center gap-2 mb-3">
+                <span aria-hidden className="flex items-center justify-center w-5 h-5 rounded-full bg-creator text-brand-dark text-[11px] font-bold leading-none">✓</span>
+                <p className="text-xs font-mono text-creator uppercase tracking-wider">Artypot</p>
+              </div>
               <p className="text-foreground text-sm leading-relaxed">
                 {t('different.artypot')}
               </p>
