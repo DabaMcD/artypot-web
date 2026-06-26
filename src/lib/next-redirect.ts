@@ -20,13 +20,6 @@ export const OAUTH_NEXT_KEY = 'oauth_next';
  */
 export const OAUTH_VERIFY_KEY = 'oauth_handle_verify';
 
-/**
- * sessionStorage key the callback page writes the verification outcome into, for
- * the page that started the flow to read on return and surface as a toast.
- * Shape: JSON `{ handle: string, result: 'verified'|'not_found'|'failed'|'error' }`.
- */
-export const OAUTH_VERIFY_RESULT_KEY = 'oauth_handle_verify_result';
-
 /** Where users land after auth when no (valid) `next` was supplied. */
 export const DEFAULT_POST_AUTH = '/dashboard';
 
