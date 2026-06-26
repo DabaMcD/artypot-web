@@ -6,8 +6,9 @@ import { useSearchParams } from 'next/navigation';
 import { setToken, auth as authApi } from '@/lib/api';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
+import { useToast } from '@/lib/toast-context';
 import { pickPreferredLocale } from '@/lib/preferred-locale';
-import { nextTarget, OAUTH_NEXT_KEY, OAUTH_VERIFY_KEY, OAUTH_VERIFY_RESULT_KEY } from '@/lib/next-redirect';
+import { nextTarget, OAUTH_NEXT_KEY, OAUTH_VERIFY_KEY } from '@/lib/next-redirect';
 
 const PLATFORM_LABELS: Record<string, string> = {
   google:    'Google',
@@ -27,6 +28,8 @@ function OAuthCallbackContent() {
   const { refreshUser } = useAuth();
   const currentLocale = useLocale();
   const t = useTranslations('OAuthCallback');
+  const th = useTranslations('HandlesSection'); // verifyResult.* live here
+  const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -47,13 +50,25 @@ function OAuthCallbackContent() {
       sessionStorage.removeItem('oauth_nonce');
     };
 
+    // Toast the verify outcome from HERE. The ToastProvider lives in the locale
+    // layout, so the toast survives the SPA redirect below and shows reliably no
+    // matter where the user lands — the old approach stashed the result for the
+    // destination page to toast, which silently dropped it whenever that page
+    // didn't mount HandlesSection (onboarding bounce, re-mount race, etc.).
+    const toastVerifyResult = (result: string) => {
+      const at = verifyHandle ? `@${verifyHandle}` : th('verifyResult.yourHandle');
+      switch (result) {
+        case 'verified':  toast(th('verifyResult.verified', { at }), 'success'); break;
+        case 'not_found': toast(th('verifyResult.notFound', { at }), 'error'); break;
+        case 'failed':    toast(th('verifyResult.failed', { at }), 'error'); break;
+        default:          toast(th('verifyResult.unknown', { at }), 'error');
+      }
+    };
+
     // A handle-verify failure returns the user to where they started with a
     // "couldn't connect" toast rather than the login-error screen.
     const failVerify = () => {
-      sessionStorage.setItem(
-        OAUTH_VERIFY_RESULT_KEY,
-        JSON.stringify({ handle: verifyHandle, result: 'failed' }),
-      );
+      toastVerifyResult('failed');
       const dest = nextTarget(sessionStorage.getItem(OAUTH_NEXT_KEY));
       clearFlow();
       router.replace(dest);
@@ -99,12 +114,9 @@ function OAuthCallbackContent() {
 
     authApi.oauthComplete({ code, state })
       .then((res) => {
-        // Verify flow: stash the outcome for the originating page to toast.
+        // Verify flow: toast the outcome now (persists across the redirect).
         if (verifyHandle) {
-          sessionStorage.setItem(
-            OAUTH_VERIFY_RESULT_KEY,
-            JSON.stringify({ handle: verifyHandle, result: res.verify ?? 'verified' }),
-          );
+          toastVerifyResult(res.verify ?? 'verified');
           sessionStorage.removeItem(OAUTH_VERIFY_KEY);
         }
 
