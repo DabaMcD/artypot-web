@@ -1467,7 +1467,7 @@ export interface AdminCreator {
 
 // ── Admin audit log (read-only feed of admin/council actions) ───────────────
 
-export type AuditLogCategory = 'accounts' | 'compliance' | 'money' | 'content' | 'governance';
+export type AuditLogCategory = 'accounts' | 'compliance' | 'money' | 'content' | 'governance' | 'moderation' | 'system';
 
 export interface AuditLogActor {
   id: number;

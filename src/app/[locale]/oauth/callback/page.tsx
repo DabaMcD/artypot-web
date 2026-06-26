@@ -3,11 +3,23 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
-import { setToken } from '@/lib/api';
+import { setToken, auth as authApi } from '@/lib/api';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { pickPreferredLocale } from '@/lib/preferred-locale';
 import { nextTarget, OAUTH_NEXT_KEY, OAUTH_VERIFY_KEY, OAUTH_VERIFY_RESULT_KEY } from '@/lib/next-redirect';
+
+const PLATFORM_LABELS: Record<string, string> = {
+  google:    'Google',
+  github:    'GitHub',
+  facebook:  'Facebook',
+  discord:   'Discord',
+  instagram: 'Instagram',
+  kick:      'Kick',
+  tiktok:    'TikTok',
+  twitter:   'X / Twitter',
+  twitch:    'Twitch',
+};
 
 function OAuthCallbackContent() {
   const searchParams = useSearchParams();
@@ -18,94 +30,101 @@ function OAuthCallbackContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    const err   = searchParams.get('error');
-    // Verification outcome echoed by the backend on the success redirect.
-    const verify = searchParams.get('verify');
-    // Set by the handles-page modal: presence ⇒ this was a handle-verify flow
-    // (not a login); value ⇒ the handle being verified (for the result message).
+    // The provider now redirects the browser to THIS frontend page with the
+    // authorization code + state (or an error if the user denied). We finish the
+    // flow by POSTing {code,state} to the API — which, being an authenticated
+    // fetch, carries the user's token so the backend knows the real account.
+    const code    = searchParams.get('code');
+    const state   = searchParams.get('state');
+    const provErr = searchParams.get('error'); // provider-side denial / failure
+    // Set by the handles-page modal: presence ⇒ this round-trip was a handle
+    // verify (not a login); value ⇒ the handle, for the result message.
     const verifyHandle = sessionStorage.getItem(OAUTH_VERIFY_KEY);
 
-    // Stash the verification outcome for the originating page to toast on return.
-    const stashVerifyResult = (result: string) => {
-      if (!verifyHandle) return;
-      sessionStorage.setItem(
-        OAUTH_VERIFY_RESULT_KEY,
-        JSON.stringify({ handle: verifyHandle, result }),
-      );
+    const clearFlow = () => {
+      sessionStorage.removeItem(OAUTH_NEXT_KEY);
       sessionStorage.removeItem(OAUTH_VERIFY_KEY);
+      sessionStorage.removeItem('oauth_nonce');
     };
 
-    if (token) {
-      // Nonce check: verify this callback was initiated from this browser session.
-      // This prevents simple token injection attacks where an attacker crafts a
-      // /oauth/callback?token=... URL. If the nonce is missing, the flow did not
-      // originate from a legitimate handleOAuth call in this tab.
-      const nonce = sessionStorage.getItem('oauth_nonce');
-      if (!nonce) {
-        sessionStorage.removeItem(OAUTH_NEXT_KEY);
-        sessionStorage.removeItem(OAUTH_VERIFY_KEY);
-        router.replace('/login?error=invalid_oauth_state');
+    // A handle-verify failure returns the user to where they started with a
+    // "couldn't connect" toast rather than the login-error screen.
+    const failVerify = () => {
+      sessionStorage.setItem(
+        OAUTH_VERIFY_RESULT_KEY,
+        JSON.stringify({ handle: verifyHandle, result: 'failed' }),
+      );
+      const dest = nextTarget(sessionStorage.getItem(OAUTH_NEXT_KEY));
+      clearFlow();
+      router.replace(dest);
+    };
+
+    // A login/registration failure shows the error screen.
+    const failLogin = (reason: string | null, providerSlug?: string) => {
+      clearFlow();
+      if (reason === 'provider_not_configured') {
+        const label = PLATFORM_LABELS[providerSlug ?? ''] ?? (providerSlug
+          ? providerSlug.charAt(0).toUpperCase() + providerSlug.slice(1)
+          : t('fallbackProvider'));
+        setError(t('errorProviderNotConfigured', { provider: label }));
         return;
       }
-      sessionStorage.removeItem('oauth_nonce');
-
-      // Where to land after auth: the `next` stashed when the flow was started
-      // (sanitized again here as defence in depth), else /dashboard.
-      const dest = nextTarget(sessionStorage.getItem(OAUTH_NEXT_KEY));
-      sessionStorage.removeItem(OAUTH_NEXT_KEY);
-
-      // Record the handle-verify outcome (backend result, or a neutral fallback).
-      stashVerifyResult(verify ?? 'verified');
-
-      setToken(token);
-      refreshUser()
-        .then((u) => {
-          const loc = pickPreferredLocale(u, currentLocale);
-          router.replace(dest, loc ? { locale: loc } : undefined);
-        })
-        .catch(() => setError(t('errorAccountLoad')));
-      return;
-    }
-
-    // ── Error paths ──────────────────────────────────────────────────────────
-    // For a handle-verification flow, send the user back to where they started
-    // with a "couldn't connect" result instead of the login-error screen.
-    if (verifyHandle) {
-      stashVerifyResult('failed');
-      const dest = nextTarget(sessionStorage.getItem(OAUTH_NEXT_KEY));
-      sessionStorage.removeItem(OAUTH_NEXT_KEY);
-      sessionStorage.removeItem('oauth_nonce');
-      router.replace(dest);
-      return;
-    }
-
-    if (err === 'provider_not_configured') {
-      // Backend dropped us back because credentials for this provider aren't
-      // set up yet. Build a friendly message that names the platform.
-      const PLATFORM_LABELS: Record<string, string> = {
-        google:    'Google',
-        github:    'GitHub',
-        facebook:  'Facebook',
-        discord:   'Discord',
-        instagram: 'Instagram',
-        kick:      'Kick',
-        tiktok:    'TikTok',
-        twitter:   'X / Twitter',
-        twitch:    'Twitch',
-      };
-      const slug  = searchParams.get('provider') ?? '';
-      const label = PLATFORM_LABELS[slug] ?? (slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : t('fallbackProvider'));
-      setError(t('errorProviderNotConfigured', { provider: label }));
-    } else {
       const messages: Record<string, string> = {
-        invalid_state:        t('errorInvalidState'),
-        invalid_provider:     t('errorInvalidProvider'),
-        authentication_failed:t('errorAuthenticationFailed'),
-        account_error:        t('errorAccountError'),
+        invalid_state:          t('errorInvalidState'),
+        invalid_provider:       t('errorInvalidProvider'),
+        authentication_failed:  t('errorAuthenticationFailed'),
+        account_error:          t('errorAccountError'),
       };
-      setError(messages[err ?? ''] ?? t('errorGeneric'));
+      setError(messages[reason ?? ''] ?? t('errorGeneric'));
+    };
+
+    const fail = (reason: string | null, providerSlug?: string) =>
+      verifyHandle ? failVerify() : failLogin(reason, providerSlug);
+
+    // Provider denied, or we didn't get the code/state we need to continue.
+    if (provErr || !code || !state) {
+      fail(provErr ?? 'authentication_failed');
+      return;
     }
+
+    // Nonce: this callback must have been initiated from this browser tab —
+    // guards against a crafted /oauth/callback URL completing an unsolicited flow.
+    const nonce = sessionStorage.getItem('oauth_nonce');
+    if (!nonce) {
+      clearFlow();
+      router.replace('/login?error=invalid_oauth_state');
+      return;
+    }
+    sessionStorage.removeItem('oauth_nonce');
+
+    authApi.oauthComplete({ code, state })
+      .then((res) => {
+        // Verify flow: stash the outcome for the originating page to toast.
+        if (verifyHandle) {
+          sessionStorage.setItem(
+            OAUTH_VERIFY_RESULT_KEY,
+            JSON.stringify({ handle: verifyHandle, result: res.verify ?? 'verified' }),
+          );
+          sessionStorage.removeItem(OAUTH_VERIFY_KEY);
+        }
+
+        const dest = nextTarget(sessionStorage.getItem(OAUTH_NEXT_KEY));
+        sessionStorage.removeItem(OAUTH_NEXT_KEY);
+
+        // A login/registration returns a fresh token; a logged-in verifier keeps
+        // their existing session. Either way refresh the user (verification may
+        // have changed their creator status) and continue.
+        if (res.token) setToken(res.token);
+        refreshUser()
+          .then((u) => {
+            const loc = pickPreferredLocale(u, currentLocale);
+            router.replace(dest, loc ? { locale: loc } : undefined);
+          })
+          .catch(() => setError(t('errorAccountLoad')));
+      })
+      .catch((e: { reason?: string; data?: { provider?: string } }) => {
+        fail(e?.reason ?? 'account_error', e?.data?.provider);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -355,6 +355,22 @@ export const auth = {
     return request<{ url: string }>(`/auth/oauth/${provider}/redirect${qs ? `?${qs}` : ''}`);
   },
 
+  /**
+   * Completes an OAuth round-trip. The provider redirects the browser to our
+   * frontend callback; this posts the {code,state} back to the API. Because it
+   * goes through request(), the user's bearer token rides along when present —
+   * which is how the backend knows a handle verification belongs to THIS user
+   * (rather than resolving an account from the social identity). The provider is
+   * recovered server-side from the cached state, so it isn't sent here. Returns
+   * a login token only for an anonymous login/registration; a logged-in verifier
+   * keeps their existing session.
+   */
+  oauthComplete: (body: { code: string; state: string }) =>
+    request<{ token?: string; verify?: 'verified' | 'not_found' | 'error' }>(
+      '/auth/oauth/complete',
+      { method: 'POST', body: JSON.stringify(body) },
+    ),
+
   forgotPassword: (email: string) =>
     request<{ message: string }>('/auth/password/forgot', {
       method: 'POST',
@@ -1209,14 +1225,16 @@ export const admin = {
       body: JSON.stringify({ status, review_notes: reviewNotes || undefined }),
     }),
 
-  approveHandle: (handleId: number, decisionNotes?: string) =>
-    request<{ data: unknown }>(`/admin/handles/${handleId}/approve`, {
+  /** Approve/deny a specific verification APPLICATION (not the handle) — keyed by
+   *  application id so the right claimant is verified when two users contest one handle. */
+  approveHandle: (applicationId: number, decisionNotes?: string) =>
+    request<{ data: unknown }>(`/admin/handle-applications/${applicationId}/approve`, {
       method: 'POST',
       body: JSON.stringify(decisionNotes ? { decision_notes: decisionNotes } : {}),
     }),
 
-  rejectHandle: (handleId: number, decisionNotes?: string) =>
-    request<{ data: unknown }>(`/admin/handles/${handleId}/reject`, {
+  rejectHandle: (applicationId: number, decisionNotes?: string) =>
+    request<{ data: unknown }>(`/admin/handle-applications/${applicationId}/reject`, {
       method: 'POST',
       body: JSON.stringify(decisionNotes ? { decision_notes: decisionNotes } : {}),
     }),
