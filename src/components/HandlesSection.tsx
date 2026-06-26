@@ -23,7 +23,7 @@ import {
   platformOAuthProvider,
   platformOAuthIntent,
 } from '@/lib/platforms';
-import { OAUTH_NEXT_KEY, OAUTH_VERIFY_KEY, OAUTH_VERIFY_RESULT_KEY } from '@/lib/next-redirect';
+import { OAUTH_NEXT_KEY, OAUTH_VERIFY_KEY } from '@/lib/next-redirect';
 
 /**
  * Add-handle dropdown options — every curated platform plus 'Other'. Sourced
@@ -253,37 +253,9 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
     fetchClaims();
   }, [fetchClaims]);
 
-  // Surface the outcome of an OAuth handle-verification round-trip. The callback
-  // page stashes the result here before redirecting back; we show it once and
-  // clear it so a refresh doesn't replay the toast.
-  useEffect(() => {
-    const raw = sessionStorage.getItem(OAUTH_VERIFY_RESULT_KEY);
-    if (!raw) return;
-    sessionStorage.removeItem(OAUTH_VERIFY_RESULT_KEY);
-
-    let handle = '';
-    let result = '';
-    try {
-      ({ handle, result } = JSON.parse(raw));
-    } catch {
-      return;
-    }
-    const at = handle ? `@${handle}` : t('verifyResult.yourHandle');
-
-    switch (result) {
-      case 'verified':
-        toast(t('verifyResult.verified', { at }), 'success');
-        break;
-      case 'not_found':
-        toast(t('verifyResult.notFound', { at }), 'error');
-        break;
-      case 'failed':
-        toast(t('verifyResult.failed', { at }), 'error');
-        break;
-      default:
-        toast(t('verifyResult.unknown', { at }), 'error');
-    }
-  }, [toast, t]);
+  // (The OAuth handle-verification outcome is toasted by the /oauth/callback
+  // page itself now — it's always mounted and the toast survives the redirect,
+  // so the success/failure message no longer depends on this page re-mounting.)
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
