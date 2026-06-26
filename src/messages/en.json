@@ -742,6 +742,7 @@
       "howYouGetPaid": "How you get paid"
     },
     "different": {
+      "label": "compare with other platforms",
       "titleLine1": "Not a tip jar. Not a subscription.",
       "titleLine2": "A funded project request.",
       "body": "You already know what your audience wants... but how much do they want it? Artypot turns their \"plz do X\" comments into a number with a dollar sign in front of it.",

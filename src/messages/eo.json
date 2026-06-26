@@ -724,6 +724,7 @@
       "howYouGetPaid": "Kiel vi ricevas pagon"
     },
     "different": {
+      "label": "komparu kun aliaj platformoj",
       "titleLine1": "Ne trinkmonujo. Ne abono.",
       "titleLine2": "financata projektpeto.",
       "body": "Vi jam scias kion volas via spektantaro... sed kiom forte ili volas ĝin? Artypot transformas iliajn \"bonvolu fari X\" komentojn en numeron kun dolarsigno antaŭ ĝi.",

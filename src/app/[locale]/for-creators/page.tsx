@@ -120,6 +120,7 @@ export default function ForCreatorsPage() {
       <section className="bg-surface border-t border-b border-border">
         <div className="max-w-6xl mx-auto px-4 py-20">
           <div className="max-w-3xl mx-auto text-center mb-14">
+            <p className="text-xs font-mono text-muted uppercase tracking-wider mb-3">{t('different.label')}</p>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground leading-snug mb-4">
               {t('different.titleLine1')}
               <br /><span className="text-creator">{t('different.titleLine2')}</span>
