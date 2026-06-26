@@ -133,21 +133,21 @@ export default function ForCreatorsPage() {
               Artypot carries only a light teal accent as the page's own product. */}
           <div className="grid sm:grid-cols-3 gap-5 max-w-5xl mx-auto items-stretch">
             <div className="bg-background border border-border rounded-xl p-6">
-              <p className="text-xl font-display font-bold text-foreground mb-3">Patreon</p>
+              <p className="text-xl font-bold text-foreground mb-3">Patreon</p>
               <p className="text-muted text-sm leading-relaxed">
                 {t('different.patreon')}
               </p>
             </div>
 
             <div className="bg-background border border-border rounded-xl p-6">
-              <p className="text-xl font-display font-bold text-foreground mb-3">Ko-fi / tips</p>
+              <p className="text-xl font-bold text-foreground mb-3">Ko-fi / tips</p>
               <p className="text-muted text-sm leading-relaxed">
                 {t('different.kofi')}
               </p>
             </div>
 
             <div className="bg-surface border border-creator/40 rounded-xl p-6">
-              <p className="text-xl font-display font-bold text-creator mb-3">Artypot</p>
+              <p className="text-xl font-bold text-creator mb-3">Artypot</p>
               <p className="text-foreground text-sm leading-relaxed">
                 {t('different.artypot')}
               </p>
