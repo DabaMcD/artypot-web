@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { classifyTrackedPath } from './pageview-tracking';
+import { classifyTrackedPath, shouldCountView } from './pageview-tracking';
 
 describe('classifyTrackedPath', () => {
   it('tracks generally-accessible static pages', () => {
@@ -36,9 +36,52 @@ describe('classifyTrackedPath', () => {
     expect(classifyTrackedPath('/maya/randomthing')).toBeNull();
   });
 
-  it('does NOT track auth-gated or app routes', () => {
-    for (const p of ['/dashboard', '/settings', '/billing', '/admin/users', '/c/bounties', '/obelisk', '/become-creator']) {
+  it('tracks the curated fan + creator app pages as page_type app', () => {
+    for (const p of [
+      '/dashboard', '/backings', '/billing', '/history',
+      '/settings', '/settings/password', '/settings/two-factor',
+      '/become-creator', '/bounties/new',
+      '/c', '/c/bounties', '/c/handles', '/c/money', '/c/payouts', '/c/settings', '/c/tax',
+    ]) {
+      expect(classifyTrackedPath(p)).toEqual({ page_type: 'app' });
+    }
+  });
+
+  it('does NOT track internal tooling or unknown app sub-paths', () => {
+    for (const p of ['/admin/users', '/obelisk', '/dashboard/xyz', '/c/junk', '/settings/unknown']) {
       expect(classifyTrackedPath(p)).toBeNull();
     }
+  });
+});
+
+describe('shouldCountView', () => {
+  const h = (init: Record<string, string>) => new Headers(init);
+
+  it('counts a real top-level document load', () => {
+    expect(shouldCountView(h({ 'sec-fetch-mode': 'navigate', 'sec-fetch-dest': 'document' }))).toBe(true);
+  });
+
+  it('does NOT count RSC requests server-side (soft-navs are counted client-side)', () => {
+    // A real soft nav reaches the server as an RSC fetch, but a prefetched route
+    // is served from the client cache and never does — so the browser is the
+    // single source of truth for soft-navs. Skipping all RSC here avoids
+    // double-counting the soft-navs that do reach the server.
+    expect(shouldCountView(h({ rsc: '1', 'sec-fetch-dest': 'empty' }))).toBe(false);
+  });
+
+  it('does NOT count prefetch / prerender variants', () => {
+    expect(shouldCountView(h({ rsc: '1', 'next-router-prefetch': '1' }))).toBe(false);
+    expect(shouldCountView(h({ rsc: '1', 'next-router-prefetch': '2' }))).toBe(false); // PPR
+    expect(shouldCountView(h({ rsc: '1', 'next-router-segment-prefetch': '/x' }))).toBe(false);
+    expect(shouldCountView(h({ rsc: '1', 'sec-purpose': 'prefetch' }))).toBe(false);
+    expect(shouldCountView(h({ rsc: '1', 'x-middleware-prefetch': '1' }))).toBe(false);
+    expect(shouldCountView(h({ purpose: 'prefetch' }))).toBe(false);
+    // A prerender that looks like a document is still vetoed.
+    expect(shouldCountView(h({ 'sec-fetch-mode': 'navigate', 'sec-fetch-dest': 'document', 'sec-purpose': 'prefetch;prerender' }))).toBe(false);
+  });
+
+  it('does NOT count subresource fetches or header-less requests', () => {
+    expect(shouldCountView(h({ 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty' }))).toBe(false);
+    expect(shouldCountView(h({}))).toBe(false);
   });
 });

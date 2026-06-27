@@ -19,10 +19,11 @@ const TYPE_TABS: { label: string; value: TypeFilter }[] = [
   { label: 'bounty',  value: 'bounty' },
   { label: 'creator', value: 'creator' },
   { label: 'handle',  value: 'handle' },
+  { label: 'app',     value: 'app' },
 ];
 
 const TYPE_TONES: Record<PageViewType, 'default' | 'good' | 'info' | 'warn'> = {
-  static: 'default', bounty: 'good', creator: 'info', handle: 'warn',
+  static: 'default', bounty: 'good', creator: 'info', handle: 'warn', app: 'default',
 };
 
 const DEVICE_LABELS: Record<DeviceType, string> = {
@@ -72,6 +73,7 @@ export default function AdminAnalyticsPage() {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [includeBots, setIncludeBots] = useState(false);
   const [sort, setSort] = useState<'views' | 'unique' | 'recent'>('views');
+  const [period, setPeriod] = useState<'24h' | '7d' | '30d' | '90d' | 'all'>('all');
 
   const [rows, setRows] = useState<PageViewRow[]>([]);
   const [summary, setSummary] = useState<PageViewSummary | null>(null);
@@ -90,7 +92,7 @@ export default function AdminAnalyticsPage() {
   }, [q]);
 
   const fetchViews = useCallback(
-    async (params: { q: string; type: TypeFilter; bots: boolean; sort: string; page: number }) => {
+    async (params: { q: string; type: TypeFilter; bots: boolean; sort: string; period: typeof period; page: number }) => {
       setLoading(true);
       try {
         const res = await adminApi.listPageViews({
@@ -98,6 +100,7 @@ export default function AdminAnalyticsPage() {
           page_type: params.type,
           include_bots: params.bots || undefined,
           sort: params.sort as 'views' | 'unique' | 'recent',
+          period: params.period,
           page: params.page,
         });
         setRows(res.data);
@@ -116,15 +119,15 @@ export default function AdminAnalyticsPage() {
 
   useEffect(() => {
     if (user?.role === 'council') {
-      fetchViews({ q: debouncedQ, type: typeFilter, bots: includeBots, sort, page: 1 });
+      fetchViews({ q: debouncedQ, type: typeFilter, bots: includeBots, sort, period, page: 1 });
       setCurrentPage(1);
     }
-  }, [debouncedQ, typeFilter, includeBots, sort, user, fetchViews]);
+  }, [debouncedQ, typeFilter, includeBots, sort, period, user, fetchViews]);
 
   if (authLoading || !user || user.role !== 'council') return null;
 
   const goToPage = (p: number) => {
-    fetchViews({ q: debouncedQ, type: typeFilter, bots: includeBots, sort, page: p });
+    fetchViews({ q: debouncedQ, type: typeFilter, bots: includeBots, sort, period, page: p });
     setCurrentPage(p);
   };
 
@@ -203,6 +206,18 @@ export default function AdminAnalyticsPage() {
           <option value="views">sort: views</option>
           <option value="unique">sort: unique</option>
           <option value="recent">sort: recent</option>
+        </select>
+        <select
+          value={period}
+          onChange={(e) => setPeriod(e.target.value as typeof period)}
+          className="px-2 py-1.5 font-mono text-[10px] uppercase tracking-wider rounded border border-border bg-surface text-muted cursor-pointer"
+          title="Show pages active within this window (by last-seen)"
+        >
+          <option value="all">period: all time</option>
+          <option value="24h">period: 24h</option>
+          <option value="7d">period: 7d</option>
+          <option value="30d">period: 30d</option>
+          <option value="90d">period: 90d</option>
         </select>
       </div>
 

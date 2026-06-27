@@ -9,7 +9,7 @@
 
 import { KNOWN_PLATFORMS } from './platforms';
 
-export type TrackedPageType = 'static' | 'bounty' | 'handle' | 'creator';
+export type TrackedPageType = 'static' | 'bounty' | 'handle' | 'creator' | 'app';
 
 export interface TrackedPage {
   page_type: TrackedPageType;
@@ -18,12 +18,22 @@ export interface TrackedPage {
 }
 
 // Generally-accessible static pages we track. Must match config/pageviews.php.
-// (Auth-gated pages like /dashboard, /settings, /billing, /c, /admin are NOT
-// "generally accessible" and stay excluded via RESERVED_ROOTS below.)
 const STATIC_PATHS = new Set([
   '/', '/about', '/tos', '/privacy', '/creator-tos', '/support', '/search',
   '/bounties', '/for-creators', '/login', '/register', '/forgot-password',
   '/reset-password',
+]);
+
+// Authenticated fan + creator app pages we also count, as page_type 'app'. A
+// CURATED allowlist (not catch-all) so bot-probed / typo'd private paths can't
+// create rows. Must match config/pageviews.php (app_paths). Council/overlord
+// tooling (/admin, /obelisk) is intentionally excluded. View counts only — the
+// backend suppresses user_id for these, so no per-user behavioral record.
+const APP_PATHS = new Set([
+  '/dashboard', '/backings', '/billing', '/history',
+  '/settings', '/settings/password', '/settings/two-factor',
+  '/become-creator', '/bounties/new',
+  '/c', '/c/bounties', '/c/handles', '/c/money', '/c/payouts', '/c/settings', '/c/tax',
 ]);
 
 // First path segments that are NOT creator slugs (real app routes). This is an
@@ -54,6 +64,7 @@ export function classifyTrackedPath(rawPath: string): TrackedPage | null {
   const path = normalize(rawPath);
 
   if (STATIC_PATHS.has(path)) return { page_type: 'static' };
+  if (APP_PATHS.has(path)) return { page_type: 'app' };
 
   const seg = path.slice(1).split('/'); // path is "/..."; drop leading slash
 
@@ -90,6 +101,53 @@ export function classifyTrackedPath(rawPath: string): TrackedPage | null {
   return null;
 }
 
+/**
+ * Whether the SERVER middleware should count this GET as a pageview. It counts
+ * ONLY real top-level document loads (full loads, reloads, hard navigations):
+ * Sec-Fetch-Mode: navigate AND Sec-Fetch-Dest: document.
+ *
+ * Soft client-side navigations (clicking a <Link>) are counted from the BROWSER
+ * instead (PageviewTracker → /api/pageview): a prefetched route renders from the
+ * client router cache on click and never reaches the server, so the middleware
+ * literally cannot see those navigations. We therefore skip ALL RSC requests
+ * here — both speculative prefetches AND the real soft-navs that do reach the
+ * server — so the client stays the single source of truth for soft-navs and
+ * nothing is double-counted. Every speculative prefetch/prerender is skipped too.
+ * (Sec-Fetch-* are browser-set + unspoofable from page JS.)
+ */
+export function shouldCountView(headers: Headers): boolean {
+  const secPurpose = (headers.get('sec-purpose') ?? '').toLowerCase();
+  const isSpeculativeOrRsc =
+    headers.get('rsc') !== null ||
+    headers.get('next-router-prefetch') !== null ||
+    headers.get('next-router-segment-prefetch') !== null ||
+    secPurpose.includes('prefetch') ||
+    secPurpose.includes('prerender') ||
+    headers.get('purpose') === 'prefetch' ||
+    headers.get('x-purpose') === 'prefetch' ||
+    headers.get('x-middleware-prefetch') !== null;
+  if (isSpeculativeOrRsc) return false;
+
+  return headers.get('sec-fetch-mode') === 'navigate'
+    && headers.get('sec-fetch-dest') === 'document';
+}
+
+/**
+ * Real client IP from the proxy/CDN headers, most-specific first. Shared by the
+ * middleware and the /api/pageview route handler so the trusted-header list
+ * lives in ONE place. Empty when none present — the backend then drops the view
+ * rather than collapse every visitor onto the web server's own IP.
+ */
+export function clientIpFromHeaders(headers: Headers): string {
+  return (
+    headers.get('cf-connecting-ip') ||      // Cloudflare
+    headers.get('true-client-ip') ||        // Akamai / Cloudflare Enterprise
+    headers.get('x-real-ip') ||             // nginx
+    headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    ''
+  );
+}
+
 interface LogPageViewArgs {
   page: TrackedPage;
   path: string;
@@ -109,7 +167,16 @@ export async function logPageView({ page, path, locale, ip, userAgent, userId }:
   const secret = process.env.INTERNAL_SHARED_SECRET;
   if (!secret) return; // not configured → no-op
 
-  const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/v1';
+  // Server-only base for this server-to-server call. Prefer INTERNAL_API_URL
+  // (e.g. http://127.0.0.1:8000/v1) so the Next server reaches Laravel DIRECTLY
+  // instead of hair-pinning out through the public domain / CDN — faster, and it
+  // avoids a WAF/CDN blocking a non-browser request. NOT NEXT_PUBLIC_: this
+  // address must never reach the browser. Falls back to the public base, then
+  // the local dev default.
+  const base =
+    process.env.INTERNAL_API_URL ??
+    process.env.NEXT_PUBLIC_API_URL ??
+    'http://localhost:8000/v1';
 
   try {
     await fetch(`${base}/internal/pageviews`, {

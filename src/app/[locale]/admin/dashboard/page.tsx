@@ -8,6 +8,7 @@ import type { AdminDashboard } from '@/lib/types';
 import { SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { MiniBars, Sparkline } from '@/components/admin/MiniCharts';
 
 // ── formatting helpers ──────────────────────────────────────────────────────
 const num = (n: number) => (n ?? 0).toLocaleString('en-US');
@@ -100,35 +101,6 @@ function ChartCard({ title, total, children }: { title: string; total: string; c
         <span>today</span>
       </div>
     </div>
-  );
-}
-
-// Hand-rolled SVG (no chart lib in the codebase). currentColor resolves to the
-// council role accent set on the wrapper, so both charts match the role theme.
-function MiniBars({ data }: { data: number[] }) {
-  const max = Math.max(1, ...data);
-  const W = 300, H = 64, GAP = 5;
-  const bw = (W - GAP * (data.length - 1)) / data.length;
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ color: 'var(--color-role)', height: 64 }} preserveAspectRatio="none">
-      {data.map((v, i) => {
-        const h = v > 0 ? Math.max(2, (v / max) * H) : 0;
-        return <rect key={i} x={i * (bw + GAP)} y={H - h} width={bw} height={h} rx={1} fill="currentColor" opacity={0.85} />;
-      })}
-    </svg>
-  );
-}
-
-function Sparkline({ data }: { data: number[] }) {
-  const max = Math.max(1, ...data);
-  const W = 300, H = 64, n = data.length;
-  const pts = data.map((v, i) => [n === 1 ? 0 : (i / (n - 1)) * W, H - (v / max) * (H - 6) - 3] as const);
-  const line = pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ color: 'var(--color-role)', height: 64 }} preserveAspectRatio="none">
-      <polygon points={`0,${H} ${line} ${W},${H}`} fill="currentColor" opacity={0.12} />
-      <polyline points={line} fill="none" stroke="currentColor" strokeWidth={2} vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
-    </svg>
   );
 }
 

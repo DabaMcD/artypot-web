@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
-import { setToken, auth as authApi } from '@/lib/api';
+import { setToken, auth as authApi, reportClientError } from '@/lib/api';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
@@ -98,6 +98,18 @@ function OAuthCallbackContent() {
 
     // Provider denied, or we didn't get the code/state we need to continue.
     if (provErr || !code || !state) {
+      // The API is NEVER called on this path, so without this beacon the server
+      // has zero record of the failure. Report what the provider bounced back
+      // with (this is the most likely "works on staging, fails on prod with no
+      // logs" case — e.g. a redirect-uri/app mismatch makes the provider return
+      // an error instead of a code).
+      reportClientError('oauth_callback_no_code', {
+        provErr:  provErr ?? null,
+        hasCode:  !!code,
+        hasState: !!state,
+        isVerify: !!verifyHandle,
+        handle:   verifyHandle ?? null,
+      });
       fail(provErr ?? 'authentication_failed');
       return;
     }
@@ -134,7 +146,13 @@ function OAuthCallbackContent() {
           })
           .catch(() => setError(t('errorAccountLoad')));
       })
-      .catch((e: { reason?: string; data?: { provider?: string } }) => {
+      .catch((e: { reason?: string; data?: { provider?: string }; message?: string }) => {
+        reportClientError('oauth_complete_failed', {
+          reason:   e?.reason ?? null,
+          provider: e?.data?.provider ?? null,
+          isVerify: !!verifyHandle,
+          handle:   verifyHandle ?? null,
+        }, e?.message);
         fail(e?.reason ?? 'account_error', e?.data?.provider);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps

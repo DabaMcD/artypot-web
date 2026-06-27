@@ -32,7 +32,7 @@ const SORTS: Record<Master, { value: string; labelKey: string }[]> = {
 export default function CreatorsPage() {
   const t = useTranslations('Creators');
 
-  const [master, setMaster] = useState<Master>('verified');
+  const [master, setMaster] = useState<Master>('unverified');
   const [platform, setPlatform] = useState<string | null>(null); // null = all platforms
   const [sort, setSort] = useState('newest');
   const [page, setPage] = useState(1);

@@ -2,7 +2,7 @@ import createMiddleware from 'next-intl/middleware';
 import { NextResponse } from 'next/server';
 import type { NextRequest, NextFetchEvent } from 'next/server';
 import { routing } from './i18n/routing';
-import { classifyTrackedPath, logPageView } from './lib/pageview-tracking';
+import { classifyTrackedPath, logPageView, shouldCountView, clientIpFromHeaders } from './lib/pageview-tracking';
 
 /**
  * Composed proxy (Next 16's renamed "middleware"): next-intl locale handling +
@@ -66,19 +66,12 @@ function maybeLogPageView(
 ): void {
   if (request.method !== 'GET') return;
 
-  // Presence-based, not '=== "1"': the App Router sends next-router-prefetch
-  // '1' (route-tree) or '2' (PPR) for prefetches, and next-router-segment-prefetch
-  // for per-segment prefetches. (One residual case can't be detected by header:
-  // a FetchStrategy.Full prefetch sends only the RSC header — but that path is
-  // only taken by `<Link prefetch>` / dynamicOnHover, neither of which this app
-  // uses; don't add `prefetch` to a Link pointing at a tracked page.)
-  const isPrefetch =
-    request.headers.get('next-router-prefetch') !== null ||
-    request.headers.get('next-router-segment-prefetch') !== null ||
-    request.headers.get('purpose') === 'prefetch' ||
-    request.headers.get('x-purpose') === 'prefetch' ||
-    request.headers.get('x-middleware-prefetch') === '1';
-  if (isPrefetch) return;
+  // Count a view here ONLY for a real top-level document load (full load /
+  // reload / hard nav). Soft client-side navigations are counted in the browser
+  // (PageviewTracker → /api/pageview), because a prefetched route renders from
+  // the client router cache on click and never reaches the server. shouldCountView
+  // skips all RSC + prefetch/prerender (pageview-tracking.ts).
+  if (!shouldCountView(request.headers)) return;
 
   // Skip locale (or any) redirect — the actual page render happens on the next hop.
   if (response && response.status >= 300 && response.status < 400) return;
@@ -86,16 +79,23 @@ function maybeLogPageView(
   const page = classifyTrackedPath(unprefixed);
   if (!page) return;
 
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    '';
+  // Real client IP (shared with /api/pageview via clientIpFromHeaders). Empty ⇒
+  // the backend drops the view rather than collapse visitors onto the web
+  // server's own IP.
+  const ip = clientIpFromHeaders(request.headers);
+
   const locale = localePrefix ? localePrefix.slice(1) : routing.defaultLocale;
 
   // Best-effort viewer id from the non-httpOnly uid cookie (the bearer token
   // lives in localStorage, unreadable here). Digits-only guard; null if absent.
+  // Suppressed for 'app' (authenticated) pages: pairing a real user with a
+  // private page like /billing or /c/tax would build a per-user behavioral
+  // record, contrary to the hashed-aggregate privacy posture. (The backend
+  // enforces the same suppression, so this is defence-in-depth.)
   const uidRaw = request.cookies.get('artypot_uid')?.value;
-  const userId = uidRaw && /^\d+$/.test(uidRaw) ? Number(uidRaw) : null;
+  const userId = page.page_type === 'app'
+    ? null
+    : uidRaw && /^\d+$/.test(uidRaw) ? Number(uidRaw) : null;
 
   event.waitUntil(
     logPageView({

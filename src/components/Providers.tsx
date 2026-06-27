@@ -8,6 +8,7 @@ import ToastDisplay from '@/components/ToastDisplay';
 import { HashHighlight } from '@/components/HashHighlight';
 import UnreadTitleBadge from '@/components/UnreadTitleBadge';
 import BadAppleListener from '@/components/BadAppleListener';
+import { PageviewTracker } from '@/components/PageviewTracker';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -18,6 +19,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             <HashHighlight />
             <UnreadTitleBadge />
             <BadAppleListener />
+            <PageviewTracker />
             {children}
             <ToastDisplay />
           </ToastProvider>
