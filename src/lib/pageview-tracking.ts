@@ -109,7 +109,16 @@ export async function logPageView({ page, path, locale, ip, userAgent, userId }:
   const secret = process.env.INTERNAL_SHARED_SECRET;
   if (!secret) return; // not configured → no-op
 
-  const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/v1';
+  // Server-only base for this server-to-server call. Prefer INTERNAL_API_URL
+  // (e.g. http://127.0.0.1:8000/v1) so the Next server reaches Laravel DIRECTLY
+  // instead of hair-pinning out through the public domain / CDN — faster, and it
+  // avoids a WAF/CDN blocking a non-browser request. NOT NEXT_PUBLIC_: this
+  // address must never reach the browser. Falls back to the public base, then
+  // the local dev default.
+  const base =
+    process.env.INTERNAL_API_URL ??
+    process.env.NEXT_PUBLIC_API_URL ??
+    'http://localhost:8000/v1';
 
   try {
     await fetch(`${base}/internal/pageviews`, {
