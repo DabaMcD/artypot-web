@@ -147,6 +147,7 @@ export function Sidebar({ role, pathname, open = false, onClose }: SidebarProps)
     // Literal label (not t()): avoids adding a nav key across all locale message
     // files for a council-only, English-leaning admin page.
     { id: 'council-analytics',        label: 'Pageview analytics',        icon: '◴', href: '/admin/analytics' },
+    { id: 'council-funnel',           label: 'Activation funnel',         icon: '⌁', href: '/admin/funnel' },
     { id: 'council-audit',            label: t('nav.auditLog'),           icon: '◫', href: '/admin/logs' },
   ];
 

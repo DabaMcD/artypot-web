@@ -9,7 +9,7 @@
 
 import { KNOWN_PLATFORMS } from './platforms';
 
-export type TrackedPageType = 'static' | 'bounty' | 'handle' | 'creator';
+export type TrackedPageType = 'static' | 'bounty' | 'handle' | 'creator' | 'app';
 
 export interface TrackedPage {
   page_type: TrackedPageType;
@@ -18,12 +18,22 @@ export interface TrackedPage {
 }
 
 // Generally-accessible static pages we track. Must match config/pageviews.php.
-// (Auth-gated pages like /dashboard, /settings, /billing, /c, /admin are NOT
-// "generally accessible" and stay excluded via RESERVED_ROOTS below.)
 const STATIC_PATHS = new Set([
   '/', '/about', '/tos', '/privacy', '/creator-tos', '/support', '/search',
   '/bounties', '/for-creators', '/login', '/register', '/forgot-password',
   '/reset-password',
+]);
+
+// Authenticated fan + creator app pages we also count, as page_type 'app'. A
+// CURATED allowlist (not catch-all) so bot-probed / typo'd private paths can't
+// create rows. Must match config/pageviews.php (app_paths). Council/overlord
+// tooling (/admin, /obelisk) is intentionally excluded. View counts only — the
+// backend suppresses user_id for these, so no per-user behavioral record.
+const APP_PATHS = new Set([
+  '/dashboard', '/backings', '/billing', '/history',
+  '/settings', '/settings/password', '/settings/two-factor',
+  '/become-creator', '/bounties/new',
+  '/c', '/c/bounties', '/c/handles', '/c/money', '/c/payouts', '/c/settings', '/c/tax',
 ]);
 
 // First path segments that are NOT creator slugs (real app routes). This is an
@@ -54,6 +64,7 @@ export function classifyTrackedPath(rawPath: string): TrackedPage | null {
   const path = normalize(rawPath);
 
   if (STATIC_PATHS.has(path)) return { page_type: 'static' };
+  if (APP_PATHS.has(path)) return { page_type: 'app' };
 
   const seg = path.slice(1).split('/'); // path is "/..."; drop leading slash
 
@@ -88,6 +99,39 @@ export function classifyTrackedPath(rawPath: string): TrackedPage | null {
   }
 
   return null;
+}
+
+/**
+ * Whether a middleware GET should be counted as a real pageview. Fail-CLOSED: we
+ * count ONLY a genuine top-level document load or an App-Router soft navigation,
+ * and NEVER a speculative prefetch/prerender. This replaces the old denylist,
+ * which failed OPEN — any prefetch variant whose header wasn't enumerated got
+ * counted (the App Router prefetches every in-viewport <Link> on load).
+ *
+ * Signals (Sec-Fetch-* are browser-set + unspoofable from page JS):
+ *   - real document load: Sec-Fetch-Mode: navigate AND Sec-Fetch-Dest: document
+ *   - soft navigation:     an RSC request with NO prefetch/prerender marker
+ * A prefetch also carries the RSC header, so the prefetch veto below is what
+ * separates a real soft nav from a speculative one.
+ */
+export function shouldCountView(headers: Headers): boolean {
+  const secPurpose = (headers.get('sec-purpose') ?? '').toLowerCase();
+  const isPrefetchish =
+    headers.get('next-router-prefetch') !== null ||
+    headers.get('next-router-segment-prefetch') !== null ||
+    secPurpose.includes('prefetch') ||
+    secPurpose.includes('prerender') ||
+    headers.get('purpose') === 'prefetch' ||
+    headers.get('x-purpose') === 'prefetch' ||
+    headers.get('x-middleware-prefetch') !== null;
+  if (isPrefetchish) return false;
+
+  const isRealDocument =
+    headers.get('sec-fetch-mode') === 'navigate' &&
+    headers.get('sec-fetch-dest') === 'document';
+  const isSoftNav = headers.get('rsc') !== null;
+
+  return isRealDocument || isSoftNav;
 }
 
 interface LogPageViewArgs {
