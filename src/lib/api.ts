@@ -221,6 +221,23 @@ async function requestMultipart<T>(path: string, body: FormData): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+/**
+ * Best-effort client-error beacon — fire-and-forget, never throws, never blocks.
+ * Surfaces browser-side failures (e.g. an OAuth provider redirecting back with
+ * an error, before the API is ever called) in the SERVER logs, where they'd
+ * otherwise be completely invisible.
+ */
+export function reportClientError(context: string, detail?: Record<string, unknown>, message?: string): void {
+  try {
+    void request('/client-errors', {
+      method: 'POST',
+      body: JSON.stringify({ context, message, detail }),
+    }).catch(() => {/* diagnostics must never break the page */});
+  } catch {
+    /* swallow */
+  }
+}
+
 // Auth
 export const auth = {
   register: (payload: {
@@ -1350,6 +1367,7 @@ export const admin = {
     include_bots?: boolean;
     q?: string;
     sort?: 'views' | 'recent' | 'unique';
+    period?: '24h' | '7d' | '30d' | '90d' | 'all';
     page?: number;
   }) => {
     const entries = Object.entries(params ?? {})
