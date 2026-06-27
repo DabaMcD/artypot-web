@@ -2,7 +2,7 @@ import createMiddleware from 'next-intl/middleware';
 import { NextResponse } from 'next/server';
 import type { NextRequest, NextFetchEvent } from 'next/server';
 import { routing } from './i18n/routing';
-import { classifyTrackedPath, logPageView } from './lib/pageview-tracking';
+import { classifyTrackedPath, logPageView, shouldCountView } from './lib/pageview-tracking';
 
 /**
  * Composed proxy (Next 16's renamed "middleware"): next-intl locale handling +
@@ -66,41 +66,29 @@ function maybeLogPageView(
 ): void {
   if (request.method !== 'GET') return;
 
-  // A request is a prefetch/prerender (NOT a real view) if it carries any
-  // speculative-load signal. We skip these so the App Router prefetching every
-  // <Link> in/near the viewport on load doesn't inflate the counts.
-  //   - next-router-prefetch '1' (route-tree) / '2' (PPR), next-router-segment-prefetch
-  //   - sec-purpose: the WEB-STANDARD header browsers attach to speculative
-  //     loads ("prefetch" / "prefetch;prerender"). This was previously MISSED,
-  //     which is why prefetched links were being logged as views.
-  //   - purpose / x-purpose / x-middleware-prefetch: legacy / other engines
-  const secPurpose = request.headers.get('sec-purpose') ?? '';
-  const isPrefetch =
-    request.headers.get('next-router-prefetch') !== null ||
-    request.headers.get('next-router-segment-prefetch') !== null ||
-    secPurpose.includes('prefetch') ||
-    request.headers.get('purpose') === 'prefetch' ||
-    request.headers.get('x-purpose') === 'prefetch' ||
-    request.headers.get('x-middleware-prefetch') === '1';
+  // Count a view ONLY for a real page hit — a top-level document load or a
+  // genuine App-Router soft navigation — never a speculative prefetch/prerender
+  // (the App Router prefetches every in-viewport <Link> on load). shouldCountView
+  // is a fail-CLOSED allowlist on Sec-Fetch-* / RSC semantics (pageview-tracking.ts).
+  const counts = shouldCountView(request.headers);
 
-  // Diagnostic: with PAGEVIEW_DEBUG=1, log the prefetch signals + the decision
-  // for every tracked GET, so any still-leaking prefetch variant is easy to spot.
+  // Diagnostic: with PAGEVIEW_DEBUG=1, log the decision + the signals it rests on
+  // for every tracked GET, so any mis-decision is easy to spot.
   if (process.env.PAGEVIEW_DEBUG) {
     console.log('[pageview-prefetch-debug]', JSON.stringify({
       path: unprefixed,
-      isPrefetch,
+      counts,
+      'sec-fetch-mode': request.headers.get('sec-fetch-mode'),
+      'sec-fetch-dest': request.headers.get('sec-fetch-dest'),
+      rsc: request.headers.get('rsc'),
       'sec-purpose': request.headers.get('sec-purpose'),
       'next-router-prefetch': request.headers.get('next-router-prefetch'),
       'next-router-segment-prefetch': request.headers.get('next-router-segment-prefetch'),
-      purpose: request.headers.get('purpose'),
-      'x-purpose': request.headers.get('x-purpose'),
       'x-middleware-prefetch': request.headers.get('x-middleware-prefetch'),
-      rsc: request.headers.get('rsc'),
-      'sec-fetch-dest': request.headers.get('sec-fetch-dest'),
     }));
   }
 
-  if (isPrefetch) return;
+  if (!counts) return;
 
   // Skip locale (or any) redirect — the actual page render happens on the next hop.
   if (response && response.status >= 300 && response.status < 400) return;
@@ -137,8 +125,14 @@ function maybeLogPageView(
 
   // Best-effort viewer id from the non-httpOnly uid cookie (the bearer token
   // lives in localStorage, unreadable here). Digits-only guard; null if absent.
+  // Suppressed for 'app' (authenticated) pages: pairing a real user with a
+  // private page like /billing or /c/tax would build a per-user behavioral
+  // record, contrary to the hashed-aggregate privacy posture. (The backend
+  // enforces the same suppression, so this is defence-in-depth.)
   const uidRaw = request.cookies.get('artypot_uid')?.value;
-  const userId = uidRaw && /^\d+$/.test(uidRaw) ? Number(uidRaw) : null;
+  const userId = page.page_type === 'app'
+    ? null
+    : uidRaw && /^\d+$/.test(uidRaw) ? Number(uidRaw) : null;
 
   event.waitUntil(
     logPageView({

@@ -19,10 +19,11 @@ const TYPE_TABS: { label: string; value: TypeFilter }[] = [
   { label: 'bounty',  value: 'bounty' },
   { label: 'creator', value: 'creator' },
   { label: 'handle',  value: 'handle' },
+  { label: 'app',     value: 'app' },
 ];
 
 const TYPE_TONES: Record<PageViewType, 'default' | 'good' | 'info' | 'warn'> = {
-  static: 'default', bounty: 'good', creator: 'info', handle: 'warn',
+  static: 'default', bounty: 'good', creator: 'info', handle: 'warn', app: 'default',
 };
 
 const DEVICE_LABELS: Record<DeviceType, string> = {

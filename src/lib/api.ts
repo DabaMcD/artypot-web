@@ -1361,6 +1361,10 @@ export const admin = {
   dashboard: () =>
     request<{ data: import('./types').AdminDashboard }>('/admin/dashboard'),
 
+  // Activation & retention funnel (computed from domain data; no new tracking)
+  funnel: () =>
+    request<{ data: import('./types').AdminFunnel }>('/admin/analytics/funnel'),
+
   // Pageview analytics
   listPageViews: (params?: {
     page_type?: import('./types').PageViewType | 'all';

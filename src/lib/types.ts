@@ -623,7 +623,7 @@ export interface PaginatedResponse<T> {
 
 // ── Pageview analytics (admin) ───────────────────────────────────────────────
 
-export type PageViewType = 'static' | 'bounty' | 'handle' | 'creator';
+export type PageViewType = 'static' | 'bounty' | 'handle' | 'creator' | 'app';
 export type DeviceType = 'desktop' | 'mobile' | 'tablet' | 'bot' | 'unknown';
 
 /** Per-page aggregate row from GET /admin/page-views. */
@@ -656,6 +656,40 @@ export interface PageViewSummary {
 
 export interface PageViewResponse extends PaginatedResponse<PageViewRow> {
   summary: PageViewSummary;
+}
+
+// ── Activation & retention funnel (admin) ────────────────────────────────────
+
+/** One lifecycle stage from GET /admin/analytics/funnel. */
+export interface AdminFunnelStage {
+  key: 'registered' | 'verified' | 'backed' | 'paid';
+  label: string;
+  count: number;
+  /** % of all registered users. */
+  pct_of_registered: number;
+  /** % of the previous stage (directional — stages aren't strictly nested). */
+  pct_of_prev: number;
+}
+
+/** One weekly signup cohort + its early retention. */
+export interface AdminFunnelCohort {
+  week: string;        // ISO date of the cohort's week start
+  size: number;
+  pct_7d: number;      // % who backed within 7 days of signing up
+  pct_30d: number;     // …within 30 days
+}
+
+export interface AdminFunnelChannel {
+  channel: string;     // oauth provider id, or 'password'
+  users: number;
+}
+
+export interface AdminFunnel {
+  generated_at: string;
+  funnel: AdminFunnelStage[];
+  time_to_first_backing: { median_days: number | null; avg_days: number | null; n: number };
+  cohorts: AdminFunnelCohort[];
+  channels: AdminFunnelChannel[];
 }
 
 // ── Admin types ─────────────────────────────────────────────────────────────
