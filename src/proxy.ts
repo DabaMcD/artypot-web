@@ -66,18 +66,40 @@ function maybeLogPageView(
 ): void {
   if (request.method !== 'GET') return;
 
-  // Presence-based, not '=== "1"': the App Router sends next-router-prefetch
-  // '1' (route-tree) or '2' (PPR) for prefetches, and next-router-segment-prefetch
-  // for per-segment prefetches. (One residual case can't be detected by header:
-  // a FetchStrategy.Full prefetch sends only the RSC header — but that path is
-  // only taken by `<Link prefetch>` / dynamicOnHover, neither of which this app
-  // uses; don't add `prefetch` to a Link pointing at a tracked page.)
+  // A request is a prefetch/prerender (NOT a real view) if it carries any
+  // speculative-load signal. We skip these so the App Router prefetching every
+  // <Link> in/near the viewport on load doesn't inflate the counts.
+  //   - next-router-prefetch '1' (route-tree) / '2' (PPR), next-router-segment-prefetch
+  //   - sec-purpose: the WEB-STANDARD header browsers attach to speculative
+  //     loads ("prefetch" / "prefetch;prerender"). This was previously MISSED,
+  //     which is why prefetched links were being logged as views.
+  //   - purpose / x-purpose / x-middleware-prefetch: legacy / other engines
+  const secPurpose = request.headers.get('sec-purpose') ?? '';
   const isPrefetch =
     request.headers.get('next-router-prefetch') !== null ||
     request.headers.get('next-router-segment-prefetch') !== null ||
+    secPurpose.includes('prefetch') ||
     request.headers.get('purpose') === 'prefetch' ||
     request.headers.get('x-purpose') === 'prefetch' ||
     request.headers.get('x-middleware-prefetch') === '1';
+
+  // Diagnostic: with PAGEVIEW_DEBUG=1, log the prefetch signals + the decision
+  // for every tracked GET, so any still-leaking prefetch variant is easy to spot.
+  if (process.env.PAGEVIEW_DEBUG) {
+    console.log('[pageview-prefetch-debug]', JSON.stringify({
+      path: unprefixed,
+      isPrefetch,
+      'sec-purpose': request.headers.get('sec-purpose'),
+      'next-router-prefetch': request.headers.get('next-router-prefetch'),
+      'next-router-segment-prefetch': request.headers.get('next-router-segment-prefetch'),
+      purpose: request.headers.get('purpose'),
+      'x-purpose': request.headers.get('x-purpose'),
+      'x-middleware-prefetch': request.headers.get('x-middleware-prefetch'),
+      rsc: request.headers.get('rsc'),
+      'sec-fetch-dest': request.headers.get('sec-fetch-dest'),
+    }));
+  }
+
   if (isPrefetch) return;
 
   // Skip locale (or any) redirect — the actual page render happens on the next hop.
@@ -97,6 +119,20 @@ function maybeLogPageView(
     request.headers.get('x-real-ip') ||             // nginx
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     '';
+  // Diagnostic: set PAGEVIEW_DEBUG=1 to log the candidate client-IP headers for
+  // each tracked request, so you can see which one (if any) the proxy in front
+  // of this server actually forwards. Off by default; safe to leave in.
+  if (process.env.PAGEVIEW_DEBUG) {
+    console.log('[pageview-debug]', JSON.stringify({
+      path: unprefixed,
+      chosen_ip: ip,
+      'cf-connecting-ip': request.headers.get('cf-connecting-ip'),
+      'true-client-ip': request.headers.get('true-client-ip'),
+      'x-real-ip': request.headers.get('x-real-ip'),
+      'x-forwarded-for': request.headers.get('x-forwarded-for'),
+    }));
+  }
+
   const locale = localePrefix ? localePrefix.slice(1) : routing.defaultLocale;
 
   // Best-effort viewer id from the non-httpOnly uid cookie (the bearer token
