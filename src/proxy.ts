@@ -66,29 +66,12 @@ function maybeLogPageView(
 ): void {
   if (request.method !== 'GET') return;
 
-  // Count a view ONLY for a real page hit — a top-level document load or a
-  // genuine App-Router soft navigation — never a speculative prefetch/prerender
-  // (the App Router prefetches every in-viewport <Link> on load). shouldCountView
-  // is a fail-CLOSED allowlist on Sec-Fetch-* / RSC semantics (pageview-tracking.ts).
-  const counts = shouldCountView(request.headers);
-
-  // Diagnostic: with PAGEVIEW_DEBUG=1, log the decision + the signals it rests on
-  // for every tracked GET, so any mis-decision is easy to spot.
-  if (process.env.PAGEVIEW_DEBUG) {
-    console.log('[pageview-prefetch-debug]', JSON.stringify({
-      path: unprefixed,
-      counts,
-      'sec-fetch-mode': request.headers.get('sec-fetch-mode'),
-      'sec-fetch-dest': request.headers.get('sec-fetch-dest'),
-      rsc: request.headers.get('rsc'),
-      'sec-purpose': request.headers.get('sec-purpose'),
-      'next-router-prefetch': request.headers.get('next-router-prefetch'),
-      'next-router-segment-prefetch': request.headers.get('next-router-segment-prefetch'),
-      'x-middleware-prefetch': request.headers.get('x-middleware-prefetch'),
-    }));
-  }
-
-  if (!counts) return;
+  // Count a view here ONLY for a real top-level document load (full load /
+  // reload / hard nav). Soft client-side navigations are counted in the browser
+  // (PageviewTracker → /api/pageview), because a prefetched route renders from
+  // the client router cache on click and never reaches the server. shouldCountView
+  // skips all RSC + prefetch/prerender (pageview-tracking.ts).
+  if (!shouldCountView(request.headers)) return;
 
   // Skip locale (or any) redirect — the actual page render happens on the next hop.
   if (response && response.status >= 300 && response.status < 400) return;
@@ -100,19 +83,6 @@ function maybeLogPageView(
   // the backend drops the view rather than collapse visitors onto the web
   // server's own IP.
   const ip = clientIpFromHeaders(request.headers);
-  // Diagnostic: set PAGEVIEW_DEBUG=1 to log the candidate client-IP headers for
-  // each tracked request, so you can see which one (if any) the proxy in front
-  // of this server actually forwards. Off by default; safe to leave in.
-  if (process.env.PAGEVIEW_DEBUG) {
-    console.log('[pageview-debug]', JSON.stringify({
-      path: unprefixed,
-      chosen_ip: ip,
-      'cf-connecting-ip': request.headers.get('cf-connecting-ip'),
-      'true-client-ip': request.headers.get('true-client-ip'),
-      'x-real-ip': request.headers.get('x-real-ip'),
-      'x-forwarded-for': request.headers.get('x-forwarded-for'),
-    }));
-  }
 
   const locale = localePrefix ? localePrefix.slice(1) : routing.defaultLocale;
 
