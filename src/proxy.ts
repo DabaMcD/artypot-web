@@ -86,9 +86,16 @@ function maybeLogPageView(
   const page = classifyTrackedPath(unprefixed);
   if (!page) return;
 
+  // Real client IP. Prefer the CDN/proxy's dedicated single-client-IP headers
+  // (set by the edge, harder to spoof) before falling back to the left-most
+  // X-Forwarded-For hop. An empty result means the backend can't attribute the
+  // view to a distinct visitor, so it drops it rather than collapse everyone
+  // onto the web server's IP — keep this list in sync with the host in front.
   const ip =
+    request.headers.get('cf-connecting-ip') ||      // Cloudflare
+    request.headers.get('true-client-ip') ||        // Akamai / Cloudflare Enterprise
+    request.headers.get('x-real-ip') ||             // nginx
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
     '';
   const locale = localePrefix ? localePrefix.slice(1) : routing.defaultLocale;
 

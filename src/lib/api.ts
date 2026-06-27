@@ -1367,6 +1367,7 @@ export const admin = {
     include_bots?: boolean;
     q?: string;
     sort?: 'views' | 'recent' | 'unique';
+    period?: '24h' | '7d' | '30d' | '90d' | 'all';
     page?: number;
   }) => {
     const entries = Object.entries(params ?? {})
