@@ -102,21 +102,23 @@ export function classifyTrackedPath(rawPath: string): TrackedPage | null {
 }
 
 /**
- * Whether a middleware GET should be counted as a real pageview. Fail-CLOSED: we
- * count ONLY a genuine top-level document load or an App-Router soft navigation,
- * and NEVER a speculative prefetch/prerender. This replaces the old denylist,
- * which failed OPEN — any prefetch variant whose header wasn't enumerated got
- * counted (the App Router prefetches every in-viewport <Link> on load).
+ * Whether the SERVER middleware should count this GET as a pageview. It counts
+ * ONLY real top-level document loads (full loads, reloads, hard navigations):
+ * Sec-Fetch-Mode: navigate AND Sec-Fetch-Dest: document.
  *
- * Signals (Sec-Fetch-* are browser-set + unspoofable from page JS):
- *   - real document load: Sec-Fetch-Mode: navigate AND Sec-Fetch-Dest: document
- *   - soft navigation:     an RSC request with NO prefetch/prerender marker
- * A prefetch also carries the RSC header, so the prefetch veto below is what
- * separates a real soft nav from a speculative one.
+ * Soft client-side navigations (clicking a <Link>) are counted from the BROWSER
+ * instead (PageviewTracker → /api/pageview): a prefetched route renders from the
+ * client router cache on click and never reaches the server, so the middleware
+ * literally cannot see those navigations. We therefore skip ALL RSC requests
+ * here — both speculative prefetches AND the real soft-navs that do reach the
+ * server — so the client stays the single source of truth for soft-navs and
+ * nothing is double-counted. Every speculative prefetch/prerender is skipped too.
+ * (Sec-Fetch-* are browser-set + unspoofable from page JS.)
  */
 export function shouldCountView(headers: Headers): boolean {
   const secPurpose = (headers.get('sec-purpose') ?? '').toLowerCase();
-  const isPrefetchish =
+  const isSpeculativeOrRsc =
+    headers.get('rsc') !== null ||
     headers.get('next-router-prefetch') !== null ||
     headers.get('next-router-segment-prefetch') !== null ||
     secPurpose.includes('prefetch') ||
@@ -124,14 +126,26 @@ export function shouldCountView(headers: Headers): boolean {
     headers.get('purpose') === 'prefetch' ||
     headers.get('x-purpose') === 'prefetch' ||
     headers.get('x-middleware-prefetch') !== null;
-  if (isPrefetchish) return false;
+  if (isSpeculativeOrRsc) return false;
 
-  const isRealDocument =
-    headers.get('sec-fetch-mode') === 'navigate' &&
-    headers.get('sec-fetch-dest') === 'document';
-  const isSoftNav = headers.get('rsc') !== null;
+  return headers.get('sec-fetch-mode') === 'navigate'
+    && headers.get('sec-fetch-dest') === 'document';
+}
 
-  return isRealDocument || isSoftNav;
+/**
+ * Real client IP from the proxy/CDN headers, most-specific first. Shared by the
+ * middleware and the /api/pageview route handler so the trusted-header list
+ * lives in ONE place. Empty when none present — the backend then drops the view
+ * rather than collapse every visitor onto the web server's own IP.
+ */
+export function clientIpFromHeaders(headers: Headers): string {
+  return (
+    headers.get('cf-connecting-ip') ||      // Cloudflare
+    headers.get('true-client-ip') ||        // Akamai / Cloudflare Enterprise
+    headers.get('x-real-ip') ||             // nginx
+    headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    ''
+  );
 }
 
 interface LogPageViewArgs {

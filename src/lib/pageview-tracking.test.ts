@@ -61,8 +61,12 @@ describe('shouldCountView', () => {
     expect(shouldCountView(h({ 'sec-fetch-mode': 'navigate', 'sec-fetch-dest': 'document' }))).toBe(true);
   });
 
-  it('counts a genuine App-Router soft navigation (RSC, no prefetch marker)', () => {
-    expect(shouldCountView(h({ rsc: '1', 'sec-fetch-dest': 'empty' }))).toBe(true);
+  it('does NOT count RSC requests server-side (soft-navs are counted client-side)', () => {
+    // A real soft nav reaches the server as an RSC fetch, but a prefetched route
+    // is served from the client cache and never does — so the browser is the
+    // single source of truth for soft-navs. Skipping all RSC here avoids
+    // double-counting the soft-navs that do reach the server.
+    expect(shouldCountView(h({ rsc: '1', 'sec-fetch-dest': 'empty' }))).toBe(false);
   });
 
   it('does NOT count prefetch / prerender variants', () => {
