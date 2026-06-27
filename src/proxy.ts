@@ -2,7 +2,7 @@ import createMiddleware from 'next-intl/middleware';
 import { NextResponse } from 'next/server';
 import type { NextRequest, NextFetchEvent } from 'next/server';
 import { routing } from './i18n/routing';
-import { classifyTrackedPath, logPageView, shouldCountView } from './lib/pageview-tracking';
+import { classifyTrackedPath, logPageView, shouldCountView, clientIpFromHeaders } from './lib/pageview-tracking';
 
 /**
  * Composed proxy (Next 16's renamed "middleware"): next-intl locale handling +
@@ -96,17 +96,10 @@ function maybeLogPageView(
   const page = classifyTrackedPath(unprefixed);
   if (!page) return;
 
-  // Real client IP. Prefer the CDN/proxy's dedicated single-client-IP headers
-  // (set by the edge, harder to spoof) before falling back to the left-most
-  // X-Forwarded-For hop. An empty result means the backend can't attribute the
-  // view to a distinct visitor, so it drops it rather than collapse everyone
-  // onto the web server's IP — keep this list in sync with the host in front.
-  const ip =
-    request.headers.get('cf-connecting-ip') ||      // Cloudflare
-    request.headers.get('true-client-ip') ||        // Akamai / Cloudflare Enterprise
-    request.headers.get('x-real-ip') ||             // nginx
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    '';
+  // Real client IP (shared with /api/pageview via clientIpFromHeaders). Empty ⇒
+  // the backend drops the view rather than collapse visitors onto the web
+  // server's own IP.
+  const ip = clientIpFromHeaders(request.headers);
   // Diagnostic: set PAGEVIEW_DEBUG=1 to log the candidate client-IP headers for
   // each tracked request, so you can see which one (if any) the proxy in front
   // of this server actually forwards. Off by default; safe to leave in.
