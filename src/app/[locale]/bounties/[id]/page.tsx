@@ -57,10 +57,29 @@ function formatUsd(amount: number): string {
   });
 }
 
+type CommentTranslator = ReturnType<typeof useTranslations<'CommentSection'>>;
+
+/** Human-readable "how long ago" for the "started by" line. Reuses the shared
+ *  CommentSection.timeAgo strings (just now / Xm / Xh / Xd) so it stays localized
+ *  across every locale, falling back to an absolute date past 30 days. */
+function timeAgo(dateStr: string, t: CommentTranslator, formatDate: (iso: string) => string): string {
+  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  if (seconds < 60) return t('timeAgo.justNow');
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return t('timeAgo.minutes', { count: minutes });
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return t('timeAgo.hours', { count: hours });
+  const days = Math.floor(hours / 24);
+  if (days < 30) return t('timeAgo.days', { count: days });
+  return formatDate(dateStr);
+}
+
 export default function BountyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const t = useTranslations('BountyDetail');
   const tReport = useTranslations('Report');
+  // Shared relative-time strings (just now / Xm / Xh / Xd) — see timeAgo().
+  const tTime = useTranslations('CommentSection');
   const money = useMoney();
   const dateFmt = useDateFormats();
   const format = useFormatter();
@@ -1206,6 +1225,9 @@ export default function BountyDetailPage({ params }: { params: Promise<{ id: str
                   >
                     {bounty.initiator.display_name}
                   </Link>
+                )}
+                {bounty.created_at && (
+                  <span className="text-muted ml-1.5">· {timeAgo(bounty.created_at, tTime, dateFmt.short)}</span>
                 )}
               </div>
             </div>

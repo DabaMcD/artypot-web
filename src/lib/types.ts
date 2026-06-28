@@ -493,6 +493,8 @@ export interface Bounty {
   target_handle?: { id: number; platform: string; username: string; status: string } | null;
   /** Backend-appended profile picture of the owner user. Null for owner-less bounties. */
   avatar_url?: string | null;
+  /** When the bounty was opened — drives the "started [how long] ago" line. */
+  created_at?: string;
   completed_at?: string;
   approved_at?: string;
   paid_out_at?: string;

@@ -10,10 +10,10 @@ import { useToast } from '@/lib/toast-context';
 import { Button } from '@/components/ui/Button';
 import { SectionLabel } from '@/components/ui/Card';
 import ShareButton from '@/components/ShareButton';
-import { BountyStatusBadge } from '@/components/BountyStatusBadge';
+import BountyCard from '@/components/BountyCard';
 import { Badge } from '@/components/ui/Badge';
 import { KNOWN_PLATFORMS } from '@/lib/platforms';
-import { useMoney } from '@/lib/format';
+import type { Bounty } from '@/lib/types';
 
 /**
  * Universal handle page, keyed by numeric id: artypot.com/h/{id}.
@@ -24,8 +24,6 @@ import { useMoney } from '@/lib/format';
  * /{platform}/{username} URL; verified owners redirect to their creator slug.
  */
 
-type SimpleBounty = { id: number; title: string; status: string; total_backed: string; created_at: string };
-
 type OtherHandle = { id: number; platform: string; username: string; profile_url: string | null; status: string };
 type Owner = { id: number; display_name: string; slug: string | null; profile_picture: string | null };
 
@@ -34,8 +32,8 @@ type ResolveResult =
   | { kind: 'not-found' }
   | { kind: 'error' }
   // Renders here only for 'other' handles. Curated/verified cases redirect away.
-  | { kind: 'unverified'; handle: OtherHandle; bounties: SimpleBounty[] }
-  | { kind: 'claimed'; handle: OtherHandle; owner: Owner; bounties: SimpleBounty[] };
+  | { kind: 'unverified'; handle: OtherHandle; bounties: Bounty[] }
+  | { kind: 'claimed'; handle: OtherHandle; owner: Owner; bounties: Bounty[] };
 
 /** The external URL for an 'other' handle (stored canonical URL → https://). */
 function externalUrl(handle: OtherHandle): string {
@@ -45,35 +43,6 @@ function externalUrl(handle: OtherHandle): string {
 /** The bare domain, for a tidy "Visit {domain} ↗" label. */
 function domainOf(handle: OtherHandle): string {
   return handle.username.split('/')[0] || handle.username;
-}
-
-// ── Mini bounty card (handle bounties aren't full Bounty objects) ──────────────
-
-function HandleBountyCard({ bounty }: { bounty: SimpleBounty }) {
-  const money = useMoney();
-  return (
-    <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-fan/50 transition-colors group">
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <h3 className="font-semibold text-foreground group-hover:text-fan transition-colors line-clamp-2 leading-snug">
-          <Link
-            href={`/bounties/${bounty.id}`}
-            className="after:absolute after:inset-0 focus:outline-none"
-          >
-            {bounty.title}
-          </Link>
-        </h3>
-        <div className="relative z-10 flex items-center gap-1.5 shrink-0">
-          <ShareButton path={`/bounties/${bounty.id}`} title={bounty.title} />
-          <BountyStatusBadge status={bounty.status} />
-        </div>
-      </div>
-      <div className="pt-3 border-t border-border">
-        <div className="text-fan font-bold text-lg">
-          {money(Number(bounty.total_backed))}
-        </div>
-      </div>
-    </div>
-  );
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -221,7 +190,7 @@ export default function HandleByIdPage({ params }: { params: Promise<{ id: strin
         <div className="flex-1 min-w-0">
 
           {/* Profile card */}
-          <div className="bg-surface border border-border rounded-xl p-6 mb-8">
+          <div className="bg-surface border border-border rounded-xl p-6">
             <div className="flex items-start gap-5">
               {claimedOwner?.profile_picture ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -292,46 +261,6 @@ export default function HandleByIdPage({ params }: { params: Promise<{ id: strin
             </div>
           </div>
 
-          {/* Bounties */}
-          <div>
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-bold text-foreground break-all">
-                {t('bountiesFor', { username: handle.username })}
-              </h2>
-              {user && (
-                <Link
-                  href={`/bounties/new?platform=other&handle=${encodeURIComponent(handle.username)}`}
-                  className="text-sm bg-fan text-black font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity shrink-0"
-                >
-                  {t('newBounty')}
-                </Link>
-              )}
-            </div>
-
-            {state.bounties.length === 0 ? (
-              <div className="text-center py-16 text-muted border border-border border-dashed rounded-xl">
-                {t('noBounties')}{' '}
-                {user ? (
-                  <Link
-                    href={`/bounties/new?platform=other&handle=${encodeURIComponent(handle.username)}`}
-                    className="text-fan hover:underline"
-                  >
-                    {t('createFirst')}
-                  </Link>
-                ) : (
-                  <Link href={`/login?next=${encodeURIComponent(sharePath)}`} className="text-fan hover:underline">
-                    {t('signInToStart')}
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                {state.bounties.map((b) => (
-                  <HandleBountyCard key={b.id} bounty={b} />
-                ))}
-              </div>
-            )}
-          </div>
         </div>
 
         {/* ── Sidebar ───────────────────────────────────────────────────────── */}
@@ -352,6 +281,47 @@ export default function HandleByIdPage({ params }: { params: Promise<{ id: strin
           </div>
         </div>
 
+      </div>
+
+      {/* ── Bounties (full width, flowing under the sidebar) ─────────────────── */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl font-bold text-foreground break-all">
+            {t('bountiesFor', { username: handle.username })}
+          </h2>
+          {user && (
+            <Link
+              href={`/bounties/new?platform=other&handle=${encodeURIComponent(handle.username)}`}
+              className="text-sm bg-fan text-black font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity shrink-0"
+            >
+              {t('newBounty')}
+            </Link>
+          )}
+        </div>
+
+        {state.bounties.length === 0 ? (
+          <div className="text-center py-16 text-muted border border-border border-dashed rounded-xl">
+            {t('noBounties')}{' '}
+            {user ? (
+              <Link
+                href={`/bounties/new?platform=other&handle=${encodeURIComponent(handle.username)}`}
+                className="text-fan hover:underline"
+              >
+                {t('createFirst')}
+              </Link>
+            ) : (
+              <Link href={`/login?next=${encodeURIComponent(sharePath)}`} className="text-fan hover:underline">
+                {t('signInToStart')}
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {state.bounties.map((b) => (
+              <BountyCard key={b.id} bounty={b} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
