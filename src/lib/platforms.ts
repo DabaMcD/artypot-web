@@ -156,6 +156,20 @@ export function platformPrefix(slug: string): string {
 }
 
 /**
+ * Visual prefix for *display* (handle previews, cards, search results), which
+ * differs from the input prefix for host-style platforms. While typing, a
+ * Twitch/Kick field shows the full host (`twitch.tv/`, `kick.com/`) for clarity,
+ * but once displayed alongside the platform's name the host is redundant, so the
+ * handle reads as a bare `/username`. '@'-platforms keep '@'; 'other' (a full
+ * URL) has no prefix. Any new host-style prefix collapses to '/' automatically.
+ */
+export function displayPrefix(slug: string): string {
+  const prefix = platformPrefix(slug);
+  if (prefix === '' || prefix === '@') return prefix;
+  return '/';
+}
+
+/**
  * Build a canonical profile URL for a handle.
  *
  * - Curated platform: interpolates {username} into the URL template.
@@ -213,16 +227,15 @@ export function handleExternalUrl(slug: string, username: string): string {
 }
 
 /**
- * Format a handle for display — `@username`, `twitch.tv/streamer`, or the
- * canonical URL for 'other'. Mirrors `Platforms::label() + Platforms::prefix()`
- * on the backend.
+ * Format a handle for display — `@username`, `/streamer` (Twitch/Kick), or the
+ * canonical URL for 'other' (no '@', no scheme). Host-style platforms render as
+ * a bare `/streamer` since the platform name is shown alongside; see
+ * displayPrefix(). Goes through bareUsername() so a leaked stored prefix
+ * (`kick.com/xqc`, leading slash) still renders clean.
  */
 export function formatPlatformHandle(slug: string, username: string): string {
   if (slug === OTHER_SLUG) return username;
-  const prefix = platformPrefix(slug);
-  // Username may already include a leading '@'; strip it so we don't double up.
-  const bare = username.replace(/^@+/, '');
-  return `${prefix}${bare}`;
+  return `${displayPrefix(slug)}${bareUsername(slug, username)}`;
 }
 
 /**
