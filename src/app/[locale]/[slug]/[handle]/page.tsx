@@ -4,7 +4,6 @@ import { useEffect, useState, use, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter, Link } from '@/i18n/routing';
 import { creators as creatorsApi, handles as handlesApi } from '@/lib/api';
-import { useMoney } from '@/lib/format';
 import { normalizeAvatarUrl } from '@/lib/cloudinary';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
@@ -12,9 +11,9 @@ import { Button } from '@/components/ui/Button';
 import { SectionLabel } from '@/components/ui/Card';
 import ShareButton from '@/components/ShareButton';
 import { ReportModal } from '@/components/ReportModal';
-import { BountyStatusBadge } from '@/components/BountyStatusBadge';
+import BountyCard from '@/components/BountyCard';
 import { Badge } from '@/components/ui/Badge';
-import type { HandlePlatform } from '@/lib/types';
+import type { Bounty, HandlePlatform } from '@/lib/types';
 import { PLATFORM_HANDLE_CONFIG } from '@/components/ui/PlatformHandleInput';
 
 /**
@@ -39,8 +38,6 @@ const PLATFORM_LABELS: Record<string, string> = Object.fromEntries(
 
 const KNOWN_PLATFORMS = new Set<string>(CURATED_PLATFORMS);
 
-type SimpleBounty = { id: number; title: string; status: string; total_backed: string; created_at: string };
-
 type SimpleHandle = { id: number | null; platform: string; username: string };
 
 /** Public identity of a verified owner who hasn't enabled creator mode yet. */
@@ -49,41 +46,11 @@ type ClaimedOwner = { display_name: string; profile_picture: string | null };
 type ResolveResult =
   | { kind: 'loading' }
   | { kind: 'not-platform' }
-  | { kind: 'unverified'; handle: SimpleHandle; bounties: SimpleBounty[] }
+  | { kind: 'unverified'; handle: SimpleHandle; bounties: Bounty[] }
   // 'claimed': a verified claim exists but the owner has no creator page yet —
   // this handle page stays their public surface until they enable creator mode.
-  | { kind: 'claimed'; handle: SimpleHandle; owner: ClaimedOwner; bounties: SimpleBounty[] }
+  | { kind: 'claimed'; handle: SimpleHandle; owner: ClaimedOwner; bounties: Bounty[] }
   | { kind: 'error' };
-
-// ── Mini bounty card (simplified — handle bounties aren't full Bounty objects) ──
-
-function HandleBountyCard({ bounty }: { bounty: SimpleBounty }) {
-  const money = useMoney();
-  return (
-    <div className="relative bg-surface border border-border rounded-xl p-5 hover:border-fan/50 transition-colors group">
-      <div className="flex items-start justify-between gap-3 mb-3">
-        {/* Stretched link covers the card; share button sits above it via z-10 */}
-        <h3 className="font-semibold text-foreground group-hover:text-fan transition-colors line-clamp-2 leading-snug">
-          <Link
-            href={`/bounties/${bounty.id}`}
-            className="after:absolute after:inset-0 focus:outline-none"
-          >
-            {bounty.title}
-          </Link>
-        </h3>
-        <div className="relative z-10 flex items-center gap-1.5 shrink-0">
-          <ShareButton path={`/bounties/${bounty.id}`} title={bounty.title} />
-          <BountyStatusBadge status={bounty.status} />
-        </div>
-      </div>
-      <div className="pt-3 border-t border-border">
-        <div className="text-fan font-bold text-lg">
-          {money(Number(bounty.total_backed))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function PlatformHandlePage({ params }: { params: Promise<{ slug: string; handle: string }> }) {
@@ -252,7 +219,7 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
         <div className="flex-1 min-w-0">
 
           {/* Profile card */}
-          <div className="bg-surface border border-border rounded-xl p-6 mb-8">
+          <div className="bg-surface border border-border rounded-xl p-6">
             <div className="flex items-start gap-5">
               {/* Owner avatar (claimed) or placeholder initial */}
               {claimedOwner?.profile_picture ? (
@@ -360,46 +327,6 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
             />
           )}
 
-          {/* Bounties */}
-          <div>
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-bold text-foreground">
-                {t('bounties.heading', { name: fullHandle })}
-              </h2>
-              {user && (
-                <Link
-                  href={`/bounties/new?platform=${encodeURIComponent(platform)}&handle=${encodeURIComponent(state.handle.username)}`}
-                  className="text-sm bg-fan text-black font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-                >
-                  {t('bounties.newBounty')}
-                </Link>
-              )}
-            </div>
-
-            {state.bounties.length === 0 ? (
-              <div className="text-center py-16 text-muted border border-border border-dashed rounded-xl">
-                {t('bounties.emptyHandle')}{' '}
-                {user ? (
-                  <Link
-                    href={`/bounties/new?platform=${encodeURIComponent(platform)}&handle=${encodeURIComponent(state.handle.username)}`}
-                    className="text-fan hover:underline"
-                  >
-                    {t('bounties.createFirst')}
-                  </Link>
-                ) : (
-                  <Link href={`/login?next=${encodeURIComponent(`/${platform}/${handle}`)}`} className="text-fan hover:underline">
-                    {t('bounties.signInToStart')}
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                {state.bounties.map((b) => (
-                  <HandleBountyCard key={b.id} bounty={b} />
-                ))}
-              </div>
-            )}
-          </div>
         </div>
 
         {/* ── Sidebar ───────────────────────────────────────────────────────── */}
@@ -434,6 +361,47 @@ export default function PlatformHandlePage({ params }: { params: Promise<{ slug:
           </div>
         </div>
 
+      </div>
+
+      {/* ── Bounties (full width, flowing under the sidebar) ─────────────────── */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl font-bold text-foreground">
+            {t('bounties.heading', { name: fullHandle })}
+          </h2>
+          {user && (
+            <Link
+              href={`/bounties/new?platform=${encodeURIComponent(platform)}&handle=${encodeURIComponent(state.handle.username)}`}
+              className="text-sm bg-fan text-black font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+            >
+              {t('bounties.newBounty')}
+            </Link>
+          )}
+        </div>
+
+        {state.bounties.length === 0 ? (
+          <div className="text-center py-16 text-muted border border-border border-dashed rounded-xl">
+            {t('bounties.emptyHandle')}{' '}
+            {user ? (
+              <Link
+                href={`/bounties/new?platform=${encodeURIComponent(platform)}&handle=${encodeURIComponent(state.handle.username)}`}
+                className="text-fan hover:underline"
+              >
+                {t('bounties.createFirst')}
+              </Link>
+            ) : (
+              <Link href={`/login?next=${encodeURIComponent(`/${platform}/${handle}`)}`} className="text-fan hover:underline">
+                {t('bounties.signInToStart')}
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {state.bounties.map((b) => (
+              <BountyCard key={b.id} bounty={b} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

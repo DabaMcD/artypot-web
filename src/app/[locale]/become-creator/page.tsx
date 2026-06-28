@@ -16,8 +16,7 @@ import HandlesSection from '@/components/HandlesSection';
 import CreatorTosTldr from '@/components/CreatorTosTldr';
 import { COUNTRIES, subdivisions, subdivisionLabel } from '@/lib/countries';
 import type { HandleClaim, HandlePlatform } from '@/lib/types';
-import { platformLabel } from '@/lib/platforms';
-import { PLATFORM_HANDLE_CONFIG } from '@/components/ui/PlatformHandleInput';
+import { platformLabel, formatPlatformHandle } from '@/lib/platforms';
 import { PLATFORM_FEE_PCT } from '@/lib/config';
 
 const CREATOR_KEEP_PCT = 100 - PLATFORM_FEE_PCT;
@@ -258,10 +257,9 @@ function VerifiedHandlesPreview({ refreshKey }: { refreshKey: number }) {
     <ul className="mt-2 space-y-1">
       {verified.map((claim) => {
         const platform = claim.handle.platform as HandlePlatform;
-        const prefix = PLATFORM_HANDLE_CONFIG[platform]?.prefix ?? '@';
         return (
           <li key={claim.claim_id} className="text-sm font-mono text-foreground">
-            {prefix}{claim.handle.username}
+            {formatPlatformHandle(platform, claim.handle.username)}
             <span className="text-muted ml-2">{platformLabel(platform)}</span>
           </li>
         );
