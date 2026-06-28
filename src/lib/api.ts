@@ -512,8 +512,8 @@ export const creators = {
   byPlatformHandle: (platform: string, handle: string) =>
     request<
       | { match: 'verified';   user: { id: number; display_name: string; slug: string; profile_picture: string | null } }
-      | { match: 'claimed';    handle: { id: number | null; platform: string; username: string }; owner: { display_name: string; profile_picture: string | null }; bounties: Array<{ id: number; title: string; status: string; total_backed: string; created_at: string }> }
-      | { match: 'unverified'; handle: { id: number | null; platform: string; username: string }; bounties: Array<{ id: number; title: string; status: string; total_backed: string; created_at: string }> }
+      | { match: 'claimed';    handle: { id: number | null; platform: string; username: string }; owner: { display_name: string; profile_picture: string | null }; bounties: Bounty[] }
+      | { match: 'unverified'; handle: { id: number | null; platform: string; username: string }; bounties: Bounty[] }
     >(`/platform/${encodeURIComponent(platform)}/${encodeURIComponent(handle)}`),
 
   create: (data: Partial<Creator>) =>
@@ -978,7 +978,7 @@ export const handles = {
       match: 'verified' | 'claimed' | 'unverified';
       handle: { id: number; platform: string; username: string; profile_url: string | null; status: string };
       owner: { id: number; display_name: string; slug: string | null; profile_picture: string | null } | null;
-      bounties: Array<{ id: number; title: string; status: string; total_backed: string; created_at: string }>;
+      bounties: Bounty[];
     }>(`/handles/${id}/page`),
 
   /**

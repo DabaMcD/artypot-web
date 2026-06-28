@@ -9,6 +9,7 @@ import {
   ReactNode,
 } from 'react';
 import { notifications as notificationsApi, getToken } from './api';
+import { useAuth } from './auth-context';
 import type { UserNotification } from './types';
 
 interface NotificationContextType {
@@ -28,6 +29,8 @@ const NotificationContext = createContext<NotificationContextType | null>(null);
 const POLL_INTERVAL = 5 * 60 * 1000; // 5 minutes in ms
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
   const [notifs, setNotifs] = useState<UserNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -98,10 +101,22 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }
   }, [fetchUnreadCount]);
 
-  // Initial fetch + polling every 5 minutes. Also refetch when the tab
-  // regains focus — a user returning from their email or bank (3DS) should
-  // see the badge immediately rather than up to 5 minutes later.
+  // Keep the unread badge in sync with auth state + ambient events. Keying on
+  // the authenticated user's id means a login refetches immediately — crucially
+  // for OAuth, which sets the user client-side (refreshUser) and navigates via
+  // router.replace WITHOUT remounting this provider, so a mount-only fetch never
+  // re-ran and the badge stayed empty until the 5-minute poll. Logout (userId →
+  // null) clears the badge + list so a stale count from the previous session
+  // can't linger. While logged in we also poll every 5 minutes and refetch when
+  // the tab regains focus (e.g. returning from email or a bank's 3DS page).
   useEffect(() => {
+    if (userId == null) {
+      setUnreadCount(0);
+      setNotifs([]);
+      setCurrentPage(1);
+      setTotalPages(1);
+      return;
+    }
     fetchUnreadCount();
     const interval = setInterval(fetchUnreadCount, POLL_INTERVAL);
     const onVisible = () => {
@@ -112,7 +127,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       clearInterval(interval);
       document.removeEventListener('visibilitychange', onVisible);
     };
-  }, [fetchUnreadCount]);
+  }, [userId, fetchUnreadCount]);
 
   return (
     <NotificationContext.Provider

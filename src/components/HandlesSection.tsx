@@ -12,7 +12,7 @@ import { BrandIcon } from '@/components/ui/BrandIcon';
 import { Modal } from '@/components/ui/Modal';
 import { FieldLabel, FieldHint, Textarea, Select } from '@/components/ui/Input';
 import { Banner } from '@/components/ui/Banner';
-import { PlatformHandleInput, PLATFORM_HANDLE_CONFIG } from '@/components/ui/PlatformHandleInput';
+import { PlatformHandleInput } from '@/components/ui/PlatformHandleInput';
 import {
   ALL_PLATFORMS,
   CURATED_PLATFORMS,
@@ -22,6 +22,7 @@ import {
   platformLabel,
   platformOAuthProvider,
   platformOAuthIntent,
+  formatPlatformHandle,
 } from '@/lib/platforms';
 import { OAUTH_NEXT_KEY, OAUTH_VERIFY_KEY } from '@/lib/next-redirect';
 
@@ -330,14 +331,13 @@ export default function HandlesSection({ bare = false }: { bare?: boolean } = {}
               const platformLabel = PLATFORM_LABELS[platform] ?? platform;
               const supportsOAuth = ENABLED_OAUTH_PLATFORMS.includes(platform);
               const pendingReview = claim.status === 'unverified' && claim.pending_review;
-              const prefix = PLATFORM_HANDLE_CONFIG[platform]?.prefix ?? '@';
 
               return (
                 <li key={claim.claim_id} className="px-5 py-4">
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium text-foreground font-mono">{prefix}{claim.handle.username}</span>
+                        <span className="text-sm font-medium text-foreground font-mono">{formatPlatformHandle(platform, claim.handle.username)}</span>
                         <span className="text-xs text-muted">{platformLabel}</span>
                         {claim.status === 'verified' ? (
                           <Badge tone="good">{t('list.badgeVerified')}</Badge>
