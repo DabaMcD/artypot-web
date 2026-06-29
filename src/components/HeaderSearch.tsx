@@ -500,14 +500,18 @@ function BountyRow({
           <span className="text-fan font-semibold text-xs">{money(bounty.amount_backed)}</span>
         </span>
       </span>
-      {/* Matching handle, right below the title. */}
-      {bounty.creator.handle && (
-        <span className="block font-mono text-[11px] text-muted/80 truncate">› {bounty.creator.handle}</span>
-      )}
-      {/* Creator/handle title (lower right). */}
-      {bounty.creator.display_name && (
-        <span className="flex justify-end">
-          <span className="text-[11px] text-muted truncate max-w-[70%]">{bounty.creator.display_name}</span>
+      {/* Matching handle (left) + creator display name (right) share one line,
+          vertically aligned. The handle takes the remaining width and truncates;
+          the name sits flush-right and is capped so a long handle can't shove it
+          off-screen. */}
+      {(bounty.creator.handle || bounty.creator.display_name) && (
+        <span className="flex items-center gap-2">
+          <span className="flex-1 min-w-0 font-mono text-[11px] text-muted/80 truncate">
+            {bounty.creator.handle ? `› ${bounty.creator.handle}` : ''}
+          </span>
+          {bounty.creator.display_name && (
+            <span className="shrink-0 max-w-[55%] text-[11px] text-muted truncate">{bounty.creator.display_name}</span>
+          )}
         </span>
       )}
       {snippet && (
