@@ -105,7 +105,7 @@ function CreatorCardBody({ creator }: { creator: Exclude<CreatorDirectoryEntry, 
           />
           <CardStat
             value={
-              creator.total_backing_sum != null && Number(creator.total_backing_sum) > 0
+              creator.total_backing_sum != null
                 ? money(Number(creator.total_backing_sum))
                 : '—'
             }
@@ -167,7 +167,7 @@ function HandleCardBody({ handle }: { handle: UnclaimedHandleCard }) {
       <div className="mt-auto grid grid-cols-3 gap-2 pt-3 border-t border-border/70">
         <CardStat value={String(handle.supporter_count)} label={supporterLabel} />
         <CardStat
-          value={handle.total_backing_sum > 0 ? money(handle.total_backing_sum) : '—'}
+          value={money(handle.total_backing_sum)}
           label={t('creatorCard.statBacked')}
           accent
         />
