@@ -1271,8 +1271,8 @@
       "backOutRest": " — before a bounty finishes it's a free escape, no cap. nobody's tweakin, nobody's interrogating u gng.",
       "finalLead": "charges on completed bounties are FINAL fr 🔒💀",
       "finalRest": " — Council confirms, card eats the charge, n that bag is GONE gng. no refunds. the escape window slammed shut the second it finished, shoulda dipped earlier bestie 💀.",
-      "feeLead": "Artypot snags a 20% gyatt-sized cut 🪙",
-      "feeRest": " — off the creator's bag, NOT urs btw. one fee, covers literally everything incl payment processing, no sneaky Ohio surcharges 🚫. backers pay the full promised amount, creators walk w 80%, the math is mathing fr.",
+      "feeLead": "Artypot snags a {feePct}% gyatt-sized cut 🪙",
+      "feeRest": " — off the creator's bag, NOT urs btw. one fee, covers literally everything incl payment processing, no sneaky Ohio surcharges 🚫. backers pay the full promised amount, creators walk w {keepPct}%, the math is mathing fr.",
       "globalLead": "US creators securin the bag 🇺🇸💰 yeah boiii",
       "globalRest": " — u need a US bank acct to get paid, more countries otw fr. but fans from anywhere can still back stuff 🌍.",
       "neverLead": "bounty never finishes?? then NO money moves 🙅 fr",
@@ -1377,10 +1377,10 @@
       "fees": {
         "title": "8. the cut 🪙",
         "p1a": "when a bounty pays out, Artypot snags a ",
-        "p1Bold": "20% platform fee",
-        "p1b": " off the creator's payout. one fee, all-inclusive: it covers Artypot's running costs AND all the payment processing costs (incl Stripe card fees). creators ALWAYS walk away w 80% of the total backed. clean, no asterisks ✨.",
+        "p1Bold": "{feePct}% platform fee",
+        "p1b": " off the creator's payout. one fee, all-inclusive: it covers Artypot's running costs AND all the payment processing costs (incl Stripe card fees). creators ALWAYS walk away w {keepPct}% of the total backed. clean, no asterisks ✨.",
         "p2": "backers get charged their EXACT promised amount — zero sneaky processing surcharges ever bolted onto a backer's charge. what u see is what u pay, no Ohio fees 🚫.",
-        "p3": "fee rates might switch up w notice. changes ONLY hit bounties opened after the change goes live. ur old bounties stay safe n cozy 🛡️."
+        "p3": "fee rates might switch up w notice. the rate that hits is whatever’s live when ur completed backing actually gets CHARGED on billing day — locked in at that exact moment 🔒. already-charged payments never get touched, they stay cozy 🛡️."
       },
       "content": {
         "title": "9. vibe check rules 🚦",

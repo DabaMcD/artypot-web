@@ -1289,8 +1289,8 @@
       "backOutRest": " before a bounty completes, for free. No questions asked.",
       "finalLead": "Charges for completed bounties are final.",
       "finalRest": " After The Council confirms a bounty and you're charged, that payment is final and non-refundable — your window to back out is before completion, not after.",
-      "feeLead": "Artypot takes a 20% platform fee",
-      "feeRest": ", deducted from the creator's payout. This fee covers all transaction costs including payment processing — backers are charged their committed amount in full, creators receive 80%.",
+      "feeLead": "Artypot takes a {feePct}% platform fee",
+      "feeRest": ", deducted from the creator's payout. This fee covers all transaction costs including payment processing — backers are charged their committed amount in full, creators receive {keepPct}%.",
       "globalLead": "US creators can get paid",
       "globalRest": " — you need a US bank account to receive payouts, with more countries coming. Fans anywhere in the world can still back bounties.",
       "neverLead": "If a bounty never completes, no money moves.",
@@ -1395,10 +1395,10 @@
       "fees": {
         "title": "8. Fees",
         "p1a": "When a bounty pays out, Artypot deducts a ",
-        "p1Bold": "20% platform fee",
-        "p1b": " from the creator's payout. This single fee is all-inclusive: it covers Artypot's operating costs and all payment processing costs (including Stripe card transaction fees). Creators always receive 80% of the total amount backed.",
+        "p1Bold": "{feePct}% platform fee",
+        "p1b": " from the creator's payout. This single fee is all-inclusive: it covers Artypot's operating costs and all payment processing costs (including Stripe card transaction fees). Creators always receive {keepPct}% of the total amount backed.",
         "p2": "Backers are charged their exact committed amount — no processing surcharges are ever added to a backer's charge.",
-        "p3": "Fee rates may change with notice. Changes apply to bounties opened after the effective date of the change."
+        "p3": "Fee rates may change with notice. The rate that applies is the one in effect when your completed backing is charged (on the monthly billing day) — it is locked in at that moment, and a change never re-rates a payment that has already been charged."
       },
       "content": {
         "title": "9. Content Policy",
