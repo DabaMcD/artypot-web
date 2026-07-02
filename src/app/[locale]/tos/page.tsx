@@ -1,6 +1,12 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { SmoothHashLink } from '@/components/SmoothHashLink';
+import { PLATFORM_FEE_PCT } from '@/lib/config';
+
+// Fee figures in the ToS are parameterized so a fee change flows through from
+// the single config constant (kept in sync with the API's PLATFORM_FEE_PCT by
+// artypot-api's PlatformFeeSyncTest) instead of stale hardcoded copy.
+const FEE_PARAMS = { feePct: PLATFORM_FEE_PCT, keepPct: 100 - PLATFORM_FEE_PCT };
 
 export const metadata = {
   title: 'Terms of Service',
@@ -57,7 +63,7 @@ export default function ToSPage() {
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>{t('tldr.noMoneyMovesLead')}</strong>{t('tldr.noMoneyMovesRest')}</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>{t('tldr.backOutLead')}</strong>{t('tldr.backOutRest')}</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>{t('tldr.finalLead')}</strong>{t('tldr.finalRest')}</span></li>
-            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>{t('tldr.feeLead')}</strong>{t('tldr.feeRest')}</span></li>
+            <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>{t('tldr.feeLead', FEE_PARAMS)}</strong>{t('tldr.feeRest', FEE_PARAMS)}</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>{t('tldr.globalLead')}</strong>{t('tldr.globalRest')}</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>{t('tldr.neverLead')}</strong>{t('tldr.neverRest')}</span></li>
             <li className="flex gap-2"><span className="text-fan shrink-0 mt-0.5">✓</span><span><strong>{t('tldr.notPurchaseLead')}</strong>{t('tldr.notPurchaseRest')}</span></li>
@@ -130,7 +136,7 @@ export default function ToSPage() {
           </Section>
 
           <Section id="fees" title={t('sections.fees.title')}>
-            <p>{t('sections.fees.p1a')}<strong className="text-foreground">{t('sections.fees.p1Bold')}</strong>{t('sections.fees.p1b')}</p>
+            <p>{t('sections.fees.p1a')}<strong className="text-foreground">{t('sections.fees.p1Bold', FEE_PARAMS)}</strong>{t('sections.fees.p1b', FEE_PARAMS)}</p>
             <p>{t('sections.fees.p2')}</p>
             <p>{t('sections.fees.p3')}</p>
           </Section>

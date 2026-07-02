@@ -1271,8 +1271,8 @@
       "backOutRest": " antes de que una recompensa se complete, sin coste. Sin preguntas.",
       "finalLead": "Los cobros de las recompensas completadas son definitivos.",
       "finalRest": " Después de que El Consejo confirma una recompensa y se te cobra, ese pago es definitivo y no reembolsable — tu ventana para retirarte es antes de la finalización, no después.",
-      "feeLead": "Artypot cobra una comisión de plataforma del 20%",
-      "feeRest": ", deducida del pago al creador. Esta comisión cubre todos los costes de transacción, incluido el procesamiento de pagos — a los patrocinadores se les cobra su importe comprometido en su totalidad, y los creadores reciben el 80%.",
+      "feeLead": "Artypot cobra una comisión de plataforma del {feePct}%",
+      "feeRest": ", deducida del pago al creador. Esta comisión cubre todos los costes de transacción, incluido el procesamiento de pagos — a los patrocinadores se les cobra su importe comprometido en su totalidad, y los creadores reciben el {keepPct}%.",
       "globalLead": "Los creadores de EE. UU. pueden cobrar",
       "globalRest": " — necesitas una cuenta bancaria de EE. UU. para recibir pagos, y pronto se sumarán más países. Los fans de cualquier parte del mundo pueden respaldar recompensas.",
       "neverLead": "Si una recompensa nunca se completa, no se mueve dinero.",
@@ -1377,10 +1377,10 @@
       "fees": {
         "title": "8. Comisiones",
         "p1a": "When a bounty pays out, Artypot deducts a ",
-        "p1Bold": "20% platform fee",
-        "p1b": " from the creator's payout. This single fee is all-inclusive: it covers Artypot's operating costs and all payment processing costs (including Stripe card transaction fees). Creators always receive 80% of the total amount backed.",
+        "p1Bold": "{feePct}% platform fee",
+        "p1b": " from the creator's payout. This single fee is all-inclusive: it covers Artypot's operating costs and all payment processing costs (including Stripe card transaction fees). Creators always receive {keepPct}% of the total amount backed.",
         "p2": "Backers are charged their exact committed amount — no processing surcharges are ever added to a backer's charge.",
-        "p3": "Fee rates may change with notice. Changes apply to bounties opened after the effective date of the change."
+        "p3": "Fee rates may change with notice. The rate that applies is the one in effect when your completed backing is charged (on the monthly billing day) — it is locked in at that moment, and a change never re-rates a payment that has already been charged."
       },
       "content": {
         "title": "9. Política de contenido",
