@@ -1,5 +1,7 @@
 'use client';
 
+import { formatCount as num } from '@/lib/format';
+
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { admin as adminApi } from '@/lib/api';
@@ -31,9 +33,6 @@ const DEVICE_LABELS: Record<DeviceType, string> = {
 };
 const DEVICE_ORDER: DeviceType[] = ['desktop', 'mobile', 'tablet', 'bot', 'unknown'];
 
-function num(n: number): string {
-  return n.toLocaleString('en-US');
-}
 function fmtDate(s: string | null): string {
   return s ? new Date(s).toLocaleDateString() : '—';
 }

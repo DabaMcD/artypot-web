@@ -11,10 +11,7 @@ import { Empty } from '@/components/ui/Empty';
 import { Select, FieldLabel } from '@/components/ui/Input';
 import { Toggle } from '@/components/ui/Toggle';
 
-function fmt(d: string | null) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
+import { formatDate as fmt } from '@/lib/format';
 
 function countryFlag(code: string) {
   try {

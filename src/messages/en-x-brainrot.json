@@ -2738,18 +2738,6 @@
       "unexpectedStatus": "gng the status said {status}?? mad sus aura crashing 😭💀 lock in n try again."
     }
   },
-  "CreatorSearchWidget": {
-    "searchPlaceholder": "who u tryna find bestie 🔍✨ manifest the goat",
-    "change": "nah that ain't it, switch it up 🔄💀",
-    "searching": "lemme cook rn… lock in 🍳⏳",
-    "viewProfile": "go peep the aura →👀🔥",
-    "verified": "certified goat no cap ✅😤",
-    "bountyCount": "{count, plural, one {# bag waiting to get secured 💰} other {# bags on deck fr 💰🔥}}",
-    "noCreatorsOrHandles": "crickets fr 🦗💀 nobody and no @ either gng it's so over",
-    "noCreators": "Ohio ghost town 👻💀 zero creators, cooked",
-    "addAsNewCreator": "summon <term>{query}</term> into existence 🌱✨ certified new goat",
-    "createNewProfile": "birth a whole new creator out the mud 🆕💅 secure the bag"
-  },
   "CreatorSlugSection": {
     "sectionLabel": "ur creator url, the holy slug 🔗👑",
     "description": "this lil string is where ur ENTIRE public aura be living bestie 🌐✨ ppl judge u off this no cap",

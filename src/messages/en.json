@@ -2756,18 +2756,6 @@
       "unexpectedStatus": "Unexpected status: {status}. Please try again."
     }
   },
-  "CreatorSearchWidget": {
-    "searchPlaceholder": "Search for a creator…",
-    "change": "Change",
-    "searching": "Searching…",
-    "viewProfile": "view profile →",
-    "verified": "verified",
-    "bountyCount": "{count, plural, one {# bounty} other {# bounties}}",
-    "noCreatorsOrHandles": "No creators or handles found.",
-    "noCreators": "No creators found.",
-    "addAsNewCreator": "Add <term>{query}</term> as a new creator",
-    "createNewProfile": "Create a new creator profile"
-  },
   "CreatorSlugSection": {
     "sectionLabel": "creator URL",
     "description": "Your public creator page lives at this URL.",

@@ -1,5 +1,7 @@
 'use client';
 
+import { formatDateTime as fmtDateTime } from '@/lib/format';
+
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from '@/i18n/routing';
 import { admin as adminApi } from '@/lib/api';
@@ -35,13 +37,6 @@ const STATUS_TONE: Record<ReportRow['status'], 'warn' | 'good' | 'bad' | 'defaul
   actioned:  'bad',
   dismissed: 'good',
 };
-
-function fmtDateTime(d: string | null): string {
-  if (!d) return '—';
-  return new Date(d).toLocaleString('en-US', {
-    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
-  });
-}
 
 /** Render the reported subject — a link when it still exists, plain text when deleted. */
 function SubjectLink({ subject, className }: { subject: ReportRow['subject']; className?: string }) {

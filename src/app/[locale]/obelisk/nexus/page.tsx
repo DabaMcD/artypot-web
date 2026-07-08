@@ -1,5 +1,7 @@
 'use client';
 
+import { formatUsdWhole as usd } from '@/lib/format';
+
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { overlord as overlordApi } from '@/lib/api';
@@ -12,10 +14,6 @@ import { Button } from '@/components/ui/Button';
 const STATE_NAMES: Record<string, string> = Object.fromEntries(
   US_STATES.map((s) => [s.code, s.name]),
 );
-
-function usd(n: number): string {
-  return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-}
 
 function StatusBadge({ row }: { row: NexusAccrualRow }) {
   if (row.state_code === null) {

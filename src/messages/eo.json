@@ -2738,18 +2738,6 @@
       "unexpectedStatus": "Neatendita stato: {status}. Bonvolu provi denove."
     }
   },
-  "CreatorSearchWidget": {
-    "searchPlaceholder": "Serĉu kreanton…",
-    "change": "Ŝanĝi",
-    "searching": "Serĉante…",
-    "viewProfile": "vidi profilon →",
-    "verified": "kontrolita",
-    "bountyCount": "{count, plural, one {# rekompenco} other {# rekompencoj}}",
-    "noCreatorsOrHandles": "Neniuj kreantoj aŭ uzantnomoj trovitaj.",
-    "noCreators": "Neniuj kreantoj trovitaj.",
-    "addAsNewCreator": "Aldoni <term>{query}</term> kiel novan kreanton",
-    "createNewProfile": "Krei novan kreantan profilon"
-  },
   "CreatorSlugSection": {
     "sectionLabel": "kreanta URL",
     "description": "Via publika kreanto-paĝo troviĝas ĉe ĉi tiu URL.",

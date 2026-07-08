@@ -15,10 +15,7 @@ import { Input, FieldLabel, Textarea } from '@/components/ui/Input';
 
 type Tab = 'pending' | 'history';
 
-function fmt(d: string | null) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
+import { formatDate as fmt } from '@/lib/format';
 
 const STATUS_TONES: Record<string, 'bad' | 'good' | 'default' | 'warn'> = {
   confirmed_match: 'bad',

@@ -1,5 +1,7 @@
 'use client';
 
+import { formatCount as num } from '@/lib/format';
+
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { admin as adminApi } from '@/lib/api';
@@ -9,7 +11,6 @@ import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { MiniBars } from '@/components/admin/MiniCharts';
 
-const num = (n: number) => (n ?? 0).toLocaleString('en-US');
 const pct = (n: number) => `${(n ?? 0).toFixed(1)}%`;
 const shortDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });

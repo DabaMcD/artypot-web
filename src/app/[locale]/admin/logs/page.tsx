@@ -1,5 +1,7 @@
 'use client';
 
+import { formatDateTime as fmtDateTime } from '@/lib/format';
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { admin as adminApi } from '@/lib/api';
@@ -10,12 +12,6 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Empty } from '@/components/ui/Empty';
 import { Input, Select, FieldLabel } from '@/components/ui/Input';
-
-function fmtDateTime(d: string): string {
-  return new Date(d).toLocaleString('en-US', {
-    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
-  });
-}
 
 const CATEGORY_TONE: Record<AuditLogCategory, 'info' | 'warn' | 'good' | 'default' | 'council'> = {
   accounts:   'info',

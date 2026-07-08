@@ -1,5 +1,7 @@
 'use client';
 
+import { formatUsd as fmt$, formatCount as fmtN } from '@/lib/format';
+
 import { useState, useEffect } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { metrics as metricsApi, type RefundMetricSegment } from '@/lib/api';
@@ -33,14 +35,6 @@ type MetricsData = {
     refund_rate_pct:      number;
   };
 };
-
-function fmt$( n: number ) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
-}
-
-function fmtN( n: number ) {
-  return new Intl.NumberFormat('en-US').format(n);
-}
 
 interface StatCardProps {
   label: string;

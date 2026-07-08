@@ -11,10 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
 import { Empty } from '@/components/ui/Empty';
 
-function fmt(d: string | null) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
+import { formatDateTime as fmt } from '@/lib/format';
 
 function duration(start: string, end: string | null) {
   if (!end) return 'running…';
