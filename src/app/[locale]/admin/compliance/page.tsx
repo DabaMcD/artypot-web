@@ -9,10 +9,7 @@ import { Card, SectionLabel } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 
-function fmt(d: string | null) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
+import { formatDate as fmt } from '@/lib/format';
 
 function freshnessColor(f: ComplianceSource['freshness']) {
   if (f === 'fresh') return 'good';

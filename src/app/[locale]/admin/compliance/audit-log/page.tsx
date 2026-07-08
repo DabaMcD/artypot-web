@@ -10,10 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Empty } from '@/components/ui/Empty';
 import { Input, Select, FieldLabel } from '@/components/ui/Input';
 
-function fmt(d: string | null) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
+import { formatDateTime as fmt } from '@/lib/format';
 
 const KNOWN_TABLES = [
   'country_sanctions',

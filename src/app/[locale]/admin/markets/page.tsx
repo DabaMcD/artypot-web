@@ -1,5 +1,7 @@
 'use client';
 
+import { formatDate as fmtDate } from '@/lib/format';
+
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { admin as adminApi } from '@/lib/api';
@@ -40,11 +42,6 @@ function countryFlag(code: string) {
   } catch {
     return '';
   }
-}
-
-function fmtDate(d: string | null) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 function fmtMoney(n: number) {

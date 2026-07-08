@@ -116,24 +116,6 @@ export function Select({ mono, className = '', ...props }: SelectProps) {
   );
 }
 
-// ── Input with prefix ─────────────────────────────────────────────────────────
-
-interface InputPrefixProps {
-  prefix: string;
-  children: ReactNode;
-}
-
-export function InputPrefix({ prefix, children }: InputPrefixProps) {
-  return (
-    <div className="flex items-stretch border border-border rounded bg-background">
-      <span className="flex items-center px-2.5 bg-surface-2 font-mono text-xs text-muted border-r border-border flex-shrink-0">
-        {prefix}
-      </span>
-      <div className="flex-1">{children}</div>
-    </div>
-  );
-}
-
 // ── Grid helpers ──────────────────────────────────────────────────────────────
 
 export function FieldGrid2({ children, className = '' }: { children: ReactNode; className?: string }) {

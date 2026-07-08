@@ -1,26 +1,5 @@
 {
   "Common": {
-    "actions": {
-      "save": "Guardar",
-      "cancel": "Cancelar",
-      "submit": "Enviar",
-      "continue": "Continuar",
-      "back": "Atrás",
-      "next": "Siguiente",
-      "previous": "Anterior",
-      "edit": "Editar",
-      "delete": "Eliminar",
-      "remove": "Quitar"
-    },
-    "states": {
-      "loading": "Cargando…",
-      "saving": "Guardando…"
-    },
-    "toast": {
-      "saved": "¡Guardado!",
-      "removed": "Eliminado.",
-      "genericError": "Algo salió mal."
-    },
     "legal": {
       "about": "Acerca de",
       "terms": "Términos",
@@ -41,7 +20,6 @@
       "dashboard": "Panel",
       "myBackings": "Mis aportes",
       "startBounty": "Crear un encargo",
-      "findCreators": "Buscar creadores",
       "browseBounties": "Explorar encargos",
       "billing": "Facturación",
       "paymentHistory": "Historial de pagos",
@@ -73,7 +51,6 @@
   "Settings": {
     "language": {
       "label": "Idioma",
-      "title": "idioma",
       "blurb": "Elige el idioma en el que se muestra Artypot. Tu elección se guarda en tu cuenta."
     },
     "breadcrumb": {
@@ -101,8 +78,7 @@
       "sending": "Enviando…",
       "sentBanner": "Correo de confirmación enviado a <strong>{email}</strong>. Haz clic en el enlace para completar.",
       "sentBannerShort": "Confirmación enviada a <strong>{email}</strong>. Haz clic en el enlace para completar.",
-      "pendingBanner": "Cambio pendiente a <strong>{email}</strong>: revisa esa bandeja de entrada.",
-      "pendingBadge": "pendiente"
+      "pendingBanner": "Cambio pendiente a <strong>{email}</strong>: revisa esa bandeja de entrada."
     },
     "profilePicture": {
       "label": "foto de perfil",
@@ -133,7 +109,6 @@
       "amountLabel": "monto ($)"
     },
     "privacy": {
-      "label": "privacidad",
       "anonTitle": "Modo anónimo",
       "beta": "(beta)",
       "anonDesc": "Oculta tu respaldo de tu perfil público. Tu nombre aparece como [anónimo] en las listas de patrocinadores."
@@ -309,10 +284,7 @@
       "account": "cuenta",
       "profile": "perfil",
       "backingDefaults": "valores por defecto",
-      "privacy": "privacidad",
-      "notifications": "notificaciones",
-      "security": "seguridad",
-      "danger": "zona de peligro"
+      "privacy": "privacidad"
     }
   },
   "About": {
@@ -649,8 +621,7 @@
         "p3b": "y la",
         "privacyLink": "Política de Privacidad",
         "p3c": " de Artypot, constituyen el acuerdo íntegro entre tú y Artypot con respecto a tu papel como creador.",
-        "questions": "¿Preguntas sobre estos términos? Escribe a",
-        "questionsEmail": "legal@artypot.com"
+        "questions": "¿Preguntas sobre estos términos? Escribe a"
       }
     }
   },
@@ -1561,7 +1532,6 @@
       "blockedUntil": "Los nuevos respaldos están bloqueados hasta <stamp>{date}</stamp>."
     },
     "charge": {
-      "label": "qué se cobrará",
       "summary": "Se cobrarán {amount} automáticamente el {date}. No se requiere ninguna acción.",
       "nothingDue": "No hay nada pendiente ahora mismo — tu próxima fecha de facturación es el día {day}."
     },
@@ -1596,11 +1566,8 @@
     "submitError": "No se pudo crear la recompensa.",
     "count": "{count, plural, one {# recompensa} other {# recompensas}}",
     "filters": {
-      "all": "Todas",
       "open": "Abierto",
-      "pending": "Pendiente de revisión",
-      "completed": "Completado",
-      "paidOut": "Pagado"
+      "completed": "Completado"
     },
     "empty": {
       "message": "No se encontraron recompensas.",
@@ -1702,7 +1669,6 @@
     },
     "controls": {
       "sort": "Ordenar",
-      "show": "Mostrar",
       "creator": "Estado del creador",
       "status": "Estado"
     },
@@ -1712,7 +1678,6 @@
       "recentlyCompleted": "Completadas recientemente"
     },
     "creatorFilter": {
-      "all": "Todas",
       "verified": "Creadores verificados",
       "unverified": "Handles sin verificar"
     }
@@ -2039,7 +2004,6 @@
       "countryLabel": "país",
       "selectCountry": "— elige país —",
       "selectSubdivision": "— elige {label} —",
-      "saving": "Guardando…",
       "save": "Guardar residencia fiscal",
       "toastSaved": "Residencia fiscal guardada.",
       "toastError": "No se pudo guardar la residencia fiscal.",
@@ -2110,8 +2074,7 @@
     "sections": {
       "profile": "perfil público",
       "presence": "presencia",
-      "tax": "impuestos y cumplimiento",
-      "notifications": "notificaciones"
+      "tax": "impuestos y cumplimiento"
     }
   },
   "CreatorTax": {
@@ -2319,29 +2282,21 @@
     "header": {
       "label": "buscar",
       "resultsFor": "Resultados de <highlight>{query}</highlight>",
-      "exploreTitle": "explorar",
       "resultsSubtitle": "Creadores, recompensas y handles.",
-      "exploreSubtitle": "Explora creadores y las recompensas que sus comunidades están respaldando.",
       "promptTitle": "Buscar en Artypot",
       "promptSubtitle": "Encuentra creadores, handles y recompensas."
     },
     "filters": {
-      "all": "Todo",
       "people": "Personas",
       "bounties": "Recompensas"
     },
     "sort": {
-      "newest": "más recientes",
-      "mostBounties": "más recompensas",
-      "mostCompleted": "más completadas",
       "relevance": "Relevancia",
       "mostBacked": "Más patrocinadas"
     },
     "sections": {
       "people": "Personas",
-      "bounties": "Recompensas",
-      "creators": "Creadores",
-      "trending": "Recompensas en tendencia"
+      "bounties": "Recompensas"
     },
     "bounties": {
       "includeCompleted": "incluir completadas"
@@ -2350,7 +2305,6 @@
       "people": "Ninguna persona coincide con esta búsqueda.",
       "bounties": "Ninguna recompensa coincide con esta búsqueda.",
       "bountiesCreate": "Crea una dirigida a “{query}”",
-      "creators": "todavía no hay creadores verificados",
       "promptHint": "Escribe para buscar, o entra en los directorios.",
       "browseCreators": "Explorar creadores",
       "browseBounties": "Explorar recompensas"
@@ -2358,10 +2312,6 @@
     "actions": {
       "loading": "Cargando…",
       "showMore": "Mostrar más"
-    },
-    "pagination": {
-      "prev": "← anterior",
-      "next": "siguiente →"
     },
     "person": {
       "openBounties": "{count, plural, one {# recompensa abierta} other {# recompensas abiertas}}",
@@ -2737,18 +2687,6 @@
       "notCompleted": "La autenticación no se completó. Inténtalo de nuevo o usa otra tarjeta.",
       "unexpectedStatus": "Estado inesperado: {status}. Inténtalo de nuevo."
     }
-  },
-  "CreatorSearchWidget": {
-    "searchPlaceholder": "Busca un creador…",
-    "change": "Cambiar",
-    "searching": "Buscando…",
-    "viewProfile": "ver perfil →",
-    "verified": "verificado",
-    "bountyCount": "{count, plural, one {# recompensa} other {# recompensas}}",
-    "noCreatorsOrHandles": "No se encontraron creadores ni cuentas.",
-    "noCreators": "No se encontraron creadores.",
-    "addAsNewCreator": "Añadir <term>{query}</term> como nuevo creador",
-    "createNewProfile": "Crear un nuevo perfil de creador"
   },
   "CreatorSlugSection": {
     "sectionLabel": "URL de creador",
@@ -3305,7 +3243,6 @@
       "verified": "Creadores",
       "unverified": "Handles sin verificar"
     },
-    "platformAll": "Todas las plataformas",
     "controls": {
       "platform": "Plataforma",
       "sort": "Ordenar"

@@ -11,9 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { MiniBars, Sparkline } from '@/components/admin/MiniCharts';
 
 // ── formatting helpers ──────────────────────────────────────────────────────
-const num = (n: number) => (n ?? 0).toLocaleString('en-US');
-const usd = (n: number) => '$' + (n ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const usd0 = (n: number) => '$' + Math.round(n ?? 0).toLocaleString('en-US');
+import { formatCount as num, formatUsd as usd, formatUsdWhole as usd0 } from '@/lib/format';
 
 function timeAgo(iso: string | null): string {
   if (!iso) return '';

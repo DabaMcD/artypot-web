@@ -10,20 +10,7 @@ export type UserRole = 'fan' | 'creator' | 'council';
  */
 export type HandlePlatform = string;
 
-/** Curated slugs that have first-class UI support — useful for narrow type guards. */
-export type KnownHandlePlatform =
-  | 'twitter' | 'youtube' | 'instagram' | 'tiktok' | 'twitch' | 'bluesky' | 'kick' | 'other';
-
 export type HandleStatus = 'unverified' | 'verified' | 'disputed' | 'retired';
-
-export interface UserHandle {
-  id: number;
-  platform: HandlePlatform;
-  username: string;
-  status: HandleStatus;
-  verified_at: string | null;
-  created_at: string;
-}
 
 /** Shape returned by GET /auth/handles and POST /handles */
 export interface HandleClaim {

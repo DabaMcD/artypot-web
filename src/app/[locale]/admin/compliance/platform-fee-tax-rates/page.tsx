@@ -15,10 +15,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Input, Select, Textarea, FieldLabel, FieldHint } from '@/components/ui/Input';
 import { US_STATES } from './states';
 
-function fmt(d: string | null) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
+import { formatDate as fmt } from '@/lib/format';
 
 // Stored as a fraction (e.g. "0.062500"); show it to humans as a percent.
 function fmtPct(rate: string) {

@@ -1,5 +1,7 @@
 'use client';
 
+import { formatDate as fmtDate, formatDateTime as fmtDateTime } from '@/lib/format';
+
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { admin as adminApi } from '@/lib/api';
@@ -21,18 +23,6 @@ import { Empty } from '@/components/ui/Empty';
 
 function money(n: number | string): string {
   return `$${Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-function fmtDate(d: string | null): string {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
-
-function fmtDateTime(d: string | null): string {
-  if (!d) return '—';
-  return new Date(d).toLocaleString('en-US', {
-    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
-  });
 }
 
 function duration(start: string | null, end: string | null): string {

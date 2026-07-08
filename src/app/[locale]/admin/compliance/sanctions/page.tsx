@@ -18,10 +18,7 @@ import { Banner } from '@/components/ui/Banner';
 
 type Tab = 'pending' | 'all';
 
-function fmt(d: string | null) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
+import { formatDate as fmt } from '@/lib/format';
 
 function countryFlag(code: string) {
   try {

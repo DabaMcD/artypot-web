@@ -1,5 +1,7 @@
 'use client';
 
+import { formatUsd as fmtMoney } from '@/lib/format';
+
 import { useCallback, useEffect, useRef, useState, FormEvent } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { admin as adminApi } from '@/lib/api';
@@ -27,10 +29,6 @@ const METHOD_TONE: Record<ExternalPayoutMethod, 'info' | 'good' | 'creator' | 'd
   check:  'default',
   other:  'default',
 };
-
-function fmtMoney(n: number): string {
-  return `$${Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
 
 function MethodBadge({ method }: { method: ExternalPayoutMethod }) {
   return <Badge tone={METHOD_TONE[method]}>{method}</Badge>;

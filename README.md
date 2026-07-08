@@ -286,12 +286,11 @@ Horizontal alert strip used inline on a page (NOT the global banners — those a
 
 Four tones: `default` (info-blue), `warn`, `bad`, `good`. **No `info` tone** — use `default` for neutral information.
 
-### 5.6 Inputs (`<Input>` / `<Textarea>` / `<Select>` / `<InputPrefix>`)
+### 5.6 Inputs (`<Input>` / `<Textarea>` / `<Select>`)
 
 All share the same base: `w-full px-3 py-2.5 bg-background text-foreground border border-border rounded font-sans text-base`, with `focus:border-[var(--color-role)]`. Pass `mono` to switch to `font-mono text-sm` (used for handle inputs, amounts).
 
 - `<FieldLabel>` above, `<FieldHint>` below. Use both. Hints are not optional fluff — they often tell the user "Publicly visible" or "Minimum is $1".
-- `<InputPrefix prefix="@">{inputElement}</InputPrefix>` for `@username` / URL prefixes. The prefix sits in a `bg-surface-2` chip.
 - `<Select>` adds a custom CSS-painted chevron in place of the native arrow.
 - `<FieldGrid2>` is a 2-column field grid (`grid grid-cols-2 gap-3`).
 
@@ -535,10 +534,10 @@ Conditions for each are mutually exclusive in practice; multiple may rarely stac
 
 ### 6.14 Header search
 
-The search widget (`<CreatorSearchWidget>`) is the same component used in the hero on the homepage. Two display modes:
-
-- **Inline result mode** — controlled via `selectedCreator` / `onSelect` props (used on the homepage hero).
-- **Navigate-on-select mode** — `navigateOnSelect` prop, used in both headers. Picks land you on the result's page directly.
+The search widget (`<HeaderSearch>`, `src/components/HeaderSearch.tsx`) is the
+same component used in the hero on the homepage (`page.tsx`) and in both
+headers (`AppShell`, `PublicHeader`). It reuses the `src/lib/search/*` hooks
+and navigates to the picked result's page on select.
 
 The mobile-collapse pattern (icon → full bar → cancel) is hard-coded around it in both `AppShell` and `PublicHeader`.
 

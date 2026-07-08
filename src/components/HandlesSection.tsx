@@ -15,10 +15,7 @@ import { Banner } from '@/components/ui/Banner';
 import { PlatformHandleInput } from '@/components/ui/PlatformHandleInput';
 import {
   ALL_PLATFORMS,
-  CURATED_PLATFORMS,
-  OAUTH_PLATFORMS,
   ENABLED_OAUTH_PLATFORMS,
-  OTHER_SLUG,
   platformLabel,
   platformOAuthProvider,
   platformOAuthIntent,
@@ -39,11 +36,6 @@ const PLATFORMS: { value: HandlePlatform; label: string }[] = ALL_PLATFORMS.map(
 const PLATFORM_LABELS: Record<string, string> = Object.fromEntries(
   PLATFORMS.map(({ value, label }) => [value, label])
 );
-
-// Avoid "imported but unused" warnings in static lints — these symbols are
-// referenced via the imports themselves but we want explicit re-exports for
-// any consumer that does `import { OAUTH_PLATFORMS } from './HandlesSection'`.
-export { OAUTH_PLATFORMS, ENABLED_OAUTH_PLATFORMS, OTHER_SLUG, CURATED_PLATFORMS };
 
 // ── Review request modal ──────────────────────────────────────────────────────
 

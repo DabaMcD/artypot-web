@@ -1,5 +1,7 @@
 'use client';
 
+import { formatDate as fmt } from '@/lib/format';
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, Link } from '@/i18n/routing';
 import { admin as adminApi } from '@/lib/api';
@@ -51,11 +53,6 @@ function PayoutCategoryBadge({ category }: { category: 1 | 2 | 3 | null }) {
   const tones = { 1: 'good', 2: 'warn', 3: 'bad' } as const;
   const labels = { 1: 'Cat 1 · Stripe', 2: 'Cat 2 · Manual', 3: 'Cat 3 · Blocked' } as const;
   return <Badge tone={tones[category]}>{labels[category]}</Badge>;
-}
-
-function fmt(date: string | null | undefined) {
-  if (!date) return '—';
-  return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 function fmtMoney(amount: number | null | undefined) {

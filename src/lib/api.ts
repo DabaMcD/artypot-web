@@ -776,9 +776,6 @@ export const notifications = {
   markRead: (id: number) =>
     request<UserNotification>(`/notifications/${id}/read`, { method: 'PATCH' }),
 
-  markAllRead: () =>
-    request<{ message: string }>('/notifications/read-all', { method: 'POST' }),
-
   bulkRead: (ids: number[]) =>
     request<{ message: string }>('/notifications/bulk-read', {
       method: 'POST',
