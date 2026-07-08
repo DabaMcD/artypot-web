@@ -1,26 +1,5 @@
 {
   "Common": {
-    "actions": {
-      "save": "Konservi",
-      "cancel": "Nuligi",
-      "submit": "Sendi",
-      "continue": "Daŭrigi",
-      "back": "Reen",
-      "next": "Sekva",
-      "previous": "Antaŭa",
-      "edit": "Redakti",
-      "delete": "Forigi",
-      "remove": "Forpreni"
-    },
-    "states": {
-      "loading": "Ŝargado…",
-      "saving": "Konservado…"
-    },
-    "toast": {
-      "saved": "Konservita!",
-      "removed": "Forigita.",
-      "genericError": "Io misfunkciis."
-    },
     "legal": {
       "about": "Pri ni",
       "terms": "Kondiĉoj",
@@ -41,7 +20,6 @@
       "dashboard": "Panelo",
       "myBackings": "Miaj subtenoj",
       "startBounty": "Krei mendon",
-      "findCreators": "Trovi kreantojn",
       "browseBounties": "Foliumi mendojn",
       "billing": "Fakturado",
       "paymentHistory": "Pagohistorio",
@@ -73,7 +51,6 @@
   "Settings": {
     "language": {
       "label": "Lingvo",
-      "title": "lingvo",
       "blurb": "Elektu la lingvon en kiu Artypot estas montrata. Via elekto estas konservita al via konto."
     },
     "breadcrumb": {
@@ -101,8 +78,7 @@
       "sending": "Sendante…",
       "sentBanner": "Konfirma retmesaĝo sendita al <strong>{email}</strong>. Klaku la ligilon por kompletigi.",
       "sentBannerShort": "Konfirmo sendita al <strong>{email}</strong>. Klaku la ligilon por kompletigi.",
-      "pendingBanner": "Atendanta ŝanĝo al <strong>{email}</strong> — kontrolu tiun enirkeston.",
-      "pendingBadge": "atendanta"
+      "pendingBanner": "Atendanta ŝanĝo al <strong>{email}</strong> — kontrolu tiun enirkeston."
     },
     "profilePicture": {
       "label": "profila bildo",
@@ -133,7 +109,6 @@
       "amountLabel": "sumo ($)"
     },
     "privacy": {
-      "label": "privateco",
       "anonTitle": "Anonima reĝimo",
       "beta": "(beta)",
       "anonDesc": "Kaŝu vian subtenon de via publika profilo. Via nomo aperas kiel [anonima] en subtenantaj listoj."
@@ -309,10 +284,7 @@
       "account": "konto",
       "profile": "profilo",
       "backingDefaults": "defaŭltoj",
-      "privacy": "privateco",
-      "notifications": "sciigoj",
-      "security": "sekureco",
-      "danger": "danĝera zono"
+      "privacy": "privateco"
     }
   },
   "About": {
@@ -649,8 +621,7 @@
         "p3b": "kaj la",
         "privacyLink": "Privateca Politiko",
         "p3c": " de Artypot, konsistigas la plenan interkonsenton inter vi kaj Artypot rilate al via rolo kiel kreanto.",
-        "questions": "Demandoj pri ĉi tiuj kondiĉoj? Skribu al",
-        "questionsEmail": "legal@artypot.com"
+        "questions": "Demandoj pri ĉi tiuj kondiĉoj? Skribu al"
       }
     }
   },
@@ -1561,7 +1532,6 @@
       "blockedUntil": "Novaj subtenoj estas blokitaj ĝis <stamp>{date}</stamp>."
     },
     "charge": {
-      "label": "kio estos ŝarĝita",
       "summary": "{amount} estos ŝarĝita aŭtomate je {date}. Neniu ago bezonata.",
       "nothingDue": "Nenio ŝuldata nun — via sekva fakturdato estas la {day}-a."
     },
@@ -1596,11 +1566,8 @@
     "submitError": "Malsukcesis krei premion.",
     "count": "{count, plural, one {# premio} other {# premioj}}",
     "filters": {
-      "all": "Ĉiuj",
       "open": "Malfermita",
-      "pending": "Atendas kontrolon",
-      "completed": "Plenumita",
-      "paidOut": "Elpagita"
+      "completed": "Plenumita"
     },
     "empty": {
       "message": "Neniuj premioj trovitaj.",
@@ -1702,7 +1669,6 @@
     },
     "controls": {
       "sort": "Ordigi",
-      "show": "Montri",
       "creator": "Stato de kreinto",
       "status": "Stato"
     },
@@ -1712,7 +1678,6 @@
       "recentlyCompleted": "Lastatempe plenumitaj"
     },
     "creatorFilter": {
-      "all": "Ĉiuj",
       "verified": "Kontrolitaj kreintoj",
       "unverified": "Nekontrolitaj identigiloj"
     }
@@ -2039,7 +2004,6 @@
       "countryLabel": "lando",
       "selectCountry": "— elektu landon —",
       "selectSubdivision": "— elektu {label} —",
-      "saving": "Konservante…",
       "save": "Konservi impostan loĝejon",
       "toastSaved": "Imposta loĝejo konservita.",
       "toastError": "Ne eblis konservi la impostan loĝejon.",
@@ -2110,8 +2074,7 @@
     "sections": {
       "profile": "publika profilo",
       "presence": "ĉeesto",
-      "tax": "impostoj kaj plenumo",
-      "notifications": "sciigoj"
+      "tax": "impostoj kaj plenumo"
     }
   },
   "CreatorTax": {
@@ -2319,29 +2282,21 @@
     "header": {
       "label": "serĉi",
       "resultsFor": "Rezultoj por <highlight>{query}</highlight>",
-      "exploreTitle": "esploru",
       "resultsSubtitle": "Kreantoj, premioj kaj uzantnomoj.",
-      "exploreSubtitle": "Foliumu kreantojn kaj la premiojn kiujn iliaj komunumoj subtenas.",
       "promptTitle": "Serĉi en Artypot",
       "promptSubtitle": "Trovu kreintojn, identigilojn kaj premiojn."
     },
     "filters": {
-      "all": "Ĉio",
       "people": "Homoj",
       "bounties": "Premioj"
     },
     "sort": {
-      "newest": "plej novaj",
-      "mostBounties": "plej multaj premioj",
-      "mostCompleted": "plej multaj plenumitaj",
       "relevance": "Graveco",
       "mostBacked": "Plej subtenataj"
     },
     "sections": {
       "people": "Homoj",
-      "bounties": "Premioj",
-      "creators": "Kreantoj",
-      "trending": "Tendencaj premioj"
+      "bounties": "Premioj"
     },
     "bounties": {
       "includeCompleted": "inkluzivi plenumitajn"
@@ -2350,7 +2305,6 @@
       "people": "Neniu homo kongruas kun ĉi tiu serĉo.",
       "bounties": "Neniu premio kongruas kun ĉi tiu serĉo.",
       "bountiesCreate": "Kreu unu celantan “{query}”",
-      "creators": "ankoraŭ neniuj kontrolitaj kreantoj",
       "promptHint": "Tajpu por serĉi — aŭ eniru la dosierujojn.",
       "browseCreators": "Foliumi kreintojn",
       "browseBounties": "Foliumi premiojn"
@@ -2358,10 +2312,6 @@
     "actions": {
       "loading": "ŝargante…",
       "showMore": "Montri pli"
-    },
-    "pagination": {
-      "prev": "← antaŭa",
-      "next": "sekva →"
     },
     "person": {
       "openBounties": "{count, plural, one {# malferma premio} other {# malfermaj premioj}}",
@@ -3293,7 +3243,6 @@
       "verified": "Kreintoj",
       "unverified": "Nekontrolitaj identigiloj"
     },
-    "platformAll": "Ĉiuj platformoj",
     "controls": {
       "platform": "Platformo",
       "sort": "Ordigi"

@@ -1,26 +1,5 @@
 {
   "Common": {
-    "actions": {
-      "save": "Save",
-      "cancel": "Cancel",
-      "submit": "Submit",
-      "continue": "Continue",
-      "back": "Back",
-      "next": "Next",
-      "previous": "Previous",
-      "edit": "Edit",
-      "delete": "Delete",
-      "remove": "Remove"
-    },
-    "states": {
-      "loading": "Loading…",
-      "saving": "Saving…"
-    },
-    "toast": {
-      "saved": "Saved!",
-      "removed": "Removed.",
-      "genericError": "Something went wrong."
-    },
     "legal": {
       "about": "About",
       "terms": "Terms",
@@ -44,7 +23,6 @@
       "dashboard": "Dashboard",
       "myBackings": "My backings",
       "startBounty": "Start a bounty",
-      "findCreators": "Find creators",
       "browseBounties": "Browse bounties",
       "billing": "Billing",
       "paymentHistory": "Payment history",
@@ -91,7 +69,6 @@
   "Settings": {
     "language": {
       "label": "Language",
-      "title": "language",
       "blurb": "Choose the language Artypot is displayed in. Your choice is saved to your account."
     },
     "breadcrumb": {
@@ -119,8 +96,7 @@
       "sending": "Sending…",
       "sentBanner": "Confirmation email sent to <strong>{email}</strong>. Click the link to complete.",
       "sentBannerShort": "Confirmation sent to <strong>{email}</strong>. Click the link to complete.",
-      "pendingBanner": "Pending change to <strong>{email}</strong> — check that inbox.",
-      "pendingBadge": "pending"
+      "pendingBanner": "Pending change to <strong>{email}</strong> — check that inbox."
     },
     "profilePicture": {
       "label": "profile picture",
@@ -151,7 +127,6 @@
       "amountLabel": "amount ($)"
     },
     "privacy": {
-      "label": "privacy",
       "anonTitle": "Anonymous mode",
       "beta": "(beta)",
       "anonDesc": "Hide your backing from your public profile. Your name appears as [anonymous] on supporter lists."
@@ -327,10 +302,7 @@
       "account": "account",
       "profile": "profile",
       "backingDefaults": "backing defaults",
-      "privacy": "privacy",
-      "notifications": "notifications",
-      "security": "security",
-      "danger": "danger zone"
+      "privacy": "privacy"
     }
   },
   "About": {
@@ -667,8 +639,7 @@
         "p3b": "and",
         "privacyLink": "Privacy Policy",
         "p3c": ", constitute the entire agreement between you and Artypot with respect to your role as a creator.",
-        "questions": "Questions about these terms? Email",
-        "questionsEmail": "legal@artypot.com"
+        "questions": "Questions about these terms? Email"
       }
     }
   },
@@ -1579,7 +1550,6 @@
       "blockedUntil": "New backings are blocked until <stamp>{date}</stamp>."
     },
     "charge": {
-      "label": "what will be charged",
       "summary": "{amount} will be charged automatically on {date}. No action needed.",
       "nothingDue": "Nothing due right now — your next billing date is the {day}th."
     },
@@ -1614,11 +1584,8 @@
     "submitError": "Failed to create bounty.",
     "count": "{count, plural, one {# bounty} other {# bounties}}",
     "filters": {
-      "all": "All",
       "open": "Open",
-      "pending": "Pending Review",
-      "completed": "Completed",
-      "paidOut": "Paid Out"
+      "completed": "Completed"
     },
     "empty": {
       "message": "No bounties found.",
@@ -1720,7 +1687,6 @@
     },
     "controls": {
       "sort": "Sort",
-      "show": "Show",
       "creator": "Creator status",
       "status": "Status"
     },
@@ -1730,7 +1696,6 @@
       "recentlyCompleted": "Recently completed"
     },
     "creatorFilter": {
-      "all": "All",
       "verified": "Verified creators",
       "unverified": "Unverified handles"
     }
@@ -2057,7 +2022,6 @@
       "countryLabel": "country",
       "selectCountry": "— select country —",
       "selectSubdivision": "— select {label} —",
-      "saving": "Saving…",
       "save": "Save Tax Residence",
       "toastSaved": "Tax residence saved.",
       "toastError": "Failed to save tax residence.",
@@ -2128,8 +2092,7 @@
     "sections": {
       "profile": "public profile",
       "presence": "presence",
-      "tax": "tax & compliance",
-      "notifications": "notifications"
+      "tax": "tax & compliance"
     }
   },
   "CreatorTax": {
@@ -2337,29 +2300,21 @@
     "header": {
       "label": "search",
       "resultsFor": "Results for <highlight>{query}</highlight>",
-      "exploreTitle": "explore",
       "resultsSubtitle": "Creators, bounties, and handles.",
-      "exploreSubtitle": "Browse creators and the bounties their communities are backing.",
       "promptTitle": "Search Artypot",
       "promptSubtitle": "Find creators, handles, and bounties."
     },
     "filters": {
-      "all": "All",
       "people": "People",
       "bounties": "Bounties"
     },
     "sort": {
-      "newest": "newest",
-      "mostBounties": "most bounties",
-      "mostCompleted": "most completed",
       "relevance": "Relevance",
       "mostBacked": "Most backed"
     },
     "sections": {
       "people": "People",
-      "bounties": "Bounties",
-      "creators": "Creators",
-      "trending": "Trending bounties"
+      "bounties": "Bounties"
     },
     "bounties": {
       "includeCompleted": "include completed"
@@ -2368,7 +2323,6 @@
       "people": "No people match this search.",
       "bounties": "No bounties match this search.",
       "bountiesCreate": "Create one targeting “{query}”",
-      "creators": "no verified creators yet",
       "promptHint": "Type to search — or jump into the directories.",
       "browseCreators": "Browse creators",
       "browseBounties": "Browse bounties"
@@ -2376,10 +2330,6 @@
     "actions": {
       "loading": "Loading…",
       "showMore": "Show more"
-    },
-    "pagination": {
-      "prev": "← prev",
-      "next": "next →"
     },
     "person": {
       "openBounties": "{count, plural, one {# open bounty} other {# open bounties}}",
@@ -3311,7 +3261,6 @@
       "verified": "Creators",
       "unverified": "Unverified handles"
     },
-    "platformAll": "All platforms",
     "controls": {
       "platform": "Platform",
       "sort": "Sort"
